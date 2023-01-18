@@ -23,6 +23,7 @@ using System.Reflection;
 using Library.Core;
 using System.Linq;
 using System.Drawing;
+using Library.General.IE;
 
 namespace Aplos.Areas.IE.Controllers
 {
@@ -32,7 +33,7 @@ namespace Aplos.Areas.IE.Controllers
 
         private readonly IBulletinTemplateService _bulletinTemplateService;
         private readonly IOperationVariationService _operationVariationService;
-
+        clsBulletin clsb = new clsBulletin();
         private readonly ISqlRepository _sqlRepository;
 
 
@@ -109,8 +110,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             try
             {
-                string sql = @"SELECT IsMachineChangeableinBulletinTemplate FROM SCS.PlantConfig WHERE PlantId='" + plantId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                return Json(clsb.GetMachineChangeInfo(plantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -123,46 +123,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             try
             {
-                string sql = @"SELECT BTD.Id,BTD.BulletinTemplateMasterId,BTD.Sequence,BTD.OperationVariationId,BTD.OperationGroup,BTD.SkillId,BTD.MachineVarientId,BTD.FGZoneId,BTD.FGComponentId
-                            ,CONVERT(NUMERIC(10,2),BTD.AdditionalSPT) AdditionalSPT, CONVERT(NUMERIC(10,2),BTD.TotalSPT) TotalSPT, CONVERT(NUMERIC(10,2),BTD.AllotedWorkstation) AllotedWorkstation
-                            , CONVERT(NUMERIC(10,2),BTD.AllotedManpower) AllotedManpower, BTD.AttachmentId,BTD.GaugeFolderId,BTD.OperationConsumptionId,BTD.OperationTypeId,CONVERT(NUMERIC(10,2),BTD.Frequency) Frequency
-                            ,BTD.Remark,BTD.OperationCategoryId,BTD.QualityLevel,CONVERT(NUMERIC(10,2),BTD.AvgAllotedTime) AvgAllotedTime,CONVERT(NUMERIC(10,0),BTD.OperationTargetPerHr) OperationTargetPerHr
-                            ,CONVERT(NUMERIC(10,0),BTD.RequiredManPower) RequiredManPower
-                            ,OPP.Operation,OV.Code OperationCode, OV.UserName OperationVariation, FZ.UserName FGZone, FC.UserName FGComponent, A.UserName Attachment,
-                             GF.UserName GaugeFolder, OC.UserName OperationConsumption, OT.UserName OperationType, OV.OperationId, MMA.StandardName MachineName
-                            ,0 AvgAllotedTime, OperationSPT=BTD.TotalSPT-BTD.AdditionalSPT, MM.UserName MaterialMaster, 0 IsMaxAllottedTime 
-                            , SK.UserName AS SkillName,OPP.BasicProcessTime,OPP.AssociateProcessTime,OPP.PersonalAllowance,OPP.MachineAllowance,OPP.Frequency,OPP.SPI OperationSPI,OV.TotalSAM, OV.AdditionalSAMSymbol,OV.SubOperationSAM,OV.AdditionalSAM
-							,BTD.SPI,BTD.NoOfStitch,BTD.OperationLength,BTD.StitchCodeId,BTD.FabricWidth,BTD.NeedleDescription,BTD.NeedleMaterialMasterId,MMN.UserName NeedleMaterialMaster, BTD.NeedleArticleId,MMNA.ShortName NeedleArticle
-							,BTD.BobbinDescription,BTD.BobbinMaterialMasterId,MMB.UserName BobbinMaterialMaster,BTD.BobbinArticleId,MMBA.ShortName BobbinArticle
-							,BTD.LooperDescription,BTD.LooperMaterialMasterId,MML.UserName LooperMaterialMaster,BTD.LooperArticleId,MMLA.ShortName LooperArticle,SC.userName StitchCode
-                            ,BTD.SPIConsumption,BTD.NeedleConsumption,BTD.BobbinConsumption,BTD.LooperConsumption,BTD.Consumption,SC.Needle NeedlePer,SC.Bobbin BobbinPer,SC.Looper LooperPer,BTD.WastagePercentage,BTD.ExtraOrderPercentage
-                             FROM [MST].[BulletinTemplateDetail] BTD
-                             LEFT JOIN [MST].[OperationVariation] OV ON OV.Id=BTD.OperationVariationId
-                             LEFT JOIN (SELECT OP.Id,OP.UserName Operation,ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime, ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime
-                                     ,ISNULL(OP.PersonalAllowance, 0) AS PersonalAllowance, ISNULL(OP.MachineAllowance, 0) AS MachineAllowance
-                                     ,OP.Frequency, OP.SPI FROM [MST].[Operation] OP) OPP ON OPP.Id =OV.OperationId
-                             LEFT JOIN HKP.FGZone FZ ON FZ.Id=BTD.FGZoneId
-                             LEFT JOIN HKP.FGComponent FC ON FC.Id=BTD.FGComponentId
-                             LEFT JOIN HKP.Attachment A ON A.Id=BTD.AttachmentId
-                             LEFT JOIN HKP.GaugeFolder GF ON GF.Id=BTD.GaugeFolderId
-                             LEFT JOIN HKP.OperationConsumption OC ON OC.Id=BTD.OperationConsumptionId
-                             LEFT JOIN HKP.OperationType OT ON OT.Id=BTD.OperationTypeId
-                             LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id = BTD.MachineVarientId
-                             LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=MMA.MaterialMasterId
-							 LEFT JOIN [HKP].[Skill] AS SK ON BTD.SkillId=Sk.Id
-                             LEFT JOIN [HKP].StitchCode AS SC ON BTD.StitchCodeId=SC.Id
-
-                             LEFT JOIN [MST].[MaterialMaster] MMN ON MMN.Id=BTD.NeedleMaterialMasterId
-							 LEFT JOIN [MST].[MaterialMasterArticle] MMNA ON MMNA.Id = BTD.NeedleArticleId
-
-							  LEFT JOIN [MST].[MaterialMaster] MMB ON MMB.Id=BTD.BobbinMaterialMasterId
-							 LEFT JOIN [MST].[MaterialMasterArticle] MMBA ON MMBA.Id = BTD.BobbinArticleId
-
-							 LEFT JOIN [MST].[MaterialMaster] MML ON MML.Id=BTD.LooperMaterialMasterId
-							 LEFT JOIN [MST].[MaterialMasterArticle] MMLA ON MMLA.Id = BTD.LooperArticleId
-                             WHERE BTD.BulletinTemplateMasterId='" + bulletinTemplateMasterId + "'  AND MM.Id <>'' ORDER BY BTD.Sequence ";
-
-                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+                return Json(clsb.GetBulletinMachineOperation(bulletinTemplateMasterId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -301,34 +262,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             try
             {
-                string strSQL = string.Empty;
-                strSQL = @"SELECT SUM(A.NeedleConsumption) NeedleConsumption, SUM(A.BobbinConsumption) BobbinConsumption, SUM(A.LooperConsumption) LooperConsumption,A.ArticleId, A.Thread
-                                FROM 
-                                (
-                                SELECT BTD.NeedleArticleId ArticleId, NMA.ShortName Thread,SUM(BTD.NeedleConsumption) NeedleConsumption,0 BobbinConsumption, 0 LooperConsumption 
-                                FROM MST.BulletinTemplateDetail BTD 
-                                LEFT JOIN MST.MaterialMaster NM ON NM.Id=BTD.NeedleMaterialMasterId
-                                JOIN MST.MaterialMasterArticle NMA ON NMA.Id=BTD.NeedleArticleId
-                                WHERE BulletinTemplateMasterId='" + bulletinTemplateMasterId + @"' AND ISNULL(BTD.MachineVarientId,'')<>''
-                                GROUP BY BTD.NeedleArticleId, NMA.ShortName,BTD.BobbinArticleId
-                                UNION ALL
-
-                                select BTD.BobbinArticleId, BMA.ShortName BobbinArticle,0 NeedleConsumption,SUM(BTD.BobbinConsumption) BobbinConsumption, 0 LooperConsumption 
-                                from MST.BulletinTemplateDetail BTD 
-                                LEFT JOIN MST.MaterialMaster BM ON BM.Id=BTD.BobbinMaterialMasterId
-                                JOIN MST.MaterialMasterArticle BMA ON BMA.Id=BTD.BobbinArticleId
-                                Where BulletinTemplateMasterId='" + bulletinTemplateMasterId + @"' AND ISNULL(BTD.MachineVarientId,'')<>''
-                                GROUP BY BTD.BobbinArticleId, BMA.ShortName
-                                UNION ALL
-                                select BTD.LooperArticleId, LMA.ShortName LooperArticle,0 NeedleConsumption,0 BobbinConsumption,SUM(BTD.LooperConsumption) LooperConsumption
-                                from MST.BulletinTemplateDetail BTD 
-                                LEFT JOIN MST.MaterialMaster LM ON LM.Id=BTD.LooperMaterialMasterId
-                                JOIN MST.MaterialMasterArticle LMA ON LMA.Id=BTD.LooperArticleId
-                                Where BulletinTemplateMasterId='" + bulletinTemplateMasterId + @"' AND ISNULL(BTD.MachineVarientId,'')<>''
-                                GROUP BY BTD.LooperArticleId, LMA.ShortName
-                                ) AS A 
-                                GROUP BY A.ArticleId, A.Thread";
-                return Json(_sqlRepository.GetDataCollection(strSQL), JsonRequestBehavior.AllowGet);
+                return Json(clsb.GetThreadMatrixData(bulletinTemplateMasterId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -388,21 +322,7 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
-        //[HttpPost]
-        //public JsonResult CopyBulletinTemplate(string Id)
-        //{
-        //    try
-        //    {
-        //       CopyTemplate(Id);
-
-        //        return Json(new { Error = false, Message = "Bulletin Template Copied Successfully" });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Error = true, Message = ex.Message });
-        //    }
-
-        //}
+        
         private string GetGeneralPK()
         {
             string sID = string.Empty;
@@ -417,52 +337,7 @@ namespace Aplos.Areas.IE.Controllers
             return sID;
 
         }
-        //public void CopyTemplate(string masterId)
-        //{
-        //    DataSet BulletinTemplate;
-        //    DataSet BulletinTemplateBuyerInfo;
-        //    DataSet BulletinTemplateMaster;
-        //    DataSet BulletinTemplateDetail;
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    string NewId = "";
-        //    try
-        //    {
-
-        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-        //        con.OpenDataSetThroughAdapter("select * from BulletinTemplate where 1=2", out BulletinTemplate, false, "1");
-        //        con.OpenDataSetThroughAdapter("select * from BulletinTemplateBuyerInfo where 1=2", out BulletinTemplateBuyerInfo, false, "1");
-        //        con.OpenDataSetThroughAdapter("select * from BulletinTemplateMaster where 1=2", out BulletinTemplateMaster, false, "1");
-        //        con.OpenDataSetThroughAdapter("select * from BulletinTemplateDetail where 1=2", out BulletinTemplateDetail, false, "1");
-
-
-        //        DataTable Master = _sqlRepository.GetDataTable("select * from BulletinTemplate WHERE Id='" + masterId + "'");
-        //        DataTable Buyer = _sqlRepository.GetDataTable("select * from BulletinTemplateBuyerInfo WHERE BulletinTemplateId='" + masterId + "'");
-        //        DataTable Process = _sqlRepository.GetDataTable("select * from BulletinTemplateMaster WHERE BulletinTemplateId='" + masterId + "'");
-        //        DataTable Operation = _sqlRepository.GetDataTable("Select * from MST.BulletinTemplateDetail Where BulletinTemplateMasterId IN (Select Id from MST.BulletinTemplateMaster Where BulletinTemplateId='" + masterId + "')");
-
-
-
-        //        NewId = GetGeneralPK();
-        //        DataRow drBOMDestination = BulletinTemplate.Tables[0].NewRow();
-        //        CopyRow(Master.Rows[0], ref drBOMDestination);
-        //        drBOMDestination["Id"] = NewId;
-
-        //        BulletinTemplate.Tables[0].Rows.Add(drBOMDestination);
-
-
-
-        //        clsStaticInfo _info = new clsStaticInfo();
-        //        _info.SaveDataSets(BulletinTemplate, BulletinTemplateBuyerInfo, BulletinTemplateMaster, BulletinTemplateDetail);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-
-
-        //}
+        
 
         private void CopyRow(DataRow drSource, ref DataRow drDestination)
         {
@@ -496,42 +371,12 @@ namespace Aplos.Areas.IE.Controllers
 
         public ActionResult DeleteMultiOperation(string id)
         {
-            DeleteMultiBulletinOperation(id);
+            clsb.DeleteMultiBulletinOperation(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
 
-        public void DeleteMultiBulletinOperation(string id)
-        {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                strSQL = "DELETE FROM [MST].[BulletinTemplateDetail] WHERE Id " + id + "";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    objCon.RollBack();
-                    throw (ex);
-                }
-                catch (Exception exx)
-                {
-                    throw exx;
-                }
-            }
-            finally
-            {
-                objCon.CloseConnection();
-                objCon = null;
-            }
-        }//End of function
+        
 
         #region upload Production Bulletin picture
         [HttpPost, Authorize]
@@ -636,58 +481,7 @@ namespace Aplos.Areas.IE.Controllers
             return Json(new { Message = AplosMessage.Success });
         }
 
-        private DataSet GetOperationDataByCode(string companyGroupId, string Code, string processId, string bulletinTemplateMasterId)
-        {
-            try
-            {
-                GridParameter parameters;
-                parameters = new GridParameter
-                {
-                    ExportType = "DATASET",
-                    CmdText = @"SELECT CONVERT (bit,0) Active
-                           	,OV.Id OperationVariationId
-                           	,OV.Code OperationCode
-                           	,OV.[Sequence]
-                           	,A.Id MachineVarientId
-							,MM.UserName MaterialMaster
-                           	,A.StandardName Article
-							,S.Id SkillId
-                           	,S.UserName Skill
-                           	,OV.UserName OperationVariation
-                           	,OV.SubOperationSAM
-                           	,OV.AdditionalSAM
-                           	,OV.SPI,OV.VASSAMSOURCE
-                           	,ISNULL(OV.VASFINALSAM,OV.TotalSAM) TtalSAM
-							,TotalSAM=CASE WHEN ISNULL(OV.VASSAMSOURCE,'')='' THEN OV.TotalSAM ELSE OV.VASFINALSAM END
-                           	,OV.Frequency
-                            ,OT.Id OperationTypeId
-                            ,OV.AdditionalSAMSymbol
-                            ,OV.OperationId
-                            ,OCT.Id OperationCategoryId
-							,OCT.UserName OperationCategory
-                            ,SC.Id StitchCodeId ,SC.UserName StitchCode,O.OperationLength
-                           FROM [MST].[OperationVariation] OV
-                           LEFT JOIN [MST].[MaterialMasterArticle] A ON A.Id = OV.ArticleId
-                           LEFT JOIN [HKP].[Skill] S ON S.Id = OV.SkillId
-                           LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=A.MaterialMasterId AND MM.SkillId=S.Id
-                           LEFT JOIN [MST].[Operation] O ON O.Id = OV.OperationId
-                           LEFT JOIN [HKP].[OperationType] OT ON OT.Id = O.OperationTypeId
-                           LEFT JOIN [HKP].[OperationCategory] OCT ON OCT.Id = O.OperationCategoryId
-                           LEFT JOIN [HKP].[StitchCode] SC ON SC.Id = A.StitchCodeId
-						   INNER JOIN (Select * from [MST].[OperationProcess] WHERE ProcessId='" + processId + @"')OP ON OP.OperationId=OV.OperationId
-                           WHERE OV.CompanyGroupId = '" + companyGroupId + @"' AND OV.Code IN (" + Code + @") "
-                };
-
-
-                return _sqlRepository.GetGridData(parameters).Source;
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
-            }
-        }
+       
         private string GetOperationPK()
         {
             //return GetAutoNumber(nameof(BulletinTemplateDetail), PKGeneratorEnum.Auto, null, DateTime.Now);
@@ -700,7 +494,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             try
             {
-                DataSet dataSet = GetOperationDataByCode(para.CompanyGroupId, Code, processId, bulletinTemplateMasterId);
+                DataSet dataSet = clsb.GetOperationDataByCode(para.CompanyGroupId, Code, processId, bulletinTemplateMasterId);
                 ConnectionManager.DAL.ConManager objCon;
                 var id = GetOperationPK();
                 string sql = "SELECT * FROM [MST].[BulletinTemplateDetail] WHERE Id=''";
@@ -798,92 +592,7 @@ namespace Aplos.Areas.IE.Controllers
 
             try
             {
-                return Json(_sqlRepository.GetDataCollection(@"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD 
-	,FORMAT(CommitmentDate,'dd-MMM-yyyy') CommitmentDate, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
-    ,ISNULL(PD.BuyerOrder,'') BuyerOrder,ISNULL(PD.OwnOrder,'') OwnOrder,ISNULL(PD.BuyerItem,'') BuyerItem,ISNULL(PD.OwnItem,'') OwnItem,PD.Description,PD.PONumber,PD.MaterialMasterId,PD.MaterialMaster,PD.ArticleId,PD.Article
-	,SONo=STUFF((select distinct ','+XSO.Id from 
-                                                                 trn.SalesOrder XSO 
-                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-						                                         LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
-                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-	FROM TRN.ProductionOrder PO 
-	LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
-	LEFT JOIN 
-	(select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory
-	,MM.Id MaterialMasterId,mm.UserName MaterialMaster,MMA.Id ArticleId,ISNULL(mma.StandardName, '') Article
-	,Buyer=  REPLACE(REPLACE(
-					STUFF((select distinct ','+XB.UserName from 
-	                    trn.SalesOrder XSO 
-		                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-									,'&amp;','&'), 'amp;', '')	
-,Customer= REPLACE(REPLACE(
-						STUFF((select distinct ','+XP.UserName from 
-		                    trn.SalesOrder XSO 
-		                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
-			                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,'&amp;','&'), 'amp;', '')	
-,BuyerOrder = REPLACE(REPLACE(
-			STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-											trn.MasterOrder XMOI 	 
-								INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
-								INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
-								INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,'&amp;','&'), 'amp;', '')
-,OwnOrder =REPLACE(REPLACE(
-			STUFF((select distinct ','+XMOI.OwnReferenceNo from 
-											trn.MasterOrder XMOI 	 
-								INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
-								INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
-								INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,'&amp;','&'), 'amp;', '')
-,BuyerItem=REPLACE(REPLACE(
-			STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-											trn.MasterOrderItem XMOI 	  
-								INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
-								INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,'&amp;','&'), 'amp;', '')	                                                
-,OwnItem=REPLACE(REPLACE(
-		STUFF((select distinct ','+XMOI.OwnReferenceNo from 
-											trn.MasterOrderItem XMOI 	  
-								INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
-								INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		,'&amp;','&'), 'amp;', '')	 
-,PONumber=REPLACE(REPLACE(
-			STUFF((select distinct ','+CPO.PONumber from 
-                                    trn.SalesOrder XSO 
-                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-						            LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
-                                    WHERE pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		,'&amp;','&'), 'amp;', '')	
-, Description=REPLACE(REPLACE(
-			STUFF((select distinct ','+XSO.Description from 
-                                    trn.SalesOrder XSO 
-                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-						                                        
-                                    WHERE pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		,'&amp;','&'), 'amp;', '')	
-	FROM TRN.SalesOrder SO
-	LEFT JOIN  TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-	LEFT JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
-    LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
-    LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
-	LEFT JOIN TRN.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
-	LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
-    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-	) PD ON PD.ProductionOrderId=PO.Id
-	LEFT JOIN [TRN].[ProductionBulletinTemplate] PB ON PB.ProductionOrderId=PD.ProductionOrderId
-	where PB.BulletinTemplateId='" + Id + "'"), JsonRequestBehavior.AllowGet);
+                return Json(clsb.GetProductionBulletinInfo(Id), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -954,7 +663,7 @@ namespace Aplos.Areas.IE.Controllers
             int COL = 1;
 
 
-            DataTable data = GetBulletinTemplateData();
+            DataTable data = clsb.GetBulletinTemplateData();
 
             #region Headers
             report.SetHeaderText(ref sheet, ROW, COL, "Bulletin ID", 12, ExcelHAlign.HAlignLeft);
@@ -1089,46 +798,7 @@ namespace Aplos.Areas.IE.Controllers
             return workbook;
         }
 
-        private DataTable GetBulletinTemplateData()
-        {
-            try
-            {
-                string sql = @"Select BT.* ,PM.UserName ProductMaster, SG.UserName SizeGroup
-						  ,Buyer=REPLACE(REPLACE(
-										 STUFF((select distinct ', '+B.UserName FROM 
-                                        [MST].[BulletinTemplateBuyerInfo] BTB 
-										JOIN HKP.Buyer B ON B.Id=BTB.BuyerId
-                                        WHERE BT.Id=BTB.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')				 
-			         	,BuyerItemRefNo=REPLACE(REPLACE(
-										STUFF((select distinct ', '+BTB.BuyerStyleRefNo FROM 
-                                        [MST].[BulletinTemplateBuyerInfo] BTB 
-                                        WHERE BT.Id=BTB.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')
-			        	,OwnStyleRefNo=REPLACE(REPLACE(
-										STUFF((select distinct ', '+BTB.OwnStyleRefNo FROM 
-                                        [MST].[BulletinTemplateBuyerInfo] BTB 
-                                        WHERE BT.Id=BTB.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										,'&amp;','&'), 'amp;', '')										
-							
-						,P.UserName Process,ISNULL(BTD.TotalSPT,0)TotalSPT,ISNULL(BTD.RequiredManPower,0)RequiredManPower,ISNULL(BTD.AllotedManpower,0)AllotedManpower,ISNULL(BTD.AllotedWorkstation,0)AllotedWorkstation,CEILING(ISNULL(BTD.LineTargetPerHour,0))LineTargetPerHour
-                        ,FORMAT(BT.AddedDate,'dd-MMM-yyyy')CreationDate
-                         FROM [MST].[BulletinTemplate] BT
-                         LEFT JOIN MST.ProductMaster PM ON PM.Id=BT.ProductMasterId
-						 left join [MST].[BulletinTemplateMaster] BTP ON BT.Id=BTP.BulletinTemplateId
-						 left join (Select BulletinTemplateMasterId, SUM(TotalSPT) TotalSPT,SUM(RequiredManPower) RequiredManPower
-						 ,SUM(AllotedManpower) AllotedManpower,SUM(AllotedWorkstation) AllotedWorkstation
-						 ,LineTargetPerHour=(((SUM(AllotedManpower) * 60) /NULLIF(SUM(TotalSPT),0)) * (SUM(TotalSPT) /NULLIF(SUM(AllotedManpower),0))/ MAX(NULLIF(AvgAllotedTime,0)))
-						 from MST.BulletinTemplateDetail GROUP BY BulletinTemplateMasterId) BTD ON BTD.BulletinTemplateMasterId=BTP.Id
-						 left join HKP.Process P ON P.Id=BTP.ProcessId
-                         LEFT JOIN HKP.SizeGroup SG ON SG.Id=BT.SizeGroupId";
-                return _sqlRepository.GetDataTable(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        
 
         [HttpGet, Authorize]
         public ActionResult GetBulletinTamplateReport(ReportFormat reportFormat, string bulletinTemplateId)
@@ -3897,9 +3567,9 @@ namespace Aplos.Areas.IE.Controllers
             int endCol = 1;
             int COL = 1;
 
-            DataTable dataHeader = GetBulletinTemplateData();
-            DataTable data = GetThreadConsumptionData(bulletinTemplateMasterId);
-            DataTable summaryData = GetThreadConsumptionSummaryData(bulletinTemplateMasterId);
+            DataTable dataHeader = clsb.GetBulletinTemplateDatabyId(bulletinTemplateMasterId);
+            DataTable data = clsb.GetThreadConsumptionData(bulletinTemplateMasterId);
+            DataTable summaryData = clsb.GetThreadConsumptionSummaryData(bulletinTemplateMasterId);
 
             #region Headers
 
@@ -4185,120 +3855,9 @@ namespace Aplos.Areas.IE.Controllers
             return workbook;
         }
 
-        private DataTable GetThreadConsumptionData(string bulletinTemplateMasterId)
-        {
-            try
-            {
-                string sql = @"SELECT OPP.Operation
-	                                ,OV.Code OperationCode
-	                                ,OV.UserName OperationVariation
-	                                ,MMA.StandardName MachineName
-	                                ,MM.UserName MaterialMaster
-	                                ,SK.UserName AS SkillName
-	                                ,BTD.SPI
-	                                ,BTD.NoOfStitch
-	                                ,BTD.OperationLength
-	                                ,BTD.StitchCodeId
-	                                ,BTD.FabricWidth
-	                                ,BTD.NeedleDescription
-	                                ,BTD.NeedleMaterialMasterId
-	                                ,MMN.UserName NeedleMaterialMaster
-	                                ,BTD.NeedleArticleId
-	                                ,MMNA.ShortName NeedleArticle
-	                                ,BTD.BobbinDescription
-	                                ,BTD.BobbinMaterialMasterId
-	                                ,MMB.UserName BobbinMaterialMaster
-	                                ,BTD.BobbinArticleId
-	                                ,MMBA.ShortName BobbinArticle
-	                                ,BTD.LooperDescription
-	                                ,BTD.LooperMaterialMasterId
-	                                ,MML.UserName LooperMaterialMaster
-	                                ,BTD.LooperArticleId
-	                                ,MMLA.ShortName LooperArticle
-	                                ,SC.userName StitchCode
-	                                ,BTD.SPIConsumption
-	                                ,BTD.NeedleConsumption
-	                                ,BTD.BobbinConsumption
-	                                ,BTD.LooperConsumption
-	                                ,BTD.Consumption
-	                                ,SC.Needle
-	                                ,SC.Bobbin
-	                                ,SC.Looper
-	                                ,BTD.WastagePercentage
-	                                ,BTD.ExtraOrderPercentage
-	                                ,TotalWastagePercentage = (BTD.WastagePercentage + BTD.ExtraOrderPercentage)
-                                FROM [MST].[BulletinTemplateDetail] BTD
-                                LEFT JOIN [MST].[OperationVariation] OV ON OV.Id = BTD.OperationVariationId
-                                LEFT JOIN (
-	                                SELECT OP.Id,OP.UserName Operation,ISNULL(OP.BasicProcessTime, 0) AS BasicProcessTime
-		                                ,ISNULL(OP.AssociateProcessTime, 0) AS AssociateProcessTime,ISNULL(OP.PersonalAllowance, 0) AS PersonalAllowance
-		                                ,ISNULL(OP.MachineAllowance, 0) AS MachineAllowance,OP.Frequency,OP.SPI
-	                                FROM [MST].[Operation] OP
-	                                ) OPP ON OPP.Id = OV.OperationId
-                                LEFT JOIN HKP.FGZone FZ ON FZ.Id = BTD.FGZoneId
-                                LEFT JOIN HKP.FGComponent FC ON FC.Id = BTD.FGComponentId
-                                LEFT JOIN HKP.Attachment A ON A.Id = BTD.AttachmentId
-                                LEFT JOIN HKP.GaugeFolder GF ON GF.Id = BTD.GaugeFolderId
-                                LEFT JOIN HKP.OperationConsumption OC ON OC.Id = BTD.OperationConsumptionId
-                                LEFT JOIN HKP.OperationType OT ON OT.Id = BTD.OperationTypeId
-                                LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id = BTD.MachineVarientId
-                                LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id = MMA.MaterialMasterId
-                                LEFT JOIN [HKP].[Skill] AS SK ON BTD.SkillId = Sk.Id
-                                LEFT JOIN [HKP].StitchCode AS SC ON BTD.StitchCodeId = SC.Id
-                                LEFT JOIN [MST].[MaterialMaster] MMN ON MMN.Id = BTD.NeedleMaterialMasterId
-                                LEFT JOIN [MST].[MaterialMasterArticle] MMNA ON MMNA.Id = BTD.NeedleArticleId
-                                LEFT JOIN [MST].[MaterialMaster] MMB ON MMB.Id = BTD.BobbinMaterialMasterId
-                                LEFT JOIN [MST].[MaterialMasterArticle] MMBA ON MMBA.Id = BTD.BobbinArticleId
-                                LEFT JOIN [MST].[MaterialMaster] MML ON MML.Id = BTD.LooperMaterialMasterId
-                                LEFT JOIN [MST].[MaterialMasterArticle] MMLA ON MMLA.Id = BTD.LooperArticleId
-                                WHERE BTD.BulletinTemplateMasterId = '" + bulletinTemplateMasterId + @"'AND MM.Id <> '' ORDER BY BTD.Sequence";
-                return _sqlRepository.GetDataTable(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+       
 
-        private DataTable GetThreadConsumptionSummaryData(string bulletinTemplateMasterId)
-        {
-            try
-            {
-                string strSQL = string.Empty;
-                strSQL = @"SELECT SUM(A.NeedleConsumption) NeedleConsumption, SUM(A.BobbinConsumption) BobbinConsumption, SUM(A.LooperConsumption) LooperConsumption,A.ArticleId, A.Thread
-                                FROM 
-                                (
-                                SELECT BTD.NeedleArticleId ArticleId, NMA.ShortName Thread,SUM(BTD.NeedleConsumption) NeedleConsumption,0 BobbinConsumption, 0 LooperConsumption 
-                                FROM MST.BulletinTemplateDetail BTD 
-                                LEFT JOIN MST.MaterialMaster NM ON NM.Id=BTD.NeedleMaterialMasterId
-                                JOIN MST.MaterialMasterArticle NMA ON NMA.Id=BTD.NeedleArticleId
-                                WHERE BulletinTemplateMasterId='" + bulletinTemplateMasterId + @"' AND ISNULL(BTD.MachineVarientId,'')<>''
-                                GROUP BY BTD.NeedleArticleId, NMA.ShortName,BTD.BobbinArticleId
-                                UNION ALL
-
-                                select BTD.BobbinArticleId, BMA.ShortName BobbinArticle,0 NeedleConsumption,SUM(BTD.BobbinConsumption) BobbinConsumption, 0 LooperConsumption 
-                                from MST.BulletinTemplateDetail BTD 
-                                LEFT JOIN MST.MaterialMaster BM ON BM.Id=BTD.BobbinMaterialMasterId
-                                JOIN MST.MaterialMasterArticle BMA ON BMA.Id=BTD.BobbinArticleId
-                                Where BulletinTemplateMasterId='" + bulletinTemplateMasterId + @"' AND ISNULL(BTD.MachineVarientId,'')<>''
-                                GROUP BY BTD.BobbinArticleId, BMA.ShortName
-                                UNION ALL
-                                select BTD.LooperArticleId, LMA.ShortName LooperArticle,0 NeedleConsumption,0 BobbinConsumption,SUM(BTD.LooperConsumption) LooperConsumption
-                                from MST.BulletinTemplateDetail BTD 
-                                LEFT JOIN MST.MaterialMaster LM ON LM.Id=BTD.LooperMaterialMasterId
-                                JOIN MST.MaterialMasterArticle LMA ON LMA.Id=BTD.LooperArticleId
-                                Where BulletinTemplateMasterId='" + bulletinTemplateMasterId + @"' AND ISNULL(BTD.MachineVarientId,'')<>''
-                                GROUP BY BTD.LooperArticleId, LMA.ShortName
-                                ) AS A 
-                                GROUP BY A.ArticleId, A.Thread";
-                return _sqlRepository.GetDataTable(strSQL);
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        
 
         #endregion
 
@@ -4945,7 +4504,7 @@ namespace Aplos.Areas.IE.Controllers
                 int COL = 1;
 
 
-                DataTable data = GetProductionBulletinTemplateReportDataByProductionBulletinTemplateId(ProductionOrderId);
+                DataTable data = clsb.GetProductionBulletinTemplateReportDataByProductionBulletinTemplateId(ProductionOrderId);
                 if (data.Rows.Count > 0)
                 {
                     int ColBulletinNameHeader = 1;
@@ -5180,80 +4739,7 @@ namespace Aplos.Areas.IE.Controllers
                 throw ex;
             }
         }
-        private DataTable GetProductionBulletinTemplateReportDataByProductionBulletinTemplateId(string ProductionOrderId)
-        {
-            var sql = @"SELECT PBT.Id,PBT.ProductionOrderId,PBT.ByWhom,PM.UserName AS ProductMaster,SG.UserName AS SizeGroup, PBT.BulletinName,PBTD.Sequence, p.UserName As Process,OPV.Code OperationCode,OPV.UserName AS OperationVariation,ISNULL(MM.UserName,'Manual') AS MachineMaster, MMA.StandardName AS MachineVarient, S.UserName AS Skill
-                
-                ,PBTD.OperationGroup,PBTD.AdditionalSPT,ISNULL(PBTD.TotalSPT,0) as TotalSPT,ISNULL(PBTD.AllotedWorkstation,0) as AllotedWorkstation,ISNULL(PBTD.AllotedManpower,0) as AllotedManpower,PBTD.Frequency
-                ,FZ.UserName AS FGZone, fgc.UserName AS FGComponent,isnull(PBTD.AvgAllotedTime,0) AS AvgAllotedTime
-                ,OT.UserName AS OperationType, OC.UserName AS OperationConsumption, GF.UserName AS GaugeFolder, OCategory.UserName AS OperationCategory,PBTD.QualityLevel,PBM.PlannedHoursPerDay,PBM.RequiredStdTarget, TotalBT=PBM.PlannedHoursPerDay*PBM.RequiredStdTarget
-
-				,MMA.Code MachineCode,PBTD.OperationTargetPerHr,PBTD.RequiredManPower,PBM.ProcessId 
-                
-                ,OperationSPT=PBTD.TotalSPT-PBTD.AdditionalSPT,MMA.Id MachineVarientId,ShortName=CASE WHEN MMA.ShortName IS NULL THEN 'Manual' ELSE MMA.ShortName END, Machine=CASE WHEN MMA.ShortName IS NULL THEN 'No' ELSE 'Yes' END
-                ,ATH.UserName Attachment,PBTD.Remark,PBT.PicFileName,PBT.AddedBy,FORMAT(PBT.AddedDate,'dd-MMM-yyyy') AddedDate
-				 ,BulletinBuyerStyleRefNo=STUFF((select distinct ', '+BTB.BuyerStyleRefNo FROM 
-                                        [MST].[BulletinTemplateBuyerInfo] BTB 
-                                        WHERE PBT.BulletinTemplateId=BTB.BulletinTemplateId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-				 ,Buyer=    STUFF((select distinct ','+XB.UserName from 
-	                                                    trn.SalesOrder XSO 
-		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-			                                                where Xpod.ProductionOrderId=PBT.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-				,BuyerOrder =  STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-																			trn.MasterOrder XMOI 	 
-								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PBT.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                              ,OwnOrder = STUFF((select distinct ','+XMOI.OwnReferenceNo from 
-																			trn.MasterOrder XMOI 	 
-								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PBT.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-			 ,BuyerItem= STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
-																			trn.MasterOrderItem XMOI 	  
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PBT.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  
-
-			                                             
-           ,OwnItem=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
-																			trn.MasterOrderItem XMOI 	  
-								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
-								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
-							                                where podx.ProductionOrderId=PBT.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-		  ,Description= STUFF((select distinct ','+XSO.Description from 
-                                                                 trn.SalesOrder XSO 
-                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-                                                                 WHERE Xpod.ProductionOrderId=PBT.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                FROM TRN.ProductionBulletinTemplate PBT 
-                LEFT JOIN TRN.[ProductionBulletinTemplateMaster] PBM ON PBT.Id = PBM.ProductionBulletinTemplateId
-                LEFT JOIN TRN.ProductionBulletinTemplateDetail PBTD ON PBM.Id = PBTD.ProductionBulletinTemplateMasterId
-                LEFT JOIN HKP.Process p ON p.Id = PBM.ProcessId 
-                LEFT JOIN MST.OperationVariation OPV ON OPV.Id = PBTD.OperationVariationId 
-                LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id = PBTD.MachineVarientId
-                LEFT JOIN HKP.FGZone FZ ON FZ.Id = PBTD.FGZoneId 
-                LEFT JOIN HKP.FGComponent FGC ON FGC.Id = PBTD.FGComponentId
-                LEFT JOIN HKP.OperationType OT ON OT.Id = PBTD.OperationTypeId
-                LEFT JOIN HKP.OperationConsumption OC ON OC.Id = PBTD.OperationConsumptionId
-                LEFT JOIN HKP.GaugeFolder GF ON GF.Id = PBTD.GaugeFolderId
-                LEFT JOIN HKP.OperationCategory OCategory ON OCategory.Id = PBTD.OperationCategoryId
-                LEFT JOIN MST.ProductMaster PM ON PM.Id = PBT.ProductMasterId
-                LEFT JOIN HKP.SizeGroup SG ON SG.Id = PBT.SizeGroupId
-                LEFT JOIN HKP.Skill S ON S.Id = PBTD.SkillId
-                LEFT JOIN MST.MaterialMaster MM ON MM.Id = MMA.MaterialMasterId
-				LEFT JOIN HKP.Attachment ATH ON ATH.Id = PBTD.AttachmentId
-				where PBT.ProductionOrderId = '" + ProductionOrderId + "'  order by p.UserName,PBTD.Sequence";
-
-            return _sqlRepository.GetDataTable(sql);
-        }
+        
 
 
 
@@ -5283,7 +4769,7 @@ namespace Aplos.Areas.IE.Controllers
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
 
-            DataTable data = GetProductionBulletinTemplateReportDataByProductionBulletinTemplateId(ProductionOrderId);
+            DataTable data = clsb.GetProductionBulletinTemplateReportDataByProductionBulletinTemplateId(ProductionOrderId);
             DataTable dtProcess = new DataView(data).ToTable(true, "Process", "ProcessId");
             var workbook = report.GetWorkbook(ref excelEngine, dtProcess.Rows.Count);
             workbook.Version = ExcelVersion.Excel2016;
@@ -5303,529 +4789,7 @@ namespace Aplos.Areas.IE.Controllers
             return workbook;
         }
 
-        //void CreateProductionDetailSheet(string SheetName, DataTable data, ref IWorksheet sheet, string companyId)
-        //{
-        //    try
-        //    {
-        //        var report = new ReportUtility();
-        //        sheet.Name = SheetName;
-
-        //        int ROW = 6;
-        //        int endCol = 1;
-        //        int COL = 1;
-
-
-        //        #region Headers
-        //        int rws = ROW;
-        //        sheet.Range[ROW, COL + 1].Text = "Production OrderId";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["ProductionOrderId"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Bulletin Buyer Style Ref No";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["BulletinBuyerStyleRefNo"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "SO Description";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["Description"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Buyer Name";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["Buyer"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Buyer Style Ref No";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["BuyerOrder"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Own Style Ref No";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["OwnOrder"].ToString().Trim();
-
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Product Master";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["ProductMaster"].ToString().Trim();
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-
-        //        double plannedHourPerDay = Convert.ToDouble(data.Rows[0]["PlannedHoursPerDay"]);
-        //        double TotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", null));
-        //        double TotalManpower = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", null));
-        //        double TotalWS = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", null));
-        //        double TotalRMP = clsStaticInfo.dbl(data.Compute("SUM(RequiredManPower)", null));
-        //        double MaxAllotedTime = clsStaticInfo.dbl(data.Compute("Max(AvgAllotedTime)", null));
-
-        //        double PitchTime = 0;
-        //        if (TotalManpower != 0)
-        //            PitchTime = TotalSPT / TotalManpower;
-
-        //        double OrgEfficiency = 0;
-        //        if (MaxAllotedTime != 0)
-        //            OrgEfficiency = PitchTime / MaxAllotedTime;
-
-        //        double ProdEffPerHour = 0;
-        //        if (TotalSPT != 0)
-        //            ProdEffPerHour = TotalManpower * 60 / TotalSPT;
-
-        //        double ProdEffPerDay = ProdEffPerHour * plannedHourPerDay;
-        //        double LineTargetPerHour = ProdEffPerHour * OrgEfficiency;
-
-
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Pitch Time";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Number = PitchTime;
-        //        sheet.Range[ROW, COL + 2].NumberFormat = clsStaticInfo.NumberFormat(4);
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Planned Hour PerDay";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Number = plannedHourPerDay;
-        //        sheet.Range[ROW, COL + 2].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        ROW++;
-        //        int rwe = ROW;
-        //        int PCOL = 5;
-        //        sheet.Range[rws, PCOL].Text = "Particulars";
-        //        sheet.Range[rws, PCOL + 1].Text = "SPT";
-        //        sheet.Range[rws, PCOL + 1, rws, PCOL + 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 2].Text = "MP";
-        //        sheet.Range[rws, PCOL + 2, rws, PCOL + 2].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 3].Text = "Workstation";
-        //        sheet.Range[rws, PCOL + 3, rws, PCOL + 3].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 5].Text = "Target(%)";
-        //        sheet.Range[rws, PCOL + 5, rws, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 6].Text = "Per Hr";
-        //        sheet.Range[rws, PCOL + 6, rws, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 7].Text = "Per Day";
-        //        sheet.Range[rws, PCOL + 7, rws, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        rws++;
-        //        sheet.Range[rws, PCOL].Text = "Non MC";
-        //        double NMCTotalSPT = 0;
-        //        double NMCTotalWS = 0;
-        //        double NMCTotalMP = 0;
-
-        //        NMCTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "Machine='No'"));
-        //        NMCTotalWS = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "Machine='No'"));
-        //        NMCTotalMP = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "Machine='No'"));
-
-        //        sheet.Range[rws, PCOL + 1].Number = NMCTotalSPT;
-        //        sheet.Range[rws, PCOL + 2].Number = NMCTotalMP;
-        //        sheet.Range[rws, PCOL + 3].Number = NMCTotalWS;
-
-        //        rws++;
-        //        sheet.Range[rws, PCOL].Text = "MC";
-        //        double MCTotalSPT = 0;
-        //        double MCTotalWS = 0;
-        //        double MCTotalMP = 0;
-
-        //        MCTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "Machine='Yes'"));
-        //        MCTotalWS = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "Machine='Yes'"));
-        //        MCTotalMP = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "Machine='Yes'"));
-
-        //        sheet.Range[rws, PCOL + 1].Number = MCTotalSPT;
-        //        sheet.Range[rws, PCOL + 2].Number = MCTotalMP;
-        //        sheet.Range[rws, PCOL + 3].Number = MCTotalWS;
-
-        //        //sheet.Range[7, PCOL + 4].Text = "100";
-        //        sheet.Range[7, PCOL + 5].Number = Convert.ToInt32("100");
-        //        sheet.Range[7, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[7, PCOL + 5, 7, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[7, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour);
-        //        sheet.Range[7, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[7, PCOL + 6, 7, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[7, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay);
-        //        sheet.Range[7, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[7, PCOL + 7, 7, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        //sheet.Range[8, PCOL + 4].Text = "85";
-
-        //        sheet.Range[8, PCOL + 5].Number = Convert.ToInt32("85");
-        //        sheet.Range[8, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[8, PCOL + 5, 8, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[8, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .85);
-        //        sheet.Range[8, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[8, PCOL + 6, 8, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[8, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .85);
-        //        sheet.Range[8, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[8, PCOL + 7, 8, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-        //        //sheet.Range[9, PCOL + 4].Text = "75";
-
-        //        sheet.Range[9, PCOL + 5].Number = Convert.ToInt32("75");
-        //        sheet.Range[9, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[9, PCOL + 5, 9, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[9, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .75);
-        //        sheet.Range[9, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[9, PCOL + 6, 9, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[9, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .75);
-        //        sheet.Range[9, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[9, PCOL + 7, 9, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        //sheet.Range[10, PCOL + 4].Text = "65";
-
-        //        sheet.Range[10, PCOL + 5].Number = Convert.ToInt32("65");
-        //        sheet.Range[10, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[10, PCOL + 5, 10, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[10, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .65);
-        //        sheet.Range[10, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[10, PCOL + 6, 10, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[10, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .65);
-        //        sheet.Range[10, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[10, PCOL + 7, 10, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-        //        //sheet.Range[11, PCOL + 4].Text = "55";
-        //        sheet.Range[11, PCOL + 5].Number = Convert.ToInt32("55");
-        //        sheet.Range[11, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[11, PCOL + 5, 11, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[11, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .55);
-        //        sheet.Range[11, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[11, PCOL + 6, 11, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[11, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .55);
-        //        sheet.Range[11, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[11, PCOL + 7, 11, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-
-        //        // sheet.Range[12, PCOL + 4].Text = "50";
-
-        //        sheet.Range[12, PCOL + 5].Number = Convert.ToInt32("50");
-        //        sheet.Range[12, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[12, PCOL + 5, 12, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[12, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .50);
-        //        sheet.Range[12, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[12, PCOL + 6, 12, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[12, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .50);
-        //        sheet.Range[12, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[12, PCOL + 7, 12, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-
-        //        rws++;
-        //        sheet.Range[rws, PCOL].Text = "Total";
-        //        sheet.Range[rws, PCOL + 1].Number = TotalSPT;
-        //        sheet.Range[rws, PCOL + 2].Number = TotalManpower;
-        //        sheet.Range[rws, PCOL + 3].Number = TotalWS;
-
-
-        //        //sheet.Range[rws, COL, rwe, COL].BorderInside(ExcelLineStyle.Thin);
-        //        //sheet.Range[rws, COL, rwe, COL].BorderAround(ExcelLineStyle.Thin);
-
-        //        ROW++;
-        //        ROW++;
-        //        ROW++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Sr.No.", 8, ExcelHAlign.HAlignRight);
-        //        int ColSequence = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Description", 20, ExcelHAlign.HAlignLeft);
-        //        int ColMachineVarient = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Machine", 26, ExcelHAlign.HAlignLeft);
-        //        int ColMachineCode = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "SPT", 10, ExcelHAlign.HAlignRight);
-        //        int ColTotalSPT = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Target/Hr", 10, ExcelHAlign.HAlignRight);
-        //        int ColOperationTargetPerHr = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Required Man Power", 10, ExcelHAlign.HAlignRight);
-        //        int ColRequiredManPower = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Alloted Manpower", 10, ExcelHAlign.HAlignRight);
-        //        int ColAllotedManpower = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Alloted Workstation", 10, ExcelHAlign.HAlignRight);
-        //        int ColAllotedWorkstation = COL;
-        //        COL++;
-
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Group", 10, ExcelHAlign.HAlignLeft);
-        //        int ColOperationGroup = COL;
-        //        COL++;
-
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Avg.Alloted Time", 10, ExcelHAlign.HAlignLeft);
-        //        int ColAvgAllotedTime = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "FG Zone", 15, ExcelHAlign.HAlignLeft);
-        //        int ColFGZone = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "FG Component", 15, ExcelHAlign.HAlignLeft);
-        //        int ColFGComponent = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Category", 15, ExcelHAlign.HAlignLeft);
-        //        int ColOperationCategory = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Attachment", 15, ExcelHAlign.HAlignLeft);
-        //        int ColAttachment = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Gauge Folder", 15, ExcelHAlign.HAlignLeft);
-        //        int ColGaugeFolder = COL;
-        //        COL++;
-
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Consumption", 15, ExcelHAlign.HAlignLeft);
-        //        int ColOperationConsumption = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Type", 15, ExcelHAlign.HAlignLeft);
-        //        int ColOperationType = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Quality Level", 15, ExcelHAlign.HAlignLeft);
-        //        int ColQualityLevel = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Frequency", 12, ExcelHAlign.HAlignLeft);
-        //        int ColFrequency = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Remark", 15, ExcelHAlign.HAlignLeft);
-        //        int ColRemark = COL;
-        //        COL++;
-
-        //        ROW++;
-        //        endCol = COL;
-        //        #endregion Headers
-
-
-        //        string ProcessName = "";
-        //        var startRow = 0;
-        //        var endRow = 0;
-        //        int RowIndex = ROW;
-        //        startRow = ROW;
-
-        //        for (int i = 0; i < data.Rows.Count; i++)
-        //        {
-
-        //            sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
-        //            //sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
-        //            sheet[ROW, ColMachineVarient].Text = data.Rows[i]["OperationVariation"].ToString();
-        //            sheet[ROW, ColMachineCode].Text = data.Rows[i]["ShortName"].ToString();
-        //            //sheet[ROW, ColTotalSPT].Number = clsStaticInfo.dbl(data.Rows[i]["TotalSPT"].ToString());
-
-        //            sheet.Range[ROW, ColTotalSPT].Number = Convert.ToDouble(data.Rows[i]["TotalSPT"].ToString());
-        //            sheet.Range[ROW, ColTotalSPT].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet.Range[ROW, ColTotalSPT, ROW, ColTotalSPT].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-        //            sheet[ROW, ColOperationTargetPerHr].Number = clsStaticInfo.dbl(data.Rows[i]["OperationTargetPerHr"].ToString());
-        //            sheet[ROW, ColRequiredManPower].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredManPower"].ToString());
-
-        //            sheet[ROW, ColAllotedManpower].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedManpower"].ToString());
-        //            sheet[ROW, ColAllotedWorkstation].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedWorkstation"].ToString());
-
-
-        //            sheet[ROW, ColOperationGroup].Text = data.Rows[i]["OperationGroup"].ToString();
-        //            sheet.Range[ROW, ColAvgAllotedTime].Number = Convert.ToDouble(data.Rows[i]["AvgAllotedTime"].ToString());
-        //            sheet.Range[ROW, ColAvgAllotedTime].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet.Range[ROW, ColAvgAllotedTime, ROW, ColAvgAllotedTime].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //            sheet[ROW, ColFGZone].Text = data.Rows[i]["FGZone"].ToString();
-        //            sheet[ROW, ColFGComponent].Text = data.Rows[i]["FGComponent"].ToString();
-        //            sheet[ROW, ColOperationCategory].Text = data.Rows[i]["OperationCategory"].ToString();
-        //            sheet[ROW, ColAttachment].Text = data.Rows[i]["Attachment"].ToString();
-        //            sheet[ROW, ColGaugeFolder].Text = data.Rows[i]["GaugeFolder"].ToString();
-        //            sheet[ROW, ColOperationConsumption].Text = data.Rows[i]["OperationConsumption"].ToString();
-        //            sheet[ROW, ColOperationType].Text = data.Rows[i]["OperationType"].ToString();
-        //            sheet[ROW, ColQualityLevel].Text = data.Rows[i]["QualityLevel"].ToString();
-        //            sheet[ROW, ColFrequency].Number = clsStaticInfo.dbl(data.Rows[i]["Frequency"].ToString());
-        //            sheet.Range[ROW, ColFrequency].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //            sheet.Range[ROW, ColFrequency, ROW, ColFrequency].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //            sheet[ROW, ColRemark].Text = data.Rows[i]["Remark"].ToString();
-
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //            ProcessName = data.Rows[i]["Process"].ToString();
-
-        //            ROW++;
-        //        }
-
-        //        endRow = ROW++;
-
-
-        //        sheet.Range[endRow, 1].Text = ProcessName + " SPT";
-        //        sheet.Range[endRow, 1].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 4].Number = TotalSPT;
-        //        sheet.Range[endRow, 4].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 4, endRow, 4].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 1, endRow, 3].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 1, endRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[endRow, 1, endRow, 3].Merge();
-
-        //        sheet.Range[endRow, 5].Text = "TOTAL MP";
-        //        sheet.Range[endRow, 5].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 7].Number = TotalManpower;
-        //        sheet.Range[endRow, 7, endRow, 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 7].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 8].Number = TotalWS;
-        //        sheet.Range[endRow, 8, endRow, 8].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 8].CellStyle.Font.Bold = true;
-
-        //        endRow++;
-        //        endRow++;
-        //        int edRow = endRow++;
-
-        //        sheet.Range[endRow, 1].Text = "MACHINE REQUIREMENT";
-        //        sheet.Range[endRow, 1].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 1, endRow, 3].Merge();
-        //        sheet.Range[endRow, 1, endRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[endRow, 1, endRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-
-        //        int col = 2; edRow++; edRow++;
-        //        sheet.Range[edRow, col].Text = "Machine";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Machine Variation";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "SAM";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Req MP";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Allotted MP";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Allotted WS";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        //DataTable dtM = new DataView(data).ToTable(true, "ShortName", "MachineVarientId", "MachineVarient", "AllotedWorkstation", "AllotedManpower", "RequiredManPower", "TotalSPT");
-        //        DataTable dtM = new DataView(data).ToTable(true, "MachineMaster", "MachineVarientId", "ShortName");
-        //        DataView dvM = new DataView(dtM);
-        //        dvM.RowFilter = "MachineVarientId='" + data.Rows[0]["MachineVarientId"].ToString() + "'";
-        //        edRow++;
-        //        for (int i = 0; i < dtM.Rows.Count; i++)
-        //        {
-        //            col = 2;
-        //            sheet.Range[edRow, col].Text = dtM.Rows[i]["MachineMaster"].ToString(); col++;
-        //            sheet.Range[edRow, col].Text = dtM.Rows[i]["ShortName"].ToString(); col++;
-
-        //            if (!string.IsNullOrEmpty(dtM.Rows[i]["MachineVarientId"].ToString()))
-        //            {
-        //                double MTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MTotalSPT;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MRequiredManPower = clsStaticInfo.dbl(data.Compute("SUM(RequiredManPower)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MRequiredManPower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedManpower = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MAllotedManpower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedWorkstation = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MAllotedWorkstation;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            }
-        //            else
-        //            {
-        //                double MTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MTotalSPT;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MRequiredManPower = clsStaticInfo.dbl(data.Compute("SUM(RequiredManPower)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MRequiredManPower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedManpower = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MAllotedManpower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedWorkstation = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MAllotedWorkstation;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            }
-        //            edRow++;
-        //        }
-
-        //        sheet.Range[edRow, 3].Text = "TOTAL";
-        //        sheet.Range[edRow, 3].CellStyle.Font.Bold = true;
-
-        //        sheet.Range[edRow, 4].Number = TotalSPT;
-        //        sheet.Range[edRow, 4].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, 5].Number = TotalRMP;
-        //        sheet.Range[edRow, 5].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, 6].Number = TotalManpower;
-        //        sheet.Range[edRow, 6].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, 7].Number = TotalWS;
-        //        sheet.Range[edRow, 7].CellStyle.Font.Bold = true;
-
-
-        //        //sheet.UsedRange.NumberFormat = "#,##0.000";
-        //        sheet.UsedRange.WrapText = true;
-        //        sheet.UsedRange.CellStyle.Font.Size = 8;
-        //        report.CompanyHeader(ref sheet, endCol, "Bulletin Template - " + SheetName + "", companyId);
-        //        report.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-        //}
-
+        
         void CreateProductionDetailSheet(string SheetName, DataTable data, ref IWorksheet sheet, string companyId)
         {
             try
@@ -6833,7 +5797,7 @@ namespace Aplos.Areas.IE.Controllers
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
 
-            DataTable data = GetProductionBulletinTemplateReportDataByProductionBulletinTemplateId(ProductionOrderId);
+            DataTable data = clsb.GetProductionBulletinTemplateReportDataByProductionBulletinTemplateId(ProductionOrderId);
             DataTable dtProcess = new DataView(data).ToTable(true, "Process", "ProcessId");
             var workbook = report.GetWorkbook(ref excelEngine, dtProcess.Rows.Count);
             workbook.Version = ExcelVersion.Excel2016;
@@ -6852,487 +5816,6 @@ namespace Aplos.Areas.IE.Controllers
 
             return workbook;
         }
-
-        //void CreateProductionSheet(string SheetName, DataTable data, ref IWorksheet sheet, string companyId)
-        //{
-        //    try
-        //    {
-        //        var report = new ReportUtility();
-        //        sheet.Name = SheetName;
-
-        //        int ROW = 6;
-        //        int endCol = 1;
-        //        int COL = 1;
-
-
-        //        #region Headers
-        //        int rws = ROW;
-        //        sheet.Range[ROW, COL + 1].Text = "Production OrderId";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["ProductionOrderId"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Buyer Item Ref No";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["BulletinBuyerStyleRefNo"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "SO Description";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["Description"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Buyer Name";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["Buyer"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Buyer Style Ref No";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["BuyerOrder"].ToString().Trim();
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Own Style Ref No";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Text = " " + data.Rows[0]["OwnOrder"].ToString().Trim();
-
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Product Master";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 3].Text = " " + data.Rows[0]["ProductMaster"].ToString().Trim();
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-
-        //        double plannedHourPerDay = Convert.ToDouble(data.Rows[0]["PlannedHoursPerDay"]);
-        //        double TotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", null));
-        //        double TotalManpower = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", null));
-        //        double TotalWS = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", null));
-        //        double MaxAllotedTime = clsStaticInfo.dbl(data.Compute("Max(AvgAllotedTime)", null));
-        //        double TotalRMP = clsStaticInfo.dbl(data.Compute("SUM(RequiredManPower)", null));
-
-        //        double PitchTime = 0;
-        //        if (TotalManpower != 0)
-        //            PitchTime = TotalSPT / TotalManpower;
-
-        //        double OrgEfficiency = 0;
-        //        if (MaxAllotedTime != 0)
-        //            OrgEfficiency = PitchTime / MaxAllotedTime;
-
-        //        double ProdEffPerHour = 0;
-        //        if (TotalSPT != 0)
-        //            ProdEffPerHour = TotalManpower * 60 / TotalSPT;
-
-        //        double ProdEffPerDay = ProdEffPerHour * plannedHourPerDay;
-        //        double LineTargetPerHour = ProdEffPerHour * OrgEfficiency;
-
-
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Pitch Time";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Number = PitchTime;
-        //        sheet.Range[ROW, COL + 2].NumberFormat = clsStaticInfo.NumberFormat(4);
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-
-        //        ROW++;
-        //        ROW++;
-        //        sheet.Range[ROW, COL + 1].Text = "Planned Hour PerDay";
-        //        sheet.Range[ROW, COL, ROW, COL + 1].Merge();
-        //        sheet.Range[ROW, COL + 2].Number = plannedHourPerDay;
-        //        sheet.Range[ROW, COL + 2].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-        //        sheet.Range[ROW, COL, ROW, COL + 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[ROW, COL + 2, ROW, COL + 3].Merge();
-        //        ROW++;
-        //        int rwe = ROW;
-        //        int PCOL = 5;
-        //        sheet.Range[rws, PCOL].Text = "Particulars";
-        //        sheet.Range[rws, PCOL + 1].Text = "SPT";
-        //        sheet.Range[rws, PCOL + 1, rws, PCOL + 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 2].Text = "MP";
-        //        sheet.Range[rws, PCOL + 2, rws, PCOL + 2].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 3].Text = "Workstation";
-        //        sheet.Range[rws, PCOL + 3, rws, PCOL + 3].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 5].Text = "Target(%)";
-        //        sheet.Range[rws, PCOL + 5, rws, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 6].Text = "Per Hr";
-        //        sheet.Range[rws, PCOL + 6, rws, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[rws, PCOL + 7].Text = "Per Day";
-        //        sheet.Range[rws, PCOL + 7, rws, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        rws++;
-        //        sheet.Range[rws, PCOL].Text = "Non MC";
-        //        double NMCTotalSPT = 0;
-        //        double NMCTotalWS = 0;
-        //        double NMCTotalMP = 0;
-
-        //        NMCTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "Machine='No'"));
-        //        NMCTotalWS = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "Machine='No'"));
-        //        NMCTotalMP = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "Machine='No'"));
-
-        //        sheet.Range[rws, PCOL + 1].Number = NMCTotalSPT;
-        //        sheet.Range[rws, PCOL + 2].Number = NMCTotalMP;
-        //        sheet.Range[rws, PCOL + 3].Number = NMCTotalWS;
-
-        //        rws++;
-        //        sheet.Range[rws, PCOL].Text = "MC";
-        //        double MCTotalSPT = 0;
-        //        double MCTotalWS = 0;
-        //        double MCTotalMP = 0;
-
-        //        MCTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "Machine='Yes'"));
-        //        MCTotalWS = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "Machine='Yes'"));
-        //        MCTotalMP = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "Machine='Yes'"));
-
-        //        sheet.Range[rws, PCOL + 1].Number = MCTotalSPT;
-        //        sheet.Range[rws, PCOL + 2].Number = MCTotalMP;
-        //        sheet.Range[rws, PCOL + 3].Number = MCTotalWS;
-
-        //        //sheet.Range[7, PCOL + 4].Text = "100";
-        //        sheet.Range[7, PCOL + 5].Number = Convert.ToInt32("100");
-        //        sheet.Range[7, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[7, PCOL + 5, 7, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[7, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour);
-        //        sheet.Range[7, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[7, PCOL + 6, 7, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[7, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay);
-        //        sheet.Range[7, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[7, PCOL + 7, 7, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        //sheet.Range[8, PCOL + 4].Text = "85";
-
-        //        sheet.Range[8, PCOL + 5].Number = Convert.ToInt32("85");
-        //        sheet.Range[8, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[8, PCOL + 5, 8, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[8, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .85);
-        //        sheet.Range[8, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[8, PCOL + 6, 8, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[8, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .85);
-        //        sheet.Range[8, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[8, PCOL + 7, 8, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-        //        //sheet.Range[9, PCOL + 4].Text = "75";
-
-        //        sheet.Range[9, PCOL + 5].Number = Convert.ToInt32("75");
-        //        sheet.Range[9, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[9, PCOL + 5, 9, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[9, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .75);
-        //        sheet.Range[9, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[9, PCOL + 6, 9, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[9, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .75);
-        //        sheet.Range[9, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[9, PCOL + 7, 9, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        //sheet.Range[10, PCOL + 4].Text = "65";
-
-        //        sheet.Range[10, PCOL + 5].Number = Convert.ToInt32("65");
-        //        sheet.Range[10, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[10, PCOL + 5, 10, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[10, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .65);
-        //        sheet.Range[10, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[10, PCOL + 6, 10, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[10, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .65);
-        //        sheet.Range[10, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[10, PCOL + 7, 10, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-        //        //sheet.Range[11, PCOL + 4].Text = "55";
-        //        sheet.Range[11, PCOL + 5].Number = Convert.ToInt32("55");
-        //        sheet.Range[11, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[11, PCOL + 5, 11, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[11, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .55);
-        //        sheet.Range[11, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[11, PCOL + 6, 11, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[11, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .55);
-        //        sheet.Range[11, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[11, PCOL + 7, 11, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-
-        //        // sheet.Range[12, PCOL + 4].Text = "50";
-
-        //        sheet.Range[12, PCOL + 5].Number = Convert.ToInt32("50");
-        //        sheet.Range[12, PCOL + 5].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[12, PCOL + 5, 12, PCOL + 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[12, PCOL + 6].Number = Convert.ToInt32(ProdEffPerHour * .50);
-        //        sheet.Range[12, PCOL + 6].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[12, PCOL + 6, 12, PCOL + 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //        sheet.Range[12, PCOL + 7].Number = Convert.ToInt32(ProdEffPerDay * .50);
-        //        sheet.Range[12, PCOL + 7].NumberFormat = clsStaticInfo.NumberFormat(0);
-        //        sheet.Range[12, PCOL + 7, 12, PCOL + 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-
-        //        rws++;
-        //        rws++;
-        //        sheet.Range[rws, PCOL].Text = "Total";
-        //        sheet.Range[rws, PCOL + 1].Number = TotalSPT;
-        //        sheet.Range[rws, PCOL + 2].Number = TotalManpower;
-        //        sheet.Range[rws, PCOL + 3].Number = TotalWS;
-
-
-        //        //sheet.Range[rws, COL, rwe, COL].BorderInside(ExcelLineStyle.Thin);
-        //        //sheet.Range[rws, COL, rwe, COL].BorderAround(ExcelLineStyle.Thin);
-
-        //        ROW++;
-        //        ROW++;
-        //        ROW++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Sr.No.", 8, ExcelHAlign.HAlignRight);
-        //        int ColSequence = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Description", 20, ExcelHAlign.HAlignLeft);
-        //        int ColMachineVarient = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Machine", 26, ExcelHAlign.HAlignLeft);
-        //        int ColMachineCode = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "SPT", 10, ExcelHAlign.HAlignRight);
-        //        int ColTotalSPT = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Target/Hr", 10, ExcelHAlign.HAlignRight);
-        //        int ColOperationTargetPerHr = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Required Man Power", 10, ExcelHAlign.HAlignRight);
-        //        int ColRequiredManPower = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Alloted Manpower", 10, ExcelHAlign.HAlignRight);
-        //        int ColAllotedManpower = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Alloted Workstation", 10, ExcelHAlign.HAlignRight);
-        //        int ColAllotedWorkstation = COL;
-        //        COL++;
-
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Operation Group", 8, ExcelHAlign.HAlignLeft);
-        //        int ColOperationGroup = COL;
-        //        COL++;
-
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "Avg. Alloted Time", 10, ExcelHAlign.HAlignRight);
-        //        int ColAvgAllotedTime = COL;
-        //        COL++;
-
-        //        report.SetHeaderText(ref sheet, ROW, COL, "FG Zone", 12, ExcelHAlign.HAlignLeft);
-        //        int ColFGZone = COL;
-        //        COL++;
-
-
-        //        ROW++;
-        //        endCol = COL;
-        //        #endregion Headers
-
-
-        //        string ProcessName = "";
-        //        var startRow = 0;
-        //        var endRow = 0;
-        //        int RowIndex = ROW;
-        //        startRow = ROW;
-
-        //        for (int i = 0; i < data.Rows.Count; i++)
-        //        {
-
-        //            sheet[ROW, ColSequence].Number = clsStaticInfo.dbl(data.Rows[i]["Sequence"].ToString());
-        //            //sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
-        //            sheet[ROW, ColMachineVarient].Text = data.Rows[i]["OperationVariation"].ToString();
-        //            sheet[ROW, ColMachineCode].Text = data.Rows[i]["ShortName"].ToString();
-        //            sheet.Range[ROW, ColTotalSPT].Number = Convert.ToDouble(data.Rows[i]["TotalSPT"].ToString());
-        //            sheet.Range[ROW, ColTotalSPT].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet.Range[ROW, ColTotalSPT, ROW, ColTotalSPT].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //            sheet[ROW, ColOperationTargetPerHr].Number = clsStaticInfo.dbl(data.Rows[i]["OperationTargetPerHr"].ToString());
-        //            sheet[ROW, ColRequiredManPower].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredManPower"].ToString());
-
-        //            sheet[ROW, ColAllotedManpower].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedManpower"].ToString());
-        //            sheet[ROW, ColAllotedWorkstation].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedWorkstation"].ToString());
-
-
-        //            sheet[ROW, ColOperationGroup].Text = data.Rows[i]["OperationGroup"].ToString();
-        //            //sheet[ROW, ColAvgAllotedTime].Text = data.Rows[i]["AvgAllotedTime"].ToString();
-
-        //            sheet.Range[ROW, ColAvgAllotedTime].Number = Convert.ToDouble(data.Rows[i]["AvgAllotedTime"].ToString());
-        //            sheet.Range[ROW, ColAvgAllotedTime].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            sheet.Range[ROW, ColAvgAllotedTime, ROW, ColAvgAllotedTime].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-        //            sheet[ROW, ColFGZone].Text = data.Rows[i]["FGZone"].ToString();
-
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-        //            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-        //            ProcessName = data.Rows[i]["Process"].ToString();
-
-        //            ROW++;
-        //        }
-
-        //        endRow = ROW++;
-
-
-        //        sheet.Range[endRow, 1].Text = ProcessName + " SPT";
-        //        sheet.Range[endRow, 1].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 4].Number = TotalSPT;
-        //        sheet.Range[endRow, 4].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 4, endRow, 4].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 1, endRow, 3].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 1, endRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[endRow, 1, endRow, 3].Merge();
-
-        //        sheet.Range[endRow, 5].Text = "TOTAL MP";
-        //        sheet.Range[endRow, 5].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 7].Number = TotalManpower;
-        //        sheet.Range[endRow, 7, endRow, 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 7].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 8].Number = TotalWS;
-        //        sheet.Range[endRow, 8, endRow, 8].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        //        sheet.Range[endRow, 8].CellStyle.Font.Bold = true;
-
-        //        endRow++;
-        //        endRow++;
-        //        int edRow = endRow++;
-
-        //        sheet.Range[endRow, 1].Text = "MACHINE REQUIREMENT";
-        //        sheet.Range[endRow, 1].CellStyle.Font.Bold = true;
-        //        sheet.Range[endRow, 1, endRow, 3].Merge();
-        //        sheet.Range[endRow, 1, endRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[endRow, 1, endRow, 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        int col = 2; edRow++; edRow++;
-        //        sheet.Range[edRow, col].Text = "Machine";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Machine Variation";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "SAM";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Req MP";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Allotted MP";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        col++;
-        //        sheet.Range[edRow, col].Text = "Allotted WS";
-        //        sheet.Range[edRow, col].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-        //        sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-
-        //        //double NMTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "Machine='No'"));
-        //        //sheet.Range[edRow, 5].Number = NMTotalSPT;
-        //        //sheet.Range[edRow, 5].NumberFormat = clsStaticInfo.NumberFormat(2); //col++;
-
-
-        //        //DataTable dtM = new DataView(data).ToTable(true, "ShortName", "MachineVarientId", "MachineVarient", "AllotedWorkstation", "AllotedManpower", "RequiredManPower", "TotalSPT");
-        //        DataTable dtM = new DataView(data).ToTable(true, "MachineMaster", "MachineVarientId", "ShortName");
-        //        DataView dvM = new DataView(dtM);
-        //        dvM.RowFilter = "MachineVarientId='" + data.Rows[0]["MachineVarientId"].ToString() + "'";
-        //        edRow++;
-        //        for (int i = 0; i < dtM.Rows.Count; i++)
-        //        {
-        //            col = 2;
-        //            sheet.Range[edRow, col].Text = dtM.Rows[i]["MachineMaster"].ToString(); col++;
-        //            sheet.Range[edRow, col].Text = dtM.Rows[i]["ShortName"].ToString(); col++;
-
-        //            if (!string.IsNullOrEmpty(dtM.Rows[i]["MachineVarientId"].ToString()))
-        //            {
-        //                double MTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MTotalSPT;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MRequiredManPower = clsStaticInfo.dbl(data.Compute("SUM(RequiredManPower)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MRequiredManPower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedManpower = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MAllotedManpower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedWorkstation = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-        //                sheet.Range[edRow, col].Number = MAllotedWorkstation;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            }
-        //            else
-        //            {
-        //                double MTotalSPT = clsStaticInfo.dbl(data.Compute("SUM(TotalSPT)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MTotalSPT;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MRequiredManPower = clsStaticInfo.dbl(data.Compute("SUM(RequiredManPower)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MRequiredManPower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedManpower = clsStaticInfo.dbl(data.Compute("SUM(AllotedManpower)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MAllotedManpower;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2); col++;
-
-        //                double MAllotedWorkstation = clsStaticInfo.dbl(data.Compute("SUM(AllotedWorkstation)", "Machine='No'"));
-        //                sheet.Range[edRow, col].Number = MAllotedWorkstation;
-        //                sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
-        //            }
-        //            edRow++;
-        //        }
-
-        //        sheet.Range[edRow, 3].Text = "TOTAL";
-        //        sheet.Range[edRow, 3].CellStyle.Font.Bold = true;
-
-        //        sheet.Range[edRow, 4].Number = TotalSPT;
-        //        sheet.Range[edRow, 4].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, 5].Number = TotalRMP;
-        //        sheet.Range[edRow, 5].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, 6].Number = TotalManpower;
-        //        sheet.Range[edRow, 6].CellStyle.Font.Bold = true;
-        //        sheet.Range[edRow, 7].Number = TotalWS;
-        //        sheet.Range[edRow, 7].CellStyle.Font.Bold = true;
-
-
-        //        //sheet.UsedRange.NumberFormat = "#,##0.000";
-        //        sheet.UsedRange.WrapText = true;
-        //        sheet.UsedRange.CellStyle.Font.Size = 8;
-        //        sheet.IsDisplayZeros = true;
-        //        report.CompanyHeader(ref sheet, endCol, "Bulletin Template - " + SheetName + "", companyId);
-        //        report.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        throw ex;
-        //    }
-        //}
 
         void CreateProductionSheet(string SheetName, DataTable data, ref IWorksheet sheet, string companyId)
         {
@@ -8228,7 +6711,7 @@ namespace Aplos.Areas.IE.Controllers
             int COL = 1;
 
 
-            DataTable data = GetBulletin2ndTemplateData(ProductionId);
+            DataTable data = clsb.GetBulletin2ndTemplateData(ProductionId);
 
             #region Headers
             report.SetHeaderText(ref sheet, ROW, COL, "Material MasterId", 12, ExcelHAlign.HAlignLeft);
@@ -8394,70 +6877,7 @@ namespace Aplos.Areas.IE.Controllers
             return workbook;
         }
 
-        private DataTable GetBulletin2ndTemplateData(string ProductionId)
-        {
-            try
-            {
-                string sql = @"SELECT
-                                moi.MaterialMasterId,moi.ArticleId,
-                                fc.CharacteristicsValueId SO1,sc.CharacteristicsValueId SO2,tc.CharacteristicsValueId SO3,
-                                c1.UserName AS SOC1,cv1.UserName AS SOCV1,
-                                c2.UserName AS SOC2,cv2.UserName AS SOCV2,
-                                c3.UserName AS SOC3,cv3.UserName AS SOCV3,
-                                CASE WHEN isnull(tc.Id,'')<>'' THEN tc.Qty ELSE
-                                CASE WHEN ISNULL(sc.Id,'')<>'' THEN sc.Qty ELSE
-                                CASE WHEN ISNULL(fc.Id,'')<>'' THEN fc.Qty ELSE so.Qty END END END AS OrderBreakdownQty
-                                ,BPT=(A.TotalSPT/A.AllotedManpower),A.AddedDate,A.AddedBy,A.RequiredStdTarget,A.TotalSPT,A.AllotedManpower, PlanEfficency=(A.RequiredStdTarget/(A.AllotedManpower * 60 / A.TotalSPT)*100)
-                                ,PerManProductivity=A.RequiredStdTarget/A.AllotedManpower,[Target]=(A.AllotedManpower * 60 / A.TotalSPT),A.PlannedHoursPerDay,A.MCTotalSPT,NMCTotalSPT,A.MCTotalMP,NMCTotalMP
-                                
-                                FROM trn.SalesOrder AS so
-                                INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
-                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
-                                LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=moi.MaterialMasterId
-                                LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId
-                                
-                                LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id
-                                LEFT JOIN trn.SecondCharacteristics AS sc ON sc.FirstCharacteristicsId=fc.Id AND sc.SalesOrderId=so.Id
-                                LEFT JOIN trn.ThirdCharacteristics AS tc ON tc.SecondCharacteristicsId=sc.Id AND tc.SalesOrderId=so.Id
-                                
-                                
-                                LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=fc.CharacteristicsValueId
-                                LEFT JOIN hkp.Characteristics AS c1 ON c1.Id=cv1.CharacteristicsId
-                                
-                                LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=sc.CharacteristicsValueId
-                                LEFT JOIN hkp.Characteristics AS c2 ON c2.Id=cv2.CharacteristicsId
-                                
-                                LEFT JOIN hkp.CharacteristicsValue AS cv3 ON cv3.Id=tc.CharacteristicsValueId
-                                LEFT JOIN hkp.Characteristics AS c3 ON c3.Id=cv3.CharacteristicsId
-                                
-                                LEFT JOIN trn.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
-                                LEFT JOIN (
-                                SELECT PB.ProductionOrderId,PBM.RequiredStdTarget,FORMAT(PB.AddedDate,'dd-MMM-yyyy') AddedDate,PB.AddedBy 
-                                ,PBM.PlannedHoursPerDay
-                                ,SUM(PBD.TotalSPT) TotalSPT,SUM(PBD.AllotedManpower) AllotedManpower,SUM(MCTotalSPT)MCTotalSPT,SUM(NMCTotalSPT)NMCTotalSPT,SUM(MCTotalMP)MCTotalMP,SUM(NMCTotalMP)NMCTotalMP
-                                FROM trn.ProductionBulletinTemplate PB
-                                LEFT JOIN trn.ProductionBulletinTemplateMaster PBM ON PBM.ProductionBulletinTemplateId=PB.Id
-                                LEFT JOIN(
-                                Select 
-                                PBD.ProductionBulletinTemplateMasterId,
-                                SUM(PBD.TotalSPT) TotalSPT,SUM(PBD.AllotedManpower) AllotedManpower
-                                ,MCTotalSPT=CASE WHEN ISNULL(PBD.MachineVarientId,'')<>'' THEN SUM(PBD.TotalSPT) ELSE 0 END
-                                ,NMCTotalSPT=CASE WHEN ISNULL(PBD.MachineVarientId,'')='' THEN SUM(PBD.TotalSPT) ELSE 0 END
-                                ,MCTotalMP=CASE WHEN ISNULL(PBD.MachineVarientId,'')<>'' THEN SUM(PBD.AllotedManpower) ELSE 0 END
-                                ,NMCTotalMP=CASE WHEN ISNULL(PBD.MachineVarientId,'')='' THEN SUM(PBD.AllotedManpower) ELSE 0 END
-                                 from  trn.ProductionBulletinTemplateDetail PBD
-                                 GROUP BY PBD.ProductionBulletinTemplateMasterId,PBD.MachineVarientId
-                                 )PBD ON PBD.ProductionBulletinTemplateMasterId=PBM.Id
-                                GROUP BY PBM.ProcessId,PB.ProductionOrderId,PBM.RequiredStdTarget,PB.AddedDate,PB.AddedBy,PBM.PlannedHoursPerDay 
-                                ) A ON A.ProductionOrderId=PO.Id
-                                WHERE pod.ProductionOrderId='" + ProductionId + "'";
-                return _sqlRepository.GetDataTable(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        
         #endregion
 
     }
