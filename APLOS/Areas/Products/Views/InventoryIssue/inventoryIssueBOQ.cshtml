@@ -196,6 +196,7 @@
                     <th>Country Name</th>
                     <th>Issue Qty</th>
                     <th>Base Issue Qty</th>
+                    <th>Lot No.</th>
                     <th></th>
                 </tr>
             </thead>
@@ -209,6 +210,7 @@
                     <td>{{x.CountryName}}</td>
                     <td>{{x.RequisitionQty}}  {{x.TransactionUoM}}</td>
                     <td>{{x.RequisitionQty}}  {{x.BUoM}}</td>
+                    <td>{{x.LotNumber}}</td>
                     <td class="text-right table-td">
                         <ul class="list-inline">
                             <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
