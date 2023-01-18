@@ -2092,7 +2092,9 @@ namespace Library.Service.Advances
                 advanceWriteOff.VoucherId = voucher.Id;
                 invoiceWriteOff.VoucherId = voucher.Id;
                 var totalAmountDr = 0.0M;
-                var totalAmountCr = 0.0M; 
+                var totalAmountCr = 0.0M;
+                var totalAmountDrCurrency = 0.0M;
+                var totalAmountCrCurrency = 0.0M;
                 var DrAmountCurrency = 0.0M;
                 // Advance
                 var advance = _advanceService.Find(voucherVM.AdvanceId);
@@ -2196,7 +2198,7 @@ namespace Library.Service.Advances
                     ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate,
                     CrAmount = CrAmountCurrency
                 });;
-
+                totalAmountCrCurrency += CrAmountCurrency;
                 // Invoice
                 var invoiceIds = voucherDetailVMList.Select(r => r.InvoiceId);
                 var inviceDbList = _invoiceService.Query(r => invoiceIds.Contains(r.Id)).Select().ToList();
@@ -2281,8 +2283,11 @@ namespace Library.Service.Advances
                         DrAmount = DrAmountCurrency
                     });
                     totalAmountDr += DrAmountCurrency;
+                    totalAmountDrCurrency += DrAmountCurrency;
                 }
                 if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+                if (totalAmountDrCurrency != totalAmountCrCurrency)
                     throw new CustomException("Dr and Cr amount is not equal.");
 
                 _unitOfWork.SaveChanges();

@@ -503,7 +503,7 @@
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="GetMaterialSummary();" class="btn"><i class="glyphicon glyphicon-list" style="top: 1px;"></i> Material Summary</button></li>
-                            <li> <button ng-click="GetThreadConsumptionReport();" class="btn"><i class="glyphicon glyphicon-download" style="top: 1px;"></i></button></li>
+                            <li> <button ng-click="GetThreadConsumptionReport();" title="Thread Consumption Report" class="btn"><i class="glyphicon glyphicon-download" style="top: 1px;"></i></button></li>
                         </ul>
 
                     </div>
@@ -1722,7 +1722,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div style="color:black;" id="GridThreadMatrix" ej-grid e-datasource="threadMatrixList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                <div style="color:black;" id="GridThreadMatrix" ej-grid e-datasource="threadMatrixList" e-gridlines="vertical" e-allowpaging="true" e-allowsorting="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-summaryrows="MaterialSummaryRows">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>

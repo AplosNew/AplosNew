@@ -170,7 +170,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
                         ,TempTrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						,IRD.BaseUOMId IssueTransactionUoMId
-						,'' IssueTransactionUoM
+						,'' IssueTransactionUoM,ISNULL(IRD.LotNumber,'') LotNumber
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
