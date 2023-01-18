@@ -192,7 +192,7 @@ namespace Library.MaterialManagement.InventoryManagements
             {
                 try
                 {
-                    string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
+                    string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' --AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
                                 AND isnull(B.MasterOrderItemId,'') NOT IN (
                                 select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
                                 join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
