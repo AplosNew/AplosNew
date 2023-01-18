@@ -858,7 +858,7 @@ Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id
         {
             try
             {
-                var str = @"select ROW_NUMBER() OVER(ORDER BY MR.Id) SrNo, M.Id MedicineMasterId, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
+                var str = @"select ROW_NUMBER() OVER(ORDER BY MR.Id) SrNo, MRC.Id , M.Id MedicineMasterId, M.StandardName UserName, MR.InvoiceNumber, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, 
 FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, MRC.Quantity, MRC.Rate, MRC.Amount, P.UserName PartyName,  P.Code PartyCode,
 MRC.Id MedicineReceiptChildId, MR.Id MedicineReceiptId, MR.PlantId, PL.StandardName PlantName, IsOpeningQty
 from TRN.MedicineReceiptChild MRC
@@ -1205,6 +1205,33 @@ order by MRC.ExpiryDate";
             }
         }
         #endregion SEARCH SAVED DATA IN GRID
+
+        #region Delete
+        public string RemoveParticular(string id)
+        {
+            try
+            {
+
+                string TableName = "TRN.MedicineReceiptChild";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion
 
     }
     #endregion Medicine Receipt
@@ -1807,7 +1834,16 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity, ML.AddedBy
+FOR XML PATH('')),1,1,'') Quantity
+
+,STUFF((SELECT ',' + MP.UserName  FROM HKP.MedicinePurpose MP
+left join TRN.EmployeeSickness ES on ES.MedicinePurposeId = MP.Id
+left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
+left join EmployeeInformation EI on EI.SystemId = ML.EmployeeSystemId
+where EI.SystemId = EMP.SystemId
+FOR XML PATH('')),1,1,'') Purpose
+
+, ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1824,7 +1860,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy";
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy, EMP.SystemId";
                 }
                 else
                 {
@@ -1853,7 +1889,16 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity ,ML.AddedBy
+FOR XML PATH('')),1,1,'') Quantity
+
+,STUFF((SELECT ',' + MP.UserName  FROM HKP.MedicinePurpose MP
+left join TRN.EmployeeSickness ES on ES.MedicinePurposeId = MP.Id
+left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
+left join EmployeeInformation EI on EI.SystemId = ML.EmployeeSystemId
+where EI.SystemId = EMP.SystemId
+FOR XML PATH('')),1,1,'') Purpose
+
+,ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1870,7 +1915,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy";
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy, EMP.SystemId";
                 }
 
 
@@ -1936,7 +1981,16 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity, ML.AddedBy
+FOR XML PATH('')),1,1,'') Quantity
+
+,STUFF((SELECT ',' + MP.UserName  FROM HKP.MedicinePurpose MP
+left join TRN.EmployeeSickness ES on ES.MedicinePurposeId = MP.Id
+left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
+left join EmployeeInformation EI on EI.SystemId = ML.EmployeeSystemId
+where EI.SystemId = EMP.SystemId
+FOR XML PATH('')),1,1,'') Purpose
+
+, ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1953,7 +2007,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy";
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy, EMP.SystemId";
                 }
                 else
                 {
@@ -1982,7 +2036,16 @@ from TRN.EmployeeSicknessMedicines ESM
 LEFT JOIN TRN.MedicineReceiptChild MRC on MRC.Id = ESM.MedicineReceiptChildId
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
-FOR XML PATH('')),1,1,'') Quantity, ML.AddedBy
+FOR XML PATH('')),1,1,'') Quantity
+
+,STUFF((SELECT ',' + MP.UserName  FROM HKP.MedicinePurpose MP
+left join TRN.EmployeeSickness ES on ES.MedicinePurposeId = MP.Id
+left join TRN.MedicalLog ML on ML.Id = ES.MedicalLogId
+left join EmployeeInformation EI on EI.SystemId = ML.EmployeeSystemId
+where EI.SystemId = EMP.SystemId
+FOR XML PATH('')),1,1,'') Purpose
+
+, ML.AddedBy
 from TRN.MedicalLog ML
 INNER JOIN TRN.EmployeeSicknessMedicines x on x.MedicalLogId = ML.Id
 left join EmployeeInformation EMP ON EMP.SystemId = ML.EmployeeSystemId
@@ -1999,7 +2062,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy";
+    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy, EMP.SystemId";
                 }
                 return _sqlRepository.GetDataTable(SQL);
             }

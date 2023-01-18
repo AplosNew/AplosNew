@@ -1615,7 +1615,7 @@
                     <div class="form-group" id="div_qty">
                         <label class="col-sm-4 control-label">Transaction Qty<sup>*</sup></label>
                         <div class="col-sm-4 show-message" style="padding-right:0px;">
-                            <input type="text" n-decimals="2"  name="Transaction Qty" maxlength="18"  ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');calculateAmountPOPUP();">
+                            <input type="text" n-decimals="2" name="Transaction Qty" maxlength="18" ng-model="detailModel.TransactionQty" class="form-control text-right" ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_qty', 'detailModel','TransactionQty');calculateAmountPOPUP();">
                         </div>
                         <div class="col-sm-4 show-message" style="padding-left:0px;">
                             <div class="select-style">
@@ -1701,7 +1701,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
                 <div class="col-xs-4 col-sm-4 col-md-4">
                     <div class="form-group" id="div_tamnt">
@@ -2333,31 +2333,35 @@
     <confirm-archive-generic modalid="OtherVendorChargePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="OtherserviceSave();"></confirm-archive-generic>
     <confirm-archive-generic modalid="removePopUpForDoc" title="Confirmation" message={{message}} data-ng-click-right-button="DeletePOIgame();"></confirm-archive-generic>
 
-    <div class="modal site-modal" id="ListOfPOMaterial" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg modellgModify">
+    <style>
+        .modelboqWidth {
+            width: 1260px;
+        }
+    </style>
+    <div class="modal fade site-modal in" id="ListOfPOMaterial" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modelboqWidth">
             <div class="modal-content">
-                <div class="modal-header">Add BOQ Materials<button type="button" class="close" ng-click="RequisitionListHide();">&times;</button></div>
-                <div class="tab-design" id="tab_show">
-                    <div class="site-tab">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" ng-class="{ active: isSetOwnVendorIndex(1) }"><a ng-click="setOwnVendorTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Own Vendor</a></li>
-                            <li role="presentation" ng-class="{ active: isSetOtherVendorIndex(2) }"><a ng-click="setTabOtherVendorIndex(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Other Vendor</a></li>
-                            <li role="presentation" ng-class="{ active: isSetParentIndex(3) }"><a ng-click="setTabParentIndex(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Parent</a></li>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="modal-header">Add BOQ Materials<button type="button" class="close" ng-click="RequisitionListHide();">&times;</button></div>
+                    <div class="tab-design" id="tab_show">
+                        <div class="site-tab">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" ng-class="{ active: isSetOwnVendorIndex(1) }"><a ng-click="setOwnVendorTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Own Vendor</a></li>
+                                <li role="presentation" ng-class="{ active: isSetOtherVendorIndex(2) }"><a ng-click="setTabOtherVendorIndex(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Other Vendor</a></li>
+                                <li role="presentation" ng-class="{ active: isSetParentIndex(3) }"><a ng-click="setTabParentIndex(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Parent</a></li>
 
-                        </ul>
-                    </div>
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSetOwnVendorIndex(1), active: isSetOwnVendorIndex(1) }">
-                            <fieldset class="scheduler-border">
-                                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-
+                            </ul>
+                        </div>
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSetOwnVendorIndex(1), active: isSetOwnVendorIndex(1) }">
                                 <div id="ReqaddIdGridReq">
                                     <div class="col-lg-12">
                                         <div class="content-container-fluid" style="color:black;overflow:scroll">
                                             <div style="color:black;" id="GridReq" ej-grid e-datasource="GetListForMasterOrder"
                                                  e-templaterefresh="refreshTemplateemployee"
                                                  e-recorddoubleclick=""
-                                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-showsummary="true" e-summaryrows="summaryRows" e-showtotalsummary="true"
+                                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-showsummary="true" 
+                                                 e-summaryrows="summaryRows" e-showtotalsummary="true"
                                                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-gridlines="vertical" e-allowtouch="true" e-allowResizing="true">
 
 
@@ -2428,114 +2432,23 @@
                                         </div>
                                     </div>
                                 </div>
-
-
-                                <div class="clearfix"></div>
-                                <div class="col-md-12 modal-table table-responsive" style="padding-top: 13px;" ng-show="taxCategoryList.length>0">
-                                    <table class="table table-striped" ng-hide="true">
-
-                                        <thead>
-                                            <tr>
-                                                <th>Tax Category</th>
-                                                <th>HSN Code</th>
-                                                <th>Percentage</th>
-                                                <th>Tax Amount (BC)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in taxCategoryList">
-                                                <td>{{x.UserName}}</td>
-                                                <td>{{x.HSNCode}}</td>
-                                                <td class="text-right">{{x.Percentage}}</td>
-                                                <td class="text-right">
-                                                    <input type="text" n-decimals="{{currencyPrecision}}" ng-model="x.TaxAmount" ng-keyup="sumTaxAmount();" class="form-control text-right" />
-                                                </td>
-                                            </tr>
-
-                                            <tr>
-                                                <td colspan="3" class="text-right">Total Tax (BC)</td>
-                                                <td class="text-right">{{x.BaseTaxAmount| number:2}}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                              
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li><button ng-click="detailPOSaveForBOQ();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionPOBOQ}}</button></li>
+                                        <li><button ng-click="RequisitionListHide();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                                    </ul>
                                 </div>
-                                <div class="clearfix"></div>
-                            </fieldset>
-                            <div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li><button ng-click="detailPOSaveForBOQ();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionPOBOQ}}</button></li>
-                                    <li><button ng-click="RequisitionListHide();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-
-                                </ul>
                             </div>
-                            <div class="clearfix"></div>
-                        </div>
 
-                        <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSetOtherVendorIndex(2), active: isSetOtherVendorIndex(2) }">
-                            <fieldset class="scheduler-border">
-                                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                                <div id="ReqaddId1">
-                                    <div class="col-lg-12">
-                                        @*<div class="content-container-fluid" style="color:black;">*@
+                            <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSetOtherVendorIndex(2), active: isSetOtherVendorIndex(2) }">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                                    <div id="ReqaddId1">
+                                        <div class="col-lg-12">
+                                            @*<div class="content-container-fluid" style="color:black;">*@
 
-                                        <div style="color:black;" id="GridReqeee" ej-grid e-datasource="GetListForMasterOrderOtherVendor"
-                                             e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-
-                                            <div e-columns>
-
-                                                <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
-                                                <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
-                                                <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
-                                                <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
-                                                <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
-
-                                                <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
-                                                <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
-                                                <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
-                                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
-                                                <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" e-textalign="right"></div>
-                                                <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" e-textalign="right"></div>
-                                                <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" e-textalign="right"></div>
-
-
-                                                <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
-
-                                                <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
-                                                <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
-                                                <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
-                                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
-                                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
-                                                <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
-                                                <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
-
-                                                <div e-column e-type="boolean" e-field="Consignment" e-headertext="Consignment" e-width="60"></div>
-                                                <div e-column e-type="string" e-field="PurchaseAuthority" e-headertext="Purh. Authority" e-width="150"></div>
-                                                <div e-column e-type="string" e-field="ProductionAuthority" e-headertext="Prod. Authority" e-width="150"></div>
-                                                <div e-column e-type="string" e-field="Type" e-headertext="Type" e-width="80"></div>
-                                            </div>
-
-                                        </div>
-
-                                        <div id="GridT"></div>
-
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-
-                            </fieldset>
-
-                        </div>
-
-                        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetParentIndex(3), active: isSetParentIndex(3) }">
-                            <fieldset class="scheduler-border">
-                                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                                <div id="ReqaddId1">
-                                    <div class="col-lg-12">
-                                        <div class="content-container-fluid" style="color:black;">
-
-                                            <div style="color:black;" id="GridReq3" ej-grid e-datasource="GetListForMasterOrderParent"
+                                            <div style="color:black;" id="GridReqeee" ej-grid e-datasource="GetListForMasterOrderOtherVendor"
                                                  e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
                                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                                                  e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
@@ -2567,7 +2480,10 @@
                                                     <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
                                                     <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
 
-
+                                                    <div e-column e-type="boolean" e-field="Consignment" e-headertext="Consignment" e-width="60"></div>
+                                                    <div e-column e-type="string" e-field="PurchaseAuthority" e-headertext="Purh. Authority" e-width="150"></div>
+                                                    <div e-column e-type="string" e-field="ProductionAuthority" e-headertext="Prod. Authority" e-width="150"></div>
+                                                    <div e-column e-type="string" e-field="Type" e-headertext="Type" e-width="80"></div>
                                                 </div>
 
                                             </div>
@@ -2576,15 +2492,70 @@
 
                                         </div>
                                     </div>
-                                </div>
-                                <div class="clearfix"></div>
+                                    <div class="clearfix"></div>
 
-                            </fieldset>
+                                </fieldset>
+
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetParentIndex(3), active: isSetParentIndex(3) }">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                                    <div id="ReqaddId1">
+                                        <div class="col-lg-12">
+                                            <div class="content-container-fluid" style="color:black;">
+
+                                                <div style="color:black;" id="GridReq3" ej-grid e-datasource="GetListForMasterOrderParent"
+                                                     e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
+                                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                                                     e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+
+                                                    <div e-columns>
+
+                                                        <div e-column e-field="BOQId" e-headertext="BOQ Id" e-width="100"></div>
+                                                        <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="150"></div>
+                                                        <div e-column e-field="RequiredQtyApproved" e-headertext="Approved" e-width="100"></div>
+                                                        <div e-column e-field="UserName" e-headertext="Material" e-width="200"></div>
+                                                        <div e-column e-field="StandardName" e-headertext="Article" e-width="250"></div>
+
+                                                        <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
+                                                        <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
+                                                        <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
+                                                        <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                                        <div e-column e-field="BOMQty" e-headertext="BOMQty" e-width="100" e-textalign="right"></div>
+                                                        <div e-column e-field="RequiredQty" e-headertext="RequiredQty" e-width="150" e-textalign="right"></div>
+                                                        <div e-column e-field="PORaisedQry" e-headertext="PORaisedQry" e-width="150" e-textalign="right"></div>
+
+
+                                                        <div e-column e-field="Vendor" e-headertext="Vendor" e-width="300"></div>
+
+                                                        <div e-column e-field="IncompleteMaterial" e-headertext="IncompleteMaterial" e-width="200"></div>
+                                                        <div e-column e-field="MasterOrderId" e-headertext="MasterOrderId" e-width="150"></div>
+                                                        <div e-column e-field="MasterOrderItemId" e-headertext="MasterOrderItemId" e-width="150"></div>
+                                                        <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="120"></div>
+                                                        <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="120"></div>
+                                                        <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="120"></div>
+                                                        <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="120"></div>
+
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div id="GridT"></div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+
+                                </fieldset>
+
+                            </div>
 
                         </div>
 
                     </div>
-
                 </div>
             </div>
         </div>

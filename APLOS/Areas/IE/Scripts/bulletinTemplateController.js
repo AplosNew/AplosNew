@@ -2325,7 +2325,7 @@ function bulletinTemplateController(cboService, commonMessage, $scope, $rootScop
     $scope.GetThreadConsumptionReport = function () {
         var reportFormat = "Excel";
         try {
-            var url = 'IE/bulletintemplate/GetThreadConsumptionReport?reportFormat=' + reportFormat + '&bulletinTemplateMasterId=' + $scope.bulletinTemplateMasterId;
+            var url = 'IE/bulletintemplate/GetThreadConsumptionReport?reportFormat=' + reportFormat + '&bulletinTemplateMasterId=' + $scope.bulletinTemplateMasterId + '&bulletinId=' + $scope.bulletinTemplateNew.Id;
 
             $rootScope.report(url);
         } catch (e) {

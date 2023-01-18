@@ -685,7 +685,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.Save = function () {
         if ($scope.Action === 'Save') {
 
-            //if (!$scope.checkValidation()) {
+            /*if (!$scope.checkValidation()) {*/
 
             try {
                 if ($scope.Action === 'Update') {
@@ -1518,7 +1518,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
         //ClearFields();
         $scope.productId = Id;
-        $scope.Action = 'Update';
+        //$scope.Action = 'Update';
         $scope.ActionForEdit = 'Update';
         $scope.POId1 = x.data.POID;
         $scope.POID = x.data.POID;
@@ -1686,7 +1686,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     }
     $scope.TotalSumAfterTCSBOQ = function () {
 
-        if ($scope.Action === 'Save') {
+        if ($scope.inventoryMaterialListPO.length>0 ) {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
         }
         else {
