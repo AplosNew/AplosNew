@@ -4838,7 +4838,7 @@ UNION ALL
                 entity.IsApproved = false;
                 entity.RequiredPosting = true;
             }
-            if (entityMatAndImat1 != null)
+            if (entityMatAndImat1.Count>0)
             {
                 foreach (var item in entityMatAndImat1)
                 {

@@ -685,7 +685,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.Save = function () {
         if ($scope.Action === 'Save') {
 
-            //if (!$scope.checkValidation()) {
+            if (!$scope.checkValidation()) {
 
             try {
                 if ($scope.Action === 'Update') {
