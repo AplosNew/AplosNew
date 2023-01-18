@@ -44,8 +44,8 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
     //  #region Header
 
     $scope.Get = function (args) {
-        document.getElementById("savebtn").style.display = "none";
-        document.getElementById("updatebtn").style.display = "block";
+        //document.getElementById("savebtn").style.display = "none";
+        //document.getElementById("updatebtn").style.display = "block";
         
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.EmployeeId = args.data.ResponsiblePerson;
@@ -66,7 +66,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
-                url: $scope.path + 'Save',
+                url: $scope.path + $scope.Action,
                 data: {
                     'datas': $scope.ModelNew
 
@@ -119,7 +119,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-
+                   /* $scope.ModelNew.Id = response.data.Data.Id*/
                     $scope.GetList();
                 }
             }), function errorCallBack(response) {
@@ -130,7 +130,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
         // Product
         $scope.SaveProductList = [];
         $scope.CreateProductWithParameterSetup = function () {
-           
+            $scope.SaveProductList = [];
             if (baseService.arrayLength($scope.ProductList) > 0) {
                 angular.forEach($scope.ProductList, function (a) {
 
@@ -142,6 +142,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                        
                         $scope.SaveProductList.push(ob);
                         ob = {};
+                        a.chk = false;
                     }
 
 
@@ -168,6 +169,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                         $scope.closeProductPopUp();
                         //$scope.ModelNew.Id = response.data.Data.Id;
                         $scope.GetSavedProduct();
+                        $scope.SaveProductList = [];
                        
                     }
                 }), function errorCallBack(response) {
@@ -180,7 +182,8 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
 
         // Workcenter
         $scope.SaveWorkcenterList = [];
-        $scope.CreateWorkcenterWithParameterSetup = function () {
+    $scope.CreateWorkcenterWithParameterSetup = function () {
+        $scope.SaveWorkcenterList = [];
             if (baseService.arrayLength($scope.WorkcenterList) > 0) {
                 angular.forEach($scope.WorkcenterList, function (a) {
 
@@ -191,7 +194,9 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                         ob.Id = null;
 
                         $scope.SaveWorkcenterList.push(ob);
+
                         ob = {};
+                        a.chk = false;
                     }
 
 
@@ -217,6 +222,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                         $scope.closeWorkcenterPopUp();
                         //$scope.ModelNew.Id = response.data.Data.Id;
                         $scope.GetSavedWorkcenter();
+                        $scope.SaveWorkcenterList = [];
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -231,7 +237,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
 
         // #region  update
     $scope.Update = function () {
-        $scope.$broadcast('show-errors-check-validity');
+        //$scope.$broadcast('show-errors-check-validity');
         $http({
             method: 'POST',
             url: $scope.updateUrl,
@@ -267,6 +273,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             else {
                 ShowResult(response.data.Message, 'success');
                 //ClearFields(response.data.Sequence);
+                $scope.GetSavedProduct();
                 $scope.getData();
             }
             function errorCallBack(response) {
@@ -287,7 +294,29 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             else {
                 ShowResult(response.data.Message, 'success');
                 //ClearFields(response.data.Sequence);
+                $scope.GetSavedWorkcenter();
                 $scope.getData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
+
+    $scope.Delete = function (x) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'RemoveParameterRow?parameterid=' + x.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //ClearFields(response.data.Sequence);
+                $scope.GetSavedParameterChild();
+               /* $scope.getData();*/
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -631,6 +660,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             url: $scope.path + 'GetSavedProduct?headerid=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function succ(resp) {
+            
             $scope.ParameterProductList = resp.data;
         });
     }
@@ -643,6 +673,20 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             url: $scope.path + 'GetSavedParameterChild?headerid=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function succ(resp) {
+            $scope.Id = resp.data[0].Id;
+             $scope.MachineMasterId = resp.data[0].MachineMasterId;
+            $scope.ParameterId = resp.data[0].ParameterId;
+            $scope.ProcessCategory = resp.data[0].ProcessCategory;
+            $scope.CriticalLevel = resp.data[0].CriticalLevel;
+            $scope.UOMId = resp.data[0].UOMId;
+            $scope.UOMName = resp.data[0].UOMName;
+            $scope.CheckinPeriod = resp.data[0].CheckinPeriod;
+            $scope.CheckinFrequency = resp.data[0].CheckinFrequency;
+            $scope.ProcessId = resp.data[0].ProcessId;
+            $scope.Process = resp.data[0].Process;
+            $scope.AuditingDays = resp.data[0].AuditingDays;
+            $scope.CheckinDays = resp.data[0].CheckinDays;
+            $scope.Remarks = resp.data[0].Remarks;
             $scope.SavedParameterList = resp.data
                 //Object.assign({}, resp.data);
         });
@@ -672,5 +716,51 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
 
         // #endregion  Child
 
-        
+        //  #region Clear
+    $scope.ClearParameter = function () {
+        ClearParameterFields();
+        return true;
+    };
+
+    function ClearParameterFields() {
+        $scope.Action = 'Save';
+       
+        $scope.ProcessId = null;
+        $scope.MachineMasterId = null;
+        $scope.ParameterId = null;
+        $scope.ProcessCategory = null;
+        $scope.CriticalLevel = null;
+        $scope.UOMId = null;
+        $scope.UOMName = null;
+        $scope.CheckinPeriod = null;
+        $scope.CheckinFrequency = null;
+
+        $scope.AuditingDays = null;
+        $scope.CheckinDays = null;
+        $scope.Remarks = null;
+
+    }
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+    function ClearFields() {
+        $scope.Action = 'Save';
+
+        $scope.ModelTemp = {
+            Id: null,
+            Code: null,
+            StandardName: null,
+            UserName: null,
+            EmployeeName: null,
+            EmpSystemId: null,
+            BudgetCode: null,
+            BudgetCodeId: null,
+            Remarks: null
+        };
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    }
+        //  #endregion Clear
   }

@@ -216,6 +216,33 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         }
+
+        public ActionResult RemoveParameterRow(string parameterid)
+        {
+            try
+            {
+
+                string ret = pc.RemoveParameterRow(parameterid);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
         #endregion DELETE
     }
 }

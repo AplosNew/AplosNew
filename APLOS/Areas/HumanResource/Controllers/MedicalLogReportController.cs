@@ -149,12 +149,16 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEmployeeName = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Sickness Name", 50, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Medicine Category", 50, ExcelHAlign.HAlignCenter);
             int ColSicknessName = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Medicines", 50, ExcelHAlign.HAlignCenter);
             int ColMedicines = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Medicine Purpose", 50, ExcelHAlign.HAlignCenter);
+            int ColMedicinePurpose = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Days", 5, ExcelHAlign.HAlignCenter);
@@ -240,6 +244,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
                 sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
+                sheet[ROW, ColMedicinePurpose].Text = data.Rows[i]["Purpose"].ToString();
 
                 ROW++;
 

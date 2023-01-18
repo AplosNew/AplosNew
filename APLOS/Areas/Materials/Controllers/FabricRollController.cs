@@ -147,7 +147,9 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GRNList(string column, string value, string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsFabric.GRNList(column, value, fromDate, toDate,identity.PlantId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsFabric.GRNList(column, value, fromDate, toDate, identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpPost, Authorize]

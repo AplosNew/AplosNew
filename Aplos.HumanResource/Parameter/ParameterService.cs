@@ -766,6 +766,31 @@ where PS.Id = '" + headerid + "'";
 
             }
         }
+
+        public string RemoveParameterRow(string parameterid)
+        {
+            try
+            {
+
+                string TableName = "TRN.ParameterChild";
+                if (string.IsNullOrEmpty(parameterid))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + parameterid + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
         #endregion Delete
 
         #region SEARCH SAVED DATA IN GRID 
