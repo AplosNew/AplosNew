@@ -7,7 +7,7 @@ function invoiceChargeWriteOffController(bankService, cboService, commonMessage,
     $scope.listUrl = $scope.url + "/GetInvoiceChargeWriteOffList";
     $scope.parkUrl = $scope.url + "/ParkInvoiceChargeWriteOff";
     $scope.updateUrl = $scope.url + "/UpdateInvoiceChargeWriteOff";
-    $scope.postUrl = $scope.url + "/PostInvoiceChargeWriteOff";
+    $scope.postUrl = $scope.url + "/PostVenodrInvoiceCharge";
     $scope.reportUrl = $scope.url + "/GetInvoiceChargeWriteOffReport?voucherId=";
     $scope.partyType = "Customer";
     $scope.Action = "Save";
@@ -713,7 +713,7 @@ function invoiceChargeWriteOffController(bankService, cboService, commonMessage,
             method: "POST",
             url: $scope.postUrl,
             data: {
-                "advanceWriteOffId": id
+                "invoiceWriteOffId": id
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
