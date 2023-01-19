@@ -629,8 +629,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         $scope.receiveTaxList.push($scope.POMaterialTaxList[i])
                     }
                 }
-                
-
             }
         }
         $scope.total = 0;
