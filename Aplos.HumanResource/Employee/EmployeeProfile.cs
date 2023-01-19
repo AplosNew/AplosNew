@@ -1951,6 +1951,31 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
             }
         }
 
+        public IEnumerable<object> GetGuestEmployee(string CompanyGroupId)
+        {
+            try
+            {
+                var sql = @"SELECT E.SystemId,E.EmployeeCode,E.GroupID,E.DivisionId,E.DepartmentId,E.SectionId,E.SubSectionId,E.DesignationGroupId,E.DesignationSystemID,E.BudgetCode,E.PositionID
+	                        ,E.CardNumber,E.Salutation,E.FirstName,E.MiddleName,E.LastName,E.EmployeeName,E.NickName,E.EmpPicPath,FORMAT(E.DOB,'dd-MMM-yyyy') DOB ,E.GenderID,E.GivenDesignationId	,E.LegalDesignationId
+	                        ,E.EmailId,E.EmpType,D.UserName Division,DPT.UserName Department, S.UserName Section, SS.UserName SubSection,DG.UserName GivenDesignation,LDG.UserName Designation,E.IsAccessible,MB.PIN,FORMAT(E.TentativeExpiryDate,'dd-MMM-yyyy') TentativeExpiryDate
+                        FROM EmployeeInformation E
+                        LEFT JOIN ORG.Division D ON D.Id = E.DivisionId
+                        LEFT JOIN ORG.Department DPT ON DPT.Id = E.DepartmentId
+                        LEFT JOIN ORG.Section S ON S.Id = E.SectionId
+                        LEFT JOIN ORG.SubSection SS ON SS.Id = E.SubSectionId
+                        LEFT JOIN HKP.Designation DG ON DG.Id = E.GivenDesignationId
+                        LEFT JOIN HKP.LegalDesignation LDG ON LDG.Id = E.LegalDesignationId
+                        LEFT JOIN HKP.EmployeeMobileAppsAuthorization MB ON MB.EmployeeId = E.SystemId
+                        WHERE E.GroupID = '" + CompanyGroupId + "' AND EmpType='Guest' order by DateAdded desc";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         #endregion
 
         #region  EmployeeOperation

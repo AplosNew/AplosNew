@@ -189,7 +189,7 @@
     </ul>
 </div>
 </div>
-<div class="row text-right aplos-grid-toggle">
+@*<div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">
             <div class="row">
@@ -209,59 +209,31 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 <div class="table-responsive modal-table aplos-grid-toggle">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-               
-                <th>EmpId</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Division</th>
-                <th>Department</th>
-                <th>Section</th>
-                <th>SubSection</th>
-                <th>Designation</th>
-                <th>PIN</th>
-                <th>Active</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="e in models |itemsPerPage:SelectionParameters.pageSize" total-items="SelectionParameters.total_count">
-
-                <td>{{e.SystemId}}</td>
-                <td>{{e.EmployeeName | uppercase}}</td>
-                <td>{{e.EmailId}}</td>
-                <td>{{e.Division}}</td>
-                <td>{{e.Department}}</td>
-                <td>{{e.Section}}</td>
-                <td>{{e.SubSection}}</td>
-                <td>{{e.Designation}}</td>
-                <td>{{e.PIN}}</td>
-                <td>{{e.IsAccessible?'Yes':'No'}}</td>
-                <td class="text-right table-td">
-                    <ul class="list-inline action-list">
-                        <li>
-                            <button ng-click="Get(e, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" tooltip>
-                                <i class="glyphicon glyphicon-pencil"></i>
-                            </button>
-                            <button data-toggle="modal" data-target="#confirmDeletePopUp" ng-click="confirmDelete(e, $index)"
-                                    class="btn btn-action tooltip-here" data-placement="top" title="Delete" tooltip>
-                                <i class="glyphicon glyphicon-remove"></i>
-                            </button>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <dir-pagination-controls max-size="10"
-                             direction-links="true"
-                             boundary-links="true"
-                             on-page-change="LoadDataList(newPageNumber)">
-    </dir-pagination-controls>
+    <div class="content-container-fluid" style="color:black;overflow:scroll">
+        <div style="color:black;" id="GridGU" ej-grid e-datasource="models"
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+            <div e-columns>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="40"></div>
+                <div e-column e-type="string" e-field="SystemId" e-headertext="EmpId" e-width="60"></div>
+                <div e-column e-type="string" e-field="EmployeeName" e-headertext="Name" e-width="120"></div>
+                <div e-column e-type="string" e-field="EmailId" e-headertext="EmailId" e-width="80"></div>
+                <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
+                <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="60"></div>
+                <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="60"></div>
+                <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                <div e-column e-type="string" e-field="PIN" e-headertext="PIN" e-width="60"></div>
+                <div e-column e-type="string" e-field="IsAccessible" e-headertext="IsAccessible" e-width="50"></div>
+            </div>
+        </div>
+        <script type="text/template" id="ShowActionButtonsBOM">
+            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this);" style="margin: -6px;"></i></button>
+            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Remove" class="btn"><i class="glyphicon glyphicon-trash" ng-click="$parent.confirmDelete(this);" style="margin: -6px;"></i></button>
+        </script>
+    </div>
 </div>
 <modal-table modalid="popUpId"
              data-title={{popUpTitle}}
@@ -278,6 +250,7 @@
              data-ng-click-cancel="closePopUp()">
 </modal-table>
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" data-ng-click-left-button="confirmCloseDelete()" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmBoMDetailPopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="LDPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

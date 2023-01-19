@@ -13,60 +13,58 @@ function guestUserController(cboService, fileReader, commonMessage, $scope, $roo
     $scope.deleteUrl = $scope.path + 'delete/';
 
 
-    $scope.SelectionParameters = {
-        limit: 100,
-        offset: 0,
-        order: 'ASC',
-        sort: 'EmployeeName',
-        searchBy: "EmployeeName",
-        pageSize: 100,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
+    //$scope.SelectionParameters = {
+    //    limit: 100,
+    //    offset: 0,
+    //    order: 'ASC',
+    //    sort: 'EmployeeName',
+    //    searchBy: "EmployeeName",
+    //    pageSize: 100,
+    //    total_count: 0,
+    //    search: null,
+    //    serverPagination: true
+    //};
 
-    $rootScope.searchDataByList = [
-        {
-            'name': 'Name',
-            'value': 'EmployeeName'
-        },
-        {
-            'name': 'Email',
-            'value': 'Email'
-        },
-        {
-            'name': 'Division',
-            'value': 'Division'
-        },
-        {
-            'name': 'Department',
-            'value': 'Department'
-        },
-        {
-            'name': 'Section',
-            'value': 'Section'
-        },
-        {
-            'name': 'SubSection',
-            'value': 'SubSection'
-        },
-        {
-            'name': 'Designation',
-            'value': 'Designation'
-        }
-    ];
+    //$rootScope.searchDataByList = [
+    //    {
+    //        'name': 'Name',
+    //        'value': 'EmployeeName'
+    //    },
+    //    {
+    //        'name': 'Email',
+    //        'value': 'Email'
+    //    },
+    //    {
+    //        'name': 'Division',
+    //        'value': 'Division'
+    //    },
+    //    {
+    //        'name': 'Department',
+    //        'value': 'Department'
+    //    },
+    //    {
+    //        'name': 'Section',
+    //        'value': 'Section'
+    //    },
+    //    {
+    //        'name': 'SubSection',
+    //        'value': 'SubSection'
+    //    },
+    //    {
+    //        'name': 'Designation',
+    //        'value': 'Designation'
+    //    }
+    //];
 
 
-    baseService.init($scope.getListUrl, null, 10, null, 'EmployeeName', 'EmployeeName');
-    $scope.getData = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.models = result.Rows;
-
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
+   
+    $scope.getData = function () {
+        $http({
+            method: 'Get',
+            url: 'employees/GuestUser/GetList'
+        }).then(function (response) {
+            $scope.models = response.data;
+        });
     };
     $scope.getData();
 
@@ -191,9 +189,8 @@ function guestUserController(cboService, fileReader, commonMessage, $scope, $roo
         });
     }
 
-    $scope.Get = function (id, index) {
-        $scope.index = index;
-        $scope.employeeInformation = $scope.models[$scope.index];
+    $scope.Get = function (obj) {
+        $scope.employeeInformation = Object.assign({}, obj.data);
         $scope.imageSrc = virtualPath.EmployeePic + $scope.employeeInformation.EmpPicPath;
         $scope.changeSectionByDept();
         $scope.changeSubSectionBySection();
@@ -260,11 +257,19 @@ function guestUserController(cboService, fileReader, commonMessage, $scope, $roo
         }
     };
 
+    $scope.message_detailconfirmation = null;
+    $scope.confirmDelete = function (obj) {
+
+        $scope.employeeInformation = Object.assign({}, obj.data);
+        if (!baseService.isUndefinedOrNull($scope.employeeInformation.SystemId))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.employeeInformation.EmployeeName + ' ]';
+        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+    }
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.employeeInformation.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.employeeInformation.SystemId)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.employeeInformation.Id,
+                url: $scope.deleteUrl + $scope.employeeInformation.SystemId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -272,9 +277,7 @@ function guestUserController(cboService, fileReader, commonMessage, $scope, $roo
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.models.splice($scope.index, 1);
-                    baseService.paginationRemove();
-                    ClearFields(response.data.Sequence);
+                    $scope.getData();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
