@@ -34,6 +34,7 @@ function loanInterestPayableController(accountService, bankService, cboService, 
         DocDate: null,
         DocRefNo: null,
         Amount: "",
+        DownPaymentAmount: "",
         Narration: null,
         BankName: null,
         BankMasterId: null,
@@ -571,6 +572,18 @@ function loanInterestPayableController(accountService, bankService, cboService, 
             }
         }
         $scope.hidePartyPopUp();
+    };
+
+    $scope.calTotalLoanAmount = function () {
+        var voucherAmount = 0;
+        var DownPaymentAmount = 0;
+        if ($scope.voucher.Amount != '' && $scope.voucher.Amount != undefined) {
+            voucherAmount = parseFloat($scope.voucher.Amount);
+        }
+        if ($scope.voucher.DownPaymentAmount != '' && $scope.voucher.DownPaymentAmount != undefined) {
+            DownPaymentAmount = parseFloat($scope.voucher.DownPaymentAmount);
+        }
+        $scope.voucher.TotalLoanAmount = (voucherAmount + DownPaymentAmount);
     };
 
     $scope.Clear = function () {
