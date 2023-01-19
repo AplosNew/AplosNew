@@ -223,11 +223,23 @@
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanTaken.ToString()'">Payable Amount<sup>*</sup></label>
                 <label class="col-sm-3 control-label" ng-show="voucher.TransactionType=='@Library.Model.Enums.TransactionType.LoanGiven.ToString()'">Receiable Amount<sup>*</sup></label>
                 <div class="col-sm-4 show-message" style="padding-right:0px;">
-                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off" >
+                    <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount);calTotalLoanAmount()" n-decimals="2" class="form-control text-right" autocomplete="off">
                 </div>
                 <label class="col-sm-3 control-label">Rate<sup>*</sup></label>
                 <div class="col-sm-2 show-message">
-                    <input type="text" maxlength="50" id="Rate" name="Rate"  ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
+                    <input type="text" maxlength="50" id="Rate" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">Down Payment</label>
+                <div class="col-sm-9 show-message">
+                    <input type="text" maxlength="50" id="DownPaymentAmount" name="DownPaymentAmount" ng-model="voucher.DownPaymentAmount" ng-keyup="calTotalLoanAmount()" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">Total Amount</label>
+                <div class="col-sm-9 show-message">
+                    <input type="text" maxlength="50" id="TotalLoanAmount" name="TotalLoanAmount" ng-model="voucher.TotalLoanAmount" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4" readonly>
                 </div>
             </div>
             <div class="form-group" id="div_qty" ng-show="voucher.ExchangeType">

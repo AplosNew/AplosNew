@@ -3115,6 +3115,7 @@ namespace Library.Service.Finances
                     PartyType = voucherVM.PartyType,
                     CurrencyId = voucherVM.CurrencyId,
                     Amount = voucherVM.Amount,
+                    //DownPaymentAmount = voucherVM.DownPaymentAmount,
                     VoucherDate = voucherVM.VoucherDate,
                     PostingDate = voucherVM.PostingDate,
                     DocDate = voucherVM.DocDate,
