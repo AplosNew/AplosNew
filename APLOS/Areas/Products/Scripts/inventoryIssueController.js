@@ -1112,6 +1112,44 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 
 	// #endregion Specific Stock
 
+	// #region Machine Inventory Issue
+
+
+
+	$scope.getMachineInventoryIssueStock = function () {
+		angular.element(document.querySelector('#ShowMachineInventoryIssue')).modal('show');
+	}
+	$scope.GetPopUpMachineInventoryIssueClosed = function () {
+		angular.element(document.querySelector('#ShowMachineInventoryIssue')).modal('hide');
+	}
+
+		$scope.showMachinePopUp = function () {
+			angular.element(document.querySelector('#machinePopUp')).modal('show');
+			};
+
+	//$scope.showMachinePopUp = function () {
+	//	$http({
+	//		method: 'POST',
+	//		url: 'employees/EmployeeInformation/GetEmployeeListByPlant',
+	//		// data: { issueDetailId: issueDetailId },
+	//		 dataType: 'JSON'
+	//	}).then(function (response) {
+	//		$scope.materialStockList = response.data;
+	//		angular.element(document.querySelector('#machinePopUp')).modal('show');
+	//	}), function (response) {
+	//		ShowResult(response.data.Message, 'failure');
+	//	};
+	//};
+	$scope.closeMachinePopUp = function () {
+		angular.element(document.querySelector('#machinePopUp')).modal('hide');
+	};
+
+	$scope.clearMachine = function () {
+		$scope.MachineName = null;
+		$scope.MachineId = null;
+	};
+	// #endregion Machine Inventory Issue
+
 	$scope.ApprovedStockList = [];
 	$scope.getApprovedStock = function (data) {
 		$http({
@@ -1467,7 +1505,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	//$scope.CostCenterLoad();
 
 	$scope.CostCenterLoadNew = function () {
-		debugger
+		//debugger
 
 		$http({
 			method: "GET",
@@ -2334,7 +2372,6 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		angular.element(document.querySelector('#ContractPopUp')).modal('hide');
 	}
 	$scope.ClearList = function (data) {
-		debugger;
 		$scope.inventoryMaterialList = [];
 		$scope.OrderSpecific = data;
 		$scope.productNew.ContractId = null;

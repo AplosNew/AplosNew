@@ -375,7 +375,7 @@ function baseMaterialAndArticleController(cboService, commonMessage, $scope, $ro
         
     ];
     $scope.getMaterialMasterbyTypePopUp = function () {
-        debugger;
+        //debugger;
         $scope.mmPopUpParameters = {
             limit: 10
             , offset: 0

@@ -46,13 +46,13 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
         }
 
 
-        public IEnumerable<object> allFilterLists()
+        public IEnumerable<object> allFilterLists(string PlantId)
         {
             try
             {
                     var str = @"
                             Select distinct c.Id as CompanyId,c.UserName as Company,e.Id as EntityId, e.UserName as Entity,
-                            p.Id as PlantId,p.UserName as Plant,sd.ShiftDefinationDescription as [Shift],sd.SystemID as ShiftId,
+                            p.Id as PlantId,p.UserName as Plant,s.ShiftDefinationDescription as [Shift],s.SystemID as ShiftId,
                             ISNULL (om.SkillId,'') as SkillId,ISNULL( om.UserName,'') as Skill, ISNULL(omp.UserName,'') AS Process,
                             ISNULL(omp.Id,'') as ProcessId, ISNULL(skc.UserName,'') AS Category, ISNULL(skc.Id,'') as CategoryId,
                             ISNULL(om.[Type],'') AS [Type],ISNULL(om.OperationTypeId,'') as TypeId,
@@ -65,9 +65,12 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
 							join hkp.EntityProcessTag ep on ep.ProcessId = omp.Id
 							join org.Entity e on e.Id = ep.EntityId
 							join org.Plant p on p.Id = e.PlantId
-							join ShiftDefination sd on sd.PlantID = p.Id
+							left join(select distinct sd.SystemID,sd.ShiftDefinationDescription,WC.EntityId from SCS.WorkCenterMaster WC
+							left join [dbo].[WorkCenterWiseShift] WS ON WS.WorkCenterMasterId=WC.Id 
+							join ShiftDefination sd on sd.SystemID=WS.ShiftDefinationID
+							) S ON S.EntityId=E.Id
 							join org.Company c on c.Id = p.CompanyId
-";
+                            Where p.Id='"+PlantId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -301,9 +304,9 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
             var str = @"select  isnull(emp.Skill1,0) as Skill1, isnull(emp.Skill2,0) as Skill2, isnull(emp.Skill3,0) as Skill3,skc.[Sequence],omp.Id as ProcessId, 
 om.Id AS OperationMasterId,om.SkillId, om.SkillGroupId , om.OperationTypeId , isnull(om.Code,'') as SkillCode,om.UserName AS Skill ,	om.OperationCategoryId as CategoryId,
 skc.UserName as SkillCat,omsk.SkillCategoryId,omsk.UserName AS UserName,
-isnull(DT.ProductionDate,'"+fromDate+@"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
+isnull(DT.ProductionDate,'"+fromDate+ @"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
 isnull(sum(dt.AllotedManpower),0) as AllotedManpower , 
-isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),isnull(emp.Skill1,0)-ISNULL(sum(dt.AllotedManpower),0)) AS ShortExcess
+isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),ISNULL(sum(dt.AllotedManpower),0))-isnull(sum(dt.RequiredManPower),0) AS ShortExcess
 FROM
  hkp.Skill AS omsk 
 LEFT OUTER JOIN hkp.SkillCategory AS skc ON skc.Id = omsk.SkillCategoryId
@@ -370,7 +373,7 @@ LEFT JOIN (SELECT
 											LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 											LEFT JOIN EmployeeOperation EO ON EO.EmpSystemId=E.SystemId
 											LEFT JOIN MST.OperationMaster EOP ON EOP.Id=EO.OperationMasterId
-											 JOIN (
+											LEFT JOIN (
 											SELECT ES.EmpSystemID, S.ShiftDefinationDescription
 											FROM EmpDateWiseShiftAssign ES
 											LEFT JOIN ShiftDefination S ON S.SystemID = ES.ShiftSystemID
