@@ -46,13 +46,13 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
         }
 
 
-        public IEnumerable<object> allFilterLists()
+        public IEnumerable<object> allFilterLists(string PlantId)
         {
             try
             {
                     var str = @"
                             Select distinct c.Id as CompanyId,c.UserName as Company,e.Id as EntityId, e.UserName as Entity,
-                            p.Id as PlantId,p.UserName as Plant,sd.ShiftDefinationDescription as [Shift],sd.SystemID as ShiftId,
+                            p.Id as PlantId,p.UserName as Plant,s.ShiftDefinationDescription as [Shift],s.SystemID as ShiftId,
                             ISNULL (om.SkillId,'') as SkillId,ISNULL( om.UserName,'') as Skill, ISNULL(omp.UserName,'') AS Process,
                             ISNULL(omp.Id,'') as ProcessId, ISNULL(skc.UserName,'') AS Category, ISNULL(skc.Id,'') as CategoryId,
                             ISNULL(om.[Type],'') AS [Type],ISNULL(om.OperationTypeId,'') as TypeId,
@@ -65,9 +65,12 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
 							join hkp.EntityProcessTag ep on ep.ProcessId = omp.Id
 							join org.Entity e on e.Id = ep.EntityId
 							join org.Plant p on p.Id = e.PlantId
-							join ShiftDefination sd on sd.PlantID = p.Id
+							left join(select distinct sd.SystemID,sd.ShiftDefinationDescription,WC.EntityId from SCS.WorkCenterMaster WC
+							left join [dbo].[WorkCenterWiseShift] WS ON WS.WorkCenterMasterId=WC.Id 
+							join ShiftDefination sd on sd.SystemID=WS.ShiftDefinationID
+							) S ON S.EntityId=E.Id
 							join org.Company c on c.Id = p.CompanyId
-";
+                            Where p.Id='"+PlantId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)

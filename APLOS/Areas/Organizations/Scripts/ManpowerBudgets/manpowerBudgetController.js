@@ -146,7 +146,18 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
     }
     $scope.manPowerbudgetmasterNew = Object.assign({}, $scope.manPowerbudgetmaster);
 
-  
+    $scope.manpowerBudgetKPIResponsible = {
+        Id: null,
+        ManpowerBudgetId: null,
+        EffectiveDate: null,
+        ResponsiblePersonId: null,
+        ResponsiblePerson: null,
+        TeamLeaderId: null,
+        TeamLeader: null,
+        Remarks: null
+
+    }
+    $scope.manpowerBudgetKPIResponsibleNew = Object.assign({}, $scope.manpowerBudgetKPIResponsible);
 
     $scope.companyList = [];
     $scope.lineList = [];
@@ -240,6 +251,7 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
                 $scope.getAllowance();
                 $scope.getManpowerBudgetDetail();
                 $scope.GetSavedAdditionalPlanData();
+                $scope.GetSavedKPIResponsibleData();
                 //$scope.GetCostCenterCboByCompanyandEntity($scope.manPowerbudgetmasterNew.EntityId);
                 if (!$rootScope.isCollapsed) {
                     $rootScope.toggle();
@@ -1180,7 +1192,33 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
             ShowResult(e, 'failure');
         }
     };
-
+    $scope.SaveKPIResponsible = function () {
+        try {
+            $scope.manpowerBudgetKPIResponsibleNew.ManpowerBudgetId = $scope.manPowerbudgetmasterNew.Id;
+            if (baseService.isUndefinedOrNull($scope.manpowerBudgetKPIResponsibleNew.ManpowerBudgetId)) {
+                throw "Manpower Budget is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Organizations/ManpowerBudget/CreateKPIResponsible',
+                data: { 'data': $scope.manpowerBudgetKPIResponsibleNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedKPIResponsibleData();
+                    KPIClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
     $scope.ClearAdditionalPlan = function () {
         $scope.ManpowerBudgetAdditionalPlan = {
             Id: null,
@@ -1191,6 +1229,15 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
             Remarks: null
         }
         $scope.ManpowerBudgetAdditionalPlanNew = Object.assign({}, $scope.ManpowerBudgetAdditionalPlan);
+    }
+
+    $scope.ClearKPI = function () {
+        KPIClearFields();
+    };
+
+    function KPIClearFields() {
+        $scope.Action = "Save";
+        $scope.manpowerBudgetKPIResponsibleNew = Object.assign({}, $scope.manpowerBudgetKPIResponsible);
     }
 
     $scope.SavedAdditionalPlanList = [];
@@ -1209,6 +1256,72 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         $scope.ManpowerBudgetAdditionalPlanNew = Object.assign({}, obj.data);
     }
 
+    $scope.manpowerBudgetKPIResponsibleList = [];
+    $scope.GetSavedKPIResponsibleData = function () {
+        $http.get('Organizations/ManpowerBudget/GetSavedKPIResponsibleData?masterId=' + $scope.manPowerbudgetmasterNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.manpowerBudgetKPIResponsibleList = response.data;
+                }
+            });
+    }
+
+    $scope.GetKPIDetails = function (obj) {
+        obj.data.EffectiveDate = $filter('dateFiltering')(new Date(obj.data.EffectiveDate), 'dd-MM-yyyy');
+        $scope.manpowerBudgetKPIResponsibleNew = Object.assign({}, obj.data);
+    }
+ 
+    $scope.selectResponsiblePerson = function () {
+        $scope.getEmployee();
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
+    }
+
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+    }
+
+    $scope.doubleEmployee = function (e) {
+        $scope.manpowerBudgetKPIResponsibleNew.ResponsiblePersonId = e.data.SystemId;
+        $scope.manpowerBudgetKPIResponsibleNew.ResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.closeResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.selectTeamLeader = function () {
+        $scope.getTeamLeader();
+        angular.element(document.querySelector('#TeamLeaderPopup')).modal('show');
+    }
+
+    $scope.TeamLeaderList = [];
+    $scope.getTeamLeader = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetTeamLeader',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.TeamLeaderList = resp.data;
+        });
+    }
+
+    $scope.doubleTeamLeader = function (e) {
+        $scope.manpowerBudgetKPIResponsibleNew.TeamLeaderId = e.data.SystemId;
+        $scope.manpowerBudgetKPIResponsibleNew.TeamLeader = e.data.EmployeeName;
+        angular.element(document.querySelector('#TeamLeaderPopup')).modal('hide');
+    }
+
+    $scope.closeTeamLeaderPopUp = function () {
+        angular.element(document.querySelector('#TeamLeaderPopup')).modal('hide');
+    }
     //#endregion
 
 }
