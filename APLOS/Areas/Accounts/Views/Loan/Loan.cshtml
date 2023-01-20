@@ -136,11 +136,11 @@
             <label class="col-sm-4 control-label">Loan Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 @*<div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
-                        <select ng-change="getTransactionTypeGL(voucher.FinancingTypeId)" name="Loan Type" class="form-control searchableDDL" ng-model="voucher.FinancingTypeId" tabindex="16" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in financingTypeList" value="{{option.Value}}">{{option.AssetUserName}}</option>
-                        </select>
-                    </div>*@
+                    <select ng-change="getTransactionTypeGL(voucher.FinancingTypeId)" name="Loan Type" class="form-control searchableDDL" ng-model="voucher.FinancingTypeId" tabindex="16" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in financingTypeList" value="{{option.Value}}">{{option.AssetUserName}}</option>
+                    </select>
+                </div>*@
 
                 <div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
                     <select name="Budget" class="form-control searchableDDL1" ng-model="voucher.FinancingTypeId" ng-change="getTransactionTypeGL(voucher.FinancingTypeId)">
@@ -156,18 +156,18 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Doc Ref<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
+            <label class="col-sm-4 control-label">Doc Ref<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
                 <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="3" required autocomplete="off" capitalize>
             </div>
         </div>
+    </div>
+    <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group" id="div_qty" show-errors>
             <label class="col-sm-3 control-label">Amount<sup>*</sup></label>
             <div class="col-sm-6 show-message" style="padding-right:0px;">
-                <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-change="LoadRepamentDetail()" n-decimals="2" class="form-control text-right" autocomplete="off" required>
+                <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-change="LoadRepamentDetail();calTotalLoanAmount()" n-decimals="2" class="form-control text-right" autocomplete="off" required>
             </div>
             <div class="col-sm-3 show-message" style="padding-left:0px;">
                 <div class="select-style">
@@ -178,8 +178,18 @@
                 </div>
             </div>
         </div>
-
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Down Payment</label>
+            <div class="col-sm-9 show-message">
+                <input type="text" maxlength="50" id="DownPaymentAmount" name="DownPaymentAmount" ng-model="voucher.DownPaymentAmount" ng-keyup="calTotalLoanAmount()" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Total Amount</label>
+            <div class="col-sm-9 show-message">
+                <input type="text" maxlength="50" id="TotalLoanAmount" name="TotalLoanAmount" ng-model="voucher.TotalLoanAmount" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4" readonly>
+            </div>
+        </div>
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Currency Rate<sup>*</sup></label>
             <div class="col-sm-9 show-message">

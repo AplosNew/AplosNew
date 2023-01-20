@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -28,7 +29,7 @@ namespace Aplos.Areas.Employees.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
         private readonly IEmployeeProfileService _employeeProfileService;
-
+        EmployeeProfile employeeProfile = new EmployeeProfile();
         public GuestUserController(
               IEmployeeProfileService employeeProfileService
             , ISqlRepository sqlRepository
@@ -52,22 +53,12 @@ namespace Aplos.Areas.Employees.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetList(GridParameter parameters)
+        public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            parameters.CmdText = @"SELECT E.SystemId,E.EmployeeCode,E.GroupID,E.DivisionId,E.DepartmentId,E.SectionId,E.SubSectionId,E.DesignationGroupId,E.DesignationSystemID,E.BudgetCode,E.PositionID
-	                        ,E.CardNumber,E.Salutation,E.FirstName,E.MiddleName,E.LastName,E.EmployeeName,E.NickName,E.EmpPicPath,FORMAT(E.DOB,'dd-MMM-yyyy') DOB ,E.GenderID,E.GivenDesignationId	,E.LegalDesignationId
-	                        ,E.EmailId,E.EmpType,D.UserName Division,DPT.UserName Department, S.UserName Section, SS.UserName SubSection,DG.UserName GivenDesignation,LDG.UserName Designation,E.IsAccessible,MB.PIN,FORMAT(E.TentativeExpiryDate,'dd-MMM-yyyy') TentativeExpiryDate
-                        FROM EmployeeInformation E
-                        LEFT JOIN ORG.Division D ON D.Id = E.DivisionId
-                        LEFT JOIN ORG.Department DPT ON DPT.Id = E.DepartmentId
-                        LEFT JOIN ORG.Section S ON S.Id = E.SectionId
-                        LEFT JOIN ORG.SubSection SS ON SS.Id = E.SubSectionId
-                        LEFT JOIN HKP.Designation DG ON DG.Id = E.GivenDesignationId
-                        LEFT JOIN HKP.LegalDesignation LDG ON LDG.Id = E.LegalDesignationId
-                        LEFT JOIN HKP.EmployeeMobileAppsAuthorization MB ON MB.EmployeeId = E.SystemId
-                        WHERE E.GroupID = '" + identity .CompanyGroupId+ "' AND EmpType='Guest'";
-            return Json(_sqlRepository.GetGridData(parameters), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(employeeProfile.GetGuestEmployee(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
 
@@ -75,19 +66,9 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetGusetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           string CmdText = @"SELECT MB.Id,E.SystemId EmployeeId,E.EmployeeCode,E.GroupID,E.DivisionId,E.DepartmentId,E.SectionId,E.SubSectionId,E.DesignationGroupId,E.DesignationSystemID,E.BudgetCode,E.PositionID
-	                        ,E.CardNumber,E.Salutation,E.FirstName,E.MiddleName,E.LastName,E.EmployeeName,E.NickName,E.EmpPicPath,FORMAT(E.DOB,'dd-MMM-yyyy') DOB ,E.GenderID,E.GivenDesignationId	,E.LegalDesignationId
-	                        ,E.EmailId,E.EmpType,D.UserName Division,DPT.UserName Department, S.UserName Section, SS.UserName SubSection,DG.UserName GivenDesignation,LDG.UserName Designation,E.IsAccessible,MB.PIN
-                        FROM HKP.EmployeeMobileAppsAuthorization MB  
-						LEFT JOIN EmployeeInformation E ON MB.EmployeeId = E.SystemId
-                        LEFT JOIN ORG.Division D ON D.Id = E.DivisionId
-                        LEFT JOIN ORG.Department DPT ON DPT.Id = E.DepartmentId
-                        LEFT JOIN ORG.Section S ON S.Id = E.SectionId
-                        LEFT JOIN ORG.SubSection SS ON SS.Id = E.SubSectionId
-                        LEFT JOIN HKP.Designation DG ON DG.Id = E.GivenDesignationId
-                        LEFT JOIN HKP.LegalDesignation LDG ON LDG.Id = E.LegalDesignationId
-                        WHERE E.GroupID = '" + identity.CompanyGroupId + "' AND EmpType='Guest'";
-            return Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(employeeProfile.GetGusetList(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
 
@@ -110,13 +91,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                var sql = @"SELECT A.Id AS [Value], A.UserName AS [Text], B.DesignationGroupId FROM [HKP].[LegalDesignation] A
-                            LEFT OUTER JOIN (SELECT * FROM [MST].[DesignationMasterLegalDesignation]) DL ON A.Id=DL.LegalDesignationId
-                            LEFT OUTER JOIN (SELECT * FROM [MST].[DesignationMaster] where CompanyGroupId='" + companyGroupId + @"')B ON DL.DesignationMasterId = B.Id
-                            Order By A.UserName";
-
-                return Json(_sqlRepository.GetDataCollection(sql, null),JsonRequestBehavior.AllowGet);
-
+                return Json(employeeProfile.GetAllLegalDesignationCbo(companyGroupId),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -137,7 +112,7 @@ namespace Aplos.Areas.Employees.Controllers
             
 
             SaveData(employee, out string Id);
-
+            employee.SystemId = Id;
             var file = Request.Files["file"];
             if (file != null)
             {
@@ -242,6 +217,10 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["EmployeeStatus"] = "Active";
                     dr["EmpType"] = "Guest";
                     dr["TentativeExpiryDate"] = data.TentativeExpiryDate;
+                    dr["IsConfirmed"] = false;
+                    dr["ExcludeOT"] = false;
+                    dr["EmployeeCodeNumeric"] = 0;
+                    dr["isLeaveOnDOC"] = false;
 
                     dr["AddedBy"] = identity.Name;
                     dr["DateAdded"] = DateTime.Now;
@@ -265,6 +244,10 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["SubSectionId"] = data.SubSectionID;
                     dr["LegalDesignationId"] = data.LegalDesignationId;
                     dr["TentativeExpiryDate"] = data.TentativeExpiryDate;
+                    dr["IsConfirmed"] = false;
+                    dr["ExcludeOT"] = false;
+                    dr["isLeaveOnDOC"] = false;
+                    dr["EmployeeCodeNumeric"] = 0;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["DateUpdated"] = System.DateTime.Now.ToString();

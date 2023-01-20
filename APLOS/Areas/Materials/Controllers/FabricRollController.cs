@@ -147,7 +147,9 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GRNList(string column, string value, string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsFabric.GRNList(column, value, fromDate, toDate,identity.PlantId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsFabric.GRNList(column, value, fromDate, toDate, identity.PlantId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpPost, Authorize]
@@ -370,7 +372,8 @@ namespace Aplos.Areas.Materials.Controllers
                 //sheet1[xlsRow, xlsCol].Text = clsStaticInfo.SetDate(fabricRollMaster["PODate"].ToString());
                 if (fabricRollMaster["PODate"] != null)
                 {
-                    clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                    //clsStaticInfo.SetDate(sheet1[xlsRow, xlsCol], Convert.ToDateTime(fabricRollMaster["PODate"]).ToString("dd-MMM-yyyy"));
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PODate"].ToString();
                 }
                 xlsCol += 1;
 
@@ -398,19 +401,14 @@ namespace Aplos.Areas.Materials.Controllers
 
                 xlsCol += 1;
 
-                //ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Invoice No");
-                //if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["InvoiceNo"])))
-                //{
-                //    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["InvoiceNo"].ToString();
-                //}
-                xlsCol += 1;
-
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
-                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Invoice No"); xlsCol++;
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["InvoiceNo"])))
                 {
-                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString();
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["InvoiceNo"].ToString();
                 }
-                xlsCol += 1;
+                //xlsCol += 1;
+
+               
 
                 xlsRow++; xlsCol = 1;
 
@@ -427,7 +425,12 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet1[xlsRow, xlsCol].Text = fabricRollMaster["OpeningBank"].ToString();
                 }
                 xlsCol += 1;
-
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PI No");
+                if (!string.IsNullOrEmpty(Convert.ToString(fabricRollMaster["PINo"])))
+                {
+                    sheet1[xlsRow, xlsCol].Text = fabricRollMaster["PINo"].ToString();
+                }
+                xlsCol += 1;
                 xlsRow = 6; xlsCol = 1;
                 int endXlsCol = 1;
 
@@ -453,21 +456,21 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnGSM"); colOwnGSM = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "StdGSM"); colStdGSM = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariation"); colGSMVariation = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariationPer"); colGSMVariationPer = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariationPer",16); colGSMVariationPer = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shade"); colShade = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise"); colShrinkageLength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageLengthWise",16); colShrinkageLength = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageWidthWise"); colShrinkagewidth = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShrinkageGroup"); colShrinkageGroup = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Dia"); colDia = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade"); colSupplierQualityGrade = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQualityGrade",14); colSupplierQualityGrade = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QualityStatus"); colQualityStatus = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReportNo"); colFTPReportNo = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPReceiveDate"); colFTPReceiveDate = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FTPStatus"); colFTPStatus = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DimensionalChange3rdWash"); colDimensionalChange3rdWash = xlsCol; xlsCol += 1;                
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spirality3rdWash"); colSpirality3rdWash = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PillingResistance"); colPillingResistance = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BurstingStrength"); colBurstingStrength = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DimensionalChange3rdWash",11); colDimensionalChange3rdWash = xlsCol; xlsCol += 1;                
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Spirality3rdWash",16); colSpirality3rdWash = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PillingResistance",16); colPillingResistance = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BurstingStrength",16); colBurstingStrength = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Absorbency"); colAbsorbency = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "pHValue"); colpHValue = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sewablity"); colSewablity = xlsCol; xlsCol += 1;
@@ -839,7 +842,7 @@ namespace Aplos.Areas.Materials.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 18, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 34, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 //var pquom = "";
@@ -977,16 +980,15 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                UploadDefault_data = UploadDefault_data.Replace("\\", "");
-
-                DataTable AdditionalData = CustomJsonResult.ToDataTable(UploadDefault_data);
-
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the Fabric Roll.");
 
                 foreach (var file in UploadDefault)
                 {
 
-                    //var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
-                    var fileName = Path.GetFileName(AdditionalData.Rows[0]["Id"].ToString() + new FileInfo(file.FileName).Extension);
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    //var fileName = Path.GetFileName(AdditionalData.Rows[0]["Id"].ToString() + new FileInfo(file.FileName).Extension);
                     var fileN = file.FileName;
                     var destinationPath = Path.Combine(ResourcesPathReader.GetFabricRollsFilePath(), fileName);
 
@@ -1007,15 +1009,15 @@ namespace Aplos.Areas.Materials.Controllers
 
 
                     ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
-                    string sql = "select * from [BPDT].[FabricRollManagementMaster] where id='" + AdditionalData.Rows[0]["Id"].ToString() + "'";
+                    string sql = "select * from [BPDT].[FabricRollManagementMaster] where id='" + UploadDefault_data + "'";
                     DataSet dsLocal = null;
                     connection.BeginTransaction();
                     connection.getDataSet(sql, out dsLocal);
                     connection.CommitTransaction();
                     var FN = dsLocal.Tables[0].Rows[0]["Attachment"].ToString();
                     if (fileN != FN)
-                        if (System.IO.File.Exists(path + AdditionalData.Rows[0]["Id"].ToString() + Path.GetExtension(FN)))
-                            System.IO.File.Delete(path + AdditionalData.Rows[0]["Id"].ToString() + Path.GetExtension(FN));
+                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
                     if (dsLocal.Tables[0].Rows.Count > 0)
                     {
                         dsLocal.Tables[0].Rows[0].BeginEdit();
@@ -1073,23 +1075,37 @@ namespace Aplos.Areas.Materials.Controllers
         public string Sequence { get; set; }
         public string GRNRowId { get; set; }
         public string LotNo { get; set; }
-        public string Shade { get; set; }
-        public string MarkarCode { get; set; }
-        public string FabricGroup { get; set; }
-        public string Length { get; set; }
-
-        public string Weight { get; set; }
-        public string Shrinkage { get; set; }
-        public string Qty { get; set; }
-        public string QtyUoM { get; set; }
-        public string ActualQty { get; set; }
-        public string InvoiceQty { get; set; }
-
+        public string Color { get; set; }
+        public string FabricType { get; set; }
+        public string FabricQuality { get; set; }
         public string SupplierRollNo { get; set; }
         public string OwnRollNo { get; set; }
-        public string BuyerRollNo { get; set; }
-        public string Grouping { get; set; }
-        public string Remarks { get; set; }
+        public string QtyUoM { get; set; }
+        public string SupplierQty { get; set; }
+        public string ActualQty { get; set; }
+        public string CutableWeight { get; set; }
+        public string OwnGSM { get; set; }
+        public string StdGSM { get; set; }
+        public string GSMVariation { get; set; }
+        public string GSMVariationPer { get; set; }
+        public string Shade { get; set; }
+        public string ShrinkageLengthWise { get; set; }
+        public string ShrinkageWidthWise { get; set; }
+        public string ShrinkageGroup { get; set; }
+        public string Dia { get; set; }
+        public string SupplierQualityGrade { get; set; }
+        public string QualityStatus { get; set; }
+        public string FTPReportNo { get; set; }
+        public string FTPReceiveDate { get; set; }
+        public string FTPStatus { get; set; }
+        public string DimensionalChange3rdWash { get; set; }
+        public string Spirality3rdWash { get; set; }
+        public string PillingResistance { get; set; }
+        public string BurstingStrength { get; set; }
+        public string Absorbency { get; set; }
+        public string pHValue { get; set; }
+        public string Sewablity { get; set; }
+        public string Handfeel { get; set; }
 
     }
 }

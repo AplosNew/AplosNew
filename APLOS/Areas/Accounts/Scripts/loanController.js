@@ -34,6 +34,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         DocDate: null,
         DocRefNo: null,
         Amount: "",
+        DownPaymentAmount:"",
         Narration: null,
         BankName: null,
         BankMasterId: null,
@@ -366,6 +367,17 @@ function loanController(accountService, bankService, cboService, commonMessage, 
 
     $scope.totalInstallment = function () {
         $scope.voucher.TotalNoOfInstallment = ($scope.voucher.LifeOfYear * $scope.voucher.NoOfInstallmentPerYear);
+    };
+    $scope.calTotalLoanAmount = function () {
+        var voucherAmount = 0;
+        var DownPaymentAmount = 0;
+        if ($scope.voucher.Amount != '' && $scope.voucher.Amount != undefined) {
+            voucherAmount = parseFloat($scope.voucher.Amount);
+        }
+        if ($scope.voucher.DownPaymentAmount != '' && $scope.voucher.DownPaymentAmount != undefined) {
+            DownPaymentAmount = parseFloat($scope.voucher.DownPaymentAmount);
+        }
+        $scope.voucher.TotalLoanAmount = (voucherAmount + DownPaymentAmount);
     };
 
     $scope.passBankCashAmount = function () {

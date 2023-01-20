@@ -97,6 +97,11 @@ function MachineConfig($routeProvider, $locationProvider) {
             controller: 'pendingSkillManagementController'
         })
 
+        .when('/position-wise-designation', {
+            templateUrl: 'Machines/PositionWiseDesignation/Aplos',
+            controller: 'positionWiseDesignationController'
+        })
+
         .when('/special-issue-control', {
             templateUrl: 'Machines/SpecialIssueControl/Aplos',
             controller: 'specialIssueControlController'

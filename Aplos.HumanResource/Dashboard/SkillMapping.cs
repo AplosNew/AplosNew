@@ -301,9 +301,9 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
             var str = @"select  isnull(emp.Skill1,0) as Skill1, isnull(emp.Skill2,0) as Skill2, isnull(emp.Skill3,0) as Skill3,skc.[Sequence],omp.Id as ProcessId, 
 om.Id AS OperationMasterId,om.SkillId, om.SkillGroupId , om.OperationTypeId , isnull(om.Code,'') as SkillCode,om.UserName AS Skill ,	om.OperationCategoryId as CategoryId,
 skc.UserName as SkillCat,omsk.SkillCategoryId,omsk.UserName AS UserName,
-isnull(DT.ProductionDate,'"+fromDate+@"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
+isnull(DT.ProductionDate,'"+fromDate+ @"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
 isnull(sum(dt.AllotedManpower),0) as AllotedManpower , 
-isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),isnull(emp.Skill1,0)-ISNULL(sum(dt.AllotedManpower),0)) AS ShortExcess
+isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),ISNULL(sum(dt.AllotedManpower),0))-isnull(sum(dt.RequiredManPower),0) AS ShortExcess
 FROM
  hkp.Skill AS omsk 
 LEFT OUTER JOIN hkp.SkillCategory AS skc ON skc.Id = omsk.SkillCategoryId
@@ -370,7 +370,7 @@ LEFT JOIN (SELECT
 											LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 											LEFT JOIN EmployeeOperation EO ON EO.EmpSystemId=E.SystemId
 											LEFT JOIN MST.OperationMaster EOP ON EOP.Id=EO.OperationMasterId
-											 JOIN (
+											LEFT JOIN (
 											SELECT ES.EmpSystemID, S.ShiftDefinationDescription
 											FROM EmpDateWiseShiftAssign ES
 											LEFT JOIN ShiftDefination S ON S.SystemID = ES.ShiftSystemID

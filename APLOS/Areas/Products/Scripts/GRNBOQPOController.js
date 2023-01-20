@@ -629,8 +629,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         $scope.receiveTaxList.push($scope.POMaterialTaxList[i])
                     }
                 }
-                
-
             }
         }
         $scope.total = 0;
@@ -685,7 +683,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.Save = function () {
         if ($scope.Action === 'Save') {
 
-            //if (!$scope.checkValidation()) {
+            /*if (!$scope.checkValidation()) {*/
 
             try {
                 if ($scope.Action === 'Update') {
@@ -790,7 +788,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                     $scope.productNew.Id = response.data.entity.Id;
                                     $scope.productId = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
-                                    $scope.Action = 'Update';
+                                    //$scope.Action = 'Update';
                                     $scope.GetGRNMaterialTaxData($scope.productNew.Id);
                                 }
                             }), function (response) {
@@ -1512,13 +1510,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
     //#region Update of BOQ GRN PO
     $scope.MasterGrid = function ($event) {
-        //debugger;
+        $scope.MasterList = [];
+        $scope.GriddataSelected = [];
+        $scope.DetailList = [];
         var x = $event;
         var Id = x.data.Id;
-
-        //ClearFields();
         $scope.productId = Id;
-        $scope.Action = 'Update';
         $scope.ActionForEdit = 'Update';
         $scope.POId1 = x.data.POID;
         $scope.POID = x.data.POID;
@@ -1686,7 +1683,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     }
     $scope.TotalSumAfterTCSBOQ = function () {
 
-        if ($scope.Action === 'Save') {
+        if ($scope.inventoryMaterialListPO.length>0 ) {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
         }
         else {
@@ -2097,9 +2094,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     };
     $scope.TotalSumAfterTCS = function () {
 
-        if ($scope.Action === 'Save') {
+        if ($scope.MasterList.length>0) {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
-
         }
         else {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);

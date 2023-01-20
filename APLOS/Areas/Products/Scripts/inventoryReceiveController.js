@@ -3756,6 +3756,8 @@ function inventoryReceiveController(accountService, addressService, $window, fac
                                 $scope.GetListForMasterOrder[i].Id = null;
                                 $scope.GetListForMasterOrder[i].NetQty = $scope.GetListForMasterOrder[i].TransactionQty;
                                 $scope.GetListForMasterOrder[i].BaseQty = $scope.GetListForMasterOrder[i].TransactionQty;
+                                $scope.GetListForMasterOrder[i].TrnAmount = $scope.GetListForMasterOrder[i].TransactionQty * $scope.GetListForMasterOrder[i].TransactionRate;
+                                $scope.GetListForMasterOrder[i].MaterialTranAmount = $scope.GetListForMasterOrder[i].TransactionQty * $scope.GetListForMasterOrder[i].TransactionRate;
                                 $scope.GetListForMasterOrdernew.push($scope.GetListForMasterOrder[i]);
 
                             }
