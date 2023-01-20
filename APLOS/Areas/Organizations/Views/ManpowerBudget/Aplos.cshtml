@@ -26,6 +26,7 @@
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="address" role="tab" data-toggle="tab">Detail</a></li>
                     <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="address" role="tab" data-toggle="tab">Allowance</a></li>
                     <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="AdditionalPlan" role="tab" data-toggle="tab">AdditionalPlan</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(6)" href="" aria-controls="KPIResponsiblePerson" role="tab" data-toggle="tab">KPI Responsible Person</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -534,13 +535,77 @@
                             </ul>
                         </div>
                         <div class="col-xs-12">
-                            <div id="GridSavedDate" ej-grid e-datasource="SavedAdditionalPlanList"  e-recorddoubleclick="EditPlanAdditionalPlan"
+                            <div id="GridSavedDate" ej-grid e-datasource="SavedAdditionalPlanList" e-recorddoubleclick="EditPlanAdditionalPlan"
                                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
                                  e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
                                 <div e-columns>
                                     <div e-column e-field="FD" e-headertext="FromDate" e-width="3"></div>
                                     <div e-column e-field="TD" e-headertext="ToDate" e-width="3"></div>
                                     <div e-column e-field="AdditionalPlan" e-headertext="Additional Plan" e-width="3"></div>
+                                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+                    <div class="form-elements form-horizontal row" ng-form name="formTab6">
+                        <input type="hidden" ng-model="manpowerBudgetKPIResponsibleNew.Id">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control datepicker" datepicker ng-model="manpowerBudgetKPIResponsibleNew.EffectiveDate" name="EffectiveDate" tabindex="1">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Team Leader<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="col-sm-10" style="padding:0px;">
+                                        <input type="text" name="Team Leader" ng-disabled="true" ng-model="manpowerBudgetKPIResponsibleNew.TeamLeader" class="form-control" maxlength="100" required autocomplete="off">
+                                    </div>
+                                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                        <button ng-click="selectTeamLeader();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="col-sm-10" style="padding:0px;">
+                                        <input type="text" name="Responsible Person" ng-disabled="true" ng-model="manpowerBudgetKPIResponsibleNew.ResponsiblePerson" class="form-control" maxlength="100" required autocomplete="off">
+                                    </div>
+                                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                        <button ng-click="selectResponsiblePerson();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="manpowerBudgetKPIResponsibleNew.Remarks" maxlength="250" tabindex="14"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="SaveKPIResponsible();" class="btn"><i class="glyphicon glyphicon-plus"></i> {{ Action }} </button></li>
+                                    <li><button ng-click="ClearKPI();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div id="GridSavedDate" ej-grid e-datasource="manpowerBudgetKPIResponsibleList" e-recorddoubleclick="GetKPIDetails"
+                                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                                 e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-field="EDate" e-headertext="Effective Date" e-width="3"></div>
+                                    <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="3"></div>
+                                    <div e-column e-field="TeamLeader" e-headertext="Team Leader" e-width="3"></div>
                                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
                                 </div>
 
@@ -874,6 +939,76 @@
                     <ul class="list-inline text-right">
                         <li> <button ng-click="SelectEmployeeByButton();" class="btn"><i class=""></i> Select</button></li>
                         <li> <button type="button" class="btn btn-default" ng-click="CloseEmployeePopUp();">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ResponsiblePersonPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridResponsiblePersonPopUp" ej-grid e-datasource="EmployeeList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleEmployee">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="TeamLeaderPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridTeamLeaderPopUp" ej-grid e-datasource="TeamLeaderList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleTeamLeader">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeTeamLeaderPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
                     </ul>
                 </div>
             </div>
