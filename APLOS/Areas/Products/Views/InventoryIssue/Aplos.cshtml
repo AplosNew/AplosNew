@@ -200,11 +200,12 @@
                     <td>{{x.ThirdCharacteristicText}}</td>
                     <td>{{x.CountryName}}</td>
                     <td>{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-                    <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right"  width="80" ng-model="x.LotNumber" ></td> 
+                    <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="80" ng-model="x.LotNumber"></td>
                     <td class="text-right table-td">
                         <ul class="list-inline">
                             <li><button ng-show="x.Id==null" ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>
                             <li><button ng-show="x.Id!=null" ng-click="getRequisitionList(x.Id);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Specific GRN"><i class="glyphicon glyphicon-list"></i></button></li>
+                            <li><button @*ng-show="x.Id==null"*@ ng-click="getMachineInventoryIssueStock();" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Machine Inventoy Issue"><i class="glyphicon glyphicon-list"></i></button></li>
                             <li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                             <li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
                         </ul>
@@ -797,6 +798,157 @@
                 <ul class="common-btn list-inline text-right">
                     <li><button ng-click="CloseContractPopUp();" class="btn"> Apply</button></li>
                 </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="ShowMachineInventoryIssue" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body form-elements form-horizontal">
+                <fieldset class="scheduler-border">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border">Machine Inventory Issue</legend>
+                           
+                            <div class="clearfix"></div>
+                            <div class="table-responsive modal-table">
+                                <table class="table table-responsive table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Machine</th>
+                                            <th>Quantity</th>
+                                            <th>Remarks</th>
+                                            <th class="text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                               <span class="input-group-btn">
+                                               <input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
+                                                   <button ng-click="showMachinePopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                   <button ng-click="clearMachine()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                               </span>
+                                            </td>
+                                            <td id="td_TaxCodeAmount">
+                                                <div class="show-message">
+                                                    <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="checkRowValidationSdditionalTax(advanceTax.TaxAmount);">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <textarea type="text" name="remarks" class="form-control" maxlength="350" rows="1" ng-model="Remarks" tabindex="4" capitalize></textarea>
+                                                </div>
+                                            </td>
+                                            <td class="text-right">
+                                                <a ng-click="additionalTax();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                            </td>
+                                        </tr>
+                                        <tr ng-repeat="x in advanceTaxesList">
+                                            <td>{{x.TaxName}}</td>
+                                            <td>{{x.ValueOfFixed}}</td>
+                                            <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                                            <td class="text-right">
+                                                <button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot ng-show="advanceTaxesList.length">
+                                        <tr>
+                                            <td colspan="2"><b>Sub Total</b></td>
+                                            <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount' }}</b></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2"><b>Total Amount</b></td>
+                                            <td class="text-right"><b>{{TotalSumAfterTCSVal}}</b></td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </fieldset>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="GetPopUpMachineInventoryIssueClosed();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="machinePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Machine List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>Sub Section</th>
+                                <th>Line</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeMachinePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB}}</td>
+                                <td>{{x.LegalDesignation}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.Section}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.Line}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeMachinePopUp();" class="btn"><i class=""></i> Select</button>
             </div>
         </div>
     </div>
