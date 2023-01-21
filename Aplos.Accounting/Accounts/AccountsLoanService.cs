@@ -421,16 +421,16 @@ namespace Library.Accounting.Accounts
                                         , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount, B.UserName AS BudgetName, ID.ActivityId
                                         , A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') AS PostingDate
                                         , I.DocRefNo, I.Narration
-                                        , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+ISNULL(I.DownPaymentAmount,0) AS LoanAmount
+                                        , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+ISNULL(I.DownPaymentAmount,0)+ISNULL(ADLPD.AdditionalLoanDownPaymentAmount,0) AS LoanAmount
 										, ISNULL(LIP.InterestAmount,0)+ISNULL(LTP.TaxAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)) AS InterestAmount
 										, ISNULL(LTP.TaxAmount,0) AS TaxAmount
-										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(I.DownPaymentAmount,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
+										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(I.DownPaymentAmount,0)+ISNULL(ADLPD.AdditionalLoanDownPaymentAmount,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
 										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0)+ISNULL(LTP.TaxAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
                                         , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo,bk.UserName BankName
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
-										,ISNULL(ID.Amount,0)+ISNULL(I.DownPaymentAmount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
+										,ISNULL(ID.Amount,0)+ISNULL(I.DownPaymentAmount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0)+ISNULL(ADLPD.AdditionalLoanDownPaymentAmount,0) AdditionalLoanAmount
 										, ISNULL(LPE.OtherExpensesPayable,0)- ISNULL(CPR.ChargesPayableReverse,0) OtherExpensesPayable
                                         , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew
                                         ,0 isSelected,NULL ExchangeType,0 BaseDrAmount,0 BaseCrAmount
@@ -470,6 +470,8 @@ namespace Library.Accounting.Accounts
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('OtherExpensesPayable') group by LP.FinancingId) LPE ON LPE.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) ChargesPayableReverse
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('ChargesPayableReverse') group by LP.FinancingId) CPR ON CPR.FinancingId=I.Id
+											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.DownPaymentAmount) AdditionalLoanDownPaymentAmount
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('AdditionalLoanPayable') group by LP.FinancingId) ADLPD ON ADLPD.FinancingId=I.Id
 										LEFT JOIN (
 										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
@@ -485,16 +487,16 @@ namespace Library.Accounting.Accounts
                                         , GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount, B.UserName AS BudgetName, ID.ActivityId
                                         , A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') AS PostingDate
                                         , I.DocRefNo, I.Narration
-                                        , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+ISNULL(I.DownPaymentAmount,0) AS LoanAmount
+                                        , ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+ISNULL(I.DownPaymentAmount,0) +ISNULL(ADLPD.AdditionalLoanDownPaymentAmount,0) AS LoanAmount
 										, ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)) AS InterestAmount
 										, 0 AS TaxAmount
-										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(I.DownPaymentAmount,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
+										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(I.DownPaymentAmount,0)+ISNULL(ADLPD.AdditionalLoanDownPaymentAmount,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
 										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
                                         , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo,bk.UserName BankName
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
-										,ISNULL(ID.Amount,0)+ISNULL(I.DownPaymentAmount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
+										,ISNULL(ID.Amount,0)+ISNULL(I.DownPaymentAmount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0)+ISNULL(ADLPD.AdditionalLoanDownPaymentAmount,0) AdditionalLoanAmount
 										, ISNULL(LPE.OtherExpensesPayable,0)- ISNULL(CPR.ChargesPayableReverse,0) OtherExpensesPayable
                                         , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew
                                          , 0 isSelected,NULL ExchangeType,0 BaseDrAmount,0 BaseCrAmount
@@ -530,6 +532,8 @@ namespace Library.Accounting.Accounts
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('OtherExpensesPayable') group by LP.FinancingId) LPE ON LPE.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) ChargesPayableReverse
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('ChargesPayableReverse') group by LP.FinancingId) CPR ON CPR.FinancingId=I.Id
+											LEFT JOIN(SELECT LP.FinancingId,SUM(LP.DownPaymentAmount) AdditionalLoanDownPaymentAmount
+											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('AdditionalLoanPayable') group by LP.FinancingId) ADLPD ON ADLPD.FinancingId=I.Id
 										LEFT JOIN (
 										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
 										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
