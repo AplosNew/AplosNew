@@ -590,6 +590,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         angular.element(document.querySelector('#TaskListPopUp')).modal('hide');
                     }
                 }), function errorCallBack(response) {
+                    $scope.btndisable = false;
                     ShowResult(response.data.Message, 'failure');
                 };
             }
@@ -598,11 +599,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 $scope.btndisable = true;
                 for (var i = 0; i < baseService.arrayLength($scope.itemList); i++) {
                     if (baseService.isUndefinedOrNull($scope.itemList[i].MaterialMasterId))
+                        $scope.btndisable = false;
                         return ShowResult('Material master need in row number ' + (i + 1), 'failure');
                     if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
                         $scope.itemList[i].ContractId = $scope.modelNew.Id;
                     }
                     if (baseService.isUndefinedOrNull($scope.itemList[i].UOMId)) {
+                        $scope.btndisable = false;
                         return ShowResult('Item UoM is required.', 'failure');
                     }
                 }
