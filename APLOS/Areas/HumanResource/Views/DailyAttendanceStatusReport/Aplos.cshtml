@@ -1,0 +1,114 @@
+﻿<div class="form-elements form-horizontal">
+    <div class="row" ng-form name="ModelNewForm">
+        @*COLUMN 1*@
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">In Stattus<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="InStatus" required name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in InStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Category<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ProcessId" required name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EmployeeCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+
+                        <input type="text" name="Responsible Person" ng-model="EmployeeName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Status<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="EmployeeStatus" required name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EmployeeStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*COLUMN 2*@
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Late Status<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ProcessId" required name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in LateStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-model="Date" name="Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Team Leader<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+
+                        <input type="text" name="Responsible Person" ng-model="TeamLeader" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="Shift" required name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> View</button></li>
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Productions/Views/Parameter/_ResponsiblePerson.cshtml")

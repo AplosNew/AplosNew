@@ -535,6 +535,7 @@
     <Compile Include="Areas\Employees\Controllers\ResidenceGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeCodeTypeController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationApprovalMultipleNewController.cs" />
+    <Compile Include="Areas\Employees\Controllers\ResignationTypeController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
@@ -589,6 +590,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\DailyAttendanceStatusReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployerMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FiveSZoneMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
@@ -2010,6 +2012,7 @@
     <Content Include="Areas\Employees\Scripts\multipleResignationApprovalNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
+    <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
     <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
@@ -2085,6 +2088,7 @@
     <Content Include="Areas\FixedAssets\Scripts\entityFixedAssetsRegisterController.js" />
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
+    <Content Include="Areas\HumanResource\Scripts\DailyAttendanceStatusReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeSkillMatrixController.js" />
     <Content Include="Areas\HumanResource\Scripts\AbsentismReasoningMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
@@ -4498,6 +4502,10 @@
     <Content Include="Areas\Productions\Views\Parameter\_Machine.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\_Workcenter.cshtml" />
     <Content Include="Areas\Machines\Views\PositionWiseDesignation\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\ResignationType\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Entity.cshtml" />
+    <Content Include="Areas\Productions\Views\Parameter\_Process.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

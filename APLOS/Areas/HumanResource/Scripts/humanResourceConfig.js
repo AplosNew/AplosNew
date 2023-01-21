@@ -861,5 +861,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/QualificationMaster/Aplos',
             controller: 'QualificationMasterController'
         })
+        .when('/dailyattendance-status-report', {
+            templateUrl: 'humanResource/DailyAttendanceStatusReport/Aplos',
+            controller: 'DailyAttendanceStatusReportController'
+        })
         ;
 }

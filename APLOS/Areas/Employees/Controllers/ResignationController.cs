@@ -4,6 +4,7 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Employees;
 using Library.Service.Employees;
 using Library.Service.Helpers;
@@ -28,15 +29,19 @@ namespace Aplos.Areas.Employees.Controllers
 
         private readonly IEmployeeLeaveSummaryService _employeeLeaveSummary;
 
+        private readonly ISqlRepository _sqlRepository;
+
         public ResignationController(
               IResignationService ResignationService
             , IPreRecruitmentEmployeeService preRecruitmentEmployeeService
             , IEmployeeLeaveSummaryService employeeLeaveSummary
+            , ISqlRepository sqlRepository
             )
         {
             _ResignationService = ResignationService;
             _preRecruitmentEmployeeService = preRecruitmentEmployeeService;
             _employeeLeaveSummary = employeeLeaveSummary;
+            _sqlRepository = sqlRepository;
         }
         #endregion
 
@@ -168,6 +173,21 @@ namespace Aplos.Areas.Employees.Controllers
         {
             _employeeLeaveSummary.Save(CompanyGroupId);
             return Json(new { Message = AplosMessage.Updated });
+        }
+
+        [HttpGet]
+        public JsonResult GetResignationType()
+        {
+            try
+            {
+                var sql = "select Id Value, UserName Text from HKP.ResignationType order by UserName";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         #endregion
