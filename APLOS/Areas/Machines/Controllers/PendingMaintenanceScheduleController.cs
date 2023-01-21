@@ -120,11 +120,11 @@ from TRN.Maintenancescheduling MS
             }
             else if (Status == "Completed")
             {
-                Filter = " and MPD.ActualDate is not null and MPD.PlannedDate is not null";
+                Filter = " and MPD.ActualDate is not null and MPD.PlannedDate is not null order by MPD.ActualDate desc";
             }
             else
             {
-                Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null";
+                Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null order by MPD.PlannedDate";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select MS.Id,Format(MPD.PlannedDate,'dd-MMM-yyyy') as PlannedDate,MPD.Id as PlannedId,MMA.EntityId,E.UserName Entity,MS.UserName ScheduleName,MM.UserName MachineName,MM.MachineMake Make,
@@ -161,8 +161,7 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
  --left Join EmployeeInformation EI ON EI.SystemId=RP.ResponsiblePersonId
  where MS.IsActive=1 and
  Case when isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+(select top 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC)) end between '" + fromdate + "' and '" + todate + "' " + Filter + @" " + Responsible + @"  order by MPD.PlannedDate";
+ ORDER BY APD.Id DESC),'')='' then GETDATE() else (MPD.ActualDate) end between '" + fromdate + "' and '" + todate + "' " + Filter + @" " + Responsible + @"";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
