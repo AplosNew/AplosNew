@@ -101,12 +101,6 @@
 
 
 
-
-
-
-
-
-
     </div>
     <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group" show-errors>
@@ -216,66 +210,7 @@
     </div>
 </div>
 <div class="aplos-grid-toggle">
-    @*<div class="row text-right">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        @*<div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>*@
-    @*<div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Issue Type</th>
-                        <th>Entity Name</th>
-                        <th>Employee</th>
-                        <th>Issue No</th>
-                        <th>Storage Location</th>
-                        <th>Issue Date</th>
-                        <th>Qty</th>
-                        <th>Amount</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in issueList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get($index);">
 
-                        <td>{{x.IssueType}}</td>
-                        <td>{{x.Entity}}</td>
-                        <td>{{x.EmployeeName}}</td>
-                        <td>{{x.Id}}</td>
-                        <td>{{x.MaterialStorage}}</td>
-                        <td>{{x.IssueDate}}</td>
-                        <td class="text-right">{{x.Qty}}</td>
-                        <td class="text-right">{{x.Amount| number| setDecimal:2}}</td>
-                        <td class="text-right table-td">
-                            <ul class="list-inline">
-                                <li><a class="btn btn-action" ng-click="IssueReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <dir-pagination-controls max-size="10"
-                                     direction-links="true" boundary-links="true"
-                                     on-page-change="getData(newPageNumber)">
-            </dir-pagination-controls>
-        </div>*@
 
     <fieldset class="scheduler-border">
         <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
@@ -808,73 +743,69 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body form-elements form-horizontal">
-                <fieldset class="scheduler-border">
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <fieldset class="scheduler-border">
-                            <legend class="scheduler-border">Machine Inventory Issue</legend>
-                           
-                            <div class="clearfix"></div>
-                            <div class="table-responsive modal-table">
-                                <table class="table table-responsive table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Machine</th>
-                                            <th>Quantity</th>
-                                            <th>Remarks</th>
-                                            <th class="text-right">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                               <span class="input-group-btn">
-                                               <input type="text" name="EmployeeName" ng-model="productNew.EmployeeName" class="form-control" readonly required>
-                                                   <button ng-click="showMachinePopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                                   <button ng-click="clearMachine()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                               </span>
-                                            </td>
-                                            <td id="td_TaxCodeAmount">
-                                                <div class="show-message">
-                                                    <input type="text" n-decimals="2" class="form-control text-right" ng-model="advanceTax.TaxAmount" ng-keyup="checkRowValidationSdditionalTax(advanceTax.TaxAmount);">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <textarea type="text" name="remarks" class="form-control" maxlength="350" rows="1" ng-model="Remarks" tabindex="4" capitalize></textarea>
-                                                </div>
-                                            </td>
-                                            <td class="text-right">
-                                                <a ng-click="additionalTax();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
-                                            </td>
-                                        </tr>
-                                        <tr ng-repeat="x in advanceTaxesList">
-                                            <td>{{x.TaxName}}</td>
-                                            <td>{{x.ValueOfFixed}}</td>
-                                            <td class="text-right">{{x.TaxAmount | number:2 }}</td>
-                                            <td class="text-right">
-                                                <button ng-click="removeTaxesRow(x.Id,$index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot ng-show="advanceTaxesList.length">
-                                        <tr>
-                                            <td colspan="2"><b>Sub Total</b></td>
-                                            <td class="text-right"><b>{{ advanceTaxesList | sumByKey : 'TaxAmount' }}</b></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2"><b>Total Amount</b></td>
-                                            <td class="text-right"><b>{{TotalSumAfterTCSVal}}</b></td>
-                                            <td></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </fieldset>
-                    </div>
-
+                <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="clearfix"></div>
-                </fieldset>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-responsive table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Machine</th>
+                                    <th>Qty</th>
+                                    <th>Remarks</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="text" name="MachineName" ng-model="modelNew.MachineName" class="form-control" readonly required>
+                                            <span class="input-group-btn">
+                                                <button ng-click="showMachinePopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearMachine()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td id="td_TaxCodeAmount">
+                                        <div class="show-message">
+                                            <input type="text" n-decimals="2" class="form-control text-right" ng-model="modelNew.Qty">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <textarea type="text" name="remarks" class="form-control" maxlength="350" rows="1" ng-model="modelNew.Remarks" tabindex="4" capitalize></textarea>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <a ng-click="addMachine();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="x in machineQtyList">
+                                    <td>{{x.MachineName}}</td>
+                                    <td>{{x.Qty}}</td>
+                                    <td class="text-right">{{x.Remarks}}</td>
+                                    <td class="text-right">
+                                        <button ng-click="removeMachineRow(x.Id,$index)" data-toggle="modal"  class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot ng-show="machineQtyList.length">
+                                <tr>
+                                    <td colspan="2"><b>Sub Total</b></td>
+                                    <td class="text-right"><b>{{ machineQtyList | sumByKey : 'Qty' }}</b></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><b>Total Amount</b></td>
+                                    <td class="text-right"><b>{{TotalSumAfterTCSVal}}</b></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="GetPopUpMachineInventoryIssueClosed();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
@@ -885,27 +816,28 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="machinePopUp" role="dialog" data-backdrop="static">
+<!-- #region Material Master -->
+<div class="modal fade site-modal in" id="MachinePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">Machine List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header"> Machine (Mst)<button type="button" class="close" data-dismiss="modal">&times;</button> </div>
             <div class="modal-body">
                 <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
                         <div class="search-form">
                             <div class="row">
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="select-style">
-                                        <select ng-model="employeeParameters.searchBy">
-                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.value}}">{{option.name}}</option>
+                                        <select ng-model="machinepopUpParameters.searchBy">
+                                            <option ng-repeat="option in machinepopUpList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="machinepopUpParameters.search" ng-enter="getPopUpData()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -915,41 +847,40 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Employee Code</th>
-                                <th>Employee Name</th>
-                                <th>Date Of Birth</th>
-                                <th>Designation</th>
-                                <th>Department</th>
-                                <th>Section</th>
-                                <th>Sub Section</th>
-                                <th>Line</th>
+                                <td>MaterialType</td>
+                                <td>MaterialGroupMaster</td>
+                                <td>ProductMaster</td>
+                                <td>Material</td>
+                                <td>AssetMaster</td>
+                                <td>SKU</td>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
-                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeMachinePopUp();" pagination-id="metaData.name + 'employeeList'">
-                                <td>{{x.EmployeeCode}}</td>
-                                <td>{{x.EmployeeName}}</td>
-                                <td>{{x.DOB}}</td>
-                                <td>{{x.LegalDesignation}}</td>
-                                <td>{{x.Department}}</td>
-                                <td>{{x.Section}}</td>
-                                <td>{{x.SubSection}}</td>
-                                <td>{{x.Line}}</td>
+                            <tr dir-paginate="x in machinepopUpDataList|itemsPerPage:machinepopUpParameters.pageSize" total-items="machinepopUpParameters.total_count"
+                                pagination-id="metaData.name + 'machinepopUpDataList'" ng-dblclick="selectMichineDoubleClick(x)">
+                                <td>{{x.MaterialType}}</td>
+                                <td>{{x.MaterialGroupMaster}}</td>
+                                <td>{{x.ProductMaster}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.AssetMaster}}</td>
+                                <td>{{x.SKU}}</td>
                             </tr>
                         </tbody>
                     </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'machinepopUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
                 </div>
-                <dir-pagination-controls max-size="10"
-                                         pagination-id="metaData.name + 'employeeList'"
-                                         direction-links="true"
-                                         boundary-links="true"
-                                         on-page-change="getEmployeeData(newPageNumber)">
-                </dir-pagination-controls>
-            </div>
-            <div class="modal-footer common-btn">
-                <button ng-click="closeMachinePopUp();" class="btn"><i class=""></i> Select</button>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closeMichinePopUp()" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<!-- #endregion -->

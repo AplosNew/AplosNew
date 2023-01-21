@@ -79,7 +79,8 @@ namespace Aplos.Areas.IE.Controllers
         [HttpGet, Authorize]
         public ActionResult allFilterLists()
         {
-            JsonResult result =  Json(skill.allFilterLists(), JsonRequestBehavior.AllowGet);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult result =  Json(skill.allFilterLists(identity.PlantId), JsonRequestBehavior.AllowGet);
             result.MaxJsonLength = int.MaxValue;
             return result;
         }
