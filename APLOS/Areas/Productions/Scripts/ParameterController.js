@@ -52,8 +52,10 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $scope.GetSavedParameterChild();
+            $scope.GetSavedEntity();
             $scope.GetSavedProduct();
             $scope.GetSavedWorkcenter();
+            $scope.GetParameterEntity();
 
             $rootScope.toggle();
 
@@ -763,4 +765,284 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
 
     }
         //  #endregion Clear
+
+    //  #region Entity Tab
+    $scope.OpenEntityPopUp = function () {
+        angular.element(document.querySelector('#EntityPopupId')).modal('show');
+        $scope.GetEntity();
+    }
+    $scope.closeEntityPopUp = function () {
+        angular.element(document.querySelector('#EntityPopupId')).modal('hide');
+
+    }
+    $scope.EntityList = [];
+    $scope.GetEntity = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEntity',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EntityList = resp.data;
+        });
+
+    }
+    
+
+    $scope.SaveEntityList = [];
+    $scope.CreateEntityWithParameterSetup = function () {
+        $scope.SaveEntityList = [];
+        if (baseService.arrayLength($scope.EntityList) > 0) {
+            angular.forEach($scope.EntityList, function (a) {
+
+                if (a.chk) {
+                    var ob = {};
+
+                    ob.EntityId = a.EntityId;
+                    ob.Id = null;
+
+                    $scope.SaveEntityList.push(ob);
+                    ob = {};
+                    a.chk = false;
+                }
+            });
+        }
+
+       
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CreateEntityWithParameterSetup',
+            data: {
+                models: $scope.SaveEntityList,
+                headerid: $scope.ModelNew.Id,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.closeProductPopUp();
+                //$scope.ModelNew.Id = response.data.Data.Id;
+                $scope.GetSavedEntity();
+                $scope.SaveEntityList = [];
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+       
+    };
+
+    $scope.ParameterEntityList = []
+    $scope.GetSavedEntity = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetSavedEntity?headerid=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+
+            $scope.ParameterEntityList = resp.data;
+        });
+    }
+
+    $scope.RemoveEntityRow = function (x) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'RemoveWorkcenter?RemoveEntityRow=' + x.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //ClearFields(response.data.Sequence);
+                $scope.GetSavedWorkcenter();
+                $scope.getData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
+    //  #endregion Entity Tab
+
+    //  #region Process Tab
+    $scope.OpenProcessPopUp = function () {
+        angular.element(document.querySelector('#ProcessPopupId')).modal('show');
+        $scope.GetProcess();
+    }
+    $scope.closeProcessPopUp = function () {
+        angular.element(document.querySelector('#ProcessPopupId')).modal('hide');
+
+    }
+    $scope.ProcessList = [];
+    $scope.GetProcess = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetProcess',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ProcessList = resp.data;
+        });
+
+    }
+    
+
+    $scope.SaveProcessList = [];
+    $scope.CreateProcessWithParameterSetup = function () {
+        $scope.SaveProcessList = [];
+        if (baseService.arrayLength($scope.ProcessList) > 0) {
+            angular.forEach($scope.ProcessList, function (a) {
+
+                if (a.chk) {
+                    var ob = {};
+
+                    ob.ProcessId = a.Id;
+                    ob.Id = null;
+
+                    $scope.SaveProcessList.push(ob);
+                    ob = {};
+                    a.chk = false;
+                }
+            });
+        }
+
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CreateProcessWithParameterSetup',
+            data: {
+                models: $scope.SaveProductList,
+                headerid: $scope.ModelNew.Id,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.closeProductPopUp();
+                //$scope.ModelNew.Id = response.data.Data.Id;
+                $scope.GetSavedProcess();
+                $scope.SaveProcessList = [];
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+    $scope.ParameterProcessList = []
+    $scope.GetSavedProcess = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetSavedProcess?headerid=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+
+            $scope.ParameterProcessList = resp.data;
+        });
+    }
+    //  #endregion Process Tab
+
+    //  #region Machine Tab
+    $scope.OpenMachinePopUp = function () {
+        angular.element(document.querySelector('#MachinePopupId')).modal('show');
+        $scope.GetMachine();
+    }
+    $scope.CloseMachinePopUp = function () {
+        angular.element(document.querySelector('#MachinePopupId')).modal('hide');
+
+    }
+    $scope.MachineList = [];
+    $scope.GetMachine = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetMachine',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.MachineList = resp.data;
+        });
+
+    }
+   
+
+    $scope.SaveMachineList = [];
+    $scope.CreateMachineWithParameterSetup = function () {
+        $scope.SaveMachineList = [];
+        if (baseService.arrayLength($scope.MachineList) > 0) {
+            angular.forEach($scope.MachineList, function (a) {
+
+                if (a.chk) {
+                    var ob = {};
+
+                    ob.MachineId = a.Id;
+                    ob.Id = null;
+
+                    $scope.SaveMachineList.push(ob);
+                    ob = {};
+                    a.chk = false;
+                }
+            });
+        }
+
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CreateMachineWithParameterSetup',
+            data: {
+                models: $scope.SaveMachineList,
+                headerid: $scope.ModelNew.Id,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.CloseMachinePopUp();
+                //$scope.ModelNew.Id = response.data.Data.Id;
+                $scope.GetSavedMachine();
+                $scope.SaveMachineList = [];
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+    $scope.ParameterMachineList = []
+    $scope.GetSavedMachine = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetSavedMachine?headerid=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+
+            $scope.ParameterMachineList = resp.data;
+        });
+    }
+    //  #endregion Machine Tab
+
+    $scope.SavedParamEntityId = [];
+    $scope.GetParameterEntity = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetParameterEntity?headerid=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+
+            $scope.SavedParamEntityId = resp.data;
+        });
+    }
+
   }

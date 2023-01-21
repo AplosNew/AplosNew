@@ -348,6 +348,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
         };
     }
+
     $scope.refreshTemplateSalaryUnDisbursed = function (args) {
         $("#headchkB").ejCheckBox({ "change": CheckBoxSelectSalaryUnDisbursed });
     };

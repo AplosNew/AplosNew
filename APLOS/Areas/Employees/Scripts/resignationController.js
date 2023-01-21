@@ -14,6 +14,7 @@ function resignationController(cboService, commonMessage, $scope, $rootScope, ba
         Id: null,
         ResignationDate: null,
         Reason: null,
+        /*ResignationTypeId: null,*/
         Image: null,
         imageSrc: null,
         AttachLetter: null,
@@ -429,4 +430,17 @@ function resignationController(cboService, commonMessage, $scope, $rootScope, ba
             ShowResult(e, 'failure');
         }
     };
+
+    $scope.ResignationTypeList = [];
+    $scope.GetResignationType = function () {
+        $http({
+            method: 'GET',
+            url: 'employees/resignation/GetResignationType',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+
+            $scope.ResignationTypeList = resp.data;
+        });
+    }
+    $scope.GetResignationType();
 }

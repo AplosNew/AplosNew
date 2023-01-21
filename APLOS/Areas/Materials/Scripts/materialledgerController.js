@@ -81,7 +81,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         Storage: false
 	};
 	$scope.changeSourceFrom = function (from) {
-        debugger;
         if (from === 'AsOnDate') {
             $scope.report.FromDate = "";
 
@@ -122,7 +121,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
     $scope.pivotTableFieldListID = [];
 
 	$scope.GetPurchaseRegister = function () {
-		debugger;
 		
 		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 			ShowResult('Select From Date', 'failure');
@@ -818,7 +816,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
 
 	$scope.selectMaterialByType = function (ob) {
-		debugger;
 		var a = ob.IsAsset
 		if (a === true) {
 			$scope.IsAsset = 'It is  fixed asset';
@@ -916,13 +913,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             }
 
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 $scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 $scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -992,13 +987,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 return false;
             }
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 $scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 $scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -1074,7 +1067,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -1150,13 +1142,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 return false;
             }
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                 debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -1493,7 +1483,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
 
     $scope.MaterialReceiptsReportPdf = function (id, reportFormat) {
-		debugger;
 		$scope.productNew.Asset === false;
 		$scope.productNew.Inventory === false;
 		if ($scope.productNew.AsOnDate === 'AsOnDate') {
@@ -1548,13 +1537,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
 
 			if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-				debugger;
 				//$scope.productNew.Asset = 'Asset';
 				$scope.productNew.Inventory = false;
 				$scope.productNew.Asset = true;
 			}
 			if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-				debugger;
 				//$scope.productNew.Inventory = 'Inventory';
 				$scope.productNew.Asset = false;
 				$scope.productNew.Inventory = true;
@@ -1610,13 +1597,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
 
 			if ($scope.productNew.Asset === true && $scope.productNew.Inventory === false) {
-				debugger;
 				//$scope.productNew.Asset = 'Asset';
 				$scope.productNew.Inventory = false;
 				$scope.productNew.Asset = true;
 			}
 			if ($scope.productNew.Inventory === true && $scope.productNew.Asset === false) {
-				debugger;
 				//$scope.productNew.Inventory = 'Inventory';
 				$scope.productNew.Asset = false;
 				$scope.productNew.Inventory = true;
@@ -1668,13 +1653,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             }
 
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -1718,13 +1701,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 return false;
             }
             if ($scope.productNew.Asset === true && $scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined) {
-                debugger;
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if ($scope.productNew.Inventory === true && $scope.productNew.Asset === false || $scope.productNew.Asset === undefined) {
-                debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -2014,13 +1995,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             return false;
         }
         if (($scope.productNew.WithStock === true) && ($scope.productNew.WithoutStock === false || $scope.productNew.WithoutStock === undefined)) {
-            debugger;
             //$scope.productNew.Asset = 'Asset';
             $scope.productNew.WithoutStock = false;
             $scope.productNew.WithStock = true;
         }
         if (($scope.productNew.WithoutStock === true) && ($scope.productNew.WithStock === false || $scope.productNew.WithStock === undefined)) {
-            debugger;
             //$scope.productNew.Inventory = 'Inventory';
             $scope.productNew.WithStock = false;
             $scope.productNew.WithoutStock = true;
@@ -2043,7 +2022,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
     }
 
     $scope.MaterialMasterStatusReportPdf = function (reportFormat) {
-        debugger;
         $scope.productNew.WithStock === false;
         $scope.productNew.WithoutStock === false;
 
@@ -2084,13 +2062,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             return false;
         }
         if (($scope.productNew.WithStock === true) && ($scope.productNew.WithoutStock === false || $scope.productNew.WithoutStock === undefined)) {
-            debugger;
             //$scope.productNew.Asset = 'Asset';
             $scope.productNew.WithoutStock = false;
             $scope.productNew.WithStock = true;
         }
         if (($scope.productNew.WithoutStock === true) && ($scope.productNew.WithStock === false || $scope.productNew.WithStock === undefined)) {
-            debugger;
             //$scope.productNew.Inventory = 'Inventory';
             $scope.productNew.WithStock = false;
             $scope.productNew.WithoutStock = true;
@@ -2157,13 +2133,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 return false;
             }
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -2186,7 +2160,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
     };
     $scope.MaterialStationeryRequestReportExcel = function (id, reportFormat) {
-        debugger;
         $scope.productNew.Asset === false;
         $scope.productNew.Inventory === false;
 
@@ -2221,13 +2194,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 return false;
             }
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -2295,13 +2266,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 return false;
             }
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
@@ -2324,7 +2293,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
     };
     $scope.PhysicalInventoryReportExcel = function (id, reportFormat) {
-        debugger;
         $scope.productNew.Asset === false;
         $scope.productNew.Inventory === false;
         //if ($scope.productNew.AsOnDate === 'AsOnDate') {
@@ -2360,13 +2328,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             //}
 
             //if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-            //    debugger;
             //    //$scope.productNew.Asset = 'Asset';
             //    $scope.productNew.Inventory = false;
             //    $scope.productNew.Asset = true;
             //}
             //if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-            //    debugger;
             //    //$scope.productNew.Inventory = 'Inventory';
             //    $scope.productNew.Asset = false;
             //    $scope.productNew.Inventory = true;
@@ -2420,13 +2386,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 return false;
             }
             if (($scope.productNew.Asset === true) && ($scope.productNew.Inventory === false || $scope.productNew.Inventory === undefined)) {
-                debugger;
                 //$scope.productNew.Asset = 'Asset';
                 $scope.productNew.Inventory = false;
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;

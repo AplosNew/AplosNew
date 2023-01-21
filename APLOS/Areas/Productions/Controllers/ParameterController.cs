@@ -94,13 +94,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetProduct()
         {
             return Json(pc.getProduct(), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetMachine()
-        {
-            return Json(pc.getMachine(), JsonRequestBehavior.AllowGet);
-        }
+        }        
 
         [HttpGet, Authorize]
         public ActionResult GetWorkcenter()
@@ -143,8 +137,6 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         #endregion GetFun
-
-
 
         #region Update
         [HttpPost]
@@ -244,5 +236,172 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
         #endregion DELETE
+
+        #region Entity
+        [HttpGet, Authorize]
+        public ActionResult GetEntity()
+        {
+            return Json(pc.GetEntity(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult CreateEntityWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.CreateEntityWithParameterSetup(headerid, models), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedEntity(string headerid)
+        {
+            return Json(pc.GetSavedEntity(headerid), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult RemoveEntity(string entityid)
+        {
+            try
+            {
+
+                string ret = pc.RemoveEntityRow(entityid);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion Entity
+
+        #region Process
+        [HttpGet, Authorize]
+        public ActionResult GetProcess()
+        {
+            return Json(pc.GetProcess(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult CreateProcessWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.CreateProcessWithParameterSetup(headerid, models), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedProcess(string headerid)
+        {
+            return Json(pc.GetSavedProcess(headerid), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult RemoveProcess(string processid)
+        {
+            try
+            {
+
+                string ret = pc.RemoveProcessRow(processid);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion Process
+
+        #region Machine
+        [HttpGet, Authorize]
+        public ActionResult GetMachine()
+        {
+            return Json(pc.GetMachine(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult CreateMachineWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                return Json(new { Error = false, Data = pc.CreateMachineWithParameterSetup(headerid, models), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedMachine(string headerid)
+        {
+            return Json(pc.GetSavedMachine(headerid), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult RemoveMachine(string machineid)
+        {
+            try
+            {
+
+                string ret = pc.RemoveMachineRow(machineid);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion Machine
+
+        public ActionResult GetParameterEntity(string headerid)
+        {
+            return Json(pc.GetParameterEntity(headerid), JsonRequestBehavior.AllowGet);
+        }
     }
 }
