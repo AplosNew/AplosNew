@@ -1036,7 +1036,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     };
 
     $scope.CostCenterLoadNew = function () {
-        debugger
+        //debugger
 
         $http({
             method: "GET",
