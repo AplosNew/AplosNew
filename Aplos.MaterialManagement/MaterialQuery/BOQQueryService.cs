@@ -141,15 +141,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
                         --,Round((IRD.MaterialTranRate * IR.ToCurrencyRate),4) 
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BaseCurrencyRate
-						, IRD.TransactionQty, IRD.BaseQty,grnmap.BaseQty GRNBOQQty
-						,ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0) StockQty
-						, ISNULL(II.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
-						 ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
+						, grnmap.TransactionQty, grnmap.BaseQty,grnmap.BaseQty GRNBOQQty
+						,ISNULL(grnmap.BaseQty,0) - ISNULL(II.IssueQty, 0) StockQty
+						, ISNULL(II.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty
+						, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
+						 ,((((((ISNULL(grnmap.BaseQty,0) - ISNULL(II.IssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
                         ,ISNULL(IRD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
 						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4) TrnCurrencyBaseRate
-                        ,round(ISNULL(II.IssueAmount,0),4) TotalIssueAmount
+                        --,round(ISNULL(II.IssueAmount,0),4) TotalIssueAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
@@ -170,7 +171,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
                         ,TempTrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
 						,IRD.BaseUOMId IssueTransactionUoMId
-						,'' IssueTransactionUoM
+						,'' IssueTransactionUoM,ISNULL(IRD.LotNumber,'') LotNumber
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
@@ -185,15 +186,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					LEFT JOIN (
-									    select IID.InventoryMaterialId,IH.InventoryReceiveDetailId, II.MaterialStorageId
-                                        , Sum(ISNULL(IH.Qty,0)) IssueQty , Sum(ISNULL(IH.TotalMaterialBooksCurrencyAmount,0)) IssueAmount,IID.IsAsset
-									    FROM TRN.InventoryIssueDetail IID  
-									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
-									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-									    WHERE --convert(Date,II.IssueDate) <= CAST('" + issueDate + @"' AS DATE)  AND 
-                                        II.PlantId='" + plantId + @"'   
-									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, II.MaterialStorageId
-									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
+									    select IHB.InventoryReceiveDetailId
+                                        , Sum(ISNULL(IHB.Qty,0)) IssueQty 
+										,IHB.BOQDetailId
+									    FROM TRN.InventoryIssueHistoryBOQ IHB 
+									    GROUP BY IHB.InventoryReceiveDetailId
+										,IHB.BOQDetailId
+									    ) II ON II.InventoryReceiveDetailId=grnmap.InventoryReceiveDetailId 
+										and ii.BOQDetailId=grnmap.BOQDetailId
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
                     AND IR.[Status]='Posting' AND IR.IsFOC=0

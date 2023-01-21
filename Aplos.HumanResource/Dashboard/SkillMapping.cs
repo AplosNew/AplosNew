@@ -46,13 +46,13 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
         }
 
 
-        public IEnumerable<object> allFilterLists()
+        public IEnumerable<object> allFilterLists(string PlantId)
         {
             try
             {
-                    var str = @"
+                var str = @"
                             Select distinct c.Id as CompanyId,c.UserName as Company,e.Id as EntityId, e.UserName as Entity,
-                            p.Id as PlantId,p.UserName as Plant,sd.ShiftDefinationDescription as [Shift],sd.SystemID as ShiftId,
+                            p.Id as PlantId,p.UserName as Plant,s.ShiftDefinationDescription as [Shift],s.SystemID as ShiftId,
                             ISNULL (om.SkillId,'') as SkillId,ISNULL( om.UserName,'') as Skill, ISNULL(omp.UserName,'') AS Process,
                             ISNULL(omp.Id,'') as ProcessId, ISNULL(skc.UserName,'') AS Category, ISNULL(skc.Id,'') as CategoryId,
                             ISNULL(om.[Type],'') AS [Type],ISNULL(om.OperationTypeId,'') as TypeId,
@@ -65,9 +65,12 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
 							join hkp.EntityProcessTag ep on ep.ProcessId = omp.Id
 							join org.Entity e on e.Id = ep.EntityId
 							join org.Plant p on p.Id = e.PlantId
-							join ShiftDefination sd on sd.PlantID = p.Id
+							left join(select distinct sd.SystemID,sd.ShiftDefinationDescription,WC.EntityId from SCS.WorkCenterMaster WC
+							left join [dbo].[WorkCenterWiseShift] WS ON WS.WorkCenterMasterId=WC.Id 
+							join ShiftDefination sd on sd.SystemID=WS.ShiftDefinationID
+							) S ON S.EntityId=E.Id
 							join org.Company c on c.Id = p.CompanyId
-";
+                            Where p.Id='" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -158,7 +161,7 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
 
 
             DataTable dtDistinctDates = dtRequiredManpower.DefaultView.ToTable(true, "ProductionDate");
-           List<DateTime> ltDistinctDates = new List<DateTime>();
+            List<DateTime> ltDistinctDates = new List<DateTime>();
 
             for (int i = 0; i < dtDistinctDates.Rows.Count; i++)
             {
@@ -214,10 +217,10 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
 
                 }
 
-               
-                    dr[dtRequiredManpower.Rows[i]["ProductionDate"].ToString()] = OTSBD.clsStaticInfo.dbl(dtRequiredManpower.Rows[i]["ShortExcess"].ToString());
 
-                
+                dr[dtRequiredManpower.Rows[i]["ProductionDate"].ToString()] = OTSBD.clsStaticInfo.dbl(dtRequiredManpower.Rows[i]["ShortExcess"].ToString());
+
+
                 #endregion
                 SkillId = dtRequiredManpower.Rows[i]["SkillCode"].ToString();
             }
@@ -247,10 +250,10 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
                     SkillData.Rows.Add(dr);
                 }
 
-                
-                    dr[dtRequiredManpower.Rows[i]["ProductionDate"].ToString()] = OTSBD.clsStaticInfo.dbl(dtRequiredManpower.Rows[i]["Skill1"].ToString());
 
-                
+                dr[dtRequiredManpower.Rows[i]["ProductionDate"].ToString()] = OTSBD.clsStaticInfo.dbl(dtRequiredManpower.Rows[i]["Skill1"].ToString());
+
+
                 #endregion
 
                 SkillId = dtRequiredManpower.Rows[i]["SkillCode"].ToString();
@@ -283,10 +286,10 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
                     SkillData.Rows.Add(dr);
                 }
 
-                
-                    dr[dtRequiredManpower.Rows[i]["ProductionDate"].ToString()] = OTSBD.clsStaticInfo.dbl(dtRequiredManpower.Rows[i]["AllotedManPower"].ToString());
 
-                
+                dr[dtRequiredManpower.Rows[i]["ProductionDate"].ToString()] = OTSBD.clsStaticInfo.dbl(dtRequiredManpower.Rows[i]["AllotedManPower"].ToString());
+
+
                 #endregion
                 SkillId = dtRequiredManpower.Rows[i]["SkillCode"].ToString();
             }
@@ -295,15 +298,15 @@ group by mo.PlantId , c.Id , p.UserName , c.UserName";
         }
 
 
-        public List<Dictionary<string, object>> FilterWiseSkillData(out List<string> DateColumns ,  Dictionary<string, string> parameters , string fromDate , string toDate , out List<Dictionary<string, object>> dt)
+        public List<Dictionary<string, object>> FilterWiseSkillData(out List<string> DateColumns, Dictionary<string, string> parameters, string fromDate, string toDate, out List<Dictionary<string, object>> dt)
         {
 
             var str = @"select  isnull(emp.Skill1,0) as Skill1, isnull(emp.Skill2,0) as Skill2, isnull(emp.Skill3,0) as Skill3,skc.[Sequence],omp.Id as ProcessId, 
 om.Id AS OperationMasterId,om.SkillId, om.SkillGroupId , om.OperationTypeId , isnull(om.Code,'') as SkillCode,om.UserName AS Skill ,	om.OperationCategoryId as CategoryId,
 skc.UserName as SkillCat,omsk.SkillCategoryId,omsk.UserName AS UserName,
-isnull(DT.ProductionDate,'"+fromDate+@"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
+isnull(DT.ProductionDate,'" + fromDate + @"') as ProductionDate , isnull(dt.SkillIdTemp,'') as SkillIdTemp, isnull(sum(dt.RequiredManPower),0) as RequiredManPower,
 isnull(sum(dt.AllotedManpower),0) as AllotedManpower , 
-isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),isnull(emp.Skill1,0)-ISNULL(sum(dt.AllotedManpower),0)) AS ShortExcess
+isnull(emp.CompanyId,'') as CompanyId,convert(DECIMAL(18,2),ISNULL(sum(dt.AllotedManpower),0))-isnull(sum(dt.RequiredManPower),0) AS ShortExcess
 FROM
  hkp.Skill AS omsk 
 LEFT OUTER JOIN hkp.SkillCategory AS skc ON skc.Id = omsk.SkillCategoryId
@@ -370,7 +373,7 @@ LEFT JOIN (SELECT
 											LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 											LEFT JOIN EmployeeOperation EO ON EO.EmpSystemId=E.SystemId
 											LEFT JOIN MST.OperationMaster EOP ON EOP.Id=EO.OperationMasterId
-											 JOIN (
+											LEFT JOIN (
 											SELECT ES.EmpSystemID, S.ShiftDefinationDescription
 											FROM EmpDateWiseShiftAssign ES
 											LEFT JOIN ShiftDefination S ON S.SystemID = ES.ShiftSystemID
@@ -392,7 +395,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 
 
 
-             DataTable dtDistinctDates = dtRequiredManpower.DefaultView.ToTable(true, "ProductionDate");
+            DataTable dtDistinctDates = dtRequiredManpower.DefaultView.ToTable(true, "ProductionDate");
             List<DateTime> ltDistinctDates = new List<DateTime>();
 
             for (int i = 0; i < dtDistinctDates.Rows.Count; i++)
@@ -462,8 +465,8 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
                 }
             }
 
-             SkillId = "";
-             dr = null;
+            SkillId = "";
+            dr = null;
             ind = 0;
             for (int i = 0; i < dtRequiredManpower.Rows.Count; i++)
             {
@@ -499,8 +502,8 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
             }
 
 
-             SkillId = "";
-             dr = null;
+            SkillId = "";
+            dr = null;
             ind = 0;
             for (int i = 0; i < dtRequiredManpower.Rows.Count; i++)
             {
@@ -559,7 +562,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 
             }).CopyToDataTable();
 
-           DataTable dtTemp = dtCompact.DefaultView.ToTable();
+            DataTable dtTemp = dtCompact.DefaultView.ToTable();
 
             dtCompact = dtData.AsEnumerable().GroupBy(x => new { Flag = "Total Requirement" }).Select(x => {
 
@@ -576,7 +579,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 
             dtTemp.Merge(dtCompact.DefaultView.ToTable());
 
-             dtCompact = dtData.AsEnumerable().GroupBy(x => new { Flag = "Total Excess" }).Select(x => {
+            dtCompact = dtData.AsEnumerable().GroupBy(x => new { Flag = "Total Excess" }).Select(x => {
 
                 DataRow row = dtData.NewRow();
                 row["RowCaption"] = "Total Excess";
@@ -589,7 +592,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 
             }).CopyToDataTable();
 
-             dtTemp.Merge(dtCompact.DefaultView.ToTable());
+            dtTemp.Merge(dtCompact.DefaultView.ToTable());
 
             dtCompact = dtData.AsEnumerable().GroupBy(x => new { Flag = "Total Short" }).Select(x => {
 
@@ -598,7 +601,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
                 for (int i = 0; i < Columns.Count; i++)
                 {
 
-                    row[Columns[i]] = x.Sum(r => OTSBD.clsStaticInfo.dbl(r[Columns[i]])  <0 && r["Flag"].ToString() == "ShortExcess" ? Convert.ToDouble(r[Columns[i]]) : 0);
+                    row[Columns[i]] = x.Sum(r => OTSBD.clsStaticInfo.dbl(r[Columns[i]]) < 0 && r["Flag"].ToString() == "ShortExcess" ? Convert.ToDouble(r[Columns[i]]) : 0);
                 }
                 return row;
 
@@ -606,10 +609,10 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 
             dtTemp.Merge(dtCompact.DefaultView.ToTable());
 
-          
+
             return dtTemp;
         }
-        public IEnumerable<object> allotedWorkCenter(Dictionary<string, string> parameters ,string skillId , string date)
+        public IEnumerable<object> allotedWorkCenter(Dictionary<string, string> parameters, string skillId, string date)
         {
             try
             {
@@ -662,24 +665,24 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' 
 											group by EOP.Id,C.id 
 											) as shi on shi.operationId = om.Id
-                          where CAST(p1.ProductionDate as DATE) = '"+date+ @"' AND
+                          where CAST(p1.ProductionDate as DATE) = '" + date + @"' AND
                           isnull(po.PlantId ,'') IN(" + parameters["PlantId"] + @") AND
 					      isnull(po.EntityId,'') IN(" + parameters["EntityId"] + @")   AND
 					      isnull(omp.Id,'') IN(" + parameters["ProcessId"] + @")   AND
 					      isnull(om.OperationTypeId,'') IN(" + parameters["TypeId"] + @")  AND
-						  isnull(om.SkillId,'') ='" + skillId+ @"' and 
+						  isnull(om.SkillId,'') ='" + skillId + @"' and 
                           ISNULL(om.SkillGroupId,'') IN(" + parameters["SkillGroupId"] + @")
                     GROUP BY p1.ProductionDate , om.SkillId , wc.UserName ,po.id , om.Code , p1.WorkCenterMasterId
                 ";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw e;
             }
         }
 
-        public IEnumerable<object> skillWiseEmployees(string code, string shifts , string seq)
+        public IEnumerable<object> skillWiseEmployees(string code, string shifts, string seq)
         {
             try
             {
@@ -690,7 +693,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 											LEFT JOIN ORG.Plant P ON P.Id=E.PlantId
 											LEFT JOIN EmployeeOperation EO ON EO.EmpSystemId=E.SystemId
 											LEFT JOIN MST.OperationMaster EOP ON EOP.Id=EO.OperationMasterId
-											 JOIN (
+											LEFT JOIN (
 											SELECT ES.EmpSystemID, S.ShiftDefinationDescription
 											FROM EmpDateWiseShiftAssign ES
 											LEFT JOIN ShiftDefination S ON S.SystemID = ES.ShiftSystemID
@@ -698,7 +701,7 @@ om.UserName,om.OperationCategoryId ,skc.UserName , omsk.SkillCategoryId , omsk.U
 											WHERE ES.WorkDate =FORMAT(GETDATE(), 'dd-MMM-yyyy')
                                             AND isnull(S.SystemId,'') IN(" + shifts + @")
 											) AD ON AD.EmpSystemID=E.SystemId
-											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' and eop.code = '" + code+@"' and eo.Sequence = '"+seq+@"'
+											where E.EmployeeStatus='Active' AND E.EmpType<>'Guest' and eop.code = '" + code + @"' and eo.Sequence = '" + seq + @"'
 											order by E.EmployeeName";
                 return _sqlRepository.GetDataCollection(str);
             }

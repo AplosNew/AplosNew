@@ -32,6 +32,7 @@ using System.Linq;
 using Library.Model.Materials;
 using Library.Service.Materials;
 using Library.OrderManagement.Production;
+using Library.Service.Systems;
 #endregion
 
 namespace Aplos.Areas.OrderManagements.Controllers
@@ -47,13 +48,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         private readonly ICustomerPOService _customerPOService;
         private readonly ISqlRepository _sqlRepository;
         private readonly ICharacteristicsValueService _characteristicsValueService;
-        public MasterOrderController(IMasterOrderService masterOrderService, IPartyService partyService, ICustomerPOService customerPOService, ISqlRepository R, ICharacteristicsValueService characteristicsValueService)
+        private readonly IPKGeneratorService _pkGeneratorService;
+        public MasterOrderController(IMasterOrderService masterOrderService, IPartyService partyService, ICustomerPOService customerPOService, ISqlRepository R, ICharacteristicsValueService characteristicsValueService, IPKGeneratorService pkGeneratorService)
         {
             _masterOrderService = masterOrderService;
             _partyService = partyService;
             _customerPOService = customerPOService;
             _sqlRepository = R;
             _characteristicsValueService = characteristicsValueService;
+            _pkGeneratorService = pkGeneratorService;
         }
 
         #endregion
@@ -300,7 +303,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = lineId + idc;
+                            string id = _pkGeneratorService.MakePK(lineId, idc, 3);
+                            item["Id"] = id;
                             item["MasterOrderItemId"] = lineId;
 
                             AddNewRow(dsMaster.Tables[0], item);
@@ -377,7 +381,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = lineId + idc;
+                            string id = _pkGeneratorService.MakePK(lineId, idc, 3);
+                            item["Id"] = id;
                             item["SalesOrderId"] = lineId;
 
                             AddNewRow(dsMaster.Tables[0], item);

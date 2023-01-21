@@ -437,6 +437,8 @@
                                         <th ng-show="GriddataSelected.length===0">Other Acceptance Received</th>
                                         <th ng-hide="false">Balance</th>
                                         <th ng-show="GriddataSelected.length > 0">Current GRN Received</th>
+                                        <th>MaterialRate(TRN)</th>
+                                        <th>Lot Number </th>
                                         <th ng-show="GriddataSelected.length===0">Current Acceptance Received</th>
                                         <th>IsClosed</th>
                                         <th>ShortageQty</th>
@@ -444,7 +446,6 @@
                                         <th>ApprovedQty</th>
                                         <th>NetQty</th>
 
-                                        <th>MaterialRate(TRN)</th>
                                         <th>MaterialAmount(TRN)</th>
                                         <th>Discount</th>
                                         <th style="width:200px;">Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -455,7 +456,6 @@
                                         <th>CountryName</th>
                                         <th>RefferenceNo</th>
                                         <th>MaterialDetail</th>
-                                        <th>MaterialLotNumber </th>
                                         <th>MaterialDiameter</th>
                                         <th>MaterialType</th>
                                         <th>Action</th>
@@ -505,6 +505,8 @@
                                         <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.GRNRcvQty" ng-disabled="true"></td>
                                         <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.Balance" ng-disabled="true"></td>
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.TransactionQty" ng-disabled="x.Id"></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
+                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x,$index);" ng-disabled="x.Id"></td>
+                                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                         <td>
                                             <div class="checkbox-site">
                                                 <label>
@@ -517,7 +519,6 @@
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>  @* x.enableid ng-keyup="calculateAmount(x);"*@
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.NetQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x,$index);" ng-disabled="x.Id"></td>
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TrnAmount" ng-disabled="true"></td>
                                         <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscount(x)" ng-model="x.DiscountAmount" ng-disabled="false"></td>
                                         <td class="text-right" style="width:200px;"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="200" ng-model="x.BaseTaxAmount" ng-disabled="true"></td>
@@ -533,7 +534,6 @@
                                         <td>{{x.CountryName}}</td>
                                         <td>{{x.RefferenceNo}}</td>
                                         <td>{{x.MaterialDetail}}</td>
-                                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                         <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
 
@@ -556,11 +556,12 @@
                                         <td class="text-right" ng-disabled="AcceptanceId !=null"><strong>{{MasterList | sumByKey : 'Balance' }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'TransactionQty' }}</strong></td>
                                         <td></td>
+                                        <td></td>
+                                        <td></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'ShortageQty' }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'RejectionQty' }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'ApprovedQty' }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'NetQty' }}</strong></td>
-                                        <td></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'Discount'| setDecimal:currencyPrecision| number }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>
@@ -571,7 +572,6 @@
                                         <td></td>
                                         <td class="text-right">
                                         </td>
-                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -2028,8 +2028,6 @@
     </div>
 </div>
 
-
-
 <div class="modal fade site-modal in" id="GRnBOQPoo" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modelWithModify">
         <div class="modal-content">
@@ -2060,12 +2058,12 @@
                                 <div e-column e-template="#CurrentTextGRNRecvQty" e-field="GRNRcvQty" e-textalign="right" e-headertext="GRNRcvQty" e-width="80"></div>
                                 <div e-column e-template="#CurrentTextTRNQty" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                                 <div e-column e-field="Balance" e-headertext="Balance" e-width="80"></div>
+                                <div e-column e-field="TransactionRate" e-headertext="Transaction Rate" e-width="80"></div>
                                 <div e-column e-field="POClosStatus" e-headertext="POClosStatus" e-width="80"></div>
                                 <div e-column e-template="#CurrentTextShortQty" e-field="ShortageQty" e-textalign="right" e-headertext="Shortage Qty" e-width="100"></div>
                                 <div e-column e-template="#CurrentTextRejectQty" e-field="RejectionQty" e-textalign="right" e-headertext="Rejection Qty" e-width="100"></div>
                                 <div e-column e-field="ApprovedQty" e-headertext="Approved Qty" e-width="80"></div>
                                 <div e-column e-field="NetQty" e-headertext="Net Qty" e-width="80"></div>
-                                <div e-column e-field="TransactionRate" e-headertext="Transaction Rate" e-width="80"></div>
                                 <div e-column e-field="TrnAmount" e-headertext="Trn Amount" e-width="80"></div>
                                 <div e-column e-template="#CurrentTextDiscount" e-field="Discount" e-textalign="right" e-headertext="Discount" e-width="100"></div>
                                 <div e-column e-field="BaseTaxAmount" e-headertext="Base TaxAmount" e-width="80"></div>

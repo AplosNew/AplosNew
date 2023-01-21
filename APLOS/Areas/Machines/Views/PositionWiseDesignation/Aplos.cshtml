@@ -63,11 +63,11 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Skill Category<sup>*</sup></label>
+                        <label class="col-sm-4 control-label">Position Category<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
-                                <select class="form-control" ng-model="positionNew.SkillCategory" name="Skill Category" required
-                                        ng-options="item.Value as item.Text for item in SkillCategoryList">
+                                <select class="form-control" ng-model="positionNew.PositionCategory" name="Position Category" required
+                                        ng-options="item.Value as item.Text for item in PositionCategoryList">
                                     <option value=""></option>
                                 </select>
                             </div>
@@ -101,7 +101,7 @@
             <div class="site-tab">
                 <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" ng-class="{ active: isSetteam(1) }"><a ng-click="setTabTeam(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Designation Group</a></li>
-                    <li role="presentation" ng-class="{ active: isSetteam(2) }"><a ng-click="setTabTeam(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Designation GivenLegal</a></li>
+                    <li role="presentation" ng-class="{ active: isSetteam(2) }"><a ng-click="setTabTeam(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Designation Given/Legal</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -139,8 +139,9 @@
                             <div e-columns>
                                 <div e-column e-headertext="All" e-headertemplateid="#headerTemplateDesignation" e-template="#checkboxTemplateDesignation" e-textalign="center" e-width="30"></div>
                                 <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
-                                <div e-column e-field="LegalDesignation" e-headertext="Given\Legal Designation" e-width="100"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Given/Legal Designation" e-width="100"></div>
                                 <div e-column e-field="DesignationGroup" e-headertext="Designation Group" e-width="100"></div>
+                                <div e-column e-template="#SkillCategory" e-headertext="Skill Category" e-width="100"></div>
                             </div>
                         </div>
 
@@ -149,6 +150,13 @@
                         </script>
                         <script type="text/x-jsrender" id="headerTemplateDesignation">
                             <input type="checkbox" id="Dheadchk" />
+                        </script>
+                        <script type="text/template" id="SkillCategory">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.SkillCategory"
+                                        ng-options="item.Value as item.Text for item in $parent.SkillCategoryList">
+                                </select>
+                            </div>
                         </script>
                     </div>
                     <div class="common-btn">
@@ -168,7 +176,7 @@
                     <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>
                     <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
                     <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
-                    <div e-column e-field="SkillCategory" e-headertext="Skill Category" e-width="100"></div>
+                    <div e-column e-field="PositionCategory" e-headertext="Position Category" e-width="100"></div>
                     <div e-column e-field="CostReviewCategory" e-headertext="Cost Review Category" e-width="100"></div>
                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                     <div e-column e-field="IsActive" e-headertext="Is Active" e-width="100"></div>
@@ -192,12 +200,13 @@
                     <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                     <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>
                     <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
-                    <div e-column e-field="SkillCategory" e-headertext="Skill Category" e-width="100"></div>
+                    <div e-column e-field="PositionCategory" e-headertext="Position Category" e-width="100"></div>
                     <div e-column e-field="CostReviewCategory" e-headertext="Cost Review Catergory" e-width="100"></div>
-                    <div e-column e-field="Remarks" e-headertext="Remark" e-width="100"></div>
+                    <div e-column e-field="Remarks" e-headertext="Remark" e-width="100"></div>  
                     <div e-column e-field="DesignationGroup" e-headertext="Designation Group" e-width="100"></div>
                     <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
-                    <div e-column e-field="LegalDesignation" e-headertext="Given\Legal Designation" e-width="100"></div>
+                    <div e-column e-field="LegalDesignation" e-headertext="GivenLegal Designation" e-width="100"></div>
+                    <div e-column e-field="SkillCategory" e-headertext="Skill Category" e-width="100"></div>
                 </div>
             </div>
         </div>

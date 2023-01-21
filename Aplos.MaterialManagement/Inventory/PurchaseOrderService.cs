@@ -5629,7 +5629,9 @@ namespace Library.MaterialManagement.Inventory
                     ,PO.IsApproved
                     ,PO.PartyType
                     ,PO.PartyId
-                    ,mo.BuyerReferenceNo
+                    ,BuyerReferenceNo = STUFF((SELECT DISTINCT ',' + moi.BuyerReferenceNo from
+                                            trn.MasterOrderItem moi
+                                        WHERE CNO.Id = moi.ContractId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                     ,POD.RefferenceNo
                     , isnull(PO.DiscountAmount, 0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction, '') DeliveryInstruction
@@ -5731,7 +5733,6 @@ namespace Library.MaterialManagement.Inventory
                     LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
 
                     LEFT JOIN[dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                    LEFT JOIN(select distinct ContractId,BuyerReferenceNo  from trn.MasterOrderItem) AS mo ON mo.ContractId = CNO.Id
 
                     LEFT JOIN[dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
                   -- LEFT JOIN[HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
