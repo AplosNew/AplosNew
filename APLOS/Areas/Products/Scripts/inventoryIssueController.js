@@ -2437,6 +2437,62 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		});
 
 	}
+	$scope.machinepopUpList = [];
+	$scope.machinevalueData = '';
+	$scope.machinepopUpParameters = {
+		limit: 10,
+		offset: 0,
+		order: 'asc',
+		sort: 'Code',
+		searchBy: "UserName",
+		pageSize: 10,
+		total_count: 0,
+		search: null,
+		serverPagination: true
+	};
+	$scope.machinepopUpDataList = [];
+	$scope.showMachinePopUp = function () {
+		$scope.machinepopUpDataList = [];
+		$scope.popUpUrl = 'materials/materialmastermachineprocess/getmaterialmasterlist';
+		baseService.setCurrentPage('machinepopUpDataList');
+		$scope.getPopUpData = function (pageno) {
+			baseService.paginationBase($scope.popUpUrl, pageno, $scope.machinepopUpParameters)
+				.then(function (result) {
+					$scope.machinepopUpDataList = result.Rows;
+					$scope.machinepopUpParameters.total_count = result.Total;
+					if (baseService.arrayLength($scope.machinepopUpList) === 0) {
+						baseService.getDDLSearchColumn(result.Rows, $scope.machinepopUpList);
+					}
+				}, function () {
+					ShowResult(commonMessage.NetworkError, 'failure', 'MachinePopUp');
+				}).finally(function () {
+				});
+		};
+		angular.element(document.querySelector('#MachinePopUp')).modal('show');
+		$scope.getPopUpData();
+	};
+	$scope.modelNew = {};
+	$scope.selectMichineDoubleClick = function (data) {
+		$scope.modelNew.MachineName = data.UserName;
+		$scope.modelNew.MaterialMasterId = data.MaterialMasterId;
+		$scope.closeMichinePopUp();
+	};
+	$scope.closeMichinePopUp = function () {
+		angular.element(document.querySelector('#MachinePopUp')).modal('hide');
+	};
+	$scope.machineQtyList = [];
+    $scope.addMachine = function() {
+		$scope.machineQtyList.push($scope.modelNew);
+		$scope.modelNew = {};
+    }
+	$scope.removeMachineRow = function (Id, index) {
+		if (baseService.isUndefinedOrNull(Id)) {
+			$scope.machineQtyList.splice(index, 1);
 
-	
+		}
+		//else {
+		//	$scope.DeleteAdditinalTax(Id);
+		//	$scope.GetAdvanceTaxInfo($scope.productNew.Id);
+		//}
+	};
 }
