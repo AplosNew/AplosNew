@@ -618,20 +618,7 @@ LEFT JOIN HKP.ProductSubCategory PSC on PSC.Id = PM.ProductSubCategoryId";
            
         }
 
-        public IEnumerable<object> getMachine()
-        {
-            try
-            {
-                var sql = @"";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-
-        }
+        
 
         public IEnumerable<object> getWorkcenter()
         {
@@ -907,6 +894,357 @@ where PS.Id = '" + headerid + "'";
             dr.EndEdit();
         }
         #endregion CREATE AND EDIT DEFAULT COLUMN
+
+        #region Entity
+        public IEnumerable<object> GetEntity()
+        {
+            try
+            {
+                var sql = @"SELECT E.Id EntityId, E.UserName Entity, E.Code FROM ORG.Entity E where E.Active = 1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public List<Dictionary<string, object>> CreateEntityWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                string TableName = "MST.ParameterEntity";
+
+                DataSet dsChild;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ParameterSetupId='" + headerid + "'", out dsChild, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                foreach (var item in models)
+                {
+
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+                        item["Id"] = _Id;
+                        item["ParameterSetupId"] = headerid;
+
+                        AddNewRow(dsChild.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+
+
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+
+                return models;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSavedEntity(string headerid)
+        {
+            try
+            {
+                var sql = @" select PE.Id, PMS.UserName ParameterSetup, E.UserName Entity from MST.[ParameterEntity] PE
+ left join HKP.ParameterSetup PMS on PMS.Id = PE.ParameterSetupId
+ left join ORG.Entity E on E.Id = PE.EntityId
+ where PE.ParameterSetupId = '"+ headerid + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public string RemoveEntityRow(string entityid)
+        {
+            try
+            {
+
+                string TableName = "MST.ParameterEntity";
+                if (string.IsNullOrEmpty(entityid))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + entityid + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion  Entity
+
+        #region Process
+        public IEnumerable<object> GetProcess()
+        {
+            try
+            {
+                var sql = @"select P.Id ProcessId, P.Code, P.UserName Process from HKP.Process P Where P.Active = 1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public List<Dictionary<string, object>> CreateProcessWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                string TableName = "MST.ParameterProcess";
+
+                DataSet dsChild;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ParameterSetupId='" + headerid + "'", out dsChild, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                foreach (var item in models)
+                {
+
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+                        item["Id"] = _Id;
+                        item["ParameterSetupId"] = headerid;
+
+                        AddNewRow(dsChild.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+
+
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+
+                return models;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSavedProcess(string headerid)
+        {
+            try
+            {
+                var sql = @"";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public string RemoveProcessRow(string processid)
+        {
+            try
+            {
+
+                string TableName = "MST.ParameterProcess";
+                if (string.IsNullOrEmpty(processid))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + processid + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion  Process
+
+        #region Machine
+        public IEnumerable<object> GetMachine()
+        {
+            try
+            {
+                var sql = @"select MM.Id MachineId, MM.UserName Machine, MC.UserName Category, MSC.UserName SubCategory from MST.MachineMaster MM
+left join HKP.MachineCategory MC on MC.Id = MM.MachineCategoryId
+left join HKP.MachineSubCategory MSC on MSC.Id = MM.MachineSubCategoryId
+where MM.Active = 1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public List<Dictionary<string, object>> CreateMachineWithParameterSetup(string headerid, List<Dictionary<string, object>> models)
+        {
+            try
+            {
+                string TableName = "MST.ParameterMachine";
+
+                DataSet dsChild;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ParameterSetupId='" + headerid + "'", out dsChild, false, "1");
+                string _Id = "";
+
+                #region FURNITURE POLICY HEAD
+                foreach (var item in models)
+                {
+
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+                        item["Id"] = _Id;
+                        item["ParameterSetupId"] = headerid;
+
+                        AddNewRow(dsChild.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+
+
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion FURNITURE POLICY HEAD
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+
+                return models;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSavedMachine(string headerid)
+        {
+            try
+            {
+                var sql = @"";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public string RemoveMachineRow(string machineid)
+        {
+            try
+            {
+
+                string TableName = "MST.ParameterMachine";
+                if (string.IsNullOrEmpty(machineid))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + machineid + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion  Machine
+
+        public IEnumerable<object> GetParameterEntity(string headerid)
+        {
+            try
+            {
+                var sql = @"select E.Id Value, E.UserName Text from MST.ParameterEntity PE
+                            LEFT JOIN ORG.Entity E on E.Id = PE.EntityId
+                            LEFT JOIN HKP.ParameterSetup PS on PS.Id = PE.ParameterSetupId
+                            where PE.ParameterSetupId = '"+ headerid + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
     }
     #endregion Parameter Child
 

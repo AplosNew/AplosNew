@@ -519,6 +519,11 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/DocumentCategory/Aplos',
             controller: 'DocumentCategoryController'
         })
+
+        .when('/resignation-type', {
+            templateUrl: 'Employees/ResignationType/Aplos',
+            controller: 'ResignationTypeController'
+        })
         
         ;
 } 

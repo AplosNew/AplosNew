@@ -1137,6 +1137,8 @@ upanelApp.controller("ProductionReportController", ProductionReportController)
 upanelApp.controller("SalaryNotDisbursedController", SalaryNotDisbursedController)
 upanelApp.controller("PackingScanDataController", PackingScanDataController)
 upanelApp.controller("positionWiseDesignationController", positionWiseDesignationController)
+upanelApp.controller("ResignationTypeController", ResignationTypeController)
+upanelApp.controller("DailyAttendanceStatusReportController", DailyAttendanceStatusReportController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
