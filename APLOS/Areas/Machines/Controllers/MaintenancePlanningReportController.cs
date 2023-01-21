@@ -85,11 +85,11 @@ namespace Aplos.Areas.Machines.Controllers
             }
             else if (Status == "Completed")
             {
-                Filter = " and MPD.ActualDate is not null and MPD.PlannedDate is not null";
+                Filter = " and MPD.ActualDate is not null and MPD.PlannedDate is not null order by MPD.ActualDate desc";
             }
             else
             {
-                Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null";
+                Filter = " and MPD.ActualDate is null and MPD.PlannedDate is not null order by MPD.PlannedDate";
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select E.UserName Entity,D.UserName Department,P.UserName as Process,WC.UserName WorkCenter,WC.Code WCCode,MA.AssetName,MA.AssetCode,MA.AssetReference,MM.UserName MachineName,MM.MachineMake Make,
@@ -109,7 +109,7 @@ Case when isnull(MPD.ActualDate,'')='' then format(GETDATE(),'dd-MMM-yyyy') else
 where
 MS.IsActive=1 and MMA.Id is not null and
 Case when isnull((SELECT TOP 1 ActualDate from [TRN].[MachineAssetPlannedDetails] APD where APD.Id=MPD.Id
- ORDER BY APD.Id DESC),'')='' then GETDATE() else (MS.ScheduleDays+MPD.ActualDate) end between '" + FromDate+"' and '"+ ToDate + "' " + Filter + @" ORDER by MPD.ActualDate DESC";
+ ORDER BY APD.Id DESC),'')='' then GETDATE() else (MPD.ActualDate) end between '" + FromDate+"' and '"+ ToDate + "' " + Filter + @"";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
