@@ -6,6 +6,10 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Enums;
+using Library.Service.Extension.Accounts;
+using Library.Service.Vouchers;
+using Library.ViewModel.Vouchers;
+using System;
 using System.Data;
 using System.Threading;
 using System.Web.Mvc;
@@ -16,13 +20,16 @@ namespace Aplos.Areas.Accounts.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
+        private readonly IVoucherService _voucherService;
         public VoucherParkController(
              IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
+            , IVoucherService voucherService
             )
         {
             _unitOfWork = unitOfWork;
             _sqlRepository = sqlRepository;
+            _voucherService = voucherService;
         }
 
         public ActionResult Aplos()
@@ -48,7 +55,20 @@ namespace Aplos.Areas.Accounts.Controllers
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var rdBuilder = new System.Text.StringBuilder();
-                if(sourceType== SourceType.JournalVoucher.ToString())
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var voucher = _voucherService.FindVoucher(voucherId);
+                var voucherVM = new VoucherViewModel
+                {
+                    CompanyId = voucher.CompanyId,
+                    PostingDate = voucher.PostingDate
+                };
+               
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                _accountsCommonService.CheckingFiscalYearClose(voucher);
+                
+                if (sourceType== SourceType.JournalVoucher.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
