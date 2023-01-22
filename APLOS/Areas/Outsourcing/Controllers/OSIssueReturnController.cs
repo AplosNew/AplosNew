@@ -5856,13 +5856,13 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             int ColSKUU1 = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "SKU 2", 12, ExcelHAlign.HAlignLeft);
-            int ColSKUU2 = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "SKU 2", 12, ExcelHAlign.HAlignLeft);
+            //int ColSKUU2 = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "SKU 3", 12, ExcelHAlign.HAlignLeft);
-            int ColSKUU3 = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "SKU 3", 12, ExcelHAlign.HAlignLeft);
+            //int ColSKUU3 = GRNCOL;
+            //GRNCOL++;
 
             report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "GRN No", 12, ExcelHAlign.HAlignLeft);
             int ColGRNNo = GRNCOL;
@@ -5872,84 +5872,88 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             int ColGRNRowId = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Tran UoM", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Lot No", 12, ExcelHAlign.HAlignLeft);
+            int ColLotNo = GRNCOL;
+            GRNCOL++;
+
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "UoM", 12, ExcelHAlign.HAlignLeft);
             int ColTranUoM = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Qty", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "GRN Qty", 12, ExcelHAlign.HAlignLeft);
             int ColTrnQty = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Rate", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Rate", 12, ExcelHAlign.HAlignLeft);
             int ColTrnRate = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Amt. "+ IIGRNdata.Rows[0]["TransactionCurrency"] +"", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "GRN Amount", 12, ExcelHAlign.HAlignLeft);
             int ColTrnAmtUSD = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Currency Conv. Rate", 12, ExcelHAlign.HAlignLeft);
-            int ColCurrencyConvRate = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Currency Conv. Rate", 12, ExcelHAlign.HAlignLeft);
+            //int ColCurrencyConvRate = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Amt. "+ IIGRNdata.Rows[0]["BaseCurrency"] +"", 12, ExcelHAlign.HAlignLeft);
-            int ColTrnAmtBDT = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Amt. "+ IIGRNdata.Rows[0]["BaseCurrency"] +"", 12, ExcelHAlign.HAlignLeft);
+            //int ColTrnAmtBDT = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
-            int ColBaseUom = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            //int ColBaseUom = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Qty", 12, ExcelHAlign.HAlignLeft);
-            int ColBaseQty = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Qty", 12, ExcelHAlign.HAlignLeft);
+            //int ColBaseQty = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Rate", 10, ExcelHAlign.HAlignLeft);
-            int ColBaseRate = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Rate", 10, ExcelHAlign.HAlignLeft);
+            //int ColBaseRate = GRNCOL;
+            //GRNCOL++;
 
             //Issue
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Qty", 10, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Issue Qty", 10, ExcelHAlign.HAlignLeft);
             int ColGRNIssueQty = GRNCOL;
             GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Tran UoM", 12, ExcelHAlign.HAlignLeft);
-            int ColIssueUoM = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Tran UoM", 12, ExcelHAlign.HAlignLeft);
+            //int ColIssueUoM = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Rate", 12, ExcelHAlign.HAlignLeft);
-            int ColIssueTransactionRate = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Trn Rate", 12, ExcelHAlign.HAlignLeft);
+            //int ColIssueTransactionRate = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
-            int ColIssueBaseUom = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base UoM", 12, ExcelHAlign.HAlignLeft);
+            //int ColIssueBaseUom = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Qty", 12, ExcelHAlign.HAlignLeft);
-            int ColIssueBaseQty = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Qty", 12, ExcelHAlign.HAlignLeft);
+            //int ColIssueBaseQty = GRNCOL;
+            //GRNCOL++;
             
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Rate", 12, ExcelHAlign.HAlignLeft);
-            int ColIssueBaseRate = GRNCOL;
-            GRNCOL++;
+            //report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Base Rate", 12, ExcelHAlign.HAlignLeft);
+            //int ColIssueBaseRate = GRNCOL;
+            //GRNCOL++;
 
-            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Amt " + IIGRNdata.Rows[0]["BaseCurrency"] + "", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, GRNROW, GRNCOL, "Issue Amount", 12, ExcelHAlign.HAlignLeft);
             int ColAmtBDT = GRNCOL;
             //GRNCOL++;
 
-            sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseRate].Merge();
-            sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseRate].Text = "GRN";
+            //sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColTrnAmtUSD].Merge();
+            //sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColTrnAmtUSD].Text = "GRN";
             
-            sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseRate].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseRate].BorderAround(ExcelLineStyle.Thin);
-            sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColBaseRate].CellStyle.Font.Bold = true;
+            //sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColTrnAmtUSD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColTrnAmtUSD].BorderAround(ExcelLineStyle.Thin);
+            //sheet.Range[GRNROW - 1, StartCol + 1, GRNROW - 1, ColTrnAmtUSD].CellStyle.Font.Bold = true;
 
-            sheet.Range[GRNROW - 1, ColBaseRate + 1, GRNROW - 1, ColAmtBDT].Merge();
-            sheet.Range[GRNROW - 1, ColBaseRate + 1, GRNROW - 1, ColAmtBDT].Text = "Issue";
+            //sheet.Range[GRNROW - 1, ColTrnAmtUSD + 1, GRNROW - 1, ColAmtBDT].Merge();
+            //sheet.Range[GRNROW - 1, ColTrnAmtUSD + 1, GRNROW - 1, ColAmtBDT].Text = "Issue";
             
-            sheet.Range[GRNROW - 1, ColBaseRate + 1, GRNROW - 1, ColAmtBDT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet.Range[GRNROW - 1, ColBaseRate + 1, GRNROW - 1, ColAmtBDT].BorderAround(ExcelLineStyle.Thin);
-            sheet.Range[GRNROW - 1, ColBaseRate + 1, GRNROW - 1, ColAmtBDT].CellStyle.Font.Bold = true;
+            //sheet.Range[GRNROW - 1, ColTrnAmtUSD + 1, GRNROW - 1, ColAmtBDT].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet.Range[GRNROW - 1, ColTrnAmtUSD + 1, GRNROW - 1, ColAmtBDT].BorderAround(ExcelLineStyle.Thin);
+            //sheet.Range[GRNROW - 1, ColTrnAmtUSD + 1, GRNROW - 1, ColAmtBDT].CellStyle.Font.Bold = true;
 
             GRNROW++;
             GRNendCol = GRNCOL;
@@ -5979,10 +5983,11 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[GRNROW, ColGRNId].Text = IIGRNdata.Rows[i]["Id"].ToString();
                 sheet[GRNROW, ColGRNNo].Text = IIGRNdata.Rows[i]["GRNNo"].ToString();
                 sheet[GRNROW, ColGRNRowId].Text = IIGRNdata.Rows[i]["GRNRowId"].ToString();
+                sheet[GRNROW, ColLotNo].Text = IIGRNdata.Rows[i]["LotNo"].ToString();
 
                 sheet[GRNROW, ColSKUU1].Text = IIGRNdata.Rows[i]["FirstCharacteristicsValue"].ToString();
-                sheet[GRNROW, ColSKUU2].Text = IIGRNdata.Rows[i]["SecondCharacteristicsValue"].ToString();
-                sheet[GRNROW, ColSKUU3].Text = IIGRNdata.Rows[i]["ThirdCharacteristicsValue"].ToString();
+                //sheet[GRNROW, ColSKUU2].Text = IIGRNdata.Rows[i]["SecondCharacteristicsValue"].ToString();
+                //sheet[GRNROW, ColSKUU3].Text = IIGRNdata.Rows[i]["ThirdCharacteristicsValue"].ToString();
 
                 sheet[GRNROW, ColTranUoM].Text = IIGRNdata.Rows[i]["TranUoM"].ToString();
                 sheet[GRNROW, ColTrnQty].Number = Convert.ToDouble(IIGRNdata.Rows[i]["TrnQty"].ToString());
@@ -5991,30 +5996,30 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 sheet[GRNROW, ColTrnRate].NumberFormat = clsStaticInfo.NumberFormat(4);
                 sheet[GRNROW, ColTrnAmtUSD].Number = Convert.ToDouble(IIGRNdata.Rows[i]["TrnAmtUSD"].ToString());
                 sheet[GRNROW, ColTrnAmtUSD].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet[GRNROW, ColCurrencyConvRate].Number = Convert.ToDouble(IIGRNdata.Rows[i]["CurrencyConvRate"].ToString());
-                sheet[GRNROW, ColCurrencyConvRate].NumberFormat = clsStaticInfo.NumberFormat(4);
-                sheet[GRNROW, ColTrnAmtBDT].Number = Convert.ToDouble(IIGRNdata.Rows[i]["TrnAmtBDT"].ToString());
-                sheet[GRNROW, ColTrnAmtBDT].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet[GRNROW, ColBaseUom].Text = IIGRNdata.Rows[i]["BaseUom"].ToString();
+                //sheet[GRNROW, ColCurrencyConvRate].Number = Convert.ToDouble(IIGRNdata.Rows[i]["CurrencyConvRate"].ToString());
+                //sheet[GRNROW, ColCurrencyConvRate].NumberFormat = clsStaticInfo.NumberFormat(4);
+                //sheet[GRNROW, ColTrnAmtBDT].Number = Convert.ToDouble(IIGRNdata.Rows[i]["TrnAmtBDT"].ToString());
+                //sheet[GRNROW, ColTrnAmtBDT].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet[GRNROW, ColBaseUom].Text = IIGRNdata.Rows[i]["BaseUom"].ToString();
                 
-                sheet[GRNROW, ColBaseQty].Number = Convert.ToDouble(IIGRNdata.Rows[i]["GRNBaseQty"].ToString());
-                sheet[GRNROW, ColBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet[GRNROW, ColBaseRate].Number = Convert.ToDouble(IIGRNdata.Rows[i]["BaseRate"].ToString());
-                sheet[GRNROW, ColBaseRate].NumberFormat = clsStaticInfo.NumberFormat(4);
+                //sheet[GRNROW, ColBaseQty].Number = Convert.ToDouble(IIGRNdata.Rows[i]["GRNBaseQty"].ToString());
+                //sheet[GRNROW, ColBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet[GRNROW, ColBaseRate].Number = Convert.ToDouble(IIGRNdata.Rows[i]["BaseRate"].ToString());
+                //sheet[GRNROW, ColBaseRate].NumberFormat = clsStaticInfo.NumberFormat(4);
                 sheet[GRNROW, ColJWInputMat].Text = IIGRNdata.Rows[i]["JWInputMaterial"].ToString();
                 sheet[GRNROW, ColJWInputArticle].Text = IIGRNdata.Rows[i]["JWInputArticle"].ToString();
                                 
                 sheet[GRNROW, ColGRNIssueQty].Number = Convert.ToDouble(IIGRNdata.Rows[i]["GRNIssueQty"].ToString());
                 sheet[GRNROW, ColGRNIssueQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet[GRNROW, ColIssueBaseQty].Number = Convert.ToDouble(IIGRNdata.Rows[i]["BaseQty"].ToString());
-                sheet[GRNROW, ColIssueBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet[GRNROW, ColIssueUoM].Text = IIGRNdata.Rows[i]["TranUoM"].ToString();
-                sheet[GRNROW, ColIssueBaseUom].Text = IIGRNdata.Rows[i]["BaseUom"].ToString();
+                //sheet[GRNROW, ColIssueBaseQty].Number = Convert.ToDouble(IIGRNdata.Rows[i]["BaseQty"].ToString());
+                //sheet[GRNROW, ColIssueBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet[GRNROW, ColIssueUoM].Text = IIGRNdata.Rows[i]["TranUoM"].ToString();
+                //sheet[GRNROW, ColIssueBaseUom].Text = IIGRNdata.Rows[i]["BaseUom"].ToString();
 
-                sheet[GRNROW, ColIssueTransactionRate].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["TransactionRate"].ToString());
-                sheet[GRNROW, ColIssueTransactionRate].NumberFormat = clsStaticInfo.NumberFormat(4);
-                sheet[GRNROW, ColIssueBaseRate].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["IssueBaseRate"].ToString());
-                sheet[GRNROW, ColIssueBaseRate].NumberFormat = clsStaticInfo.NumberFormat(4);
+                //sheet[GRNROW, ColIssueTransactionRate].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["TransactionRate"].ToString());
+                //sheet[GRNROW, ColIssueTransactionRate].NumberFormat = clsStaticInfo.NumberFormat(4);
+                //sheet[GRNROW, ColIssueBaseRate].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["IssueBaseRate"].ToString());
+                //sheet[GRNROW, ColIssueBaseRate].NumberFormat = clsStaticInfo.NumberFormat(4);
                 sheet[GRNROW, ColAmtBDT].Number = clsStaticInfo.dbl(IIGRNdata.Rows[i]["AmtBD"].ToString());
                 sheet[GRNROW, ColAmtBDT].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[GRNROW, 1, GRNROW, GRNendCol].BorderInside(ExcelLineStyle.Hair);
@@ -6058,9 +6063,9 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 g = Convert.ToDecimal(IIGRNdata.Rows[j]["TrnAmtBDT"]);
                 ii = g + h;
                 h = ii;
-                sheet[GRNROW, ColTrnAmtBDT].Number = clsStaticInfo.dbl(h);
-                sheet[GRNROW, ColTrnAmtBDT].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[GRNROW, ColTrnAmtBDT].CellStyle.Font.Bold = true;
+                //sheet[GRNROW, ColTrnAmtBDT].Number = clsStaticInfo.dbl(h);
+                //sheet[GRNROW, ColTrnAmtBDT].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[GRNROW, ColTrnAmtBDT].CellStyle.Font.Bold = true;
 
                 //k = Convert.ToDecimal(IIGRNdata.Rows[j]["BaseAmtBDT"]);
                 //m = k + l;
@@ -6078,9 +6083,9 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
                 q = Convert.ToDecimal(IIGRNdata.Rows[j]["BaseQty"]);
                 s = q + rr;
                 rr = s;
-                sheet[GRNROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(rr);
-                sheet[GRNROW, ColIssueBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[GRNROW, ColIssueBaseQty].CellStyle.Font.Bold = true;
+                //sheet[GRNROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(rr);
+                //sheet[GRNROW, ColIssueBaseQty].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[GRNROW, ColIssueBaseQty].CellStyle.Font.Bold = true;
 
                 t = Convert.ToDecimal(IIGRNdata.Rows[j]["AmtBD"]);
                 v = t + u;
@@ -6121,8 +6126,8 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             //sheet.UsedRange.NumberFormat = "#,##0.0000";
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-            sheet.Range[StartRow - 1, StartCol + 1, StartRow - 1, ColBaseRate].CellStyle.Font.Size = 12;
-            sheet.Range[StartRow - 1, ColBaseRate + 1, StartRow - 1, ColAmtBDT].CellStyle.Font.Size = 12;
+            sheet.Range[StartRow - 1, StartCol + 1, StartRow - 1, ColTrnAmtUSD].CellStyle.Font.Size = 12;
+            sheet.Range[StartRow - 1, ColTrnAmtUSD + 1, StartRow - 1, ColAmtBDT].CellStyle.Font.Size = 12;
             report.CompanyPlantHeader(ref sheet, MPChildendCol + 6, "Inventory Issue Report", identity.CompanyId, identity.PlantName, null);
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
@@ -6362,6 +6367,7 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             var sql = @"SELECT IID.Id
                         	,IRD.InventoryReceiveId AS GRNNo
                         	,IRD.Id AS GRNRowId
+                            ,IRD.LotNo
                         	---GRN---
                         	,tuom.UserName TranUoM
                         	,IRD.TransactionQty TrnQty

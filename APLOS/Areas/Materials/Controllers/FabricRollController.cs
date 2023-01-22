@@ -445,6 +445,7 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");colGRNRowId = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Color"); colColor = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");colLotNo = xlsCol;xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricGroup"); colFabricGroup = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricType"); colFabricType = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricQuality"); colFabricQuality = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierRollNo"); colSupplierRollNo = xlsCol; xlsCol += 1;
@@ -547,6 +548,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                             sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricGroup, xlsRow, colFabricGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
@@ -639,6 +641,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                             sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colFabricGroup, xlsRow, colFabricGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
@@ -842,7 +845,7 @@ namespace Aplos.Areas.Materials.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 34, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 35, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 //var pquom = "";
@@ -1076,6 +1079,7 @@ namespace Aplos.Areas.Materials.Controllers
         public string GRNRowId { get; set; }
         public string LotNo { get; set; }
         public string Color { get; set; }
+        public string FabricGroup { get; set; }
         public string FabricType { get; set; }
         public string FabricQuality { get; set; }
         public string SupplierRollNo { get; set; }
