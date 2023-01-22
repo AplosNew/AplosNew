@@ -680,7 +680,7 @@ namespace Aplos.Areas.Employees.Controllers
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,
                                         DEPT.UserName Department,S.UserName Section, emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,
                                         EMP.SectionId,SS.UserName SubSection
-                                        ,PL.UserName Plant,J.JobLocation
+                                        ,PL.UserName Plant,J.JobLocation,U.UserName Unit
                                         FROM EmployeeInformation EMP
                                         LEFT OUTER JOIN EmployeeWeekOffByDay WD ON wd.EmpSystemID=emp.SystemId
                                                             AND wd.SystemID=(SELECT TOP 1 SystemID FROM EmployeeWeekOffByDay WHERE EmpSystemID=emp.SystemId AND convert(datetime,EffectiveDate)<='" + offdate + @"' ORDER BY EmployeeWeekOffByDay.EffectiveDate DESC)
@@ -698,6 +698,7 @@ namespace Aplos.Areas.Employees.Controllers
                                         LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN JobLocation J ON J.systemid = EMP.JobLocationID
+                                        LEFT JOIN org.Unit U on U.Id=EMP.UnitId 
                                         WHERE emp.PlantID='" + identity.PlantId + @"' and " + normalDate + @") 
                                 AS K where " + strKey + " order by EmployeeCodePreFix,EmployeeCodeNumeric";
 

@@ -740,10 +740,11 @@ namespace Library.Service.HumanResources
                             ,PG.StandardName PayRollGroupName
                             ,PG.Id PayRollGroupId
                             ,ld.UserName LegalDesignation
-                            ,Section.UserName Section
+                            ,Section.UserName Section,J.JobLocation
                             From AttdnProcessData AS apd                            
                             LEFT JOIN ExceptionEmployeeAttendanceUnlock AS eeau ON eeau.EmpSystemId = apd.EmpSystemId AND eeau.WorkDate=apd.WorkDate
                             INNER JOIN  EmployeeInformation EI ON EI.SystemId = apd.EmpSystemID
+                            LEFT JOIN JobLocation J ON J.systemid = EI.JobLocationID
                             LEFT JOIN [PlantWiseAttendanceLock] al ON al.PlantID = EI.PlantID AND  al.LockedDate = apd.WorkDate
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -785,10 +786,11 @@ namespace Library.Service.HumanResources
                             ,PG.StandardName PayRollGroupName
                             ,PG.Id PayRollGroupId
                             ,ld.UserName LegalDesignation
-                            ,Section.UserName Section
+                            ,Section.UserName Section,J.JobLocation
                             From AttdnProcessData AS apd                            
                             LEFT JOIN ExceptionEmployeeAttendanceUnlock AS eeau ON eeau.EmpSystemId = apd.EmpSystemId AND eeau.WorkDate=apd.WorkDate
                             INNER JOIN  EmployeeInformation EI ON EI.SystemId = apd.EmpSystemID
+                            LEFT JOIN JobLocation J ON J.systemid = EI.JobLocationID
                             LEFT JOIN [PlantWiseAttendanceLock] al ON al.PlantID = EI.PlantID AND  al.LockedDate = apd.WorkDate
                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
