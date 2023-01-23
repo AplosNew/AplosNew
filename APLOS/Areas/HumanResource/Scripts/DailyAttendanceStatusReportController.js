@@ -13,6 +13,40 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     $scope.EmpStatusList = [];
     $scope.ShiftList = [];
 
+    $scope.EmpStatusList = [
+        {
+            Text: "LONG ABSENTEEISM",
+            Value:"LONG ABSENTEEISM"
+        },
+        {
+            Text: "TBS",
+            Value:"TBS"
+        }
+    ]
+
+    $scope.InStatusList = [
+        {
+            Text: "EI",
+            Value: "EI"
+        },
+        {
+            Text: "IM",
+            Value: "IM"
+        },
+        {
+            Text: "IN",
+            Value: "IN"
+        },
+        {
+            Text: "LI",
+            Value: "LI"
+        },
+        {
+            Text: "O",
+            Value: "O"
+        },
+    ]
+
     // #region    EmployeePop
     $scope.OpeEmployeePopUp = function () {
         angular.element(document.querySelector('#EmployeePop')).modal('show');
@@ -34,11 +68,13 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
 
     }
 
-    $scope.EmployeeId = null;
-    $scope.Employee = null;
+    //$scope.EmpSystemId = null;
+    //$scope.EmployeeName = null;
+    
     $scope.doubleEmploye = function (e) {
-        $scope.ModelNew.EmpSystemId = e.data.EmpSystemId;
-        $scope.ModelNew.EmployeeName = e.data.EmployeeName;
+        $scope.EmpSystemId = e.data.EmpSystemId;
+        $scope.EmployeeName = e.data.EmployeeName;
+        $scope.TeamLeader = e.data.EmployeeName;
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
         /*$scope.viewFurniturePolicyGrids();*/
     }
@@ -69,19 +105,61 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     }
     $scope.GetShift();
 
+    $scope.GetEmployeeCategory = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmployeeCategory',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmpCategoryList = resp.data;
+        });
+    }
+    $scope.GetEmployeeCategory();
+
+    $scope.OpenTeamLeaderPopUp = function () {
+        angular.element(document.querySelector('#TeamPopupId')).modal('show');
+        $scope.GetTeamLeader();
+    }
+    $scope.closeTeamLeaderPopUp = function () {
+        angular.element(document.querySelector('#TeamPopupId')).modal('hide');
+
+    }
+
+    $scope.GetTeamLeader = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetTeamLeader',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.TeamLeaderList = resp.data;
+        });
+    }
+
+    $scope.doubleTeamLeader = function (e) {
+        $scope.TeamLeaderId = e.data.EmpSystemId;
+        
+        $scope.TeamLeader = e.data.EmployeeName;
+        angular.element(document.querySelector('#TeamPopupId')).modal('hide');
+        
+    }
+
     $scope.summaryfileName = "Daily Attendance Status.xlsx"
     $scope.XlsSalaryUnDisburseReport = function () {
        
-            var parameters = {
-                'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
-                'isSeperated': $scope.isSeperated,
-                'isMaternity': $scope.isMaternity
-            };
+        
             $http({
                 method: "POST",
                 dataType: 'JSON',
                 url: $scope.path + 'GetDailyAttendanceStatusXls',
-                //data: parameters
+                data: {
+                    'instatus': $scope.InStatus,
+                    'date': $scope.Date,
+                    'employeecategory': $scope.EmployeeCategoryId,
+                    'teamleaderid': $scope.TeamLeaderId,
+                    'responsibleperson': $scope.EmpSystemId,
+                    'shift': $scope.ShiftId,
+                    'employeestatus': $scope.EmployeeStatus,
+                }
             })
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {

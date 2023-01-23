@@ -97,9 +97,9 @@ namespace Aplos.Areas.Productions.Controllers
         }        
 
         [HttpGet, Authorize]
-        public ActionResult GetWorkcenter()
+        public ActionResult GetWorkcenter(string paramEntityId)
         {
-            return Json(pc.getWorkcenter(), JsonRequestBehavior.AllowGet);
+            return Json(pc.getWorkcenter(paramEntityId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

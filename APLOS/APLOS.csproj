@@ -4506,6 +4506,7 @@
     <Content Include="Areas\Productions\Views\Parameter\_Entity.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\_Process.cshtml" />
     <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\_TeamLeader.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

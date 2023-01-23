@@ -48,16 +48,59 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        public JsonResult GetEmployeeCategory()
+        {
+            try
+            {
+                var sql = @"select Id Value, UserName Text from HKP.EmployeeCategory";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public JsonResult GetTeamLeader()            
+        {
+            try
+            {
+                var sql = @"select EMP.SystemId EmpSystemId, EMP.EmployeeCode, EMP.EmployeeName, FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, EC.UserName EmployeeCategory, DP.UserName Department
+                                ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity from TRN.TeamDefinition TD
+                                left join EmployeeInformation EMP on EMP.SystemId = TD.TeamLeaderId
+                                LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                                LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                                left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                                left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                                left join ORG.Department DP on DP.ID = POS.DepartmentId
+                                left join ORG.Section SC on SC.Id = POS.SectionId
+                                left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                                LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+                                LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                                LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                                left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                                left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+                                where EMP.EmployeeStatus = 'Active'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         #region Report
 
         [HttpPost, Authorize]
-        public ActionResult GetDailyAttendanceStatusXls()
+        public ActionResult GetDailyAttendanceStatusXls(string instatus, string date, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
         {
             try
             {
 
                 string fileName = "";
-                fileName = DailyAttendanceStatusReport("DailyAttendanceStatusReport");
+                fileName = DailyAttendanceStatusReport(instatus, date, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, "DailyAttendanceStatusReport");
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -70,7 +113,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        public string DailyAttendanceStatusReport(string SheetName)
+
+
+        public string DailyAttendanceStatusReport(string instatus, string date, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -87,7 +132,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 workbook.Worksheets[0].Name = "Daily Attendance Status Report";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                DailyAttdnStatusReportQry(out data);
+                DailyAttdnStatusReportQry(instatus, date, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -390,10 +435,27 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        public void DailyAttdnStatusReportQry(out DataTable data)
+        public void DailyAttdnStatusReportQry(string instatus, string date, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus,  out DataTable data)
         {
             string strSQL;
-            //var sqlCondition = "";
+            var sqlCondition = "";
+
+            if (instatus != "" || employeecategory != "" || teamleaderid != "")
+            {
+                sqlCondition = "APD.InStatus = "+ instatus + " and EC.Id = "+ employeecategory + "  and TD.TeamLeaderId = "+ teamleaderid + "";
+            }
+            if(employeecategory == "")
+            {
+                sqlCondition = "APD.InStatus = " + instatus + " and TD.TeamLeaderId = " + teamleaderid + "";
+            }
+            if(instatus == "")
+            {
+                sqlCondition = "EC.Id = " + employeecategory + "  and TD.TeamLeaderId = " + teamleaderid + "";
+            }
+            if(teamleaderid == "")
+            {
+                sqlCondition = "APD.InStatus = " + instatus + " and EC.Id = " + employeecategory + "";
+            }
             try
             {
 
@@ -430,10 +492,7 @@ left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
 left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId
 left join EmployeeInformation EI2 on EI2.SystemId = PV.EmpSystemID
- --where EMP.EmployeeStatus = 'Active'
-
-where APD.EmpSystemID = '2015116' and APD.LateIn > 0
---EMP.SystemId = '2015116' --and LateIn > 0 or EarlyIn > 0 
+where APD.EmpSystemID = '2015116' and APD.LateIn > 0 and EMP.EmployeeStatus = 'Active' and APD.InStatus = '"+instatus+"' and EC.Id = '"+employeecategory+"' and EMP.EmployeeCurrentStatus = '"+ employeestatus + "' and TD.TeamLeaderId = '"+ teamleaderid + @"'
 order by APD.WorkDate DESC
 ";
 
