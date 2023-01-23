@@ -143,6 +143,37 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         
     }
 
+    // #region Save
+    $scope.Save = function () {       
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Save',
+            data: {
+                'instatus': $scope.InStatus,
+                'date': $scope.Date,
+                'employeecategory': $scope.EmployeeCategoryId,
+                'teamleaderid': $scope.TeamLeaderId,
+                'responsibleperson': $scope.EmpSystemId,
+                'shift': $scope.ShiftId,
+                'employeestatus': $scope.EmployeeStatus,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+               
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+    // #endregion Save
+
     $scope.summaryfileName = "Daily Attendance Status.xlsx"
     $scope.XlsSalaryUnDisburseReport = function () {
        

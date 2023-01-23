@@ -459,7 +459,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
 
-                
                 strSQL = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
 , ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EMP.DOS, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, APD.InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
 ,''ResponsiblePerson, ''TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason,  RG.IsResidenceApplicable, RAE.isOccupied, ETA.AssignStatus
@@ -507,5 +506,9 @@ order by APD.WorkDate DESC
 
         }//End Function
         #endregion
+
+        #region Save
+
+        #endregion Save
     }
 }
