@@ -3893,33 +3893,52 @@ namespace Aplos.MaterialManagement
 		{
 			try
 			{
-				var sql = @"Select * from (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo                           
+				var sql = @"select * from (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
+							,IR.Id As GRNNo
 						   , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
-							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-							,IR.Id As GRNId
+						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
+                            ,p.UserName AS PartyName
+							,isnull(PP.GSTIN,'') GSTINNo
+						   ,EI.EmployeeName FirstName	
+						   ,IR.GateEntryNo
+						   ,ISNULL(PWG.UserName,'') GateName
+						   ,IR.DocRefNo
+						   ,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
+						   ,MT.UserName MaterialType
+						  ,MGM.UserName AS MaterialGroupMasterName
+						  ,MM.UserName MaterialMasterName
+						, ART.StandardName ArticleName
+						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
 							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
 							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
 									else '' end
-						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-                            ,p.UserName AS PartyName
-						   ,EI.EmployeeName FirstName						   
-						   ,IRD.Id As GrnDetailId
-						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
-						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
-						  ,MT.UserName MaterialType
-						  ,MGM.UserName AS MaterialGroupMasterName
-						  ,IM.MaterialMasterId
-						  ,MM.UserName MaterialMasterName
-						, ART.StandardName ArticleName
+						,IRD.TransactionQty
+						,TUoM.UserName AS UOM
+						,IRD.BaseQty,BUoM.UserName BaseUoM
+						,ROUND(Isnull(IRD.MaterialTranRate,0),2) MaterialTranRate
+						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+						,CU.Code CurrencyName
+						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
+						,ROUND(Isnull(IRD.MaterialTranAmount*ir.ToCurrencyRate,0),2) TotalMaterialTranAmount
+						,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount
+						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+						,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage
+                        ,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
+						,ROUND(Isnull(IRD.TrnCurrencyBaseRate,0),2) TrnCurrencyBaseRate,ROUND(Isnull(IRD.BooksCurrencyBaseRate,0),2) BooksCurrencyBaseRate
                         ,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
                         ,GRNAsset=CASE WHEN IRD.IsAsset =0 then 'No' else 'Yes' END 
-						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
-						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
-						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-						,TUoM.UserName AS UOM
-						,IRD.TransactionQty
+						 ,POId= STUFF((select distinct ','+PG.POId
+			                            FROM TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        ,MS.UserName as StorageLocation--,V.VoucherNo
 						,IRD.ShortageQty
 						,IRD.ShortageRatePercent
 						,IRD.ShortageValue
@@ -3928,25 +3947,8 @@ namespace Aplos.MaterialManagement
 						,IRD.RejectValue
 						,IRD.RejectClamPercent
 						,IRD.ApprovedQty
-						,IR.IsNonCreditable
-						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,ROUND(Isnull(IRD.MaterialTranRate,0),2) MaterialTranRate
-						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
-						,ROUND(Isnull(IRD.TrnCurrencyBaseRate,0),2) TrnCurrencyBaseRate,ROUND(Isnull(IRD.BooksCurrencyBaseRate,0),2) BooksCurrencyBaseRate
-						,TaxAmount=(SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id)
-
-						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage
-                        ,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
-						,round(isnull(TAxInfo8.TaxAmount,0),2) MandiTax,TAxInfo8.Percentage MandiTaxPercentage
-						,round(isnull(TAxInfo9.TaxAmount,0),2) NirasritTax,TAxInfo9.Percentage NirasritTaxPercentage
-						,IRD.ChargesTranAmount ServiceCharge
-						,IRD.ChargesTaxTranAmount ServiceTax
-						,ROUND(Isnull(IRD.MaterialTranAmount*ir.ToCurrencyRate,0),2) TotalMaterialTranAmount
-                       ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount ,IR.AddedBy
+						   ,IRD.Id As GrnDetailId
+                        ,IR.AddedBy
                        ,CASE 
 					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
 								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
@@ -3958,53 +3960,58 @@ namespace Aplos.MaterialManagement
                                 WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
 								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
 								END GRNCheckStatus
-						,IGL.UserName AS GL
-						,IGL.AccountCode GLCode
-						,IA.Id ActivityId
-						,IA.UserName Activity
-						,IA.Code ActivityCode
-						,IBM.RefNo BudgetrefNo
-						,B.UserName AS Budget
-                        ,IGL1.UserName AS CGL
-						,IGL1.AccountCode CGLCode
-						,IA1.Id CActivityId
-						,IA1.UserName AS CActivity
-						,IA1.Code CActivityCode
-						,IBM1.RefNo CBudgetrefNo
-						,B1.UserName AS CBUdget
                         ,EI1.EmployeeName CheckedBY
 						,EI2.EmployeeName AuthorizedBy
-						 ,POId= STUFF((select distinct ','+PG.POId
-			                            FROM TRN.POGGRNMap PG 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,IRD.PODetailsId AS PORowId
-                        ,MS.UserName as StorageLocation--,V.VoucherNo
-
-						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
-						,isnull(PP.GSTIN,'') GSTINNo
-						,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-						,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
-						,ISNULL(PID.RefferenceNo,'') RefferenceNo
-						,isnull(PO.PurchaseLCId,'') PurchaseLCId
-						,isnull(PO.ContractId,'') ContractId						
+						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,ISNull(po.ContractNo,'') ContractNo
+						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,IGL.AccountCode GLCode
+						,IGL.UserName AS GL
+						,IBM.RefNo BudgetrefNo
+						,B.UserName AS Budget
+						,IA.Id ActivityId
+						,IA.Code ActivityCode
+						,IA.UserName Activity
+						,IGL1.AccountCode CGLCode
+                        ,IGL1.UserName AS CGL
+						,IBM1.RefNo CBudgetrefNo
+						,B1.UserName AS CBUdget
+						,IA1.Id CActivityId
+						,IA1.Code CActivityCode
+						,IA1.UserName AS CActivity
+						,ISNULL(PID.RefferenceNo,'') RefferenceNo
 						,isnull(PO.LCANo,'') LCANo
-						,isnull(PO.LCDate,'') LCDate
 						,IRD.IssueQty
 						,IRD.BaseIssueQty
 						,IRD.PurchaseReturnQty
 						,IRD.IssueReturnQty
 						
-						,IRD.ReductionByAdjustmentQty
+						,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty
 						,IRD.InventorySalesQty
-						,IRD.InventoryScrapQty						
-						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName,IRD.[Description]
-						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IR.PartyType,PAG.UserName PartyAccountGroup
+						,IRD.InventoryScrapQty	
+						,IRD.InventoryTransferQty
+						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup	
+
+						  
+							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
+						  ,IM.MaterialMasterId
+						,IR.IsNonCreditable
+						,TaxAmount=(SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id)
+
+						,IRD.ChargesTranAmount ServiceCharge
+						,IRD.ChargesTaxTranAmount ServiceTax
+						,IRD.PODetailsId AS PORowId
+
+						,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
+						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
+						,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
+						,isnull(PO.PurchaseLCId,'') PurchaseLCId
+						,isnull(PO.ContractId,'') ContractId						
+						,isnull(PO.LCDate,'') LCDate
+						,IRD.[Description]
+						,IR.PartyType
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -4179,18 +4186,12 @@ namespace Aplos.MaterialManagement
 							UNION ALL
 
 						SELECT 	ROW_NUMBER() OVER(ORDER BY ISs.Id ASC) AS SLNo                           
+							,IR.Id As GRNNo
 						   ,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
-							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
-							,IR.Id As GRNId
-							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
-							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
-							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
-									else '' end --HSNC.Code HSNCode
 						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-						   --,p.Id
                             ,p.UserName AS PartyName
+							,isnull(PP.GSTIN,'') GSTINNo
 						   ,EI.EmployeeName FirstName						   
-						   ,ISs.Id As GrnDetailId
 						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
 						   --,IR.InvoiceNo
 						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
@@ -4198,16 +4199,39 @@ namespace Aplos.MaterialManagement
 						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
 						  ,NULL MaterialType
 						  ,NULL MaterialGroupMasterName
-						  ,NULL MaterialMasterId
 						    ,SM.UserName MaterialMasterName
 						, SM.UserName ArticleName
-                        ,'No' IsAsset
-                        ,'No' GRNAsset
 						, NULL FirstCharacteristicsValue
 						, NULL SecondCharacteristicsValue
 						, NULL ThirdCharacteristicsValue 
-						,NULL AS UOM
+							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
+							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
+							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
+									else '' end --HSNC.Code HSNCode
 						,0 TransactionQty
+						,NULL AS UOM
+						,0 BaseQty,'' BaseUoM
+						,0 MaterialTranRate
+						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+						,'' CurrencyName
+						,ISs.Amount MaterialTranAmount
+						,0 TotalMaterialTranAmount
+                       ,0 TotalMaterialBaseAmount
+							,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+							,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+							,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+							,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+							,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage					
+							,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
+						,0 TrnCurrencyBaseRate
+						,0 BooksCurrencyBaseRate
+                        ,'No' IsAsset
+                        ,'No' GRNAsset
+						 ,POId= STUFF((select distinct ','+PG.POId
+			                            FROM TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        ,MS.UserName as StorageLocation--,V.VoucherNo
 						,0 ShortageQty
 						,0 ShortageRatePercent
 						,0 ShortageValue
@@ -4216,25 +4240,8 @@ namespace Aplos.MaterialManagement
 						,0 RejectValue
 						,0 RejectClamPercent
 						,0 ApprovedQty
-						,IsNULL(IR.IsNonCreditable,0) IsNonCreditable
-						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
-						,0 MaterialTranRate
-						,ISs.Amount MaterialTranAmount
-						,0 TrnCurrencyBaseRate
-						,0 BooksCurrencyBaseRate
-						, 0 TaxAmount
-							,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-							,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-							,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-							,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-							,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage					
-							,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
-							,round(isnull(TAxInfo8.TaxAmount,0),2) MandiTax,TAxInfo8.Percentage MandiTaxPercentage
-							,round(isnull(TAxInfo9.TaxAmount,0),2) NirasritTax,TAxInfo9.Percentage NirasritTaxPercentage
-						,0 ServiceCharge
-						,0 ServiceTax
-						,0 TotalMaterialTranAmount
-                       ,0 TotalMaterialBaseAmount ,IR.AddedBy
+						   ,ISs.Id As GrnDetailId
+						 ,IR.AddedBy
                        ,CASE 
 					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
 								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
@@ -4246,45 +4253,29 @@ namespace Aplos.MaterialManagement
                                 WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
 								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
 								END GRNCheckStatus
-						,Null AS GL
-						,Null GLCode
-						,Null ActivityId
-						,Null Activity
-						,Null ActivityCode
-						,Null BudgetrefNo
-						,Null AS Budget
-                        ,Null AS CGL
-						,Null CGLCode
-						,Null CActivityId
-						,Null AS CActivity
-						,Null CActivityCode
-						,Null CBudgetrefNo
-						,NULL AS CBUdget
                         ,EI1.EmployeeName CheckedBY
 						,EI2.EmployeeName AuthorizedBy
-                        --,IR.POId
-						 ,POId= STUFF((select distinct ','+PG.POId
-			                            FROM TRN.POGGRNMap PG 
-                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
-			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						,NULL AS PORowId
-                        ,MS.UserName as StorageLocation--,V.VoucherNo
-
-						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
-						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
-                       -- ,isnull(p.TINNO,'') GSTINNo
-					,isnull(PP.GSTIN,'') GSTINNo
-					,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
-						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
-						,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
+						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+						,'' ContractNo
+						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,Null GLCode
+						,Null AS GL
+						,Null BudgetrefNo
+						,Null AS Budget
+						,Null ActivityId
+						,Null ActivityCode
+						,Null Activity
+						,Null CGLCode
+                        ,Null AS CGL
+						,Null CBudgetrefNo
+						,NULL AS CBUdget
+						,Null CActivityId
+						,Null CActivityCode
+						,Null AS CActivity
 						,'' RefferenceNo
-					,'' PurchaseLCId
-					,'' ContractId						
-					,'' ContractNo
-					,'' LCANo
-					,'' LCDate
+						,'' LCANo
 					,0 IssueQty
 					,0 BaseIssueQty
 					,0 PurchaseReturnQty
@@ -4293,8 +4284,28 @@ namespace Aplos.MaterialManagement
 					,0 ReductionByAdjustmentQty
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
-					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName,NULL [Description]
-					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IR.PartyType,PAG.UserName PartyAccountGroup
+					,0 InventoryTransferQty
+					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+
+							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
+						   --,p.Id
+						  ,NULL MaterialMasterId
+						,IsNULL(IR.IsNonCreditable,0) IsNonCreditable
+						, 0 TaxAmount
+						,0 ServiceCharge
+						,0 ServiceTax
+                        --,IR.POId
+						,NULL AS PORowId
+
+                       -- ,isnull(p.TINNO,'') GSTINNo
+					,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
+						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
+						,Null LotNo , Null QualityStatus , 0 GrossAmount ,0 DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
+					,'' PurchaseLCId
+					,'' ContractId						
+					,'' LCDate
+					,NULL [Description]
+					,IR.PartyType
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
