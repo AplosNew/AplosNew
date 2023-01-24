@@ -756,6 +756,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 inventoryIssue.PlantId = identity.PlantId;
                 inventoryIssue.Orderspecific = "No";
                 inventoryIssue.IssueSlipType = "InventorySlip";
+                inventoryIssue.CheckedByStatus = "ForChecked";
                 inventoryIssue.Preparedby = model["ByWhomId"].ToString();
                 inventoryIssue.ProductionOrderId = model["POId"].ToString();
 
