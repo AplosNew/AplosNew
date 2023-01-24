@@ -1708,7 +1708,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     $scope.GetWorkCenterListByEntityandFirstProcess = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductionOrder/GetWorkCenterListByEntityandFirstProcess?entityId=' + $scope.model.EntityId + '&processId=' + $scope.processId
+            url: 'OrderManagements/ProductionOrder/GetWorkCenterListByEntityandFirstProcess?entityId=' + $scope.model.EntityId + '&processId=' + $scope.processId + '&productionOrderId=' + $scope.model.Id
         }).then(function successCallback(res) {
             $scope.workCenterFPList = res.data;
 
@@ -1779,9 +1779,41 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             }
 
 
-
+            $scope.SaveFP();
             var eDialog = $("#workCenterbyFPPopUp").data("ejDialog");
             eDialog.close();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveFP = function () {
+        try {
+            if (baseService.arrayLength($scope.productionFPWorkCenterList)>0) {
+                $http({
+                    method: 'POST',
+                    url: 'OrderManagements/ProductionOrder/SaveWCFPData',
+                    data: {
+                        'data': $scope.productionFPWorkCenterList,
+                        'productionOrderId': $scope.model.Id
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.closeBullPop();
+                        $scope.getProductionBulletinData($scope.model.Id);
+                        $scope.getProductionBulletinProcess($scope.bulletinTemplateNew.Id);
+
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+
+                };
+            }
         } catch (e) {
             ShowResult(e, 'failure');
         }

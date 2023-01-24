@@ -3061,6 +3061,82 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
         }
 
         #endregion AllTaskList
+
+        #region Deshboard
+        public void GetDeshboard(out List<Default> DataList, string UserId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select 'RequisitionCount' AS Text, count(MRM.Id) Value
+                        FROM[TRN].[MaterialRequsitionMaster] MRM
+                        Where MRM.CheckedByStatus <> 'Checked' AND MRM.CheckedByStatus <>'Hold' and MRM.CheckedByStatus <> 'Reject' 
+                        AND MRM.CheckedBy='" + UserId + @"'
+Union All
+ Select 'POCount' AS Text, count(IR.Id) Value
+                       FROM [TRN].[PurchaseOrder] AS IR
+                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
+                        AND IR.CheckedBy='" + UserId + @"'
+Union All
+Select 'GRNCount' AS Text, count(IR.Id) Value
+                        from trn.InventoryReceive AS IR
+                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
+                        AND IR.CheckedBy='" + UserId + @"'
+Union All
+Select 'ServicePOCount' AS Text, count(IR.Id) Value
+                        from trn.ServicePOMaster AS IR
+                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
+                        AND IR.CheckedBy='" + UserId + @"'
+Union All
+Select 'ServiceCount' AS Text, count(IR.Id) Value
+                        from trn.ServiceAcknowledgementMaster AS IR
+                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
+                        AND IR.CheckedBy='" + UserId + @"'
+
+
+Union All
+select 'AdvanceCount' AS Text, Count(EmpSystemId) As Value  from TRN.EmployeeAdvanceRequisition where IsPost  =
+0 and EmpSystemId = '" + UserId + @"'
+
+Union All
+select 'ExpenseCount' AS Text , Count(EmployeeId) As Value from TRN.ExpenseBooking where VoucherId Is Null and EmployeeId = '" + UserId + @"'
+
+Union All
+select 'IssueCount' AS Text, Count(EmployeeId) As Value from TRN.InventoryIssue Where  VoucherId Is Null and EmployeeId = '" + UserId + @"'
+
+Union All
+select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction   WHERE  IsNull(IsApproved,0) = 0
+                             AND ISNULL(SystemID,'')<> ''
+                             AND IsCancel=0
+                             AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Deshboard
         #endregion Written By Aman
 
     }
@@ -3398,4 +3474,12 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
         public string DueDate { get; set; }
         public string CommitmentDate { get; set; }
     }
+
+    public class Default
+    {
+        public string Text { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
+
+
 }

@@ -1932,13 +1932,13 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
         return SummaryList;
     }
 
-    $scope.dataGrid = "#probationEmpGrid";
     $scope.Print = function () {
-        var gridObjStockReg = $($scope.dataGrid).data("ejGrid");
-        var data = gridObjStockReg.getFilteredRecords();
-
-        if (data.length == 0) {
-            data = gridObjStockReg.model.dataSource;
+      
+        var dataList = [];
+        var g = $("#GridAbsent").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+            dataList = $scope.DateWiseAbsentStatusList;
         }
 
         $scope.fileName = 'Employee';
@@ -1946,7 +1946,7 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
-            data: { 'data': data, 'reportFileName': $scope.fileName}
+            data: { 'data': dataList, 'reportFileName': $scope.fileName}
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
