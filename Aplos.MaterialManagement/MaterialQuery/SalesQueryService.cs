@@ -1495,8 +1495,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,SM.TransactionRate
 								,SM.TransactionQty
 								,SM.BooksCurrencyTransactionAmount TransactionAmount
+								,Difference=SM.BooksCurrencyTransactionAmount-So.Rate*SM.TransactionQty
 								,TUoM.UserName AS TransactionUoM
-
 								,SM.BooksCurrencyTaxAmount TaxAmount
 								
 								,BUoM.UserName AS BaseUoM
@@ -1549,7 +1549,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-									,So.Rate,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss,So.Other,So.UpCharge
+									,So.Rate StockRate,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss
+									,So.Other,So.UpCharge
 								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
@@ -1673,6 +1674,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.BooksCurrencyTransactionAmount TransactionAmount
+								,Difference=0
 								,''  TransactionUoM
 								,ISs.BooksCurrencyTaxAmount TaxAmount 
 								,''  BaseUoM
@@ -1720,7 +1722,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
+								,0 StockRate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 								,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -1812,6 +1814,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,IID.SalesRate TransactionRate
 								,IID.BooksCurrencyTransactionAmount TransactionQty 
 								,IID.BooksCurrencyTransactionAmount *IID.SalesRate TransactionAmount
+								,Difference=0
 								,TUoM.UserName AS TransactionUoM
 								,SCr1.TaxAmount TaxAmount
 								,TUoM.UserName AS BaseUoM
@@ -1850,7 +1853,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,0 RealizeAmount
 								,''RealizeDate
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
+								,0 StockRate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM [TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
@@ -1969,6 +1972,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount*IR.ToCurrencyRate TransactionAmount
+								,Difference=0
 								,'' AS TransactionUoM
 								,0 TaxAmount
 								,'' AS BaseUoM
@@ -2008,7 +2012,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,0 RealizeAmount
 					    ,''RealizeDate
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
-						,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
+						,0 StockRate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 						,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
