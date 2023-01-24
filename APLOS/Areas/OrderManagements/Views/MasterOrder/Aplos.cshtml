@@ -373,7 +373,7 @@
                             </ul>
                             <ul class="list-inline text-right">
                                 @*<li><button ng-click="Save();" ng-disabled="btndisable"  class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>*@
-                                <li><button ng-click="Save();"  class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                                 <li><button ng-click="removeMaster();" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                 <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
@@ -388,22 +388,22 @@
                                     <tr>
                                         <th>Code</th>
                                         <th class="col-sm-1">Action</th>
-                                        <th>Copy SO</th>
+
                                         <th>Total Quantity</th>
                                         <th>SO Total Quantity</th>
                                         <th>UoM</th>
                                         <th>Material</th>
                                         <th>Article</th>
-                                        <th>Order Wastage Percentage</th>
-                                        <th>Extra Order Percentage</th>
                                         <th>Item Costing</th>
-                                        <th>Inquiry</th>
-                                        <th>Sample No</th>
-
-                                        <th>Testing Std</th>
-                                        <th>Production Grouping</th>
                                         <th>Buyer Ref.No</th>
                                         <th>Own Ref.No</th>
+                                        <th>Order Wastage Percentage</th>
+                                        <th>Extra Order Percentage</th>
+                                        <th>Inquiry</th>
+                                        <th>Sample No</th>
+                                        <th>Testing Std</th>
+                                        <th>Production Grouping</th>
+
                                         <th>Repeat</th>
                                         <th>Product Library</th>
                                         <th>Order Costing</th>
@@ -417,6 +417,7 @@
                                         <th>Remark</th>
                                         <th>Attachment</th>
                                         <th>Order Status</th>
+                                        <th>Copy SO</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -440,18 +441,7 @@
                                                 </li>
                                             </ul>
                                         </td>
-                                        <td>
-                                            <div class="input-group">
-                                                <div class="select-style">
-                                                    <select name="SO Copy" class="form-control" ng-model="MasterOrderItemId" ng-options="item.MasterOrderItemId as item.MasterOrderItemId for item in x.TempList" tabindex="9" style="width: 82px;" ng-disabled="x.SONo!=0">
-                                                        <option value="">--Select--</option>
-                                                    </select>
-                                                </div>
-                                                <span class="input-group-btn">
-                                                    <button ng-click="ShowSKUMapPopUp(x,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
-                                                </span>
-                                            </div>
-                                        </td>
+
                                         <td>
                                             <input type="text" n-decimals="2" ng-model=" x.TotalQty" class="form-control text-right" />
                                         </td>
@@ -462,11 +452,6 @@
                                         </td>
                                         <td>
                                             <div class="select-style">
-                                                @*<select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>
-
-                                                         <select ng-model="x.UOMId" name="UOM" style="width: 60px;" class="form-control">
-                                                        <option data-ng-repeat="c in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}" value="{{c.UOMId}}" ng-selected="x.ByDefault==1">{{c.Text}}</option>
-                                                    </select>*@
                                                 <select name="UOM" style="width: 60px;" class="form-control" ng-model="x.UOMId"
                                                         ng-options="item.Value as item.Text for item in ProductMasterUoMList| filter:{ProductMasterId:x.ProductMasterId}"
                                                         ng-selected="x.ByDefault == item.ByDefault"></select>
@@ -493,14 +478,21 @@
                                             </div>
                                         </td>
                                         <td>
+                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
+                                        </td>
+                                        <td>
+                                            <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
+                                        </td>
+                                        <td>
+                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
+                                        </td>
+                                        <td>
                                             <input type="text" n-decimals="2" ng-model=" x.OrderWastagePercentage" class="form-control text-right">
                                         </td>
                                         <td>
                                             <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
                                         </td>
-                                        <td>
-                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
-                                        </td>
+
 
                                         <td>{{x.Inquiry}}</td>
                                         <td>{{x.SampleNo}}</td>
@@ -516,12 +508,7 @@
                                         <td>
                                             <input type="text" ng-model=" x.ProductionGrouping" class="form-control">
                                         </td>
-                                        <td>
-                                            <input type="text" ng-model=" x.BuyerReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
-                                        </td>
-                                        <td>
-                                            <input type="text" ng-model=" x.OwnReferenceNo" class="form-control" style="width: 105px;" ng-maxlength="50">
-                                        </td>
+
                                         <td>
                                             <div class="checkbox-site">
                                                 <label class="control-label">
@@ -608,12 +595,24 @@
                                                 </select>
                                             </div>
                                         </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="select-style">
+                                                    <select name="SO Copy" class="form-control" ng-model="MasterOrderItemId" ng-options="item.MasterOrderItemId as item.MasterOrderItemId for item in x.TempList" tabindex="9" style="width: 82px;" ng-disabled="x.SONo!=0">
+                                                        <option value="">--Select--</option>
+                                                    </select>
+                                                </div>
+                                                <span class="input-group-btn">
+                                                    <button ng-click="ShowSKUMapPopUp(x,MasterOrderItemId);" ng-disabled="x.SONo!=0" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Copy SO">Copy SO</button>
+                                                </span>
+                                            </div>
+                                        </td>
                                         <td class="text-center">
                                             <button ng-click="ReportPopUp(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Costing Report">Costing</button>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3"></td>
+                                        <td colspan="2"></td>
                                         <td class="text-right">
                                             <label ng-class="{'control-label redClr text-right':x.SOQty != x.TotalQty, 'control-label text-right': x.SOQty == x.TotalQty}">
                                                 {{itemList | sumByKey : 'TotalQty'|number:2}}
@@ -624,7 +623,8 @@
                                                 {{itemList | sumByKey : 'SOQty'|number:2}}
                                             </label>
                                         </td>
-                                        <td colspan="26"></td>
+
+                                        <td colspan="25"></td>
                                         <td class="text-center">
                                             <button ng-click="addNewItem();" ng-disabled="fileNew.Id===null" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-plus"></i> Add Line Item</button>
                                         </td>
