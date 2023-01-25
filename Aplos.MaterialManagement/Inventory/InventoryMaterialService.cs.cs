@@ -394,7 +394,7 @@ namespace Library.MaterialManagement.Inventory
                                        ,IRD.ShortageQty
                 					   ,IRD.RejectionQty
                 					   ,IRD.ApprovedQty
-                                      ,IRD.TransactionQty AS PreviousQty
+                                      ,IRD.TransactionQty AS PreviousQty,IRD.LotNumber
                                       ,IRD.ShortageRatePercent AS ShortageRate,IRD.ShortageValue,IRD.RejectRatePercent AS RejectionRate,IRD.RejectValue AS RejectionValue,IRD.RejectClamPercent RejectionClamRate,IR.CheckedBy,PID.Description MaterialDetail,c.UserName CountryName,C.Id CountryId ,IRD.GRNQty-IRD.ShortageQty AS NetQty,MS.Id MaterialStorageId,IRD.GrossAmount,IRD.DiscountAmount,IRD.QualityStatus
 									from TRN.InventoryMaterial AS IM
                                   LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -432,7 +432,7 @@ namespace Library.MaterialManagement.Inventory
                         , ServiceTax=(@totalSvcTaxAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount, PID.TransactionQty AS POQty,ISNULL(Pre.OtherReceived,0) OtherReceived
                         ,IRD.GRNQty TransactionQty  ,(PID.TransactionQty-IRD.TransactionQty-ISNULL(Pre.OtherReceived,0)) AS Balance   ,IRD.TransactionUoMId,IRD.BaseUOMId   
                         ,IRD.TotalMaterialTranAmount,IRD.ToTalMaterialBooksCurrencyAmount AS TotalMaterialBaseAmount,IRD.ShortageQty,IRD.RejectionQty,IRD.ApprovedQty 
-                        ,IRD.TransactionQty AS PreviousQty
+                        ,IRD.TransactionQty AS PreviousQty,IRD.LotNumber
                                                ,IRD.ShortageRatePercent AS ShortageRate,IRD.ShortageValue,IRD.RejectRatePercent AS RejectionRate
                         ,IRD.RejectValue AS RejectionValue,IRD.RejectClamPercent RejectionClamRate,IR.CheckedBy,PID.Description MaterialDetail,c.UserName CountryName
                         ,C.Id CountryId,IRD.GRNQty-IRD.ShortageQty AS NetQty,MS.Id MaterialStorageId,IRD.GrossAmount,IRD.DiscountAmount,IRD.QualityStatus 
@@ -502,7 +502,7 @@ namespace Library.MaterialManagement.Inventory
                                         ,IRD.ShortageQty
                                         ,IRD.RejectionQty
                                         ,IRD.ApprovedQty
-                                        ,IRD.TransactionQty AS PreviousQty
+                                        ,IRD.TransactionQty AS PreviousQty,IRD.LotNumber
                                         ,IRD.ShortageRatePercent AS ShortageRate,IRD.ShortageValue,IRD.RejectRatePercent AS RejectionRate,IRD.RejectValue AS RejectionValue
                                         ,IRD.RejectClamPercent RejectionClamRate,IR.CheckedBy
                                         --,PID.Description MaterialDetail

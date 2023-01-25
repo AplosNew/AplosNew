@@ -358,6 +358,15 @@ namespace Aplos.Controllers.ApopAPIHR
         }
 
         #endregion AllTaskList
+
+        #region Deshboard
+        public List<Default> GetDeshboard(string UserId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetDeshboard(out List<Default> activelists, UserId);
+            return activelists;
+        }
+        #endregion Deshboard
         #endregion written by Aman
 
     }

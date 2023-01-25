@@ -756,6 +756,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 inventoryIssue.PlantId = identity.PlantId;
                 inventoryIssue.Orderspecific = "No";
                 inventoryIssue.IssueSlipType = "InventorySlip";
+                inventoryIssue.CheckedByStatus = "ForChecked";
                 inventoryIssue.Preparedby = model["ByWhomId"].ToString();
                 inventoryIssue.ProductionOrderId = model["POId"].ToString();
 
@@ -1162,7 +1163,7 @@ Where SO.Id " + soId + "";
 						else ''
 						END
 						,p.UserName ProcessName,po.SalesOrderId,FGColor=isnull(po.FGColor1,'')+','+isnull(po.FGColor2,'')+','+isnull(po.FGColor3,'')
-						,po.ProductionOrder,PreparedBy.EmployeeName AddedBy
+						,'PONo: ' + ISNULL(IsR.ProductionOrderId,po.ProductionOrder) ProductionOrder,PreparedBy.EmployeeName AddedBy
 						FROM TRN.IssueRequestMaster As IsR
 						                LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IsR.CheckedBy
                                          LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IsR.AuthorizedBy

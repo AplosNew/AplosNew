@@ -434,7 +434,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
     $scope.GetWorkcenter = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetWorkcenter',
+            url: $scope.path + 'GetWorkcenter?paramEntityId=' + $scope.paramEntityId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.WorkcenterList = resp.data;
@@ -859,8 +859,8 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             else {
                 ShowResult(response.data.Message, 'success');
                 //ClearFields(response.data.Sequence);
-                $scope.GetSavedWorkcenter();
-                $scope.getData();
+                $scope.GetSavedEntity();
+                
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -949,6 +949,27 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             $scope.ParameterProcessList = resp.data;
         });
     }
+
+    $scope.RemoveProcessRow = function (x) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'RemoveWorkcenter?RemoveProcessRow=' + x.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //ClearFields(response.data.Sequence);
+                $scope.GetSavedProcess();
+               
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
     //  #endregion Process Tab
 
     //  #region Machine Tab
@@ -1029,6 +1050,27 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
         }).then(function succ(resp) {
 
             $scope.ParameterMachineList = resp.data;
+        });
+    }
+
+    $scope.RemoveMachineRow = function (x) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'RemoveWorkcenter?RemoveMachineRow=' + x.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //ClearFields(response.data.Sequence);
+                $scope.GetSavedProcess();
+
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
         });
     }
     //  #endregion Machine Tab

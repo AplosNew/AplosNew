@@ -847,7 +847,7 @@ namespace Library.Service.OrderManagements
             }
         }
 
-        public IEnumerable<object> GetWorkCenterListByEntityandFirstProcess(string entityId, string processId)
+        public IEnumerable<object> GetWorkCenterListByEntityandFirstProcess(string entityId, string processId, string productionOrderId)
         {
 
             try
@@ -858,7 +858,7 @@ namespace Library.Service.OrderManagements
                             FROM SCS.WorkCenterMaster AS WCM
                             INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
                             INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
-                            WHERE WCM.EntityId='" + entityId + "' AND ProcessId='"+ processId + "' order by p.userName, e.UserName,WCM.sequence";
+                            WHERE WCM.EntityId='" + entityId + "' AND ProcessId='"+ processId + "' AND wcm.id not in (select WorkCenterMasterId from ProductionOrderFirstProcessWorkCenter where ProductionOrderId='"+ productionOrderId +@"') order by p.userName, e.UserName,WCM.sequence";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (CustomException)

@@ -674,6 +674,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.chargesListPOnew = [];
         $scope.ApprovedByStatusForNoti = null;
         $scope.CheckedByStatusForNoti = null;
+        $scope.NotificationSettingStatus();
         $scope.AcceptanceId = null;
         $scope.PostButton = false;
         $scope.advanceTaxesList = [];
