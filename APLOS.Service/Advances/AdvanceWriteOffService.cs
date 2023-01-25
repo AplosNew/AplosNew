@@ -238,7 +238,7 @@ namespace Library.Service.Advances
 									LEFT JOIN (SELECT VDC.VoucherId,  SUM(VDC.DrAmount) AS DrAmount FROM [TRN].[VoucherDetail] AS VDC
 										GROUP BY VoucherId
 									) AS X ON X.VoucherId=AW.VoucherId AND  X.DrAmount > 0
-                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
+                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 
