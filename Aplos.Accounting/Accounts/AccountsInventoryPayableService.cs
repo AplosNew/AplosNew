@@ -4880,7 +4880,9 @@ order by IR.GRNDate desc";
                             LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId
 							LEFT JOIN TRN.Voucher V ON V.Id=PGI.VoucherId
 							LEFT JOIN (SELECT PostGRNInvoiceId,SUM(TransactionAmount) Amount 
-									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id) AS TEMP WHERE " + strkey + "";
+									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id
+							WHERE  V.Archive=0
+							) AS TEMP WHERE " + strkey + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
