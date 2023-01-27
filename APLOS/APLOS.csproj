@@ -776,6 +776,7 @@
     <Compile Include="Areas\Machines\Controllers\MaintenanceSchedulingController.cs" />
     <Compile Include="Areas\Machines\Controllers\PendingMaintenanceScheduleController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogReportController.cs" />
+    <Compile Include="Areas\Materials\Controllers\RawMaterialPlanningController.cs" />
     <Compile Include="Areas\Materials\Controllers\ScanDataController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityGroupController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionLogoutController.cs" />
@@ -2252,6 +2253,7 @@
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogReportController.js" />
+    <Content Include="Areas\Materials\Scripts\RawMaterialPlanningController.js" />
     <Content Include="Areas\Materials\Scripts\ScanDataController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityGroupController.js" />
     <Content Include="Areas\Materials\Scripts\MaterialIssueController.js" />
@@ -4506,6 +4508,9 @@
     <Content Include="Areas\Productions\Views\Parameter\_Entity.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\_Process.cshtml" />
     <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\RawMaterialPlanning\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\RawMaterialPlanning\Approval.cshtml" />
+    <Content Include="Areas\Materials\Views\RawMaterialPlanning\Issue.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
