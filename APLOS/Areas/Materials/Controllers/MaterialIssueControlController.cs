@@ -30,6 +30,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using Aplos.Areas.Commercial.Controllers;
+using Library.Service.Systems;
 #endregion
 
 namespace Aplos.Areas.Materials.Controllers
@@ -39,10 +40,12 @@ namespace Aplos.Areas.Materials.Controllers
         #region -- Constructor
         private readonly ISqlRepository _sqlRepository;
         private readonly IIssueRequestService _issueRequestService;
-        public MaterialIssueControlController(ISqlRepository R, IIssueRequestService issueRequestService)
+        private readonly IPKGeneratorService _pkGeneratorService;
+        public MaterialIssueControlController(ISqlRepository R, IIssueRequestService issueRequestService, IPKGeneratorService pkGeneratorService)
         {
             _sqlRepository = R;
             _issueRequestService = issueRequestService;
+            _pkGeneratorService = pkGeneratorService;
         }
         #endregion
 
@@ -541,7 +544,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild, dsSOChild;
+            DataSet dsMaster, dsChild, dsSOChild, dsIdChild;
             string _Id = string.Empty;
             try
             {
@@ -596,19 +599,21 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 
                 #region MaterialIssueControlDetail 
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
-                int ccount = 0;
+                objCon.OpenDataSetThroughAdapter("SELECT Count(Id)Idc FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsIdChild, false, "1");
+                int ccount = Convert.ToInt32(dsIdChild.Tables[0].Rows[0]["Idc"].ToString());
                 if (dataList != null)
                 {
                     foreach (var item in dataList)
                     {
-                        ccount++;
                         DataView dv = new DataView(dsChild.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
 
-
                         if (dv.Count == 0)
                         {
-                            item["Id"] = _Id + "-" + ccount;
+                            ccount++;
+
+                            string id = _pkGeneratorService.MakePK(_Id, ccount, 2);
+                            item["Id"] = id;
                             item["MaterialIssueControlMasterId"] = _Id;
                             AddNewRow(dsChild.Tables[0], item);
                         }

@@ -319,6 +319,16 @@ ORDER BY e.PlantId, e.UserName";
                 int colWorkCenter = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "First Process";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colFirstProcess = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "First Process Work Center";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colFPWorkCenter = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Work Center Group";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int colWorkCenterGroup = COL;
@@ -778,6 +788,8 @@ ORDER BY e.PlantId, e.UserName";
                     //text fields
                     sheet[ROW, colPlant].Text = dt.Rows[i]["Plant"].ToString();
                     sheet[ROW, colEntity].Text = dt.Rows[i]["Entity"].ToString();
+                    sheet[ROW, colFirstProcess].Text = dt.Rows[i]["FirstProcess"].ToString();
+                    sheet[ROW, colFPWorkCenter].Text = dt.Rows[i]["FirstProcessWC"].ToString();
                     sheet[ROW, colMaterial].Text = dt.Rows[i]["Material"].ToString();
                     sheet[ROW, colProduct].Text = dt.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = dt.Rows[i]["Article"].ToString();
@@ -2365,8 +2377,7 @@ ORDER BY  p1.ProductionDate,po.Id,popc.Sequence
                             PRODPR.LineStartDateAtPR,PRODPR.LineEndDateAtPR, 
                             
                             p3.PlanningStartDateAtWC,p3.PlanningEndDateAtWC,p3.PlanningQtyAtWC,
-                            p2.PlanningStartDateAtPR,p2.PlanningEndDateAtPR, p2.PlanningQtyAtPR,
-                           
+                            p2.PlanningStartDateAtPR,p2.PlanningEndDateAtPR, p2.PlanningQtyAtPR,                         
                             
                             
                              
@@ -2377,7 +2388,7 @@ ORDER BY  p1.ProductionDate,po.Id,popc.Sequence
                             WC.StandardTimePerDay AS StandardWorkingHours, eff.StandardWorkingHourCost,eff.AdditionalWorkingHourCostPerHour,
                             wc.NoOfWorkStation AS StandardWorkStations,wc.DailyFixedCost,wc.VariableCost AS VariableCostPerHour
                             ,bul.Id BulletinId, bul.MachineSPT, bul.NonMachineSPT,
-                            bul.MachineManpower, bul.NonMachineManpower,bul.TotalSPT
+                            bul.MachineManpower, bul.NonMachineManpower,bul.TotalSPT,wcm.UserName FirstProcessWC,P.UserName FirstProcess
                             from trn.ProductionOrder PO
                             inner join ProductionOrderSchedulingParametersType1 T1 on t1.ProductionOrderID=po.Id
                             INNER join ProductionPlanningType1 p1 on p1.ProductionOrderID=t1.ProductionOrderID and ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
@@ -2451,7 +2462,9 @@ ORDER BY  p1.ProductionDate,po.Id,popc.Sequence
 				                            FROM   trn.ProductionSummary S 
 				                            GROUP BY  s.ProductionOrderId,s.ProcessId
                             ) AS PRODPR ON  PRODPR.ProductionOrderId=p1.ProductionOrderID AND p1.ProcessID=PRODPR.ProcessId
-
+                            LEFT JOIN [dbo].[ProductionOrderFirstProcessWorkCenter] FP ON FP.ProductionOrderId=p1.ProductionOrderID
+							LEFT JOIN SCS.WorkCenterMaster wcm ON wcm.Id=FP.WorkCenterMasterId
+							LEFT JOIN HKP.Process P ON P.Id=FP.ProcessId
 
                             left outer join (
                             select POD.ProductionOrderId,ma.StandardName AS Article,
