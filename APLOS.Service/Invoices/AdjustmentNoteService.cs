@@ -110,7 +110,7 @@ namespace Library.Service.Invoices
                                 LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
-                                WHERE A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
+                                WHERE A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 
@@ -1824,7 +1824,7 @@ namespace Library.Service.Invoices
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS GC ON GC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0  AND I.SourceType in ('" + SourceType.CreditNote + "','"+ SourceType.VendorPayment + @"') AND V.IsPark=0
+                                    WHERE I.Archive=0 AND V.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0  AND I.SourceType in ('" + SourceType.CreditNote + "','"+ SourceType.VendorPayment + @"') AND V.IsPark=0
                                     AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + @"'";
                 return _sqlRepository.GetGridData(parameters);
             }

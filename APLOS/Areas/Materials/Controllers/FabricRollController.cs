@@ -436,8 +436,8 @@ namespace Aplos.Areas.Materials.Controllers
 
                 #region ------------------Column Header------------------
 
-                int colSeq = 0; int colGRNRowId = 0; int colLotNo, colColor, colFabricType, colFabricQuality = 0; int colShade = 0; int colMarkarCode = 0; int colFabricGroup = 0; int colLength, colOwnGSM, colStdGSM, colGSMVariation,colGSMVariationPer, colShrinkageGroup, colDia, colQualityStatus, colFTPReportNo, colFTPReceiveDate,colFTPStatus = 0;
-                int colCutableWeight, colDimensionalChange3rdWash = 0; int colShrinkagewidth, colShrinkageLength = 0; int colQty = 0; int colQtyUoM = 0; int colActualQty = 0; int colSupplier = 0;
+                int colSeq = 0; int colGRNRowId = 0; int colLotNo, colColor, colFabricType, colFabricQuality = 0; int colShade = 0; int colMarkarCode = 0; int colShadeGroup = 0; int colLength, colOwnGSM, colStdGSM, colGSMVariation,colGSMVariationPer, colShrinkageGroup, colDia, colQualityStatus, colFTPReportNo, colFTPReceiveDate,colFTPStatus = 0;
+                int colCutableWidth, colDimensionalChange3rdWash = 0; int colShrinkagewidth, colShrinkageLength = 0; int colQty = 0; int colQtyUoM = 0; int colActualQty = 0; int colSupplier = 0;
                 int colSupplierRollNo, colSupplierQualityGrade = 0; int colOwnRollNo = 0; int colBuyerRollNo = 0; int colGrouping = 0; int colRemarks = 0;
                 int colSpirality3rdWash, colPillingResistance, colBurstingStrength, colAbsorbency, colpHValue, colSewablity, colHandfeel = 0;
 
@@ -445,6 +445,7 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GRNRowId");colGRNRowId = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Color"); colColor = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "LotNo");colLotNo = xlsCol;xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShadeGroup"); colShadeGroup = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricType"); colFabricType = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FabricQuality"); colFabricQuality = xlsCol;xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierRollNo"); colSupplierRollNo = xlsCol; xlsCol += 1;
@@ -452,7 +453,7 @@ namespace Aplos.Areas.Materials.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "QtyUoM"); colQtyUoM = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "SupplierQty"); colSupplier = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ActualQty"); colActualQty = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CutableWeight"); colCutableWeight = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CutableWidth"); colCutableWidth = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnGSM"); colOwnGSM = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "StdGSM"); colStdGSM = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GSMVariation"); colGSMVariation = xlsCol; xlsCol += 1;
@@ -521,13 +522,13 @@ namespace Aplos.Areas.Materials.Controllers
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Actual Qty";
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxTitle = "Number Error";
                                                      
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Cutable Weight";
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxTitle = "Number Error";
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Cutable Weight";
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.ErrorBoxTitle = "Number Error";
 
                             sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.IsEmptyCellAllowed = true;
                             sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.AllowType = ExcelDataType.Decimal;
@@ -547,6 +548,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                             sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShadeGroup, xlsRow, colShadeGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
@@ -554,7 +556,7 @@ namespace Aplos.Areas.Materials.Controllers
                             sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colGSMVariation, xlsRow, colGSMVariation].CellStyle.Locked = false;
@@ -613,13 +615,13 @@ namespace Aplos.Areas.Materials.Controllers
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Actual Qty";
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].DataValidation.ErrorBoxTitle = "Number Error";
 
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.IsEmptyCellAllowed = true;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.AllowType = ExcelDataType.Decimal;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.FirstFormula = "0";
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Cutable Weight";
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].DataValidation.ErrorBoxTitle = "Number Error";
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.IsEmptyCellAllowed = true;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.AllowType = ExcelDataType.Decimal;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.CompareOperator = ExcelDataValidationComparisonOperator.GreaterOrEqual;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.FirstFormula = "0";
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Cutable Weight";
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].DataValidation.ErrorBoxTitle = "Number Error";
 
                             sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.IsEmptyCellAllowed = true;
                             sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].DataValidation.AllowType = ExcelDataType.Decimal;
@@ -639,6 +641,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                             sheet1.Range[xlsRow, colColor, xlsRow, colColor].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colLotNo, xlsRow, colLotNo].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colShadeGroup, xlsRow, colShadeGroup].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricType, xlsRow, colFabricType].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colFabricQuality, xlsRow, colFabricQuality].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplierRollNo, xlsRow, colSupplierRollNo].CellStyle.Locked = false;
@@ -646,7 +649,7 @@ namespace Aplos.Areas.Materials.Controllers
                             sheet1.Range[xlsRow, colQtyUoM, xlsRow, colQtyUoM].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colSupplier, xlsRow, colSupplier].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colActualQty, xlsRow, colActualQty].CellStyle.Locked = false;
-                            sheet1.Range[xlsRow, colCutableWeight, xlsRow, colCutableWeight].CellStyle.Locked = false;
+                            sheet1.Range[xlsRow, colCutableWidth, xlsRow, colCutableWidth].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colOwnGSM, xlsRow, colOwnGSM].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colStdGSM, xlsRow, colStdGSM].CellStyle.Locked = false;
                             sheet1.Range[xlsRow, colGSMVariation, xlsRow, colGSMVariation].CellStyle.Locked = false;
@@ -842,7 +845,7 @@ namespace Aplos.Areas.Materials.Controllers
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
                 //DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 34, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 35, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 //var pquom = "";
@@ -1076,6 +1079,7 @@ namespace Aplos.Areas.Materials.Controllers
         public string GRNRowId { get; set; }
         public string LotNo { get; set; }
         public string Color { get; set; }
+        public string ShadeGroup { get; set; }
         public string FabricType { get; set; }
         public string FabricQuality { get; set; }
         public string SupplierRollNo { get; set; }
@@ -1083,7 +1087,7 @@ namespace Aplos.Areas.Materials.Controllers
         public string QtyUoM { get; set; }
         public string SupplierQty { get; set; }
         public string ActualQty { get; set; }
-        public string CutableWeight { get; set; }
+        public string CutableWidth { get; set; }
         public string OwnGSM { get; set; }
         public string StdGSM { get; set; }
         public string GSMVariation { get; set; }

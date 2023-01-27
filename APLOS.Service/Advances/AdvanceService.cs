@@ -547,7 +547,7 @@ namespace Library.Service.Advances
                                  LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
                                 LEFT JOIN (SELECT AdvanceId, PartyId, NetAmount FROM [TRN].[AdvanceDetail]
                                 ) AS AD ON AD.AdvanceId=A.Id AND AD.PartyId=A.PartyId
-                                WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
+                                WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 

@@ -563,7 +563,7 @@ namespace Library.Service.Expenses
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=EB.PartyId
 								LEFT JOIN [TRN].[Voucher] AS V ON V.Id=EB.VoucherId
                                 LEFT JOIN (SELECT ExpenseBookingId, SUM(Amount) AS Amount FROM [TRN].[ExpenseBookingDetail] GROUP BY ExpenseBookingId) AS EBD ON EBD.ExpenseBookingId=EB.Id
-                                WHERE EB.Archive=0 AND EB.CompanyGroupId='" + companyGroupId + "' AND EB.CompanyId='" + companyId + "' AND EB.PlantId='" + plantId + "' AND EB.ApprovalStatus='" + ApprovalStatus.Approved + "' AND EB.IsPosted=1";
+                                WHERE EB.Archive=0 AND V.Archive=0 AND EB.CompanyGroupId='" + companyGroupId + "' AND EB.CompanyId='" + companyId + "' AND EB.PlantId='" + plantId + "' AND EB.ApprovalStatus='" + ApprovalStatus.Approved + "' AND EB.IsPosted=1";
             return _sqlRepository.GetGridData(parameters);
         }
 
@@ -961,6 +961,7 @@ namespace Library.Service.Expenses
                                         JOIN [SCS].[Currency] AS C ON C.Id=EB.CurrencyId
 									    LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EB.EmployeeId
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=EB.PartyId
+                                        LEFT JOIN [TRN].[Voucher] AS V ON V.Id=EB.VoucherId
                                         LEFT JOIN (SELECT ExpenseBookingId, SUM(Amount) AS Amount FROM [TRN].[ExpenseBookingDetail] GROUP BY ExpenseBookingId) AS EBD ON EBD.ExpenseBookingId=EB.Id
                                         WHERE EB.Archive=0 AND EB.ApprovalStatus='" + status + @"' AND EB.IsPosted=0 AND EB.AppliedBy!='Entity'";
                 return _sqlRepository.GetGridData(parameters);

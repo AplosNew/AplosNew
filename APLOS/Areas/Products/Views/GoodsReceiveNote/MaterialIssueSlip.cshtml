@@ -401,29 +401,26 @@
                         <th style="width:500px;">Cost Center&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
 
 
-                        <th>Material Type</th>
-                        <th>Material Group Name</th>
+
                         <th>Material Name</th>
                         <th>Article</th>
                         <th>SKU1</th>
                         <th>SKU2</th>
-                        <th>SKU3</th>
-                        <th>Country</th>
                         <th>Sales Order</th>
                         <th>Requested Qty</th>
                         <th>ConvertUOM</th>
                         <th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th>StockQty</th>
+                        <th style="width:500px;">Expense Activity Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        <th ">Select</th>
                         <th>S.B.UoM</th>
-                        @*<th>IssuedQty Qty</th>*@
                         <th>BOQ</th>
                         <th>Con.UOM</th>
-                        @*<th></th>*@
-                        @*<th>TranUOM</th>*@
+                        <th>Material Type</th>
+                        <th>Material Group Name</th>
+                        <th>Country</th>
                         <th>Consumption</th>
                         <th>WastagePer</th>
-                        @*<th>POUoM</th>*@
-                        <th style="width:500px;">Expense Activity Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th class="col-sm-1">Action</th>
                     </tr>
                 </thead>
@@ -431,7 +428,6 @@
                     <tr ng-repeat="x in FilterList123">
 
                         <td>
-                            @*<input type="checkbox" ng-click="Change($index)" ng-model=x.chk>*@
                             <div class="checkbox-site">
                                 <label>
                                     <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
@@ -445,24 +441,15 @@
                             </div>
                         </td>
 
-                        <td>{{x.MaterialType}}</td>
-                        <td>{{x.MaterialMasterGroupName}}</td>
+
                         <td>{{x.MaterialMasterName}}</td>
                         <td>{{x.StandardName}}</td>
                         <td>{{x.FirstCharacteristicsValue}}</td>
                         <td>{{x.SecondCharacteristicsValue}}</td>
-                        <td>{{x.ThirdCharacteristicsValue}}</td>
-                        <td>{{x.CountryName}}</td>
+
                         <td class="text-right">{{x.SalesOrderId}}</td>
 
                         <td class="text-right">{{x.RequisitionQty}}</td>
-
-                        @*<td ng-show="productNew.OrderSpecific==='No'">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in gridUoMList" ng-change="OnUOMChange(x)"></select>
-                                </div>
-                            </td>*@
-
                         <td>
                             <div class="select-style">
                                 <select ng-model="x.TransactionUoMId">
@@ -470,28 +457,10 @@
                                 </select>
                             </div>
                         </td>
-
-                        @*<td ng-show="productNew.OrderSpecific==='Yes'">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.uoMList" ng-change="OnUOMChange(x)"></select>
-                                </div>
-                            </td>*@
                         <td class="text-right">
                             <input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="false">
                         </td>
                         <td class="text-right">{{x.TotalQty}}</td>
-                        <td>{{x.StockUOM}}</td>
-                        @*<td class="text-right">{{x.IssuedQty}}</td>*@
-                        <td class="text-right">{{x.RequisitionQtyOrginal}}</td>
-                        <td>{{x.consumptionUoM}}</td>
-                        @*<td>{{x.TransactionUoMName}}</td>*@
-                        @*<td class="text-right">
-                                <ul class="list-inline action-list"></ul>
-                            </td>*@
-
-                        @*<td>{{x.POUoMName}}</td>*@
-                        <td>{{x.Consumption}}</td>
-                        <td>{{x.WastagePer}}</td>
                         <td>
                             <button ng-click="popUp($index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
                                 <i class="glyphicon glyphicon-search"></i>
@@ -499,6 +468,21 @@
                             {{x.GLBudgetActivity}}
 
                         </td>
+                        <td>
+                            <button ng-click="getMachineInventoryIssueStock()" class="btn btn-action tooltip-here" data-placement="top" title="Select Machine">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
+                        </td>
+                        <td>{{x.StockUOM}}</td>
+                        <td class="text-right">{{x.RequisitionQtyOrginal}}</td>
+                        <td>{{x.consumptionUoM}}</td>
+
+                        <td>{{x.MaterialType}}</td>
+                        <td>{{x.MaterialMasterGroupName}}</td>
+                        <td>{{x.CountryName}}</td>
+                        <td>{{x.Consumption}}</td>
+                        <td>{{x.WastagePer}}</td>
+
 
                         <td class="text-right table-td">
                             <ul class="list-inline">
@@ -586,288 +570,288 @@
 <div class="aplos-grid-toggle">
     <div class="row">
 
-    <div class="tab-design" id="tab_show">
-        <div class="site-tab">
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSetIndex(1) }"><a ng-click="setTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Issue Slip List</a></li>
-                <li role="presentation" ng-class="{ active: isSetIssueCHR(2) }"><a ng-click="setTabIssueCHR(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked (Hold / Reject)</a></li>
-                <li role="presentation" ng-class="{ active: isSetIssueChecked(3) }"><a ng-click="setTabIssueChecked(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked</a></li>
-                <li role="presentation" ng-class="{ active: isSetAHR(4) }"><a ng-click="setTabAHR(4)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved (Hold / Reject)</a></li>
-                <li role="presentation" ng-class="{ active: isSetIssueApprove(5)}"><a ng-click="setTabIssueApprove(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved</a></li>
-            </ul>
-        </div>
-        <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIndex(1), active: isSetIndex(1) }">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
-
-                        <div class="content-container-fluid" style="color:black;">
-
-                            <div style="color:black;" id="GridIssueSlip" ej-grid e-datasource="IssueSlipList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
-                                 e-allowselection="true"
-                                 e-detailstemplate="detailTemp"
-                                 e-detailsdatabound="detailgrid">
-                                <div e-columns>
-                                    <div e-column e-headertext="Actions" e-width="20">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid1');" style="margin: -6px;"></i></button>
-                                    </div>
-
-                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                    <div e-column e-field="Id" e-headertext="Id" e-width="40"></div>
-                                    @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
-                                    <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                    @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
-                                    <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
-                                    <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
-                                    <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
-                                    <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
-                                    <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
-                                    <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
-                                    <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
-
-
-                                    @*   <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                        <div class="tabcontrol" id="Test">
-                            <ul>
-                                <li><a href="#gridTab{{:Id}}">Inventory Issue Slip Details</a></li>
-                            </ul>
-                            <div id="gridTab{{:Id}}">
-                                <div id="detailGrid"></div>
-                            </div>
-                        </div>
-                    </script>*@
-                    </div>
-                </fieldset>
-
-            </div>
-
-
-
-
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueCHR(2), active: isSetIssueCHR(2) }">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
-
-                        <div class="content-container-fluid" style="color:black;">
-
-                            <div style="color:black;" id="GridHoldReject" ej-grid e-datasource="IssueSlipHoldRejectList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
-                                 e-allowselection="true"
-                                 e-detailstemplate="detailTemp"
-                                 e-detailsdatabound="detailgrid">
-                                <div e-columns>
-                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                    <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                                    @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
-                                    <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                    @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
-                                    <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
-                                    <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
-                                    <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
-                                    <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
-                                    <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
-                                    <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
-                                    @* <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-                                    <div e-column e-headertext="Actions" e-width="20">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid2');" style="margin: -6px;"></i></button>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                        <div class="tabcontrol" id="Test">
-                            <ul>
-                                <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                            </ul>
-                            <div id="gridTab{{:Id}}">
-                                <div id="detailGrid"></div>
-                            </div>
-                        </div>
-                    </script>*@
-                    </div>
-                </fieldset>
-
-            </div>
-
-
-
-
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueChecked(3), active: isSetIssueChecked(3) }">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div style="color:black;" id="GridChecked" ej-grid e-datasource="IssueSlipCheckedList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="true" e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
-                         e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                            <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                            @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
-                            <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
-                            <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
-                            <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
-                            <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
-                            <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
-                            <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
-
-                            <div e-column e-headertext="Actions" e-width="20">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid3');" style="margin: -6px;"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    @*<script id="tabGridContents" type="text/x-jsrender">
-            <div class="tabcontrol" id="Test">
-                <ul>
-                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSetIndex(1) }"><a ng-click="setTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Issue Slip List</a></li>
+                    <li role="presentation" ng-class="{ active: isSetIssueCHR(2) }"><a ng-click="setTabIssueCHR(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked (Hold / Reject)</a></li>
+                    <li role="presentation" ng-class="{ active: isSetIssueChecked(3) }"><a ng-click="setTabIssueChecked(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked</a></li>
+                    <li role="presentation" ng-class="{ active: isSetAHR(4) }"><a ng-click="setTabAHR(4)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved (Hold / Reject)</a></li>
+                    <li role="presentation" ng-class="{ active: isSetIssueApprove(5)}"><a ng-click="setTabIssueApprove(5)" href="" aria-controls="address" role="tab" data-toggle="tab">Approved</a></li>
                 </ul>
-                <div id="gridTab{{:Id}}">
-                    <div id="detailGrid"></div>
-                </div>
             </div>
-        </script>*@
-                </fieldset>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIndex(1), active: isSetIndex(1) }">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div>
 
-            </div>
+                            <div class="content-container-fluid" style="color:black;">
 
-            <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetAHR(4), active: isSetAHR(4) }">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
+                                <div style="color:black;" id="GridIssueSlip" ej-grid e-datasource="IssueSlipList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                                     e-allowselection="true"
+                                     e-detailstemplate="detailTemp"
+                                     e-detailsdatabound="detailgrid">
+                                    <div e-columns>
+                                        <div e-column e-headertext="Actions" e-width="20">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid1');" style="margin: -6px;"></i></button>
+                                        </div>
+
+                                        @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                        <div e-column e-field="Id" e-headertext="Id" e-width="40"></div>
+                                        @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
+                                            <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                            <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                            <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                        <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
+                                        @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
+                                        <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
+                                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
+                                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
+                                        <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
+                                        <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
+                                        <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
+                                        <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="80"></div>
 
 
+                                        @*   <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
 
-                        <div class="content-container-fluid" style="color:black;">
 
-                            <div style="color:black;" id="GridApprovedIssueSlip" ej-grid e-datasource="ApprovedIssueSlipGList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
-                                 e-allowselection="true"
-                                 e-detailstemplate="detailTemp"
-                                 e-detailsdatabound="detailgrid">
-                                <div e-columns>
-                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                    <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                                    @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
-                                    <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                    @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
-                                    <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
-                                    <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
-
-                                    @* <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-                                    <div e-column e-headertext="Actions" e-width="20">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid5');" style="margin: -6px;"></i></button>
                                     </div>
 
                                 </div>
 
                             </div>
-
+                            @*<script id="tabGridContents" type="text/x-jsrender">
+                                    <div class="tabcontrol" id="Test">
+                                        <ul>
+                                            <li><a href="#gridTab{{:Id}}">Inventory Issue Slip Details</a></li>
+                                        </ul>
+                                        <div id="gridTab{{:Id}}">
+                                            <div id="detailGrid"></div>
+                                        </div>
+                                    </div>
+                                </script>*@
                         </div>
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                        <div class="tabcontrol" id="Test">
-                            <ul>
-                                <li><a href="#gridTab{{:Id}}">PO Details</a></li>
-                            </ul>
-                            <div id="gridTab{{:Id}}">
-                                <div id="detailGrid"></div>
-                            </div>
-                        </div>
-                    </script>*@
-                    </div>
-                </fieldset>
-            </div>
+                    </fieldset>
+
+                </div>
 
 
-            <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueApprove(5), active: isSetIssueApprove(5) }">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
 
 
-                        <div class="content-container-fluid" style="color:black;">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueCHR(2), active: isSetIssueCHR(2) }">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div>
 
-                            <div style="color:black;" id="Grid6Slip" ej-grid e-datasource="ApprovedIssueSlipGList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
-                                 e-allowselection="true"
-                                 e-detailstemplate="detailTemp"
-                                 e-detailsdatabound="detailgrid">
-                                <div e-columns>
-                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                    <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                                    @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
-                                    <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                    @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
-                                    <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
-                                    <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
+                            <div class="content-container-fluid" style="color:black;">
 
-                                    @* <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+                                <div style="color:black;" id="GridHoldReject" ej-grid e-datasource="IssueSlipHoldRejectList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                                     e-allowselection="true"
+                                     e-detailstemplate="detailTemp"
+                                     e-detailsdatabound="detailgrid">
+                                    <div e-columns>
+                                        @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                        <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                        @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
+                                            <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                            <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                            <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                        <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
+                                        @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
+                                        <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
+                                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
+                                        <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
+                                        <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
+                                        <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
+                                        <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
+                                        @* <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
 
-                                    <div e-column e-headertext="Actions" e-width="20">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid6');" style="margin: -6px;"></i></button>
+                                        <div e-column e-headertext="Actions" e-width="20">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid2');" style="margin: -6px;"></i></button>
+                                        </div>
 
                                     </div>
-
 
                                 </div>
 
                             </div>
-
+                            @*<script id="tabGridContents" type="text/x-jsrender">
+                                    <div class="tabcontrol" id="Test">
+                                        <ul>
+                                            <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                                        </ul>
+                                        <div id="gridTab{{:Id}}">
+                                            <div id="detailGrid"></div>
+                                        </div>
+                                    </div>
+                                </script>*@
                         </div>
-                        @*<script id="tabGridContents" type="text/x-jsrender">
-                        <div class="tabcontrol" id="Test">
-                            <ul>
-                                <li><a href="#gridTab{{:Id}}">PO Details</a></li>
-                            </ul>
-                            <div id="gridTab{{:Id}}">
-                                <div id="detailGrid"></div>
+                    </fieldset>
+
+                </div>
+
+
+
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueChecked(3), active: isSetIssueChecked(3) }">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div style="color:black;" id="GridChecked" ej-grid e-datasource="IssueSlipCheckedList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-allowselection="true" e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                             e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
+                                @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
+                                <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
+                                <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
+                                <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
+                                <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
+                                <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
+                                <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
+
+                                <div e-column e-headertext="Actions" e-width="20">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid3');" style="margin: -6px;"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </script>*@
-                    </div>
-                </fieldset>
-            </div>
-            <script id="tabGridContents" type="text/x-jsrender">
-                <div class="tabcontrol" id="Test">
-                    <ul>
-                        <li><a href="#gridTab{{:Id}}">PO Details</a></li>
-                    </ul>
-                    <div id="gridTab{{:Id}}">
-                        <div id="detailGrid"></div>
-                    </div>
+                        @*<script id="tabGridContents" type="text/x-jsrender">
+                                <div class="tabcontrol" id="Test">
+                                    <ul>
+                                        <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                                    </ul>
+                                    <div id="gridTab{{:Id}}">
+                                        <div id="detailGrid"></div>
+                                    </div>
+                                </div>
+                            </script>*@
+                    </fieldset>
+
                 </div>
-            </script>
+
+                <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetAHR(4), active: isSetAHR(4) }">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div>
+
+
+
+                            <div class="content-container-fluid" style="color:black;">
+
+                                <div style="color:black;" id="GridApprovedIssueSlip" ej-grid e-datasource="ApprovedIssueSlipGList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                                     e-allowselection="true"
+                                     e-detailstemplate="detailTemp"
+                                     e-detailsdatabound="detailgrid">
+                                    <div e-columns>
+                                        @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                        <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                        @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
+                                            <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                            <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                            <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                        <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
+                                        @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
+                                        <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
+                                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
+
+                                        @* <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+
+                                        <div e-column e-headertext="Actions" e-width="20">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid5');" style="margin: -6px;"></i></button>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            @*<script id="tabGridContents" type="text/x-jsrender">
+                                    <div class="tabcontrol" id="Test">
+                                        <ul>
+                                            <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                                        </ul>
+                                        <div id="gridTab{{:Id}}">
+                                            <div id="detailGrid"></div>
+                                        </div>
+                                    </div>
+                                </script>*@
+                        </div>
+                    </fieldset>
+                </div>
+
+
+                <div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueApprove(5), active: isSetIssueApprove(5) }">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                        <div>
+
+
+                            <div class="content-container-fluid" style="color:black;">
+
+                                <div style="color:black;" id="Grid6Slip" ej-grid e-datasource="ApprovedIssueSlipGList"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                     e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                                     e-allowselection="true"
+                                     e-detailstemplate="detailTemp"
+                                     e-detailsdatabound="detailgrid">
+                                    <div e-columns>
+                                        @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
+                                        <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                        @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
+                                            <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                            <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                            <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                        <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
+                                        @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
+                                        <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
+                                        <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
+
+                                        @* <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
+
+                                        <div e-column e-headertext="Actions" e-width="20">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid6');" style="margin: -6px;"></i></button>
+
+                                        </div>
+
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            @*<script id="tabGridContents" type="text/x-jsrender">
+                                    <div class="tabcontrol" id="Test">
+                                        <ul>
+                                            <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                                        </ul>
+                                        <div id="gridTab{{:Id}}">
+                                            <div id="detailGrid"></div>
+                                        </div>
+                                    </div>
+                                </script>*@
+                        </div>
+                    </fieldset>
+                </div>
+                <script id="tabGridContents" type="text/x-jsrender">
+                    <div class="tabcontrol" id="Test">
+                        <ul>
+                            <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                        </ul>
+                        <div id="gridTab{{:Id}}">
+                            <div id="detailGrid"></div>
+                        </div>
+                    </div>
+                </script>
+            </div>
         </div>
-    </div>
     </div>
 
 
@@ -1046,3 +1030,150 @@
 
 
 </div>
+
+
+<div class="modal fade site-modal in" id="ShowMachineInventoryIssue" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="clearfix"></div>
+                    <div class="table-responsive modal-table">
+                        <table class="table table-responsive table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Machine</th>
+                                    <th>Qty</th>
+                                    <th>Remarks</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="input-group">
+                                            <input type="text" name="MachineName" ng-model="modelNew.MachineName" class="form-control" readonly required>
+                                            <span class="input-group-btn">
+                                                <button ng-click="showMachinePopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                                <button ng-click="clearMachine()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td id="td_TaxCodeAmount">
+                                        <div class="show-message">
+                                            <input type="text" n-decimals="2" class="form-control text-right" ng-model="modelNew.Qty">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <textarea type="text" name="remarks" class="form-control" maxlength="350" rows="1" ng-model="modelNew.Remarks" tabindex="4" capitalize></textarea>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <a ng-click="addMachine();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="x in machineQtyList">
+                                    <td>{{x.MachineName}}</td>
+                                    <td>{{x.Qty}}</td>
+                                    <td class="text-right">{{x.Remarks}}</td>
+                                    <td class="text-right">
+                                        <button ng-click="removeMachineRow(x.Id,$index)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot ng-show="machineQtyList.length">
+                                <tr>
+                                    <td colspan="2"><b>Sub Total</b></td>
+                                    <td class="text-right"><b>{{ machineQtyList | sumByKey : 'Qty' }}</b></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><b>Total Amount</b></td>
+                                    <td class="text-right"><b>{{TotalSumAfterTCSVal}}</b></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="GetPopUpMachineInventoryIssueClosed();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- #region Material Master -->
+<div class="modal fade site-modal in" id="MachinePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Machine (Mst)<button type="button" class="close" data-dismiss="modal">&times;</button> </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="machinepopUpParameters.searchBy">
+                                            <option ng-repeat="option in machinepopUpList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="machinepopUpParameters.search" ng-enter="getPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <td>MaterialType</td>
+                                <td>MaterialGroupMaster</td>
+                                <td>ProductMaster</td>
+                                <td>Material</td>
+                                <td>AssetMaster</td>
+                                <td>SKU</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in machinepopUpDataList|itemsPerPage:machinepopUpParameters.pageSize" total-items="machinepopUpParameters.total_count"
+                                pagination-id="metaData.name + 'machinepopUpDataList'" ng-dblclick="selectMichineDoubleClick(x)">
+                                <td>{{x.MaterialType}}</td>
+                                <td>{{x.MaterialGroupMaster}}</td>
+                                <td>{{x.ProductMaster}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.AssetMaster}}</td>
+                                <td>{{x.SKU}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'machinepopUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closeMichinePopUp()" class="btn">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->

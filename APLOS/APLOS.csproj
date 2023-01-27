@@ -787,6 +787,7 @@
     <Compile Include="Areas\Materials\Controllers\StockRegisterController.cs" />
     <Compile Include="Areas\Materials\Controllers\StorageBinAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\StorageBinMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\MaterialIssueReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
@@ -2269,6 +2270,7 @@
     <Content Include="Areas\Materials\Scripts\StockRegisterController.js" />
     <Content Include="Areas\Materials\Scripts\StorageBinAllocationController.js" />
     <Content Include="Areas\Materials\Scripts\StorageBinMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\MaterialIssueReportController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionReportController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityMasterController.js" />
@@ -4508,6 +4510,8 @@
     <Content Include="Areas\Productions\Views\Parameter\_Entity.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\_Process.cshtml" />
     <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\_TeamLeader.cshtml" />
+    <Content Include="Areas\Materials\Views\MaterialIssueReport\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Approval.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Issue.cshtml" />
