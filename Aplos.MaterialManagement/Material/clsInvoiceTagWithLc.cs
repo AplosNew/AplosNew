@@ -487,9 +487,10 @@ namespace Library.MaterialManagement.Material
 									LEFT JOIN SCS.Currency AS c ON c.Id = m.CurrencyId
 									LEFT JOIN HKP.Party AS p ON p.Id = m.PartyID
 									LEFT JOIN PurchaseLC AS pl ON pl.Id = m.PurchaseLcId
+									LEFT JOIN [TRN].[Voucher] AS V ON V.Id=m.VoucherId
 									WHERE m.PlantId = '" + PlantId + @"'
 										AND m.CompanyGroupId = '" + CompanyGroupId + @"'
-										AND m.companyId = '" + CompanyId + "'";
+										AND m.companyId = '" + CompanyId + "' AND V.Archive=0 ";
                 return _sqlRepository.GetDataCollection(strSQL);
             }
             catch (Exception ex)

@@ -589,7 +589,7 @@ namespace Library.Accounting.Accounts
                                         LEFT JOIN TRN.AdditionalTax ADT ON ADT.InvoiceId=I.Id
                                         LEFT JOIN TRN.Voucher AV ON AV.Id=ADT.VoucherId
                                         LEFT JOIN TRN.OtherInvoice OI ON OI.InvoiceId=I.Id
-                                        WHERE I.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
+                                        WHERE I.Archive=0 AND V.Archive=0 AND I.OpeningBalanceId IS NULL AND I.SourceType='" + sourceType + @"' 
                                         AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"'  ";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -1394,7 +1394,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
-                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + @"' AND AW.[SourceType]='" + sourceType + @"'
+                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + @"' AND AW.[SourceType]='" + sourceType + @"'
                                     Group BY  P.Code , P.UserName, AW.PostingDate
                                     , AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark,AW.InvoiceGroupNo";
             return _sqlRepository.GetGridData(parameters);

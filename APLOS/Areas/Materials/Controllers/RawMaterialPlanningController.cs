@@ -30,22 +30,19 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using Aplos.Areas.Commercial.Controllers;
-using Library.Service.Systems;
 #endregion
 
 namespace Aplos.Areas.Materials.Controllers
 {
-    public class MaterialIssueControlController : BaseController
+    public class RawMaterialPlanningController : BaseController
     {
         #region -- Constructor
         private readonly ISqlRepository _sqlRepository;
         private readonly IIssueRequestService _issueRequestService;
-        private readonly IPKGeneratorService _pkGeneratorService;
-        public MaterialIssueControlController(ISqlRepository R, IIssueRequestService issueRequestService, IPKGeneratorService pkGeneratorService)
+        public RawMaterialPlanningController(ISqlRepository R, IIssueRequestService issueRequestService)
         {
             _sqlRepository = R;
             _issueRequestService = issueRequestService;
-            _pkGeneratorService = pkGeneratorService;
         }
         #endregion
 
@@ -66,6 +63,51 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion
 
         #region -- Operations
+
+        [Authorize, HttpGet]
+        public ActionResult GetEmployee()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult LoadPlanDetails(string POID)
+        {
+            try
+            {
+                string sql = @"SELECT *,Format(PlanDate,'dd-MMM-yyyy') as FormatPlanDate,(Select EmployeeName from EmployeeInformation where SystemId=PlanById) as PlanBy 
+from RawMaterialPlanningMaster where POId='"+ POID + "'";
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadPlanEditData(string PlanId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT *,Format(PlanDate,'dd-MMM-yyyy') as FormatPlanDate,(Select EmployeeName from EmployeeInformation where SystemId=PlanById) as PlanBy 
+from RawMaterialPlanningMaster where Id='" + PlanId + "'";
+            return Json(new { plan = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult EntityList()
@@ -253,13 +295,13 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
             try
             {
                 string sql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo
-                ,D.Id MaterialIssueControlDetailId,D.MaterialIssueControlMasterId,D.CostingItemId,D.NetConsumptionPerUnit,D.ValueLoss,D.GrossConsumption,D.TotalConsumption,D.AdditionReduction
-				,D.PlanConsumption,D.Rate,D.TotaPlanlAmount,ISNULL(IR.IssueQty,0) IssueQty,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks,D.AddedBy,D.AddedDate,D.AddedFromIP
+                ,D.Id RawMaterialPlanningDetailId,D.RawMaterialPlanningMasterId,D.CostingItemId,D.NetConsumptionPerUnit,D.ValueLoss,D.GrossConsumption,D.TotalConsumption,D.AdditionReduction
+				,D.PlanConsumption,D.Rate,D.TotaPlanlAmount,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks,D.AddedBy,D.AddedDate,D.AddedFromIP
 				,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
                 ,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId, BaseUoMFactor=case when M.BaseUOMId=i.UnitOfMeasurementId then 1 else 1 end
                 ,B.UserName BudgetName,ACT.UserName ActivityName,BM.Id BudgetMasterId,BM.GLGeneralInfoId,ACT.Id ExpenseActivityId,M.MaterialGroupMasterId
                 ,'' CostCenterName,''CostCenterId,'' Id,'' RequestedQty
-                FROM dbo.MaterialIssueControlDetail D 
+                FROM dbo.RawMaterialPlanningDetail D 
                 INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
                 left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
                 LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
@@ -268,9 +310,7 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
                 LEFT JOIN MST.BudgetMaster BM ON BM.Id=MGGL.InventoryBudgetMasterId
                 LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
                 LEFT JOIN HKP.Activity ACT ON ACT.Id=MGGL.InventoryActivityId
-				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId 
-							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId)IR ON IR.MaterialIssueControlDetailId=D.Id
-                WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
+                WHERE D.RawMaterialPlanningMasterId='" + masterId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -280,21 +320,20 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetList(string entityid, string column, string value)
+        public ActionResult GetList(Dictionary<string, string> parameters, string column, string value)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false)
                 strkey = column + " like '%" + value + "%'";
 
 
-            string sql = @"select * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,so.SODesc,SO.SOQty,ISNULL(PO.Qty,0) AS POQuantity
-                        ,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate
-                               ,so.Material, so.Product,so.ProductCategory, so.Buyer, so.OwnRefNo, so.StyleNo, so.OwnStyleNo, So.MasterOrderId,so.Customer,so.article,PO.AddedDate
+            string sql = @"select distinct * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,ISNULL(PO.Qty,0) AS POQuantity,
+                        so.DeliveryDate,so.ProductCode,so.OwnRefNo,so.Customer,PO.AddedDate,PO.EntityId,E.UserName as Entity,'' RMPlanQty,'' RMBalToPlan,'' SQQtyChk,isnull((select top 1 PlanStatus from RawMaterialPlanningMaster where POId=PO.Id order by PO.Id desc),'OnHold') as PlanStatus 
                             FROM [TRN].[ProductionOrder] AS PO                            
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId,
-                                                    mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,pc.UserName AS ProductCategory,
-                                                     so.DeliveryDate,sum(so.Qty) AS Qty,SO.PlanExFactoryDate,SO.CommitmentDate,
+                                                    mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,PM.Code as ProductCode,pc.UserName AS ProductCategory,
+                                                     sum(so.Qty) AS Qty,SO.PlanExFactoryDate,SO.CommitmentDate,SO.MasterOrderItemId,
                                                     MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
 																			trn.MasterOrder XMOI 	 
 								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
@@ -339,6 +378,12 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
 								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
 							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 
+													DeliveryDate=STUFF((select distinct ','+FORMAT(sox.DeliveryDate,'dd-MMM-yyyy') from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
                                                     buyer=STUFF((select distinct ','+XB.UserName from 
 	                                                    trn.SalesOrder XSO 
 		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -371,19 +416,128 @@ where pod.ProductionOrderID=Xpod.ProductionOrderId)
                                                     left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                     left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName ,so.DeliveryDate,SO.PlanExFactoryDate,SO.CommitmentDate) AS SO ON so.ProductionOrderId=po.Id
+                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,PM.Code,pc.UserName ,so.DeliveryDate,SO.PlanExFactoryDate,SO.CommitmentDate,SO.MasterOrderItemId) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed' AND PO.Id NOT IN(Select POId from dbo.MaterialIssueControlMaster)) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+							Left Outer Join ORG.Entity E ON E.Id=PO.entityid
+                            LEFT JOIN RawMaterialPlanningMaster RMP ON RMP.POId=PO.Id
+							LEFT JOIN EmployeeInformation EI ON EI.SystemId=RMP.PlanById
+                            WHERE (PO.entityid IN(" + parameters["EntityId"] + @") or PO.entityid is null)
+            AND (so.Customer IN(" + parameters["Customer"] + @") or  so.Customer is null)
+            AND (so.ProductCode IN(" + parameters["ProductCode"] + @") or  so.ProductCode is null)
+            AND (so.OwnRefNo IN(" + parameters["OwnRefNo"] + @") or  so.OwnRefNo is null)
+            AND (so.BuyerRefNo IN(" + parameters["BuyerRefNo"] + @") or  so.BuyerRefNo is null)  AND S.UserName='Running') AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetSOItemList(string entityid, string ProductionOrderId)
+        public ActionResult GetFilterList()
         {
-            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,PM.Id
+            
+            string sql = @"select distinct * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,ISNULL(PO.Qty,0) AS POQuantity,
+                        so.DeliveryDate,so.ProductCode,so.OwnRefNo,so.Customer,PO.AddedDate,PO.EntityId,E.UserName as Entity 
+                            FROM [TRN].[ProductionOrder] AS PO                            
+                            LEFT OUTER  JOIN (select
+                                                    pod.ProductionOrderId,
+                                                    mm.userName AS Material,ma.StandardName AS Article, PM.UserName AS Product,PM.Code as ProductCode,pc.UserName AS ProductCategory,
+                                                     sum(so.Qty) AS Qty,SO.PlanExFactoryDate,SO.CommitmentDate,SO.MasterOrderItemId,
+                                                    MasterOrderId =STUFF((select distinct ','+XMOI.Id from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+                                                    BuyerRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    OwnRefNo =STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+													StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+	                                                
+                                                    OwnStyleNo=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+                                                    SONo=STUFF((select distinct ','+sox.Id from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    SODesc=STUFF((select distinct ','+sox.[Description] from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+													DeliveryDate=STUFF((select distinct ','+FORMAT(sox.DeliveryDate,'dd-MMM-yyyy') from 
+								                                trn.MasterOrderItem XMOI 	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=pod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                                                    buyer=STUFF((select distinct ','+XB.UserName from 
+	                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+
+                                                    Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,SOQty=(select SUM((isnull(XSO.qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) from 
+trn.SalesOrder XSO 
+join TRN.MasterOrderItem moi on moi.id=xso.MasterOrderItemId
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+where pod.ProductionOrderID=Xpod.ProductionOrderId)
+
+                                                      from 
+ 
+                                                     trn.SalesOrder SO 
+                                                      JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
+                                                    left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                    left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                    left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                    left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+                                                    group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,PM.Code,pc.UserName ,so.DeliveryDate,SO.PlanExFactoryDate,SO.CommitmentDate,SO.MasterOrderItemId) AS SO ON so.ProductionOrderId=po.Id
+                            LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
+                            Left Outer Join ORG.Entity E ON E.Id=PO.entityid
+            WHERE S.UserName='Running') AS TEMP  ORDER BY AddedDate Desc";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSOItemList(string ProductionOrderId)
+        {
+            string CmdText = @"SELECT DISTINCT CAST (CASE WHEN RMPD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,RMPD.Remarks,RMP.Id as PlanId,format(RMP.PlanDate,'dd-MMM-yyyy') as PlanDate,mo.MasterOrderNo,moi.Id LineItemId,PM.Id ProductMasterId,RMPD.Id
 	                                ,ISNULL(so.Id,'') SOId
 	                                ,SO.CustomerPOId
+                                    ,format(SO.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
 	                                ,CPO.PONumber
 	                                ,mm.Id MaterialMasterId
 	                                ,mm.UserName MaterialMaster
@@ -419,11 +573,13 @@ where pod.ProductionOrderID=Xpod.ProductionOrderId)
                                 FROM TRN.ProductionOrderDetail POD
                                LEFT JOIN (
 	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
-		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
 	                                FROM trn.SalesOrder AS s
 	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
-	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
 	                                ) so ON POD.SalesOrderId = SO.Id
+                                left Join [RawMaterialPlanningDetail] RMPD ON RMPD.SOId=so.Id 
+                                LEFT JOIN RawMaterialPlanningMaster RMP ON RMP.Id=RMPD.RawMaterialPlanningMasterId
                                 LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
                                 LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
                                 LEFT JOIN [dbo].[MasterOrderExchangeRates] R ON R.TransactionId=mo.Id
@@ -464,7 +620,102 @@ LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
 
-                                WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PS.UserName='Running' AND PO.Id='" + ProductionOrderId + "' and so.Id not in (select SOId from RawMaterialPlanningDetail)";
+
+
+            return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSOPlanWiseList(string PlanId)
+        {
+            string CmdText = @"SELECT DISTINCT CAST (CASE WHEN RMPD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,RMPD.Remarks,RMP.Id as PlanId,format(RMP.PlanDate,'dd-MMM-yyyy') as PlanDate,mo.MasterOrderNo,moi.Id LineItemId,PM.Id ProductMasterId,RMPD.Id
+	                                ,ISNULL(so.Id,'') SOId
+	                                ,SO.CustomerPOId
+                                    ,format(SO.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate
+	                                ,CPO.PONumber
+	                                ,mm.Id MaterialMasterId
+	                                ,mm.UserName MaterialMaster
+									,mma.Id ArticleId
+	                                ,ISNULL(mma.StandardName, '') SOArticle
+									,b.Id CustomerId
+	                                ,b.UserName Customer
+	                                ,mo.TotalQty MOQty
+	                                ,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP]
+	                                ,ISNULL(mma.Id, '') ArticleId
+	                                ,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId
+                                    ,CBI.CostingBOQMasterId
+                                    ,moi.OrderCostingMasterTemplateId
+	                                ,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName
+									,PC.UserName AS ProductCategory
+	                                ,CEILING(SO.PlannedQty) PlannedQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+
+									,(DMC.[Value]*R.ExchangeRate) ItemMaterialCost,(SDMC.[SOValue]*R.ExchangeRate) SOMaterialCost,CMC.TotalGrossAmount CostingMaterialCost
+
+									,ISNULL(QBOQ.BOQMaterialCost,0) BOQMaterialCost,SOTotalMaterailCost=CEILING(SO.PlannedQty)*SDMC.[SOValue]
+
+									,CostingTotalMaterialCost=CMC.TotalGrossAmount*CEILING(SO.PlannedQty),BOQTotalCost=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)
+
+									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
+
+									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
+                                    ,0 PlanRate,0 PlantCost,0 TotalSOCostVsTotalPlanCost
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description,s.DeliveryDate
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                left Join [RawMaterialPlanningDetail] RMPD ON RMPD.SOId=so.Id 
+                                LEFT JOIN RawMaterialPlanningMaster RMP ON RMP.Id=RMPD.RawMaterialPlanningMasterId
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN [dbo].[MasterOrderExchangeRates] R ON R.TransactionId=mo.Id
+                                LEFT JOIN [dbo].[CostingBOQItems] CBI ON CBI.SalesOrderId=SO.Id
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+								left join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+								LEFT JOIN(SELECT distinct MI.Id,MC.UserName,MC.[Value] 
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='DirectMaterialCost') DMC ON DMC.Id=MOI.Id
+								LEFT JOIN(SELECT distinct MC.SalesOrderId,MC.UserName,MC.[SOValue] 
+														FROM  dbo.SOCostingConfirmation MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														WHERE OLC.SOItemName='DirectMaterialCost') SDMC ON SDMC.SalesOrderId=so.Id
+LEFT JOIN(SELECT pc.OrderCostingMasterTemplateId,SUM(pc.GrossAmount)AS TotalGrossAmount FROM OrderProcurementCostingDirectMaterial AS pc  
+INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial'
+GROUP BY PC.OrderCostingMasterTemplateId) CMC ON CMC.OrderCostingMasterTemplateId=MOI.OrderCostingMasterTemplateId
+
+LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost,Q.MasterOrderItemId FROM [dbo].[QuickBOQ] Q
+INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
+inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
+
+                                WHERE PS.UserName='Running' and RMP.Id='"+ PlanId + "'";
 
 
             return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
@@ -544,19 +795,19 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild, dsSOChild, dsIdChild;
+            DataSet dsMaster, dsChild, dsSOChild;
             string _Id = string.Empty;
             try
             {
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlMaster WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.RawMaterialPlanningMaster WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("MaterialIssueControlMaster", out _Id);
+                    genid.GenID("RawMaterialPlanningMaster", out _Id);
 
-                    data["Id"] = "M" + _Id;
+                    data["Id"] = "R" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -567,8 +818,10 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
 
                 _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                #region MaterialIssueControlSODetail 
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
+
+
+                #region RawMaterialPlanningDetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.RawMaterialPlanningDetail where  RawMaterialPlanningMasterId='" + _Id + "'", out dsSOChild, false, "1");
                 int socount = 0;
                 if (soList != null)
                 {
@@ -582,8 +835,8 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                         if (dv.Count == 0)
                         {
                             item["Id"] = _Id + "-" + socount;
-                            item["MaterialIssueControlMasterId"] = _Id;
-                            item["SOQty"] = item["PlannedQty"];
+                            item["RawMaterialPlanningMasterId"] = _Id;
+                            item["PlannedQty"] = item["PlannedQty"];
 
                             AddNewRow(dsSOChild.Tables[0], item);
                         }
@@ -596,38 +849,8 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 }
 
                 #endregion
-
-                #region MaterialIssueControlDetail 
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
-                objCon.OpenDataSetThroughAdapter("SELECT Count(Id)Idc FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsIdChild, false, "1");
-                int ccount = Convert.ToInt32(dsIdChild.Tables[0].Rows[0]["Idc"].ToString());
-                if (dataList != null)
-                {
-                    foreach (var item in dataList)
-                    {
-                        DataView dv = new DataView(dsChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                        if (dv.Count == 0)
-                        {
-                            ccount++;
-
-                            string id = _pkGeneratorService.MakePK(_Id, ccount, 2);
-                            item["Id"] = id;
-                            item["MaterialIssueControlMasterId"] = _Id;
-                            AddNewRow(dsChild.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
-
-                #endregion
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsSOChild, dsChild);
+                obj.SaveDataSets(dsMaster, dsSOChild);
 
             }
             catch (Exception ex)
@@ -746,45 +969,11 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         }
 
         [HttpPost]
-        public JsonResult CreateIssue(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList, List<IssueRequestViewModel> dataLists)
+        public JsonResult CreateRMPlan(Dictionary<string, object> model,List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList, List<IssueRequestViewModel> dataLists)
         {
             try
             {
-                IssueRequestMaster inventoryIssue = new IssueRequestMaster();
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
-                inventoryIssue.CompanyId = identity.CompanyId;
-                inventoryIssue.PlantId = identity.PlantId;
-                inventoryIssue.CheckedBy = model["CheckedBy"].ToString();
-                inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
-                inventoryIssue.CompanyId = identity.CompanyId;
-                inventoryIssue.PlantId = identity.PlantId;
-                inventoryIssue.Orderspecific = "No";
-                inventoryIssue.IssueSlipType = "InventorySlip";
-                inventoryIssue.CheckedByStatus = "ForChecked";
-                inventoryIssue.Preparedby = model["ByWhomId"].ToString();
-                inventoryIssue.ProductionOrderId = model["POId"].ToString();
-
                 SaveData(model, soList, dataList);
-                List<IssueRequestViewModel> entityDetailVM = dataLists;
-                List<IssueRequestViewModel> entityGroupDataVM = dataLists;
-
-                foreach (var item in entityGroupDataVM)
-                {
-                    foreach (var ditem in dataList)
-                    {
-                        if (item.SrNo == Convert.ToInt32(ditem["SrNo"]))
-                        {
-                            item.MaterialIssueControlDetailId = ditem["Id"].ToString();
-                        }
-                    }
-                }
-
-                List<IssueRequestViewModel> SOListSelectedNewDetailVM = null;
-                List<IssueRequestViewModel> MaterialColorListNewDetailVM = null;
-
-                _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(inventoryIssue, entityDetailVM, entityGroupDataVM, inventoryIssue.IssueSlipType, null, null, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, null);
-
                 
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }
@@ -1168,7 +1357,7 @@ Where SO.Id " + soId + "";
 						else ''
 						END
 						,p.UserName ProcessName,po.SalesOrderId,FGColor=isnull(po.FGColor1,'')+','+isnull(po.FGColor2,'')+','+isnull(po.FGColor3,'')
-						,'PONo: ' + ISNULL(IsR.ProductionOrderId,po.ProductionOrder) ProductionOrder,PreparedBy.EmployeeName AddedBy
+						,po.ProductionOrder,PreparedBy.EmployeeName AddedBy
 						FROM TRN.IssueRequestMaster As IsR
 						                LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IsR.CheckedBy
                                          LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IsR.AuthorizedBy
