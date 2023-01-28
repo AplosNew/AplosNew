@@ -920,7 +920,7 @@ FORMAT(dateadd(day,Convert(int,
             if (dsMaster.Tables[0].Rows.Count > 0)
             {
                 LetterLanguageId = dsMaster.Tables[0].Rows[0]["LetterLanguage"].ToString();
-                //LetterLanguage = dsMaster.Tables[0].Rows[0]["LetterLanguageName"].ToString();
+                LetterLanguage = dsMaster.Tables[0].Rows[0]["LetterLanguageName"].ToString();
                 EmpSystemId = dsMaster.Tables[0].Rows[0]["EmpSystemId"].ToString();
                 fileName = dsMaster.Tables[0].Rows[0]["LetterFormat"].ToString();
             }
