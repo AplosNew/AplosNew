@@ -900,6 +900,8 @@ FORMAT(dateadd(day,Convert(int,
                          ,Format(D1.LetterIssueDate, 'dd-MMM-yyyy')  OtherLetterIssueDate
                          ,sd.Sequence
                          ,l.UserName LetterLanguageName
+                        ,EI.EmployeeCode,EI.EmployeeName,LD.UserName Designation
+                        ,ISNULL(LL.Name,Dep.UserName) Department
                          FROM[dbo].[EmployeeDisciplinaryActionDetails] D
                          LEFT JOIN [HKP].[EmployeeDisciplinaryAction] M ON M.Id=D.EmployeeDisciplinaryActionId
                          LEFT JOIN [dbo].[EmployeeDisciplinaryActionDetails] D1 on  M.Id=D1.EmployeeDisciplinaryActionId
@@ -907,6 +909,10 @@ FORMAT(dateadd(day,Convert(int,
                          LEFT JOIN [dbo].[DisciplinaryActionSettingDetails] sd on sd.Id=d1.DisciplinaryActionSettingDetailsId
                          LEFT JOIN [dbo].[DisciplinaryActionSettingDetails] sd1 on sd1.Id=d.DisciplinaryActionSettingDetailsId
                          LEFT JOIN SCS.Language l on l.Id=DASC.LetterLanguage
+                         left join EmployeeInformation EI on EI.SystemId=M.EmpSystemId
+						 left join [HKP].[LegalDesignation] LD on LD.Id=EI.LegalDesignationId
+						 left join [ORG].[Department] Dep on Dep.Id=EI.DepartmentId
+                        left join [HKP].[LocalLanguage] LL on LL.DepartmentId=Dep.Id
                          WHERE D.Id='" + EmployeeDisciplinaryActionDetailsId + @"' 
                          ORDER BY sd.Sequence ";
             objCon = new ConnectionManager.DAL.ConManager("1");
@@ -914,7 +920,7 @@ FORMAT(dateadd(day,Convert(int,
             if (dsMaster.Tables[0].Rows.Count > 0)
             {
                 LetterLanguageId = dsMaster.Tables[0].Rows[0]["LetterLanguage"].ToString();
-                LetterLanguage = dsMaster.Tables[0].Rows[0]["LetterLanguageName"].ToString();
+                //LetterLanguage = dsMaster.Tables[0].Rows[0]["LetterLanguageName"].ToString();
                 EmpSystemId = dsMaster.Tables[0].Rows[0]["EmpSystemId"].ToString();
                 fileName = dsMaster.Tables[0].Rows[0]["LetterFormat"].ToString();
             }
@@ -998,6 +1004,11 @@ FORMAT(dateadd(day,Convert(int,
                 document.Replace("{NumberOfAbsentDays}", cnDgt(dsMaster.Tables[0].Rows[0]["NumberOfAbsentDays"].ToString(), LetterLanguage), false, true);
                 document.Replace("{IncidenceDate}", GetFormatedDate(dsMaster.Tables[0].Rows[0]["EntryDate"].ToString(), LetterLanguage), false, true);
                 document.Replace("{LetterIssueDate}", GetFormatedDate(dsMaster.Tables[0].Rows[0]["LetterIssueDate"].ToString(), LetterLanguage), false, true);
+                document.Replace("{EntryDate}", dsMaster.Tables[0].Rows[0]["EntryDate"].ToString(), false, true);
+                document.Replace("{Sequence}", dsMaster.Tables[0].Rows[0]["Sequence"].ToString(), false, true);
+                document.Replace("{EmployeeCode}", dsMaster.Tables[0].Rows[0]["EmployeeCode"].ToString(), false, true);
+                document.Replace("{Designation}", dsMaster.Tables[0].Rows[0]["Designation"].ToString(), false, true);
+                document.Replace("{Department}", dsMaster.Tables[0].Rows[0]["Department"].ToString(), false, true);
 
 
                 switch (Convert.ToInt32(dsMaster.Tables[0].Rows[0]["LetterNo"].ToString()))
