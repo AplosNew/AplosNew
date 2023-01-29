@@ -1,0 +1,67 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+
+<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>&nbsp;{{title}}</h3>
+
+<div class="row">
+    <div class="form-elements form-horizontal" ng-form="modelForm">
+        <div class="col-xs-12 col-sm-12 col-sm-12 ">
+
+            <div class="col-md-9">
+                <div id="filters">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="GetTransactionData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> View </button></li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<div class="row" style="margin:10px; margin-left:15px;">
+    @*<div class="table-responsive">
+        <div id="GridEdit" ej-grid e-datasource="TransactionList"
+             e-recorddoubleclick="GetDet"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                <div e-column e-field="Item" e-headertext="Item" e-width="2"></div>
+                <div e-column e-field="Group" e-headertext="Group" e-width="2"></div>
+                <div e-column e-field="SubGroup" e-headertext="Sub Group" e-width="3"></div>
+                <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
+                <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
+                <div e-column e-field="AddedDate" e-headertext="AddedDate"
+                     e-type="number"
+                     e-width="3"></div>
+                <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="3"></div>
+            </div>
+        </div>
+    </div>*@
+    <div class="col-md-12 text-left" style="margin-top:20px;">
+        <button type="button" class="btn single-btn" ng-click="PrintReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
+    </div>
+</div>
+
+

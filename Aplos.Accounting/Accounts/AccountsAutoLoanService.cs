@@ -28,7 +28,7 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=F.EmployeeId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=F.CurrencyId
 								LEFT JOIN [TRN].[Voucher] AS V ON V.Id=F.VoucherId
-                                WHERE F.OpeningBalanceId IS NULL AND F.Archive=0 AND F.CompanyGroupId='" + companyGroupId + "'AND F.CompanyId='" + companyId + "' AND F.PlantId='" + plantId + "' AND F.SourceType='" + sourceType + "'";
+                                WHERE F.OpeningBalanceId IS NULL AND F.Archive=0 AND V.Archive=0 AND F.CompanyGroupId='" + companyGroupId + "'AND F.CompanyId='" + companyId + "' AND F.PlantId='" + plantId + "' AND F.SourceType='" + sourceType + "'";
 			return _sqlRepository.GetGridData(parameters);
 		}
 		public IEnumerable<object> GetAutoLoanAvailableList(string plantId, bool dateRange, string fromDate, string toDate)

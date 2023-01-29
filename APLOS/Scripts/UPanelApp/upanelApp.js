@@ -1139,6 +1139,8 @@ upanelApp.controller("PackingScanDataController", PackingScanDataController)
 upanelApp.controller("positionWiseDesignationController", positionWiseDesignationController)
 upanelApp.controller("ResignationTypeController", ResignationTypeController)
 upanelApp.controller("DailyAttendanceStatusReportController", DailyAttendanceStatusReportController)
+upanelApp.controller("MaterialIssueReportController", MaterialIssueReportController)
+upanelApp.controller("RawMaterialPlanningController", RawMaterialPlanningController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

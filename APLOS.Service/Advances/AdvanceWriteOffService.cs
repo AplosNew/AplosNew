@@ -221,7 +221,7 @@ namespace Library.Service.Advances
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AW.EmployeeId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
                                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=AW.VoucherId
-                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
+                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 
@@ -238,7 +238,7 @@ namespace Library.Service.Advances
 									LEFT JOIN (SELECT VDC.VoucherId,  SUM(VDC.DrAmount) AS DrAmount FROM [TRN].[VoucherDetail] AS VDC
 										GROUP BY VoucherId
 									) AS X ON X.VoucherId=AW.VoucherId AND  X.DrAmount > 0
-                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
+                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 
@@ -253,7 +253,7 @@ namespace Library.Service.Advances
 									LEFT JOIN (SELECT VDC.VoucherId, VDC.ParallelCurrencyId, SUM(VDC.DrAmount) AS DrAmount FROM [TRN].[VoucherDetailCurrency] AS VDC
 										GROUP BY VoucherId, ParallelCurrencyId
 									) AS X ON X.VoucherId=AW.VoucherId AND X.ParallelCurrencyId=AW.CurrencyId AND X.DrAmount > 0
-                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
+                                    WHERE AW.Archive=0 AND V.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
 

@@ -33,7 +33,7 @@ namespace Library.Accounting.Accounts
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=F.EmployeeId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=F.CurrencyId
 								LEFT JOIN [TRN].[Voucher] AS V ON V.Id=F.VoucherId
-                                WHERE F.OpeningBalanceId IS NULL AND F.Archive=0 AND F.CompanyGroupId='" + companyGroupId + "'AND F.CompanyId='" + companyId + "' AND F.PlantId='" + plantId + "' AND F.SourceType='" + sourceType + "'";
+                                WHERE F.OpeningBalanceId IS NULL AND F.Archive=0 AND V.Archive=0 AND F.CompanyGroupId='" + companyGroupId + "'AND F.CompanyId='" + companyId + "' AND F.PlantId='" + plantId + "' AND F.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
         public GridModel GetLoanWriteOffList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
@@ -61,7 +61,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=LP.PartyId
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=LP.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=LP.CurrencyId
-                                WHERE   LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayable','AdditionalLoanPayable','OtherExpensesPayable','LoanTax')";
+                                WHERE V.Archive=0 AND LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayable','AdditionalLoanPayable','OtherExpensesPayable','LoanTax')";
             return _sqlRepository.GetGridData(parameters);
         }
         public GridModel GetLoanInterestPayableReserveList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
@@ -74,7 +74,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=LP.PartyId
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=LP.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=LP.CurrencyId
-                                WHERE   LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayableReverse')";
+                                WHERE V.Archive=0 AND  LP.CompanyGroupId='" + companyGroupId + "'AND LP.CompanyId='" + companyId + "' AND LP.PlantId='" + plantId + "' AND LP.SourceType in ('LoanInterestPayableReverse')";
             return _sqlRepository.GetGridData(parameters);
         }
         public GridModel GetLoanClosedList(GridParameter parameters, string companyGroupId, string companyId, string plantId)
@@ -133,7 +133,7 @@ namespace Library.Accounting.Accounts
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND I.IsPark=0 AND I.IsWrittenOff=1 AND I.OpeningBalanceId IS NULL 
+                                    WHERE I.Archive=0 AND V.Archive=0 AND I.IsPark=0 AND I.IsWrittenOff=1 AND I.OpeningBalanceId IS NULL 
                                     AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + @"'
                                     union 
 									SELECT I.CompanyId, I.PlantId, VD.EntityId, EN.UserName AS EntityName, I.PartyType, I.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, I.PartyPlantId, PP.UserName AS PartyPlantName, I.Id AS FinancingId
@@ -190,7 +190,7 @@ namespace Library.Accounting.Accounts
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND I.IsPark=0 AND I.IsWrittenOff=1  AND I.OpeningBalanceId<>'' AND I.VoucherId<>'' 
+                                    WHERE I.Archive=0 AND V.Archive=0 AND I.IsPark=0 AND I.IsWrittenOff=1  AND I.OpeningBalanceId<>'' AND I.VoucherId<>'' 
                                     AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "'";
             return _sqlRepository.GetGridData(parameters);
         }

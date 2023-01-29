@@ -175,7 +175,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(new { Message = AplosMessage.Updated });
         }
 
-        [Authorize ,HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetResignationType()
         {
             try

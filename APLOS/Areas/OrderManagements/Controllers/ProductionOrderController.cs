@@ -501,7 +501,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             return null;
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult SaveWCFPData(List<Dictionary<string, object>> data, string productionOrderId)
         {
             try
