@@ -24,6 +24,9 @@ using System.Reflection;
 using System.Threading;
 using System.Collections.Specialized;
 using Library.ViewModel.Materials;
+using System.Data;
+using Aplos.MaterialManagement.MaterialQuery;
+using Library.Service.Extension;
 
 #endregion Using
 
@@ -107,7 +110,8 @@ namespace Library.MaterialManagement.Products
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(IssueRequest), out sID);
             return sID;
         }
-        public void InsertOrUpdateGraphIssueSlipCreate(IssueRequestMaster Issentry, IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId)
+        public void InsertOrUpdateGraphIssueSlipCreate(IssueRequestMaster Issentry, IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti
+            , IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId, List<Dictionary<string, object>> machinepopUpDataList)
         {
             var flag = false;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -214,8 +218,6 @@ namespace Library.MaterialManagement.Products
                 flag = true;
                 foreach (var itemDetail in entityGroupData)
                 {
-                   
-
                     if (string.IsNullOrEmpty(itemDetail.Id))
                     {
                         var NewId = Issentry.Id + "-";
@@ -292,8 +294,18 @@ namespace Library.MaterialManagement.Products
                             SalesOrderId = itemDetail.SalesOrderId;
                             TransactionUoMId = IssueRequstD.TransactionUoMId;
 
+                            if (machinepopUpDataList.Count > 0)
+                            {
+                                var selectedMacheinList = machinepopUpDataList.Where(r => r["MaterialMasterId"].ToString() == itemDetail.MaterialMasterId
+                                                            && r["ArticleId"].ToString() == itemDetail.ArticleId 
+                                                            );
 
-
+                                foreach (var item in selectedMacheinList)
+                                {
+                                    item["IssueRequestId"] = IssueRequstD.Id;
+                                }
+                            }
+                            
                         }
                         catch (DivideByZeroException ex)
                         {
@@ -335,24 +347,15 @@ namespace Library.MaterialManagement.Products
 
                             }
                         }
-                    }//
+                    }
                 }
-
-
-
-
-
-                // insert in receive tax
-
 
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+
             }
-            catch (CustomException)
-            {
-                throw;
-            }
+           
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,
@@ -367,7 +370,50 @@ namespace Library.MaterialManagement.Products
                 }
             }
         }
+        public Dictionary<string, object> SaveIssueMaterailMachineAllocation(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "TRN.IssueMaterailMachineAllocation";
 
+                DataSet dsMaster;
+
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                #region Medicine HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    data["Id"] = "IC" + _Id;
+
+                    materialCommonService.AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    materialCommonService.EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion Medicine POLICY HEAD
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void InsertOrUpdateGraphIssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Ids, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
             var flag = false;

@@ -778,7 +778,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                 List<IssueRequestViewModel> SOListSelectedNewDetailVM = null;
                 List<IssueRequestViewModel> MaterialColorListNewDetailVM = null;
 
-                _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(inventoryIssue, entityDetailVM, entityGroupDataVM, inventoryIssue.IssueSlipType, null, null, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, null);
+                _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(inventoryIssue, entityDetailVM, entityGroupDataVM, inventoryIssue.IssueSlipType, null, null, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, null,null);
 
                 
                 return Json(new { Data = model, Message = AplosMessage.Insert });
