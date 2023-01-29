@@ -397,7 +397,6 @@ namespace Library.MaterialManagement.Products
                 else
                 {
                     _Id = data["Id"].ToString();
-
                     materialCommonService.EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion Medicine POLICY HEAD
