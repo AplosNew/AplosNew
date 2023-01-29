@@ -390,7 +390,6 @@ namespace Library.MaterialManagement.Products
                     DataRow dr = dsMaster.Tables[0].NewRow();
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
-
                     data["Id"] = "IC" + _Id;
 
                     materialCommonService.AddNewRow(dsMaster.Tables[0], data);
