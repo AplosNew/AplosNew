@@ -1,15 +1,31 @@
 ﻿'use strict';
-MaterialIssueControlController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
-function MaterialIssueControlController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
-    $rootScope.title = "Material Issue Control";
+RawMaterialPlanningController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
+function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
+    $rootScope.title = "Raw Material Planning";
     $scope.Action = 'Save';
     $scope.index = -1;
-
-    $scope.path = 'Materials/MaterialIssueControl/';
+    $scope.PlanStatusList = [];
+    $scope.path = 'Materials/RawMaterialPlanning/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'CreateIssue';
+    $scope.saveUrl = $scope.path + 'CreateRMPlan';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
+
+    $scope.PlanStatusList = [
+        {
+            'Value': 'Inprogress',
+            'Text': 'Inprogress'
+        },
+        {
+            'Value': 'Close',
+            'Text': 'Close'
+        }
+        ,
+        {
+            'Value': 'OnHold',
+            'Text': 'OnHold'
+        }
+    ];
 
     $scope.modelFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'Id' },
@@ -30,12 +46,13 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
-    $scope.ModelNew = { Id: null, POId: null, IssueId:null,EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.ModelNew = { Id: null, POId: null, EntityId: null, MOItemId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.RMPlanningNew = { Id: null, POId: null, PlanBy: null, PlanById: null, PlanDate: null, UserPlanName: null, Remarks: null, IsActive: true, PlanStatus: null};
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
             method: 'Get',
-            url: "Materials/MaterialIssueControl/EntityList"
+            url: "Materials/RawMaterialPlanning/EntityList"
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
         });
@@ -53,7 +70,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
 
     $scope.AllTabPrint = function (data) {
-        location.href = "Materials/MaterialIssueControl/IssueRequestReport?mId=" + data.data.Id;
+        location.href = "Materials/RawMaterialPlanning/IssueRequestReport?mId=" + data.data.Id;
     };
 
     $scope.LevelList = [
@@ -130,28 +147,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
     $scope.CostCenterLoad();
 
-    $scope.PRSearchColumn = 'Id';
-    $scope.PRSearchValue = null;
-    $scope.modelList = [];
-    $scope.getData = function () {
-        $scope.modelList = [];
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.EntityId)) {
-            $http({
-                method: 'POST',
-                data: {
-                    'entityid': $scope.ModelNew.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
-                },
-                url: $scope.getListUrl
-            }).then(function successCallback(response) {
-                $scope.modelList = response.data;
-            });
-        }
-    };
-
     $scope.savedList = [];
     $scope.GetSavedData = function () {
         $scope.savedList = [];
-        $http.get('Materials/MaterialIssueControl/GetApprovedData')
+        $http.get('Materials/RawMaterialPlanning/GetApprovedData')
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -167,16 +166,16 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
-        $scope.ModelNew.POId = obj.data.Id;
-
+        $scope.RMPlanningNew.POId = obj.data.Id;
+        $scope.LoadPlanDetails($scope.RMPlanningNew.POId);
         $scope.SOItemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + obj.data.Id)
+        $http.get('Materials/RawMaterialPlanning/GetSOItemList?ProductionOrderId=' + obj.data.Id)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.SOItemList = response.data;
                     }
-                    $scope.GetQBOQCostingData();
+                    //$scope.GetQBOQCostingData();
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -202,7 +201,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.SOItemList = [];
     $scope.GetSavedSODetailData = function () {
         $scope.SOItemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSavedSODetailData?masterId=' + $scope.ModelNew.Id)
+        $http.get('Materials/RawMaterialPlanning/GetSavedSODetailData?masterId=' + $scope.ModelNew.Id)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -218,7 +217,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.QBOQCostingList = [];
     $scope.GetSavedDetailData = function () {
         $scope.QBOQCostingList = [];
-        $http.get('Materials/MaterialIssueControl/GetSavedDetailData?masterId=' + $scope.ModelNew.Id)
+        $http.get('Materials/RawMaterialPlanning/GetSavedDetailData?masterId=' + $scope.ModelNew.Id)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -287,9 +286,33 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
 
+    $scope.refreshTemplateSO = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllSO });
+    };
+    function CheckBoxSelectAllSO(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#SOGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SOItemList.length; i++) {
+                $scope.SOItemList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#SOGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
     $scope.Action = 'Save';
     $scope.Save = function () {
         $scope.QBOQCostingListNew = [];
+        $scope.SaveList = [];
         for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
 
             $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
@@ -300,22 +323,26 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
         }
         try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+            if (baseService.isUndefinedOrNull($scope.RMPlanningNew.POId)) {
                 throw "Select Production Order.";
             }
             if (baseService.arrayLength($scope.SOItemList) === 0) {
                 throw "Select SO Detail.";
             }
-
+            for (var i = 0; i < $scope.SOItemList.length; i++) {
+                if ($scope.SOItemList[i].Flag == true) {
+                    $scope.SaveList.push($scope.SOItemList[i]);
+                }
+            }
             $scope.$broadcast('show-errors-check-validity');
-            if ($scope.ModelNewForm.$valid) {
+            if ($scope.RMPlanningNewForm.$valid) {
                 if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                     $http({
                         method: 'POST',
                         url: $scope.saveUrl,
                         data: {
-                            'model': $scope.ModelNew
-                            , 'soList': $scope.SOItemList
+                            'model': $scope.RMPlanningNew
+                            , 'soList': $scope.SaveList
                             , 'dataList': $scope.QBOQCostingListNew
                             , 'dataLists': $scope.QBOQCostingListNew
                         },
@@ -339,48 +366,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             ShowResult(e, "failure");
         }
     };
-    //$scope.Save = function () {
-    //    try {
-    //        if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-    //            throw "Select Production Order.";
-    //        }
-    //        if (baseService.arrayLength($scope.SOItemList) === 0) {
-    //            throw "Select SO Detail.";
-    //        }
-
-    //        $scope.$broadcast('show-errors-check-validity');
-    //        if ($scope.ModelNewForm.$valid) {
-    //            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-    //                $http({
-    //                    method: 'POST',
-    //                    url: $scope.saveUrl,
-    //                    data: {
-    //                        'model': $scope.ModelNew
-    //                        , 'soList': $scope.SOItemList
-    //                        , 'dataList': $scope.QBOQCostingList
-    //                    },
-    //                    dataType: 'JSON'
-    //                    , contentType: "application/json charset=utf-8"
-    //                }).then(function successCallback(response) {
-    //                    if (response.data.Error === true) {
-    //                        ShowResult(response.data.Message, 'failure');
-    //                    }
-    //                    else {
-    //                        ShowResult(response.data.Message, 'success');
-    //                        $scope.Clear();
-    //                    }
-    //                }), function errorCallBack(response) {
-    //                    ShowResult(response.data.Message, 'failure');
-    //                };
-    //            }
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
-
+    
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+        $scope.RMPlanningNew = { Id: null, POId: null, PlanBy: null, PlanById: null, PlanDate: null, UserPlanName: null, Remarks: null, IsActive: true, PlanStatus: null };
         $scope.SOItemList = [];
         $scope.QBOQCostingList = [];
         $scope.ModelNew.Level = "Costing";
@@ -428,7 +417,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         if ($scope.ModelNew.Level == "Costing") {
             $http({
                 method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetCostingDataList?soId=' + $scope.sqlInStatement
+                url: 'Materials/RawMaterialPlanning/GetCostingDataList?soId=' + $scope.sqlInStatement
 
             }).then(function successCallback(response) {
                 $scope.QBOQCostingList = response.data;
@@ -437,7 +426,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         else {
             $http({
                 method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetQBOQDataList?soId=' + $scope.sqlInStatement
+                url: 'Materials/RawMaterialPlanning/GetQBOQDataList?soId=' + $scope.sqlInStatement
 
             }).then(function successCallback(response) {
                 $scope.QBOQCostingList = response.data;
@@ -562,6 +551,163 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     }
 
+    $scope.filters = [];
+    $scope.getFiltersData = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Materials/RawMaterialPlanning/GetFilterList',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.filters = response.data;
+                var columnList = [
+                    { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                    { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                    { field: 'ProductCode', width: 20, headerText: "Product Code", type: "string" },
+                    { field: 'OwnRefNo', width: 20, headerText: "Own Order#", type: "string" },
+                    { field: 'BuyerRefNo', width: 20, headerText: "Cust. Order#", type: "string" }
+                ];
+                $("#filters").ejGrid({
+                    dataSource: $scope.filters,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                    filterSettings: { filterType: "excel" },
+                    columns: columnList
+                });
+
+                var gridObj = $("#filters").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $("#filters").children('.e-pager.e-js.e-pager').hide();
+                $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+                $("#filters").children('.e-gridcontent').hide();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.getFiltersData();
+    
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        }
 
 
+        var parameters = [];
+        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        parameters.push({ "Key": "Customer", "Value": getString(fl, "Customer") });
+        parameters.push({ "Key": "ProductCode", "Value": getString(fl, "ProductCode") });
+        parameters.push({ "Key": "OwnRefNo", "Value": getString(fl, "OwnRefNo") });
+        parameters.push({ "Key": "BuyerRefNo", "Value": getString(fl, "BuyerRefNo") });
+
+
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
+
+    $scope.PRSearchColumn = 'Id';
+    $scope.PRSearchValue = null;
+    $scope.modelList = [];
+    $scope.getData = function () {
+        $scope.modelList = [];
+        $scope.filterComplete();
+            $http({
+                method: 'POST',
+                data: {
+                    'parameters': $scope.parameters, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                },
+                url: $scope.getListUrl
+            }).then(function successCallback(response) {
+                $scope.modelList = response.data;
+            });
+    };
+
+    $scope.selectRMPPlanBy = function () {
+        $scope.getRMPPlanBy();
+        angular.element(document.querySelector('#RMPPlanByPopup')).modal('show');
+    }
+
+    $scope.EmployeeList = [];
+    $scope.getRMPPlanBy = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+    }
+
+    $scope.doubleEmployee = function (e) {
+        $scope.RMPlanningNew.PlanById = e.data.SystemId;
+        $scope.RMPlanningNew.PlanBy = e.data.EmployeeName;
+        angular.element(document.querySelector('#RMPPlanByPopup')).modal('hide');
+    }
+
+    $scope.closeRMPPlanByPopUp = function () {
+        angular.element(document.querySelector('#RMPPlanByPopup')).modal('hide');
+    }
+
+    $scope.PlanList = [];
+    $scope.LoadPlanDetails = function (POId) {
+        $http({
+
+            method: 'Get',
+            url: 'Materials/RawMaterialPlanning/LoadPlanDetails?POID='+ POId
+        }).then(function successCallback(response) {
+            $scope.PlanList = response.data;
+        }
+        )
+    }
+
+    $scope.GetPlanDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Materials/RawMaterialPlanning/LoadPlanEditData?PlanId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.RMPlanningNew = response.data.plan[0];
+            $scope.RMPlanningNew.PlanDate = response.data.plan[0].FormatPlanDate;
+            $scope.RMPlanningNew.PlanBy = response.data.plan[0].PlanBy;
+            $scope.LoadSODetails($scope.RMPlanningNew.Id);
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.LoadSODetails = function (PlanId) {
+        $http.get('Materials/RawMaterialPlanning/GetSOPlanWiseList?PlanId=' + PlanId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                    //$scope.GetQBOQCostingData();
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
 }

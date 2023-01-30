@@ -25,6 +25,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.IO;
+using Library.Service.Systems;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -37,17 +38,22 @@ namespace Aplos.Areas.OrderManagements.Controllers
         private readonly ISqlRepository _sqlRepository;
         private readonly IRepositoryAsync<ProductionBulletinTemplateDetail> _bulletinDetailRepository;
         private readonly IRepositoryAsync<ProductionBulletinTemplateMaster> _bulletinProcessRepository;
+        private readonly IPKGeneratorService _pkGeneratorService;
+        private readonly IRepositoryAsync<ProductionOrderFirstProcessWorkCenter> _fpworkCenterRepository;
 
         public ProductionOrderController(IProductionOrderService productionOrderService, IUnitOfWork U, ISqlRepository R
             , IRepositoryAsync<ProductionBulletinTemplateDetail> bulletinDetailRepository
-            , IRepositoryAsync<ProductionBulletinTemplateMaster> bulletinProcessRepository)
+            , IRepositoryAsync<ProductionBulletinTemplateMaster> bulletinProcessRepository
+            , IPKGeneratorService pkGeneratorService
+            , IRepositoryAsync<ProductionOrderFirstProcessWorkCenter> fpworkCenterRepository)
         {
             _unitOfWork = U;
             _sqlRepository = R;
             _productionOrderService = productionOrderService;
             _bulletinDetailRepository = bulletinDetailRepository;
             _bulletinProcessRepository = bulletinProcessRepository;
-
+            _pkGeneratorService = pkGeneratorService;
+            _fpworkCenterRepository = fpworkCenterRepository;
         }
         #endregion
 
@@ -254,9 +260,9 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetWorkCenterListByEntityandFirstProcess(string entityId, string processId)
+        public JsonResult GetWorkCenterListByEntityandFirstProcess(string entityId, string processId, string productionOrderId)
         {
-            return Json(_productionOrderService.GetWorkCenterListByEntityandFirstProcess(entityId, processId), JsonRequestBehavior.AllowGet);
+            return Json(_productionOrderService.GetWorkCenterListByEntityandFirstProcess(entityId, processId, productionOrderId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -495,6 +501,104 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             return null;
         }
 
+        [HttpPost, Authorize]
+        public JsonResult SaveWCFPData(List<Dictionary<string, object>> data, string productionOrderId)
+        {
+            try
+            {
+               DataSet dsMaster = null;
+                if (data != null)
+                {
+                    var count = _fpworkCenterRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM dbo.ProductionOrderFirstProcessWorkCenter WHERE ProductionOrderId='{productionOrderId}'").First();
+                    ConnectionManager.DAL.ConManager objCon;
+                    foreach (var item in data)
+                    {
+                        string sql = "select * from ProductionOrderFirstProcessWorkCenter  Where ProductionOrderId='" + productionOrderId + "'";
+                        objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            count++;
+                            item["Id"] = _pkGeneratorService.MakePK(productionOrderId, count, 2);
+                            item["ProductionOrderId"] = productionOrderId;
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+
+                        }
+
+                    }
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+                }
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
         #endregion
 
         #region upload product picture
@@ -620,29 +724,6 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                 throw ex;
             }
 
-        }
-
-
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
         }
 
         [HttpGet, Authorize]

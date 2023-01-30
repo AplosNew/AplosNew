@@ -1,0 +1,189 @@
+﻿'use strict';
+MaterialIssueReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function MaterialIssueReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = 'Material Issue Report';
+    $scope.TransactionList = [];
+    $scope.path = 'Materials/MaterialIssueReport/';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+    $scope.filters = [];
+    $scope.getFiltersData = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Materials/MaterialIssueReport/getFiltersData',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.filters = response.data;
+                var columnList = [
+                    { field: 'POStatus', width: 20, headerText: "POStatus", type: "string" },
+                    { field: 'PONo', width: 20, headerText: "PONo", type: "string" },
+
+                ];
+                $("#filters").ejGrid({
+                    dataSource: $scope.filters,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                    filterSettings: { filterType: "excel" },
+                    columns: columnList
+                });
+
+                var gridObj = $("#filters").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $("#filters").children('.e-pager.e-js.e-pager').hide();
+                $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+                $("#filters").children('.e-gridcontent').hide();
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.getFiltersData();
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
+        }
+
+
+        var parameters = [];
+        parameters.push({ "Key": "POStatus", "Value": getString(fl, "POStatus") });
+        parameters.push({ "Key": "PONo", "Value": getString(fl, "PONo") });
+
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
+
+    $scope.GetTransactionData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + 'GetTransactionData',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.TransactionList = resp.data;
+        });
+
+    }
+    
+
+
+    $scope.PrintReport = function () {
+
+        $scope.filterComplete();
+        $scope.fileName = "MaterialIssueReport.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetReport",
+            data: { 'parameters': $scope.parameters},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    //$scope.GetTaskManagementReport = function () {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.FromDate)) {
+    //            throw "From Date is required.";
+    //        }
+    //        else if (baseService.isUndefinedOrNull($scope.ToDate)) {
+    //            throw "To Date is required.";
+    //        }
+    //        else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
+    //            throw "From date must be below or equal to To Date";
+    //        }
+    //        else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
+    //            throw "To date must be above or equal to From Date.";
+    //        }
+
+    //        $scope.filterComplete();
+    //        $scope.fileName = "TaskManagementReport.xlsx";
+    //        if ($scope.model.State == "EmployeeWise") {
+    //            filteredData();
+    //            $scope.fileName = "TaskManagementReportEmployeeWise.xlsx";
+    //            $http({
+    //                method: 'POST',
+    //                url: $scope.path + "GetTaskManagementReport",
+    //                data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model, 'EmpIds': $scope.ids },
+    //                dataType: 'JSON'
+    //            }).then(function successCallback(response) {
+    //                if (response.data.Error == true) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                }
+    //                else {
+    //                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+    //                }
+    //            }, function errorCallback(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            });
+    //        }
+    //        else if ($scope.model.State == "DepartmentWise") {
+    //            $scope.fileName = "TaskManagementReportDepartmentWise.xlsx";
+    //            $http({
+    //                method: 'POST',
+    //                url: $scope.path + "GetTaskManagementReport",
+    //                data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model, 'EmpIds': null },
+    //                dataType: 'JSON'
+    //            }).then(function successCallback(response) {
+    //                if (response.data.Error == true) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                }
+    //                else {
+    //                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+    //                }
+    //            }, function errorCallback(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            });
+    //        }
+    //        else {
+    //            $scope.fileName = "TaskManagementReportDesignationGroupWise.xlsx";
+    //            $http({
+    //                method: 'POST',
+    //                url: $scope.path + "GetTaskManagementReport",
+    //                data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model, 'EmpIds': null },
+    //                dataType: 'JSON'
+    //            }).then(function successCallback(response) {
+    //                if (response.data.Error == true) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                }
+    //                else {
+    //                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+    //                }
+    //            }, function errorCallback(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            });
+    //        }
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+
+
+
+}

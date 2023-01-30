@@ -330,4 +330,12 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'Materials/WasteType/Aplos',
             controller: 'WasteTypeController'
         })
+        .when('/material-control-report', {
+            templateUrl: 'Materials/MaterialIssueReport/Aplos',
+            controller: 'MaterialIssueReportController'
+        })
+        .when('/material-planning', {
+            templateUrl: 'materials/RawMaterialPlanning/Aplos',
+            controller: 'RawMaterialPlanningController'
+        })
 };

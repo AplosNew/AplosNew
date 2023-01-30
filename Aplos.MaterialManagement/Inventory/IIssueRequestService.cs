@@ -17,7 +17,8 @@ namespace Library.MaterialManagement.Products
     {
 
         IEnumerable<object> GetPurchaseOrderGroupGridData();
-        void InsertOrUpdateGraphIssueSlipCreate(IssueRequestMaster Issentity,IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData ,string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId);
+        void InsertOrUpdateGraphIssueSlipCreate(IssueRequestMaster Issentity,IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData ,string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti
+            , IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId, List<Dictionary<string, object>> machinepopUpDataList);
         void InsertOrUpdateGraphIssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Id,string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti);  
         //IEnumerable<object> IssueListData(string plantId);
         IEnumerable<object> IssueListData(string IssueStatus, string IssueSlipType);

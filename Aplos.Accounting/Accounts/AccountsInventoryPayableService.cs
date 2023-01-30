@@ -2524,7 +2524,7 @@ UNION
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
 								LEFT JOIN TRN.PurchaseReturn PR ON PR.VoucherId=A.VoucherId
-                                WHERE A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
+                                WHERE A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
         public IEnumerable<object> GetPurchaseReturnPostableData(string plantId)
@@ -3762,7 +3762,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 				  LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
 					LEFT JOIN TRN.InvoiceWriteOff IW ON IW.VoucherId=VT.Id
                     WHERE IR.PlantId='" + plantId + @"' 
-					AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1
+					AND V.Archive=0 AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1
 					) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -3818,7 +3818,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         FROM TRN.InventoryIssueReturnHistory ID JOIN TRN.InventoryIssueReturn II ON II.Id=ID.InventoryIssueReturnId
 						GROUP BY II.VoucherId,II.IssueDate,II.Id) AS IID ON IID.VoucherId=V.Id
 						LEFT JOIN HKP.MaterialStorage AS MS ON MS.Id=II.MaterialStorageId
-                        Where V.SourceType='" + SourceType.IssueReturnJournal + @"' AND V.PlantId= '" + plantId + "'";
+                        Where V.Archive=0 AND V.SourceType='" + SourceType.IssueReturnJournal + @"' AND V.PlantId= '" + plantId + "'";
 				return _sqlRepository.GetGridData(parameters);
 			}
 			catch (Exception ex)
@@ -4880,7 +4880,9 @@ order by IR.GRNDate desc";
                             LEFT JOIN SCS.Currency C ON C.Id=PGI.CurrencyId
 							LEFT JOIN TRN.Voucher V ON V.Id=PGI.VoucherId
 							LEFT JOIN (SELECT PostGRNInvoiceId,SUM(TransactionAmount) Amount 
-									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id) AS TEMP WHERE " + strkey + "";
+									FROM dbo.PostGRNInvoiceDetail GROUP BY PostGRNInvoiceId) PGD ON PGD.PostGRNInvoiceId=PGI.Id
+							WHERE  V.Archive=0
+							) AS TEMP WHERE " + strkey + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

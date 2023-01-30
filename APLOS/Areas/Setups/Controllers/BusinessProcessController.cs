@@ -423,9 +423,12 @@ namespace Aplos.Areas.Setups.Controllers
             , SalesExpense
             , ValueLoss
             , WorkCenter
-                , StandardDuration
-                , LoadFactor
-                , PlanEffeciency
+            , StandardDuration
+            , LoadFactor
+            , PlanEffeciency
+            , SKU1
+            , SKU2
+            , SKU1SKU2
 
         }
 

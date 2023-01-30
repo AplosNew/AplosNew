@@ -290,8 +290,29 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
     }
-
-
+    $scope.checkedByList = [];
+       //**********To Checked By**************
+    //$scope.GetSupervisorCboList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Products/PurchaseOrder/GetSupervisorCbo'
+    //    }).then(function successCallback(response) {
+    //        $scope.checkedByList = response.data;
+    //    });
+    //}
+    //$scope.GetSupervisorCboList();
+    //********** To Checked By**************
+    $scope.GetCheckedByAndApprovedBy1 = function () {
+        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+            $http({
+                method: 'GET',
+                url: 'Products/GoodsReceiveNote/GetCheckedByAndApprovedBY?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.checkedByList = response.data;
+            });
+        }
+    }
     $scope.NotificationSettingStatus = function () {
         //debugger;
         $http({
@@ -319,24 +340,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         });
     }
     $scope.NotificationSettingStatus();
-    $scope.GetCheckedByAndApprovedBy1 = function () {
-        //debugger;
-
-        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
-            $http({
-                method: 'GET',
-                url: 'Products/GoodsReceiveNote/GetCheckedByAndApprovedBY?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.checkedByList = response.data;
-            });
-
-        }
-        else {
-
-        }
-
-    }
+    
 
     $scope.IssueDetailData = function () {
         //debugger;
@@ -1131,7 +1135,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                                 , 'MaterialColorListNew': JSON.stringify($scope.MaterialColorListNew)
                                 , 'ProcessId': $scope.productNew.ProcessId
                                 , 'OrderSpecific': $scope.productNew.OrderSpecific
-
+                                , 'machinepopUpDataList': $scope.machineQtyList
                             },
                             dataType: 'JSON'
                         }).then(function successCallback(response) {
@@ -1147,8 +1151,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
                                 $scope.GriddataAssetIssueSlip();
                                 getInventoryMaterialList($scope.productNew.Id);
-
-
+                                $scope.machineQtyList = [];
 
                             }
                         }), function errorCallBack(response) {
@@ -1185,7 +1188,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                                 //$scope.GriddataAssetIssueSlip();
                                 getInventoryMaterialList($scope.productNew.Id);
                                 //$scope.Clear();
-
+                                $scope.machineQtyList = [];
                             }
                         }), function errorCallBack(response) {
                             ShowResult(response.data.Message, 'failure');
@@ -1284,19 +1287,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         angular.element(document.querySelector("#GLPopUp")).modal("hide");
     };
     //********** End Expenses GL Budget Activity**************
-    //**********To Checked By**************
-    $scope.checkedByList = [];
-    $scope.GetSupervisorCboList = function () {
-        //debugger;
-        $http({
-            method: 'GET',
-            url: 'Products/PurchaseOrder/GetSupervisorCbo'
-        }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
-        });
-    }
-    $scope.GetSupervisorCboList();
-    //********** To Checked By**************
+ 
 
     function getInventoryMaterialList(inveReveiveId) {
         $scope.masterId = inveReveiveId;
@@ -2336,7 +2327,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
         angular.element(document.querySelector('#ListIssueSlipPopup')).modal('hide');
-        $scope.getUoM(Id);
+        //$scope.getUoM(Id);
     }
 
     $scope.gridUoMList = [];
@@ -2348,18 +2339,19 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.uom();
 
 
-    $scope.getUoM = function (Id) {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetUoMList?MaterialMasterId=" + Id,
-        }).then(function successCallback(response) {
-            $scope.FilterList123.uoMList = response.data.UOMList;
+    //$scope.getUoM = function (Id) {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetUoMList?MaterialMasterId=" + Id,
+    //    }).then(function successCallback(response) {
+    //        $scope.FilterList123.uoMList = response.data.UOMList;
 
-        });
-    }
+    //    });
+    //}
 
 
-    $scope.getMachineInventoryIssueStock = function () {
+    $scope.getMachineInventoryIssueStock = function (data) {
+        $scope.selectedMaterialRow = data;
         angular.element(document.querySelector('#ShowMachineInventoryIssue')).modal('show');
     }
     $scope.GetPopUpMachineInventoryIssueClosed = function () {
@@ -2414,16 +2406,32 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         $scope.getPopUpData();
     };
     $scope.modelNew = {};
+
     $scope.selectMichineDoubleClick = function (data) {
+
+        if ($scope.machineQtyList.length>0) {
+            for (var i = 0; i < $scope.machineQtyList.length; i++) {
+                if ($scope.machineQtyList[i].MachineMasterId == data.MaterialMasterId) {
+                    ShowResult('This machine is already exists!', 'failure');
+                    return false;
+                }
+            }
+        }
         $scope.modelNew.MachineName = data.UserName;
-        $scope.modelNew.MaterialMasterId = data.MaterialMasterId;
+        $scope.modelNew.MachineMasterId = data.MaterialMasterId;
         $scope.closeMichinePopUp();
     };
+
     $scope.closeMichinePopUp = function () {
         angular.element(document.querySelector('#MachinePopUp')).modal('hide');
     };
     $scope.machineQtyList = [];
     $scope.addMachine = function () {
+        $scope.modelNew.MaterialMasterId = $scope.selectedMaterialRow.MaterialMasterId;
+        $scope.modelNew.ArticleId = $scope.selectedMaterialRow.ArticleId;
+        $scope.modelNew.Id = null;
+        $scope.modelNew.FirstCharacteristicsValueId = $scope.selectedMaterialRow.FirstCharacteristicsValueId;
+        $scope.modelNew.CostCenterId = $scope.selectedMaterialRow.CostCenterId;
         $scope.machineQtyList.push($scope.modelNew);
         $scope.modelNew = {};
     }

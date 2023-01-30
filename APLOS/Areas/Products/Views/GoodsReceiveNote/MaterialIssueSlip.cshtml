@@ -265,17 +265,6 @@
             </fieldset>
         </div>
     </fieldset>
-
-    @*</fieldset>*@
-
-
-    @*<div>
-            <span style="background-color:#E6F0FF;color:#E6F0FF">.....</span>OWN Production Order
-            <span style="background-color:#FF957F;color:#FF957F">.....</span>Production Order Assigned By Other Plant
-            <span style="background-color:#FFF97F;color:#FFF97F">.....</span>Production Order Assigned To Other Plant
-        </div>*@
-    @*</div>*@
-
     <div class="modal fade site-modal in" id="recipeMaterialPopUp" role="dialog" data-backdrop="static">
         <div class="modal-dialog modal-lg" id="ordermodal">
             <div class="modal-content">
@@ -322,35 +311,23 @@
                             <div e-column e-field="CommitmentDate" e-headertext="Commi.Date" e-width="80"></div>
                             <div e-column e-field="Description" e-headertext="Description" e-width="80"></div>
                             <div e-column e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
-
-
                             <div e-column e-field="Customer" e-headertext="Customer" e-width="180"></div>
                             <div e-column e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
                             <div e-column e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100"></div>
-
                             <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Item#" e-width="100"></div>
                             <div e-column e-field="OwnReferenceNo" e-headertext="Own Item#" e-width="100"></div>
-
-
-
                             <div e-column e-field="ProductName" e-headertext="Product" e-width="180" e></div>
                             <div e-column e-field="ProductionGrouping" e-headertext="Product Grouping" e-width="120" e></div>
-
                             <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180" e></div>
                             <div e-column e-field="DestinationName" e-headertext="Dest." e-width="80"></div>
                             <div e-column e-field="ShipmentModeName" e-headertext="Ship.Mode" e-width="80"></div>
                             <div e-column e-field="PONumber" e-headertext="PO No" e-width="80"></div>
-
                             <div e-column e-field="OrderStatusName" e-headertext="Ord. Status" e-width="80"></div>
                             <div e-column e-field="OrderCategoryName" e-headertext="Ord. Cat." e-width="80"></div>
-                            @*<div e-column e-field="Rate" e-headertext="Rate" e-width="80" e-textalign="right"></div>*@
-
                         </div>
-
                     </div>
 
                     <script type="text/template" id="checkboxTemplateSOSearch">
-                        @*<input type="checkbox" ng-model="{{:SalesOrderId}}" class="rowCheckbox" value="{{:SalesOrderId}}" />*@
                         <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Checked" e-checked="data.Checked" />
 
                     </script>
@@ -368,12 +345,6 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
     <div id='divInner' ng-hide="productNew.OrderSpecific==='Yes'">
         <ul class="common-btn list-inline text-left">
 
@@ -469,7 +440,7 @@
 
                         </td>
                         <td>
-                            <button ng-click="getMachineInventoryIssueStock()" class="btn btn-action tooltip-here" data-placement="top" title="Select Machine">
+                            <button ng-click="getMachineInventoryIssueStock(x)" class="btn btn-action tooltip-here" data-placement="top" title="Select Machine">
                                 <i class="glyphicon glyphicon-search"></i>
                             </button>
                         </td>

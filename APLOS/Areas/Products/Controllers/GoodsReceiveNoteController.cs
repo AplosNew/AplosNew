@@ -1567,7 +1567,9 @@ namespace Aplos.Areas.Products.Controllers
 
         [HttpPost, Authorize]
         //public JsonResult IssueSlipCreate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId)
-        public JsonResult IssueSlipCreate(IssueRequestMaster Issentity, string entity, string entityGroupData, string CheckedBy, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew, string ProcessId, string OrderSpecific)
+        public JsonResult IssueSlipCreate(IssueRequestMaster Issentity, string entity, string entityGroupData, string CheckedBy, string IssueSlipType
+                , string CheckedByStatusForNoti, string ApprovedByStatusForNoti, string SOListSelectedNew, string MaterialColorListNew
+                , string ProcessId, string OrderSpecific,List<Dictionary<string,object>> machinepopUpDataList)
 
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1581,7 +1583,7 @@ namespace Aplos.Areas.Products.Controllers
             List<IssueRequestViewModel> SOListSelectedNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(SOListSelectedNew);
             List<IssueRequestViewModel> MaterialColorListNewDetailVM = JsonConvert.DeserializeObject<List<IssueRequestViewModel>>(MaterialColorListNew);
 
-            _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(Issentity, entityDetailVM, entityGroupDataVM, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, ProcessId);
+            _issueRequestService.InsertOrUpdateGraphIssueSlipCreate(Issentity, entityDetailVM, entityGroupDataVM, IssueSlipType, CheckedByStatusForNoti, ApprovedByStatusForNoti, SOListSelectedNewDetailVM, MaterialColorListNewDetailVM, ProcessId, machinepopUpDataList);
             //DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId);
 
             return Json(new { Issentity, Message = "Issue Request " + AplosMessage.Success + "Id=" + Issentity.Id });

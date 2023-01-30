@@ -598,9 +598,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                 $scope.btndisable = true;
                 for (var i = 0; i < baseService.arrayLength($scope.itemList); i++) {
-                    if (baseService.isUndefinedOrNull($scope.itemList[i].MaterialMasterId))
+                    if (baseService.isUndefinedOrNull($scope.itemList[i].MaterialMasterId)) {
                         $scope.btndisable = false;
                         return ShowResult('Material master need in row number ' + (i + 1), 'failure');
+                    }
                     if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
                         $scope.itemList[i].ContractId = $scope.modelNew.Id;
                     }
