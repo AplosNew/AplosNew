@@ -89,6 +89,7 @@ namespace bplib
         public static readonly string BONUS_BLOCK_AttendanceBonus = "Attendance Bonus";
 
         public static readonly int EMP_BASIC_PK_PAD = 5;
+        public static readonly int PrOId = 6;
         public static readonly string SUCCESS = "Data Saved Successfully !!!";
         public static readonly string DELETE = "Data Deleted Successfully !!!";
         public static readonly string LEAVETYPE = "'General','Leave Without Pay','Earn','Maternity'";
