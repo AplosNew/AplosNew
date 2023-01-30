@@ -122,7 +122,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
                         LEFT JOIN TRN.AdditionalTax ADT ON ADT.InventoryReceiveId=IR.Id
 						LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
-                        WHERE IR.PlantId=@plantId AND IR.[Status]='Posting' AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL
+                        WHERE IR.PlantId=@plantId AND V.Archive=0 AND IR.[Status]='Posting' AND IR.IsPaymentHold=0 AND IR.PlantId=@plantId AND IR.FixedAssetOrInventory='Inventory' AND IR.OpeningBalanceId IS NULL
                         ) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
