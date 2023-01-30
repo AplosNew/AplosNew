@@ -1151,8 +1151,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
                                 $scope.GriddataAssetIssueSlip();
                                 getInventoryMaterialList($scope.productNew.Id);
-
-
+                                $scope.machineQtyList = [];
 
                             }
                         }), function errorCallBack(response) {
@@ -1189,7 +1188,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
                                 //$scope.GriddataAssetIssueSlip();
                                 getInventoryMaterialList($scope.productNew.Id);
                                 //$scope.Clear();
-
+                                $scope.machineQtyList = [];
                             }
                         }), function errorCallBack(response) {
                             ShowResult(response.data.Message, 'failure');
@@ -2328,7 +2327,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
         angular.element(document.querySelector('#ListIssueSlipPopup')).modal('hide');
-        $scope.getUoM(Id);
+        //$scope.getUoM(Id);
     }
 
     $scope.gridUoMList = [];
@@ -2340,15 +2339,15 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.uom();
 
 
-    $scope.getUoM = function (Id) {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetUoMList?MaterialMasterId=" + Id,
-        }).then(function successCallback(response) {
-            $scope.FilterList123.uoMList = response.data.UOMList;
+    //$scope.getUoM = function (Id) {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + "GetUoMList?MaterialMasterId=" + Id,
+    //    }).then(function successCallback(response) {
+    //        $scope.FilterList123.uoMList = response.data.UOMList;
 
-        });
-    }
+    //    });
+    //}
 
 
     $scope.getMachineInventoryIssueStock = function (data) {
@@ -2407,11 +2406,22 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         $scope.getPopUpData();
     };
     $scope.modelNew = {};
+
     $scope.selectMichineDoubleClick = function (data) {
+
+        if ($scope.machineQtyList.length>0) {
+            for (var i = 0; i < $scope.machineQtyList.length; i++) {
+                if ($scope.machineQtyList[i].MachineMasterId == data.MaterialMasterId) {
+                    ShowResult('This machine is already exists!', 'failure');
+                    return false;
+                }
+            }
+        }
         $scope.modelNew.MachineName = data.UserName;
         $scope.modelNew.MachineMasterId = data.MaterialMasterId;
         $scope.closeMichinePopUp();
     };
+
     $scope.closeMichinePopUp = function () {
         angular.element(document.querySelector('#MachinePopUp')).modal('hide');
     };

@@ -392,7 +392,7 @@ namespace Library.MaterialManagement.Products
                         DataView dv = new DataView(dsMaster.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'"; if (dv.Count == 0)
                         {
-                            ccount++; string id = MakePK(_Id, ccount, 2);
+                            ccount++; string id = MakePK(item["IssueRequestId"].ToString(), ccount, 2);
                             item["Id"] = id;
                            materialCommonService.AddNewRowD(dsMaster.Tables[0], item);
                         }
