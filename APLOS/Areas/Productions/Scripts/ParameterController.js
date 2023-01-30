@@ -56,7 +56,8 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             $scope.GetSavedProduct();
             $scope.GetSavedWorkcenter();
             $scope.GetParameterEntity();
-
+            $scope.GetSavedProcess();
+            $scope.GetSavedMachine();
             $rootScope.toggle();
 
         }
@@ -900,7 +901,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                 if (a.chk) {
                     var ob = {};
 
-                    ob.ProcessId = a.Id;
+                    ob.ProcessId = a.ProcessId;
                     ob.Id = null;
 
                     $scope.SaveProcessList.push(ob);
@@ -915,7 +916,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
             method: 'POST',
             url: $scope.path + 'CreateProcessWithParameterSetup',
             data: {
-                models: $scope.SaveProductList,
+                models: $scope.SaveProcessList,
                 headerid: $scope.ModelNew.Id,
             },
             dataType: 'JSON'
@@ -1003,7 +1004,7 @@ function ParameterController(cboService, commonMessage, $scope, $rootScope, base
                 if (a.chk) {
                     var ob = {};
 
-                    ob.MachineId = a.Id;
+                    ob.MachineMasterId = a.MachineMasterId;
                     ob.Id = null;
 
                     $scope.SaveMachineList.push(ob);
