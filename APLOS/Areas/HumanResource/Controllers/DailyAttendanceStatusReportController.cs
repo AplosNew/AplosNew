@@ -91,16 +91,114 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        public JsonResult GetFavoriteListByUser()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select FORMAT(DAF.FromDate, 'dd-MMM-yyyy') FromDate, FORMAT(DAF.ToDate, 'dd-MMM-yyyy') ToDate, DAF.InStatus, DAF.EmployeeStatus ,U.FullName, DAF.FavoriteFilteruserId, DAF.ShiftDefinationId
+, DAF.EmployeecategoryId, DAF.TeamLeaderId, DAF.ResponsiblePersonId
+from[TRN].[DailyAttendanceFavoriteFilter] DAF
+left join[SEC].[User] U on U.Id = DAF.Id
+left join ShiftDefination SD ON SD.SystemID = DAF.ShiftDefinationId
+left join HKP.EmployeeCategory EC on EC.Id = DAF.EmployeecategoryId
+left join EmployeeInformation EI on EI.SystemId = DAF.TeamLeaderId
+left join EmployeeInformation EI2 on EI2.SystemId = DAF.ResponsiblePersonId
+where DAF.FavoriteFilteruserId = '"+ identity .UserId+ "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public JsonResult GetDailyAttendanceStatus(string instatus, string fromdate, string todate, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus)
+        {
+            try
+            {
+                
+                var sqlCondition = "";
+                if (instatus != null && employeecategory != null && teamleaderid != null && responsibleperson != null && shift != null)
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + " and EI2.EmployeeName = " + responsibleperson + " and ST.Id = " + shift + "";
+                }
+                if (instatus != null && employeecategory != null && teamleaderid != null && responsibleperson != null)
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + " and EI2.EmployeeName = " + responsibleperson + "";
+                }
+
+                if (instatus != null && employeecategory != null && teamleaderid != null)
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + "";
+                }
+
+                if (instatus != null && employeecategory != null)
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = " + employeecategory + "";
+                }
+                if (instatus != null)
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "'";
+                }
+
+                var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
+, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, APD.InTime, APD.LateIn, ''InActive, EMP.EmployeeCurrentStatus
+,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, RAE.isOccupied, ETA.AssignStatus
+,MBGT.ROBudgetCode,APD.WorkDate , PV.AddedBy
+,ApprovedStatus = case when PV.AddedBy is not null then 'Approved' else 'Not Approved' end
+
+from AttdnProcessData APD
+left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson
+LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join dbo.ShiftDefination ST on ST.SystemID = MBGT.ShiftDefinationId
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
+left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date=APD.WorkDate
+left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
+--left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
+LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
+LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
+LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
+left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId
+left join SCS.[State] S on S.Id = EMP.ParmStateId
+left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
+--left join EmployeeInformation EI2 on EI2.SystemId = PV.EmpSystemID
+LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
+LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
+where APD.LateIn > 0 and APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active' and " + sqlCondition + @"
+order by APD.WorkDate DESC";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         #region Report
 
         [HttpPost, Authorize]
-        public ActionResult GetDailyAttendanceStatusXls(string instatus, string date, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
+        public ActionResult GetDailyAttendanceStatusXls(string instatus, string fromdate, string todate, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
         {
             try
             {
 
                 string fileName = "";
-                fileName = DailyAttendanceStatusReport(instatus, date, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, "DailyAttendanceStatusReport");
+                fileName = DailyAttendanceStatusReport(instatus, fromdate, todate, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, "DailyAttendanceStatusReport");
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -115,7 +213,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        public string DailyAttendanceStatusReport(string instatus, string date, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
+        public string DailyAttendanceStatusReport(string instatus, string fromdate, string todate ,string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -132,7 +230,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 workbook.Worksheets[0].Name = "Daily Attendance Status Report";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                DailyAttdnStatusReportQry(instatus, date, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, out data);
+                DailyAttdnStatusReportQry(instatus, fromdate, todate ,employeecategory, teamleaderid, responsibleperson, shift, employeestatus, out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -140,6 +238,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, COL].Text = "SrlNo";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColSrlNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Work Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColWorkDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Entity";
@@ -228,11 +331,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                 int ColDOJ = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "DOS";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColDOS = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "DOS";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColDOS = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Day Status";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -352,6 +455,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
 
                     sheet[ROW, ColSrlNo].Number = clsStaticInfo.dbl(data.Rows[i]["SrlNo"].ToString());
+                    sheet[ROW, ColWorkDate].DateTime = Convert.ToDateTime(data.Rows[i]["WorkDate"].ToString());
                     sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, ColDivision].Text = data.Rows[i]["Division"].ToString();
                     sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
@@ -364,28 +468,30 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet[ROW, ColBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["BudgetCode"].ToString());
                     sheet[ROW, ColEmpCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
                     sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                    sheet[ROW, ColMobileNo].Text = data.Rows[i]["CellPhnNo"].ToString();
+                    sheet[ROW, ColMobileNo].Number = clsStaticInfo.dbl(data.Rows[i]["CellPhnNo"].ToString());
                     sheet[ROW, ColDOJ].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
-                    sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
+                    
+                    //sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
                     sheet[ROW, ColInTime].DateTime = Convert.ToDateTime(data.Rows[i]["InTime"].ToString());
                     sheet[ROW, ColDaySts].Text = data.Rows[i]["DayStatus"].ToString();
                     sheet[ROW, ColInStatus].Text = data.Rows[i]["InStatus"].ToString();
-                    sheet[ROW, ColLateIn].Text = data.Rows[i]["LateIn"].ToString();
+                    sheet[ROW, ColLateIn].Number = clsStaticInfo.dbl(data.Rows[i]["LateIn"].ToString());
                     sheet[ROW, ColInActive].Text = data.Rows[i]["InActive"].ToString();                   
-                    sheet[ROW, ColEmpStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                    sheet[ROW, ColEmpStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
                     sheet[ROW, ColResPerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
                     sheet[ROW, ColTeamLeader].Text = data.Rows[i]["TeamLeader"].ToString();
                     sheet[ROW, ColFeedback].Text = data.Rows[i]["Feedback"].ToString();
-                    sheet[ROW, ColReason].DateTime = Convert.ToDateTime(data.Rows[i]["FeedbackDate"].ToString());
+                    //sheet[ROW, ColFeed].Text = data.Rows[i]["FeedbackDate"].ToString();
                     sheet[ROW, ColReason].Text = data.Rows[i]["FeedbackRason"].ToString();
                     //sheet[ROW, ColFeedbackBy].Text = data.Rows[i]["FeedbackBy"].ToString();
                     sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
                     sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();                    
                     sheet[ROW, ColResidenceStatus].Text = data.Rows[i]["isOccupied"].ToString();                  
                     sheet[ROW, ColVerifStatus].Text = data.Rows[i]["ApprovedStatus"].ToString();
-                    sheet[ROW, ColVerifiedBy].Text = data.Rows[i]["ApprovedBy"].ToString();
+                    sheet[ROW, ColVerifiedBy].Text = data.Rows[i]["AddedBy"].ToString();
                     sheet[ROW, ColROBudgetCode].Text = data.Rows[i]["ROBudgetCode"].ToString();
                     sheet[ROW, ColTransportStatus].Text = data.Rows[i]["AssignStatus"].ToString();
+                    sheet[ROW, ColState].Text = data.Rows[i]["State"].ToString();
 
 
                     ROW++;
@@ -435,39 +541,59 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        public void DailyAttdnStatusReportQry(string instatus, string date, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus,  out DataTable data)
+        public void DailyAttdnStatusReportQry(string instatus, string fromdate, string todate ,string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus,  out DataTable data)
         {
             string strSQL;
             var sqlCondition = "";
+            if (instatus != null && employeecategory != null && teamleaderid != null && responsibleperson != null && shift != null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + " and EI2.EmployeeName = " + responsibleperson + " and ST.Id = "+ shift + "";
+            }
+            if (instatus != null && employeecategory != null && teamleaderid != null && responsibleperson != null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + " and EI2.EmployeeName = "+ responsibleperson + "";
+            }
 
-            if (instatus != "" || employeecategory != "" || teamleaderid != "")
+            if (instatus != null && employeecategory != null && teamleaderid != null)
             {
-                sqlCondition = "APD.InStatus = "+ instatus + " and EC.Id = "+ employeecategory + "  and TD.TeamLeaderId = "+ teamleaderid + "";
+                sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + "";
             }
-            if(employeecategory == "")
+
+            if (instatus != null && employeecategory != null)
             {
-                sqlCondition = "APD.InStatus = " + instatus + " and TD.TeamLeaderId = " + teamleaderid + "";
+                sqlCondition = "APD.InStatus = '"+ instatus + "' and EC.Id = "+ employeecategory + "";
             }
-            if(instatus == "")
+
+            if (instatus != null)
             {
-                sqlCondition = "EC.Id = " + employeecategory + "  and TD.TeamLeaderId = " + teamleaderid + "";
+                sqlCondition = "APD.InStatus = '" + instatus + "'";
             }
-            if(teamleaderid == "")
-            {
-                sqlCondition = "APD.InStatus = " + instatus + " and EC.Id = " + employeecategory + "";
-            }
+
+            //if (employeecategory == null)
+            //{
+            //    sqlCondition = "APD.InStatus = " + instatus + " and TD.TeamLeaderId = " + teamleaderid + "";
+            //}
+            //if(instatus == null)
+            //{
+            //    sqlCondition = "EC.Id = " + employeecategory + "  and TD.TeamLeaderId = " + teamleaderid + "";
+            //}
+            //if(teamleaderid == null)
+            //{
+            //    sqlCondition = "APD.InStatus = " + instatus + " and EC.Id = " + employeecategory + "";
+            //}
             try
             {
 
                 strSQL = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
-, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EMP.DOS, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, APD.InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,''ResponsiblePerson, ''TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason,  RG.IsResidenceApplicable, RAE.isOccupied, ETA.AssignStatus
-,MBGT.ROBudgetCode, EI2.EmployeeName ApprovedBy,
-ApprovedStatus = case when PV.AddedBy is not null then 'Approved' else 'Not Approved' end
+, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, APD.InTime, APD.LateIn, ''InActive, EMP.EmployeeCurrentStatus
+,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, RAE.isOccupied, ETA.AssignStatus
+,MBGT.ROBudgetCode,APD.WorkDate , PV.AddedBy
+,ApprovedStatus = case when PV.AddedBy is not null then 'Approved' else 'Not Approved' end
 
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson and EI2.EmployeeStatus = 'Active'
 LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
 left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
@@ -481,7 +607,7 @@ LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId
+left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date=APD.WorkDate
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
 --left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
@@ -489,9 +615,11 @@ LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
 left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
-left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId
-left join EmployeeInformation EI2 on EI2.SystemId = PV.EmpSystemID
-where APD.EmpSystemID = '2015116' and APD.LateIn > 0 and EMP.EmployeeStatus = 'Active' and APD.InStatus = '"+instatus+"' and EC.Id = '"+employeecategory+"' and EMP.EmployeeCurrentStatus = '"+ employeestatus + "' and TD.TeamLeaderId = '"+ teamleaderid + @"'
+left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
+--left join EmployeeInformation EI2 on EI2.SystemId = PV.EmpSystemID
+LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
+LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
+where APD.LateIn > 0 and APD.WorkDate between '" + fromdate+"' and '"+todate+"' and EMP.EmployeeStatus = 'Active' and " + sqlCondition + @"
 order by APD.WorkDate DESC
 ";
 
@@ -508,7 +636,95 @@ order by APD.WorkDate DESC
         #endregion
 
         #region Save
+        public JsonResult Save(Dictionary<string, object> datas)
+        {
+            try
+            {
+                string TableNameHead = "[TRN].[DailyAttendanceFavoriteFilter]";
 
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + datas["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region  HEAD
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableNameHead, out _Id);
+
+                    datas["Id"] = _Id;
+                    datas["FavoriteFilteruserId"] = identity.UserId;
+                    
+
+                    AddNewRow(dsMaster.Tables[0], datas);
+                }
+                else
+                {
+                    _Id = datas["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], datas);
+                }
+                #endregion  HEAD
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Data = datas, Message = AplosMessage.Insert }) ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #region CREATE AND EDIT DEFAULT COLUMN
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion CREATE AND EDIT DEFAULT COLUMN
         #endregion Save
     }
 }

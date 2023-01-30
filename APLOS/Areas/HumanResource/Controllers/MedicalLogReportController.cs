@@ -223,6 +223,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ArtRow = 0;
             int LotRow = 0;
 
+
             double[] arr = new double[3];
 
             for (int i = 0; i < data.Rows.Count; i++)
@@ -256,16 +257,38 @@ namespace Aplos.Areas.HumanResource.Controllers
             endRow = ROW - 1;
             #endregion sheet1
 
+            sheet.UsedRange.WrapText = false;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet["A" + startRow.ToString()].FreezePanes();
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            sheet.UsedRange.WrapText = true;
-            sheet.UsedRange.CellStyle.Font.Size = 8;
-            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
-           
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref sheet, endCol, "Medical Log Report", identity.PlantId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            sheet.UsedRange.WrapText = false;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.IsGridLinesVisible = true;
+            sheet.PageSetup.TopMargin = 0.2;
+            sheet.PageSetup.BottomMargin = 0.8;
+            //sheet.PageSetup.PrintTitleRows = "$1:$6";
+            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.PageSetup.CenterHorizontally = true;
+
 
             sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
-            //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            //ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "Medical Log Report", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
             return workbook;
         }
 
@@ -375,16 +398,37 @@ namespace Aplos.Areas.HumanResource.Controllers
             endRow = ROW - 1;
             #endregion sheet1
 
+            sheet.UsedRange.WrapText = false;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet["A" + startRow.ToString()].FreezePanes();
+
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            sheet.UsedRange.WrapText = true;
-            sheet.UsedRange.CellStyle.Font.Size = 8;
-            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref sheet, endCol, "Medicine Stock Report", identity.PlantId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            sheet.UsedRange.WrapText = false;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.IsGridLinesVisible = true;
+            sheet.PageSetup.TopMargin = 0.2;
+            sheet.PageSetup.BottomMargin = 0.8;
+            //sheet.PageSetup.PrintTitleRows = "$1:$6";
+            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.PageSetup.CenterHorizontally = true;
 
 
             sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            ReportUtility reportUtility = new ReportUtility();
-            //reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
-            //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            //ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "Medicine Stock Report", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
         #endregion  workbook Excel View
