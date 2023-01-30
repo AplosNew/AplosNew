@@ -11328,10 +11328,10 @@ UNION ALL
 									                WHEN v.SourceType='VendorPayment' THEN AP.UserName
 									                WHEN v.SourceType='CreditNoteSetOff' THEN AP.UserName
 				                   else '' end
-				  ,TaxableAmount=case when IWD.InventoryReceiveId<>'' then IRD.TotalMaterialTranAmount-IT.TaxAmount
+				  ,TaxableAmount=case when IWD.InventoryReceiveId<>'' then IRD.TotalMaterialTranAmount
 									when SAM.ServiceAcknowledgementMasterId<>'' then SAM.TotalMaterialTranAmount
-					                when v.SourceType='VendorInvoice' then VD.DrAmount-IT.TaxAmount	
-					                when v.SourceType='VendorPayment' then IWD.Amount-IT.TaxAmount	
+					                when v.SourceType='VendorInvoice' then VD.DrAmount
+					                when v.SourceType='VendorPayment' then IWD.Amount
 					                when v.SourceType='CreditNoteSetOff' then IWD.Amount-IT.TaxAmount	else 0 end
                 ,InvoiceAmount=case when v.SourceType='InventoryPayable' then IRD.TotalMaterialTranAmount
 					                when v.SourceType='VendorInvoice' then VD.DrAmount	

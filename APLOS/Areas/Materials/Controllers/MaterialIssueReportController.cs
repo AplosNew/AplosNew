@@ -6,6 +6,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.MaterialManagement.Material;
 using Library.Model.Enums;
 using Library.Model.Setups;
 using Library.Service.Enums;
@@ -31,6 +32,7 @@ namespace Aplos.Areas.Materials.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
+        clsMaterial clsM = new clsMaterial();
         public MaterialIssueReportController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -43,42 +45,32 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
-        //[HttpGet, Authorize]
-        //public ActionResult getFiltersData(string fromDate, string todate)
-        //{
-        //    try
-        //    {
-        //        return Json(tasksService.getFiltersData(fromDate, todate), JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw e;
-        //    }
-        //}
-
-        [Authorize, HttpPost]
-        public ActionResult getUtilityTransactionData(string ToDate, string FromDate)
+        [HttpGet, Authorize]
+        public ActionResult getFiltersData()
         {
-            var str = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category,UM.Item
-							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
-							from UtilityTransaction UT
-							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
-                            left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
-                             where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
-                             group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName";
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(clsM.getFiltersData(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetTransactionData()
+        {
+            return Json(clsM.GetTransactionData(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetUtilityTransactionReport(string ToDate , string FromDate)
+        public ActionResult GetReport(Dictionary<string, string> parameters)
         {
             try
             {
                 string fileName = "";
-                fileName = UtilityTransactionReport(ToDate,FromDate, "Utility Transaction Report");
+                fileName = GetTransactionReport(parameters, "Transaction Report");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -88,7 +80,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         }
 
-        public string UtilityTransactionReport(string ToDate, string FromDate, string SheetName)
+        public string GetTransactionReport(Dictionary<string, string> parameters, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -102,72 +94,29 @@ namespace Aplos.Areas.Materials.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "UtilityTransactionReport";
+                workbook.Worksheets[0].Name = "TransactionReport";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                UtilityTransactionReportSQL(ToDate,FromDate, out data);
+                clsM.GetTransactionReportSQL(parameters, out data);
 
                 int ROW = 6; int COL = 1;
 
                 #region columns
-                sheet[ROW, COL].Text = "Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Time";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColTime = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Category";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColCategory = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Sub Category";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColSubCategory = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Item";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColItem = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Group";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColGroup = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SubGroup";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColSubGroup = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Quantity";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColQuantity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Final Quantity";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColFinalQuantity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Reading";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColReading = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Remarks";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColRemarks = COL;
-                
+                sheet[ROW, COL].Text = "POStatus"; sheet[ROW, COL].ColumnWidth = 16; int ColPOStatus = COL; COL++;
+                sheet[ROW, COL].Text = "PONo"; sheet[ROW, COL].ColumnWidth = 16; int ColPOId = COL; COL++;
+                sheet[ROW, COL].Text = "SONo"; sheet[ROW, COL].ColumnWidth = 16; int ColSONo = COL; COL++;
+                sheet[ROW, COL].Text = "Material"; sheet[ROW, COL].ColumnWidth = 16; int ColMaterial = COL; COL++;
+                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 16; int ColArticle = COL; COL++;
+                sheet[ROW, COL].Text = "NetConsumptionPerUnit"; sheet[ROW, COL].ColumnWidth = 16; int ColNetConsumptionPerUnit = COL; COL++;
+                sheet[ROW, COL].Text = "ValueLoss"; sheet[ROW, COL].ColumnWidth = 16; int ColValueLoss = COL; COL++;
+                sheet[ROW, COL].Text = "GrossConsumption"; sheet[ROW, COL].ColumnWidth = 16; int ColGrossConsumption = COL; COL++;
+                sheet[ROW, COL].Text = "TotalConsumption"; sheet[ROW, COL].ColumnWidth = 16; int ColTotalConsumption = COL; COL++;
+                sheet[ROW, COL].Text = "PlanConsumption"; sheet[ROW, COL].ColumnWidth = 16; int ColPlanConsumption = COL; COL++;
+                sheet[ROW, COL].Text = "Rate"; sheet[ROW, COL].ColumnWidth = 16; int ColRate = COL; COL++;
+                sheet[ROW, COL].Text = "TotaPlanlAmount"; sheet[ROW, COL].ColumnWidth = 16; int ColTotaPlanlAmount = COL; COL++;
+                sheet[ROW, COL].Text = "RequestedQty"; sheet[ROW, COL].ColumnWidth = 16; int ColRequestedQty = COL; COL++;
+                sheet[ROW, COL].Text = "IssueQty"; sheet[ROW, COL].ColumnWidth = 16; int ColIssueQty = COL; COL++;
+                sheet[ROW, COL].Text = "Balance"; sheet[ROW, COL].ColumnWidth = 16; int ColBalance = COL;
                 #endregion columns
 
                 int endCol = COL;
@@ -181,45 +130,32 @@ namespace Aplos.Areas.Materials.Controllers
                 ROW++;
 
                 int startRow = ROW;
-                double reading = 0;
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString(); 
-                    sheet[ROW, ColTime].Text = data.Rows[i]["Time"].ToString(); 
-                    sheet[ROW, ColCategory].Text = data.Rows[i]["Category"].ToString();
-                    sheet[ROW, ColSubCategory].Text = data.Rows[i]["SubCategory"].ToString();
-                    sheet[ROW, ColItem].Text = data.Rows[i]["Item"].ToString();
-                    sheet[ROW, ColGroup].Text = data.Rows[i]["Group"].ToString();
-                    sheet[ROW, ColSubGroup].Text = data.Rows[i]["SubGroup"].ToString();
-                    sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
-                    sheet[ROW, ColFinalQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["FinalQuantity"].ToString());
-                    sheet[ROW, ColQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColReading].Number = clsStaticInfo.dbl(data.Rows[i]["Reading"].ToString());
-                    sheet[ROW, ColReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    //if (reading == 0)
-                    //{
-                    //    reading= clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
-                    //    sheet[ROW, ColReading].Number = reading;
-                    //}
-                    //else
-                    //{
-                    //    reading = clsStaticInfo.dbl(reading) + clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString()); 
-                    //    sheet[ROW, ColReading].Number = reading;
-                    //}
-
-                   
-                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
-                    sheet[ROW, ColAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, ColPOStatus].Text = data.Rows[i]["POStatus"].ToString();
+                    sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
+                    sheet[ROW, ColSONo].Text = data.Rows[i]["SalesOrderId"].ToString();
+                    sheet[ROW, ColMaterial].Text = data.Rows[i]["MaterialMaster"].ToString();
+                    sheet[ROW, ColArticle].Text = data.Rows[i]["QBOQArticle"].ToString();
+                    sheet[ROW, ColNetConsumptionPerUnit].Text = data.Rows[i]["NetConsumptionPerUnit"].ToString();
+                    sheet[ROW, ColValueLoss].Text = data.Rows[i]["ValueLoss"].ToString();
+                    sheet[ROW, ColGrossConsumption].Text = data.Rows[i]["GrossConsumption"].ToString();
+                    sheet[ROW, ColTotalConsumption].Text = data.Rows[i]["TotalConsumption"].ToString();
+                    sheet[ROW, ColPlanConsumption].Number = clsStaticInfo.dbl(data.Rows[i]["PlanConsumption"].ToString());
+                    sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+                    sheet[ROW, ColRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColTotaPlanlAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotaPlanlAmount"].ToString());
+                    sheet[ROW, ColTotaPlanlAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColRequestedQty].Number = clsStaticInfo.dbl(data.Rows[i]["RequestedQty"].ToString());
+                    sheet[ROW, ColRequestedQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColIssueQty].Text = data.Rows[i]["IssueQty"].ToString();
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                     ROW++;
 
                 }
-                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
-                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -227,7 +163,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Utility Transaction Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -236,7 +172,6 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
 
-                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
 
                 //#endregion ******************Report Header******************
@@ -268,31 +203,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public void UtilityTransactionReportSQL(string ToDate, string FromDate, out DataTable data)
-        {
-            try
-            {
-                string strSQL = @"SELECT UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
-							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks,UM.MultiplyingFactor
-							,Amount=UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate)
-                            ,FinalQuantity=UM.MultiplyingFactor*UT.Quantity
-							from UtilityTransaction UT
-							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-                            left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
-							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
-							where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
-							group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UM.MultiplyingFactor,UT.UtilityMasterId";
 
-                data = _sqlRepository.GetDataTable(strSQL);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
 
         [HttpGet, Authorize]
         public ActionResult DownloadUsingFullPath(string FullPath, string fileName)

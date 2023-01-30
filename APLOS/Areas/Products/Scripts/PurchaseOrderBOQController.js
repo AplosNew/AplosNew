@@ -1423,6 +1423,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         var getRow3 = $filter("filter")($scope.updatePOBOQListS, {
                             "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId, "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId
                             , "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId, "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
+                                
                         });
                         if (getRow3.length > 0) {
                             throw "Already taken";

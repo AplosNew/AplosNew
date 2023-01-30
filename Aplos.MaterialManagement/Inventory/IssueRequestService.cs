@@ -24,6 +24,9 @@ using System.Reflection;
 using System.Threading;
 using System.Collections.Specialized;
 using Library.ViewModel.Materials;
+using System.Data;
+using Aplos.MaterialManagement.MaterialQuery;
+using Library.Service.Extension;
 
 #endregion Using
 
@@ -107,7 +110,9 @@ namespace Library.MaterialManagement.Products
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(IssueRequest), out sID);
             return sID;
         }
-        public void InsertOrUpdateGraphIssueSlipCreate(IssueRequestMaster Issentry, IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti, IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId)
+        public void InsertOrUpdateGraphIssueSlipCreate(IssueRequestMaster Issentry, IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti
+            , IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId
+            , List<Dictionary<string, object>> machinepopUpDataList)
         {
             var flag = false;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -212,10 +217,9 @@ namespace Library.MaterialManagement.Products
                 var SalesOrderId = "";
                 var TransactionUoMId = "";
                 flag = true;
+                //List<IDictionary<string, object>> newMachineAllocationDb = new List<IDictionary<string, object>>();
                 foreach (var itemDetail in entityGroupData)
                 {
-                   
-
                     if (string.IsNullOrEmpty(itemDetail.Id))
                     {
                         var NewId = Issentry.Id + "-";
@@ -291,9 +295,17 @@ namespace Library.MaterialManagement.Products
                             SKU3 = IssueRequstD.ThirdCharacteristicsValueId;
                             SalesOrderId = itemDetail.SalesOrderId;
                             TransactionUoMId = IssueRequstD.TransactionUoMId;
-
-
-
+                            
+                            if (machinepopUpDataList.Count > 0)
+                            {
+                                foreach (var item in machinepopUpDataList.Where(r => r["MaterialMasterId"].ToString() == itemDetail.MaterialMasterId
+                                                            && r["ArticleId"].ToString() == itemDetail.ArticleId
+                                                            ).ToList())
+                                {
+                                    item["IssueRequestId"] = IssueRequstD.Id;
+                                }
+                            }
+                            
                         }
                         catch (DivideByZeroException ex)
                         {
@@ -335,24 +347,18 @@ namespace Library.MaterialManagement.Products
 
                             }
                         }
-                    }//
+                    }
                 }
-
-
-
-
-
-                // insert in receive tax
-
 
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
+                if (machinepopUpDataList.Count > 0)
+                {
+                    SaveIssueMaterailMachineAllocation(machinepopUpDataList);
+                }
             }
-            catch (CustomException)
-            {
-                throw;
-            }
+           
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex,
@@ -367,7 +373,41 @@ namespace Library.MaterialManagement.Products
                 }
             }
         }
+        public void SaveIssueMaterailMachineAllocation(List<Dictionary<string, object>> dataList)
+        {
+            try
+            {
+                string TableNameHead = "TRN.IssueMaterailMachineAllocation";
+                DataSet dsMaster;
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
+                con.OpenDataSetThroughAdapter("select * from TRN.IssueMaterialMachineAllocation where 1=2", out dsMaster, false, "1");
+                string _Id = "";
+                int ccount = 0;
+                if (dataList != null)
+                {
+                    foreach (var item in dataList)
+                    {
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'"; if (dv.Count == 0)
+                        {
+                            ccount++; string id = MakePK(_Id, ccount, 2);
+                            item["Id"] = id;
+                           materialCommonService.AddNewRowD(dsMaster.Tables[0], item);
+                        }
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void InsertOrUpdateGraphIssueSlipUpdate(IssueRequestMaster Issentity, IEnumerable<IssueRequestViewModel> entity, string Ids, string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
             var flag = false;
