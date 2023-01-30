@@ -391,6 +391,7 @@ namespace Aplos.Areas.Materials.Controllers
                 inventoryIssue.CompanyId = identity.CompanyId;
                 inventoryIssue.PlantId = identity.PlantId;
                 inventoryIssue.CheckedBy = model["CheckedBy"].ToString();
+                inventoryIssue.Id = model["IssueId"].ToString();
                 inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
                 inventoryIssue.CompanyId = identity.CompanyId;
                 inventoryIssue.PlantId = identity.PlantId;

@@ -282,7 +282,7 @@ WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
 				,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
                 ,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId, BaseUoMFactor=case when M.BaseUOMId=i.UnitOfMeasurementId then 1 else 1 end
                 ,B.UserName BudgetName,ACT.UserName ActivityName,BM.Id BudgetMasterId,BM.GLGeneralInfoId,ACT.Id ExpenseActivityId,M.MaterialGroupMasterId
-                ,'' CostCenterName,''CostCenterId,'' Id,'' RequestedQty
+                ,'' CostCenterName,''CostCenterId,D.Id,'' RequestedQty
                 FROM dbo.MaterialIssueControlDetail D 
                 INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
                 left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
