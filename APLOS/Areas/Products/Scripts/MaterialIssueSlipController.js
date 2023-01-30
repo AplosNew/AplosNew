@@ -2419,6 +2419,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.addMachine = function () {
         $scope.modelNew.MaterialMasterId = $scope.selectedMaterialRow.MaterialMasterId;
         $scope.modelNew.ArticleId = $scope.selectedMaterialRow.ArticleId;
+        $scope.modelNew.Id = null;
         $scope.modelNew.FirstCharacteristicsValueId = $scope.selectedMaterialRow.FirstCharacteristicsValueId;
         $scope.modelNew.CostCenterId = $scope.selectedMaterialRow.CostCenterId;
         $scope.machineQtyList.push($scope.modelNew);
