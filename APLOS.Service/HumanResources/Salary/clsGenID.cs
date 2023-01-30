@@ -851,6 +851,74 @@ namespace bplib
                 drLocal = null;
             }
         }
+      
+        public void GenerateIDMaxYearly(string strEntryDate, string strFieldName, out string strID)
+        {
+            ConnectionManager.DAL.ConManager objCoManager;
+
+            string strSql = "";
+            DataSet dsLocal = null;
+            DataTable dtLocal = null;
+            DataRow drLocal = null;
+            DataView dvLocal = null;
+            // System.Text.StringBuilder SB = null;
+            decimal MaxNumber = 0;
+
+            try
+            {
+                //by Monir
+                strEntryDate = clsWebLib.AppDateConvert(strEntryDate, "MM/dd/yyyy", clsWebLib.getUserDateFormat()).ToShortDateString();
+                string period = Convert.ToDateTime(strEntryDate).Year.ToString();
+                strSql = "SELECT Id, Period, FieldName, MaxNumber,UpdatedDate FROM ACS.PKGenerator WHERE FieldName ='" + strFieldName.Trim() + @"'  AND Period='" + period + "'";
+
+                objCoManager = new ConnectionManager.DAL.ConManager("1");
+                objCoManager.OpenDataSetThroughAdapter(strSql, out dsLocal, false, false, "", "1");
+
+
+                dtLocal = dsLocal.Tables[0];
+                dvLocal = new DataView(dtLocal);
+                //dvLocal.Table = dtLocal;
+                dvLocal.RowFilter = "FieldName ='" + strFieldName.Trim() + "' AND Period = '" + period + "'";
+                if (dvLocal.Count == 0)
+                {// Add data
+                    drLocal = dtLocal.NewRow();
+                    drLocal["FieldName"] = clsWebLib.RetValidLen(strFieldName, 100);
+                    drLocal["Period"] = DateTime.Now.Year;
+                    drLocal["MaxNumber"] = 1;
+                    drLocal["UpdatedDate"] = DateTime.Now;
+                    MaxNumber = 1;
+                    dtLocal.Rows.Add(drLocal);
+                }
+                else if (dvLocal.Count == 1)
+                {
+                    drLocal = dvLocal[0].Row;
+
+                    MaxNumber = Convert.ToDecimal(clsWebLib.GetNumData(("" + drLocal["MaxNumber"].ToString())));
+                    MaxNumber = MaxNumber + 1;
+
+                    drLocal.BeginEdit();
+                    drLocal["FieldName"] = clsWebLib.RetValidLen(strFieldName, 100);
+                    drLocal["Period"] = DateTime.Now.Year;
+                    drLocal["MaxNumber"] = MaxNumber;
+                    drLocal["UpdatedDate"] = DateTime.Now;
+                    drLocal.EndEdit();
+                }
+
+                objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
+                strID = (int)MaxNumber + "";
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                dtLocal = null;
+                dvLocal = null;
+                drLocal = null;
+            }
+        }
 
         #endregion
 
