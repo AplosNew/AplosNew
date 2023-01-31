@@ -1080,7 +1080,11 @@ where PS.Id = '" + headerid + "'";
         {
             try
             {
-                var sql = @"";
+                var sql = @"select P.Id ProcessId, P.Code, P.UserName Process , PS.UserName ParameterSetup
+from MST.ParameterProcess PP
+left join HKP.Process P on P.Id = PP.ProcessId
+left join HKP.ParameterSetup PS on PS.Id = PP.ParameterSetupId
+Where PP.ParameterSetupId = '"+ headerid + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception)
@@ -1121,7 +1125,7 @@ where PS.Id = '" + headerid + "'";
         {
             try
             {
-                var sql = @"select MM.Id MachineId, MM.UserName Machine, MC.UserName Category, MSC.UserName SubCategory from MST.MachineMaster MM
+                var sql = @"select MM.Id MachineMasterId, MM.UserName Machine, MC.UserName Category, MSC.UserName SubCategory from MST.MachineMaster MM
 left join HKP.MachineCategory MC on MC.Id = MM.MachineCategoryId
 left join HKP.MachineSubCategory MSC on MSC.Id = MM.MachineSubCategoryId
 where MM.Active = 1";
@@ -1139,7 +1143,7 @@ where MM.Active = 1";
         {
             try
             {
-                string TableName = "MST.ParameterMachine";
+                string TableName = "MST.ParameterMachineMaster";
 
                 DataSet dsChild;
 
@@ -1192,7 +1196,13 @@ where MM.Active = 1";
         {
             try
             {
-                var sql = @"";
+                var sql = @"select PS.UserName ParameterSetup, MM.Id MachineId, MM.UserName Machine, MC.UserName Category, MSC.UserName SubCategory from
+MST.ParameterMachineMaster PMM
+left join MST.MachineMaster MM on MM.Id = PMM.MachineMasterId
+left join HKP.ParameterSetup PS on PS.Id = PMM.ParameterSetupId
+left join HKP.MachineCategory MC on MC.Id = MM.MachineCategoryId
+left join HKP.MachineSubCategory MSC on MSC.Id = MM.MachineSubCategoryId
+where PMM.ParameterSetupId = '"+ headerid + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception)

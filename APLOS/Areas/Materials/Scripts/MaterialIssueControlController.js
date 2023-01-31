@@ -30,7 +30,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
-    $scope.ModelNew = { Id: null, POId: null, IssueId:null,EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.ModelNew = { Id: null, POId: null, IssueId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -290,16 +290,23 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.Action = 'Save';
     $scope.Save = function () {
         $scope.QBOQCostingListNew = [];
-        for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
 
-            $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
-            $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
-            $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
-            $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
-            $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
-
-        }
         try {
+            if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
+                for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+                    if (baseService.isUndefinedOrNull($scope.QBOQCostingList[p].InventoryMaterialId)) {
+                        throw "Stock Qty is not available.";
+                    }
+                    $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+                    $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                    $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+                    $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+                    $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+                }
+            } else {
+                throw "Stock data is not available.";
+            }
+
             if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
                 throw "Select Production Order.";
             }

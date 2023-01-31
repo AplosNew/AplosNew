@@ -89,7 +89,7 @@
                     <div class="row" ng-form name="ParameterForm">
                         @*COLUMN 1*@
                         <div class="col-xs-12 col-sm-8 col-md-4">
-                            <div class="form-group" show-errors>
+                            @*<div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
@@ -100,7 +100,7 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
+                            </div>*@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">parameter category<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -154,14 +154,14 @@
 
                         @*COLUMN 2*@
                         <div class="col-xs-12 col-sm-8 col-md-4">
-                            <div class="form-group" show-errors>
+                            @*<div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
                                         <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterList" e-value="MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                     </div>
                                 </div>
-                            </div>
+                            </div>*@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Crititcal Level<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -401,21 +401,56 @@
             @*   TAB -3 CLOSE   *@
 
             @*   TAB -4 MACHINE START   *@
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="common-btn" style="margin-bottom:10px">
-                            <ul class="list-inline text-left">
-                                <li>
-                                    <button name="submit" class="btn single-small-btn" ng-click="OpenMachinePopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Machine</button>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="common-btn" style="margin-bottom:10px">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <button name="submit" class="btn single-small-btn" ng-click="OpenMachinePopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Machine</button>
 
-                                </li>
-                            </ul>
-                        </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
+            </div>
+            <div class="table-responsive modal-table" ng-show="ParameterMachineList.length>0">
+                <table class="table table-responsive table-striped">
+                    <thead>
+                        <tr>
+                            <th>Parameter Setup</th>
+                            <th>Machine</th>
+                            <th>Category</th>
+                            <th>Sub Category</th>
+                            <th>Remove</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in ParameterMachineList">
+                            <td>
+                                {{x.ParameterSetup}}
+                            </td>
+                            <td>
+                                {{x.Machine}}
+                            </td>
+                            <td>
+                                {{x.Category}}
+                            </td>
+
+                            <td>
+                                {{x.SubCategory}}
+                            </td>
+
+                            <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
 
             </div>
+        </div>
             @*   TAB -4 CLOSE   *@
 
             @*  TAB - 5   *@
