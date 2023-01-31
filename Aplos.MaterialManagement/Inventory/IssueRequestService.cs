@@ -333,7 +333,7 @@ namespace Library.MaterialManagement.Products
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                if (machinepopUpDataList.Count > 0)
+                if (machinepopUpDataList != null)
                 {
                     SaveIssueMaterailMachineAllocation(machinepopUpDataList);
                 }
