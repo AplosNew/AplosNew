@@ -9,6 +9,7 @@ namespace Library.MaterialManagement.Inventory
     public interface IPOMaterialService : IService<POMaterial>
     {
         GridModel QueryForPurchaseOrderDetail(GridParameter parameters, string inveReveiveId);
+        IEnumerable<object> GetPOTaxUpdateList(string poId);
         GridModel GetPOBOQMAPList(GridParameter parameters, string inveReveiveId);
         GridModel Query(GridParameter parameters, string inveReveiveId);
 

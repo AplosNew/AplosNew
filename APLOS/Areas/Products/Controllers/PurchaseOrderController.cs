@@ -644,6 +644,11 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_inventoryMaterialService.QueryForPurchaseOrderDetail(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetPOTaxListForUpdate( string poId)
+        {
+            return Json(_inventoryMaterialService.GetPOTaxUpdateList(poId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetPOBOQMAPList(GridParameter parameters, string inveReveiveId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
