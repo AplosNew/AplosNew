@@ -1084,7 +1084,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                     WHERE LT.GroupID='" + companyGroupId + @"' AND E.CompanyId='" + companyId + @"' -- AND LT.PlantID='" + plantId + @"'
                                     AND LT.EmpSystemID='" + employeeId + @"'
                                     AND L.LeaveType<>'Maternity' AND (LT.FromDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
-                                    OR LT.ToDate BETWEEN '" + fromDate + @"' AND '" + toDate + "')";
+                                    OR LT.ToDate BETWEEN '" + fromDate + @"' AND '" + toDate + "') Order by LT.FromDate DESC";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

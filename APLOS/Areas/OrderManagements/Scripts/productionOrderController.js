@@ -665,8 +665,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
                         $scope.btndisable = false;
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
                         ShowResult(response.data.Message, 'success');

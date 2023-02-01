@@ -254,34 +254,14 @@ namespace Library.MaterialManagement.Products
                         {
                             //InsertGraph(receiveDetail); AuditService.UpdatedLog(receiveDetail);
 
+
                             if (string.IsNullOrEmpty(itemDetail.InventoryMaterialId))
                             {
-                                InventoryMaterialViewModel inventoryMaterial = new InventoryMaterialViewModel();
+                                var inventoryMaterialData= _inventoryMaterialMasterService.Query(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId &&
+                               r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId).Select(r => r.Id).FirstOrDefault();                                                            
 
-                                inventoryMaterial.Id = null;
-                                inventoryMaterial.CountryId = itemDetail.CountryId;
-                                inventoryMaterial.CompanyGroupId = identity.CompanyGroupId;
-                                inventoryMaterial.CompanyId = identity.CompanyId;
-                                inventoryMaterial.PlantId = identity.PlantId;
-                                inventoryMaterial.MaterialStorageId = null;
-                                inventoryMaterial.OpeningBalanceId = null;
-                                inventoryMaterial.MaterialMasterId = itemDetail.MaterialMasterId;
-                                inventoryMaterial.ArticleId = itemDetail.ArticleId;
-                                inventoryMaterial.FirstCharacteristicsId = itemDetail.FirstCharacteristicsId;
-                                inventoryMaterial.FirstCharacteristicsValueId = itemDetail.FirstCharacteristicsValueId;
-                                inventoryMaterial.SecondCharacteristicsId = itemDetail.SecondCharacteristicsId;
-                                inventoryMaterial.SecondCharacteristicsValueId = itemDetail.SecondCharacteristicsValueId;
-                                inventoryMaterial.ThirdCharacteristicsId = itemDetail.ThirdCharacteristicsId;
-                                inventoryMaterial.ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId;
-                                inventoryMaterial.TotalQty = 0;
-                                inventoryMaterial.AvgRate = 0;
-                                inventoryMaterial.ShortageQty = 0;
-                                inventoryMaterial.RejectionQty = 0;
-                                inventoryMaterial.ApprovedQty = 0;
-                                
-
-                                _inventoryMaterialMasterService.InsertOrUpdateFromReceive(inventoryMaterial);
-                                IssueRequstD.InventoryMaterialId = inventoryMaterial.InventoryMaterialId;
+                               
+                                IssueRequstD.InventoryMaterialId = inventoryMaterialData;
                             }
 
                             AuditService.AddedLog(IssueRequstD);
@@ -296,7 +276,7 @@ namespace Library.MaterialManagement.Products
                             SalesOrderId = itemDetail.SalesOrderId;
                             TransactionUoMId = IssueRequstD.TransactionUoMId;
                             
-                            if (machinepopUpDataList.Count > 0)
+                            if (machinepopUpDataList!=null)
                             {
                                 foreach (var item in machinepopUpDataList.Where(r => r["MaterialMasterId"].ToString() == itemDetail.MaterialMasterId
                                                             && r["ArticleId"].ToString() == itemDetail.ArticleId
@@ -353,7 +333,7 @@ namespace Library.MaterialManagement.Products
                 _unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
-                if (machinepopUpDataList.Count > 0)
+                if (machinepopUpDataList != null)
                 {
                     SaveIssueMaterailMachineAllocation(machinepopUpDataList);
                 }
@@ -392,7 +372,7 @@ namespace Library.MaterialManagement.Products
                         DataView dv = new DataView(dsMaster.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'"; if (dv.Count == 0)
                         {
-                            ccount++; string id = MakePK(_Id, ccount, 2);
+                            ccount++; string id = MakePK(item["IssueRequestId"].ToString(), ccount, 2);
                             item["Id"] = id;
                            materialCommonService.AddNewRowD(dsMaster.Tables[0], item);
                         }
