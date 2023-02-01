@@ -1,10 +1,19 @@
 ﻿'use strict';
 MaterialIssueReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function MaterialIssueReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = 'Material Issue Report';
+    $rootScope.title = 'Material Control Report';
     $scope.TransactionList = [];
     $scope.path = 'Materials/MaterialIssueReport/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.filters = [];
     $scope.getFiltersData = function () {
@@ -72,9 +81,11 @@ function MaterialIssueReportController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.GetTransactionData = function () {
+        $scope.filterComplete();
         $http({
-            method: 'Get',
+            method: 'POST',
             url: $scope.path + 'GetTransactionData',
+            data: { 'parameters': $scope.parameters },
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.TransactionList = resp.data;
@@ -85,14 +96,20 @@ function MaterialIssueReportController(cboService, commonMessage, $scope, $rootS
 
 
     $scope.PrintReport = function () {
-
-        $scope.filterComplete();
         $scope.fileName = "MaterialIssueReport.xlsx";
+        var dataList = [];
+       
+        var g = $("#GridEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
+        if (dataList.length == 0) {
+            dataList = $scope.TransactionList;
+        }
+   
         $http({
             method: 'POST',
             url: $scope.path + "GetReport",
-            data: { 'parameters': $scope.parameters},
+            data: { 'data': dataList},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
