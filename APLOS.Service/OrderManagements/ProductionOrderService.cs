@@ -95,11 +95,19 @@ namespace Library.Service.OrderManagements
             var flag = false;
             try
             {
-                
-                bplib.clsGenID objID = new bplib.clsGenID();
-                objID.GenerateIDMaxYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrder", out string systemid);
-                master.Id = DateTime.Now.ToString("yy")+ systemid.ToString().PadLeft(4,"0".ToString()[0]);
+                //old
+                string systemid = "";
+                //bplib.clsGenID objID = new bplib.clsGenID();
+                //objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out systemid);
 
+                systemid = GetAutoNumber(nameof(ProductionOrder), PKGeneratorEnum.Auto, null, DateTime.Now);
+
+
+                // new 
+                //bplib.clsGenID objID = new bplib.clsGenID();
+                //objID.GenerateIDMaxYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrder", out string systemid);
+                //master.Id = DateTime.Now.ToString("yy")+ systemid.ToString().PadLeft(4,"0".ToString()[0]);
+                master.Id = systemid;
                 base.InsertGraph(master);
                 InsertUpdateOrDeleteGraph(master.Id, detaillist);
                 InsertUpdateOrDeleteGraph(master.Id, processSetlist);

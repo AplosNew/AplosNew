@@ -52,7 +52,7 @@ namespace Aplos.Areas.Attendances.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = stringAttendanceData(employeeid, fromdate, todate);
             string shiftSQL = @" SELECT * FROM ShiftDefination AS sd WHERE sd.PlantID='" + identity.PlantId + @"'";
-            var jsondata = Json(new { data = _sqlRepository.GetModelCollection<AttendanceRawDataFromApp>(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
+            var jsondata = Json(new { data = _sqlRepository.GetDataCollection(sql), shift = _sqlRepository.GetDataCollection(shiftSQL) }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -119,7 +119,7 @@ namespace Aplos.Areas.Attendances.Controllers
             }
             return @" SELECT convert(bit, 0) AS Active,
                             kk.Id,kk.EmployeeCode,E.UserName as Entity,
-                            emp.EmployeeName,isnull(s.UserName,'') AS Section,isnull(ss.UserName,'') AS SubSection,isnull(d.UserName,'') AS Designation,isnull(dept.UserName,'') AS Department,
+                            emp.EmployeeName,isnull(s.UserName,'') AS Section,isnull(ss.UserName,'') AS SubSection,isnull(d.UserName,'') AS Designation,isnull(dept.UserName,'') AS Department,kk.Unit,
                             format(KK.WorkDate,'ddd') AS DayName, 
                             format(KK.WorkDate,'dd-MMM-yyyy') AS WorkDate, 
                             kk.ShiftName,KK.ShiftSystemID AS ShiftSystemIDOriginal,
@@ -155,13 +155,14 @@ namespace Aplos.Areas.Attendances.Controllers
 									,FORMAT(app.InTime,'hh:mm tt')InTimeApp
 									,FORMAT(app.OutTime,'dd-MMM-yyyy')OutDateApp
 									,FORMAT(app.OutTime,'hh:mm tt')OutTimeApp
+                                    ,U.UserName Unit
 
 		                            FROM EmployeeInformation EMP
 		                            LEFT JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID 
                                     LEFT JOIN AttdnRawDataFromApp app ON o.EmpSystemID=app.EmployeeId and app.PDate = o.WorkDate
 		                            LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=o.ShiftSystemID
 		                            LEFT OUTER JOIN ShiftTimeChgMaster AS stcm ON o.WorkDate BETWEEN stcm.FromDate AND stcm.ToDate AND sd.SystemID=stcm.ShiftDefinationID
-                       
+                                    left join ORG.Unit U on U.Id=EMP.UnitId
                             WHERE o.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'" + employeeid + @"
                         ) AS KK
                         LEFT OUTER JOIN ShiftDefination AS sd ON sd.SystemID=kk.ShiftSystemID
@@ -194,7 +195,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             PR.UserName PositionName,
                             DEPT.UserName Department,S.UserName Section,
                             EMP.SectionId,SS.UserName SubSection
-                            ,PL.UserName Plant
+                            ,PL.UserName Plant,U.UserName Unit
                             FROM EmployeeInformation EMP
                             INNER JOIN AttdnProcessData O ON EMP.SystemID=o.EmpSystemID
                             LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -206,7 +207,7 @@ namespace Aplos.Areas.Attendances.Controllers
                             LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-    
+                            left join ORG.Unit U on U.Id=EMP.UnitId
                         WHERE emp.PlantId='" + identity.PlantId + @"' AND o.WorkDate BETWEEN '" + fromdate + @"' AND '" + todate + @"'
                          order by EmployeeCodePreFix,EmployeeCodeNumeric ";
 
