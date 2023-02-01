@@ -25,7 +25,7 @@
                 <label class="col-sm-4 control-label">Employee Category</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.EmployeeCategoryId" required name="Employee Category Id"
+                        <select class="form-control" ng-model="ModelNew.EmployeecategoryId" required name="Employee Category Id"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in EmpCategoryList" value="{{option.Value}}">{{option.Text}}</option>
@@ -42,6 +42,9 @@
                         <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" required readonly>
                         <span class="input-group-btn">
                             <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="ClearEmployeePopup()" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
                         </span>
                     </div>
                 </div>
@@ -68,6 +71,9 @@
                         <input type="text" name="Responsible Person" ng-model="ModelNew.TeamLeader" class="form-control" required readonly>
                         <span class="input-group-btn">
                             <button name="submit" ng-click="OpenTeamLeaderPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="ClearTeamLeaderPopUp()" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
                         </span>
                     </div>
                 </div>
@@ -160,9 +166,11 @@
                  e-detailsdatabound="detailgrid">
                 <div e-columns>                    
                     <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
-                    <div e-column e-field="FromDate" e-headertext="From Date" e-width="250"></div>
-                    <div e-column e-field="ToDate" e-headertext="To Date" e-width="130"></div>
-                    <div e-column e-field="InStatus" e-headertext="InStatus" e-width="130"></div>
+                    <div e-column e-field="UserId" e-headertext="User Code" e-width="50"></div>
+                    <div e-column e-field="User" e-headertext="User" e-width="50"></div>
+                    <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
+                    <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
+                    <div e-column e-field="InStatus" e-headertext="InStatus" e-width="50"></div>
                     
                 </div>
             </div>      

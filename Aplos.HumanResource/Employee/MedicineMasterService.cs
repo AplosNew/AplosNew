@@ -839,12 +839,14 @@ left join ORG.Plant PL on PL.Id = MR.PartyId
 order by MRC.ExpiryDate";*/
 
                 var str = @"select isnull(sum(MRC.Amount),0)Amount, MR.PartyId, P.UserName PartyName, P.Code PartyCode, MR.InvoiceNumber
-, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, MR.Id, MR.PlantId, PL.StandardName PlantName 
+, FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate, MR.Id, MR.PlantId, PL.StandardName PlantName , MR.IsActive
 from TRN.MedicineReceiptChild MRC
 left join TRN.MedicineReceipt MR on MR.Id = MRC.MedicineReceiptId
 left join HKP.Party P on P.Id = MR.PartyId
 left join ORG.Plant PL on PL.Id = MR.PlantId
-Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id, MR.PlantId, PL.StandardName";
+where MR.IsActive = 1
+Group By MR.PartyId, P.UserName, P.Code, MR.InvoiceNumber, MR.InvoiceDate, MR.Id, MR.PlantId, PL.StandardName, MR.IsActive
+";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1811,8 +1813,8 @@ LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
                 {
                     SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, 
 DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
-UN.UserName Entity,
-EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation, x.Quantity,
+UN.UserName Entity, ML.NoOfVisits
+,EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation, x.Quantity,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
 LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
@@ -1860,14 +1862,14 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
-"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy, EMP.SystemId";
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy, EMP.SystemId, ML.NoOfVisits";
                 }
                 else
                 {
                     SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, 
 DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
-UN.UserName Entity,
-EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation,
+UN.UserName Entity, ML.NoOfVisits
+,EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
 LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
@@ -1915,7 +1917,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus = 'Active'" +
-"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy, EMP.SystemId";
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName ,ML.AddedBy, EMP.SystemId, ML.NoOfVisits";
                 }
 
 
@@ -1958,8 +1960,8 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
                 {
                     SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, 
 DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
-UN.UserName Entity,
-EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation, x.Quantity,
+UN.UserName Entity, ML.NoOfVisits
+,EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation, x.Quantity,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
 LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
@@ -1975,6 +1977,7 @@ LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 where ESM.MedicalLogId = ML.Id
 
 FOR XML PATH('')),1,1,'') Medicines,
+
 STUFF((Select ', ' +  CONVERT(VARCHAR(20),ESM.Quantity)
 from TRN.EmployeeSicknessMedicines ESM
 --LEFT JOIN TRN.MedicineReceipt MR on MR.Id = ESM.MedicineReceiptChildId
@@ -2007,14 +2010,14 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.SystemId = '" + empSystemId + "' and EMP.EmployeeStatus = 'Active'" +
-"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy, EMP.SystemId";
+"GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy, EMP.SystemId, ML.NoOfVisits";
                 }
                 else
                 {
                     SQL = @"select distinct x.NoOfDays [Days], ML.Id, FORMAT(ML.Date, 'dd-MMM-yyyy')[Date], EMP.EmployeeCode, 
 DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation,
-UN.UserName Entity,
-EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation,
+UN.UserName Entity, ML.NoOfVisits
+,EMP.EmployeeName, ML.Remarks, GDSG.UserName GivenDesignation,
 STUFF((select ', ' + MC.UserName
 from TRN.EmployeeSickness ES
 LEFT join HKP.MedicinePurpose MP on MP.Id = ES.MedicinePurposeId
@@ -2062,7 +2065,7 @@ LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on x.Id=dm.EmployeeCategoryId
 where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus = 'Active'" +
-    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy, EMP.SystemId";
+    "GROUP BY ML.Id, ML.Date, EMP.EmployeeCode, EMP.EmployeeName, ML.Remarks, x.NoOfDays, DP.UserName, SC.UserName, SBC.UserName, LDSG.UserName, UN.UserName, GDSG.UserName, ML.AddedBy, EMP.SystemId, ML.NoOfVisits";
                 }
                 return _sqlRepository.GetDataTable(SQL);
             }
