@@ -117,7 +117,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Party P ON P.Id=PDA.PartyId
                             LEFT JOIN HKP.PartyPlant PP ON PP.Id=PDA.PartyPlantId
 							LEFT JOIN TRN.Voucher V ON V.Id=PDA.VoucherId
-                            WHERE PDA.VoucherId <>'' AND PDA.PlantId='" + plantId + @"'
+                            WHERE V.Archive=0 AND PDA.VoucherId <>'' AND PDA.PlantId='" + plantId + @"'
                             order by V.PostingDate desc
                             ";
                 return _sqlRepository.GetDataCollection(sql);
@@ -195,7 +195,7 @@ namespace Library.Accounting.Accounts
 							LEFT JOIN(select PurchaseDocAcceptanceId,SUM(ISNULL(MaterialTranAmount,0)) AcceptanceAmount
 							FROM  TRN.PurchaseDocAcceptanceDetail GROUP BY PurchaseDocAcceptanceId) AS PDAS ON PDAS.PurchaseDocAcceptanceId=PDA.id
 							LEFT JOIN TRN.Voucher V ON V.Id=PDAD.VoucherId
-							WHERE PDAD.VoucherId<>'' AND PDA.PlantId='" + plantId + @"'
+							WHERE V.Archive=0 AND PDAD.VoucherId<>'' AND PDA.PlantId='" + plantId + @"'
                             ";
                 return _sqlRepository.GetDataCollection(sql);
             }

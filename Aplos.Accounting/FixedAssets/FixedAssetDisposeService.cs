@@ -830,15 +830,15 @@ namespace Library.Accounting.FixedAssets
                 left join dbo.EmployeeInformation ei on ei.SystemId=frd.EmployeeId
 				left join ORG.Department D on D.Id=ei.DepartmentId
 				left join HKP.Designation DG ON DG.Id=ei.DesignationSystemID
-					LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
+				LEFT JOIN HKP.Party P ON P.Id=FRD.PartyId
 				LEFT JOIN HKP.PartyPlant PP ON PP.Id=FRD.PartyPlantId
-				 JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
-                     LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
-                     LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
+				JOIN TRN.Voucher V ON V.Id=frd.DisposedVoucherId
+                LEFT JOIN SCS.Currency C ON C.Id =frd.CurrencyId
+                LEFT JOIN SCS.Currency BC ON BC.Id =FR.FABaseCurrencyId
                 LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount ,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
-                    where fr.CompanyId='" + companyId+@"'
-                    group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName 
-					,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ,P.UserName , BC.Code ) AS TEMP WHERE "+strkey+ " order by SlNo desc ";
+                where V.Archive=0 AND fr.CompanyId='" + companyId+@"'
+                group by fr.Remarks,fr.[Status],ei.EmployeeName,frd.IsPark,frd.Id,D.UserName 
+				,DG.UserName,V.VoucherNo,V.PostingDate,V.Id,c.Code ,P.UserName , BC.Code ) AS TEMP WHERE "+strkey+ " order by SlNo desc ";
             return _sqlRepository.GetDataCollection(sql);
         }
 

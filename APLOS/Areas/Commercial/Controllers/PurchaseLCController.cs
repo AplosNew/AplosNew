@@ -770,7 +770,7 @@ namespace Aplos.Areas.Commercial.Controllers
                           LEFT JOIN TRN.Voucher V ON V.Id=PLC.VoucherId
 						  LEFT JOIN SCS.Currency C ON C.Id=PL.CurrencyId 
 						  LEFT JOIN HKP.Party P ON P.Id=PL.VendorId
-						  where PLC.VoucherId <>''AND V.SourceType='" + SourceType.PurchaseLCOpeningCharges.ToString() + @"'
+						  where V.Archive=0 AND PLC.VoucherId <>''AND V.SourceType='" + SourceType.PurchaseLCOpeningCharges.ToString() + @"'
 						  group by V.VoucherNo,LC.LCRef,OB.AccountTitle ,PLC.PurchaseLCId, PL.[Version], V.VoucherNo,V.SourceType,c.Code,P.UserName
 						  ,PLC.VoucherId,V.DocRefNo";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

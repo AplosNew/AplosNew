@@ -292,7 +292,8 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
            // sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
             //ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyPlantHeader(ref sheet, endCol, "Medical Log Report", identity.CompanyId, identity.PlantName, null);
+            //reportUtility.CompanyPlantHeader(ref sheet, endCol, "Medical Log Report", identity.CompanyId, identity.PlantName, null);
+            reportUtility.PlantHeader(ref sheet, endCol, "Medical Log Report", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 
             return workbook;
