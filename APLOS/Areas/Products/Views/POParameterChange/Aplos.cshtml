@@ -154,9 +154,9 @@
                                     <th>Sku2</th>
                                     <th>Sku3</th>
                                     <th>CountryName</th>
-                                    <th>Qty</th>
+                                    <th>Trn_Qty</th>
                                     <th>UOM</th>
-                                    <th>Rate</th>
+                                    <th>Trn_Rate</th>
                                     <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TotalAmount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -184,7 +184,7 @@
                                     <td class="text-right" style="width:200px;"><input type="number" name="TransactionRate" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x)" class="form-control"></td>
                                     <td class="text-right" style="width:150px;">{{x.TrnAmount| number:2}}</td>
                                     <td class="text-right" style="width:150px;">{{x.BaseTaxAmount| number:2}}</td>
-                                    <td class="text-right" style="width:150px;">{{x.BaseAmount| number:2}}</td>
+                                    <td class="text-right" style="width:150px;">{{x.TotalAmount| number:2}}</td>
                                     <td>{{x.Description}}</td>
                                     <td>{{x.RefferenceNo}}</td>
                                     <td>{{x.DeliveryDate}}</td>
@@ -203,10 +203,10 @@
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TransactionQty'}}</strong></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:2| number:2}}</strong></td>
                                     <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:2| number:2}}</strong></td>
-                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:2| number:2}}</strong></td>
+                                    <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalAmount'| setDecimal:2| number:2}}</strong></td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>

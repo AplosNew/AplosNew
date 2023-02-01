@@ -1365,7 +1365,7 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN SCS.Currency C ON C.Id=SMC.CurrencyId
 				LEFT JOIN TRN.Invoice IV ON IV.InvoiceServiceMasterChargesId=SMC.Id
 				LEFT JOIN TRN.Voucher V ON V.Id=IV.VoucherId
-                WHERE SMC.IsPark=0
+                WHERE SMC.IsPark=0 AND V.Archive=0
                 group by SMC.Id,P.UserName,C.Code,IV.Id,IV.VoucherId,V.VoucherNo,SMC.Id,SMC.CurrencyId,SMC.CompanyCurrencyRate,SMC.PartyId,SMC.CompanyGroupId,SMC.CompanyId,SMC.PlantId,SMC.PartyPlantId
                  ,SMC.BaseNoOfDays,SMC.BaseOnDueDate,SMC.DeliveryPartyPlantId,SMC.IsNonCreditable,SMC.Narration,SMC.PartyType,SMC.PaymentTermId,SMC.DocDate,SMC.DocRefNo ";
                 return _sqlRepository.GetDataCollection(sql);

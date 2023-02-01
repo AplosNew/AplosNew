@@ -58,19 +58,42 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [Authorize, HttpGet]
-        public ActionResult GetTransactionData()
+        [Authorize, HttpPost]
+        public ActionResult GetTransactionData(Dictionary<string, string> parameters)
         {
-            return Json(clsM.GetTransactionData(), JsonRequestBehavior.AllowGet);
+            return Json(clsM.GetTransactionData(parameters), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetReport(Dictionary<string, string> parameters)
+        public ActionResult GetReport(List<Dictionary<string, object>> data)
         {
             try
             {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
                 string fileName = "";
-                fileName = GetTransactionReport(parameters, "Transaction Report");
+                fileName = GetTransactionReport(dt, "MaterialIssueReport");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -80,7 +103,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         }
 
-        public string GetTransactionReport(Dictionary<string, string> parameters, string SheetName)
+        public string GetTransactionReport(DataTable data, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -89,33 +112,35 @@ namespace Aplos.Areas.Materials.Controllers
             var filePath = "";
             try
             {
-
-
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "TransactionReport";
+                workbook.Worksheets[0].Name = "MaterialControlReport";
                 sheet = workbook.Worksheets[0];
-                DataTable data;
-                clsM.GetTransactionReportSQL(parameters, out data);
+                //DataTable data;
+                //clsM.GetTransactionReportSQL(data, out data);
 
                 int ROW = 6; int COL = 1;
 
                 #region columns
-                sheet[ROW, COL].Text = "POStatus"; sheet[ROW, COL].ColumnWidth = 16; int ColPOStatus = COL; COL++;
-                sheet[ROW, COL].Text = "PONo"; sheet[ROW, COL].ColumnWidth = 16; int ColPOId = COL; COL++;
-                sheet[ROW, COL].Text = "SONo"; sheet[ROW, COL].ColumnWidth = 16; int ColSONo = COL; COL++;
+                sheet[ROW, COL].Text = "PO No"; sheet[ROW, COL].ColumnWidth = 16; int ColPOId = COL; COL++;
+                sheet[ROW, COL].Text = "PO Status"; sheet[ROW, COL].ColumnWidth = 16; int ColPOStatus = COL; COL++;
+                sheet[ROW, COL].Text = "SO No"; sheet[ROW, COL].ColumnWidth = 16; int ColSONo = COL; COL++;
                 sheet[ROW, COL].Text = "Material"; sheet[ROW, COL].ColumnWidth = 16; int ColMaterial = COL; COL++;
                 sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 16; int ColArticle = COL; COL++;
-                sheet[ROW, COL].Text = "NetConsumptionPerUnit"; sheet[ROW, COL].ColumnWidth = 16; int ColNetConsumptionPerUnit = COL; COL++;
-                sheet[ROW, COL].Text = "ValueLoss"; sheet[ROW, COL].ColumnWidth = 16; int ColValueLoss = COL; COL++;
-                sheet[ROW, COL].Text = "GrossConsumption"; sheet[ROW, COL].ColumnWidth = 16; int ColGrossConsumption = COL; COL++;
-                sheet[ROW, COL].Text = "TotalConsumption"; sheet[ROW, COL].ColumnWidth = 16; int ColTotalConsumption = COL; COL++;
-                sheet[ROW, COL].Text = "PlanConsumption"; sheet[ROW, COL].ColumnWidth = 16; int ColPlanConsumption = COL; COL++;
+                sheet[ROW, COL].Text = "Customer"; sheet[ROW, COL].ColumnWidth = 16; int ColCustomer = COL; COL++;
+                sheet[ROW, COL].Text = "Production Code"; sheet[ROW, COL].ColumnWidth = 16; int ColProductionCode = COL; COL++;
+                sheet[ROW, COL].Text = "Buyer"; sheet[ROW, COL].ColumnWidth = 16; int ColBuyer = COL; COL++;
+                sheet[ROW, COL].Text = "Material Category"; sheet[ROW, COL].ColumnWidth = 16; int ColMaterialCategory = COL; COL++;
+                sheet[ROW, COL].Text = "Net Consumption Per Unit"; sheet[ROW, COL].ColumnWidth = 16; int ColNetConsumptionPerUnit = COL; COL++;
+                sheet[ROW, COL].Text = "Value Loss"; sheet[ROW, COL].ColumnWidth = 16; int ColValueLoss = COL; COL++;
+                sheet[ROW, COL].Text = "Gross Consumption"; sheet[ROW, COL].ColumnWidth = 16; int ColGrossConsumption = COL; COL++;
+                sheet[ROW, COL].Text = "Total Consumption"; sheet[ROW, COL].ColumnWidth = 16; int ColTotalConsumption = COL; COL++;
+                sheet[ROW, COL].Text = "Plan Consumption"; sheet[ROW, COL].ColumnWidth = 16; int ColPlanConsumption = COL; COL++;
                 sheet[ROW, COL].Text = "Rate"; sheet[ROW, COL].ColumnWidth = 16; int ColRate = COL; COL++;
-                sheet[ROW, COL].Text = "TotaPlanlAmount"; sheet[ROW, COL].ColumnWidth = 16; int ColTotaPlanlAmount = COL; COL++;
-                sheet[ROW, COL].Text = "RequestedQty"; sheet[ROW, COL].ColumnWidth = 16; int ColRequestedQty = COL; COL++;
-                sheet[ROW, COL].Text = "IssueQty"; sheet[ROW, COL].ColumnWidth = 16; int ColIssueQty = COL; COL++;
+                sheet[ROW, COL].Text = "Total Plan Amount"; sheet[ROW, COL].ColumnWidth = 16; int ColTotaPlanlAmount = COL; COL++;
+                sheet[ROW, COL].Text = "Requested Qty"; sheet[ROW, COL].ColumnWidth = 16; int ColRequestedQty = COL; COL++;
+                sheet[ROW, COL].Text = "Issue Qty"; sheet[ROW, COL].ColumnWidth = 16; int ColIssueQty = COL; COL++;
                 sheet[ROW, COL].Text = "Balance"; sheet[ROW, COL].ColumnWidth = 16; int ColBalance = COL;
                 #endregion columns
 
@@ -133,11 +158,15 @@ namespace Aplos.Areas.Materials.Controllers
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    sheet[ROW, ColPOStatus].Text = data.Rows[i]["POStatus"].ToString();
                     sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
+                    sheet[ROW, ColPOStatus].Text = data.Rows[i]["POStatus"].ToString();
                     sheet[ROW, ColSONo].Text = data.Rows[i]["SalesOrderId"].ToString();
                     sheet[ROW, ColMaterial].Text = data.Rows[i]["MaterialMaster"].ToString();
                     sheet[ROW, ColArticle].Text = data.Rows[i]["QBOQArticle"].ToString();
+                    sheet[ROW, ColCustomer].Text = data.Rows[i]["Customer"].ToString();
+                    sheet[ROW, ColProductionCode].Text = data.Rows[i]["ProductionCode"].ToString();
+                    sheet[ROW, ColBuyer].Text = data.Rows[i]["Buyer"].ToString();
+                    sheet[ROW, ColMaterialCategory].Text = data.Rows[i]["MaterialCategory"].ToString();
                     sheet[ROW, ColNetConsumptionPerUnit].Text = data.Rows[i]["NetConsumptionPerUnit"].ToString();
                     sheet[ROW, ColValueLoss].Text = data.Rows[i]["ValueLoss"].ToString();
                     sheet[ROW, ColGrossConsumption].Text = data.Rows[i]["GrossConsumption"].ToString();
@@ -163,7 +192,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Material Control Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;

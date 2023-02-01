@@ -983,7 +983,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
                                     FROM  TRN.Voucher V 
 									LEFT JOIN (select VoucherId,SUM(DrAmount) Amount from  TRN.VoucherDetail where DrAmount>0 group by VoucherId) VD ON VD.VoucherId=V.Id
                                     LEFT JOIN [SCS].Currency CU ON CU.Id=V.CurrencyId
-                                    WHERE V.SourceType='ExpensesCapitalizeJournal' AND V.PlantId='" + plantId + @"'
+                                    WHERE V.Archive=0 AND V.SourceType='ExpensesCapitalizeJournal' AND V.PlantId='" + plantId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
 
                 return _sqlRepository.GetDataCollection(sql);
