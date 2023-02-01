@@ -117,6 +117,7 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         }
         $scope.ContractWiseData(x.data.ContractId);
         getInventoryMaterialList($scope.Id);
+        $scope.GetPOTaxUpdate($scope.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
@@ -127,19 +128,18 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         $scope.inventoryMaterialList = [];
         $http.get('Products/PurchaseOrder/GetInventoryMaterialList?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
-
                 $scope.inventoryMaterialList = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName desc"));//response.data.Rows;
-                ////var dataManagerObj = ej.DataManager(response.data.Rows).executeLocal(ej.Query().sortBy("UserName ASC"));
-                //$scope.DetailId = $scope.inventoryMaterialList[0].InventoryReceiveDetailId;
-                //$scope.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-                //$scope.productNew.InvoicingPartyPlantId = $scope.inventoryMaterialList[0].InvoicingPartyPlantId;
-                //$scope.productNew.InvoicingStateId = $scope.inventoryMaterialList[0].InvoicingStateId;
-                //$scope.productNew.PlantStateId = $scope.inventoryMaterialList[0].PlantStateId;
-                //checkSameValueInColumnList($scope.inventoryMaterialList, 'TransactionUoM');
-                //getGrossAmount($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
-                //$scope.GetSalesTaxData();
             });
 
+    }
+    $scope.POTaxUpdateList = [];
+    $scope.GetPOTaxUpdate = function (poId) {
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetPOTaxListForUpdate?poId=' + poId
+        }).then(function successCallback(response) {
+            $scope.POTaxUpdateList = response.data;
+        });
     }
 
     $scope.tab = 1;
@@ -465,4 +465,30 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         }
     };
 
+    $scope.calculateAmount = function (data) {
+
+        data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
+        if (data.TransactionRate === 'NaN')
+            data.TransactionRate = 0;
+        if (data.TrnAmount === 'NaN')
+            data.TrnAmount = 0;
+        data.TaxAmount = 0;
+        data.BaseTaxAmount = 0;
+
+        for (var i = 0; i < $scope.POTaxUpdateList.length; i++) {
+            if ($scope.POTaxUpdateList[i].InventoryReceiveDetailId == data.Id) {
+                $scope.POTaxUpdateList[i].TaxAmount = (data.TrnAmount * $scope.POTaxUpdateList.Percentage) / 100;
+                data.BaseTaxAmount += $scope.POTaxUpdateList[i].TaxAmount;
+            }
+        }
+        if ($scope.productNew.IsNonCreditable == 1) {
+            if (data.BaseTaxAmount === null) {
+                data.BaseTaxAmount = '0.00';
+            }
+            data.BaseAmount = parseFloat(data.TrnAmount + data.BaseTaxAmount);
+        }
+        else {
+            data.BaseAmount = data.TrnAmount;
+        }
+    };
 }

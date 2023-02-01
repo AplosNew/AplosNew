@@ -180,6 +180,11 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
+        public IEnumerable<object> GetPOTaxUpdateList(string poId)
+        {
+            var sql = @"select * from trn.PurchaseOrderTax where InventoryReceiveId='"+ poId + @"' and InventoryServiceId is null";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         public GridModel GetPOBOQMAPList(GridParameter parameters, string inveReveiveId)
         {
             try
