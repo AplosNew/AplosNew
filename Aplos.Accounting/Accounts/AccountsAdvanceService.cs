@@ -438,7 +438,7 @@ namespace Library.Accounting.Accounts
 								 LEFT JOIN ORG.Plant PL ON PL.Id=VV.PlantId where PlantId<>'') AS VD ON VD.VoucherId=A.VoucherId
 								 LEFT JOIN ORG.Company CO ON CO.Id=VD.CompanyId
                                  LEFT JOIN [TRN].[BankCharge] AS BC ON BC.AdvanceId=A.Id
-                                WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + SourceType.InterTransaction + "'";
+                                WHERE A.OpeningBalanceId IS NULL AND A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + SourceType.InterTransaction + "'";
             return _sqlRepository.GetGridData(parameters);
         }
         public IEnumerable<object> GetAvailableAdvanceByVendor(string companyGroupId, string companyId, string plantId, SourceType sourceType,string vendorId)
