@@ -1,4 +1,5 @@
 ﻿using Aplos.Controllers;
+using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -138,11 +139,11 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateDetail(PurchaseOrderDetail entity)
+        public JsonResult UpdateDetail(PurchaseOrderDetail entity, List<Dictionary<string, object>> poTaxList)
         {
             try
             {
-                UpdateDetailData(entity);
+                UpdateDetailData(entity, poTaxList);
                 return Json(new { entity, Message = AplosMessage.Updated });
             }
             catch (Exception ex)
@@ -151,17 +152,21 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        private void UpdateDetailData(PurchaseOrderDetail data)
+        private void UpdateDetailData(PurchaseOrderDetail data, List<Dictionary<string, object>> poTaxList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
+            DataSet dsPOTax;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
             {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 string sql = "SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE Id='" + data.Id + "'";
+                string poTaxsql = "SELECT * FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter(poTaxsql, out dsPOTax, false, "1");
 
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
@@ -170,6 +175,12 @@ namespace Aplos.Areas.Products.Controllers
                     dr.BeginEdit();
                     
                     dr["Tolerance"] = data.Tolerance;
+                    dr["TransactionRate"] = data.TransactionRate;
+                    dr["TransactionAmount"] = data.TransactionAmount;
+                    dr["TransactionQty"] = data.TransactionQty;
+                    dr["TotalTaxAmount"] = data.TotalTaxAmount;
+                    dr["BaseQty"] = data.BaseQty;
+                    dr["BaseAmount"] = data.BaseAmount;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -178,8 +189,22 @@ namespace Aplos.Areas.Products.Controllers
                     dr.EndEdit();
                 }
 
+                if (poTaxList != null)
+                {
+                    foreach (var item in poTaxList)
+                    {
+                        DataView dv = new DataView(dsPOTax.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count >0)
+                        {
+                            DataRow dr = dv[0].Row;
+                            materialCommonService.EditRowD(dr, item);
+                        }
+                    }
+                }
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+                obj.SaveDataSets(dsMaster, dsPOTax);
             }
             catch (Exception ex)
             {

@@ -366,14 +366,24 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
             ShowResult(e, "failure");
         }
     };
-
+    $scope.temptaxlist = [];
+    function taxforUpdate(data) {
+        for (var i = 0; i < $scope.POTaxUpdateList.length; i++) {
+            if ($scope.POTaxUpdateList[i].InventoryReceiveDetailId == data.Id) {
+                $scope.temptaxlist.push($scope.POTaxUpdateList[i]);
+            }
+        }
+    }
     $scope.UpdateDetail = function (data) {
+        $scope.temptaxlist = [];
+        taxforUpdate(data);
         try {
                 $http({
                     method: 'POST',
                     url: 'Products/POParameterChange/UpdateDetail',
                     data: {
                         'entity': data,
+                        'poTaxList': $scope.temptaxlist,
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -468,27 +478,35 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
     $scope.calculateAmount = function (data) {
 
         data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
+        data.BaseQty = (data.TransactionQty * data.BaseUoMFactor);
         if (data.TransactionRate === 'NaN')
             data.TransactionRate = 0;
         if (data.TrnAmount === 'NaN')
             data.TrnAmount = 0;
         data.TaxAmount = 0;
         data.BaseTaxAmount = 0;
+        data.TotalTaxAmount = 0;
 
         for (var i = 0; i < $scope.POTaxUpdateList.length; i++) {
             if ($scope.POTaxUpdateList[i].InventoryReceiveDetailId == data.Id) {
-                $scope.POTaxUpdateList[i].TaxAmount = (data.TrnAmount * $scope.POTaxUpdateList.Percentage) / 100;
+                $scope.POTaxUpdateList[i].TaxAmount = (data.TrnAmount * $scope.POTaxUpdateList[i].Percentage) / 100;
                 data.BaseTaxAmount += $scope.POTaxUpdateList[i].TaxAmount;
+                data.TaxAmount += $scope.POTaxUpdateList[i].TaxAmount;
+                data.TotalTaxAmount += $scope.POTaxUpdateList[i].TaxAmount;
             }
         }
         if ($scope.productNew.IsNonCreditable == 1) {
             if (data.BaseTaxAmount === null) {
                 data.BaseTaxAmount = '0.00';
             }
-            data.BaseAmount = parseFloat(data.TrnAmount + data.BaseTaxAmount);
+            data.BaseAmount = parseFloat(data.TrnAmount) + data.BaseTaxAmount;
+            data.TransactionAmount = parseFloat(data.TrnAmount) + data.BaseTaxAmount;
         }
         else {
             data.BaseAmount = data.TrnAmount;
+            data.TransactionAmount = data.TrnAmount;
         }
+        data.TotalAmount = parseFloat(data.TransactionAmount) + data.BaseTaxAmount;
+        $scope.productNew.TransactionAmount = Math.round($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "TotalAmount") * 1000 + Number.EPSILON) / 1000;
     };
 }
