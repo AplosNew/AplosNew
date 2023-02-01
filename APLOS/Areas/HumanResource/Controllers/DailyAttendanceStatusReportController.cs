@@ -96,15 +96,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select FORMAT(DAF.FromDate, 'dd-MMM-yyyy') FromDate, FORMAT(DAF.ToDate, 'dd-MMM-yyyy') ToDate, DAF.InStatus, DAF.EmployeeStatus ,U.FullName, DAF.FavoriteFilteruserId, DAF.ShiftDefinationId
+                var sql = @"select FORMAT(DAF.FromDate, 'dd-MMM-yyyy') FromDate, FORMAT(DAF.ToDate, 'dd-MMM-yyyy') ToDate, DAF.InStatus, DAF.EmployeeStatus ,U.FullName [User], DAF.FavoriteFilteruserId UserId, DAF.ShiftDefinationId
 , DAF.EmployeecategoryId, DAF.TeamLeaderId, DAF.ResponsiblePersonId
 from[TRN].[DailyAttendanceFavoriteFilter] DAF
-left join[SEC].[User] U on U.Id = DAF.Id
+left join [SEC].[User] U on U.Id = DAF.FavoriteFilteruserId
 left join ShiftDefination SD ON SD.SystemID = DAF.ShiftDefinationId
 left join HKP.EmployeeCategory EC on EC.Id = DAF.EmployeecategoryId
 left join EmployeeInformation EI on EI.SystemId = DAF.TeamLeaderId
 left join EmployeeInformation EI2 on EI2.SystemId = DAF.ResponsiblePersonId
-where DAF.FavoriteFilteruserId = '"+ identity .UserId+ "'";
+where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
