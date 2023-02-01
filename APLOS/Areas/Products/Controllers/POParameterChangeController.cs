@@ -2,6 +2,7 @@
 using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.MaterialManagement.Inventory;
 using Library.Model.Inventory;
@@ -171,7 +172,10 @@ namespace Aplos.Areas.Products.Controllers
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-
+                    if (Convert.ToDecimal(dr["GRNRcvQty"].ToString()) > 0)
+                    {
+                        throw new CustomException(@"GRN have been created against this PO.  PO Update is not allow !!!");
+                    }
                     dr.BeginEdit();
                     
                     dr["Tolerance"] = data.Tolerance;
