@@ -1044,7 +1044,7 @@
                                         <a ng-click="addMachine();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
                                     </td>
                                 </tr>
-                                <tr ng-repeat="x in machineQtyList">
+                                <tr ng-repeat="x in machineQtyList| filter:{  MaterialMasterId:tempMaterialMasterId}">
                                     <td>{{x.MachineName}}</td>
                                     <td>{{x.Qty}}</td>
                                     <td class="text-right">{{x.Remarks}}</td>

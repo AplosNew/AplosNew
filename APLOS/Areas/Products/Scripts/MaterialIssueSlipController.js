@@ -2352,9 +2352,20 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
     $scope.getMachineInventoryIssueStock = function (data) {
         $scope.selectedMaterialRow = data;
+        $scope.tempMaterialMasterId = data.MaterialMasterId;
         angular.element(document.querySelector('#ShowMachineInventoryIssue')).modal('show');
     }
     $scope.GetPopUpMachineInventoryIssueClosed = function () {
+            $scope.Qty = 0;
+        for (var i = 0; i < $scope.machineQtyList.length; i++) {
+            $scope.Qty += $scope.machineQtyList[i].Qty;
+        }
+        if ($scope.selectedMaterialRow.RequestedQty != $scope.Qty) {
+            ShowResult('Quantity had must same value as Required Qty!', 'failure');
+            return false;
+        }
+
+
         angular.element(document.querySelector('#ShowMachineInventoryIssue')).modal('hide');
     }
 

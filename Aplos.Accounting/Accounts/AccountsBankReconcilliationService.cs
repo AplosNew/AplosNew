@@ -362,7 +362,7 @@ namespace Library.Accounting.Accounts
                                        WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' )
                                        AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
                                        AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
-                                       AND VD.DrAmount<>0.0000 
+                                       AND VD.DrAmount<>0.0000 AND V.Archive=0
                                        AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) "; 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -394,7 +394,7 @@ namespace Library.Accounting.Accounts
                                        WHERE VD.Id IN(SELECT VoucherDetailId FROM TRN.GLTransactionDetail WHERE BankMasterId='" + bankMasterId + @"' )
                                        AND V.CompanyGroupId='" + companyGroupId + @"' AND V.CompanyId='" + companyId + @"' AND V.IsPark=0
                                        AND VD.BankMasterId='" + bankMasterId + @"'  AND V.PostingDate BETWEEN CONVERT(DATE,'" + fromDate + @"') AND CONVERT(DATE,'" + toDate + @"')
-                                       AND VD.CrAmount<>0.0000 
+                                       AND VD.CrAmount<>0.0000 AND V.Archive=0
                                        AND VD.Id NOT IN(select VoucherDetailId from TRN.BankReconciliationMap) ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -602,7 +602,7 @@ namespace Library.Accounting.Accounts
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
 								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
-                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                WHERE V.Archive=0 AND BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
                                 AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.CrAmount>0  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -646,7 +646,7 @@ namespace Library.Accounting.Accounts
                                 INNER JOIN TRN.BankReconciliationUpload BRU ON BRU.Id=BRUD.BankReconciliationUploadId
                                 INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
 								INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
-                                WHERE BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
+                                WHERE V.Archive=0 AND BRUD.CompanyGroupId='" + companyGroupId + "' AND BRUD.CompanyId='" + companyId + "' AND BRUD.PlantId='" + plantId + "'  AND BRU.BankMasterId='" + bankMasterId + @"' 
                                 AND BankStatementDate BETWEEN CONVERT(DATE,'" + fromDate + "') AND CONVERT(DATE,'" + toDate + @"') AND BRUD.DrAmount>0  ";
                 return _sqlRepository.GetDataCollection(sql);
             }
