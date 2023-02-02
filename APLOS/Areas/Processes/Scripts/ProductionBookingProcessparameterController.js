@@ -15,7 +15,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.Model = { Id: null, ProcessId: null, InputItemName: null, InputItemUoMId: null, OutputItemName: null, OutputItemUoMId: null, InPutOutPutRatio: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.ModelNew = Object.assign({}, $scope.Model);
 
-    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, IsPreviousValueApplicable:true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.ModelQuality = { Id: null, ProcessId: null, ProductionBookingProcessParameterId: null, ItemName: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
@@ -585,7 +585,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     $scope.ProductionAction = 'Save';
     $scope.Clear = function () {
-        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, IsPreviousValueApplicable:true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.ProductionAction = 'Save';
         $scope.GetSequence();
