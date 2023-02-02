@@ -52,7 +52,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         InStatus:null,
         FromDate:null,
         ToDate: null,
-        EmployeeCategoryId: null,
+        EmployeecategoryId: null,
         TeamLeaderId:null,
         EmpSystemId:null,
         ShiftId:null,
@@ -65,6 +65,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         $scope.ModelNew = Object.assign({}, args.data); 
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
+           /* $scope.GetEmployeeCategory();*/
             $rootScope.toggle(); 
             $scope.GetDailyAttendanceStatus();
         }
@@ -267,6 +268,34 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
             FavoriteFilteruserId: null
         };
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+        
+    }
+    $scope.ClearEmployeePopup = function () {
+        ClearEmployeePopFields();
+        return true;
+    };
+    function ClearEmployeePopFields() {
+
+
+
+        $scope.ModelNew.EmpSystemId = null;
+
+        $scope.ModelNew.EmployeeName = null;
+
+
+    }
+    $scope.ClearTeamLeaderPopUp = function () {
+        ClearTeamLeaderPopUpFields();
+        return true;
+    }
+    function ClearTeamLeaderPopUpFields() {
+
+
+
+        $scope.ModelNew.TeamLeader = null;
+
+        $scope.ModelNew.TeamLeaderId = null;
 
 
     }

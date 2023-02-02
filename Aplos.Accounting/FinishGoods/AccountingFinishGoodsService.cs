@@ -322,7 +322,7 @@ namespace Library.Accounting.FixedAssets
 					 FROM TRN.InventoryReceiveDetail AS A  GROUP BY A.InventoryReceiveId) AS  IRD ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
                     LEFT JOIN SCS.Currency C ON C.Id=Ir.CurrencyId
-					WHERE IR.VoucherId<>'' AND IR.PlantId='" + plantId + @"'";
+					WHERE V.Archive=0 AND IR.VoucherId<>'' AND IR.PlantId='" + plantId + @"'";
             return _sqlRepository.GetDataCollection(sql);
         }
         //vendor invoice header data old & NEW

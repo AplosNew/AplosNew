@@ -169,6 +169,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColQuantity = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "No of Visits", 10, ExcelHAlign.HAlignCenter);
+            int ColNoofVisits = COL;
+            COL++;
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 30, ExcelHAlign.HAlignCenter);
             int ColRemarks = COL;
@@ -231,11 +235,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
                 sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
                 sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
-                sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
+                sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColSicknessName].Text = data.Rows[i]["Sickness"].ToString();
                 sheet[ROW, ColMedicines].Text = data.Rows[i]["Medicines"].ToString();
                 sheet[ROW, ColSDays].Number = clsStaticInfo.dbl(data.Rows[i]["Days"].ToString());
+                sheet[ROW, ColNoofVisits].Number = clsStaticInfo.dbl(data.Rows[i]["NoOfVisits"].ToString());
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                 sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
@@ -275,7 +280,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.PageSetup.TopMargin = 0.2;
             sheet.PageSetup.BottomMargin = 0.8;
             //sheet.PageSetup.PrintTitleRows = "$1:$6";
-            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.LeftMargin = 1.2;
             sheet.PageSetup.RightMargin = 0.2;
             sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
             sheet.PageSetup.FitToPagesTall = 0;
@@ -285,8 +290,10 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
             sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+           // sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
             //ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "Medical Log Report", identity.CompanyId);
+            //reportUtility.CompanyPlantHeader(ref sheet, endCol, "Medical Log Report", identity.CompanyId, identity.PlantName, null);
+            reportUtility.PlantHeader(ref sheet, endCol, "Medical Log Report", identity.PlantId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 
             return workbook;

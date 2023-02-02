@@ -787,9 +787,9 @@ Where SO.Id " + soId + "";
             }
         }
 
-        public IEnumerable<object> GetTransactionData()
+        public IEnumerable<object> GetTransactionData(Dictionary<string, string> parameters)
         {
-            var str = @"SELECT D.Id MaterialIssueControlDetailId,D.MaterialIssueControlMasterId,MIC.POId,POD.SalesOrderId,D.CostingItemId,D.NetConsumptionPerUnit,D.ValueLoss,D.GrossConsumption,D.TotalConsumption,D.AdditionReduction
+            var str = @"SELECT D.Id MaterialIssueControlDetailId,D.MaterialIssueControlMasterId,MIC.POId,POD.SalesOrderId,D.CostingItemId,D.NetConsumptionPerUnit,D.ValueLoss,D.GrossConsumption,D.TotalConsumption,D.AdditionReduction,PS.UserName POStatus
                 ,D.PlanConsumption,D.Rate,D.TotaPlanlAmount,ISNULL(IR.RequestedQty,0) RequestedQty,ISNULL(IR.IssueQty,0) IssueQty,Balance=ISNULL(IR.RequestedQty,0) -ISNULL(IR.IssueQty,0),D.PlanConsumption-ISNULL(IR.RequestedQty,0) StockQty,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks,D.AddedBy,D.AddedDate,D.AddedFromIP
                 ,I.UserName Item,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
                 ,M.UserName MaterialMaster,um.Code as UoM, um.Id as UoMId, BaseUoMFactor=case when M.BaseUOMId=i.UnitOfMeasurementId then 1 else 1 end
@@ -819,11 +819,11 @@ Where SO.Id " + soId + "";
 				LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 				LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
 				--Where POD.ProductionOrderId IN() AND PS.UserName IN ()
-";
+                Where POD.ProductionOrderId IN(" + parameters["PONo"] + @")  AND PS.UserName IN (" + parameters["POStatus"] + @")";
             return _sqlRepository.GetDataCollection(str);
         }
 
-        public void GetTransactionReportSQL(Dictionary<string, string> parameters, out DataTable data)
+        public void GetTransactionReportSQL(string POId,string POStatus, out DataTable data)
         {
             try
             {
@@ -856,8 +856,7 @@ Where SO.Id " + soId + "";
 				LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
 				LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 				LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
-				Where POD.ProductionOrderId IN(" + parameters["PONo"] + @")  AND PS.UserName IN (" + parameters["POStatus"] + @")
-";
+				Where POD.ProductionOrderId IN (" + POId + @")  AND PS.UserName IN (" + POStatus + @")";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }

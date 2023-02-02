@@ -648,7 +648,7 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                WHERE IV.Archive=0  AND V.Archive=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
                 and IV.PartyId in 	(" + customerSelectedList + @")  AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                 UNION ALL
                 SELECT IV.Id,V.VoucherNo,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo
@@ -699,7 +699,7 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
+                WHERE IV.Archive=0  AND V.Archive=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
                   and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                -- AND IR.PurchaseDocumentAcceptanceId IS NULL
                 
@@ -737,7 +737,7 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
+                WHERE IV.Archive=0 AND V.Archive=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
                  and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                 
 				)
@@ -1271,7 +1271,7 @@ C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserNa
                                     LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
                                     ) AS VD ON VD.VoucherId=V.Id
-where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher','InventoryPayable') ";
+where V.Archive=0 AND V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable','IssueJournal','JournalVoucher','InventoryPayable') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
