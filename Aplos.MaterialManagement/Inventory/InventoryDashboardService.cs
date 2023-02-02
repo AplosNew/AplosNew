@@ -3446,13 +3446,13 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total3Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total3Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 0 and 3
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 		
 
@@ -3473,13 +3473,13 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total5Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total5Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 4 and 5   
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=p.Id
 						Left JOIN(
@@ -3499,13 +3499,13 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0)))Total10Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total10Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 6 and 10 
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	   
 						)Res10 ON Res10.CompanyGroupId=cmpGR.Id  --AND Res10.PlantId=p.Id
 						Left JOIN(
@@ -3524,13 +3524,13 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total15Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total15Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where  DATEDIFF(day,II.IssueDate,getdate()) Between 11 and 15   
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	   
 
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=p.Id
@@ -3550,13 +3550,13 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total20Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total20Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where  DATEDIFF(day,II.IssueDate,getdate()) Between 16 and 20 
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	      
 
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --AND Res20.PlantId=p.Id
@@ -3576,13 +3576,13 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total25Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total25Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 21 and 25
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=p.Id
 						Left JOIN(
@@ -3601,13 +3601,13 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total30Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total30Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 26 and 30
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=p.Id
 						Left JOIN(
@@ -3626,14 +3626,14 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total31Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total31Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 31 and 900000
 
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	     
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=p.Id
 
@@ -3653,14 +3653,14 @@ namespace Library.Service.Expenses
 						,sum(isnull(IID.Rate,0)) Rate
 						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total32Value
 						FROM trn.InventoryIssue II
-						LEFT JOIN (Select InventoryIssueId,
+						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
 						,sum(isnull(PolicyRate,0)) Rate
 						,sum(isnull(PolicyAmount,0)) Total32Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 0 and 9000000
 
-						AND II.VoucherId IS null
+						AND II.VoucherId IS null AND II.IsPostingRequired=1
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res32 ON Res32.CompanyGroupId=cmpGR.Id  --AND Res32.PlantId=p.Id
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'
@@ -6988,7 +6988,7 @@ namespace Library.Service.Expenses
 										,sum(isnull(PolicyAmount,0)) Total3Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 									Where DATEDIFF(day,II.IssueDate,getdate()) Between 0 and 3
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	  
 		
 
@@ -7015,7 +7015,7 @@ namespace Library.Service.Expenses
 										,sum(isnull(PolicyAmount,0)) Total5Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 									Where DATEDIFF(day,II.IssueDate,getdate()) Between 4 and 5
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	  
 								)Res5 ON Res5.CompanyId=cmp.Id AND Res5.PlantId=p.Id
 								Left JOIN(
@@ -7041,7 +7041,7 @@ namespace Library.Service.Expenses
 										,sum(isnull(PolicyAmount,0)) Total10Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where DATEDIFF(day,II.IssueDate,getdate()) Between 6 and 10
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	   
 								)Res10 ON Res10.CompanyId=cmp.Id  AND Res10.PlantId=p.Id
 								Left JOIN(
@@ -7066,7 +7066,7 @@ namespace Library.Service.Expenses
 										,sum(isnull(PolicyAmount,0)) Total15Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where  DATEDIFF(day,II.IssueDate,getdate()) Between 11 and 15  
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	   
 
 								)Res15 ON Res15.CompanyId=cmp.Id AND Res15.PlantId=p.Id
@@ -7092,7 +7092,7 @@ namespace Library.Service.Expenses
 										,sum(isnull(PolicyAmount,0)) Total20Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where  DATEDIFF(day,II.IssueDate,getdate()) Between 16 and 20 
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	      
 
 								)Res20 ON Res20.CompanyId=cmp.Id AND Res20.PlantId=p.Id
@@ -10459,13 +10459,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total3Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total3Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 									Where DATEDIFF(day,II.IssueDate,getdate()) between 0 And 3  
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 		
 
@@ -10492,7 +10492,7 @@ namespace Library.Service.Expenses
 										,sum(isnull(PolicyAmount,0)) Total5Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 									Where DATEDIFF(day,II.IssueDate,getdate()) between 4 And 5  
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 								)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=p.Id
 								Left JOIN(
@@ -10512,13 +10512,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0)))Total10Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total10Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where DATEDIFF(day,II.IssueDate,getdate()) between 6 And 10
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	   
 								)Res10 ON Res10.CompanyGroupId=cmpGR.Id  --AND Res10.PlantId=p.Id
 								Left JOIN(
@@ -10537,13 +10537,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total15Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total15Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where  DATEDIFF(day,II.IssueDate,getdate()) between 11 And 15
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	   
 
 								)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=p.Id
@@ -10563,13 +10563,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total20Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total20Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where  DATEDIFF(day,II.IssueDate,getdate()) between 16 And 20
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	      
 
 								)Res20 ON Res20.CompanyGroupId=cmpGR.Id --AND Res20.PlantId=p.Id
@@ -10589,13 +10589,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total25Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total25Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where DATEDIFF(day,II.IssueDate,getdate()) between 21 And 25  
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 								)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=p.Id
 								Left JOIN(
@@ -10614,13 +10614,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total30Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total30Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 									Where DATEDIFF(day,II.IssueDate,getdate()) between 26 And 30
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 								)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=p.Id
 								Left JOIN(
@@ -10639,14 +10639,14 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total31Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total31Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 									Where DATEDIFF(day,II.IssueDate,getdate()) between 31 And 900000
 
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	     
 								)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=p.Id
 
@@ -10666,14 +10666,14 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total32Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total32Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 									Where DATEDIFF(day,II.IssueDate,getdate()) between 0 And 90000000
 
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 								)Res32 ON Res32.CompanyGroupId=cmpGR.Id  --AND Res32.PlantId=p.Id 
 								where CMPGR.Active = 1 --AND cmp.Id='C20171'
@@ -13894,13 +13894,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total3Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total3Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 									Where DATEDIFF(day,II.IssueDate,getdate()) >0 AND    DATEDIFF(day,II.IssueDate,getdate()) <=3   
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	  
 		
 
@@ -13921,13 +13921,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total5Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total5Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 									Where DATEDIFF(day,II.IssueDate,getdate()) >3  AND   DATEDIFF(day,II.IssueDate,getdate()) <=5   
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	  
 						)Res5 ON Res5.CompanyId=cmp.Id AND Res5.PlantId=p.Id
 						Left JOIN(
@@ -13947,13 +13947,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0)))Total10Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total10Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where DATEDIFF(day,II.IssueDate,getdate()) >5 AND DATEDIFF(day,II.IssueDate,getdate()) <=10
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	   
 						)Res10 ON Res10.CompanyId=cmp.Id  AND Res10.PlantId=p.Id
 						Left JOIN(
@@ -13972,13 +13972,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total15Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total15Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where  DATEDIFF(day,II.IssueDate,getdate()) >10 AND DATEDIFF(day,II.IssueDate,getdate()) <=15   
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	   
 
 						)Res15 ON Res15.CompanyId=cmp.Id AND Res15.PlantId=p.Id
@@ -13998,13 +13998,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total20Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total20Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where  DATEDIFF(day,II.IssueDate,getdate()) >15 AND DATEDIFF(day,II.IssueDate,getdate()) <=20 
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	      
 
 						)Res20 ON Res20.CompanyId=cmp.Id AND Res20.PlantId=p.Id
@@ -14024,13 +14024,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total25Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total25Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 									Where DATEDIFF(day,II.IssueDate,getdate()) >20 AND DATEDIFF(day,II.IssueDate,getdate()) <=25  
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	  
 						)Res25 ON Res25.CompanyId=cmp.Id AND Res25.PlantId=p.Id
 						Left JOIN(
@@ -14049,13 +14049,13 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total30Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total30Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 									Where DATEDIFF(day,II.IssueDate,getdate()) >25 AND DATEDIFF(day,II.IssueDate,getdate()) <=30
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	  
 						)Res30 ON Res30.CompanyId=cmp.Id AND Res30.PlantId=p.Id
 						Left JOIN(
@@ -14074,14 +14074,14 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total31Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total31Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 									Where DATEDIFF(day,II.IssueDate,getdate()) >30 
 
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	     
 						)Res31 ON Res31.CompanyId=cmp.Id AND Res31.PlantId=p.Id
 
@@ -14101,14 +14101,14 @@ namespace Library.Service.Expenses
 										,sum(isnull(IID.Rate,0)) Rate
 										,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total32Value
 										FROM trn.InventoryIssue II
-										LEFT JOIN (Select InventoryIssueId,
+										 JOIN (Select InventoryIssueId,
 										sum(isnull(TransactionQty,0)) Qty
 										,sum(isnull(PolicyRate,0)) Rate
 										,sum(isnull(PolicyAmount,0)) Total32Value 
 										from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 									Where DATEDIFF(day,II.IssueDate,getdate()) >0 --AND DATEDIFF(day,II.IssueDate,getdate()) <=9000000000 
 
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND II.IsPostingRequired=1
 									GROUP BY II.CompanyId ,II.PlantId	  
 						)Res32 ON Res32.CompanyId=cmp.Id  AND Res32.PlantId=p.Id
 						where cmp.Active =1 and CMPGR.Active = 1 --AND cmp.Id='C20171'
@@ -21535,7 +21535,7 @@ UNION ALL
 									,sum(isnull(IID.PolicyRate,0)) Rate
 									,FORMAT((sum(isnull(IID.TransactionQty,0))* sum(isnull(IID.PolicyRate,0))),'#,#') Amount
 								FROM trn.InventoryIssue II
-									LEFT JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
+									 JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
 									--LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 									LEFT JOIN ORG.CompanyGroup CG ON CG.Id=II.CompanyGroupId
 									LEFT JOIN ORG.Company C ON C.Id=II.CompanyId
