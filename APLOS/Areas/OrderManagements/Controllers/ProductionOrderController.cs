@@ -501,7 +501,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             return null;
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult SaveWCFPData(List<Dictionary<string, object>> data, string productionOrderId)
         {
             try
@@ -548,6 +548,47 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             }
         }
 
+        [HttpPost,Authorize]
+        public ActionResult DeleteFPWCDetail(string id)
+        {
+            DeleteFPWCDetailData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        public void DeleteFPWCDetailData(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [dbo].[ProductionOrderFirstProcessWorkCenter] WHERE Id = '" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {

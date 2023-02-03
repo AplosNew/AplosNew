@@ -16,72 +16,79 @@
         width: 50px;
     }
 </style>
-@*<togglable name="{{title}}"></togglable>*@
-@*<div class="row">
-        <div class="col-md-6">
-            <div class="col-md-4"><span style="font-size: 19px;margin-left: -15%;margin-bottom:10px;"><span class="glyphicon glyphicon-stats"></span>&nbsp;{{title}}</span></div>
-        </div>
-    </div>*@
+
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>&nbsp;{{title}}</h3>
 
-<div class="row">
-    <div class="form-elements form-horizontal" ng-form="modelForm">
-        <div class="col-xs-12 col-sm-12 col-sm-12 ">
-            <div class="col-md-4">
-                <div class="form-group" show-errors id="div_FromDate">
-                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <input type="text" name="Form Date" ng-model="FromDate" datepicker class="form-control">
-                        @*<input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="FromDate" e-width="100%" />*@
+<div class="form-elements form-horizontal" ng-form="MaterialIssueNewForm">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Details</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Summary</a></li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div class="row">
+                    <div class="form-elements form-horizontal" ng-form="modelForm">
+                        <div class="col-xs-12 col-sm-12 col-sm-12 ">
+
+                            <div class="col-md-9">
+                                <div id="filters">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="GetTransactionData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> View </button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin:10px; margin-left:15px;">
+                    <div class="table-responsive">
+                            <div id="GridEdit" ej-grid e-datasource="TransactionList"
+                                 e-recorddoubleclick="GetDet"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                <div e-columns>
+                                    <div e-column e-field="POId" e-headertext="PO No" e-width="2"></div>
+                                    <div e-column e-field="POStatus" e-headertext="PO Status" e-width="2"></div>
+                                    <div e-column e-field="SalesOrderId" e-headertext="SO No" e-width="3"></div>
+                                    <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="6"></div>
+                                    <div e-column e-field="QBOQArticle" e-headertext="Article" e-width="6"></div>
+                                    <div e-column e-field="QBOQArticle" e-headertext="Customer" e-width="6"></div>
+                                    <div e-column e-field="QBOQArticle" e-headertext="Production Code" e-width="6"></div>
+                                    <div e-column e-field="QBOQArticle" e-headertext="Buyer" e-width="6"></div>
+                                    <div e-column e-field="QBOQArticle" e-headertext="Material Category" e-width="6"></div>
+                                    <div e-column e-field="NetConsumptionPerUnit" e-headertext="Net Consumption Per Unit" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="ValueLoss" e-headertext="Value Loss" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="GrossConsumption" e-headertext="Gross Consumption" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="TotalConsumption" e-headertext="Total Consumption" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="PlanConsumption" e-headertext="Plan Consumption" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="Rate" e-headertext="Rate" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="TotaPlanlAmount" e-headertext="Total Plan Amount" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="RequestedQty" e-headertext="Requested Qty" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="IssueQty" e-headertext="Issue Qty" e-type="number" e-width="3"></div>
+                                    <div e-column e-field="Balance" e-headertext="Balance" e-type="number" e-width="3"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    <div class="col-md-12 text-left" style="margin-top:20px;">
+                        <button type="button" class="btn single-btn" ng-click="PrintReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="form-group" show-errors id="div_ToDate">
-                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control">
-                        @*<input e-dateformat="dd-MMM-yyyy" ej-datepicker e-value="ToDate" e-width="100%" />*@
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li> <button ng-click="getUtilityTransactionData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> View </button></li>
-                    </ul>
-                </div>
-            </div>
-            @*<div id="filters">
-                </div>*@
-
-            
-        </div>
-    </div>
-</div>
-<div class="row" style="margin:10px; margin-left:15px;">
-    <div class="row">
-        <div class="table-responsive">
-            <div id="GridEdit" ej-grid e-datasource="UtilityTransactionList" @*e-recorddoubleclick="GetDet"*@
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>*@
-                    <div e-column e-field="Item" e-headertext="Item" e-width="2"></div>
-                    <div e-column e-field="Group" e-headertext="Group" e-width="2"></div>
-                    <div e-column e-field="SubGroup" e-headertext="Sub Group" e-width="3"></div>
-                    <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
-                    <div e-column e-field="SubCategory" e-headertext="Sub Category" e-width="3"></div>
-                    <div e-column e-field="AddedDate" e-headertext="AddedDate" @*e-type="number"*@ e-width="3"></div>
-                    <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="3"></div>
-                </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+               
             </div>
         </div>
     </div>
 </div>
 
-<div class="col-md-12 text-left" style="margin-top:20px;">
-    <button type="button" class="btn single-btn" ng-click="UtilityTransactionReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
-</div>
-
-<confirm-modal></confirm-modal>

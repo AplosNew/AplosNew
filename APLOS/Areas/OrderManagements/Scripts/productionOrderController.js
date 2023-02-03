@@ -665,8 +665,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
                         $scope.btndisable = false;
+                        ShowResult(response.data.Message, 'failure');
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
@@ -1804,9 +1804,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.closeBullPop();
-                        $scope.getProductionBulletinData($scope.model.Id);
-                        $scope.getProductionBulletinProcess($scope.bulletinTemplateNew.Id);
+                        $scope.GetSavedWorkCenterListByEntityandFirstProcess();
 
                     }
                 }), function errorCallBack(response) {
@@ -1827,6 +1825,34 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
         return false;
     }
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeFPWCDetail = function (obj) {
+
+        $scope.FPWC = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.FPWC.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.FPWC.UserName + ' ]';
+        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteFPWCDetail = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/DeleteFPWCDetail?id=' + $scope.FPWC.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedWorkCenterListByEntityandFirstProcess();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
 
     // #endregion  Work Center
 

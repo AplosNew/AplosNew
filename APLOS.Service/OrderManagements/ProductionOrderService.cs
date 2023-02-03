@@ -7,6 +7,7 @@ using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.OrderManagements;
+using Library.Model.Systems;
 using Library.Service.Core;
 using Library.Service.Enums;
 using Library.Service.Logs;
@@ -34,7 +35,7 @@ namespace Library.Service.OrderManagements
         private readonly IRepositoryAsync<ProductionOrderWorkCenter> _workCenterRepository;
         private readonly IRepositoryAsync<ProductionOrderFirstProcessWorkCenter> _fpworkCenterRepository;
         private readonly ISqlRepository _sqlRepository;
-
+        private readonly IPKGeneratorService _pkGeneratorService;
         public ProductionOrderService(
             IRepositoryAsync<ProductionOrder> baseRepository
             , IRepositoryAsync<ProductionOrderDetail> detailsRepository
@@ -42,9 +43,7 @@ namespace Library.Service.OrderManagements
             , IRepositoryAsync<ProductionOrderEntity> entityRepository
             , IRepositoryAsync<ProductionOrderWorkCenter> workCenterRepository
             , IRepositoryAsync<ProductionOrderFirstProcessWorkCenter> fpworkCenterRepository
-
             , IPKGeneratorService pkGeneratorService
-
             , IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
             ) : base(baseRepository, unitOfWork, pkGeneratorService)
@@ -56,6 +55,7 @@ namespace Library.Service.OrderManagements
             _workCenterRepository = workCenterRepository;
             _fpworkCenterRepository = fpworkCenterRepository;
             _sqlRepository = sqlRepository;
+            _pkGeneratorService = pkGeneratorService;
         }
 
         #endregion Constructor
@@ -73,6 +73,19 @@ namespace Library.Service.OrderManagements
             return _sqlRepository.GetGridData(parameters);
         }
 
+        private string GetPadding(string iv)
+        {
+            while (iv.Length < bplib.clsWebLib.PrOId)
+            {
+                iv = DateTime.Now.ToString("yy")+ "000000" + iv;
+            }
+            return iv;
+        }
+
+        private PKGenerator GetMaxNumber()
+        {
+            return base.GetMaxNumber(nameof(ProductionOrder), PKGeneratorEnum.Yearly, null, DateTime.Now);
+        }
         public void InsertGraph(ProductionOrder master, IEnumerable<ProductionOrderDetail> detaillist
             , IEnumerable<ProductionOrderProcessSet> processSetlist
             , IEnumerable<ProductionOrderEntity> entitylist
@@ -82,14 +95,19 @@ namespace Library.Service.OrderManagements
             var flag = false;
             try
             {
+                //old
                 string systemid = "";
                 //bplib.clsGenID objID = new bplib.clsGenID();
                 //objID.GenHRID(System.DateTime.Now.ToShortDateString(), "PRODUCTION ORDER", out systemid);
 
-                systemid= GetAutoNumber(nameof(ProductionOrder), PKGeneratorEnum.Auto, null, DateTime.Now);
+                systemid = GetAutoNumber(nameof(ProductionOrder), PKGeneratorEnum.Auto, null, DateTime.Now);
 
+
+                // new 
+                //bplib.clsGenID objID = new bplib.clsGenID();
+                //objID.GenerateIDMaxYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionOrder", out string systemid);
+                //master.Id = DateTime.Now.ToString("yy")+ systemid.ToString().PadLeft(4,"0".ToString()[0]);
                 master.Id = systemid;
-
                 base.InsertGraph(master);
                 InsertUpdateOrDeleteGraph(master.Id, detaillist);
                 InsertUpdateOrDeleteGraph(master.Id, processSetlist);

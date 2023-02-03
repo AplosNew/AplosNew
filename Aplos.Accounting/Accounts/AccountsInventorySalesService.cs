@@ -516,7 +516,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN TRN.EmployeePayable EP ON EP.InventoryReceiveId=IR.Id
 						LEFT JOIN TRN.Voucher VE ON VE.Id=EP.VoucherId
                         LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
-                        WHERE IR.PlantId=@plantId AND IR.[Status]='Posting' 
+                        WHERE V.Archive=0 AND IR.PlantId=@plantId AND IR.[Status]='Posting' 
 						) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -569,7 +569,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 						LEFT JOIN TRN.Voucher V ON V.Id=IR.InventoryVoucherId
                         LEFT JOIN HKP.MaterialStorage MS ON MS.Id=IR.MaterialStorageId
-                        WHERE IR.PlantId=@plantId AND IR.[Status]='Posting' 
+                        WHERE V.Archive=0 AND IR.PlantId=@plantId AND IR.[Status]='Posting' 
                          ) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
 				return _sqlRepository.GetDataCollection(sql);
 			}

@@ -47,6 +47,30 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         },
     ]
 
+    $scope.ModelTemp = {
+        Id:null,
+        InStatus:null,
+        FromDate:null,
+        ToDate: null,
+        EmployeecategoryId: null,
+        TeamLeaderId:null,
+        EmpSystemId:null,
+        ShiftId:null,
+        EmployeeStatus: null,
+        FavoriteFilteruserId:null
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data); 
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+           /* $scope.GetEmployeeCategory();*/
+            $rootScope.toggle(); 
+            $scope.GetDailyAttendanceStatus();
+        }
+    };
+
     // #region    EmployeePop
     $scope.OpeEmployeePopUp = function () {
         angular.element(document.querySelector('#EmployeePop')).modal('show');
@@ -72,9 +96,9 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     //$scope.EmployeeName = null;
     
     $scope.doubleEmploye = function (e) {
-        $scope.EmpSystemId = e.data.EmpSystemId;
-        $scope.EmployeeName = e.data.EmployeeName;
-        $scope.TeamLeader = e.data.EmployeeName;
+        $scope.ModelNew.EmpSystemId = e.data.EmpSystemId;
+        $scope.ModelNew.EmployeeName = e.data.EmployeeName;
+       // $scope.TeamLeader = e.data.EmployeeName;
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
         /*$scope.viewFurniturePolicyGrids();*/
     }
@@ -116,6 +140,30 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     }
     $scope.GetEmployeeCategory();
 
+    $scope.FavoriteList = [];
+    $scope.GetFavoriteListByUser = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetFavoriteListByUser',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.FavoriteList = resp.data;
+        });
+    }
+    $scope.GetFavoriteListByUser();
+
+    $scope.DailyAttendanceStatusList = [];
+    $scope.GetDailyAttendanceStatus = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetDailyAttendanceStatus?instatus=' + $scope.ModelNew.InStatus + '&fromdate=' + $scope.ModelNew.FromDate + '&todate=' + $scope.ModelNew.ToDate + '&employeecategory=' + $scope.ModelNew.EmployeecategoryId + '&teamleaderid=' + $scope.ModelNew.TeamLeaderId + '&responsibleperson=' + $scope.ModelNew.EmpSystemId + '&shift=' + $scope.ModelNew.ShiftId + '&employeestatus=' + $scope.ModelNew.EmployeeStatus,           
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DailyAttendanceStatusList = resp.data;
+        });
+    }
+    
+
     $scope.OpenTeamLeaderPopUp = function () {
         angular.element(document.querySelector('#TeamPopupId')).modal('show');
         $scope.GetTeamLeader();
@@ -136,9 +184,9 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     }
 
     $scope.doubleTeamLeader = function (e) {
-        $scope.TeamLeaderId = e.data.EmpSystemId;
+        $scope.ModelNew.TeamLeaderId = e.data.EmpSystemId;
         
-        $scope.TeamLeader = e.data.EmployeeName;
+        $scope.ModelNew.TeamLeader = e.data.EmployeeName;
         angular.element(document.querySelector('#TeamPopupId')).modal('hide');
         
     }
@@ -149,13 +197,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
             method: 'POST',
             url: $scope.path + 'Save',
             data: {
-                'instatus': $scope.InStatus,
-                'date': $scope.Date,
-                'employeecategory': $scope.EmployeeCategoryId,
-                'teamleaderid': $scope.TeamLeaderId,
-                'responsibleperson': $scope.EmpSystemId,
-                'shift': $scope.ShiftId,
-                'employeestatus': $scope.EmployeeStatus,
+                'datas': $scope.ModelNew
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -183,13 +225,14 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
                 dataType: 'JSON',
                 url: $scope.path + 'GetDailyAttendanceStatusXls',
                 data: {
-                    'instatus': $scope.InStatus,
-                    'date': $scope.Date,
-                    'employeecategory': $scope.EmployeeCategoryId,
-                    'teamleaderid': $scope.TeamLeaderId,
-                    'responsibleperson': $scope.EmpSystemId,
-                    'shift': $scope.ShiftId,
-                    'employeestatus': $scope.EmployeeStatus,
+                    'instatus': $scope.ModelNew.InStatus,
+                    'fromdate': $scope.ModelNew.FromDate,
+                    'todate': $scope.ModelNew.ToDate,
+                    'employeecategory': $scope.ModelNew.EmployeeCategoryId,
+                    'teamleaderid': $scope.ModelNew.TeamLeaderId,
+                    'responsibleperson': $scope.ModelNew.EmpSystemId,
+                    'shift': $scope.ModelNew.ShiftId,
+                    'employeestatus': $scope.ModelNew.EmployeeStatus,
                 }
             })
                 .then(function successCallback(response) {
@@ -205,5 +248,55 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
 
         };
    
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+    function ClearFields() {
+        //$scope.Action = 'Save';
+        $scope.DailyAttendanceStatusList = [];
+        $scope.ModelTemp = {
+            Id: null,
+            InStatus: null,
+            FromDate: null,
+            ToDate: null,
+            EmployeeCategoryId: null,
+            TeamLeaderId: null,
+            EmpSystemId: null,
+            ShiftId: null,
+            EmployeeStatus: null,
+            FavoriteFilteruserId: null
+        };
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+        
+    }
+    $scope.ClearEmployeePopup = function () {
+        ClearEmployeePopFields();
+        return true;
+    };
+    function ClearEmployeePopFields() {
+
+
+
+        $scope.ModelNew.EmpSystemId = null;
+
+        $scope.ModelNew.EmployeeName = null;
+
+
+    }
+    $scope.ClearTeamLeaderPopUp = function () {
+        ClearTeamLeaderPopUpFields();
+        return true;
+    }
+    function ClearTeamLeaderPopUpFields() {
+
+
+
+        $scope.ModelNew.TeamLeader = null;
+
+        $scope.ModelNew.TeamLeaderId = null;
+
+
+    }
 }

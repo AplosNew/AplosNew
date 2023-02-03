@@ -2524,7 +2524,7 @@ UNION
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=A.VoucherId
 								LEFT JOIN TRN.PurchaseReturn PR ON PR.VoucherId=A.VoucherId
-                                WHERE A.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
+                                WHERE A.Archive=0 AND V.Archive=0 AND A.CompanyGroupId='" + companyGroupId + "'AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + "' AND A.SourceType='" + sourceType + "'";
             return _sqlRepository.GetGridData(parameters);
         }
         public IEnumerable<object> GetPurchaseReturnPostableData(string plantId)
@@ -3762,7 +3762,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 				  LEFT JOIN TRN.Voucher VT ON VT.Id=ADT.VoucherId
 					LEFT JOIN TRN.InvoiceWriteOff IW ON IW.VoucherId=VT.Id
                     WHERE IR.PlantId='" + plantId + @"' 
-					AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1
+					AND V.Archive=0 AND IR.[Status]='Posting' AND IR.IsPaymentHold=0   --AND IR.IsApproved=1
 					) AS TEMP WHERE " + strkey + " order by PostingDate DESC";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -3782,7 +3782,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
             try
             {
                 parameters.CmdText =
-                        @"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
+						@"SELECT  V.VoucherNo,II.VoucherId,V.VoucherDate,IID.PolicyAmount,IID.TransactionQty,II.Id IssueNo,II.IssueDate,MS.UserName MaterialStorageName
 						,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
 						,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName ,V.IsPark
                         FROM TRN.InventoryIssue II 
@@ -3795,7 +3795,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 						LEFT join dbo.[Contract] CN ON CN.Id=JW.ContractId
 						LEFT JOIN dbo.MasterLC LC ON LC.Id=CN.MasterLCId
 						LEFT JOIN HKP.Party P ON P.Id=LC.CustomerId
-                        Where V.SourceType='" + SourceType.IssueJournal + @"' AND V.PlantId= '" + plantId + "'";
+                        Where V.Archive=0 AND V.SourceType='" + SourceType.IssueJournal + @"' AND V.PlantId= '" + plantId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -3818,7 +3818,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         FROM TRN.InventoryIssueReturnHistory ID JOIN TRN.InventoryIssueReturn II ON II.Id=ID.InventoryIssueReturnId
 						GROUP BY II.VoucherId,II.IssueDate,II.Id) AS IID ON IID.VoucherId=V.Id
 						LEFT JOIN HKP.MaterialStorage AS MS ON MS.Id=II.MaterialStorageId
-                        Where V.SourceType='" + SourceType.IssueReturnJournal + @"' AND V.PlantId= '" + plantId + "'";
+                        Where V.Archive=0 AND V.SourceType='" + SourceType.IssueReturnJournal + @"' AND V.PlantId= '" + plantId + "'";
 				return _sqlRepository.GetGridData(parameters);
 			}
 			catch (Exception ex)
@@ -4640,7 +4640,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
 						LEFT JOIN TRN.Voucher V ON  V.Id=IR.JWWIPVoucherId
 						LEFT JOIN(SELECT VoucherId,SUM(DrAmount) DrAmount FROM  TRN.VoucherDetail GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
-                        WHERE IR.PlantId=@plantId AND IR.JWWIPVoucherId<>''
+                        WHERE V.Archive=0 AND IR.PlantId=@plantId AND IR.JWWIPVoucherId<>''
 
 						UNION ALL
 						SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,  P.Code AS PartyCode, P.UserName AS PartyName
@@ -4659,7 +4659,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
 						LEFT JOIN TRN.Voucher V ON  V.Id=IR.JWChangeInInvVoucherId
 						LEFT JOIN(SELECT VoucherId,SUM(DrAmount) DrAmount FROM  TRN.VoucherDetail GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
-                        WHERE IR.PlantId=@plantId AND IR.JWChangeInInvVoucherId<>''
+                        WHERE V.Archive=0 AND IR.PlantId=@plantId AND IR.JWChangeInInvVoucherId<>''
 
 						UNION ALL
 						SELECT IR.Id,IR.Id GRNNo, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,  P.Code AS PartyCode, P.UserName AS PartyName
@@ -4678,7 +4678,7 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
                         LEFT JOIN [HKP].[PartyPlant] AS IPP ON IR.InvoicingPartyPlantId=IPP.Id
 						LEFT JOIN TRN.Voucher V ON  V.Id=IR.JWGRIRVoucherId
 						LEFT JOIN(SELECT VoucherId,SUM(DrAmount) DrAmount FROM  TRN.VoucherDetail GROUP BY VoucherId) VD ON VD.VoucherId=V.Id
-                        WHERE IR.PlantId=@plantId AND IR.JWGRIRVoucherId<>'') AS TEMP WHERE " + strkey + " order by PostingDate DESC";
+                        WHERE V.Archive=0 AND IR.PlantId=@plantId AND IR.JWGRIRVoucherId<>'') AS TEMP WHERE " + strkey + " order by PostingDate DESC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

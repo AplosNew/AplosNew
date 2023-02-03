@@ -28,6 +28,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
         InvoiceNumber: null,
         PartyId: null,
         PlantId: null,
+        IsActive: true
         //Medicine:null,
     };
     $scope.ModalNew = Object.assign({}, $scope.ModelTemp);

@@ -10,6 +10,8 @@ using Library.Service.Logs;
 using Library.ViewModel.Materials;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -68,7 +70,87 @@ namespace Aplos.MaterialManagement.MaterialQuery
                 throw new CustomException("Plant party mapping not found.");
             return partyPlantTemp;
         }
+        public void AddNewRow<T>(DataTable dt, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
 
-      
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dt.Rows.Add(dr);
+        }
+        public void EditRow<T>(DataRow dr, T Data)
+        {
+            Dictionary<string, object> sourceData = Data.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).ToDictionary(prop => prop.Name, prop => prop.GetValue(Data, null));
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            dr.BeginEdit();
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    if (item.ToUpper() == "ID")
+                        continue;
+
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr.EndEdit();
+        }
+
+        public void AddNewRowD(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow(); foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress; dt.Rows.Add(dr);
+        }
+
+        public void EditRowD(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit(); foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
     }
 }

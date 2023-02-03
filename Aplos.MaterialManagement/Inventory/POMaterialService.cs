@@ -128,6 +128,8 @@ namespace Library.MaterialManagement.Inventory
 										 else CONVERT(DECIMAL(12,2),IRD.BaseAmount)  END
                             --, IRD.TotalTaxAmount AS BaseTaxAmount                            
 	                        , BaseTaxAmount=(SELECT SUM(TaxAmount) FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId=IRD.Id)
+                            ,TotalAmount=(case when IR.IsNonCreditable=1 Then CONVERT(DECIMAL(10,2),((ROUND((IRD.TransactionQty*IRD.TransactionRate),2))+ (SELECT ROUND(SUM(TaxAmount),2) FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId=IRD.Id)) )   
+										 else CONVERT(DECIMAL(12,2),IRD.BaseAmount)  END)+IRD.TotalTaxAmount
 	                        , IRD.ChargesAmount
 	                        --, ServiceCharge=(@totalServiceAmount/@totalReceiveAmount)*IRD.TransactionAmount
 	                        --, ServiceTax=(@totalSvcTaxAmount/@totalReceiveAmount)*IRD.TransactionAmount
@@ -139,7 +141,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IR.DeliveryInstruction
                             ,IR.SpecialInstruction
                             ,IRD.Description
-                            ,IRD.RefferenceNo
+                            ,IRD.RefferenceNo,IRD.BaseUoMFactor
                             ,Replace(CONVERT(VARCHAR(11), IRD.DeliveryDate, 106), ' ', '-') DeliveryDate
                             ,C.UserName CountryName,C.Id CountryId,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,HN.Code HSNCode,IRD.Tolerance
                             ,ISNULL(RD.GRNTotalAmount,0) GRNAmount,ISNULL(ACPT.ACPTTotalAmount,0) ACPTAmount
@@ -179,6 +181,11 @@ namespace Library.MaterialManagement.Inventory
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
+        }
+        public IEnumerable<object> GetPOTaxUpdateList(string poId)
+        {
+            var sql = @"select * from trn.PurchaseOrderTax where InventoryReceiveId='"+ poId + @"' and InventoryServiceId is null";
+            return _sqlRepository.GetDataCollection(sql);
         }
         public GridModel GetPOBOQMAPList(GridParameter parameters, string inveReveiveId)
         {
