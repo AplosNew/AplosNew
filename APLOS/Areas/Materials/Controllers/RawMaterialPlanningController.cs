@@ -30,6 +30,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Drawing;
 using Aplos.Areas.Commercial.Controllers;
+using Library.Service.Systems;
 #endregion
 
 namespace Aplos.Areas.Materials.Controllers
@@ -39,10 +40,12 @@ namespace Aplos.Areas.Materials.Controllers
         #region -- Constructor
         private readonly ISqlRepository _sqlRepository;
         private readonly IIssueRequestService _issueRequestService;
-        public RawMaterialPlanningController(ISqlRepository R, IIssueRequestService issueRequestService)
+        private readonly IPKGeneratorService _pkGeneratorService;
+        public RawMaterialPlanningController(ISqlRepository R, IIssueRequestService issueRequestService, IPKGeneratorService pkGeneratorService)
         {
             _sqlRepository = R;
             _issueRequestService = issueRequestService;
+            _pkGeneratorService = pkGeneratorService;
         }
         #endregion
 
@@ -108,6 +111,17 @@ from RawMaterialPlanningMaster where POId='"+ POID + "'";
 from RawMaterialPlanningMaster where Id='" + PlanId + "'";
             return Json(new { plan = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public JsonResult GetConsumptionLevelList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from DefineEnum where Category='Material Planning'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet, Authorize]
         public ActionResult EntityList()
@@ -795,7 +809,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild, dsSOChild;
+            DataSet dsMaster, dsChild, dsSOChild, dsIdChild;
             string _Id = string.Empty;
             try
             {
@@ -847,10 +861,38 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
                         }
                     }
                 }
+                #endregion
 
+                #region MaterialIssueControlDetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialPlanningDetails where  RawMaterialPlanningMasterId='" + _Id + "'", out dsChild, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT Count(Id)Idc FROM dbo.MaterialPlanningDetails where  RawMaterialPlanningMasterId='" + _Id + "'", out dsIdChild, false, "1");
+                int ccount = Convert.ToInt32(dsIdChild.Tables[0].Rows[0]["Idc"].ToString());
+                if (dataList != null)
+                {
+                    foreach (var item in dataList)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+
+                            string id = _pkGeneratorService.MakePK(_Id, ccount, 2);
+                            item["Id"] = id;
+                            item["RawMaterialPlanningMasterId"] = _Id;
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
                 #endregion
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsSOChild);
+                obj.SaveDataSets(dsMaster, dsSOChild, dsChild);
 
             }
             catch (Exception ex)
@@ -1147,7 +1189,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         [HttpGet, Authorize]
         public ActionResult GetCostingDataList(string soId)
         {
-            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,um.Code as UoM, um.Id as UoMId,Q.Consumption NetConsumptionPerUnit,Q.ValueLoss,Q.GrossConsumption,
+            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,CAST (CASE WHEN MPD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MPD.Remarks,MPD.Id,MPD.ConsumptionLevel,RMP.Id as PlanId,Q.Id as CostingId,I.Id CostingItemId,I.UserName Item,um.Code as UoM, um.Id as UoMId,Q.Consumption NetConsumptionPerUnit,Q.ValueLoss,Q.GrossConsumption,
  TotalConsumption=Q.GrossConsumption*SO.Qty,SO.Qty, 0 AdditionReduction,0 PlanConsumption
  ,Q.Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks,IM.Id InventoryMaterialId
  FROM OrderProcurementCostingDirectMaterial AS Q  
@@ -1158,6 +1200,8 @@ left join TRN.MasterOrderItem MOI ON MOI.OrderCostingMasterTemplateId=Q.OrderCos
 left join TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 left join MST.MaterialMasterArticle A ON A.Id=MOI.ArticleId
 left join MST.MaterialMaster M ON M.Id=MOI.MaterialMasterId
+left Join [MaterialPlanningDetails] MPD ON MPD.CostingId=Q.Id 
+LEFT JOIN RawMaterialPlanningMaster RMP ON RMP.Id=MPD.RawMaterialPlanningMasterId
 LEFT JOIN [TRN].[InventoryMaterial] IM ON IM.MaterialMasterId=Q.MaterialMasterId AND IM.ArticleId=Q.ArticleId
 LEFT JOIN (
 Select StockRate= SUM(IRD.MaterialTranRate)/COUNT(IRD.Id),IM.MaterialMasterId,IM.ArticleId 
@@ -1173,7 +1217,7 @@ Where SO.Id " + soId + "";
         [HttpGet, Authorize]
         public ActionResult GetQBOQDataList(string soId)
         {
-            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.UoMId,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption,SO.Qty
+            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,CAST (CASE WHEN MPD.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MPD.Remarks,MPD.Id,MPD.ConsumptionLevel,RMP.Id as PlanId,Q.Id as QBOQId,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.UoMId,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption,SO.Qty
 ,TotalConsumption=Q.GrossConsumption*SO.Qty, 0 AdditionReduction,0 PlanConsumption,Q.MaterialCostPerUnit Rate,0 TotaPlanlAmount,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
 ,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks,IM.Id InventoryMaterialId
 FROM [dbo].[QuickBOQ] Q
@@ -1183,6 +1227,8 @@ left join SCS.UnitOfMeasurement U on U.Id=Q.UoMId
 left join TRN.SalesOrder SO ON SO.MasterOrderItemId=Q.MasterOrderItemId
 left join MST.MaterialMasterArticle A ON A.Id=Q.ArticleId
 left join MST.MaterialMaster M ON M.Id=Q.MaterialMasterId
+left Join [MaterialPlanningDetails] MPD ON MPD.QBOQId=Q.Id 
+LEFT JOIN RawMaterialPlanningMaster RMP ON RMP.Id=MPD.RawMaterialPlanningMasterId
 LEFT JOIN [TRN].[InventoryMaterial] IM ON IM.MaterialMasterId=Q.MaterialMasterId AND IM.ArticleId=Q.ArticleId
 LEFT JOIN (
 Select StockRate= SUM(IRD.MaterialTranRate)/COUNT(IRD.Id),IM.MaterialMasterId,IM.ArticleId 
