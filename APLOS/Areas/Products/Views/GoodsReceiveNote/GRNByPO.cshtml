@@ -1024,7 +1024,6 @@
                                         </label>
                                     </div>
                                 </th>
-                                <th class="col-sm-1" colspan="2">Action</th>
                                 <th>QualityStatus</th>
                                 <th>PO Id</th>
                                 <th>RowId</th>
@@ -1035,11 +1034,7 @@
                                 <th>Sku2</th>
                                 @*<th>Sku3</th>*@
                                 <th>Material Storage Name</th>
-                                <th colspan="2" ng-show="GriddataSelected.length===0">POQty</th>
-
-                                <th colspan="2" ng-show="GriddataSelected.length>0">PO Qty</th>
-                                <th colspan="2" ng-show="GriddataSelected.length===0">Acceptance Qty</th>
-                                <th ng-show="GriddataSelected.length>0">ToleranceQty</th>
+                                <th colspan="2" ng-show="GriddataSelected.length===0">PO_Quantity</th>
                                 <th>OtherGRNReceived</th>
                                 <th>CurrentReceived</th>
                                 <th>Balance</th>
@@ -1066,6 +1061,7 @@
                                 <th>MaterialLotNumber </th>
                                 <th>MaterialDiameter</th>
                                 <th>MaterialType</th>
+                                <th>Action</th>
 
 
                             </tr>
@@ -1236,17 +1232,13 @@
                                 <td>{{x.StandardName}}</td>
                                 <td>{{x.FirstCharacteristicsValue}}</td>
                                 <td>{{x.SecondCharacteristicsValue}}</td>
-                                <td>{{x.ThirdCharacteristicsValue}}</td>
                                 <td>
                                     <div class="select-style">
                                         <select style="width:150px;" name="Storage Location" ng-model="x.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList"></select>
                                     </div>
                                 </td>
 
-                                <td ng-show="GriddataSelected.length===0">{{x.OriginalPOQty}}</td>
-                                <td class="text-right" ng-show="GriddataSelected.length===0">{{x.TransactionUoM}}</td>
-
-                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.POQty" ng-disabled="true"></td>
+                                <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="50" ng-model="x.POQty" ng-disabled="true"></td>
                                 <td class="text-right">{{x.TransactionUoM}}</td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.OtherReceived" ng-disabled="true"></td>
                                 <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.TransactionQty" ng-disabled="GriddataSelected.length===0"></td>  @*ng-keyup="calculateAmount(x);"*@
@@ -1289,9 +1281,6 @@
                             </tr>
                             <tr ng-show="inventoryMaterialList.length">
                                 <td colspan="9" class="text-right"><strong>Total : </strong></td>
-
-                                <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{inventoryMaterialList | sumByKey : 'OriginalPOQty' }}</strong></td>
-                                <td ng-show="GriddataSelected.length===0"></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'POQty' }}</strong></td>
                                 <td></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'OtherReceived' }}</strong></td>
@@ -1310,7 +1299,6 @@
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialBaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"></td>
-                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
