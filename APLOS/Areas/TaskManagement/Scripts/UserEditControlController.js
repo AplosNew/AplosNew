@@ -18,28 +18,14 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         UserId: null,
         UserName: null,
         FullName: null,
+        HrefId:null,
         Href: null,
         Password: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.popUp = function () {
-        $scope.popUpDataList = [];
-        $scope.popUpUrl = 'Securities/user/getlist';
-        $scope.getPopUpData = function (pageno) {
-            baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
-                .then(function (result) {
-                    $scope.popUpDataList = result.Rows;
-                    $scope.popUpParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#popUpId')).modal('show');
-        $scope.getPopUpData();
-    };
     //***********************************User ********************************************************//
+
     $rootScope.searchByUserList = [
         {
             'name': 'Username',
@@ -132,7 +118,7 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.Clear();
-                    //$scope.getData();
+                    $scope.getData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -188,4 +174,60 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         return true;
     };
 
+     //***********************************Href ********************************************************//
+    $scope.hrefvalueData = '';
+    $scope.popUpHrefParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'UserId',
+        searchBy: "UserId",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.popUpHref = function () {
+        $scope.popUpHrefDataList = [];
+        $scope.popUpUrl = 'TaskManagement/TaskAppliedOn/GetHreflist';
+        $scope.getPopUpHrefData = function (data) {
+            baseService.paginationBase($scope.popUpUrl, data ,$scope.popUpHrefParameters)
+                .then(function (result) {
+                    $scope.popUpHrefDataList = result.Rows;
+                    $scope.popUpHrefParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'popUphrefId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#popUphrefId')).modal('show');
+        $scope.getPopUpHrefData();
+    };
+
+    $scope.selectHrefDoubleClick = function (data) {
+        //if (data.SysAdmin)
+        //    return ShowResult("User [" + data.UserId + "] is [" + data.UserType + "], so role is not required.", 'failure', 'popUpId')
+        $scope.ModelNew.HrefId = data.Id;
+        $scope.ModelNew.Href = data.Id;
+        $scope.getData();
+        $scope.closeHrefPopUp();
+    };
+    $scope.selectHrefSingleClick = function (data) {
+        $scope.hrefrowSelected = data.Id;
+        $scope.hrefvalueData = data;
+    };
+
+    $scope.selectByButtonHref = function () {
+        if (baseService.isUndefinedOrNull($scope.hrefvalueData)) {
+            return ShowResult('Please at first select row', 'failure', 'popUphrefId');
+        }
+        $scope.selectHrefDoubleClick($scope.hrefvalueData)
+        $scope.closeHrefPopUp();
+    };
+    $scope.closeHrefPopUp = function () {
+        $scope.hrefvalueData = '';
+        angular.element(document.querySelector('#popUphrefId')).modal('hide');
+    };
+     //***********************************Href ********************************************************//
 }
