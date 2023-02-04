@@ -510,6 +510,29 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
         }
     }
 
+    $scope.PlanQtyList = [];
+    $scope.GetPlanQtyData = function () {
+        if ($scope.SOItemList.length > 0) {
+            var uniqueMasterOrderId = removeDuplicates($scope.SOItemList, 'SOId');
+            var wcEmpCode = "";
+            if (uniqueMasterOrderId.length > 0) {
+                wcEmpCode = "IN(";
+                wcEmpCode += Array.prototype.map.call(uniqueMasterOrderId, function (item) { return "'" + item.SOId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatement = wcEmpCode;
+        }
+
+
+        $scope.PlanQtyList = [];
+            $http({
+                method: 'GET',
+                url: 'Materials/RawMaterialPlanning/GetPlanQtyList?soId=' + $scope.sqlInStatement
+
+            }).then(function successCallback(response) {
+                $scope.PlanQtyList = response.data;
+            });
+    }
+
     //$scope.BoqCalculation = function (obj) {
     //    try {
     //        if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {

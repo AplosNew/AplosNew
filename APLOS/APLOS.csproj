@@ -801,6 +801,7 @@
     <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\SalesOrderApprovalController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\PackingTypeController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\ProductIntegrityAnalysisMasterController.cs" />
     <Compile Include="Areas\Organizations\Controllers\PositionWiseMPStatusController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
@@ -2285,6 +2286,7 @@
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SalesOrderApprovalController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingTypeController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\ProductIntegrityAnalysisMasterController.js" />
     <Content Include="Areas\Organizations\Scripts\PositionWiseMPStatusController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
@@ -4516,6 +4518,7 @@
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Approval.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Issue.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductIntegrityAnalysisMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
