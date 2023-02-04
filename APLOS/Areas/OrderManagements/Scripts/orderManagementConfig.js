@@ -255,6 +255,11 @@ function OrderManagementConfig($routeProvider, $locationProvider)
         .when('/sales-order-app', {
             templateUrl: 'OrderManagements/SalesOrderApproval/Aplos',
             controller: 'SalesOrderApprovalController'
+        }) 
+
+        .when('/product-integrity-analysis-master', {
+            templateUrl: 'OrderManagements/ProductIntegrityAnalysisMaster/Aplos',
+            controller: 'ProductIntegrityAnalysisMasterController'
         })
 
         ;

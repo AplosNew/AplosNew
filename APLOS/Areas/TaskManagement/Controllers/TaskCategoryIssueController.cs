@@ -44,33 +44,6 @@ namespace Aplos.Areas.TaskManagement.Controllers
             return View();
         }
 
-        [AllowAnonymous]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + " WHERE FLAG='" + Flag + "'"), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + " WHERE FLAG='" + Flag + "') AS TEMP WHERE " + strkey + " order by sequence";
-
-
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        }
-
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {
@@ -127,6 +100,35 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
             }
         }
+
+
+        [AllowAnonymous]
+        public JsonResult GetCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + " WHERE FLAG='" + Flag + "'"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select top 100 * from (SELECT * FROM " + TableName + " WHERE FLAG='" + Flag + "') AS TEMP WHERE " + strkey + " order by sequence";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
+        {
+            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+        }
+
 
         public ActionResult Delete(string id)
         {

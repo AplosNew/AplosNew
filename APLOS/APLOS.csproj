@@ -801,6 +801,7 @@
     <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\SalesOrderApprovalController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\PackingTypeController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\ProductIntegrityAnalysisMasterController.cs" />
     <Compile Include="Areas\Organizations\Controllers\PositionWiseMPStatusController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
@@ -2285,6 +2286,7 @@
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SalesOrderApprovalController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingTypeController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\ProductIntegrityAnalysisMasterController.js" />
     <Content Include="Areas\Organizations\Scripts\PositionWiseMPStatusController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
@@ -2891,6 +2893,7 @@
     <Content Include="Areas\Setups\Scripts\shiftGroupController.js" />
     <Content Include="Areas\Setups\Scripts\plantSettingController.js" />
     <Content Include="Areas\Setups\Views\HSNTaxPercentageNew\Aplos.cshtml" />
+    <Content Include="Areas\TaskManagement\Scripts\UserEditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskManagementReportController.js" />
     <Content Include="Areas\TaskManagement\Scripts\taskDetailController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskReplacementController.js" />
@@ -4515,6 +4518,7 @@
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Approval.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Issue.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductIntegrityAnalysisMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4628,6 +4632,7 @@
     <Content Include="Areas\Productions\Views\ParameterMaster\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\Landedcostreport\Report.cshtml" />
     <Content Include="Areas\SalesManagements\Views\AdditionalInfo.cshtml" />
+    <Content Include="Areas\TaskManagement\Views\TaskAppliedOn\UserUnit.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
