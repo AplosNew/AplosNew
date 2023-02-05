@@ -4,9 +4,11 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Logs;
 using Library.Service.Setups;
 using Newtonsoft.Json;
 using OTSBD;
@@ -14,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -248,6 +251,26 @@ namespace Aplos.Areas.TaskManagement.Controllers
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetHreflist(GridParameter parameters)
+        {
+            return Json(GetHreflistData(parameters), JsonRequestBehavior.AllowGet);
+        }
+
+        public GridModel GetHreflistData(GridParameter parameters)
+        {
+            try
+            {
+                parameters.CmdText = @"select Id MenuMasterId,Description, Controller, Href from [MST].[MenuMaster]";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         #endregion User Edit Cotrol
     }
 }

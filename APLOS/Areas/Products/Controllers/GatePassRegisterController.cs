@@ -1,43 +1,17 @@
-﻿
-using Aplos.Properties;
-using Library.Core;
-using Library.Crosscutting.Security;
-using Library.Data;
-using Library.Data.Sql;
-using Library.Model.Enums;
-using Library.Model.Inventory;
-using Library.Model.Parties;
-using Library.Model.Products;
-using Library.Service.Enums;
+﻿using Library.Crosscutting.Security;
 using Library.Service.Helpers;
-using Library.MaterialManagement.Inventory;
-using Library.Service.Logs;
-using Library.Service.Products;
-using Library.MaterialManagement.Reports;
-using Library.ViewModel.Inventory;
-using Library.ViewModel.Materials;
-using Library.ViewModel.OrderManagements;
-using Microsoft.Reporting.WebForms;
-using OTSBD;
 using Syncfusion.XlsIO;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
-using Aplos.Filters;
-using Aplos.Helpers;
 using Syncfusion.ExcelToPdfConverter;
 using Syncfusion.Pdf;
 using Library.MaterialManagement.InventoryManagements;
 
 namespace Aplos.Areas.Products.Controllers
 {
-	public class GatePassRegisterController : Controller
+    public class GatePassRegisterController : Controller
 	{
 		#region Constructor
 		GatePassService gps = new GatePassService();

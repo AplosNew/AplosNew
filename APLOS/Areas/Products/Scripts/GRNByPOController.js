@@ -591,6 +591,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                         'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
                                         'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti,
                                         'grnBinAllocationMap': $scope.binMasterList
+                                        //'inventoryMaterialList': $scope.inventoryMaterialList
                                     },
                                     dataType: 'JSON'
                                     , contentType: "application/json charset=utf-8"
