@@ -180,8 +180,8 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         limit: 10,
         offset: 0,
         order: 'asc',
-        sort: 'UserId',
-        searchBy: "UserId",
+        sort: 'MenuMasterId',
+        searchBy: "MenuMasterId",
         pageSize: 10,
         total_count: 0,
         search: null,
@@ -208,14 +208,16 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     $scope.selectHrefDoubleClick = function (data) {
         //if (data.SysAdmin)
         //    return ShowResult("User [" + data.UserId + "] is [" + data.UserType + "], so role is not required.", 'failure', 'popUpId')
-        $scope.ModelNew.HrefId = data.Id;
-        $scope.ModelNew.Href = data.Id;
+        $scope.ModelNew.HrefId = data.MenuMasterId;
+        $scope.ModelNew.Href = data.Href;
         $scope.getData();
         $scope.closeHrefPopUp();
     };
     $scope.selectHrefSingleClick = function (data) {
-        $scope.hrefrowSelected = data.Id;
+        $scope.hrefrowSelected = data.MenuMasterId;
         $scope.hrefvalueData = data;
+        $scope.ModelNew.HrefId = data.MenuMasterId;
+        $scope.ModelNew.Href = data.Href;
     };
 
     $scope.selectByButtonHref = function () {
