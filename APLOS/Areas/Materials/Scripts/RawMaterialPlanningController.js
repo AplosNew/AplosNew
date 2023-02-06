@@ -27,6 +27,28 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
         }
     ];
 
+    $scope.MaterialPlanTypeList = [
+        {
+            'Value': 'Costing',
+            'Text': 'Costing'
+        },
+        {
+            'Value': 'QBOQ',
+            'Text': 'QBOQ'
+        }
+    ];
+
+    $scope.ConsumptionLevelList = [];
+    $scope.GetConsumptionLevelList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/RawMaterialPlanning/GetConsumptionLevelList' 
+        }).then(function successCallback(response) {
+            $scope.ConsumptionLevelList = response.data;
+        });
+    }
+    $scope.GetConsumptionLevelList();
+
     $scope.modelFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'Id' },
         { 'name': 'Prod. Status', 'value': 'ProductionStatus' },
@@ -47,122 +69,123 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];
     $scope.ModelNew = { Id: null, POId: null, EntityId: null, MOItemId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
-    $scope.RMPlanningNew = { Id: null, POId: null, PlanBy: null, PlanById: null, PlanDate: null, UserPlanName: null, Remarks: null, IsActive: true, PlanStatus: null};
-    $scope.entityList = [];
-    $scope.getAllEntities = function () {
-        $http({
-            method: 'Get',
-            url: "Materials/RawMaterialPlanning/EntityList"
-        }).then(function successCallback(response) {
-            $scope.entityList = response.data;
-        });
-    }
-    $scope.getAllEntities();
+    $scope.RMPlanningNew = { Id: null, POId: null, PlanBy: null, PlanById: null, PlanDate: null, UserPlanName: null, Remarks: null, IsActive: true, PlanStatus: null, MaterialPlanType: "QBOQ"};
 
-    $scope.GetEntityName = function () {
-        for (var i = 0; i < $scope.entityList.length; i++) {
-            if ($scope.entityList[i].Value == $scope.ModelNew.EntityId) {
-                $scope.ModelNew.Entity = $scope.entityList[i].Text;
-                break;
-            }
-        }
+    //$scope.entityList = [];
+    //$scope.getAllEntities = function () {
+    //    $http({
+    //        method: 'Get',
+    //        url: "Materials/RawMaterialPlanning/EntityList"
+    //    }).then(function successCallback(response) {
+    //        $scope.entityList = response.data;
+    //    });
+    //}
+    //$scope.getAllEntities();
 
-    }
+    //$scope.GetEntityName = function () {
+    //    for (var i = 0; i < $scope.entityList.length; i++) {
+    //        if ($scope.entityList[i].Value == $scope.ModelNew.EntityId) {
+    //            $scope.ModelNew.Entity = $scope.entityList[i].Text;
+    //            break;
+    //        }
+    //    }
 
-    $scope.AllTabPrint = function (data) {
-        location.href = "Materials/RawMaterialPlanning/IssueRequestReport?mId=" + data.data.Id;
-    };
+    //}
 
-    $scope.LevelList = [
-        {
-            'Value': 'Costing',
-            'Text': 'Costing'
-        },
-        {
-            'Value': 'QBOQ',
-            'Text': 'QBOQ'
-        }
-    ];
+    //$scope.AllTabPrint = function (data) {
+    //    location.href = "Materials/RawMaterialPlanning/IssueRequestReport?mId=" + data.data.Id;
+    //};
 
-    $scope.storageList = [];
+    //$scope.LevelList = [
+    //    {
+    //        'Value': 'Costing',
+    //        'Text': 'Costing'
+    //    },
+    //    {
+    //        'Value': 'QBOQ',
+    //        'Text': 'QBOQ'
+    //    }
+    //];
 
-    $scope.Getstorage = function () {
-        $http({
-            method: 'GET',
-            url: 'Materials/MaterialStorage/getcbo'
-        }).then(function (response) {
-            $scope.storageList = response.data;
-        });
-    }
-    $scope.Getstorage();
+    //$scope.storageList = [];
 
-    $scope.NotificationSettingStatus = function () {
-        //debugger;
-        $http({
-            method: 'GET',
-            url: 'Products/GoodsReceiveNote/NotificationSetting',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.NotificationSetting = response.data;
-            $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
-            $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-            if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
-                $scope.labelCheckAndApproved = 'To be checked by';
-            }
-            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
-                $scope.labelCheckAndApproved = 'To be approved by';
-            }
-            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
-                $scope.labelCheckAndApproved = 'To be checked by';
-            }
-            //else {
-            //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
-            //}
+    //$scope.Getstorage = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Materials/MaterialStorage/getcbo'
+    //    }).then(function (response) {
+    //        $scope.storageList = response.data;
+    //    });
+    //}
+    //$scope.Getstorage();
 
-        });
-    }
-    $scope.NotificationSettingStatus();
+    //$scope.NotificationSettingStatus = function () {
+    //    //debugger;
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Products/GoodsReceiveNote/NotificationSetting',
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.NotificationSetting = response.data;
+    //        $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
+    //        $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
+    //        if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
+    //            $scope.labelCheckAndApproved = 'To be checked by';
+    //        }
+    //        else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true) {
+    //            $scope.labelCheckAndApproved = 'To be approved by';
+    //        }
+    //        else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true) {
+    //            $scope.labelCheckAndApproved = 'To be checked by';
+    //        }
+    //        //else {
+    //        //    $scope.productNew.labelCheckAndApproved = 'To be checked/approved by';
+    //        //}
 
-    $scope.checkedByList = [];
-    $scope.GetSupervisorCboList = function () {
-        $http({
-            method: 'GET',
-            url: 'Products/PurchaseOrder/GetIssueSlipCheckByCbo'
-        }).then(function successCallback(response) {
-            $scope.checkedByList = response.data;
-        });
-    }
-    $scope.GetSupervisorCboList();
+    //    });
+    //}
+    //$scope.NotificationSettingStatus();
 
-    $scope.CostCenterLoad = function () {
-        cboService.getCostCenterCbo(function (result) {
-            $scope.costCenterList = result;
-            for (var i = 0; i < $scope.costCenterList.length; i++) {
-                if ($scope.costCenterList[i].Text == 'Mixing') {
-                    $scope.ModelNew.CostCenterId = $scope.costCenterList[i].Value;
-                    break;
-                }
-            }
-        });
-    }
-    $scope.CostCenterLoad();
+    //$scope.checkedByList = [];
+    //$scope.GetSupervisorCboList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Products/PurchaseOrder/GetIssueSlipCheckByCbo'
+    //    }).then(function successCallback(response) {
+    //        $scope.checkedByList = response.data;
+    //    });
+    //}
+    //$scope.GetSupervisorCboList();
 
-    $scope.savedList = [];
-    $scope.GetSavedData = function () {
-        $scope.savedList = [];
-        $http.get('Materials/RawMaterialPlanning/GetApprovedData')
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.savedList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+    //$scope.CostCenterLoad = function () {
+    //    cboService.getCostCenterCbo(function (result) {
+    //        $scope.costCenterList = result;
+    //        for (var i = 0; i < $scope.costCenterList.length; i++) {
+    //            if ($scope.costCenterList[i].Text == 'Mixing') {
+    //                $scope.ModelNew.CostCenterId = $scope.costCenterList[i].Value;
+    //                break;
+    //            }
+    //        }
+    //    });
+    //}
+    //$scope.CostCenterLoad();
 
-    };
-    $scope.GetSavedData();
+    //$scope.savedList = [];
+    //$scope.GetSavedData = function () {
+    //    $scope.savedList = [];
+    //    $http.get('Materials/RawMaterialPlanning/GetApprovedData')
+    //        .then(
+    //            function successCallback(response) {
+    //                if (baseService.arrayLength(response.data) > 0) {
+    //                    $scope.savedList = response.data;
+    //                }
+    //            },
+    //            function errorCallback(response) {
+    //                ShowResult(response, 'failure');
+    //            });
+
+    //};
+    //$scope.GetSavedData();
 
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
@@ -175,7 +198,6 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.SOItemList = response.data;
                     }
-                    //$scope.GetQBOQCostingData();
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -185,106 +207,106 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
         }
     };
 
-    $scope.GetSaved = function (obj) {
-        $scope.ModelNew = Object.assign({}, obj.data);
-        $scope.ModelNew.IssueDate = $filter('dateFiltering')($scope.ModelNew.IssueDate, 'dd-M-yyyy');
-        $scope.Action = 'Update';
-        $scope.GetSavedSODetailData();
-        $scope.GetSavedDetailData();
-        // $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
-        /*$scope.getdataInventoryIssue($scope.ModelNew.POId);*/
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
+    //$scope.GetSaved = function (obj) {
+    //    $scope.ModelNew = Object.assign({}, obj.data);
+    //    $scope.ModelNew.IssueDate = $filter('dateFiltering')($scope.ModelNew.IssueDate, 'dd-M-yyyy');
+    //    $scope.Action = 'Update';
+    //    $scope.GetSavedSODetailData();
+    //    $scope.GetSavedDetailData();
+    //    // $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
+    //    /*$scope.getdataInventoryIssue($scope.ModelNew.POId);*/
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
+    //};
 
-    $scope.SOItemList = [];
-    $scope.GetSavedSODetailData = function () {
-        $scope.SOItemList = [];
-        $http.get('Materials/RawMaterialPlanning/GetSavedSODetailData?masterId=' + $scope.ModelNew.Id)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SOItemList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+    //$scope.SOItemList = [];
+    //$scope.GetSavedSODetailData = function () {
+    //    $scope.SOItemList = [];
+    //    $http.get('Materials/RawMaterialPlanning/GetSavedSODetailData?masterId=' + $scope.ModelNew.Id)
+    //        .then(
+    //            function successCallback(response) {
+    //                if (baseService.arrayLength(response.data) > 0) {
+    //                    $scope.SOItemList = response.data;
+    //                }
+    //            },
+    //            function errorCallback(response) {
+    //                ShowResult(response, 'failure');
+    //            });
 
-    };
+    //};
 
-    $scope.QBOQCostingList = [];
-    $scope.GetSavedDetailData = function () {
-        $scope.QBOQCostingList = [];
-        $http.get('Materials/RawMaterialPlanning/GetSavedDetailData?masterId=' + $scope.ModelNew.Id)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.QBOQCostingList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+    //$scope.QBOQCostingList = [];
+    //$scope.GetSavedDetailData = function () {
+    //    $scope.QBOQCostingList = [];
+    //    $http.get('Materials/RawMaterialPlanning/GetSavedDetailData?masterId=' + $scope.RMPlanningNew.Id)
+    //        .then(
+    //            function successCallback(response) {
+    //                if (baseService.arrayLength(response.data) > 0) {
+    //                    $scope.QBOQCostingList = response.data;
+    //                }
+    //            },
+    //            function errorCallback(response) {
+    //                ShowResult(response, 'failure');
+    //            });
 
-    };
+    //};
 
-    $scope.getArticle = function (data) {
-        $scope.SelectedMaterial = data;
-        $scope.getArticleSearchList(data.MaterialMasterId);
-    };
-    $scope.selectarticle = function (ob) {
-        try {
+    //$scope.getArticle = function (data) {
+    //    $scope.SelectedMaterial = data;
+    //    $scope.getArticleSearchList(data.MaterialMasterId);
+    //};
+    //$scope.selectarticle = function (ob) {
+    //    try {
 
-            $scope.SelectedMaterial.MaterialMasterId = ob.MaterialMasterId;
-            $scope.SelectedMaterial.Material = ob.MaterialMasterName;
-            $scope.SelectedMaterial.ArticleId = ob.Id;
-            $scope.SelectedMaterial.Article = ob.StandardName;
+    //        $scope.SelectedMaterial.MaterialMasterId = ob.MaterialMasterId;
+    //        $scope.SelectedMaterial.Material = ob.MaterialMasterName;
+    //        $scope.SelectedMaterial.ArticleId = ob.Id;
+    //        $scope.SelectedMaterial.Article = ob.StandardName;
 
-            angular.element(document.querySelector('#articleSearchPop')).modal('hide');
-            if ($scope.ModelNew.Level == "Costing") {
-                var gridObj = $("#CGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            } else {
-                var gridObj = $("#BGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            }
-        } catch (e) {
-            ShowResult(e, '', 'articleSearchPop');
-        }
-    };
+    //        angular.element(document.querySelector('#articleSearchPop')).modal('hide');
+    //        if ($scope.RMPlanningNew.MaterialPlanType == "Costing") {
+    //            var gridObj = $("#CGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        } else {
+    //            var gridObj = $("#BGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, '', 'articleSearchPop');
+    //    }
+    //};
 
-    $scope.popUpDataList = [];
-    $scope.showEmployeeListPopUp = function () {
-        try {
-            $scope.popUpDataList = [];
-            $http({
-                method: 'GET',
-                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
+    //$scope.popUpDataList = [];
+    //$scope.showEmployeeListPopUp = function () {
+    //    try {
+    //        $scope.popUpDataList = [];
+    //        $http({
+    //            method: 'GET',
+    //            url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
 
-            }).then(function successCallback(response) {
-                $scope.popUpDataList = response.data;
-            });
+    //        }).then(function successCallback(response) {
+    //            $scope.popUpDataList = response.data;
+    //        });
 
-            angular.element(document.querySelector('#popUp')).modal('show');
+    //        angular.element(document.querySelector('#popUp')).modal('show');
 
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //};
 
-    $scope.SelectEmployee = function (arg) {
-        $scope.ModelNew.ByWhomId = arg.data.SystemId;
-        $scope.ModelNew.ByWhom = arg.data.EmployeeName;
-        $scope.closePopUp();
-    }
+    //$scope.SelectEmployee = function (arg) {
+    //    $scope.ModelNew.ByWhomId = arg.data.SystemId;
+    //    $scope.ModelNew.ByWhom = arg.data.EmployeeName;
+    //    $scope.closePopUp();
+    //}
 
-    $scope.closePopUp = function () {
-        angular.element(document.querySelector('#popUp')).modal('hide');
-    }
+    //$scope.closePopUp = function () {
+    //    angular.element(document.querySelector('#popUp')).modal('hide');
+    //}
 
     $scope.refreshTemplateSO = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllSO });
@@ -309,18 +331,64 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
         var gridObj = $("#SOGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
+    $scope.refreshTemplateQBOQ = function (args) {
+        $("#Qheadchk").ejCheckBox({ "change": CheckBoxSelectAllQBOQ });
+    };
+    function CheckBoxSelectAllQBOQ(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#BGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                $scope.QBOQCostingList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#BGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.refreshTemplateCosting = function (args) {
+        $("#Cheadchk").ejCheckBox({ "change": CheckBoxSelectAllCosting });
+    };
+    function CheckBoxSelectAllCosting(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#CGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                $scope.QBOQCostingList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#CGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
     $scope.Action = 'Save';
     $scope.Save = function () {
         $scope.QBOQCostingListNew = [];
         $scope.SaveList = [];
         for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
-
-            $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
-            $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
-            $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
-            $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
-            $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
-
+            if ($scope.QBOQCostingList[p].Flag == true) {
+                $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+                $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+                $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+                $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+            }
         }
         try {
             if (baseService.isUndefinedOrNull($scope.RMPlanningNew.POId)) {
@@ -368,11 +436,12 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
     };
     
     $scope.Clear = function () {
-        $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
-        $scope.RMPlanningNew = { Id: null, POId: null, PlanBy: null, PlanById: null, PlanDate: null, UserPlanName: null, Remarks: null, IsActive: true, PlanStatus: null };
+        //$scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+        $scope.RMPlanningNew = { Id: null, POId: null, PlanBy: null, PlanById: null, PlanDate: null, UserPlanName: null, Remarks: null, IsActive: true, PlanStatus: null, MaterialPlanType: "Costing"};
         $scope.SOItemList = [];
         $scope.QBOQCostingList = [];
-        $scope.ModelNew.Level = "Costing";
+        //$scope.ModelNew.Level = "Costing";
+        $scope.RMPlanningNew.MaterialPlanType = "Costing";
         $scope.modelList = [];
         $rootScope.toggle();
 
@@ -414,7 +483,7 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
 
 
         $scope.QBOQCostingList = [];
-        if ($scope.ModelNew.Level == "Costing") {
+        if ($scope.RMPlanningNew.MaterialPlanType == "Costing") {
             $http({
                 method: 'GET',
                 url: 'Materials/RawMaterialPlanning/GetCostingDataList?soId=' + $scope.sqlInStatement
@@ -430,126 +499,156 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
 
             }).then(function successCallback(response) {
                 $scope.QBOQCostingList = response.data;
+                for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                    for (var j = 0; j < $scope.ConsumptionLevelList.length; j++) {
+                        if ($scope.QBOQCostingList[i].ConsumptionLevel == $scope.ConsumptionLevelList[j].Value) {
+                            $scope.QBOQCostingList[i].ConsumptionLevel = $scope.ConsumptionLevelList[j].Value;
+                        }
+                    }
+                }
             });
         }
     }
 
-    $scope.BoqCalculation = function (obj) {
-        try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
-                throw "Input Plan Percentage";
+    $scope.PlanQtyList = [];
+    $scope.GetPlanQtyData = function () {
+        if ($scope.SOItemList.length > 0) {
+            var uniqueMasterOrderId = removeDuplicates($scope.SOItemList, 'SOId');
+            var wcEmpCode = "";
+            if (uniqueMasterOrderId.length > 0) {
+                wcEmpCode = "IN(";
+                wcEmpCode += Array.prototype.map.call(uniqueMasterOrderId, function (item) { return "'" + item.SOId + "'"; }).join(",") + ")";
             }
-            var totaPlanlAmount = 0;
-            obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
-            obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
-            obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
-
-            if ($scope.ModelNew.Level == "Costing") {
-                var gridObj = $("#CGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            } else {
-                var gridObj = $("#BGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            }
-
-            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-                totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
-            }
-
-            for (var i = 0; i < $scope.SOItemList.length; i++) {
-                $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
-                $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
-                $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
-            }
-            var gridObj = $("#SOGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-
-    $scope.CostCalculation = function (obj) {
-        try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
-                throw "Input Plan Percentage";
-            }
-            var totaPlanlAmount = 0;
-            obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
-            obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
-            obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
-
-            if ($scope.ModelNew.Level == "Costing") {
-                var gridObj = $("#CGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            } else {
-                var gridObj = $("#BGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            }
-
-            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-                totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
-            }
-
-            for (var i = 0; i < $scope.SOItemList.length; i++) {
-                $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
-                $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
-                $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
-            }
-            var gridObj = $("#SOGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-
-    $scope.CalculationByPlan = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
-                throw "Input Plan Percentage";
-            }
-            var totaPlanlAmount = 0;
-            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-                $scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
-                $scope.QBOQCostingList[i].TotaPlanlAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].Rate;
-                $scope.QBOQCostingList[i].ActualIssueAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].StockRate;
-            }
-
-
-            if ($scope.ModelNew.Level == "Costing") {
-                var gridObj = $("#CGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            } else {
-                var gridObj = $("#BGrid").data("ejGrid");
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-            }
-
-            for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-                totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
-            }
-
-            for (var i = 0; i < $scope.SOItemList.length; i++) {
-                $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
-                $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
-                $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
-            }
-            var gridObj = $("#SOGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-        } catch (e) {
-            ShowResult(e, 'failure');
+            $scope.sqlInStatement = wcEmpCode;
         }
 
+
+        $scope.PlanQtyList = [];
+            $http({
+                method: 'GET',
+                url: 'Materials/RawMaterialPlanning/GetPlanQtyList?soId=' + $scope.sqlInStatement
+
+            }).then(function successCallback(response) {
+                $scope.PlanQtyList = response.data;
+            });
     }
+
+    //$scope.BoqCalculation = function (obj) {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
+    //            throw "Input Plan Percentage";
+    //        }
+    //        var totaPlanlAmount = 0;
+    //        obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+    //        obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
+    //        obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
+
+    //        if ($scope.RMPlanningNew.MaterialPlanType == "Costing") {
+    //            var gridObj = $("#CGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        } else {
+    //            var gridObj = $("#BGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        }
+
+    //        for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+    //            totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
+    //        }
+
+    //        for (var i = 0; i < $scope.SOItemList.length; i++) {
+    //            $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
+    //            $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
+    //            $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
+    //        }
+    //        var gridObj = $("#SOGrid").data("ejGrid");
+    //        gridObj.refreshContent(true);
+    //        gridObj.refreshTemplate();
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+
+    //$scope.CostCalculation = function (obj) {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
+    //            throw "Input Plan Percentage";
+    //        }
+    //        var totaPlanlAmount = 0;
+    //        obj.data.PlanConsumption = (obj.data.TotalConsumption + obj.data.AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+    //        obj.data.TotaPlanlAmount = obj.data.PlanConsumption * obj.data.Rate;
+    //        obj.data.ActualIssueAmount = obj.data.PlanConsumption * obj.data.StockRate;
+
+    //        if ($scope.RMPlanningNew.MaterialPlanType == "Costing") {
+    //            var gridObj = $("#CGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        } else {
+    //            var gridObj = $("#BGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        }
+
+    //        for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+    //            totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
+    //        }
+
+    //        for (var i = 0; i < $scope.SOItemList.length; i++) {
+    //            $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
+    //            $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
+    //            $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
+    //        }
+    //        var gridObj = $("#SOGrid").data("ejGrid");
+    //        gridObj.refreshContent(true);
+    //        gridObj.refreshTemplate();
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+
+    //$scope.CalculationByPlan = function () {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.ModelNew.PlanPercentage) || $scope.ModelNew.PlanPercentage == 0 || $scope.ModelNew.PlanPercentage == 'NaN') {
+    //            throw "Input Plan Percentage";
+    //        }
+    //        var totaPlanlAmount = 0;
+    //        for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+    //            $scope.QBOQCostingList[i].PlanConsumption = ($scope.QBOQCostingList[i].TotalConsumption + $scope.QBOQCostingList[i].AdditionReduction) * $scope.ModelNew.PlanPercentage / 100;
+    //            $scope.QBOQCostingList[i].TotaPlanlAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].Rate;
+    //            $scope.QBOQCostingList[i].ActualIssueAmount = $scope.QBOQCostingList[i].PlanConsumption * $scope.QBOQCostingList[i].StockRate;
+    //        }
+
+
+    //        if ($scope.RMPlanningNew.MaterialPlanType == "Costing") {
+    //            var gridObj = $("#CGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        } else {
+    //            var gridObj = $("#BGrid").data("ejGrid");
+    //            gridObj.refreshContent(true);
+    //            gridObj.refreshTemplate();
+    //        }
+
+    //        for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+    //            totaPlanlAmount += $scope.QBOQCostingList[i].TotaPlanlAmount;
+    //        }
+
+    //        for (var i = 0; i < $scope.SOItemList.length; i++) {
+    //            $scope.SOItemList[i].PlanRate = totaPlanlAmount / $scope.SOItemList[i].PlannedQty;
+    //            $scope.SOItemList[i].PlantCost = $scope.SOItemList[i].PlanRate * $scope.SOItemList[i].PlannedQty;
+    //            $scope.SOItemList[i].TotalSOCostVsTotalPlanCost = $scope.SOItemList[i].SOTotalMaterailCost - $scope.SOItemList[i].PlantCost;
+    //        }
+    //        var gridObj = $("#SOGrid").data("ejGrid");
+    //        gridObj.refreshContent(true);
+    //        gridObj.refreshTemplate();
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+
+    //}
 
     $scope.filters = [];
     $scope.getFiltersData = function () {
@@ -701,7 +800,6 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.SOItemList = response.data;
                     }
-                    //$scope.GetQBOQCostingData();
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');

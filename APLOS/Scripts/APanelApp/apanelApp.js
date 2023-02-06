@@ -519,6 +519,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("AppRoleController", AppRoleController)
     .controller("UserAccessAppRoleController", UserAccessAppRoleController)
     .controller("WasteTypeController", WasteTypeController)
+    .controller("UserEditControlController", UserEditControlController)
 
 
     .config(accountConfig)

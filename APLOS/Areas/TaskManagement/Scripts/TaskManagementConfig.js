@@ -68,7 +68,9 @@ function TaskManagementConfig($routeProvider, $locationProvider) {
             controller: 'TaskManagementReportController'
 
         })
-       
-
+        .when('/user-edit-control', {
+            templateUrl: 'TaskManagement/TaskAppliedOn/UserUnit',
+            controller: 'UserEditControlController'
+        })
         ;
 }

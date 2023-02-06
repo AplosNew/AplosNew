@@ -1079,6 +1079,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.SaveMaster = function () {
         try {
+            $scope.getProdLevel();
             ValidationMaster();
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.productionSummaryNew.MasterOrderItemId = null;
@@ -1131,11 +1132,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
             }
 
-            if ($scope.IsFirst == false) {
-                if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
-                    throw "Produced Quantity should less than Order Quantity.";
-                }
-            }
+            //if ($scope.IsFirst == false) {
+            //    if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
+            //        throw "Produced Quantity should less than Order Quantity.";
+            //    }
+            //}
 
             $http({
                 method: 'POST',
@@ -1383,6 +1384,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 .then(
                     function successCallback(response) {
                         $scope.ProcessParaList = response.data;
+                        $scope.GetTotalProductionBookingQty();
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');

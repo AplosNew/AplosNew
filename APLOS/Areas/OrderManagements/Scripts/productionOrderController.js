@@ -40,57 +40,6 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
 
         }
     }
-    //$scope.RefreshGrids = function () {
-    //setInterval(function () {
-    //    try {
-
-    //        var gridObj = $("#Gridunassigned").ejGrid("instance");
-    //        var scrollerwidth = $("#mainContainerPO").width();//Obtain the width of the container
-    //        gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20 } });//pass the obtainer width and height to gridmodel options
-    //        //gridObj.windowonresize();
-    //        gridObj.refreshContent();
-    //    } catch (e) {
-
-    //    }
-
-    //}, 3000);
-    //setInterval(function () {
-    //    var scp = $scope;
-    //    for (var prop in scp) {
-    //        try {
-    //            if (scp[prop].pluginName == 'ejGrid') {
-
-    //                try {
-    //                    var scrollerwidth = $("#" + prop).parent().width();
-    //                    if (scrollerwidth > 100) {
-    //                        if (scrollerwidth > $("#" + prop).width()) {
-    //                            if (($("#" + prop).width() + 4) < scrollerwidth) {
-    //                                var gridObjThis = $("#" + prop).ejGrid("instance");
-    //                                gridObjThis.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 4, height: 0 } });//pass the obtainer width and height to gridmodel options
-    //                            }
-    //                        }
-    //                        else {
-    //                            if ((scrollerwidth + 4) < $("#" + prop).width()) {
-    //                                var gridObjThis = $("#" + prop).ejGrid("instance");
-    //                                gridObjThis.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 4, height: 0 } });//pass the obtainer width and height to gridmodel options
-    //                            }
-    //                        }
-    //                    }
-
-    //                    var gridObj = $("#" + prop).data("ejGrid");
-    //                    //gridObj.windowonresize();
-    //                    gridObj.refreshContent();
-    //                } catch (e) {
-
-    //                }
-    //            }
-    //        } catch (e) {
-
-    //        }
-    //    }
-    //}, 3000);
-    //}
-    //$scope.RefreshGrids();
 
     $scope.rowDataBoundOrder = function rowDataBoundOrder(e) {
         try {
@@ -1147,7 +1096,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , ArticleId: null
             , MaterialMasterName: null
             , ArticleName: null
-            , Qty: null
+            , Qty: 100
             , UOMId: null
         });
         UomCboByFGMaterialMaster(data.MaterialMasterId);
@@ -1804,9 +1753,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.closeBullPop();
-                        $scope.getProductionBulletinData($scope.model.Id);
-                        $scope.getProductionBulletinProcess($scope.bulletinTemplateNew.Id);
+                        $scope.GetSavedWorkCenterListByEntityandFirstProcess();
 
                     }
                 }), function errorCallBack(response) {
@@ -1827,6 +1774,34 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         }
         return false;
     }
+
+    $scope.message_detailconfirmation = null;
+    $scope.removeFPWCDetail = function (obj) {
+
+        $scope.FPWC = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.FPWC.Id))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + $scope.FPWC.UserName + ' ]';
+        angular.element(document.querySelector('#confirmBoMDetailPopUp')).modal('show');
+    }
+
+    $scope.DeleteFPWCDetail = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductionOrder/DeleteFPWCDetail?id=' + $scope.FPWC.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedWorkCenterListByEntityandFirstProcess();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
 
     // #endregion  Work Center
 

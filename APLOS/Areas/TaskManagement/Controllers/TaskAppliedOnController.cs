@@ -4,9 +4,11 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Logs;
 using Library.Service.Setups;
 using Newtonsoft.Json;
 using OTSBD;
@@ -14,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -37,19 +40,19 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
         #endregion Constructor
 
-
-
         public ActionResult Aplos()
         {
             return View();
         }
 
+        public ActionResult UserUnit()
+        {
+            return View();
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetList()
         {
-
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * FROM " + TableName;
             DataTable dt = _sqlRepository.GetDataTable(sql);
@@ -61,19 +64,12 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     DataRow dr = dt.NewRow();
                     dr["TaskAppliedOnEnum"] = _data.ToString();
                     dt.Rows.Add(dr);
-
                 }
-
             }
             dt.DefaultView.RowFilter = null;
 
-
-
-
             return Json(Helpers.CustomJsonResult.DataTableToJson(dt), JsonRequestBehavior.AllowGet);
         }
-
-   
 
         [HttpPost]
         public JsonResult Create(List<Dictionary<string, object>> data)
@@ -134,8 +130,6 @@ namespace Aplos.Areas.TaskManagement.Controllers
             }
         }
 
-      
-
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -152,10 +146,6 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 {
                 }
             }
-
-
-
-
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
@@ -188,6 +178,99 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
             dr.EndEdit();
         }
-       
+
+        #region User Edit Cotrol
+        [HttpPost]
+        public JsonResult CreateUserEditControl(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from UserEditControl where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                
+                        //dsMaster.Tables[0].DefaultView.RowFilter = "TaskAppliedOnEnum='" + data[i]["TaskAppliedOnEnum"].ToString() + "'";
+                        if (dsMaster.Tables[0].DefaultView.Count == 0)
+                        {
+                            if (_Id == "")
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID("UserEditControl", out _Id);
+                            }
+                            data["Id"] =_Id ;
+                            AddNewRow(dsMaster.Tables[0], data);
+                        }
+                        else
+                        {
+                            //_Id = data["Id"].ToString();
+                            EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                        }
+                
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetUserEditControlList()
+        {
+            string sql = @"select *,U.FullName
+                            from UserEditControl UEC
+                            left join sec.[User] U on U.Id=UEC.UserId";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.UserEditControl where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetHreflist(GridParameter parameters)
+        {
+            return Json(GetHreflistData(parameters), JsonRequestBehavior.AllowGet);
+        }
+
+        public GridModel GetHreflistData(GridParameter parameters)
+        {
+            try
+            {
+                parameters.CmdText = @"select Id MenuMasterId,Description, Controller, Href from [MST].[MenuMaster]";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        #endregion User Edit Cotrol
     }
 }
