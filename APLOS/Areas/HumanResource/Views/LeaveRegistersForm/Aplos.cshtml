@@ -1,0 +1,124 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Leave Registers</h3>
+<div class="form-elements form-horizontal" ng-form="modelForm" id="maindivid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-xs-2 col-sm-2 col-md-2">
+                <div class="col-md-12">
+                    <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-enablefiltersearch="true" e-value="year" e-databound="SelectDefaultValue" e-fields-value="Text" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
+                </div>
+            </div>
+            @*<div class="col-xs-2 col-sm-2 col-md-2">
+                <div class="col-md-12">
+                    <input id="ddlMonthList" e-watermarktext="Month" ej-dropdownlist e-datasource="monthList" e-value="month" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-change="empGridShow" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" show-errors id="div_Year">
+                    <div class="col-md-12">
+                        <input id="ddlYearList" e-watermarktext="Year" ej-dropdownlist e-datasource="yearList" e-model="year" e-enablefiltersearch="true" e-fields-value="Text" e-fields-text="Text" e-width="100%" />
+                    </div>
+                </div>
+            </div>*@
+
+            <div class="col-md-4">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="GetEmployeeInformation();" class="btn"><i class="glyphicon glyphicon-search"></i> Load Employee </button></li>
+                        @*<li><button ng-click="GetSettings();" class="btn"><i class="glyphicon glyphicon-list"></i> View Settings </button></li>*@
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="col-xs-12">
+            <div id="Grid" ej-grid
+                 e-datasource="EmployeeList"
+                 e-allowscrolling="true"
+                 e-pageSettings-pageSize="8"
+                 e-actioncomplete="actionCompleteSelected"
+                 e-allowfiltering="true"
+                 e-allowpaging="true"
+                 e-enabletouch="false"
+                 e-responsive="true"
+                 e-allowselection="true"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Division" e-headertext="Division" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="DOJ" e-headertext="DOJ" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-headertext="Actions" e-width="40" e-template="#reportButton"></div>
+                </div>
+            </div>
+            <script type="text/template" id="reportButton">
+                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" ng-click="$parent.getLeaveRegisterFormReport(data);"><i class="fa fa-eye" style="margin: -6px;"></i></a>
+            </script>
+        </div>
+
+
+
+    </div>
+</div>
+
+<ej-dialog id="dialogSettingsEntry" title="Settings" e-target="#maindivid" e-enablemodal="true" e-showoninit="false" e-width="1000">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            Salary Heads
+            <div id="gridSalaryHead" ng-init="chkinit()" ej-grid e-datasource="SalaryHeadList"
+                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#TemplateCheckBoxSalaryHead" e-width="10"></div>
+                    <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="100"></div>
+                    <div e-column e-template="#TemplateTextBoxSequence" e-width="30"  e-headertext="Sequence"></div>
+                </div>
+            </div>
+            <script type="text/template" id="TemplateCheckBoxSalaryHead">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelect" />
+            </script>
+            <script type="text/template" id="TemplateTextBoxSequence">
+                <input type="text" ej-numerictextbox e-decimalplaces="0" e-min="1" e-enablertl="false" e-value="data.Sequence" e-width="75" />
+            </script>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            Leave Types
+            <div id="gridLeaveType" ng-init="chkinit()" ej-grid e-datasource="LeaveTypeList"
+                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-template="#TemplateCheckBoxLeaveType" e-width="10"></div>
+                    <div e-column e-field="LeaveType" e-headertext="Leave Type" e-width="100"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                    <div e-column e-template="#TemplateTextBoxSequence" e-width="30" e-headertext="Sequence"></div>
+                </div>
+            </div>
+            <script type="text/template" id="TemplateCheckBoxLeaveType">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelect" />
+            </script>
+            <script type="text/template" id="TemplateTextBoxSequence">
+                <input type="text" ej-numerictextbox e-decimalplaces="0" e-min="1" e-enablertl="false" e-value="data.Sequence" e-width="75" />
+            </script>
+        </div>
+
+        <div class="col-md-4">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                     <li><button ng-click="SaveSettings();" class="btn"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</ej-dialog>
+
