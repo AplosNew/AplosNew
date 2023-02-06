@@ -20297,6 +20297,616 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
         #endregion form18
 
+        #region Leave register form
+        //public void LeaveRegisterFormInMSWord(string companyGroupId, string companyId, string plantId, string year, string empId, string reportType)
+        //{
+        //    try
+        //    {
+        //        CreateLeaveRegisterFormInWord(companyGroupId, companyId, plantId, year, empId, reportType);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new CustomException(ex.Message, ex,
+        //            Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+        //                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+        //    }
+        //}
+
+        //private void CreateLeaveRegisterFormInWord(string companyGroupId, string companyId, string plantId, string year, string empId, string reportType)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        ReportUtility oRU = new ReportUtility();
+        //        string File = "";
+        //        string langID = "";
+        //        string strPath = "";
+        //        var fileName = "";
+        //        //int lang = "+ languageId + @";
+        //        string reportTypeName = "";
+
+        //        if (reportType == LetterType.ServiceBook.ToString())
+        //        {
+        //            reportTypeName = LetterType.ServiceBook.GetDescription();
+        //        }
+
+        //        var lang = GetLanguage();
+
+        //        if (lang.Count > 0)
+        //        {
+        //            var dtLangId = getLanguageId(lang["Language"].ToString()); //getLanguageId
+        //            langID = dtLangId.Rows[0]["Id"].ToString();
+        //            var dtLangName = getLanguageName(langID);
+        //            tempId = dtLangName.Rows[0]["UserName"].ToString();
+        //        }
+        //        else
+        //        {
+        //            langID = tempId;
+        //            var dtLangName = getLanguageName(langID);
+        //            tempId = dtLangName.Rows[0]["UserName"].ToString();
+        //            fileName = "Srv" + plantId + tempId + ".docx";
+        //            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
+        //            File = fileName;
+        //            if (!System.IO.File.Exists(strPath))
+        //            {
+        //                throw new CustomException("File <" + fileName + "> Not Found.");
+        //            }
+        //        }
+        //        ------
+
+        //        ///-----
+        //        //var Templatefile = GetFilePath(plantId, tempId, reportType);
+        //        //if (Templatefile.Count > 0)
+        //        //{
+        //        //    fileName = Templatefile["TemplateFileName"].ToString();
+        //        //}
+        //        if (!string.IsNullOrEmpty(fileName))
+        //        {
+        //            strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
+        //            File = fileName;
+        //            if (!System.IO.File.Exists(strPath))
+        //            {
+        //                throw new CustomException("File Not Found");
+        //            }
+        //        }
+
+        //        string filepath = "";
+        //        if (System.IO.File.Exists(strPath) && tempId != "English")
+        //        {
+        //            filepath = strPath;
+        //        }
+        //        else
+        //        {
+        //            File = "Leave" + plantId + "Bengali.docx";
+        //            filepath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), File);
+        //        }
+
+        //        FileInfo DocFile = new FileInfo(strPath);
+        //        if (DocFile.Exists == false)
+        //        {
+        //            //DocFile = new FileInfo(System.Web.HttpContext.Current.Server.MapPath(".") + "\\Doc1.docx");
+        //            throw new CustomException("File Not Found");
+        //        }
+
+        //        bool IsDefLan = false;
+        //        var tokens = (fileName.Substring(("Leave" + plantId).Length));
+        //        int charLocation = tokens.IndexOf(".", StringComparison.Ordinal);
+        //        var TemplateLan = tokens.Substring(0, charLocation);
+
+        //        if (tempId != TemplateLan)
+        //        {
+        //            IsDefLan = true;
+        //        }
+
+        //        DataTable dtEmp = GetEmployeeBasicInfoById(empId, plantId, empType, langID, tempId);
+        //        DataTable dtSalary = SalaryDetailsForSB(empId, langID); // GetGrossAmount(empId);
+        //        DataTable dtDisciplinaryAction = EmployeeDisciplinaryAction(empId, langID); // GetGrossAmount(empId);
+        //        DataTable dtClanderYear = GetCurrentClanderYear(plantId);
+
+        //        ////A opens input document.
+        //        WordDocument document = new WordDocument(DocFile.FullName);
+
+        //        TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+        //        Dictionary<string, int> replaced = new Dictionary<string, int>();
+
+        //        string value = "";
+        //        foreach (TextSelection item in allresult)
+        //        {
+        //            string foundText = item.SelectedText;
+
+        //            if (replaced.ContainsKey(foundText) == false)
+        //                replaced.Add(foundText, 0);
+
+        //            //for fixed info
+        //            string colName = foundText.Trim().Replace("{", "").Replace("}", "");
+        //            if (dtEmp.Columns.Contains(colName))
+        //            {
+
+        //                ////===== def lan 
+        //                if (IsDefLan == true)
+        //                {
+        //                    if (IsDefLan == true)
+        //                    {
+        //                        colName = GetBasicInfoInDefaultLng(colName);
+        //                    }
+        //                }
+        //                ///=====
+        //                value = dtEmp.Rows[0][dtEmp.Columns[colName].ColumnName].ToString();
+
+        //                if (bplib.clsWebLib.IsNumeric(value))
+        //                    replaced[foundText] = document.Replace(foundText, cnDgt(value, tempId), false, true);
+        //                else if (bplib.clsWebLib.IsDateOK(value))
+        //                    replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, tempId), false, true);
+        //                else
+        //                    replaced[foundText] = document.Replace(foundText, value, false, true);
+        //            }
+
+        //        }
+
+        //        //document.Replace("{Date}", GetFormatedDate(System.DateTime.Now.ToString("dd-MMM-yyyy"), lang["Language"].ToString()), false, true);
+        //        WSection section = document.Sections[0];
+        //        //WTable wTable = (WTable)section.Body.Tables[0];
+
+        //        if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeePic"].ToString()))
+        //        {
+        //            var pic = dtEmp.Rows[0]["EmployeePic"].ToString();
+        //            string picpath = ResourcesPathReader.GetEmployeeDestinationPicPath() + pic;
+        //            //WPicture ImgwPicture = new WPicture(document);
+        //            if (System.IO.File.Exists(picpath))
+        //            {
+        //                try
+        //                {
+        //                    Image Img = Image.FromFile(picpath);
+        //                    Image newImage = resizeImage(Img, 120, 120);
+
+
+
+        //                    //ImgwPicture.LoadImage(Image.FromFile(picpath));
+        //                    //TextBodyPart textBodyPart = new TextBodyPart(document);
+
+        //                    section.Tables[0].Rows[1].Cells[3].Paragraphs[0].AppendPicture(newImage);
+
+        //                    //document.Replace()
+        //                    //document.Replace("{emppic}", textBodyPart, true, true);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    throw (ex);
+        //                }
+        //            }
+        //        }
+
+        //        if (!string.IsNullOrEmpty(dtEmp.Rows[0]["AuthorizedSignature"].ToString()))
+        //        {
+        //            var pic = dtEmp.Rows[0]["AuthorizedSignature"].ToString();
+        //            string picpath = ResourcesPathReader.GetAuthorizedSignaturePath() + pic;
+        //            //WPicture ImgwPicture = new WPicture(document);
+        //            if (System.IO.File.Exists(picpath))
+        //            {
+        //                try
+        //                {
+        //                    Image Img = Image.FromFile(picpath);
+        //                    Image newImage = resizeImage(Img, 60, 100);
+        //                    //wPicture.LoadImage(Image.FromFile(picpath));
+        //                    //TextBodyPart textBodyPart = new TextBodyPart(document);
+
+        //                    section.Tables[3].Rows[0].Cells[1].Paragraphs[0].AppendPicture(newImage);
+
+        //                    //document.Replace()
+        //                    //document.Replace("{emppic}", textBodyPart, true, true);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    throw (ex);
+        //                }
+        //            }
+
+        //        }
+
+        //        if (!string.IsNullOrEmpty(dtEmp.Rows[0]["CardHolderSignature"].ToString()))
+        //        {
+        //            var pic = dtEmp.Rows[0]["CardHolderSignature"].ToString();
+        //            string picpath = ResourcesPathReader.GetCardHolderSignaturePath() + pic;
+        //            //WPicture ImgwPicture = new WPicture(document);
+        //            if (System.IO.File.Exists(picpath))
+        //            {
+        //                try
+        //                {
+        //                    Image Img = Image.FromFile(picpath);
+        //                    Image newImage = resizeImage(Img, 60, 100);
+        //                    //wPicture.LoadImage(Image.FromFile(picpath));
+        //                    //TextBodyPart textBodyPart = new TextBodyPart(document);
+
+        //                    section.Tables[3].Rows[0].Cells[0].Paragraphs[0].AppendPicture(newImage);
+
+        //                    //document.Replace()
+        //                    //document.Replace("{emppic}", textBodyPart, true, true);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    throw (ex);
+        //                }
+        //            }
+        //        }
+
+        //        if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeFingerPrint"].ToString()))
+        //        {
+        //            var pic = dtEmp.Rows[0]["EmployeeFingerPrint"].ToString();
+        //            string picpath = ResourcesPathReader.GetEmployeeFingerPrintForSBPath() + pic;
+        //            //WPicture ImgwPicture = new WPicture(document);
+        //            if (System.IO.File.Exists(picpath))
+        //            {
+        //                try
+        //                {
+        //                    Image Img = Image.FromFile(picpath);
+        //                    Image newImage = resizeImage(Img, 60, 100);
+        //                    //wPicture.LoadImage(Image.FromFile(picpath));
+        //                    //TextBodyPart textBodyPart = new TextBodyPart(document);
+
+        //                    section.Tables[2].Rows[8].Cells[2].Paragraphs[0].AppendPicture(newImage);
+
+        //                    //document.Replace()
+        //                    //document.Replace("{emppic}", textBodyPart, true, true);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    throw (ex);
+        //                }
+        //            }
+
+
+        //        }
+
+        //        WTable table1 = (WTable)section.Body.Tables[5];
+
+        //        //TextSelection allresult1 = table1.Find(new Regex("{.*?}"));
+        //        WTableRow copiedRow = table1.Rows[4].Clone();
+
+        //        var salarydistinctIds = dtSalary.AsEnumerable()
+        //           .Select(s => new
+        //           {
+        //               id = s.Field<string>("SystemId"),
+        //           })
+        //           .Distinct().ToList();
+
+        //        int index = 0;
+        //        foreach (var item in salarydistinctIds)
+        //        {
+        //            dtSalary.DefaultView.RowFilter = "SystemId='" + item.id + "'";
+        //            DataView dvr = new DataView(dtSalary.DefaultView.ToTable());
+
+        //            double totalOthers = 0;
+        //            double gross = 0;
+
+        //            WTableRow row;
+        //            //if (index == 0)
+        //            //    row = table1.AddRow();
+        //            //else
+        //            //{
+        //            if (index > 0)
+        //            {
+        //                row = copiedRow.Clone();
+        //                table1.Rows.Add(row);
+        //            }
+
+        //            index++;
+        //            for (int ROW = 0; ROW < dvr.Count; ROW++)
+        //            {
+        //                int isReplaced = 0;
+
+        //                isReplaced = table1.Replace("{" + dvr[ROW]["SalaryHead"].ToString() + "}", cnDgt(dvr[ROW]["EntryAmount"].ToString(), tempId), false, true);
+        //                if (isReplaced == 0
+        //                    && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Gross").ToUpper()
+        //                    && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("CTC").ToUpper()
+        //                    && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Total Gross").ToUpper()
+        //                    && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Net Payable").ToUpper()
+        //                    && dvr[ROW]["HeadType"].ToString() == "E")
+        //                {
+        //                    totalOthers += Convert.ToDouble(dvr[ROW]["EntryAmount"].ToString());
+
+        //                }
+
+        //                table1.Replace("{DesignationName}", dvr[ROW]["DesignationName"].ToString(), false, true);
+        //                table1.Replace("{EffectiveDate}", GetFormatedDate(dvr[ROW]["EffectiveDate"].ToString(), tempId), false, true);
+
+        //            }
+        //            table1.Replace("{Gross}", cnDgt(totalOthers.ToString(), tempId), false, true);
+
+        //        }
+
+        //        #region Disciplinary 
+
+        //        WTable table2 = (WTable)section.Body.Tables[7];
+        //        WTableRow copiedRow2 = table2.Rows[1].Clone();
+
+        //        WTableRow row2;
+
+        //        for (int ROW = 0; ROW < dtDisciplinaryAction.Rows.Count; ROW++)
+        //        {
+        //            if (ROW > 0)
+        //            {
+        //                row2 = copiedRow2.Clone();
+        //                table2.Rows.Add(row2);
+        //            }
+
+        //            table2.Replace("{EntryDate}", GetFormatedDate(dtDisciplinaryAction.Rows[ROW]["EntryDate"].ToString(), tempId), false, true);
+
+        //            table2.Replace("{Description}", dtDisciplinaryAction.Rows[ROW]["Description"].ToString(), false, true);
+
+        //        }
+
+        //        #endregion
+
+        //        #region LeaveInformation
+
+        //        WTable table3 = (WTable)section.Body.Tables[6];
+        //        WTableRow copiedRow3 = table3.Rows[2].Clone();
+        //        WTableRow row3;
+
+        //        for (int i = 0; i < dtClanderYear.Rows.Count; i++)
+        //        {
+        //            DataTable dtloadLeaveTransactions = LeaveSummaryForServiceBook(empId, dtClanderYear.Rows[i]["YearNo"].ToString());
+        //            DataTable dtLoadLeave = loadBf(empId, dtClanderYear.Rows[i]["Id"].ToString());
+
+        //            for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)
+        //            {
+
+        //                if (ROW > 0)
+        //                {
+        //                    row3 = copiedRow3.Clone();
+        //                    table3.Rows.Add(row3);
+        //                }
+
+        //                if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString()))
+        //                {
+        //                    table3.Replace("{FromDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString(), tempId), false, true);
+        //                }
+
+        //                if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString()))
+        //                {
+        //                    table3.Replace("{ToDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString(), tempId), false, true);
+        //                }
+
+
+        //                if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString()))
+        //                {
+        //                    table3.Replace("{LeaveDays}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString(), tempId), false, true);
+        //                }
+
+        //                if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString()))
+        //                {
+        //                    table3.Replace("{Balance}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString(), tempId), false, true);
+        //                }
+        //                if (i == 0)
+        //                {
+        //                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString()))
+        //                    {
+        //                        table3.Replace("{EncashmentDayNo}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString(), tempId), false, true);
+        //                    }
+
+        //                    if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString()))
+        //                    {
+        //                        table3.Replace("{EncashmentDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString(), tempId), false, true);
+        //                    }
+        //                }
+
+        //            }
+        //        }
+
+
+        //        //for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)
+        //        //{
+        //        //    if (ROW > 0)
+        //        //    {
+        //        //        row3 = copiedRow3.Clone();
+        //        //        table3.Rows.Add(row3);
+        //        //    }
+
+        //        //    table3.Replace("{FromDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString(), tempId), false, true);
+
+        //        //    table3.Replace("{ToDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString(), tempId), false, true);
+
+        //        //    table3.Replace("{LeaveDays}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["LeaveDays"].ToString(), tempId), false, true);
+
+        //        //    table3.Replace("{BroughtForward}", cnDgt(dtLoadLeave.Rows[ROW]["BroughtForward"].ToString(), tempId), false, true);
+
+        //        //}
+
+        //        //for (int ROW = 0; ROW < dtLoadLeave.Rows.Count; ROW++)
+        //        //{
+        //        //    if (ROW > 0)
+        //        //    {
+        //        //        row3 = copiedRow3.Clone();
+        //        //        table3.Rows.Add(row3);
+        //        //    }
+        //        //    table3.Replace("{BroughtForward}", cnDgt(dtLoadLeave.Rows[ROW]["BroughtForward"].ToString(), tempId), false, true);
+
+        //        //}
+
+        //        foreach (string item in replaced.Keys)
+        //        {
+        //            if (replaced[item] == 0)
+        //                document.Replace(item, "", false, true);
+
+        //        }
+
+        //        #endregion
+
+        //        string fileNames = string.Empty;
+        //        if (!string.IsNullOrEmpty(dtEmp.Rows[0]["EmployeeCode"].ToString()))
+        //        {
+
+        //            fileNames = dtEmp.Rows[0]["EmployeeCode"].ToString() + "-ServiceBook.docx";
+
+        //        }
+        //        else
+        //        {
+        //            fileNames = "-ServiceBook.docx";
+        //        }
+
+        //        document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+        //        document.Close();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
+
+        public Dictionary<string, object> GetLanguage()
+        {
+            Library.Service.Enums.LetterType.ServiceBook.GetDescription();
+            var sql = @"SELECT Id,UserName Language FROM SCS.Language WHERE UserName='Bengali'";
+            return _sqlRepository.GetData(sql);
+        }
+
+        private DataTable getLanguageId(string username)
+        {
+            try
+            {
+                var sql = @"Select Id from SCS.Language where UserName ='Bengali'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private DataTable getLanguageName(string Id)
+        {
+            try
+            {
+                var sql = @"Select UserName from SCS.Language where Id ='" + Id + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public DataTable GetEmployeeBasicInfoById(string employeeId, string plantId, string employeementType, string languageId, string tempId)
+        {
+            try
+            {
+
+                string sql = @"SELECT  EmpSystemID,TodaysDate,Dateofconfirmation,NextDayFromconfirmation,
+                            ISNULL(FatherNameLocal,FatherName) FatherName,  FatherName FatherNameEng,
+                            ISNULL(MotherNameLocal,MotherName) MotherName,  MotherName MotherNameEng,
+                            ISNULL(EmployeeNameLocal,EmployeeName) EmployeeName, EmployeeName EmployeeNameEng,
+                            ISNULL(LocalCompanyName,CompanyName) CompanyName,
+                            ISNULL(CompanyAddress,CompanyAddress) CompanyAddress,
+                            ISNULL(UtilityName,UtilityName) UtilityName,
+                            ISNULL(ParmanentAddress1Local1,ParmanentAddress1) ParmanentAddress1,
+                            ISNULL(PresentAddress1Local1,PresentAddress1) PresentAddress1,
+                            ISNULL(PresentCity,PresentCity) PresentCity,
+                            ISNULL(PresentDistrict,PresentDistrict) PresentDistrict,
+                            ISNULL(PresentState,PresentState) PresentState,
+                            ISNULL(LPresentCountry,LPermanentCountry) LPresentCountry,
+                            ISNULL(FirstName,FirstName) FirstName,
+                            ISNULL(LegalDesignationLocal,LegalDesignation) DesignationName,
+                            ISNULL(LocalDesignationName,DesignationName) LocalDesignationName,
+                            DateOfJoin DOJ,
+                            ISNULL(DateOfJoin,DateOfJoin) DateOfJoin,
+                            ISNULL(confirm,confirm) confirm,
+                            ISNULL(MobileNo,MobileNo) MobileNo,
+                            ISNULL(LocalDepartmentName,Department) Department,DepartmentLabel,
+                            Section,
+                            ISNULL(Unit,Unit) Unit,
+                            ISNULL(DOC,DOC) DOC,
+                            ISNULL(NationalID,NationalID) NationalID,
+                            ISNULL(EmployeeCode,EmployeeCode) EmployeeCode,
+                            ISNULL(BloodGroup,BloodGroup) BloodGroup,
+                            ISNULL(EmployeePic,EmployeePic) EmployeePic,
+                            ISNULL(SpouseNameLocal,SpouseName) SpouseName,DOB,SubSection,
+                            ISNULL(LocalIdentificationMark,IdentificationMark) IdentificationMark,Age,HightFt,HightInc,AuthorizedSignature,CardHolderSignature,EmployeeFingerPrint --,
+                            ,ISNULL((Case When  GenderID ='Male' then     MaleLocal else FemaleLocal end),GenderID) Gender,GenderID
+                                    --RPTM.TemplateFileName 
+                                    FROM(SELECT TAB2.*, AM.Phone, AM.Email, AM.Website, AM.Address1 FROM (SELECT TAB1.*, LAN.StandardName 
+                                    FROM (SELECT CM.Image CompanyLogo,E.SystemID as EmpSystemID,
+                                    CM.UserName CompanyName,AM.Address1 CompanyAddress,E.EmployeeName,
+                                    E.FatherName,E.MotherName,e.FatherNameLocal,e.MotherNameLocal,E.EmpPicPath EmployeePic,E.EmployeeCode, Convert(varchar, E.DOJ, 105) DOJ,
+                                    REPLACE(CONVERT(VARCHAR(11),E.DOJ,106),' ','-') DateOfJoin,BG.UserName BloodGroup
+                                    ,E.NationalID,E.EmploymentType,D.UserName DesignationName, dm.EmployeeCategoryId,ec.UserName EmployeeCategory,L.UserName Line,
+			                		E.EmpSignature CardHolderSignature,P.AuthorizedSignature
+                                    ,E.CellPhnNo MobileNo,E.ParmanentAddress1,DP.UserName Department,ISNULL(SEC.Name,SE.UserName) Section,A.[Name] LocalCompanyName, B.[Name] LocalDesignationName,C.[Name] LocalDepartmentName,
+			                		N.Name NameLabel
+                                    ,DN.Name DesignationLabel,DPN.Name DepartmentLabel,LN.Name LineLabel,LET.Name EmploymentTypeLabel, ID.Name IDNoLabel,  PT.Name EmploymentTypeName,
+			                		DJ.Name DOJLabel, ET.Name EmergencyTellNoLabel, BGP.Name BloodGroupLabel
+                                    ,E.EmployeeNameLocal,LL.UtilityName,NID.Name NIDLabel, E.ParmanentAddress1Local, (PML.Name+' '+LA.Name) ParmanentAddress,LMB.Name MobileNoLabel,
+			                		LD.Name LegalDesignationLocal
+                                    ,Convert(varchar, DATEADD(year, 5, E.DOJ),105) AS Validity,LNN.Name LineLocal,UN.Username Unit, Convert(varchar, E.DOC, 105) DOC
+                                    ,PCN.Name LPermanentCountry,PRCN.Name LPresentCountry,E.PresentAddress1
+			                		,PD.Name PermanentDistrict,PRD.Name PresentDistrict,PST.Name PermanentState, PRST.Name PresentState,PCT.Name PermanentCity, PRCT.Name PresentCity
+                                    ,CASE WHEN DOCDay=0 THEN DOCMonth ELSE DOCDay/30 END AS confirm, PL.LanguageId, PL.Id as 'PlantId', CM.AddressMasterId,E.FirstName,E.SpouseName,E.SpouseNameLocal,format(E.DOB,'dd-MMM-yyyy') DOB
+                                    ,LocalIdentificationMark,IdentificationMark,cast((DATEDIFF(m, DOB, GETDATE())/12) as varchar) Age,FLOOR(Height) AS HightFt,CEILING((Height*12)%12) HightInc,E.PresentAddress1Local PresentAddress1Local1,E.ParmanentAddress1Local ParmanentAddress1Local1,efp.FileName EmployeeFingerPrint,ISNULL( SBL.Name,SB.username)  SubSection,LDN.UserName LegalDesignation 
+                                    ,LMM.Name MaleLocal, LMF.Name FemaleLocal,E.GenderID   
+                                    ,Format(GETDATE(),'dd-MMM-yyy') as TodaysDate
+	                                ,FORMAT( DATEADD(DAY, DOCDay, DOJ),'dd-MMM-yyy') as Dateofconfirmation 
+									,FORMAT( DATEADD(DAY, DOCDay+1, DOJ),'dd-MMM-yyy') as NextDayFromconfirmation 
+                                    FROM EmployeeInformation E
+                                    LEFT JOIN ORG.Company CM ON CM.Id = E.CompanyId
+                                    LEFT JOIN MST.AddressMaster AM ON AM.Id = CM.AddressMasterId
+                                    LEFT JOIN HKP.BloodGroup BG ON BG.Id = E.BloodGroupID
+                                    LEFT JOIN HKP.Designation D ON D.Id = E.GivenDesignationId
+                                    LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = e.GivenDesignationId
+                                    LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
+                                    LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
+                                    LEFT JOIN ORG.Line L ON L.Id=E.LineId
+                                    LEFT JOIN ORG.Unit UN ON UN.Id=E.UnitId
+			                		LEFT JOIN [SCS].[PlantSetting] P ON P.PlantId=E.PlantId
+                                    LEFT JOIN ORG.Department DP ON DP.Id=E.DepartmentId
+                                    LEFT JOIN org.Section SE ON SE.Id=E.SectionId
+			                		LEFT JOIN ORG.Plant PL ON PL.Id=E.PlantId
+                                    LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                    LEFT JOIN HKP.LocalLanguage SEC ON SEC.SectionId = E.SectionId AND PL.LanguageId = SEC.LanguageId AND PL.LanguageId='" + languageId + @"'
+									LEFT JOIN EmployeeFingerPrint efp ON efp.EmpSystemID=E.SystemId AND efp.Id=(SELECT TOP 1 Id FROM EmployeeFingerPrint WHERE EmpSystemID=E.SystemId)
+			                		LEFT JOIN HKP.LocalLanguage A ON A.CompanyId=E.CompanyId AND A.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage SBL ON SBL.SubSectionId=E.SubSectionId AND SBL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LL ON LL.CompanyId=E.CompanyId AND LL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage B ON B.DesignationId=E.GivenDesignationId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage C ON C.DepartmentId =E.DepartmentId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LD ON LD.LegalDesignationId=E.LegalDesignationId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage LNN ON LNN.LineId=E.LineId AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN HKP.LocalLanguage PCN ON PCN.CountryId=E.ParmCountryID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRCN ON PRCN.CountryId=E.ParmCountryID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PD ON PD.DistrictId=E.ParmDistrictID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRD ON PRD.DistrictId=E.PresDistrictID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PST ON PST.StateId=E.ParmStateId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRST ON PRST.StateId=E.PresStateId AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PCT ON PCT.CityId=E.ParmCityID AND PL.LanguageId='" + languageId + @"'
+			                		LEFT JOIN HKP.LocalLanguage PRCT ON PRCT.CityId=E.PresCityID AND PL.LanguageId='" + languageId + @"'
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Male'and LanguageId='" + languageId + @"' ) LMM ON LMM.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Female'and LanguageId='" + languageId + @"' ) LMF ON LMF.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Name' and LanguageId='" + languageId + @"' ) N ON N.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Designation'and LanguageId='" + languageId + @"' ) DN ON DN.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Department'and LanguageId='" + languageId + @"' ) DPN ON DPN.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage wHERE LabelName='Line'and LanguageId='" + languageId + @"' ) LN ON LN.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='EmploymentType'and LanguageId='" + languageId + @"' ) LET ON LET.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='IDNo'and LanguageId='" + languageId + @"' ) ID ON ID.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='" + employeementType + @"'and LanguageId='" + languageId + @"' ) PT ON PT.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='DOJ'and LanguageId='" + languageId + @"' ) DJ ON DJ.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='EmergencyTelNo'and LanguageId='" + languageId + @"' ) ET ON ET.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='BloodGroup'and LanguageId='" + languageId + @"' ) BGP ON BGP.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='NIDNo'and LanguageId='" + languageId + @"' ) NID ON BGP.LanguageId=PL.LanguageId
+	                                LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Permanent'and LanguageId='" + languageId + @"' ) PML ON PML.LanguageId=PL.LanguageId
+			                		LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='Address'and LanguageId='" + languageId + @"' ) LA ON LA.LanguageId=PL.LanguageId
+                                    LEFT JOIN (SELECT LanguageId,Name FROM HKP.LocalLanguage WHERE LabelName='MobileNo'and LanguageId='" + languageId + @"' ) LMB ON LMB.LanguageId=PL.LanguageId
+                                    WHERE E.SystemID ='" + employeeId + "') TAB1 " +
+                                    "LEFT JOIN SCS.Language AS LAN ON LAN.Id=TAB1.LanguageId) TAB2 LEFT JOIN MST.AddressMaster AS AM ON AM.Id=TAB2.AddressMasterId) TAB3 " +
+                                    "--LEFT JOIN  (SELECT * FROM SCS.RptConfigTemplate WHERE Language='" + tempId + "'  and PlantId='" + plantId + @"') AS RPTM ON TAB3.PlantId=RPTM.PlantId";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        #endregion Leave register form
+
 
         #region Salary Integration With Third party
         private void GetSalaryIntegrationWithThirdparty(string plantId, string Year, string Month, string typeId, out DataTable dtData)
