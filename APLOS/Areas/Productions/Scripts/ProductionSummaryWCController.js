@@ -40,6 +40,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         PlantId: null,
         EntityId: null,
         ProcessId: null,
+        HeaderResponsiblePersonId: null,
+        HeaderResponsiblePerson:null,
         MasterOrderNo: null,
         SalesOrderId: null,
         ProductionOrderId: null,
@@ -88,6 +90,32 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         Characteristics3ValueId: null,
         Qty: 0
     };
+
+    $scope.selectResponsiblePerson = function () {
+        $scope.getEmployee();
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
+    }
+
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+    }
+
+    $scope.doubleEmployee = function (e) {
+        $scope.productionSummaryNew.HeaderResponsiblePersonId = e.data.SystemId;
+        $scope.productionSummaryNew.HeaderResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.closeResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -201,7 +229,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
-            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId)
+            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&HeaderResponsiblePersonId=' + $scope.productionSummaryNew.HeaderResponsiblePersonId)
                 .then(function (response) {
                     $scope.wcList = response.data;
                 });
@@ -544,8 +572,12 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     };
 
+   
     $scope.SetPrOData = function ($event) {
         $scope.NewObject.ProductionOrderId = $event.data.POId;
+        $scope.NewObject.LotNumber = $event.data.LotNumber;
+        $scope.NewObject.ResponsiblePerson = $scope.productionSummaryNew.HeaderResponsiblePerson;
+        $scope.NewObject.RemainingQty = $event.data.RemainingQty;
         $scope.GetTotalProductionBookingQty();
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
@@ -1138,6 +1170,12 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             //    }
             //}
 
+            if ($scope.IsFirst == false) {
+                if (parseFloat($scope.NewObject.RemainingQty) < 0) {
+                    throw "Produced Quantity should less than Order Quantity.";
+                }
+            }
+
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -1373,11 +1411,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
+        var ResponsibleId = $scope.productionSummaryNew.HeaderResponsiblePersonId;
+        var Responsible = $scope.productionSummaryNew.HeaderResponsiblePerson;
         $scope.productionSummaryNew = data.data;
         $scope.productionSummaryNew.ProcessId = processid;
         $scope.productionSummaryNew.EntityId = entityid;
         $scope.productionSummaryNew.ProductionDate = productiondate;
         $scope.productionSummaryNew.ProductionShiftId = shiftid;
+        $scope.productionSummaryNew.HeaderResponsiblePersonId = ResponsibleId;
+        $scope.productionSummaryNew.HeaderResponsiblePerson = Responsible;
         try {
             $scope.ProcessParaList = [];
             $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
