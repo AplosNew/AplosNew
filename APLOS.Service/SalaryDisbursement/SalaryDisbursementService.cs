@@ -602,18 +602,18 @@ namespace Library.Service.SalaryDisbursement
                         else if (voucherDetailVM.SalaryHeadCategory == "Advance")
                         {
                             var currentAdvanceWriteOffDetailId = 0;
-                            if (indirectSalaryLockList != null)
+                            if (indirectSalaryLockList != null  )
                             {
                                 var indirectdata = voucherVM;
                                 indirectdata.VoucherId = InDirectVoucherId;
                                 indirectdata.PartyType = "Employee";
-                                indirectdata.Amount = indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance").Sum(r => r.Amount);
-                                bool isAdvance = CheckAdvanceWriteOff(indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"));
+                                indirectdata.Amount = indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId== voucherDetailVM.ActivityId).Sum(r => r.Amount);
+                                bool isAdvance = CheckAdvanceWriteOff(indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId));
                                 if (isAdvance)
                                 {
                                     var indirectadvanceWriteOff = InsertAdvanceWriteOff(indirectdata);
                                     decimal indirectAdvanceAmountTemp = 0;
-                                    foreach (var item in indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"))
+                                    foreach (var item in indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId))
                                     {
 
                                         var advance = _advanceService.Find(item.AdvanceId);
@@ -755,6 +755,7 @@ namespace Library.Service.SalaryDisbursement
                                 }
                                 else
                                 {
+                                    
                                     var voucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
                                     {
                                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
