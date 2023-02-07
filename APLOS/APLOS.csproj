@@ -597,6 +597,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\IncidentCategoryController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\LeaveRegistersFormController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicalLogReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineCategoryController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\MedicineReceiptController.cs" />
@@ -2108,6 +2109,7 @@
     <Content Include="Areas\HumanResource\Scripts\FurniturePolicyReport.js" />
     <Content Include="Areas\HumanResource\Scripts\GoalSettingApprovalController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
+    <Content Include="Areas\HumanResource\Scripts\LeaveRegistersFormController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
@@ -4519,6 +4521,8 @@
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Approval.cshtml" />
     <Content Include="Areas\Materials\Views\RawMaterialPlanning\Issue.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductIntegrityAnalysisMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\LeaveRegistersForm\Aplos.cshtml" />
+    <Content Include="Areas\Parties\Views\Party\_VendorPopUpNew_Loan.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

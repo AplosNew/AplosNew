@@ -7,7 +7,7 @@
                     <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ProductionEntityId" name="Entity" ng-options="item.Id as item.UserName for item in entityList" ng-change="loadProcessList(ProductionEntityId)">
+                            <select class="form-control" ng-model="ProductionEntityId" name="Entity" Id="EntityId" ng-options="item.Id as item.UserName for item in entityList" ng-change="loadProcessList(ProductionEntityId)">
                                 <option value=""></option>
                             </select>
                         </div>
@@ -17,7 +17,7 @@
                     <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList">
+                            <select class="form-control" ng-model="ProcessId" name="ProcessId" Id="ProcessId" ng-options="item.Value as item.Text for item in processList">
                                 <option value=""></option>
                             </select>
                         </div>
@@ -26,7 +26,7 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Date</label>
                     <div class="col-sm-8">
-                        <input type="text" name="Form Date" required e-dateformat="dd-MMM-yyyy" ng-model="Date" datepicker class="form-control" @*ng-change="PreviousDatee();empGridShow();*@">
+                        <input type="text" name="Form Date" required e-dateformat="dd-MMM-yyyy" ng-model="Date" datepicker class="form-control">
                     </div>
                 </div>
             </div>

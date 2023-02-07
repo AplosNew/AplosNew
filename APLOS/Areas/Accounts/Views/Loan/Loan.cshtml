@@ -325,7 +325,7 @@
                         <div class="input-group">
                             <input type="text" name="Code" ng-model="voucher.PartyName" class="form-control" readonly>
                             <span class="input-group-btn">
-                                <button ng-click="getCustomerGL();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="showPartyPopUpNew_Loan();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
                         </div>
                     </div>
@@ -516,7 +516,7 @@
                                 <span class="cr"><i class="cr-icon"></i></span>No
                             </label>
                             <label>
-                                <input type="radio" name="OrderSpecific" ng-model="voucher.OrderSpecific" value="Yes">
+                                <input type="radio" name="OrderSpecific" ng-model="voucher.OrderSpecific" value="Yes" ng-click="changeOrderSpecific('Customer')">
                                 <span class="cr"><i class="cr-icon"></i></span>Yes
                             </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </div>
@@ -643,7 +643,7 @@
     </table>
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
 </div>
-@Html.Partial("~/Areas/Parties/Views/Party/_PartyPopUp.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew_Loan.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")

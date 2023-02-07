@@ -115,7 +115,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Username</th>
+                                <th>User Name</th>
                                 <th>Employee Id</th>
                                 <th>Full Name</th>
                                 <th>Auth Token</th>
@@ -189,7 +189,7 @@
                         </thead>
                         <tbody>
                             <tr dir-paginate="x in popUpHrefDataList|itemsPerPage:popUpHrefParameters.pageSize" total-items="popUpHrefParameters.total_count"
-                                ng-click="selectHrefSingleClick(x)" ng-class="{selected : x.Id === hrefrowSelected}" ng-dblclick="selectHrefDoubleClick(x);" pagination-id="metaData.name + 'popUpList'">
+                                ng-click="selectHrefSingleClick(x)" ng-class="{selected : x.MenuMasterId === hrefrowSelected}" ng-dblclick="selectHrefDoubleClick(x);" pagination-id="metaData.name + 'popUpList'">
                                 <td>{{x.Description}}</td>
                                 <td>{{x.Controller}}</td>
                                 <td>{{x.Href}}</td>

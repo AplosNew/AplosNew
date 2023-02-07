@@ -261,7 +261,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         {
             try
             {
-                parameters.CmdText = @"select Id UserId,Description, Controller, href from [MST].[MenuMaster]";
+                parameters.CmdText = @"select Id MenuMasterId,Description, Controller, Href from [MST].[MenuMaster]";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

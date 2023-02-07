@@ -156,73 +156,6 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         });
     };
 
-    $scope.customerList = [];
-    $scope.customerIndex = -1;
-    $scope.selectedCustomer = null;
-    $scope.searchCustomerByList = [
-        {
-            "name": "Party Code",
-            "value": "Code"
-        },
-        {
-            "name": "Party Name",
-            "value": "UserName"
-        },
-        {
-            "name": "Currency",
-            "value": "CurrencyCode"
-        },
-        {
-            "name": "VATResistrationNo",
-            "value": "VATResistrationNo"
-        },
-        {
-            "name": "TradeLicenseNo",
-            "value": "TradeLicenseNo"
-        },
-        {
-            "name": "Debit Limit",
-            "value": "DebitLimit"
-        },
-        {
-            "name": "Credit Limit",
-            "value": "CreditLimit"
-        }
-    ];
-
-    $scope.customerParameters = {
-        limit: 10,
-        offset: 0,
-        order: "asc",
-        sort: "UserName",
-        searchBy: "UserName",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    $scope.getCustomerGL = function () {
-        $scope.glUrl = "Parties/party/GetCompanyPartyDataList?partyType=" + $scope.voucher.PartyType;
-        $scope.getCustomerData = function (pageno) {
-            baseService.paginationBase($scope.glUrl, pageno, $scope.customerParameters)
-                .then(function (result) {
-                    $scope.customerList = result.Rows;
-                    $scope.customerParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure");
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector("#customerListPopUp")).modal("show");
-        $scope.getCustomerData();
-    };
-
-    $scope.selectCustomerPopUp = function (index, id) {
-        $scope.customerIndex = index;
-        $scope.selectedCustomer = id;
-    };
-
     $scope.changeDirector = function () {
         $scope.voucher.PartyType = $scope.partyType;
     };
@@ -240,18 +173,15 @@ function loanController(accountService, bankService, cboService, commonMessage, 
             });
     };
 
-    $scope.closeCustomerPopUp = function () {
-        if ($scope.customerIndex !== -1) {
-            var party = $scope.customerList[$scope.customerIndex];
-            $scope.voucher.PartyName = party.Code + " - " + party.UserName;
-            $scope.voucher.PartyId = party.Id;
-            $scope.voucher.PartyType = $scope.partyType;
-            $scope.getPartyPlantList(party.Id);
-        }
-        angular.element(document.querySelector("#customerListPopUp")).modal("hide");
-        $scope.customerIndex = -1;
-        $scope.selectedCustomer = null;
+    $scope.closePartyPopUp_Loan = function (x) {
+        var party = x.data;
+        $scope.voucher.PartyName = party.Code + " - " + party.UserName;
+        $scope.voucher.PartyId = party.Id;
+        $scope.voucher.PartyType = $scope.partyType;
+        $scope.getPartyPlantList(party.Id);
+        $scope.closePartyPopUpNew_Loan();
     };
+
     //**************************************** Customer List End ***************************
 
     $scope.changeDirector = function () {
@@ -276,6 +206,9 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.voucher.CashMasterId = null;
         $scope.isBankAmount = false;
         $scope.voucher.BankCurrencyId = null;
+    };
+    $scope.changeOrderSpecific = function (to) {
+        $scope.partyType = to;
     };
 
     $scope.transactionTypeGL = null;
