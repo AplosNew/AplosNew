@@ -1,16 +1,4 @@
-﻿@*<style>
-    div[class="form-group"] {
-        height: 8px !important;
-        font-size: 12px !important;
-    }
-
-    .control-label {
-        text-align: right !important;
-        line-height: 8px !important;
-        padding-right: 5px !important;
-        font-size: 11px !important;
-    }
-</style>*@
+﻿
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Work Center Master</h3>
 <div class="form-elements form-horizontal" ng-form id="WorkCenterMaster" name="MasterForm">
     <div class="col-xs-6 col-sm-6 col-md-6 form-element-ctrl">
@@ -159,13 +147,16 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Line</label>
-                                <div class="col-sm-7 ">
+                                <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="hidden" name="Line" ng-model="mastermodal.LineId" class="form-control">
                                     <input type="text" name="Line" ng-model="mastermodal.LineName" class="form-control" readonly>
-                                </div>
-                                <div class="col-sm-1">
-                                    <button ng-click="LineSearchPopup();" class="btn single-small-btn pull-right" tabindex="20"><i class="glyphicon glyphicon-search"></i></button>
+                                    <span class="input-group-btn">
+                                        <button ng-click="LineSearchPopup();" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearLine()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
                                 </div>
                             </div>
+                            
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">No of Work Station<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
