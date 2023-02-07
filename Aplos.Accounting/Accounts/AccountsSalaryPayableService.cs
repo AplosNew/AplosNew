@@ -761,6 +761,7 @@ namespace Library.Accounting.Accounts
 						FROM TRN.EmployeeSalaryAdvance EA JOIN DBO.AdvanceReqSchedule ARS ON ARS.EmployeeSalaryAdvanceId=EA.Id 
 						JOIN TRN.Advance A ON A.VoucherId=EA.VoucherId
 						JOIN TRN.AdvanceDetail AD ON AD.AdvanceId=A.Id
+                        JOIN TRN.EmployeeAdvanceDeduction EAD ON EAD.AdvanceReqScheduleId=ARS.Id
 						WHERE ARS.MonthNo='" + monthNo + "' AND ARS.YearNo='" + yearNo + @"'  ) ESA ON ESA.EmployeeId=SL.EmpSystemId
                         WHERE sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"' AND sl.PayableVoucherId IS NULL 
                         AND ISNULL(sh.HeadCategory,'')  in ('Advance') and spc.DisbusmentAmount!=0 " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'
