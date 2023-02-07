@@ -436,6 +436,10 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         $scope.mastermodal.LineName = data.UserName;
         angular.element(document.querySelector('#lineModal')).modal('hide');
     };
+    $scope.clearLine = function () {
+        $scope.mastermodal.LineId = null;
+        $scope.mastermodal.LineName = null;
+    };
     // $scope.url = $scope.path + 'getweekendlist?plantId=' + $scope.offDayMaster.PlantId + '&fromDate=' + $scope.offDayMaster.FromDate + '&toDate=' + $scope.offDayMaster.ToDate;
 
     function CheckMachineDuplication(machineid, from_db_List) {

@@ -4,16 +4,16 @@
         @*COLUMN 1*@
         <div class="col-xs-12 col-sm-8 col-md-6">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">From Date</label>
+                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" ng-model="ModelNew.FromDate" name="From Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">In Status</label>
+                <label class="col-sm-4 control-label">In Status<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.InStatus" required name="Process"
+                        <select class="form-control" ng-model="ModelNew.InStatus" required name="In Status"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in InStatusList" value="{{option.Value}}">{{option.Text}}</option>
@@ -25,7 +25,7 @@
                 <label class="col-sm-4 control-label">Employee Category</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.EmployeecategoryId" required name="Employee Category Id"
+                        <select class="form-control" ng-model="ModelNew.EmployeecategoryId" name="Employee Category Id"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in EmpCategoryList" value="{{option.Value}}">{{option.Text}}</option>
@@ -39,7 +39,7 @@
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
 
-                        <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" required readonly>
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" readonly>
                         <span class="input-group-btn">
                             <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
@@ -57,7 +57,7 @@
         <div class="col-xs-12 col-sm-8 col-md-6">
 
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To Date</label>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
                 </div>
@@ -68,7 +68,7 @@
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
 
-                        <input type="text" name="Responsible Person" ng-model="ModelNew.TeamLeader" class="form-control" required readonly>
+                        <input type="text" name="Responsible Person" ng-model="ModelNew.TeamLeader" class="form-control" readonly>
                         <span class="input-group-btn">
                             <button name="submit" ng-click="OpenTeamLeaderPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
@@ -82,7 +82,7 @@
                 <label class="col-sm-4 control-label">Shift</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.ShiftId" required name="Process"
+                        <select class="form-control" ng-model="ModelNew.ShiftId" name="Process"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in ShiftList" value="{{option.Value}}">{{option.Text}}</option>
@@ -94,7 +94,7 @@
                 <label class="col-sm-4 control-label">Employee Status</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.EmployeeStatus" required name="Process"
+                        <select class="form-control" ng-model="ModelNew.EmployeeStatus" name="Process"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in EmpStatusList" value="{{option.Value}}">{{option.Text}}</option>
@@ -103,10 +103,14 @@
                 </div>
             </div>
         </div>
+
+        @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_FavoritePopup.cshtml")
+
+
         <div class="common-btn">
             <ul class="list-inline text-right">
-               @* <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>*@
-                <li> <button class="btn" ng-click="Save();" tabindex="9"><i class="glyphicon glyphicon-flag"></i> Favourite</button></li>
+                @* <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>*@
+                <li> <button class="btn" ng-click="OpenFavoritePopUp();" tabindex="9"><i class="glyphicon glyphicon-flag"></i> Add Favourite</button></li>
                 <li> <button class="btn" ng-click="GetDailyAttendanceStatus();" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
                 <li> <button class="btn" ng-click="Clear();" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
@@ -168,6 +172,7 @@
                     <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
                     <div e-column e-field="UserId" e-headertext="User Code" e-width="50"></div>
                     <div e-column e-field="User" e-headertext="User" e-width="50"></div>
+                    <div e-column e-field="FavoriteName" e-headertext="Favorite Filter Name" e-width="50"></div>
                     <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
                     <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
                     <div e-column e-field="InStatus" e-headertext="InStatus" e-width="50"></div>

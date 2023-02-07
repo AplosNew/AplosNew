@@ -1,0 +1,29 @@
+﻿<div class="modal fade site-modal in" id="FavoritePopupId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">Give a Favorite name of your filter<button type="button" class="close" ng-click="closeFavoritePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-8 col-md-6">
+
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Favorite Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Favorite Filter Name" ng-model="ModelNew.FavoriteName" class="form-control" required tabindex="5" maxlength="50">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-6">
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button class="btn" ng-click="Save()" tabindex="9"><i class="glyphicon glyphicon-floppy-save"></i> {{Action}}</button></li>
+
+                    </ul>
+                </div>
+
+            </div>
+            </div>
+    </div>
+</div>
+
+

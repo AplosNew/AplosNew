@@ -4786,7 +4786,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
         [HttpGet, Authorize]
-        public ActionResult OS1xls(string entityid)
+        public ActionResult OS1xls(string entityid, string fromDate, string toDate,string productionStatusList)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -4796,8 +4796,22 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
             {
                 if (string.IsNullOrEmpty(entityid) || entityid == "''")
                     throw new Exception("Select entity");
+                if (string.IsNullOrEmpty(fromDate))
+                    throw new Exception("Select from date");
+
+                if (string.IsNullOrEmpty(toDate))
+                    throw new Exception("Select to date");
+
+                if (bplib.clsWebLib.IsDateOK(fromDate) == false || fromDate == "undefined")
+                    throw new Exception("Select from date");
+
+                if (bplib.clsWebLib.IsDateOK(toDate) == false || fromDate == "undefined")
+                    throw new Exception("Select to date");
+
+                if (Convert.ToDateTime(fromDate) > Convert.ToDateTime(toDate))
+                    throw new Exception("To date cannot be earlier than from date");
                 DataTable dtOrderMaster;
-                getOS1(entityid, out dtOrderMaster);
+                getOS1(entityid, fromDate, toDate, productionStatusList,out dtOrderMaster);
 
                 if (dtOrderMaster.Rows.Count == 0)
                     throw new Exception("No data found");
@@ -5999,9 +6013,9 @@ group by pbt.productionOrderId,pbtm.MaxNoOfWS, pbt.Id ) Btn on Btn.ProductionOrd
 
 
         }
-        private void getOS1(string entityid, out DataTable dtOrderMaster)
+        private void getOS1(string entityid, string fromDate, string toDate, string productionStatusList, out DataTable dtOrderMaster)
         {
-
+            string orderStatusIds = "'" + productionStatusList.Replace(",", "','") + "'";//replaced with ""
 
             string sql = @"	SELECT so.Id AS SalesOrderId,btn.BulletinId,btn.NoOfWS,btn.TotalSPT,
 	con.Id ContractId,PA.UserName ContractName,M.LCRef LCNo,format(XCOM.ExpectedCompletionDate,'dd-MMM-yyyy') AS ExpectedCompletionDate,XCOM.Quantity SODistributedQty,
@@ -6108,8 +6122,8 @@ left outer join trn.ProductionBulletinTemplateDetail pbtd on pbtd.ProductionBull
 AND  pbtm.ProcessId=(select top 1 sx.ProcessId from trn.ProductionOrderProcessSet SX where SX.ProductionOrderId=pbt.productionOrderId and isnull(SX.IsBaseProcess,0)=1)
 group by pbt.productionOrderId,pbtm.MaxNoOfWS, pbt.Id ) Btn on Btn.ProductionOrderId=po.Id
 --left outer join BOQ on boq.SalesOrderId=so.Id and boq.SalesOrderId=(select top 1 SalesOrderId from boq where SalesOrderId=so.Id)
-                            WHERE os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' AND mo.EntityId IN (" + entityid + @")
-            ORDER BY	trkp.UserName,trke.UserName,PAG.UserName DESC, p.UserName, b.UserName,convert(date,so.DeliveryDate),SO.ID";
+                            WHERE os.Id IN("+ orderStatusIds +@") AND mo.EntityId IN (" + entityid + @") AND mo.AddedDate between '"+fromDate+@"' AND '"+toDate+@"'
+            ORDER BY trkp.UserName,trke.UserName,PAG.UserName DESC, p.UserName, b.UserName,convert(date,so.DeliveryDate),SO.ID";
 
             dtOrderMaster = _sqlRepository.GetDataTable(sql);
 
