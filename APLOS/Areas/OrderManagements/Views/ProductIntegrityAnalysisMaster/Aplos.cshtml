@@ -9,9 +9,9 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Standared Name<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Standared Name" ng-model="PIAMNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
+                    <input type="text" name="Standard Name" ng-model="PIAMNew.StandardName" class="form-control" maxlength="100" required autocomplete="off">
                 </div>
             </div>
 
@@ -28,7 +28,7 @@
                         <input type="text" name="Responsible Person" ng-disabled="true" ng-model="PIAMNew.ResponsiblePerson" class="form-control" maxlength="100" required autocomplete="off">
                     </div>
                     <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="selectResponsiblePerson();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </div>
                 </div>
             </div>
@@ -38,6 +38,12 @@
                 <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="User Name" ng-model="PIAMNew.UserName" class="form-control" required maxlength="100" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Description" ng-model="PIAMNew.Description" class="form-control" required maxlength="100" autocomplete="off">
                 </div>
             </div>
             <div class="form-group">
@@ -51,7 +57,7 @@
                 <div class="col-sm-8">
                     <div class="checkbox-site">
                         <label>
-                            <input type="checkbox" ng-model="PIAMNew.IsActive" tabindex="8">
+                            <input type="checkbox" ng-model="PIAMNew.Active" tabindex="8">
                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                         </label>
                     </div>
@@ -88,7 +94,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Category<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Name" ng-model="ItemNew.ItemName" class="form-control" required maxlength="100" autocomplete="off">
+                        <input type="text" name="Name" ng-model="ItemNew.Category" class="form-control" required maxlength="100" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -101,23 +107,23 @@
                     <label class="col-sm-4 contro-label">UOM<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="UOM" ng-disabled="true" ng-model="PIAMNew.UOM" class="form-control" maxlength="100" required autocomplete="off">
+                        <input type="text" name="UOM" ng-disabled="true" ng-model="ItemNew.UOM" class="form-control" maxlength="100" required autocomplete="off">
                         </div>
                 <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="selectUOM();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 contro-label">Production Process<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Production Process"  ng-model="PIAMNew.ProductionProcess" class="form-control" maxlength="100" required autocomplete="off">
-                        </div>
-            <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ItemNew.ProcessId" name="Process"  required
+                                    ng-options="item.Value as item.Text for item in ProcessList">
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -140,27 +146,25 @@
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="ItemSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                    <li> <button ng-disabled="PIAMNew.Id===null" ng-click="ItemSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                     <li> <button ng-click="removeRowModal($index,ItemNew.Id);" ng-disabled="ItemNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
                     <li> <button ng-click="ItemClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
             </div>
             @*<div class="col-xs-12 col-sm-12 col-md-12">*@
-            <div id="GridItem" ej-grid e-datasource="ScheduleItemList" e-recorddoubleclick="GetItemDetails"
+            <div id="GridItem" ej-grid e-datasource="ProductAnalysisItemList" e-recorddoubleclick="GetItemDetails"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
                     <div e-column e-field="SNO" e-headertext="SNO" e-width="3"></div>
-                    <div e-column e-field="PerformanceGroup" e-headertext="Performance Group" e-width="3"></div>
+                    <div e-column e-field="Process" e-headertext="Process" e-width="3"></div>
                     <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
-                    <div e-column e-field="ItemMinutes" e-headertext="Item Minutes" e-width="3"></div>
+                    <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
                     <div e-column e-field="CriticalLevel" e-headertext="Critical Level" e-width="3"></div>
-                    <div e-column e-field="IsAuditable" e-headertext="Is Auditable" e-width="3"></div>
-                    <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="3"></div>
+                    <div e-column e-field="UOM" e-headertext="UOM" e-width="3"></div>
                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                    <div e-column e-field="ExceptionDays" e-headertext="Exception Days" e-width="3"></div>
-                    <div e-column e-template="#Parameter" e-headertext="Child Parameter" e-width="2"></div>
+                    <div e-column e-template="#Parameter" e-headertext="Validation" e-width="2"></div>
                 </div>
             </div>
             <script type="text/template" id="Parameter">
@@ -183,50 +187,40 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Maintenance Id" e-visible="false" e-width="50"></div>
-            <div e-column e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
-            <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
-            <div e-column e-field="SubProcess" e-headertext="Sub Process" e-width="100"></div>
-            @*<div e-column e-field="StandaredName" e-headertext="Standard Name" e-width="100"></div>*@
-            <div e-column e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
-            <div e-column e-field="MinScheduleMinutes" e-headertext="Min Schedule Minutes" e-width="100"></div>
-            <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="100"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
-            <div e-column e-field="MinScheduleDays" e-headertext="Min Schedule Days" e-width="100"></div>
-            <div e-column e-field="MaxScheduleMinutes" e-headertext="Max Schedule Minutes" e-width="100"></div>
-            <div e-column e-field="MaxScheduleDays" e-headertext="Max Schedule Days" e-width="100"></div>
-            <div e-column e-field="StandardScheduleMinutes" e-headertext="Standard Schedule Minutes" e-width="100"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-            <div e-column e-field="Department" e-headertext="Department" e-width="120"></div>
-            <div e-column e-field="TrainingGroup" e-headertext="Training Group" e-width="100"></div>
-            <div e-column e-field="IsActive" e-headertext="Is Active" e-width="100"></div>
+            <div e-column e-field="Description" e-headertext="Description" e-width="150"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+            <div e-column e-field="Active" e-headertext="Is Active" e-width="100"></div>
         </div>
-    </div>
+    </div>   
 </div>
 <confirm-modal></confirm-modal>
 
-<div class="modal fade site-modal in" id="BudgetCodePopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="ResponsiblePersonPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header">Budget Code <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Double click to Select an Budget Code</p>
-                        <div style="color:black;" id="GridBudgetCode" ej-grid e-datasource="BudgetCodeList"
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridResponsiblePersonPopUp" ej-grid e-datasource="EmployeeList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                             e-recorddoubleclick="doubleBudgetCode">
+                             e-recorddoubleclick="doubleEmployee">
                             <div e-columns>
-                                <div e-column e-type="Number" e-field="ManPowerBudgetId" e-headertext="Id" e-visible="false" e-width="30"></div>
-                                <div e-column e-type="Number" e-field="Code" e-headertext="Code" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Position" e-headertext="Position" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Department" e-headertext="Department" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Section" e-headertext="Section" e-width="30"></div>
-                                <div e-column e-type="String" e-field="SubSection" e-headertext="Sub Section" e-width="30"></div>
-                                <div e-column e-type="String" e-field="LegalDesignation" e-headertext="Legal Designation" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Activity" e-headertext="Activity" e-width="30"></div>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
                             </div>
                         </div>
                     </div>
@@ -234,7 +228,39 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="closeBudgetCodePopUp();" class="btn"><i class=""></i> Close</button>
+                            <button ng-click="closeResponsiblePersonPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="UOMPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">UOM<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an UOM</p>
+                        <div style="color:black;" id="GridUOM" ej-grid e-datasource="UOMList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleUOM">
+                            <div e-columns>
+                                <div e-column e-field="UOMId" e-headertext="Id" e-width="30"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="30"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="30"></div>
+                                <div e-column e-field="UOM" e-headertext="User Name" e-width="30"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeUOMPopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 
@@ -243,44 +269,53 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="ByWhomPop" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="ParameterPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header">Budget Code List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Double click to Select an Budget Code</p>
-                        <div style="color:black;" id="GridByWhomPopUp" ej-grid e-datasource="ByWhomeBudgetCodeList"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                             e-recorddoubleclick="doubleByWhomeBudgetCode">
-                            <div e-columns>
-                                <div e-column e-type="Number" e-field="ManPowerBudgetId" e-headertext="Id" e-visible="false" e-width="30"></div>
-                                <div e-column e-type="Number" e-field="Code" e-headertext="Code" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Position" e-headertext="Position" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Department" e-headertext="Department" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Section" e-headertext="Section" e-width="30"></div>
-                                <div e-column e-type="String" e-field="SubSection" e-headertext="Sub Section" e-width="30"></div>
-                                <div e-column e-type="String" e-field="LegalDesignation" e-headertext="Legal Designation" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Activity" e-headertext="Activity" e-width="30"></div>
+            <div class="modal-header">Parameter<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl form-horizontal">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label class="col-sm-3 control-label">Predefine Value</label>
+                            <label class="col-sm-3 control-label">Remarks</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group">
+                            <div class="col-sm-3">
+                                <input type="number" ng-model="ParameterNew.PredefineValue" class="form-control" maxlength="200">
+                            </div>
+                            <div class="col-sm-3">
+                                <input type="text" ng-model="ParameterNew.Remarks" class="form-control" maxlength="200">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeByWhomPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
+                <div>
+                    <div class="col-xs-12">
+                        <div id="GridParameter" ej-grid e-datasource="ParameterLists" e-recorddoubleclick="GetParameterDetails"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
+                                <div e-column e-field="ItemId" e-headertext="Item Id" e-visible="false" e-width="3"></div>
+                                <div e-column e-type="number" e-field="PredefineValue" e-headertext="Predefine Value" e-width="3"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="SaveParameterData();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                            <li><button ng-click="SaveParameterClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <confirm-archive-generic modalid="confirmRemoveItem" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeItemRow();"></confirm-archive-generic>
-
 
 
