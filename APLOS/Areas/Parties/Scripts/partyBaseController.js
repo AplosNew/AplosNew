@@ -89,6 +89,8 @@ function partyBaseController($scope, $http, $filter, baseService) {
 	};
 	$scope.searchByParty = "UserName"; $scope.searchParty = "";
 	$scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+	$scope.searchByParty_Loan = "UserName"; $scope.searchParty_Loan = "";
+	$scope.searchByPartyList_Loan = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: "Party Name" }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 	
 	$scope.showPartyPopUpNew = function () {
 		//if ($scope.OrderSpecific === 'Yes') {
@@ -286,6 +288,9 @@ function partyBaseController($scope, $http, $filter, baseService) {
 	$scope.closePartyPopUpNew = function () {
 		angular.element(document.querySelector('#partyPopUp')).modal('hide');
 	};
+	$scope.closePartyPopUpNew_Loan = function () {
+		angular.element(document.querySelector('#partyPopUp_Loan')).modal('hide');
+	};
 	$scope.showNotePartyPopUpNew = function () {
 		if ($scope.OrderSpecific === 'Yes') {
 			if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
@@ -347,6 +352,29 @@ function partyBaseController($scope, $http, $filter, baseService) {
 			});
 		}
 		angular.element(document.querySelector('#notepartyPopUp')).modal('show');
+	};
+	$scope.showPartyPopUpNew_Loan = function () {
+		if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew_Loan?partyType=' + $scope.partyType;
+		}
+		else if ($scope.partyType === 'Party') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew_Loan';
+		}
+		else if ($scope.partyType === 'Director') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew_Loan';
+		}
+		else if ($scope.partyType === 'Other') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew_Loan';
+		}
+		$http({
+			method: 'POST',
+			url: $scope.partyUrl,
+			data: { column: $scope.searchByParty_Loan, value: $scope.searchParty_Loan },
+			dataType: 'JSON'
+		}).then(function successCallback(response) {
+			$scope.partyList = response.data;
+		});
+		angular.element(document.querySelector('#partyPopUp_Loan')).modal('show');
 	};
 	$scope.selectPartyPopUpRow = function (index, id) {
 		$scope.partyIndex = index;

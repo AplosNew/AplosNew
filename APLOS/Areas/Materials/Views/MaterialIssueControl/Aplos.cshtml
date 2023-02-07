@@ -251,7 +251,7 @@
         </script>
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                <li> <button ng-click="Save();" ng-disabled="ModelNew.Id!=null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
@@ -368,6 +368,7 @@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
+                                <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId"e-width="50"></div>
                                 <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>

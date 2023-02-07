@@ -471,7 +471,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                             left join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
                             left join SalaryProceAttdnData att on att.SlrProcMstSystemID=m.SystemID and att.EmpSystemID='" + EmpSystemId + @"' 
                             left join (select c.*,m.EffectiveDate from BonusPaymentActual c left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
-                            )b on b.EmpSystemID='" + EmpSystemId + @"'  and month(b.EffectiveDate)=m.MonthNo
+                            )b on b.EmpSystemID='" + EmpSystemId + @"'  and month(b.EffectiveDate)=m.MonthNo and YEAR(b.EffectiveDate)=m.YearNo
                             
                             where
                             c.SlrProcMstSystemID in (
