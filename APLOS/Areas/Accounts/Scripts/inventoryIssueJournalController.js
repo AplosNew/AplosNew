@@ -606,12 +606,12 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
 
                 }
                 else if ($scope.inventoryIssueGLList[i].PostDrBudgetMasterId != null) {
-                    for (var j = 0; j < $scope.inventoryMaterialList.length; j++) {
-                        if (getRow[0].BudgetMasterId == $scope.inventoryMaterialList[j].BudgetMasterId
-                            && getRow[0].ActivityId == $scope.inventoryMaterialList[j].ActivityId) {
-                            var cr = parseFloat($scope.inventoryMaterialList[j].Cr.toFixed(4)) + parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
-                            $scope.inventoryMaterialList[j].Cr = parseFloat(cr.toFixed(4));
-                            $scope.inventoryMaterialList[j].Amount = parseFloat(cr.toFixed(4));
+                    for (var m = 0; m < $scope.inventoryMaterialList.length; m++) {
+                        if (getRow[0].BudgetMasterId == $scope.inventoryMaterialList[m].BudgetMasterId
+                            && getRow[0].ActivityId == $scope.inventoryMaterialList[m].ActivityId) {
+                            var cr = parseFloat($scope.inventoryMaterialList[m].Cr.toFixed(4)) + parseFloat($scope.inventoryIssueGLList[i].TrnAmount.toFixed(4));
+                            $scope.inventoryMaterialList[m].Cr = parseFloat(cr.toFixed(4));
+                            $scope.inventoryMaterialList[m].Amount = parseFloat(cr.toFixed(4));
                             cr = 0;
                         }
                     }

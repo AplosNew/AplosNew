@@ -29,27 +29,27 @@ function ProductionReportController(commonMessage, $scope, $rootScope, baseServi
             $scope.processList = result;
             if (baseService.arrayLength(result) === 1) {
                 $scope.ProcessId = $scope.processList[0].Value;
-                //$scope.getProdLevel();
-                ////default
-                //$scope.loadWC($scope.ProcessId, $scope.EntityId, $scope.ProductionShiftId);
             }
         });
     };
-    
+    $scope.EntityName = null;
+    $scope.Process = null;
     $scope.DonwloadReport = function () {
         try {
             $scope.fileName = "ProductionReport.xls";
 
             if (baseService.isUndefinedOrNull($scope.Date)) {
-                throw "Select Date plz!";
+                throw "Select Date please!";
             }
+            $scope.EntityName = $("#EntityId option:selected").text();
+            $scope.Process = $("#ProcessId option:selected").text();
 
             $http({
                 method: 'POST',
                 url: 'Productions/ProductionReport/ProReport',
                 data: {
                     'Date': $scope.Date,
-                    'Entity': $scope.ProductionEntityId, 'ProcessId': $scope.ProcessId
+                    'Entity': $scope.ProductionEntityId, 'ProcessId': $scope.ProcessId, 'EntityName': $scope.EntityName, 'Process': $scope.Process
                 }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

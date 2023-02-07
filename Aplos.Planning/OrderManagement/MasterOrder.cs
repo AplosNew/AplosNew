@@ -885,7 +885,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             try
             {
                 string strSQL = string.Empty;
-                strSQL = @"SELECT B.*,MM.UserName MaterialMaster,MMA.ShortName Article,U.Code,C.UserName CostingItem 
+                strSQL = @"SELECT B.*,MM.UserName MaterialMaster,MMA.StandardName Article,U.Code,C.UserName CostingItem 
                             , EntityOrVendorName= CASE WHEN B.EntityIdWithinCompany<>'' THEN EWC.UserName 
 					                        WHEN B.EntityIdWithinGroup<>'' THEN EWG.UserName
 					                        WHEN B.VendorId<>'' THEN PRT.UserName

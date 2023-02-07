@@ -74,16 +74,12 @@
                         <input type="text" name="LotNo" ng-model="ModelNew.LotNo" class="form-control" maxlength="50" required tabindex="4">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Level</label>
-                    <div class="col-sm-8">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Level<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            @*<select class="form-control" ng-model="ModelNew.Level" name="Level" tabindex="6" ng-change="GetQBOQCostingData();">
-                        <option value="">--Select--</option>
-                        <option value="Costing">Costing</option>
-                        <option value="QBOQ">QBOQ</option>
-                    </select>*@
-                            <select class="form-control" ng-model="ModelNew.Level" placeholder="Level" name="Level" ng-options="item.Value as item.Text for item in LevelList" ng-change="GetQBOQCostingData();" tabindex="6">
+                            
+                            <select class="form-control" ng-model="ModelNew.Level" placeholder="Level" name="Level" ng-options="item.Value as item.Text for item in LevelList" ng-change="GetQBOQCostingData();" required tabindex="6">
                                 <option value=""></option>
                             </select>
                         </div>
@@ -100,16 +96,16 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Cost Center</label>
+                    <label class="col-sm-4 control-label">Cost Center<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select id="CheckedBy" class="form-control" name="Cost Center" ng-model="ModelNew.CostCenterId" tabindex="10">
+                            <select id="CheckedBy" class="form-control" name="Cost Center" ng-model="ModelNew.CostCenterId" required tabindex="10">
                                 <option ng-repeat="option in costCenterList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
         <div class="clearfix"></div>

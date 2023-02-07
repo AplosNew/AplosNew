@@ -1261,6 +1261,8 @@ namespace Library.MaterialManagement.Inventory
 						   when MRM.AuthorizedByStatus='Approved' Then 'Approved'
 						   else ''
 							END
+                            ,REPLACE(CONVERT(VARCHAR(11),x.UpdatedDate, 113), ' ', '-') CheckedDate
+                            ,REPLACE(CONVERT(VARCHAR(11),y.UpdatedDate, 113), ' ', '-') ApprovedDate
                                 --, empPreparedby.EmployeeName AddedBy --- EEICHK.EmployeeCode +'-'+
 	                            FROM [TRN].[MaterialRequsitionMaster] MRM
 	                            Left Join [TRN].[MaterialRequsitionDetails] MRD On MRD.MaterialReqqusitionMasterId=MRM.Id
@@ -1272,6 +1274,8 @@ namespace Library.MaterialManagement.Inventory
 
 	                            LEFT JOin HKp.Activity A On A.Id=MRD.ActivityId
 	                            Left Join MST.MaterialMaster MM on MM.Id=MRD.MaterialMasterId 
+                                Left join (select top(1) ReqId,UpdatedDate from trn.RequisitionApprovalLog where ReqId='" + MaterialMasterId + @"' and Status='Checked' order by AddedDate desc)x on x.ReqId=MRM.Id
+								Left join (select top(1) ReqId,UpdatedDate  from trn.RequisitionApprovalLog where ReqId='" + MaterialMasterId + @"' and Status='Approved' order by AddedDate desc) y on y.ReqId=MRM.Id
 	                            WHERE MRM.Id='" + MaterialMasterId + @"'";
 
                 return _sqlRepository.GetDataTable(strSQL);

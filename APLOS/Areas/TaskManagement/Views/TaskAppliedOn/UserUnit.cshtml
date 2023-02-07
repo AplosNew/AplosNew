@@ -14,10 +14,19 @@
             </div>
         </div>
 
-        <div class="form-group" show-errors>
+        @*<div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Href<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.href" class="form-control" required tabindex="5" maxlength="50">
+                <input type="text" name="User Name" ng-model="ModelNew.Href" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>*@
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Href<sup>*</sup></label>
+            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 15px;">
+                <input type="text" name="Href" ng-model="ModelNew.Href" class="form-control" required readonly>
+                <span class="input-group-btn">
+                    <button name="submit" class="btn single-small-btn" ng-click="popUpHref()" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                </span>
             </div>
         </div>
     </div>
@@ -25,10 +34,10 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Password<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.password" class="form-control" required tabindex="10" maxlength="10">
+                <input type="text" name="Code" ng-model="ModelNew.Password" class="form-control" required tabindex="10" maxlength="10">
             </div>
         </div>
-       
+
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -42,26 +51,26 @@
 <confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(bankReconciliationUploadId)"></confirm-archive-generic>
 
 @*<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>*@
+    </div>*@
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="GetDblClick" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -106,7 +115,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Username</th>
+                                <th>User Name</th>
                                 <th>Employee Id</th>
                                 <th>Full Name</th>
                                 <th>Auth Token</th>
@@ -134,6 +143,65 @@
                     <ul class="list-inline text-right">
                         <li><button ng-click="selectByButton();" class="btn"><i class=""></i> Select</button></li>
                         <li><button type="button" class="btn btn-default" ng-click="closePopUp();">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="popUphrefId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Href <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                @*<div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="popUpHrefParameters.searchBy">
+                                    <option ng-repeat="option in searchByUserList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="popUpHrefParameters.search" ng-enter="getPopUpHrefData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getPopUpHrefData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Controller</th>
+                                <th>Href</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpHrefDataList|itemsPerPage:popUpHrefParameters.pageSize" total-items="popUpHrefParameters.total_count"
+                                ng-click="selectHrefSingleClick(x)" ng-class="{selected : x.MenuMasterId === hrefrowSelected}" ng-dblclick="selectHrefDoubleClick(x);" pagination-id="metaData.name + 'popUpList'">
+                                <td>{{x.Description}}</td>
+                                <td>{{x.Controller}}</td>
+                                <td>{{x.Href}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'popUpList'" direction-links="true" boundary-links="true" on-page-change="getPopUpHrefData(newPageNo)"></dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="selectByButtonHref();" class="btn"><i class=""></i> Select</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closeHrefPopUp();">Cancel</button></li>
                     </ul>
                 </div>
             </div>
