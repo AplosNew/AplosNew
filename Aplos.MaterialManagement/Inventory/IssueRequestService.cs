@@ -252,7 +252,7 @@ namespace Library.MaterialManagement.Products
                         };
                         try
                         {
-                            //InsertGraph(receiveDetail); AuditService.UpdatedLog(receiveDetail);
+                            
 
 
                             if (string.IsNullOrEmpty(itemDetail.InventoryMaterialId))
@@ -262,6 +262,38 @@ namespace Library.MaterialManagement.Products
 
                                
                                 IssueRequstD.InventoryMaterialId = inventoryMaterialData;
+
+                                if (string.IsNullOrEmpty(inventoryMaterialData))
+                                {
+                                    InventoryMaterialViewModel inventoryMaterial = new InventoryMaterialViewModel();
+
+                                    inventoryMaterial.Id = null;
+                                    inventoryMaterial.CountryId = itemDetail.CountryId;
+                                    inventoryMaterial.CompanyGroupId = identity.CompanyGroupId;
+                                    inventoryMaterial.CompanyId = identity.CompanyId;
+                                    inventoryMaterial.PlantId = identity.PlantId;
+                                    inventoryMaterial.MaterialStorageId = null;
+                                    inventoryMaterial.OpeningBalanceId = null;
+                                    inventoryMaterial.MaterialMasterId = itemDetail.MaterialMasterId;
+                                    inventoryMaterial.ArticleId = itemDetail.ArticleId;
+                                    inventoryMaterial.FirstCharacteristicsId = itemDetail.FirstCharacteristicsId;
+                                    inventoryMaterial.FirstCharacteristicsValueId = itemDetail.FirstCharacteristicsValueId;
+                                    inventoryMaterial.SecondCharacteristicsId = itemDetail.SecondCharacteristicsId;
+                                    inventoryMaterial.SecondCharacteristicsValueId = itemDetail.SecondCharacteristicsValueId;
+                                    inventoryMaterial.ThirdCharacteristicsId = itemDetail.ThirdCharacteristicsId;
+                                    inventoryMaterial.ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId;
+                                    inventoryMaterial.TotalQty = 0;
+                                    inventoryMaterial.AvgRate = 0;
+                                    inventoryMaterial.ShortageQty = 0;
+                                    inventoryMaterial.RejectionQty = 0;
+                                    inventoryMaterial.ApprovedQty = 0;
+
+
+                                    _inventoryMaterialMasterService.InsertOrUpdateFromReceive(inventoryMaterial);
+                                    IssueRequstD.InventoryMaterialId = inventoryMaterial.InventoryMaterialId;
+
+                                }
+
                             }
 
                             AuditService.AddedLog(IssueRequstD);

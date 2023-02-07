@@ -4786,7 +4786,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
         [HttpGet, Authorize]
-        public ActionResult OS1xls(string entityid)
+        public ActionResult OS1xls(string entityid, string fromDate, string toDate,string productionStatusList)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -4796,6 +4796,20 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
             {
                 if (string.IsNullOrEmpty(entityid) || entityid == "''")
                     throw new Exception("Select entity");
+                if (string.IsNullOrEmpty(fromDate))
+                    throw new Exception("Select from date");
+
+                if (string.IsNullOrEmpty(toDate))
+                    throw new Exception("Select to date");
+
+                if (bplib.clsWebLib.IsDateOK(fromDate) == false || fromDate == "undefined")
+                    throw new Exception("Select from date");
+
+                if (bplib.clsWebLib.IsDateOK(toDate) == false || fromDate == "undefined")
+                    throw new Exception("Select to date");
+
+                if (Convert.ToDateTime(fromDate) > Convert.ToDateTime(toDate))
+                    throw new Exception("To date cannot be earlier than from date");
                 DataTable dtOrderMaster;
                 getOS1(entityid, out dtOrderMaster);
 

@@ -222,7 +222,7 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
     $scope.getos1 = function () {
 
         try {
-            var file_src = 'OrderManagements/productionOrderReports/OS1xls?entityid=' + $scope.EntityId
+            var file_src = 'OrderManagements/productionOrderReports/OS1xls?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&toDate=" + $scope.ToDate + "&productionStatusList=" + $scope.productionStatusList;
             $rootScope.report(file_src);
 
         } catch (e) {
