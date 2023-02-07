@@ -58,8 +58,8 @@
 
         <label class="col-sm-2 control-label">Production Status</label>
         <div class="col-sm-4">
-
-            <span class="checkbox-site" ng-repeat="option in productionStatusList">
+            <input id="selOS" ej-dropdownlist e-multiselectmode="visualmode" e-datasource="productionStatusList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+            @*<span class="checkbox-site" ng-repeat="option in productionStatusList">
 
                 <label>
                     <input type="checkbox" ng-model="option.Checked">
@@ -67,7 +67,7 @@
                     {{option.Text}}
                 </label>
 
-            </span>
+            </span>*@
 
         </div>
 

@@ -1270,6 +1270,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
 									,(Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmount
+									,IV.SetOff SetOffAmount
+									,Balance=(Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))
+										+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))
+										+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))
+										+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2))
+										+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))
+										+round(isnull(TAxInfo6.TaxAmount,0),2)-isnull(IV.SetOff,0)
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType,PAG.UserName PartyAccountGroup
 									,P.TINNO GSTINNo
 									FROM TRN.Sales AS SA
@@ -1285,6 +1292,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
 									LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
+									LEFT JOIN (SELECT PartyId,sum(WrittenOffAmount) SetOff,SourceType 
+													from [TRN].Invoice where  PartyType='Customer' and SourceType='SalesInvoice'
+													and CONVERT(Date,DocDate) 
+													between '" + FromDate + @"' AND '" + ToDate + @"'
+													GROUP BY PartyId,SourceType
+													) IV ON  IV.PartyId=SA.PartyId 
 									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount ,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 												FROM [TRN].[SalesTax] A
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
@@ -1346,7 +1359,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO
+									Group By P.Id,iv.setOff, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO
 								UNION ALL
 
 								SELECT  P.Code PartyCode, P.UserName AS PartyName,PPI.UserName AS BillTo
@@ -1369,6 +1382,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTransactionAmount
 								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
 								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmount
+								,0 SetOff,0 Balance
 								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType,PAG.UserName PartyAccountGroup
 								,P.TINNO GSTINNo
 								FROM[TRN].[InventorySales] AS II

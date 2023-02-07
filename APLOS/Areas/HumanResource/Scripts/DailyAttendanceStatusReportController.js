@@ -3,7 +3,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     $rootScope.title = 'Daily Attendance Status';
     $scope.path = 'humanresource/DailyAttendanceStatusReport/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-
+    $scope.Action = 'Save';
     $scope.InStatusList = [];
     $scope.LateStatusList = [];
     $scope.EmpCategoryList = [];
@@ -48,7 +48,8 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     ]
 
     $scope.ModelTemp = {
-        Id:null,
+        Id: null,
+        FavoriteName:null,
         InStatus:null,
         FromDate:null,
         ToDate: null,
@@ -192,25 +193,29 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     }
 
     // #region Save
-    $scope.Save = function () {       
-        $http({
-            method: 'POST',
-            url: $scope.path + 'Save',
-            data: {
-                'datas': $scope.ModelNew
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
+    $scope.Save = function () {  
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'Save',
+                data: {
+                    'datas': $scope.ModelNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
 
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.closeFavoritePopUp();
+                    $scope.GetFavoriteListByUser();     
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-               
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
         }
 
     };
@@ -228,7 +233,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
                     'instatus': $scope.ModelNew.InStatus,
                     'fromdate': $scope.ModelNew.FromDate,
                     'todate': $scope.ModelNew.ToDate,
-                    'employeecategory': $scope.ModelNew.EmployeeCategoryId,
+                    'employeecategory': $scope.ModelNew.EmployeecategoryId,
                     'teamleaderid': $scope.ModelNew.TeamLeaderId,
                     'responsibleperson': $scope.ModelNew.EmpSystemId,
                     'shift': $scope.ModelNew.ShiftId,
@@ -253,10 +258,11 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         return true;
     };
     function ClearFields() {
-        //$scope.Action = 'Save';
+        $scope.Action = 'Save';
         $scope.DailyAttendanceStatusList = [];
         $scope.ModelTemp = {
             Id: null,
+            FavoriteName: null,
             InStatus: null,
             FromDate: null,
             ToDate: null,
@@ -297,6 +303,15 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
 
         $scope.ModelNew.TeamLeaderId = null;
 
+
+    }
+
+    $scope.OpenFavoritePopUp = function () {
+        angular.element(document.querySelector('#FavoritePopupId')).modal('show');
+        
+    }
+    $scope.closeFavoritePopUp = function () {
+        angular.element(document.querySelector('#FavoritePopupId')).modal('hide');
 
     }
 }
