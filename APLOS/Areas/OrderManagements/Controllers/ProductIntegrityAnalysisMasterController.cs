@@ -307,7 +307,7 @@ FROM [TRN].[ProductIntegrityAnalysisItem] where PIAMID ='" + ProductId + "' orde
         }
       
       
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateItem(Dictionary<string, object> ItemData, string Pid)
         {
             try
