@@ -4618,16 +4618,16 @@ namespace Library.Service.Invoices
                             };
                             AuditService.AddedLog(financingSubsequentTransaction);
                             _loanInterestPayableRepository.Insert(financingSubsequentTransaction);
-                           
-                            if(companyCurrencyId != item.BankCurrencyId)
-                            {
-                                currencyAmountDr = item.Amount * item.CompanyCurrencyRate;
-                            }
-                            else
-                            {
-                                currencyAmountDr = item.BaseDrAmount;
-                            }
 
+                            //if(companyCurrencyId != item.BankCurrencyId)
+                            //{
+                            //    currencyAmountDr =  Math.Round(item.Amount * item.CompanyCurrencyRate, 2);
+                            //}
+                            //else
+                            //{
+                            //    currencyAmountDr = item.BaseDrAmount;
+                            //}
+                            currencyAmountDr = item.BaseDrAmount;
                         }
                         else
                         {

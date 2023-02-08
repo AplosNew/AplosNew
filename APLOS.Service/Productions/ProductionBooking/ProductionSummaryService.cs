@@ -460,14 +460,21 @@ namespace Library.Service.Productions
             var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
-        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId)
+        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string HeaderResponsiblePersonId)
         {
             var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,
-                        isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and WorkCenterMasterId=wc.Id order by Id desc)) as ProductionOrderId,isnull(pw.LotNumber,(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and WorkCenterMasterId=wc.Id order by Id desc)) as LotNumber,M.EmployeeName as Mentor,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and  WorkCenterMasterId=wc.Id and EntityId='" + entityId + @"' and ProductionShiftId='" + shiftId + @"' order by Id desc))) as ResponsiblePerson,
-                        isnull(C.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 CheckedBy from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and  WorkCenterMasterId=wc.Id and EntityId='" + entityId + @"' and ProductionShiftId='" + shiftId + @"' order by Id desc))) as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin
+                        isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and WorkCenterMasterId=wc.Id order by Id desc)) as ProductionOrderId,isnull(pw.LotNumber,(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and WorkCenterMasterId=wc.Id order by Id desc)) as LotNumber,M.EmployeeName as Mentor,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId ='"+ HeaderResponsiblePersonId+@"')) as ResponsiblePerson,
+                        isnull(C.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 CheckedBy from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and  WorkCenterMasterId=wc.Id and EntityId='" + entityId + @"' and ProductionShiftId='" + shiftId + @"' order by Id desc))) as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty
                         FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId=wc.Id AND pw.ProcessId = '" + ProcessId + @"' 
-                        AND  pw.EntityId='" + entityId + @"' AND PW.ProductionDate='" + productionDate + @"'  AND PW.ProductionShiftId='" + shiftId + @"'                   
+                        AND  pw.EntityId='" + entityId + @"' AND PW.ProductionDate='" + productionDate + @"'  AND PW.ProductionShiftId='" + shiftId + @"' 
+                        LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=pw.ProductionOrderId
+						LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + ProcessId + @"'
+                        LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+						 LEFT JOIN
+                            (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + ProcessId + @"'  GROUP BY PS.ProductionOrderId
+                            ) AS PRS ON PRS.ProductionOrderId = PO.Id     
                         LEFT JOIN EmployeeInformation R ON PW.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation M ON PW.MentorId=M.SystemId
                         LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId

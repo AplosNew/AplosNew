@@ -214,6 +214,7 @@
                                 <th>Article</th>
                                 <th>(%)Actual Plan Qty</th>
                                 <th>UoM</th>
+                                <th>Production Booking Level</th>
                                 <th style="width: 10px">Job Work Applicable</th>
                                 <th style="width: 170px;">Job Work Type</th>
                                 <th>Entity/Vendor</th>
@@ -263,6 +264,13 @@
                                     <div class="select-style">
                                         @*<select name="UOM" style="width: 60px; padding-top:8px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList"></select>*@
                                         <select style="width: 60px;" class="form-control" ng-model="x.UOMId" ng-options="item.Value as item.Text for item in uOMList| filter:{ MaterialMasterId: x.MaterialMasterId }:true"></select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="x.ProductionBookingLevel" ng-options="item.Value as item.Text for item in productionBookingLevelList" style="width: 130px;">
+                                            <option value=""></option>
+                                        </select>
                                     </div>
                                 </td>
                                 <td class="text-center">

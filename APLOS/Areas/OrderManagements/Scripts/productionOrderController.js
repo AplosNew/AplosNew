@@ -451,6 +451,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
     }
     //$scope.getMenu();
 
+    $scope.productionBookingLevelList = [];
+    cboService.getEnumCbo("enum/GetEnumProductionBookingLevelCbo", function (result) {
+        $scope.productionBookingLevelList = result;
+    });
+
     function getProductionProcessSetList() {
         $http({
             method: 'GET',
@@ -1098,6 +1103,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , ArticleName: null
             , Qty: 100
             , UOMId: null
+            , ProductionBookingLevel:null
         });
         UomCboByFGMaterialMaster(data.MaterialMasterId);
     };
