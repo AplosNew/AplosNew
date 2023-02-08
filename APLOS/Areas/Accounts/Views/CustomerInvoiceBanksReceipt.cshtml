@@ -266,6 +266,7 @@
                                 <th>Bank Name</th>
                                 <th class="text-right">Amount</th>
                                 <th>Bank Currency</th>
+                                <th>Rate</th>
                                 <th>Bank Amount</th>
                                 <th>Books Amount</th>
                                 <th>Action</th>
@@ -279,6 +280,7 @@
                                     <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.Amount" ng-keyup="calbankAmount(x)">
                                 </td>
                                 <td>{{x.BankCurrencyCode}}</td>
+                                <td>{{x.CompanyCurrencyRate}}</td>
                                 <td>
                                     <input type="text" n-decimals="2" ng-disabled="x.BankCurrencyId==voucher.CurrencyId" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BankAmount" autocomplete="off" ng-model="x.BankAmount" ng-keyup="calbankCurrecyAmount(x)">
                                 </td>
