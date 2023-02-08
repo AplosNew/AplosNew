@@ -45,11 +45,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult LoadProductIntegrityAnalysisMasterList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=SM.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-(select D.UserName Department from Org.Department D where D.Id=SM.DepartmentId) as Department,
-                            (select P.UserName from HKP.Process P where P.Id=SM.ProcessId) as Process,
-							(select P.UserName from HKP.Process P where P.Id=(select ProcessId from HKP.SubProcess SP where SP.Id=SM.SubProcessId)) as SubProcess
-                            FROM [TRN].[SkillManagement] SM";
+            string sql = @"SELECT *,(select E.EmployeeName from EmployeeInformation E where E.SystemId=PIAM.ResponsiblePersonId) as ResponsiblePerson  FROM [MST].[ProductIntegrityAnalysisMaster] PIAM";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -58,10 +54,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=SM.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-(select D.UserName Department from Org.Department D where D.Id=SM.DepartmentId) as Department
-                            FROM [TRN].[SkillManagement] SM where SM.Id='" + PIAMID + @"'";
-            return Json(new { schedule = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+            string sql = @"SELECT *,(select E.EmployeeName from EmployeeInformation E where E.SystemId=PIAM.ResponsiblePersonId) as ResponsiblePerson  FROM [MST].[ProductIntegrityAnalysisMaster] PIAM where PIAM.Id='" + PIAMID + @"'";
+            return Json(new { PIAM = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -76,11 +70,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         
         [Authorize, HttpGet]
-        public decimal GetItemAutoSequence(string scheduleId)
+        public decimal GetItemAutoSequence(string PIAMId)
         {
             try
             {
-                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM [TRN].[SkillManagementItem] where SMID='" + scheduleId + "'");
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM [TRN].[ProductIntegrityAnalysisItem] where PIAMID='" + PIAMId + "'");
                 if (dt.Rows.Count > 0)
                     return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
 
@@ -92,61 +86,70 @@ namespace Aplos.Areas.OrderManagements.Controllers
             }
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetUOM()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select UM.Id UOMId, UM.Code,UM.StandardName, UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Active = 1";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> ScheduleData)
+        public JsonResult Create(Dictionary<string, object> PIAMData)
         {
             try
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagement] where ScheduleCode='" + ScheduleData["ScheduleCode"] + "'", out DataSet dsSkillManagementCodeValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagement] where StandaredName='" + ScheduleData["StandaredName"] + "'", out DataSet dsSkillManagementSNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagement] where UserName='" + ScheduleData["UserName"] + "'", out DataSet dsSkillManagementUNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProductIntegrityAnalysisMaster] where Code='" + PIAMData["Code"] + "'", out DataSet dsPIAMCodeValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProductIntegrityAnalysisMaster] where StandardName='" + PIAMData["StandardName"] + "'", out DataSet dsPIAMSNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProductIntegrityAnalysisMaster] where UserName='" + PIAMData["UserName"] + "'", out DataSet dsPIAMUNameValidation, false, "1");
                 
 
-                DataSet dsSkillManagement;
+                DataSet dsPIAM;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [Trn].[SkillManagement] where Id='" + ScheduleData["Id"] + "'", out dsSkillManagement, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProductIntegrityAnalysisMaster] where Id='" + PIAMData["Id"] + "'", out dsPIAM, false, "1");
                 string _Id = "";
 
                 #region data update
-                if (dsSkillManagement.Tables[0].Rows.Count == 0)
+                if (dsPIAM.Tables[0].Rows.Count == 0)
                 {
-                    if (dsSkillManagementCodeValidation.Tables[0].Rows.Count > 0)
+                    if (dsPIAMCodeValidation.Tables[0].Rows.Count > 0)
                     {
-                        throw new Exception("Schedule Code Already Exist.");
+                        throw new Exception("Code Already Exist.");
                     }
-                    else if (dsSkillManagementSNameValidation.Tables[0].Rows.Count > 0)
+                    else if (dsPIAMSNameValidation.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("Standared Name Already Exist.");
                     }
-                    else if (dsSkillManagementUNameValidation.Tables[0].Rows.Count > 0)
+                    else if (dsPIAMUNameValidation.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("User Name Already Exist.");
                     }
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("SkillManagement", out _Id);
-                        _Id = "SM" + _Id;
-                        ScheduleData["Id"] = _Id;
-                        AddNewRow(dsSkillManagement.Tables[0], ScheduleData);
+                        genid.GenID("PIAM", out _Id);
+                        _Id = "PIA" + _Id;
+                        PIAMData["Id"] = _Id;
+                        AddNewRow(dsPIAM.Tables[0], PIAMData);
                     }
                 }
                 else
                 {
-                    _Id = ScheduleData["Id"].ToString();
-                    EditRow(dsSkillManagement.Tables[0].Rows[0], ScheduleData);
+                    _Id = PIAMData["Id"].ToString();
+                    EditRow(dsPIAM.Tables[0].Rows[0], PIAMData);
                 }
                 #endregion data update
 
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsSkillManagement);
+                _info.SaveDataSets(dsPIAM);
 
-                return Json(new { Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = PIAMData, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -196,26 +199,23 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpPost]
-        public ActionResult ScheduleDelete(string id)
+        public ActionResult PIAMDelete(string id)
         {
             try
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                DataSet PositionCount, LevelCount, ItemCount, BudgetCount, TeamCount;
+                DataSet ItemCount;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementPositionCode] where SMID='" + id + "'", out PositionCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementItem] where SMID ='" + id + "'", out ItemCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementLevel] where SMID ='" + id + "'", out LevelCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementPersonBudgetCode] where SMID ='" + id + "'", out BudgetCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementTeamDefinition] where SMID ='" + id + "'", out TeamCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ProductIntegrityAnalysisItem] where PIAMID ='" + id + "'", out ItemCount, false, "1");
+                
 
-                if (PositionCount.Tables[0].Rows.Count == 0 || ItemCount.Tables[0].Rows.Count == 0 || LevelCount.Tables[0].Rows.Count == 0 || BudgetCount.Tables[0].Rows.Count == 0 || TeamCount.Tables[0].Rows.Count == 0)
+                if (ItemCount.Tables[0].Rows.Count == 0)
                 {
 
                     conC.BeginTransaction();
-                    conC.executeQuery("delete from TRN.SkillManagement where Id ='" + id + @"'");
+                    conC.executeQuery("delete from [MST].[ProductIntegrityAnalysisMaster] where Id ='" + id + @"'");
                     conC.CommitTransaction();
                 }
                 else
@@ -237,7 +237,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from [TRN].[SkillManagementItem] where Id ='" + id + @"'");
+                conC.executeQuery("delete from [TRN].[ProductIntegrityAnalysisItem] where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -249,31 +249,33 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetBudgetCode()
+        public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position,P.Activity,
-DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.UserName AS [LegalDesignation] from MST.ManpowerBudget MP
-                            left join ORG.Entity E on E.Id = MP.EntityId
-                            left join ORG.Position P on P.Id = MP.PositionId
-							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
-							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
-							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
-                            where MP.Active = 1";
+            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-        
+
         [Authorize, HttpGet]
         public ActionResult LoadItemEditData(string ItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"SELECT *,
-(select Code from [MST].[ManpowerBudget] where Id=ByWhomId) as ByWhom
-FROM [TRN].[SkillManagementItem] where Id='" + ItemId + @"'";
+            string sql = @"SELECT *,(select UserName from HKP.Process where Active=1 and Id=ProcessId) as Process,
+(select UserName from scs.UnitOfMeasurement where Active=1 and Id=UOMId) as UOM
+FROM [TRN].[ProductIntegrityAnalysisItem] where Id='" + ItemId + @"'";
             return Json(new { item = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
@@ -281,18 +283,18 @@ FROM [TRN].[SkillManagementItem] where Id='" + ItemId + @"'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select * from SkillItemParameterDetails where Id='" + ParameterId + @"'";
+            string sql = @"select * from ProductItemParameterDetails where Id='" + ParameterId + @"'";
             return Json(new { Parameter = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
         
        
         [Authorize, HttpGet]
-        public ActionResult LoadItemDetails(string ScheduleId)
+        public ActionResult LoadItemDetails(string ProductId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,(select distinct PerformanceGroup from TRN.SkillManagementLevel where PerformanceGroup=PerformanceGroupId) as PerformanceGroup,
-(select Code from [MST].[ManpowerBudget] where Id=ByWhomId) as ByWhom
-FROM [TRN].[SkillManagementItem] where SMID ='" + ScheduleId + "' order by SNO";
+            string sql = @"SELECT *,(select UserName from HKP.Process where Active=1 and Id=ProcessId) as Process,
+(select UserName from scs.UnitOfMeasurement where Active=1 and Id=UOMId) as UOM
+FROM [TRN].[ProductIntegrityAnalysisItem] where PIAMID ='" + ProductId + "' order by SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -300,48 +302,48 @@ FROM [TRN].[SkillManagementItem] where SMID ='" + ScheduleId + "' order by SNO";
         public ActionResult getParameterData(string ItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM SkillItemParameterDetails where ItemId ='" + ItemId + "'";
+            string sql = @"SELECT * FROM ProductItemParameterDetails where ItemId ='" + ItemId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
       
       
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult CreateItem(Dictionary<string, object> ItemData, string Pid)
         {
             try
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementItem] where Id<>'" + ItemData["Id"] + "'", out DataSet dsSkillManagementItemValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[ProductIntegrityAnalysisItem] where Id<>'" + ItemData["Id"] + "'", out DataSet dsProductIntegrityAnalysisItemValidation, false, "1");
 
-                DataSet dsSkillManagementItem;
+                DataSet dsProductIntegrityAnalysisItem;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementItem] where Id='" + ItemData["Id"] + "'", out dsSkillManagementItem, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[ProductIntegrityAnalysisItem] where Id='" + ItemData["Id"] + "'", out dsProductIntegrityAnalysisItem, false, "1");
                 string _Id = "";
 
                 #region data update
-                if (dsSkillManagementItem.Tables[0].Rows.Count == 0)
+                if (dsProductIntegrityAnalysisItem.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("SkillManagementItem", out _Id);
-                    _Id = "SMI" + _Id;
+                    genid.GenID("ProductIntegrityAnalysisItem", out _Id);
+                    _Id = "PAI" + _Id;
                     ItemData["Id"] = _Id;
-                    ItemData["SMID"] = Pid;
-                    AddNewRow(dsSkillManagementItem.Tables[0], ItemData);
+                    ItemData["PIAMID"] = Pid;
+                    AddNewRow(dsProductIntegrityAnalysisItem.Tables[0], ItemData);
                 }
                 else
                 {
                     _Id = ItemData["Id"].ToString();
-                    ItemData["SMID"] = Pid;
-                    EditRow(dsSkillManagementItem.Tables[0].Rows[0], ItemData);
+                    ItemData["PIAMID"] = Pid;
+                    EditRow(dsProductIntegrityAnalysisItem.Tables[0].Rows[0], ItemData);
                 }
                 #endregion data update
 
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsSkillManagementItem);
+                _info.SaveDataSets(dsProductIntegrityAnalysisItem);
 
                 return Json(new { Error = false, Data = ItemData, Message = AplosMessage.Insert });
 
@@ -360,36 +362,36 @@ FROM [TRN].[SkillManagementItem] where SMID ='" + ScheduleId + "' order by SNO";
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from SkillItemParameterDetails where Id<>'" + ParameterData["Id"] + "'", out DataSet dsItemParameterDetailsValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from ProductItemParameterDetails where Id<>'" + ParameterData["Id"] + "'", out DataSet dsItemParameterDetailsValidation, false, "1");
 
-                DataSet dsSkillItemParameterDetails;
+                DataSet dsProductItemParameterDetails;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from SkillItemParameterDetails where Id='" + ParameterData["Id"] + "'", out dsSkillItemParameterDetails, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from ProductItemParameterDetails where Id='" + ParameterData["Id"] + "'", out dsProductItemParameterDetails, false, "1");
                 string _Id = "";
 
                 #region data update
-                if (dsSkillItemParameterDetails.Tables[0].Rows.Count == 0)
+                if (dsProductItemParameterDetails.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("SkillItemParameterDetails", out _Id);
-                    _Id = "SIP" + _Id;
+                    genid.GenID("ProductItemParameterDetails", out _Id);
+                    _Id = "PIP" + _Id;
                     ParameterData["Id"] = _Id;
                     ParameterData["ItemId"] = Pid;
-                    AddNewRow(dsSkillItemParameterDetails.Tables[0], ParameterData);
+                    AddNewRow(dsProductItemParameterDetails.Tables[0], ParameterData);
                 }
                 else
                 {
                     _Id = ParameterData["Id"].ToString();
                     ParameterData["ItemId"] = Pid;
-                    EditRow(dsSkillItemParameterDetails.Tables[0].Rows[0], ParameterData);
+                    EditRow(dsProductItemParameterDetails.Tables[0].Rows[0], ParameterData);
                 }
                 #endregion data update
 
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsSkillItemParameterDetails);
+                _info.SaveDataSets(dsProductItemParameterDetails);
 
                 return Json(new { Error = false, Data = ParameterData, Message = AplosMessage.Insert });
 

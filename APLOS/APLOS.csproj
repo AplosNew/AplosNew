@@ -4523,6 +4523,7 @@
     <Content Include="Areas\OrderManagements\Views\ProductIntegrityAnalysisMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\LeaveRegistersForm\Aplos.cshtml" />
     <Content Include="Areas\Parties\Views\Party\_VendorPopUpNew_Loan.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\_FavoritePopup.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -17,7 +17,6 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     $scope.RowColor = "";
     $scope.isAlternative = -1;
     $scope.rowDataBound = function rowDataBound(e) {
-
         if ($scope.RowColor != e.data.Id) {
             $scope.isAlternative = $scope.isAlternative * -1;
             $scope.RowColor = e.data.Id;

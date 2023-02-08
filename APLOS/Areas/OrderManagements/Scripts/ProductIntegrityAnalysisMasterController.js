@@ -5,8 +5,9 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
     $scope.CriticalLevelLists = [];
     $scope.Action = 'Save';
     $scope.path = 'OrderManagements/ProductIntegrityAnalysisMaster/';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.saveUrlItem = $scope.path + 'createItem';
+    $scope.saveUrl = $scope.path + 'Create';
+    $scope.saveUrlItem = $scope.path + 'CreateItem';
+    $scope.saveUrlParameter = $scope.path + 'CreateParameter';
 
     $scope.CriticalLevelLists = [
         {
@@ -26,13 +27,14 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
     $scope.PIAM = {
         Id: null
         , Code: null
-        , StandaredName: null
+        , StandardName: null
         , ShortName: null
         , ResponsiblePersonId: null
         , ResponsiblePerson: null
-        , UserName:null
+        , UserName: null
+        , Description: null
         , Remarks: null
-        , IsActive: true
+        , Active: true
     };
     $scope.PIAMNew = Object.assign({}, $scope.PIAM);
 
@@ -44,7 +46,7 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
         , CriticalLevel: null
         , UOM: null
         , UOMId: null
-        , ProductionProcess: null
+        , ProcessId: null
         , Category: null
         , Remarks: null
         
@@ -53,12 +55,37 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
 
     $scope.Parameter = {
         Id: null
-        , SNO: null
-        , CheckPoints: null
+        , PredefineValue: null
         , Remarks: null
         , ItemId:null
     }
     $scope.ParameterNew = Object.assign({}, $scope.Parameter);
+
+    $scope.selectUOM = function () {
+        $scope.getUOM();
+        angular.element(document.querySelector('#UOMPopUp')).modal('show');
+    }
+
+    $scope.UOMList = [];
+    $scope.getUOM = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetUOM',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.UOMList = resp.data;
+        });
+    }
+
+    $scope.doubleUOM = function (e) {
+        $scope.ItemNew.UOMId = e.data.UOMId;
+        $scope.ItemNew.UOM = e.data.UOM;
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
+    }
+
+    $scope.closeUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
+    }
 
 
     $scope.ProcessList = [];
@@ -94,7 +121,7 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
             url: 'OrderManagements/ProductIntegrityAnalysisMaster/LoadPIAMEditData?PIAMID=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.PIAMNew = response.data.PIAM[0];
-            $scope.PIAMNew.ResponsiblePersoneBgtCode = response.data.PIAM[0].ResponsiblePersoneBgtCode;
+            $scope.PIAMNew.ResponsiblePerson = response.data.PIAM[0].ResponsiblePerson;
             $scope.LoadItemDetails($scope.PIAMMasterId);
             $scope.GeneratItemSequenceNo($scope.PIAMMasterId);
             if (!$rootScope.isCollapsed) {
@@ -108,47 +135,47 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
     $scope.GeneratItemSequenceNo = function () {
         $http({
             method: 'GET',
-            url: 'OrderManagements/ProductIntegrityAnalysisMaster/GetItemAutoSequence?scheduleId=' + $scope.scheduleNew.Id
+            url: 'OrderManagements/ProductIntegrityAnalysisMaster/GetItemAutoSequence?PIAMId=' + $scope.PIAMNew.Id
         }).then(function successCallback(response) {
             $scope.ItemNew.SNO = response.data;
         });
     }
-  /*  $scope.GeneratItemSequenceNo();*/
+    $scope.GeneratItemSequenceNo();
 
    
-    $scope.selectBudgetCode = function () {
-        $scope.getBudgetCode();
-        angular.element(document.querySelector('#BudgetCodePopUp')).modal('show');
+    $scope.selectResponsiblePerson = function () {
+        $scope.getEmployee();
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
     }
 
-    $scope.BudgetCodeList = [];
-    $scope.getBudgetCode = function () {
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetBudgetCode',
+            url: $scope.path + 'GetEmployee',
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.BudgetCodeList = resp.data;
+            $scope.EmployeeList = resp.data;
         });
     }
 
-    $scope.doubleBudgetCode = function (e) {
-        $scope.scheduleNew.ResponsiblePersoneBgtCodeId = e.data.ManPowerBudgetId;
-        $scope.scheduleNew.ResponsiblePersoneBgtCode = e.data.Code;
-        angular.element(document.querySelector('#BudgetCodePopUp')).modal('hide');
+    $scope.doubleEmployee = function (e) {
+        $scope.PIAMNew.ResponsiblePersonId = e.data.SystemId;
+        $scope.PIAMNew.ResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
 
-    $scope.closeBudgetCodePopUp = function () {
-        angular.element(document.querySelector('#BudgetCodePopUp')).modal('hide');
+    $scope.closeResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MaintenanceScheduleForm.$valid) {
+        if ($scope.ProductIntegrityAnalysisMasterForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'ScheduleData': $scope.scheduleNew},
+                data: { 'PIAMData': $scope.PIAMNew},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -157,7 +184,7 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadProductIntegrityAnalysisMasterList();
-                    ScheduleClearFields();
+                    PIAMClearFields();
                  
                 }
             }), function errorCallBack(response) {
@@ -166,27 +193,27 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
         }    
     };
 
-    $scope.ScheduleItemList = [];
+    $scope.ProductAnalysisItemList = [];
     $scope.LoadItemDetails = function () {
         $http({
 
             method: 'Get',
-            url: 'Machines/SkillManagement/LoadItemDetails?ScheduleId=' + $scope.scheduleNew.Id
+            url: 'OrderManagements/ProductIntegrityAnalysisMaster/LoadItemDetails?ProductId=' + $scope.PIAMNew.Id
         }).then(function successCallback(response) {
-            $scope.ScheduleItemList = response.data;
+            $scope.ProductAnalysisItemList = response.data;
         }
         )
     }
 
     $scope.ItemSave = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ProductIntegrityAnalysisMasterItemForm.$valid) {
+        if ($scope.PIAMItemForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrlItem,
                 data: {
                     'ItemData': $scope.ItemNew,
-                    'Pid':$scope.scheduleNew.Id
+                    'Pid':$scope.PIAMNew.Id
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -195,8 +222,8 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadItemDetails($scope.scheduleNew.Id);
-                    ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+                    $scope.LoadItemDetails($scope.PIAMNew.Id);
+                    ItemClearFields($scope.GeneratItemSequenceNo($scope.PIAMNew.Id));
 
                 }
             }), function errorCallBack(response) {
@@ -306,19 +333,19 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
     }
     
     $scope.Clear = function () {
-        ScheduleClearFields();
+        PIAMClearFields();
     };
   
     $scope.ItemClear = function () {
-        ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+        ItemClearFields($scope.GeneratItemSequenceNo($scope.PIAMNew.Id));
     };
     $scope.SaveParameterClear = function () {
         ParameterClearFields();
     };
    
-    function ScheduleClearFields() {
+    function PIAMClearFields() {
         $scope.Action = "Save";
-        $scope.scheduleNew = Object.assign({}, $scope.schedule);
+        $scope.PIAMNew = Object.assign({}, $scope.PIAM);
         $scope.ScheduleMachineList = [];
     }
 
@@ -358,8 +385,8 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.LoadItemDetails($scope.scheduleNew.Id);
-                ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
+                $scope.LoadItemDetails($scope.PIAMNew.Id);
+                ItemClearFields($scope.GeneratItemSequenceNo($scope.PIAMNew.Id));
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -370,7 +397,7 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
     $scope.Delete = function () {
         $http({
             method: 'POST',
-            url: 'OrderManagements/ProductIntegrityAnalysisMaster/ScheduleDelete?id=' + $scope.scheduleNew.Id,
+            url: 'OrderManagements/ProductIntegrityAnalysisMaster/PIAMDelete?id=' + $scope.PIAMNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

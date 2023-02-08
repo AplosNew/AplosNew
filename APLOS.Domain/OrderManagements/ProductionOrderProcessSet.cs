@@ -21,6 +21,7 @@ namespace Library.Model.OrderManagements
         public string CompletedBy { get; set; }
         public DateTime? CompletionEntryDate { get; set; }
         public decimal Qty { get; set; }
+        public string ProductionBookingLevel { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
