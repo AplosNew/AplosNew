@@ -102,7 +102,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
-            string sql = @"Select TOP(1)* from (select LastReading=(select LastReading=(select top(1) LastReading from UtilityTransaction Where UtilityMasterId ='" + utilityMasterId + @"' order by Date desc))
+            string sql = @"Select TOP(1)* from (select LastReading=(select LastReading=(select top(1) Reading from UtilityTransaction Where UtilityMasterId ='" + utilityMasterId + @"' order by Date desc))
 									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction Where UtilityMasterId='" + utilityMasterId +@"' order by Date desc)
                                     , LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + utilityMasterId +@"' order by Date desc)
                                     from UtilityTransaction
@@ -116,7 +116,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             string sql = @"select * from UtilityMaster where Id='"+ utilityMasterId + "'";
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

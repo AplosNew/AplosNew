@@ -55,8 +55,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
             {
 
                 string sql = @"select case when isnull(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE EmployeeName END as EmployeeName,ISNULL(ll.Name, LDN.UserName)AS Designation , ISNULL(e.EmployeeCode,e.EmployeeCode) EmployeeCode,
-        ISNULL(lls.Name,Se.UserName)AS Section
-        ,FORMAT(e.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(e.DOS,'dd-MMM-yyyy')DOS,FORMAT(e.DOS,'MMMM-yyyy') DOSMonth
+        ISNULL(lls.Name,Se.UserName)AS Section,FORMAT(e.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(e.DOS,'dd-MMM-yyyy')DOS,FORMAT(e.DOS,'MMMM-yyyy') DOSMonth,E.FatherName
                                         from EmployeeInformation e
         	LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
         								LEFT JOIN MST.ManpowerBudget PMB ON e.BudgetCode = PMB.Id
@@ -82,7 +81,9 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
             {
 
                 string sql = @"Select efs.Id, FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate
-							,efs.SalaryRate 
+							--,efs.SalaryRate 
+                            ,SalRate = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End
+                            ,LeaveEncash = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * efs.[LvEncashmentDayNo]
 							,efs.OTRate
                             ,convert(int,ROUND(efs.[TotalDeductionAmount],0)) TotalDeductionAmount
                             ,convert(int,ROUND(efs.LvEncashmentAmount,0)) LvEncashmentAmount
