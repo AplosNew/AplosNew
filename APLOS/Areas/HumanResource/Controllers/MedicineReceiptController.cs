@@ -345,7 +345,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
 
                     sheet[ROW, ColVendor].Text = data.Rows[i]["PartyName"].ToString();
-                    sheet[ROW, ColInvoiceNum].Number = clsStaticInfo.dbl(data.Rows[i]["InvoiceNumber"].ToString());
+                    sheet[ROW, ColInvoiceNum].Text = data.Rows[i]["InvoiceNumber"].ToString();
                     sheet[ROW, ColInvoiceDate].Text = data.Rows[i]["InvoiceDate"].ToString().ToString();
                     sheet[ROW, ColTotalAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
 
