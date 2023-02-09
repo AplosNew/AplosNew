@@ -8,11 +8,9 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
     //The Filters 
     $scope.filters = [];
     $scope.summaryfilters = [];
-    $scope.wcfilters = [];
     $scope.loadfilters = function () {
         try {
             $scope.filters = [];
-            $scope.ProductionDataReportList = [];
             $http({
                 method: 'GET',
                 url: $scope.path + 'getFilters',
@@ -25,10 +23,10 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
                 else {
                     $scope.filters = response.data;
                     var columnList = [
-                        { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
-                        { field: 'OrderStatus', width: 20, headerText: "Order Status", type: "string" },
                         { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
                         { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+                        { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
+                        { field: 'OrderStatus', width: 20, headerText: "Order Status", type: "string" },
                     ];
                     $("#filters").ejGrid({
                         dataSource: $scope.filters,
@@ -87,7 +85,6 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
 
     //Destroy The Grid Before ReBuilding And Clearing of the Filters
     $scope.clearFilters = function () {
-
         var gridObj = $("#filters").data("ejGrid");
         gridObj.clearFiltering();
     }
@@ -101,21 +98,6 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
         var k = 100;
     }
 
-    //$scope.Dates = new Date();
-   // $scope.EntityList = null;
-
-    //$scope.parameters = [];
-    //$scope.filters = [];
-    //$scope.loadfilters = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url:"Productions/ProductiveAllowanceRateSetup/getEntity",
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        $scope.EntityList = response.data;
-    //    });
-    //}
-    //$scope.loadfilters();
 
     $scope.OrderStatusId = null;
     $scope.orderStatusList = [];
@@ -125,29 +107,15 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
         });
 
 
-    //var getString = function (data, column) {
-    //    var string = "''";
-    //    var collection = [];
-
-    //    for (var i = 0; i < data.length; i++) {
-    //        if (collection.includes(data[i][column]) == false) {
-    //            string += ",'" + data[i][column] + "'";
-    //            collection.push(data[i][column]);
-    //        }
-    //    }
-    //    return string;
-    //}
 
     $scope.GetReport = function (reportType) {
         try {
-
 
             var DropDownJobLocationListObjE = $("#selOS").data("ejDropDownList");
             var osLists = DropDownJobLocationListObjE.getSelectedValue();
             if (angular.isUndefinedOrNull(osLists)) {
                 throw "Select Order Status.";
             }
-
 
             // The Report Code
             $http({
