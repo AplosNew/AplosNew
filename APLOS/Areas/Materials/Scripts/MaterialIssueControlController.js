@@ -294,18 +294,19 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         try {
             if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
                 for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
-                    if (baseService.isUndefinedOrNull($scope.QBOQCostingList[p].InventoryMaterialId)) {
-                        throw "Stock Qty is not available.";
-                    }
+                    //if (baseService.isUndefinedOrNull($scope.QBOQCostingList[p].InventoryMaterialId)) {
+                    //    throw "Stock Qty is not available.";
+                    //}
                     $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
                     $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
                     $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
                     $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
                     $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
                 }
-            } else {
-                throw "Stock data is not available.";
             }
+            //else {
+            //    throw "Stock data is not available.";
+            //}
 
             if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
                 throw "Select Production Order.";
@@ -346,54 +347,16 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             ShowResult(e, "failure");
         }
     };
-    //$scope.Save = function () {
-    //    try {
-    //        if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-    //            throw "Select Production Order.";
-    //        }
-    //        if (baseService.arrayLength($scope.SOItemList) === 0) {
-    //            throw "Select SO Detail.";
-    //        }
-
-    //        $scope.$broadcast('show-errors-check-validity');
-    //        if ($scope.ModelNewForm.$valid) {
-    //            if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-    //                $http({
-    //                    method: 'POST',
-    //                    url: $scope.saveUrl,
-    //                    data: {
-    //                        'model': $scope.ModelNew
-    //                        , 'soList': $scope.SOItemList
-    //                        , 'dataList': $scope.QBOQCostingList
-    //                    },
-    //                    dataType: 'JSON'
-    //                    , contentType: "application/json charset=utf-8"
-    //                }).then(function successCallback(response) {
-    //                    if (response.data.Error === true) {
-    //                        ShowResult(response.data.Message, 'failure');
-    //                    }
-    //                    else {
-    //                        ShowResult(response.data.Message, 'success');
-    //                        $scope.Clear();
-    //                    }
-    //                }), function errorCallBack(response) {
-    //                    ShowResult(response.data.Message, 'failure');
-    //                };
-    //            }
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
+    
 
     $scope.Clear = function () {
-        $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "Costing", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+        $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
         $scope.QBOQCostingList = [];
-        $scope.ModelNew.Level = "Costing";
+        $scope.ModelNew.Level = "QBOQ";
         $scope.modelList = [];
         $rootScope.toggle();
-
+        $scope.CostCenterLoad();
     }
 
     $scope.tab = 1;

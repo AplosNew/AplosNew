@@ -23907,7 +23907,7 @@ namespace Library.Service.HumanResources
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
 
                             }
-                            else if (colName == "SalaryRate")
+                            else if (colName == "SalRate")
                             {
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
 

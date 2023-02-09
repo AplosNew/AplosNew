@@ -170,7 +170,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new CustomException("Direct Salary Dr and Cr Amount not match!");
             if (inDirectJVList != null && inDirectJVList.Sum(r => r.DrAmount) != inDirectJVList.Sum(r => r.CrAmount))
                 throw new CustomException("InDirect Salary Dr and Cr Amount not match!");
-
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _salaryDisbursementService.ParkSalaryPayable(voucherVM, yearNo, monthNo, monthName, directJVList, inDirectJVList, directSalaryLockList, indirectSalaryLockList)) });
         }
 

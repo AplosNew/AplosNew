@@ -196,13 +196,14 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
     $scope.getAllEntities();
 
     $scope.ProductionStatusId = 'All';
+    $scope.productionStatusList = [];
     cboService.getProductionStatusCboByGroup(function (result) {
         //result.splice(0, 0, { Text: "All", Value: "All" });
-        var kk = [];
-        for (var i = 0; i < result.length; i++) {
-            kk.push({ Text: result[i].Text, Value: result[i].Value, Checked: true });
-        }
-        $scope.productionStatusList = kk;
+        //var kk = [];
+        //for (var i = 0; i < result.length; i++) {
+        //    kk.push({ Text: result[i].Text, Value: result[i].Value, Checked: true });
+        //}
+        $scope.productionStatusList = result;
     });
 
     angular.isUndefinedOrNull = function (val) {
@@ -222,11 +223,18 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
     $scope.getos1 = function () {
 
         try {
-            var file_src = 'OrderManagements/productionOrderReports/OS1xls?entityid=' + $scope.EntityId
+            var DropDownOSList = $("#selOS").data("ejDropDownList");
+            var osLists = DropDownOSList.getSelectedValue();
+            var olist = DropDownOSList._checkedValues;
+            if (angular.isUndefinedOrNull(osLists)) {
+                throw "Select Production Status.";
+            }
+
+            var file_src = 'OrderManagements/productionOrderReports/OS1xls?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&toDate=" + $scope.ToDate + "&productionStatusList=" + olist;
             $rootScope.report(file_src);
 
         } catch (e) {
-
+            ShowResult(e, 'failure');
         }
     }
     $scope.Bulletin = function () {
