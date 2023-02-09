@@ -26,6 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Web.Mvc;
 using Library.HumanResource.Attendance;
+using Library.OrderManagement.Production;
 
 namespace Aplos.Areas.Productions.Controllers
 {
@@ -33,7 +34,7 @@ namespace Aplos.Areas.Productions.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
-
+        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         public SalesOrderStatusReportController(
             ISqlRepository sqlRepository
             )
@@ -415,5 +416,17 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         #endregion
+
+        #region New add
+        [HttpGet, Authorize]
+        public ActionResult getFilters()
+        {
+            JsonResult json = Json(_productionSummaryData.SalesOrderfilters(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+       #endregion new add
+
     }
 }
