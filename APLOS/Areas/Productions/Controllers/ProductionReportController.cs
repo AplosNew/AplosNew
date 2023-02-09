@@ -17,6 +17,8 @@ using System.IO;
 using System.Drawing;
 using OTSBD;
 using ConnectionManager;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
 
 #endregion Using
 
@@ -40,13 +42,18 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region --- Daily Day Status Report---
         [HttpPost, Authorize]
-        public JsonResult ProReport(string Date, string Entity, string ProcessId, string EntityName, string Process)
+        public ActionResult ProReport(string Date, string Entity, string ProcessId, string EntityName, string Process)
         {
             try
             {
                 string fileName = "";
-                fileName = ProductionReport("Production Report", Date, Entity, ProcessId, EntityName, Process);
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                //fileName = ProductionReport("Production Report", Date, Entity, ProcessId, EntityName, Process);
+                //return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+                IWorkbook workbook = ProductionReport("Production Report", Date, Entity, ProcessId, EntityName, Process);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "ProductionReport";
+                return RenderReportAsPdf(workbook, reportFileName);
+
             }
             catch (Exception ex)
             {
@@ -55,7 +62,34 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string ProductionReport(string SheetName, string Date, string Entity, string ProcessId, string EntityName, string Process)
+        public ActionResult RenderReportAsPdf(IWorkbook workbook, string fileName, bool isOpen = true)
+        {
+            try
+            {
+                using (var converter = new ExcelToPdfConverter(workbook))
+                {
+                    var pdfDocument = new PdfDocument();
+                    ExcelToPdfConverterSettings _settings = new ExcelToPdfConverterSettings();
+                    _settings.AutoDetectComplexScript = true;
+                    _settings.EmbedFonts = true;
+                    _settings.LayoutOptions = LayoutOptions.FitAllColumnsOnOnePage;
+
+                    pdfDocument = converter.Convert(_settings);
+
+                    if (isOpen == true)
+                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                    else
+                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public IWorkbook ProductionReport(string SheetName, string Date, string Entity, string ProcessId, string EntityName, string Process)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -209,12 +243,12 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet.PageSetup.CenterHorizontally = true; 
                 #endregion
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
-                workbook.SaveAs(filePath);
-                workbook.Close();
-                excelEngine.Dispose();
-                return filePath;
-
+                //filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                //workbook.SaveAs(filePath);
+                //workbook.Close();
+                //excelEngine.Dispose();
+                //return filePath;
+                return workbook;
             }
             catch (Exception ex)
             {
