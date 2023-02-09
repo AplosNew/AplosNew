@@ -173,15 +173,15 @@ namespace Aplos.Areas.Productions.Controllers
                 COL++;
                 sheet[ROW, COL].Text = "Product Code"; sheet[ROW, COL].ColumnWidth = 16; int colProductCode = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Product"; sheet[ROW, COL].ColumnWidth = 22; int colProduct = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 12; int colArticle = COL;
+                //sheet[ROW, COL].Text = "Product"; sheet[ROW, COL].ColumnWidth = 22; int colProduct = COL;
+                //COL++;
+                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 35; int colArticle = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SONo"; sheet[ROW, COL].ColumnWidth = 12; int colSOS = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Prod. As On Date"; sheet[ROW, COL].ColumnWidth = 16; int colYesterdayProduction = COL;
+                sheet[ROW, COL].Text = "Prod. As On Date"; sheet[ROW, COL].ColumnWidth = 12; int colYesterdayProduction = COL;
                 COL++;
-                sheet[ROW, COL].Text = "WIP"; sheet[ROW, COL].ColumnWidth = 16; int colWIP = COL;
+                sheet[ROW, COL].Text = "WIP"; sheet[ROW, COL].ColumnWidth = 8; int colWIP = COL;
                 
                 endGenericColumn = COL;
 
@@ -207,7 +207,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colPONumber].Text = dtOrder.Rows[i]["PONo"].ToString();
                     sheet[ROW, colLotNo].Text = dtOrder.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
-                    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                    //sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
                     sheet[ROW, colSOS].Text = dtOrder.Rows[i]["SONo"].ToString();
                     sheet[ROW, colYesterdayProduction].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ProductionAsOnDate"].ToString());

@@ -43,7 +43,7 @@ function ProductionReportController(commonMessage, $scope, $rootScope, baseServi
             }
             $scope.EntityName = $("#EntityId option:selected").text();
             $scope.Process = $("#ProcessId option:selected").text();
-            $scope.ReportFormat = 'XL';
+            $scope.ReportFormat = 'Excel';
             var url = 'Productions/ProductionReport/ProReport?reportFormat=' + $scope.ReportFormat +'&Date=' + $scope.Date + '&Entity=' + $scope.ProductionEntityId+ '&ProcessId=' + $scope.ProcessId + '&EntityName=' + $scope.EntityName + '&Process=' + $scope.Process;
             $rootScope.report(url);
             //$http({

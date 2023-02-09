@@ -2033,18 +2033,18 @@ GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,p
 ) AS pp
 LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS FirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS LastBookDate,ProcessId,ProductionOrderId from TRN.ProductionSummary GROUP BY ProcessId,ProductionOrderId) FLB ON FLB.ProcessId=PP.ProcessId AND FLB.ProductionOrderId=PP.ProductionOrderId
 LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS POFirstBookDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS POLastBookDate,ProductionOrderId from TRN.ProductionSummary GROUP BY ProductionOrderId) PFLB ON PFLB.ProductionOrderId=PP.ProductionOrderId
-left outer join TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
+LEFT OUTER JOIN TRN.ProductionOrder PO ON PO.Id=PP.ProductionOrderID
 LEFT OUTER JOIN hkp.Process AS p ON p.Id=pp.ProcessId
 LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
 LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-LEFT JOIN trn.ProductionOrderProcessSet POPS ON POPS.ProductionOrderId=PO.Id AND POPS.ProcessId=pp.ProcessId
-left join hkp.Process PPS on pps.Id=POPS.ProcessId
-left outer join (
-select POD.ProductionOrderId,MA.StandardName AS Article,PM.UserName AS Product
-from trn.ProductionOrderDetail POD 
-left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
-left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
-left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
+LEFT JOIN TRN.ProductionOrderProcessSet POPS ON POPS.ProductionOrderId=PO.Id
+left join HKP.Process PPS on pps.Id=POPS.ProcessId
+LEFT OUTER JOIN (
+SELECT POD.ProductionOrderId,MA.StandardName AS Article,PM.UserName AS Product
+FROM TRN.ProductionOrderDetail POD 
+LEFT OUTER JOIN TRN.SalesOrder SO on so.id=pod.SalesOrderId
+LEFT OUTER JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+LEFT OUTER JOIN mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
 LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
 left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
 left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
