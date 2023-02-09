@@ -43,22 +43,24 @@ function ProductionReportController(commonMessage, $scope, $rootScope, baseServi
             }
             $scope.EntityName = $("#EntityId option:selected").text();
             $scope.Process = $("#ProcessId option:selected").text();
-
-            $http({
-                method: 'POST',
-                url: 'Productions/ProductionReport/ProReport',
-                data: {
-                    'Date': $scope.Date,
-                    'Entity': $scope.ProductionEntityId, 'ProcessId': $scope.ProcessId, 'EntityName': $scope.EntityName, 'Process': $scope.Process
-                }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                }
-            });
+            $scope.ReportFormat = 'XL';
+            var url = 'Productions/ProductionReport/ProReport?reportFormat=' + $scope.ReportFormat +'&Date=' + $scope.Date + '&Entity=' + $scope.ProductionEntityId+ '&ProcessId=' + $scope.ProcessId + '&EntityName=' + $scope.EntityName + '&Process=' + $scope.Process;
+            $rootScope.report(url);
+            //$http({
+            //    method: 'Get',
+            //    url: 'Productions/ProductionReport/ProReport',
+            //    data: {
+            //        'Date': $scope.Date,
+            //        'Entity': $scope.ProductionEntityId, 'ProcessId': $scope.ProcessId, 'EntityName': $scope.EntityName, 'Process': $scope.Process
+            //    }
+            //}).then(function successCallback(response) {
+            //    if (response.data.Error === true) {
+            //        ShowResult(response.data.Message, 'failure');
+            //    }
+            //    else {
+            //        $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+            //    }
+            //});
 
         } catch (e) {
             ShowResult(e, 'failure');
