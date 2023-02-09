@@ -107,15 +107,15 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
         }).then(function successCallback(response) {
             $scope.MultiplyingFactor = response.data[0].MultiplyingFactor;
-        });
         $scope.CalculatedValue = $scope.ModelNew.Quantity * $scope.MultiplyingFactor;
+        });
     }
 
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetUoMAndReadingApplicable();
-        //$scope.GetEditReadingList();
+        $scope.GetCalculatedValue();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();

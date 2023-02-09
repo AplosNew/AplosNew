@@ -55,8 +55,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
             {
 
                 string sql = @"select case when isnull(cg.Id,'')='' THEN isnull(E.EmployeeNameLocal,E.EmployeeName) ELSE EmployeeName END as EmployeeName,ISNULL(ll.Name, LDN.UserName)AS Designation , ISNULL(e.EmployeeCode,e.EmployeeCode) EmployeeCode,
-        ISNULL(lls.Name,Se.UserName)AS Section
-        ,FORMAT(e.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(e.DOS,'dd-MMM-yyyy')DOS,FORMAT(e.DOS,'MMMM-yyyy') DOSMonth
+        ISNULL(lls.Name,Se.UserName)AS Section,FORMAT(e.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(e.DOS,'dd-MMM-yyyy')DOS,FORMAT(e.DOS,'MMMM-yyyy') DOSMonth,E.FatherName
                                         from EmployeeInformation e
         	LEFT JOIN  hkp.LegalDesignation LDN ON LDN.Id=E.LegalDesignationId
         								LEFT JOIN MST.ManpowerBudget PMB ON e.BudgetCode = PMB.Id
@@ -82,7 +81,9 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
             {
 
                 string sql = @"Select efs.Id, FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate
-							,efs.SalaryRate 
+							--,efs.SalaryRate 
+                            ,SalRate = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End
+                            ,LeaveEncash = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * efs.[LvEncashmentDayNo]
 							,efs.OTRate
                             ,convert(int,ROUND(efs.[TotalDeductionAmount],0)) TotalDeductionAmount
                             ,convert(int,ROUND(efs.LvEncashmentAmount,0)) LvEncashmentAmount
@@ -123,13 +124,14 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,efs.LvEncashmentRateAmount
 							,SY.UserName AS SeparationType
 							,CONVERT(int,ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0),0) SeparationTypeDay
-							,case when PolicyDayNo*PolicyYearNo = 0 then 'N/A' else convert(varchar(100),(SeparationTypeAmount/(PolicyDayNo*PolicyYearNo)),0) end SeparationTypeRate,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate
+							,case when PolicyDayNo*PolicyYearNo = 0 then 'N/A' else convert(varchar(100),(SeparationTypeAmount/(PolicyDayNo*PolicyYearNo)),0) end SeparationTypeRate,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate,SPAD.TotalPayDay
                             --,isnull(efs.GratuityNoOfDaysOrYear,0) SeparationTypeDay
                             From [dbo].[EmployeeFinalSettlement] efs 
 	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
                             LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
                             Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID= '" + SystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
                             LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
+                            left join (select top 1 * from SalaryProceAttdnData where empsystemId='" + SystemId + @"' order by FromDate Desc) SPAD on SPAD.EmpSystemID=efs.EmpSystemID
                             where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
 
                 string xsql = @"select FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate,efs.SalaryRate,efs.OTRate,efs.[TotalDeductionAmount]

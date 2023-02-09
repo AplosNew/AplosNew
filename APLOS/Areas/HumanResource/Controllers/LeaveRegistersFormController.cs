@@ -85,23 +85,23 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
-       
-        //[HttpGet, Authorize]
-        //public ActionResult FormLeaveRegister(string year, string empId, string reportType)
-        //{
-        //    try
-        //    {
-        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //        Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
-        //        service.LeaveRegisterFormInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, year, empId, reportType);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
-        //    }
 
-        //    return null;
-        //}
+        [HttpGet, Authorize]
+        public ActionResult FormLeaveRegister(string year, string empId, string reportType)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
+                service.LeaveRegisterFormInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, year, empId, reportType);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+
+            return null;
+        }
 
         #endregion -- Operations
     }
