@@ -187,11 +187,11 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
 
                 if (sqlCondition == "")
                 {
-                    condition2 = "where APD.LateIn > 0 and APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active'";
+                    condition2 = "where APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active'";
                 }
                 else
                 {
-                    condition2 = "where APD.LateIn > 0 and APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active' and " + sqlCondition + @"";
+                    condition2 = "where APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active' and " + sqlCondition + @"";
                 }
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
@@ -667,11 +667,11 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 
             if (sqlCondition == "")
             {
-                condition2 = "where APD.LateIn > 0 and APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active'";
+                condition2 = "where APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active'";
             }
             else
             {
-                condition2 = "where APD.LateIn > 0 and APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active' and " + sqlCondition + @"";
+                condition2 = "where APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active' and " + sqlCondition + @"";
             }
 
             try
