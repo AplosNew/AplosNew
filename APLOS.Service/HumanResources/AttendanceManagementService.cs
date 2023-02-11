@@ -23902,6 +23902,11 @@ namespace Library.Service.HumanResources
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
 
                             }
+                            if (colName == "TotalPayDay")
+                            {
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+
+                            }
                             else if (colName == "LvEncashmentRateAmount")
                             {
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
