@@ -1171,6 +1171,7 @@ namespace Library.Service.SalesManagements
                             if (voucherDetailVM.OtherName == "Customer")
                             {
                                 voucherDr.PartyId = sales.PartyId;
+                                voucherDr.PartyType = voucherDetailVM.OtherName;
                                 voucherDr.PartyPlantId = sales.InvoicingPartyPlantId;
                             }
                             totalAmountDr += voucherDr.DrAmount;
@@ -2543,6 +2544,7 @@ namespace Library.Service.SalesManagements
                                 voucherDr.InvoiceDetailId = invoiceDetail.Id;
                                 voucherDr.PartyId = sales.PartyId;
                                 voucherDr.PartyPlantId = sales.InvoicingPartyPlantId;
+                                voucherDr.PartyType = voucherDetailVM.OtherName;
                             }
                             totalAmountDr += voucherDr.DrAmount;
                             currentVoucherDetaiRecord++;
@@ -4016,6 +4018,7 @@ namespace Library.Service.SalesManagements
                                 voucherDr.InvoiceDetailId = invoiceDetail.Id;
                                 voucherDr.PartyId = sales.PartyId;
                                 voucherDr.PartyPlantId = sales.InvoicingPartyPlantId;
+                                voucherDr.PartyType = voucherDetailVM.OtherName;
                             }
                             totalAmountDr += voucherDr.DrAmount;
                             currentVoucherDetaiRecord++;
