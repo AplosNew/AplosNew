@@ -381,6 +381,14 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 angular.element(document.querySelector('#TableDetailModalBB')).modal('show');
 
             }
+            if ($scope.RptColumn == "LateIn") {
+                angular.element(document.querySelector('#TableDetailModalLateIn')).modal('show');
+
+            }
+            if ($scope.RptColumn == "InMissing") {
+                angular.element(document.querySelector('#TableDetailModalInMissing')).modal('show');
+
+            }
             else {
                 angular.element(document.querySelector('#TableDetailModal')).modal('show');
 
