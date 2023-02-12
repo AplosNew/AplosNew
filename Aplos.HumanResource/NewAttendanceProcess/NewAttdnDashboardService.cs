@@ -588,7 +588,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity,
                             FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut 
                             , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration --, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration
-                            
+                             ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo,MPBB.EmployeeName RO1Name,MPBB2.EmployeeName PO1Name
+
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -608,6 +609,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
                             left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date + @"'
+                            left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
+                            left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+							left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.ROBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
+							left join EmployeeInformation e on e.BudgetCode=mb.ROBudgetCode 
+							group by e.EmployeeCode,mb.ROBudgetCode,mb.Code,e.EmployeeName) MPBB on MPBB.ROBudgetCode=MPB.Id
+							left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.PRBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
+							left join EmployeeInformation e on e.BudgetCode=mb.PRBudgetCode 
+							group by e.EmployeeCode,mb.PRBudgetCode,mb.Code,e.EmployeeName) MPBB2 on MPBB2.PRBudgetCode=MPB.Id
+
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @"
                             ";
@@ -798,6 +809,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             unit.UserName as Unit , dess.UserName as LDesignation,
                            FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut , Pv.AddedBy as ScannedBy , uu.FullName as ScanName  , departmentu.UserName as SDept
 							, sectionu.UserName as SSec , subsectionu.UserName as SSubSec, DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration , DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration, pv.OThour
+                            ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo,MPBB.EmployeeName RO1Name,MPBB2.EmployeeName PO1Name
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -823,6 +835,16 @@ namespace Library.HumanResource.NewAttendanceProcess
 							left join org.Department departmentu on departmentu.Id = eui.DepartmentId
                             left join org.Section sectionu on sectionu.Id = eui.SectionId
                             left join org.SubSection subsectionu on subsectionu.id = eui.SubSectionId
+                           left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
+                            left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+							left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.ROBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
+							left join EmployeeInformation e on e.BudgetCode=mb.ROBudgetCode 
+							group by e.EmployeeCode,mb.ROBudgetCode,mb.Code,e.EmployeeName) MPBB on MPBB.ROBudgetCode=MPB.Id
+							left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.PRBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
+							left join EmployeeInformation e on e.BudgetCode=mb.PRBudgetCode 
+							group by e.EmployeeCode,mb.PRBudgetCode,mb.Code,e.EmployeeName) MPBB2 on MPBB2.PRBudgetCode=MPB.Id
+
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @"
                             ";

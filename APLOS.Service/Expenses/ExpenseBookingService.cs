@@ -1242,7 +1242,7 @@ namespace Library.Service.Expenses
                         DocRefNo = voucherVM.DocRefNo,
                         Narration = voucherVM.Narration,
                         EmployeeId = null,
-                        PartyType = employeePayable.PartyType,
+                        PartyType = BeneficiaryType.Vendor.ToString(),
                         PartyId = voucherVM.PartyId,
                         PartyPlantId = voucherVM.PartyPlantId,
                         VoucherId = voucher.Id,
