@@ -211,6 +211,33 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColSSubSec = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Transport", 13, ExcelHAlign.HAlignCenter);
+            int ColTransport = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Block", 13, ExcelHAlign.HAlignCenter);
+            int ColResidence = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Entry Type", 13, ExcelHAlign.HAlignCenter);
+            int ColEntryType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Mobile No", 13, ExcelHAlign.HAlignCenter);
+            int ColMobileNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO1 Name", 13, ExcelHAlign.HAlignCenter);
+            int ColPO1Name = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "RO1 Name", 13, ExcelHAlign.HAlignCenter);
+            int ColRO1Name = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Current Status", 13, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCurrentStatus = COL;
+
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -248,6 +275,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColSSec].Text = dtData.Rows[i]["SSec"].ToString();
                 sheet[ROW, ColSSubSec].Text = dtData.Rows[i]["SSubSec"].ToString();
                 sheet[ROW, ColOTHour].Text = dtData.Rows[i]["OThour"].ToString();
+                sheet[ROW, ColTransport].Text = dtData.Rows[i]["Transport"].ToString();
+                sheet[ROW, ColResidence].Text = dtData.Rows[i]["Residence"].ToString();
+                sheet[ROW, ColResidence].Text = dtData.Rows[i]["Residence"].ToString();
+                sheet[ROW, ColEntryType].Text = dtData.Rows[i]["EntryType"].ToString();
+                sheet[ROW, ColMobileNo].Text = dtData.Rows[i]["MobileNo"].ToString();
+                sheet[ROW, ColPO1Name].Text = dtData.Rows[i]["PO1Name"].ToString();
+                sheet[ROW, ColRO1Name].Text = dtData.Rows[i]["RO1Name"].ToString();
+                sheet[ROW, ColEmployeeCurrentStatus].Text = dtData.Rows[i]["EmployeeCurrentStatus"].ToString();
 
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);

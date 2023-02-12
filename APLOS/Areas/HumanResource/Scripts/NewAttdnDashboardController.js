@@ -374,7 +374,9 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
+            $scope.ClickDetail = [];
             $scope.ClickDetail = response.data;
+
             if ($scope.RptColumn == "BB") {
                 angular.element(document.querySelector('#TableDetailModalBB')).modal('show');
 
@@ -383,6 +385,10 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 angular.element(document.querySelector('#TableDetailModal')).modal('show');
 
             }
+            var gridObj = $("#getClickDetail").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            gridObj.clearFiltering();
         });
     }
 
