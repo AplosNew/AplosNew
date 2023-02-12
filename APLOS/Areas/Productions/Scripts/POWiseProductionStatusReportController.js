@@ -40,8 +40,21 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function (name) {
         $scope.flag = name;
+        if ($scope.flag == 'detail') {
+            $scope.StatusId = $scope.selectedValues.StatusId;
+        }
+        else if ($scope.flag == 'wc') {
+            $scope.StatusId = $scope.withwc.StatusId;
+        }
+        else if ($scope.flag == 'summary') {
+            $scope.StatusId = $scope.summary.StatusId;
+        }
+        else {
+            $scope.StatusId = $scope.allsummary.StatusId;
+        }
+       
         $scope.ProductionOrderList = [];
-        $http.get('Productions/POWiseProductionStatusReport/GetProductionOrderDataList?productionStatusId=' + $scope.selectedValues.StatusId)
+        $http.get('Productions/POWiseProductionStatusReport/GetProductionOrderDataList?productionStatusId=' + $scope.StatusId)
             .then(
                 function successCallback(response) {
                     $scope.ProductionOrderList = response.data;
