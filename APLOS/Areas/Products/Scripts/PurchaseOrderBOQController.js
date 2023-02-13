@@ -12,7 +12,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.saveUrlFG = $scope.path + 'CreateFGMasterOrder';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.updateUrlFG = $scope.path + 'FGMasterOrderedit';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.deleteUrl = $scope.path + 'DeletePOMaster/';
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete?receiveDetailId=';
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
@@ -1625,5 +1625,36 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.poBoqItemListNew[t].Tolerance = $scope.productNew.Tolerance;
         }
     }
+
+    $scope.confirmDelete = function () {
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
+
+    $scope.PoDelete = function () {
+        //debugger;
+        if (baseService.arrayLength($scope.poBoqItemListNew) === 0) {
+            if (!baseService.isUndefinedOrNull($scope.productNew.Id)) {
+                $http({
+                    method: 'POST',
+                    url: $scope.deleteUrl + $scope.productNew.Id,
+                    dataType: 'JSON'
+                }).then(function (response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult('Data Deleted Successfully', 'success');
+                        $scope.getDataList();
+                        ClearFields();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+            }
+        }
+        else
+            ShowResult('First delete all line item.', 'failure');
+    };
 }//End Of main
 

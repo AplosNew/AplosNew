@@ -413,7 +413,7 @@
                         <div e-column e-field="BalanceTrnUOMQty" e-headertext="Balance TRN UOM Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
                         <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
-                        <div e-column  e-field="UnitPrice" e-textalign="right" e-decimalplaces="4" e-headertext="UnitPrice" e-width="100"></div>
+                        <div e-column e-field="UnitPrice" e-textalign="right" e-decimalplaces="4" e-headertext="UnitPrice" e-width="100"></div>
                         <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
                         <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                         <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
@@ -704,9 +704,9 @@
     <div class="col-md-6 text-left" style="padding-top: 17px;" ng-hide="isSubmitted=='No'">
         <ul class="common-btn list-inline text-right">
             <li><button ng-click="detailPOSaveForBOQ();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionPOBOQ}}</button></li>
-            <li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
-            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            <li><button ng-hide="productNew.Id" ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
+            <li><button ng-show="poBoqItemListNew.length==0" ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete </button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear </button></li>
+            <li><button ng-hide="productNew.Id" ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back </button></li>
         </ul>
     </div>
     <div class="clearfix"></div>
@@ -1499,3 +1499,5 @@
     </div>
 </div>
 <confirm-archive-generic modalid="rowDeletePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="PoDelete()"></confirm-archive-generic>
+

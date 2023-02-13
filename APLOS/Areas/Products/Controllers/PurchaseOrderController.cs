@@ -4194,7 +4194,34 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
             }
         }
 
+        [HttpPost]
+        public JsonResult DeletePOMaster(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var rdBuilder = new System.Text.StringBuilder();
+                var poDetailSql = @"select from trn.PourchaseOrderDetail where InventoryReceiveId='" + Id + "'";
+                if (poDetailSql == null)
+                {
+                    var PoSql = @"delete from trn.PourchaseOrder where id='" + Id + "'";
+                    rdBuilder.Append(PoSql);
+                }
+                else
+                {
+                    throw new Exception("Detail have to Delete First !!!");
+                }
+               
+                return Json(_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString()), JsonRequestBehavior.AllowGet);
 
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
         public ActionResult DeletePODetailPOPup(string id)
         {
             try
