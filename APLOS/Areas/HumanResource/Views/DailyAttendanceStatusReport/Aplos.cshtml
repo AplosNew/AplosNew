@@ -10,7 +10,7 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">In Status<sup>*</sup></label>
+                <label class="col-sm-4 control-label">In Status</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
                         <select class="form-control" ng-model="ModelNew.InStatus" required name="In Status"
@@ -33,7 +33,18 @@
                     </div>
                 </div>
             </div>
-
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Shift</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ShiftId" name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Responsible Person</label>
                 <div class="col-sm-8 show-message">
@@ -54,55 +65,58 @@
         </div>
 
         @*COLUMN 2*@
-        <div class="col-xs-12 col-sm-8 col-md-6">
+    <div class="col-xs-12 col-sm-8 col-md-6">
 
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
-                </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
             </div>
+        </div>
 
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Team Leader</label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-
-                        <input type="text" name="Responsible Person" ng-model="ModelNew.TeamLeader" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="OpenTeamLeaderPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="ClearTeamLeaderPopUp()" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Shift</label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.ShiftId" name="Process"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in ShiftList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Employee Status</label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.EmployeeStatus" name="Process"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in EmpStatusList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Day Status</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.DayStatus" required name="In Status"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in DayStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
                 </div>
             </div>
         </div>
+
+
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Employee Status</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.EmployeeStatus" name="Process"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in EmpStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Team Leader</label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+
+                    <input type="text" name="Responsible Person" ng-model="ModelNew.TeamLeader" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="OpenTeamLeaderPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="ClearTeamLeaderPopUp()" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
 
         @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_FavoritePopup.cshtml")
 
