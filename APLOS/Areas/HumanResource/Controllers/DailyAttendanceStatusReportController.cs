@@ -259,7 +259,7 @@ LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
 left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
 left join SCS.[State] S on S.Id = EMP.ParmStateId
-left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
+left join (select distinct top(1) WorkDate, EmpSystemID, AddedBy  from PhysicalVerification order by WorkDate desc)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2+ " order by APD.WorkDate DESC";
@@ -773,7 +773,7 @@ LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
 left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
 left join SCS.[State] S on S.Id = EMP.ParmStateId
-left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
+left join (select distinct top(1) WorkDate, EmpSystemID, AddedBy  from PhysicalVerification order by WorkDate desc)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2 + " order by APD.WorkDate DESC";
