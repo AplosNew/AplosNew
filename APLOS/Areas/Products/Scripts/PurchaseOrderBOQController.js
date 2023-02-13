@@ -1632,7 +1632,6 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     };
 
     $scope.PoDelete = function () {
-        //debugger;
         if (baseService.arrayLength($scope.poBoqItemListNew) === 0) {
             if (!baseService.isUndefinedOrNull($scope.productNew.Id)) {
                 $http({
