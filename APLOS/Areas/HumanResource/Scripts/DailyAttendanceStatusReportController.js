@@ -47,6 +47,113 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         },
     ]
 
+    $scope.DayStatusList = [
+        {
+            Text: "A",
+            Value:"A"
+        },
+        {
+            Text: "AH",
+            Value: "AH"
+        },
+        {
+            Text: "AW",
+            Value: "AW"
+        },
+        {
+            Text: "CH",
+            Value: "CH"
+        },
+        {
+            Text: "CL",
+            Value: "CL"
+        },
+        {
+            Text: "CW",
+            Value: "CW"
+        },
+        {
+            Text: "EM",
+            Value: "EM"
+        },
+        {
+            Text: "H",
+            Value: "H"
+        },
+        {
+            Text: "HDCL",
+            Value: "HDCL"
+        },
+        {
+            Text: "HDP",
+            Value: "HDP"
+        },
+        {
+            Text: "HDPL",
+            Value: "HDPL"
+        },
+        {
+            Text: "HDSL",
+            Value: "HDSL"
+        },
+        {
+            Text: "HL",
+            Value: "HL"
+        },
+        {
+            Text: "HP",
+            Value: "HP"
+        },
+        {
+            Text: "L",
+            Value: "L"
+        },
+        {
+            Text: "LWP",
+            Value: "LWP"
+        },
+        {
+            Text: "ML",
+            Value: "ML"
+        },
+        {
+            Text: "OD",
+            Value: "OD"
+        },
+        {
+            Text: "P",
+            Value: "P"
+        },
+        {
+            Text: "PL",
+            Value: "PL"
+        },
+        {
+            Text: "PW",
+            Value: "PW"
+        },
+        {
+            Text: "SL",
+            Value: "SL"
+        },
+        {
+            Text: "W",
+            Value: "W"
+        },
+        {
+            Text: "WAH",
+            Value: "WAH"
+        },
+        {
+            Text: "WAW",
+            Value: "WAW"
+        },
+        {
+            Text: "WP",
+            Value: "WP"
+        },
+    ]
+
     $scope.ModelTemp = {
         Id: null,
         FavoriteName:null,
@@ -58,7 +165,8 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         EmpSystemId:null,
         ShiftId:null,
         EmployeeStatus: null,
-        FavoriteFilteruserId:null
+        FavoriteFilteruserId: null,
+        DayStatus:null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -157,7 +265,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     $scope.GetDailyAttendanceStatus = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetDailyAttendanceStatus?instatus=' + $scope.ModelNew.InStatus + '&fromdate=' + $scope.ModelNew.FromDate + '&todate=' + $scope.ModelNew.ToDate + '&employeecategory=' + $scope.ModelNew.EmployeecategoryId + '&teamleaderid=' + $scope.ModelNew.TeamLeaderId + '&responsibleperson=' + $scope.ModelNew.EmpSystemId + '&shift=' + $scope.ModelNew.ShiftId + '&employeestatus=' + $scope.ModelNew.EmployeeStatus,           
+            url: $scope.path + 'GetDailyAttendanceStatus?instatus=' + $scope.ModelNew.InStatus + '&fromdate=' + $scope.ModelNew.FromDate + '&todate=' + $scope.ModelNew.ToDate + '&employeecategory=' + $scope.ModelNew.EmployeecategoryId + '&teamleaderid=' + $scope.ModelNew.TeamLeaderId + '&responsibleperson=' + $scope.ModelNew.EmpSystemId + '&shift=' + $scope.ModelNew.ShiftId + '&employeestatus=' + $scope.ModelNew.EmployeeStatus + '&daystatus=' + $scope.ModelNew.DayStatus,           
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.DailyAttendanceStatusList = resp.data;
@@ -238,6 +346,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
                     'responsibleperson': $scope.ModelNew.EmpSystemId,
                     'shift': $scope.ModelNew.ShiftId,
                     'employeestatus': $scope.ModelNew.EmployeeStatus,
+                    'daystatus' : $scope.ModelNew.DayStatus
                 }
             })
                 .then(function successCallback(response) {

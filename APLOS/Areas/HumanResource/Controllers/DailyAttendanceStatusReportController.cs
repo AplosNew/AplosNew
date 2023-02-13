@@ -115,7 +115,7 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
         }
 
         [Authorize]
-        public JsonResult GetDailyAttendanceStatus(string instatus, string fromdate, string todate, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus)
+        public JsonResult GetDailyAttendanceStatus(string instatus, string fromdate, string todate, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string daystatus)
         {
             try
             {
@@ -154,33 +154,68 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
 
                 
 
-                if(instatus != "null" && employeecategory == "null" && shift == "null" && teamleaderid == "null" && responsibleperson == "null")
+                if(instatus != "null" && employeecategory == "null" && shift == "null" && teamleaderid == "null" && responsibleperson == "null" && daystatus == "null" && employeestatus == "null")
                 {
                     sqlCondition = "APD.InStatus = '" + instatus + "'";
                 }
-                if (employeecategory != "null" && instatus == "null" && shift == "null" && teamleaderid == "null" && responsibleperson == "null")
+                if (employeecategory != "null" && instatus == "null" && shift == "null" && teamleaderid == "null" && responsibleperson == "null" && daystatus == "null" && employeestatus == "null")
                 {
                     sqlCondition = "EC.Id = '" + employeecategory + "'";
                 }
-                if (shift != "null" && employeecategory == "null" && instatus == "null" && teamleaderid == "null" && responsibleperson == "null")
+                if (shift != "null" && employeecategory == "null" && instatus == "null" && teamleaderid == "null" && responsibleperson == "null" && daystatus == "null" && employeestatus == "null")
                 {
                     sqlCondition = "MBGT.ShiftDefinationId = '" + shift + "'";
                 }
-                if (teamleaderid != "null" && shift == "null" && employeecategory == "null" && instatus == "null" && responsibleperson == "null")
+                if (teamleaderid != "null" && shift == "null" && employeecategory == "null" && instatus == "null" && responsibleperson == "null" && daystatus == "null" && employeestatus == "null")
                 {
                     sqlCondition = "TD.TeamLeaderId = '" + teamleaderid + "'";
                 }
-                if (responsibleperson != "null" && teamleaderid == "null" && shift == "null" && employeecategory == "null" && instatus == "null")
+                if (responsibleperson != "null" && teamleaderid == "null" && shift == "null" && employeecategory == "null" && instatus == "null" && daystatus == "null" && employeestatus == "null")
                 {
                     sqlCondition = "EI2.EmployeeName = '" + responsibleperson + "'";
                 }
 
-                if(instatus != "null" && employeecategory != "null" && responsibleperson == "null" && teamleaderid == "null" && shift == "null")
+                if (daystatus != "null" && responsibleperson == "null" && teamleaderid == "null" && shift == "null" && employeecategory == "null" && instatus == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.DayStatus = '" + daystatus + "'";
+                }
+
+                if (instatus != "null" && shift != "null"  && responsibleperson == "null" && teamleaderid == "null" && daystatus == "null" && employeestatus == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+                }
+
+                if (employeestatus != "null" && instatus == "null" && employeecategory == "null" && shift == "null" && teamleaderid == "null" && responsibleperson == "null" && daystatus == "null")
+                {
+                    sqlCondition = "EMP.EmployeeCurrentStatus = '" + employeestatus + "'";
+                }
+
+                if (instatus != "null" && shift != "null" &&  daystatus != "null" && responsibleperson == "null" && teamleaderid == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+                }
+
+                if (instatus != "null" && shift != "null" && daystatus != "null" && daystatus != "undefined" && employeecategory != "null" && responsibleperson == "null" && teamleaderid == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "'";
+                }
+
+                if (instatus != "null" && shift != "null" && daystatus != "null"  && employeecategory != "null" && employeestatus != "null" && responsibleperson == "null" && teamleaderid == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EMP.EmployeeCurrentStatus = '" + employeestatus + "'";
+                }
+
+                if (instatus != "null" && daystatus != "null" && responsibleperson == "null" && teamleaderid == "null" && shift == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "'";
+                }
+
+                if (instatus != "null" && employeecategory != "null" && responsibleperson == "null" && teamleaderid == "null" && shift == "null" && daystatus == "null" && employeestatus == "null")
                 {
                     sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "'";
                 }
 
-                if (instatus != "null" && employeecategory != "null" && shift != "null" && responsibleperson == "null" && teamleaderid == "null")
+                if (instatus != "null" && employeecategory != "null" && shift != "null" && responsibleperson == "null" && teamleaderid == "null" && employeestatus == "null")
                 {
                     sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "'";
                 }
@@ -205,7 +240,7 @@ LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson
 LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
-left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+
 left join dbo.ShiftDefination ST on ST.SystemID = MBGT.ShiftDefinationId
 left join ORG.Entity UN on UN.Id = MBGT.EntityId
 left join ORG.Department DP on DP.ID = POS.DepartmentId
@@ -218,17 +253,16 @@ left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
 left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date=APD.WorkDate
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
---left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
+left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
-LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
+LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId and RAE.isOccupied = 1
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
-left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId
+left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
 left join SCS.[State] S on S.Id = EMP.ParmStateId
 left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
---left join EmployeeInformation EI2 on EI2.SystemId = PV.EmpSystemID
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
-"+condition2+ " order by APD.WorkDate DESC";
+" + condition2+ " order by APD.WorkDate DESC";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -242,13 +276,13 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
         #region Report
 
         [HttpPost, Authorize]
-        public ActionResult GetDailyAttendanceStatusXls(string instatus, string fromdate, string todate, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
+        public ActionResult GetDailyAttendanceStatusXls(string instatus, string fromdate, string todate, string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string daystatus, string SheetName)
         {
             try
             {
 
                 string fileName = "";
-                fileName = DailyAttendanceStatusReport(instatus, fromdate, todate, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, "DailyAttendanceStatusReport");
+                fileName = DailyAttendanceStatusReport(instatus, fromdate, todate, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, daystatus, "DailyAttendanceStatusReport");
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -263,7 +297,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 
 
 
-        public string DailyAttendanceStatusReport(string instatus, string fromdate, string todate ,string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string SheetName)
+        public string DailyAttendanceStatusReport(string instatus, string fromdate, string todate ,string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string daystatus, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -280,7 +314,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 workbook.Worksheets[0].Name = "Daily Attendance Status Report";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                DailyAttdnStatusReportQry(instatus, fromdate, todate ,employeecategory, teamleaderid, responsibleperson, shift, employeestatus, out data);
+                DailyAttdnStatusReportQry(instatus, fromdate, todate ,employeecategory, teamleaderid, responsibleperson, shift, employeestatus, daystatus, out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -601,7 +635,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 
 
 
-        public void DailyAttdnStatusReportQry(string instatus, string fromdate, string todate ,string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus,  out DataTable data)
+        public void DailyAttdnStatusReportQry(string instatus, string fromdate, string todate ,string employeecategory, string teamleaderid, string responsibleperson, string shift, string employeestatus, string daystatus,  out DataTable data)
         {
             string strSQL;
             var sqlCondition = "";
@@ -634,33 +668,64 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
             //}
             #endregion commented
 
-            if (instatus != null && employeecategory == null && shift == null && teamleaderid == null && responsibleperson == null)
+            if (instatus != null && employeecategory == null && shift == null && teamleaderid == null && responsibleperson == null && daystatus == null && employeestatus == null)
             {
                 sqlCondition = "APD.InStatus = '" + instatus + "'";
             }
-            if (employeecategory != null && instatus == null && shift == null && teamleaderid == null && responsibleperson == null)
-            {
-                sqlCondition = "EC.Id = '" + employeecategory + "'";
-            }
-            if (shift != null && employeecategory == null && instatus == null && teamleaderid == null && responsibleperson == null)
-            {
-                sqlCondition = "MBGT.ShiftDefinationId = '" + shift + "'";
-            }
-            if (teamleaderid != null && shift == null && employeecategory == null && instatus == null && responsibleperson == null)
-            {
-                sqlCondition = "TD.TeamLeaderId = '" + teamleaderid + "'";
-            }
-            if (responsibleperson != null && teamleaderid == null && shift == null && employeecategory == null && instatus == null)
+            if (daystatus != null && teamleaderid == null && shift == null && employeecategory == null && instatus == null && employeestatus != null)
             {
                 sqlCondition = "EI2.EmployeeName = '" + responsibleperson + "'";
             }
+            if (employeecategory != null && instatus == null && shift == null && teamleaderid == null && responsibleperson == null && daystatus == null && employeestatus == null)
+            {
+                sqlCondition = "EC.Id = '" + employeecategory + "'";
+            }
+            if (shift != null && employeecategory == null && instatus == null && teamleaderid == null && responsibleperson == null && daystatus == null && employeestatus == null)
+            {
+                sqlCondition = "MBGT.ShiftDefinationId = '" + shift + "'";
+            }
+            if (teamleaderid != null && shift == null && employeecategory == null && instatus == null && responsibleperson == null && daystatus == null && employeestatus != null)
+            {
+                sqlCondition = "TD.TeamLeaderId = '" + teamleaderid + "'";
+            }
+            if (responsibleperson != null && teamleaderid == null && shift == null && employeecategory == null && instatus == null && daystatus == null && employeestatus == null)
+            {
+                sqlCondition = "EI2.EmployeeName = '" + responsibleperson + "'";
+            }
+            if (employeestatus != null && instatus == null && employeecategory == null && shift == null && teamleaderid == null && responsibleperson == null && daystatus == null && employeestatus == null)
+            {
+                sqlCondition = "EMP.EmployeeCurrentStatus = '" + employeestatus + "'";
+            }
+            if (instatus != null && daystatus != null && responsibleperson == null && teamleaderid == null && shift == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "'";
+            }
+            if (instatus != null && shift != null && responsibleperson == null && teamleaderid == null && daystatus == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+            }
 
-            if (instatus != null && employeecategory != null && responsibleperson == null && teamleaderid == null && shift == null)
+            if (instatus != null && shift != null && daystatus != null && responsibleperson == null && teamleaderid == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+            }
+
+            if (instatus != null && shift != null && daystatus != null && employeecategory != null && responsibleperson == null && teamleaderid == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "'";
+            }
+
+            if (instatus != null && shift != null && daystatus != null &&  employeecategory != null && employeestatus != null && responsibleperson == null && teamleaderid == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EMP.EmployeeCurrentStatus = '" + employeestatus + "'";
+            }
+
+            if (instatus != null && employeecategory != null && responsibleperson == null && teamleaderid == null && shift == null && employeestatus == null)
             {
                 sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "'";
             }
 
-            if (instatus != null && employeecategory != null && shift != null && responsibleperson == null && teamleaderid == null)
+            if (instatus != null && employeecategory != null && shift != null && responsibleperson == null && teamleaderid == null && employeestatus == null)
             {
                 sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "'";
             }
@@ -686,10 +751,10 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
-LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson and EI2.EmployeeStatus = 'Active'
+LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson
 LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
-left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+
 left join dbo.ShiftDefination ST on ST.SystemID = MBGT.ShiftDefinationId
 left join ORG.Entity UN on UN.Id = MBGT.EntityId
 left join ORG.Department DP on DP.ID = POS.DepartmentId
@@ -702,14 +767,13 @@ left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
 left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date=APD.WorkDate
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
---left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
+left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
-LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
+LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId and RAE.isOccupied = 1
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
-left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId
+left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
 left join SCS.[State] S on S.Id = EMP.ParmStateId
 left join PhysicalVerification PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
---left join EmployeeInformation EI2 on EI2.SystemId = PV.EmpSystemID
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2 + " order by APD.WorkDate DESC";
