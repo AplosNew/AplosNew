@@ -4174,7 +4174,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         sbt = sbt + $scope.qboqList[i].NetConsumptionPerUnit;
                     }
                 }
-
+                sbt = Math.round((sbt) * 10000 + Number.EPSILON) / 10000;
                 if (sbt + $scope.qboqModel.NetConsumptionPerUnit > 1) {
                     throw "Total of Net Consumption Per Unit can not exceed 1.";
                 }
