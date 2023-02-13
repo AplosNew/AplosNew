@@ -9,7 +9,7 @@
 
 @*<div><input type="text" name="IssueTypeStatus" ng-model="IssueTypeStatus" class="form-control" ng-hide="true"></div>*@
 <togglable name="Inventory Issue Slip / Request "></togglable> @*Inventory Receive*@
-<div class="form-horizontal form-elements" ng-form="productNewForm">
+<div class="form-horizontal form-elements" id="tarekcontainer" ng-form="productNewForm">
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group">
             <label class="col-sm-6 control-label"><b>Order Specific</b></label>
@@ -383,7 +383,8 @@
                         <th style="width:500px;">Required(Valid)Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th>StockQty</th>
                         <th style="width:500px;">Expense Activity Code&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                        <th ">Select</th>
+                        <th>Select</th>
+                        <th>Work Center Master</th>
                         <th>S.B.UoM</th>
                         <th>BOQ</th>
                         <th>Con.UOM</th>
@@ -443,6 +444,14 @@
                             <button ng-click="getMachineInventoryIssueStock(x)" class="btn btn-action tooltip-here" data-placement="top" title="Select Machine">
                                 <i class="glyphicon glyphicon-search"></i>
                             </button>
+                        </td>
+                       
+                        <td>
+                            <button ng-click="popUpWorkCenterList()" class="btn btn-action tooltip-here" data-placement="top" title="Tax">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
+                            {{x.WorkCenterMasterId}}
+
                         </td>
                         <td>{{x.StockUOM}}</td>
                         <td class="text-right">{{x.RequisitionQtyOrginal}}</td>
@@ -1148,3 +1157,29 @@
     </div>
 </div>
 <!-- #endregion -->
+
+<ej-dialog id="workCenterPopUp" title=" Work Center" e-enablemodal="true" e-position-y="0" e-showoninit="false"
+           e-width="550" e-target="#tarekcontainer" e-open="enableBtn">
+    <div class="row" style="width:540px">
+        <div class="col-xs-12 col-sm-12">
+            <div id="GridSelectWC" ej-grid e-datasource="workCenterList" e-recorddoubleclick="SetworkCenter"
+                 e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                 e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="Plant" e-headertext="Plant" e-width="3"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
+                    <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="CloseWorkCenter();" class="btn">Close</button></li>
+            </ul>
+        </div>
+    </div>
+</ej-dialog>

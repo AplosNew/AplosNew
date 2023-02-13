@@ -5522,5 +5522,19 @@ ROW_NUMBER() OVER(ORDER BY MT.Id) SrNo
             }
         }
         #endregion BinWiseGReport -- Nitesh
+
+        [Authorize, HttpGet]
+        public ActionResult GetWorkCenterList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT WCM.Id AS WorkCenterMasterId,e.UserName AS Entity,p.UserName AS Plant
+	                             , WCM.EntityId, WCM.Code, WCM.UserName
+                            FROM SCS.WorkCenterMaster AS WCM
+                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                            WHERE WCM.PlantId='" + identity.PlantId + "' order by p.userName, e.UserName,WCM.sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
     }
 }
