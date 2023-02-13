@@ -137,20 +137,20 @@
     </div>
 </div>
 <div class="row">
-    
-        <div class="col-md-6 col-md-offset-6">
-            <div class="col-md-4" style="margin-top: 7px;margin-bottom: 4px;">
-                <span style="margin-top: 7px;margin-bottom: -4px;"> Employee Status:</span>
-            </div>
-            <div class="col-md-6">
-                <div class="select-style" style="margin-top: 7px;margin-bottom: -4px;">
-                    <select ng-model="EmpStat">
-                        <option ng-repeat="option in EmpStatsList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
+
+    <div class="col-md-6 col-md-offset-6">
+        <div class="col-md-4" style="margin-top: 7px;margin-bottom: 4px;">
+            <span style="margin-top: 7px;margin-bottom: -4px;"> Employee Status:</span>
+        </div>
+        <div class="col-md-6">
+            <div class="select-style" style="margin-top: 7px;margin-bottom: -4px;">
+                <select ng-model="EmpStat">
+                    <option ng-repeat="option in EmpStatsList" value="{{option.Value}}">{{option.Text}}</option>
+                </select>
             </div>
         </div>
-    
+    </div>
+
 </div>
 <br />
 <div class="row" id="overall" style="background-color:white;">
@@ -183,7 +183,7 @@
                             <tr ng-repeat="x in list">
                                 <td style="padding:2px; cursor:pointer;" class="hoverItem" ng-click="setIndex(x);GetDetailDrillDownTableJS(x)">{{x.UserName}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'BB')">{{x.BB}}</td>
-                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" >{{x.Dep}}</td>
+                                <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem">{{x.Dep}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OnRoll')">{{x.OnRoll}}</td>
                                 <td style="padding:2px; text-align:center;cursor:pointer;" class="hoverItem" ng-click="TableClick(x,'OTIN')">{{x.OTIN}}</td>
                                 <td style="padding:2px; cursor:pointer;text-align:center" class="hoverItem" ng-click="TableClick(x,'InStat')">{{x.InStat}}</td>
@@ -204,10 +204,10 @@
 
         </div>
     </div>
-    
+
 </div>
 
-<div class="modal " id="TableDetailModal" >
+<div class="modal " id="TableDetailModal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -248,12 +248,19 @@
                             <div e-column e-field="Department" e-headertext="Department" e-type="string" e-width="120"></div>
                             <div e-column e-field="Entity" e-headertext="Entity" e-type="string" e-width="120"></div>
                             <div e-column e-field="Plant" e-headertext="Plant" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Transport" e-headertext="Transport" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Residence" e-headertext="Residence Block" e-type="string" e-width="120"></div>
+                            <div e-column e-field="EntryType" e-headertext="Entry Type" e-type="string" e-width="120"></div>
+                            <div e-column e-field="MobileNo" e-headertext="Mobile No" e-type="string" e-width="120"></div>
+                            <div e-column e-field="PO1Name" e-headertext="PO1 Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="RO1Name" e-headertext="RO1 Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-type="string" e-width="120"></div>
 
                         </div>
                     </div>
 
 
-</div>
+            </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" data-dismiss="modal">Close</button>
             </div>
@@ -261,6 +268,131 @@
 
     </div>
 </div>
+
+<div class="modal " id="TableDetailModalLateIn">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Details Table</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    The Detail Table
+                <p>
+                    <div class="common-btn" style="margin-top:20px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="printReport();" class="btn">Export To Excel</button></li>
+                        </ul>
+                    </div>
+
+                    <div id="getClickDetailLateIn" ej-grid e-datasource="ClickDetail"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                        <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-type="string" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="InStatus" e-headertext="In Status" e-type="string" e-width="120"></div>
+                            <div e-column e-field="InTime" e-headertext="In Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="PVIn" e-headertext="Physical In Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="PVOut" e-headertext="Physical Out Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="InDuration" e-headertext="In Difference" e-type="time" e-width="120"></div>
+                            @*<div e-column e-field="OutDuration" e-headertext="Out Difference" e-type="time" e-width="120"></div>*@
+                            <div e-column e-field="OutTime" e-headertext="Out Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="DayStatus" e-headertext="Day Status" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-type="string" e-width="120"></div>
+                            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-type="string" e-width="120"></div>
+                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Transport" e-headertext="Transport" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Residence" e-headertext="Residence Block" e-type="string" e-width="120"></div>
+                            <div e-column e-field="EntryType" e-headertext="Entry Type" e-type="string" e-width="120"></div>
+                            <div e-column e-field="MobileNo" e-headertext="Mobile No" e-type="string" e-width="120"></div>
+                            <div e-column e-field="PO1Name" e-headertext="PO1 Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="RO1Name" e-headertext="RO1 Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-type="string" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal " id="TableDetailModalInMissing">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Details Table</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    The Detail Table
+                <p>
+                    <div class="common-btn" style="margin-top:20px;">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="printReport();" class="btn">Export To Excel</button></li>
+                        </ul>
+                    </div>
+
+                    <div id="getClickDetailInMissing" ej-grid e-datasource="ClickDetail"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true">
+                        <div e-columns>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-type="string" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="InStatus" e-headertext="In Status" e-type="string" e-width="120"></div>
+                            <div e-column e-field="InTime" e-headertext="In Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="PVIn" e-headertext="Physical In Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="PVOut" e-headertext="Physical Out Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="InDuration" e-headertext="In Difference" e-type="time" e-width="120"></div>
+                            @*<div e-column e-field="OutDuration" e-headertext="Out Difference" e-type="time" e-width="120"></div>*@
+                            <div e-column e-field="OutTime" e-headertext="Out Time" e-type="time" e-width="120"></div>
+                            <div e-column e-field="DayStatus" e-headertext="Day Status" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-type="string" e-width="120"></div>
+                            <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-type="string" e-width="120"></div>
+                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Transport" e-headertext="Transport" e-type="string" e-width="120"></div>
+                            <div e-column e-field="Residence" e-headertext="Residence Block" e-type="string" e-width="120"></div>
+                            <div e-column e-field="EntryType" e-headertext="Entry Type" e-type="string" e-width="120"></div>
+                            <div e-column e-field="MobileNo" e-headertext="Mobile No" e-type="string" e-width="120"></div>
+                            <div e-column e-field="PO1Name" e-headertext="PO1 Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="RO1Name" e-headertext="RO1 Name" e-type="string" e-width="120"></div>
+                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-type="string" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
 <div class="modal " id="TableDetailModalBB">
     <div class="modal-dialog modal-lg">
@@ -275,10 +407,10 @@
                     The Detail Table
                 <p>
                     @*<div class="common-btn" style="margin-top:20px;">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="printReport();" class="btn">Export To Excel</button></li>
-                        </ul>
-                    </div>*@
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="printReport();" class="btn">Export To Excel</button></li>
+                            </ul>
+                        </div>*@
 
                     <div id="getClickDetails" ej-grid e-datasource="ClickDetail"
                          e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
