@@ -38,7 +38,7 @@ FORMAT(PO.AddedDate,'dd-MMM-yyyy') CreationDate,
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
                             LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId,
-                                                    mm.userName AS Material,PM.UserName AS Product,pc.UserName AS ProductCategory,PM.Id ProductMasterId,
+                                                    mm.userName AS Material,PM.UserName AS Product,pc.UserName AS ProductCategory,PM.Id ProductMasterId,mma.StandardName Article,
                                                     -- Min(LSD) AS LSD,max(CommitmentDate) AS CommitmentDate ,
                                                     sum(so.Qty) AS SOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,
                                                     MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
@@ -109,11 +109,12 @@ from
                                                       JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                                                     left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                     left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                    left outer join mst.MaterialMasterarticle mma on mma.id=MOI.ArticleId
                                                     left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                                     left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                     left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 
-                                                    group by pod.ProductionOrderId,mm.userName,PM.UserName,pc.UserName,PM.Id) AS SO ON so.ProductionOrderId=po.Id
+                                                    group by pod.ProductionOrderId,mm.userName,PM.UserName,pc.UserName,PM.Id,mma.StandardName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             LEFT OUTER JOIN [TRN].[ProductionBulletinTemplate] AS PB ON PB.ProductionOrderId=po.Id";
 

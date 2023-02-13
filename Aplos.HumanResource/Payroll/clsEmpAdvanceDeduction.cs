@@ -393,7 +393,15 @@ namespace Library.HumanResource.Payroll
                                     ChdSystemID = "XC" + ChildPK + "-" + CountC;
                                     drMWESAChd = dtMWESAChd.NewRow();
                                     drMWESAChd["SystemID"] = bplib.clsWebLib.RetValidLen(ChdSystemID, 50);
-                                    drMWESAChd["MWESAMasterSystemID"] = bplib.clsWebLib.RetValidLen(strMstSysID.Trim(), 50);
+
+                                    if (string.IsNullOrEmpty(strMstSysID))
+                                    {
+                                        drMWESAChd["MWESAMasterSystemID"] = MWESAMasterSystemID; 
+                                    }
+                                    else
+                                    {
+                                        drMWESAChd["MWESAMasterSystemID"] = bplib.clsWebLib.RetValidLen(strMstSysID.Trim(), 50);
+                                    }
 
                                     drMWESAChd["AddedBy"] = identity.Name;
                                     drMWESAChd["DateAdded"] = DateTime.Now;

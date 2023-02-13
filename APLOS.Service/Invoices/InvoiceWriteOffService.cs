@@ -1232,6 +1232,7 @@ namespace Library.Service.Invoices
                     var voucherDetailCr = new VoucherDetail
                     {
                         PartyId = voucherVM.OtherPartyId,
+                        PartyType = "Vendor",
                         PartyPlantId = voucherVM.OtherPartyPlantId,
                         Narration = voucher.Narration,
                         PaymentSource = invoiceWriteOff.PaymentSource,

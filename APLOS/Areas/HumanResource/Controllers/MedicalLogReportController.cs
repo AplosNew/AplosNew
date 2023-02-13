@@ -434,7 +434,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
             //ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "Medicine Stock Report", identity.CompanyId);
+            reportUtility.PlantHeader(ref sheet, endCol, "Medicine Stock Report", identity.PlantId);
+            
+           
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }

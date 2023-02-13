@@ -247,7 +247,7 @@ namespace Library.OrderManagement.ShipmentControl
 
                         LEFT OUTER JOIN TRN.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                         LEFT OUTER JOIN TRN.MasterOrder MO on mo.Id=moi.MasterOrderId
-                        LEFT OUTER JOIN [HKP].[Party] p on P.Id=MO.plantID
+                        LEFT OUTER JOIN [HKP].[Party] p on P.Id=MO.PartyId
                         LEFT OUTER JOIN [HKP].[PartyPlant] PPI on ppi.id=mo.InvoicingPartyPlantId
                         LEFT OUTER JOIN [HKP].[PartyPlant] PPD on ppd.id=mo.DeliveryPartyPlantId
                         LEFT OUTER JOIN [HKP].[Buyer] B on b.id=mo.BuyerId

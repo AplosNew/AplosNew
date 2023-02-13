@@ -19,6 +19,7 @@ using OTSBD;
 using ConnectionManager;
 using Syncfusion.ExcelToPdfConverter;
 using Syncfusion.Pdf;
+using Library.Model.Enums;
 
 #endregion Using
 
@@ -41,8 +42,8 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         #region --- Daily Day Status Report---
-        [HttpPost, Authorize]
-        public ActionResult ProReport(string Date, string Entity, string ProcessId, string EntityName, string Process)
+        [HttpGet, Authorize]
+        public ActionResult ProReport(ReportFormat reportFormat, string Date, string Entity, string ProcessId, string EntityName, string Process)
         {
             try
             {
@@ -52,7 +53,39 @@ namespace Aplos.Areas.Productions.Controllers
 
                 IWorkbook workbook = ProductionReport("Production Report", Date, Entity, ProcessId, EntityName, Process);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "ProductionReport";
-                return RenderReportAsPdf(workbook, reportFileName);
+                // return RenderReportAsPdf(workbook, reportFileName);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        PdfDocument document = new PdfDocument();
+                        ExcelToPdfConverterSettings settings = new ExcelToPdfConverterSettings();
+                        settings.TemplateDocument = document;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document = converter1.Convert(settings);
+                        }
+                        document.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+                        return null;
+
+                    case ReportFormat.PdfView:
+                        PdfDocument document1 = new PdfDocument();
+                        ExcelToPdfConverterSettings settings1 = new ExcelToPdfConverterSettings();
+                        settings1.TemplateDocument = document1;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document1 = converter1.Convert(settings1);
+                        }
+                        document1.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                        //return RenderReportAsPdf(document1, reportFileName);
+                        return RenderReportAsPdf(workbook, reportFileName);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
 
             }
             catch (Exception ex)
@@ -77,7 +110,7 @@ namespace Aplos.Areas.Productions.Controllers
                     pdfDocument = converter.Convert(_settings);
 
                     if (isOpen == true)
-                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
                     else
                         pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
 
@@ -140,15 +173,15 @@ namespace Aplos.Areas.Productions.Controllers
                 COL++;
                 sheet[ROW, COL].Text = "Product Code"; sheet[ROW, COL].ColumnWidth = 16; int colProductCode = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Product"; sheet[ROW, COL].ColumnWidth = 22; int colProduct = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 12; int colArticle = COL;
+                //sheet[ROW, COL].Text = "Product"; sheet[ROW, COL].ColumnWidth = 22; int colProduct = COL;
+                //COL++;
+                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 35; int colArticle = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SONo"; sheet[ROW, COL].ColumnWidth = 12; int colSOS = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Yesterday Production"; sheet[ROW, COL].ColumnWidth = 16; int colYesterdayProduction = COL;
+                sheet[ROW, COL].Text = "Prod. As On Date"; sheet[ROW, COL].ColumnWidth = 12; int colYesterdayProduction = COL;
                 COL++;
-                sheet[ROW, COL].Text = "WIP"; sheet[ROW, COL].ColumnWidth = 16; int colWIP = COL;
+                sheet[ROW, COL].Text = "WIP"; sheet[ROW, COL].ColumnWidth = 8; int colWIP = COL;
                 
                 endGenericColumn = COL;
 
@@ -174,10 +207,10 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colPONumber].Text = dtOrder.Rows[i]["PONo"].ToString();
                     sheet[ROW, colLotNo].Text = dtOrder.Rows[i]["LotNumber"].ToString();
                     sheet[ROW, colProductCode].Text = dtOrder.Rows[i]["ProductCode"].ToString();
-                    sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
+                    //sheet[ROW, colProduct].Text = dtOrder.Rows[i]["Product"].ToString();
                     sheet[ROW, colArticle].Text = dtOrder.Rows[i]["Article"].ToString();
                     sheet[ROW, colSOS].Text = dtOrder.Rows[i]["SONo"].ToString();
-                    sheet[ROW, colYesterdayProduction].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["YesterdayProduction"].ToString());
+                    sheet[ROW, colYesterdayProduction].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ProductionAsOnDate"].ToString());
                     sheet[ROW, colWIP].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["WIP"].ToString());
 
                     if (dicParameter.ContainsKey(dtOrder.Rows[i]["ProductionSummaryId"].ToString()))
@@ -311,22 +344,40 @@ namespace Aplos.Areas.Productions.Controllers
             string strSql = string.Empty;
             try
             {
-                string yd = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
+               // string yd = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
 
-                strSql = @"select PS.Id ProductionSummaryId,WCM.UserName WorkCenter,PS.ProductionOrderId PONo,PS.LotNumber,PL.Code ProductCode,PM.UserName Product
-,MMA.StandardName Article,0 WIP
-,YesterdayProduction=(select sum(Quantity) from TRN.ProductionSummary where ProductionDate between '" + yd + @"' and '" + yd + @"' and EntityId = '" + Entity + @"' and ProcessId = '" + ProcessId + @"')
+                strSql = @"select PS.Id ProductionSummaryId,wcm.Id,WCM.UserName WorkCenter,PS.ProductionOrderId PONo,PS.LotNumber  ,0 WIP
+
+,ProductionAsOnDate=(select sum(Quantity) from TRN.ProductionSummary 
+where ProductionDate between '"+ Date + @"' and '" + Date + @"'  and EntityId = '"+ Entity + @"' and ProcessId = '"+ ProcessId + @"' AND WorkCenterMasterId=PS.WorkCenterMasterId AND ProductionOrderId=PS.ProductionOrderId AND LotNumber=PS.LotNumber)
+
+,Article =STUFF((select distinct ','+MMA.StandardName from 
+	trn.SalesOrder XSO 
+    JOIN trn.MasterOrderItem AS MOI ON MOI.Id=XSO.MasterOrderItemId
+    left join MST.MaterialMasterArticle MMA on MMA.Id=MOI.ArticleId	
+    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,ProductCode =STUFF((select distinct ','+PL.Code from 
+	trn.SalesOrder XSO 
+    JOIN trn.MasterOrderItem AS MOI ON MOI.Id=XSO.MasterOrderItemId
+    left join dbo.ProductLibrary PL on PL.Id=MOI.ProductLibraryId
+    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Product =STUFF((select distinct ','+PM.UserName from 
+	trn.SalesOrder XSO 
+    JOIN trn.MasterOrderItem AS MOI ON MOI.Id=XSO.MasterOrderItemId
+    left join MST.MaterialMaster MM on MM.Id=MOI.MaterialMasterId
+left join TRN.ProductDefinition AS PD ON PD.MaterialMasterId=MM.Id
+left join [MST].[ProductMaster] PM on PM.Id=PD.ProductMasterId
+    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 ,SONo =STUFF((select distinct ','+XSO.Id from 
 	trn.SalesOrder XSO 
     JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
 from TRN.ProductionSummary PS
-left join SCS.WorkCenterMaster WCM on WCM.Id=PS.WorkCenterMasterId AND WCM.Active=1
-left join MST.MaterialMaster MM on MM.Id=PS.MaterialMasterId
-left join TRN.ProductDefinition AS PD ON PD.MaterialMasterId=MM.Id
-left join [MST].[ProductMaster] PM on PM.Id=PD.ProductMasterId
-left join dbo.ProductLibrary PL on PL.Id=PS.ProductLibraryId
-left join MST.MaterialMasterArticle MMA on MMA.Id=PS.ArticleId							  
+left join SCS.WorkCenterMaster WCM on WCM.Id=PS.WorkCenterMasterId AND WCM.Active=1							  
 WHERE PS.ProductionDate between '" + Date + @"' and '" + Date + @"' and PS.EntityId = '" + Entity + @"' and PS.ProcessId = '" + ProcessId + @"'";
 
                 dtOrder = _sqlRepository.GetDataTable(strSql);
