@@ -54,11 +54,11 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [HttpPost, Authorize]
-        public ActionResult XlsSalesOrderStatusReport(string orderStatusId)
+        public ActionResult XlsSalesOrderStatusReport(Dictionary<string, string> parameters)
         {
             try
             {
-                var workbook = SalesOrderStatusReport(orderStatusId);
+                var workbook = SalesOrderStatusReport(parameters);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "SOStatusReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -75,14 +75,16 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook SalesOrderStatusReport(string orderStatusId)
+        private IWorkbook SalesOrderStatusReport(Dictionary<string, string> parameters)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine,1);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = SalesOrderStatusReportQuery(orderStatusId);
+
+            DataTable data;
+            SalesOrderStatusReportQuery(parameters, out data);
 
             var sheet = workbook.Worksheets[0];
 
@@ -120,6 +122,42 @@ namespace Aplos.Areas.Productions.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Item Id", 12, ExcelHAlign.HAlignLeft);
             int ColItem = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Order From Stock", 12, ExcelHAlign.HAlignLeft);
+            int ColOrderFromStock = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Packing Type", 12, ExcelHAlign.HAlignLeft);
+            int ColPackingType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Production Type", 12, ExcelHAlign.HAlignLeft);
+            int ColProductionType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Prod. Start Date", 12, ExcelHAlign.HAlignLeft);
+            int ColProdStartDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Prod. End Date", 12, ExcelHAlign.HAlignLeft);
+            int ColProdEndDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Completion Date", 12, ExcelHAlign.HAlignLeft);
+            int ColSOCompletionDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "CM", 20, ExcelHAlign.HAlignLeft);
+            int ColCM = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "FOB", 12, ExcelHAlign.HAlignLeft);
+            int ColFOB = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PR Status", 12, ExcelHAlign.HAlignLeft);
+            int ColPRStatus = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Article", 40, ExcelHAlign.HAlignLeft);
@@ -247,7 +285,15 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColCont].Text = data.Rows[i]["ContractID"].ToString();
                 sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerOrderNo"].ToString();
                 sheet[ROW, ColArt].Text = data.Rows[i]["Article"].ToString();
-                sheet[ROW, ColItem].Text = data.Rows[i]["ItemId"].ToString();
+                sheet[ROW, ColOrderFromStock].Text = data.Rows[i]["OrderFromStock"].ToString();
+                sheet[ROW, ColPackingType].Text = data.Rows[i]["PackingType"].ToString();
+                sheet[ROW, ColProductionType].Text = data.Rows[i]["ProductionType"].ToString();
+                sheet[ROW, ColProdStartDate].Text = data.Rows[i]["ProdStartDate"].ToString();
+                sheet[ROW, ColProdEndDate].Text = data.Rows[i]["ProdEndDate"].ToString();
+                sheet[ROW, ColSOCompletionDate].Text = data.Rows[i]["SOCompletionDate"].ToString();
+                sheet[ROW, ColCM].Text = data.Rows[i]["CM"].ToString();
+                sheet[ROW, ColFOB].Text = data.Rows[i]["FOB"].ToString();
+                sheet[ROW, ColPRStatus].Text = data.Rows[i]["PRStatus"].ToString();
                 sheet[ROW, COlSo].Text = data.Rows[i]["SONo"].ToString();
                 sheet[ROW, ColProd].Text = data.Rows[i]["ProdDetails"].ToString();
                 sheet[ROW, ColProdC].Text = data.Rows[i]["ProductCode"].ToString();
@@ -310,56 +356,10 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Queries
 
-        private DataTable SalesOrderStatusReportQuery(string orderStatusId)
+        public void SalesOrderStatusReportQuery(Dictionary<string, string> parameters, out DataTable data)
         {
-            try
-            {
-                string orderStatusIds = "'" + orderStatusId.Replace(",", "','") + "'";//replaced with ""
-                #region Commneted
-                //var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
-                //            format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
-                //            (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
-
-                //             (Select Stuff((
-                //                                        Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-                //                                        from dbo.ProductLibraryAttribute pla
-                //                                        where pla.ProductLibraryId = moi.ProductLibraryId
-                //                                        for XML PATH('')
-                //                                        ) , 1, 2, '')) as ProdDetails,
-
-                //            (Select sum(NetWeight) 
-                //            from dbo.ItemScanChild sc
-                //            left join dbo.ItemScan s on s.Id = sc.MasterId 
-                //            left join dbo.ProductLibrary pl on pl.Code = sc.ProductCode
-                //            left join MST.MaterialMovementMaster MMM ON MMM.Id = SC.LocMasterId
-                //            where pl.Id = moi.ProductLibraryId 
-                //            and s.WorkDate <= GetDate()
-                //            and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
-                //            , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson,OS.UserName OrderStatus
-                //            from trn.SalesOrder so
-                //            left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
-                //            left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
-                //            left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
-                //            left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
-                //            left outer join [HKP].[OrderStatus] OS on OS.id=so.OrderStatusId
-                //            left join dbo.ProductLibrary pl on pl.ID = moi.ProductLibraryId
-                //            left join MasterOrderExchangeRates mor on mor.TransactionId = mo.Id
-                //            left join
-                //            (
-                //            Select SalesOrderId , SUM(isnull(sm.TransactionQty , 0)) as DispatchQty
-                //            from trn.SalesMaterial sm
-                //            group by SalesOrderId
-                //            ) as sm on sm.SalesOrderId = so.Id
-                //            left join hkp.Party p on p.Id = mo.PartyId
-                //            LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
-                //             LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
-                //             left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
-                //             left join dbo.EmployeeInformation E ON e.SystemId=so.ResponsiblePersonId
-                //            where os.Id IN(" + orderStatusIds + @")
-                //            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc";
-                #endregion Commneted
-
-                var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
+            try {                
+                var strSQL = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.ContractId, moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
 
@@ -379,13 +379,18 @@ namespace Aplos.Areas.Productions.Controllers
                             and s.WorkDate <= GetDate()
                             and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
                             , so.Rate as Rates, mor.ExchangeRate,E.EmployeeName ResponsiblePerson,OS.UserName OrderStatus
-,MLC.LCRef [LC Number], ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.LCShipmentDate, 106), ' ', '-'),'') LCShipmentDate, ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.ExpiryDate, 106), ' ', '-'),'') [LC Expiry Date]
+                            ,MLC.LCRef [LC Number], ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.LCShipmentDate, 106), ' ', '-'),'') LCShipmentDate, ISNULL(REPLACE(CONVERT(VARCHAR(11), MLC.ExpiryDate, 106), ' ', '-'),'') [LC Expiry Date]
+                            ,OrderFromStock = case when so.ShipmentFromStock=1 then 'Yes' else 'No' end
+							,PT.UserName PackingType,so.ProductionType,PFLB.ProdStartDate,PFLB.ProdEndDate
+							,SOCompletionDate=case when OS.UserName='Closed' then format(so.OrderStatusChangedDate,'dd-MMM-yyyy') else NULL end
+							,0 FOB,PST.UserName PRStatus 
+
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
 
                             left join Contract C on C.Id = moi.ContractId
 							left join MasterLC MLC on MLC.Id = C.MasterLCId
-
+                            left join [HKP].[PackingType] PT on PT.Id=so.PackingTypeId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
                             left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
@@ -403,11 +408,19 @@ namespace Aplos.Areas.Productions.Controllers
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
                              left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
                              left join dbo.EmployeeInformation E ON e.SystemId=so.ResponsiblePersonId
-                            where os.Id IN(" + orderStatusIds + @")
-                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc";
-               
+							 left join trn.ProductionOrderDetail PODR on PODR.SalesOrderId=so.Id
+							 left join trn.ProductionOrder POR on POR.Id=PODR.ProductionOrderId
+							LEFT JOIN (Select FORMAT(MIN(ProductionDate),'dd-MMM-yyyy') AS ProdStartDate,FORMAT(MAX(ProductionDate),'dd-MMM-yyyy') AS ProdEndDate,ProductionOrderId 
+							from TRN.ProductionSummary GROUP BY ProductionOrderId) PFLB ON PFLB.ProductionOrderId=POR.Id
+							left join HKP.ProductionStatus PST on PST.Id=POR.ProductionStatusId
 
-                return _sqlRepository.GetDataTable(str);
+                            where SO.Id in(" + parameters["SOId"] + @")
+                            AND OS.UserName in(" + parameters["OrderStatus"] + @")
+                            AND SO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
+                            AND p.Id in(" + parameters["CustomerId"] + @")";
+
+            data = _sqlRepository.GetDataTable(strSQL);
+          
             }
             catch (Exception ex)
             {

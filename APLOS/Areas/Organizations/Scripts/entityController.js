@@ -1,24 +1,12 @@
 ﻿'use strict';
-entityController.$inject = ['addressService', 'cboService', 'commonMessage', '$rootScope', '$scope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$compile'];
-function entityController(addressService, cboService, commonMessage, $rootScope, $scope, baseService, $routeParams, $location, $http, $filter, $compile) {
+entityController.$inject = ['cboService', 'commonMessage', '$rootScope', '$scope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$compile'];
+function entityController(cboService, commonMessage, $rootScope, $scope, baseService, $routeParams, $location, $http, $filter, $compile) {
     $rootScope.title = 'Entity';
     $scope.Action = 'Save';
     var url = 'Organizations/entity/getlist';
     $scope.dataList = [];
     $scope.fieldDataList = [];
     $scope.isUsed = false;
-
-    // #region SetTab
-
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-    };
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-
-    // #endregion
 
     $scope.companyStructureSetup = {
         Id: null,
@@ -38,33 +26,6 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
         FilePrefix: null,
         ThirdPartyBusinessArea: null,
         ThirdPartyProfitCenter: null
-    };
-
-    $scope.addressMaster = {
-        Id: null,
-        ContinentId: null,
-        CountryId: null,
-        StateId: null,
-        CityId: null,
-        AreaId: null,
-        Thana: null,
-        Circle: null,
-        Ward: null,
-        Village: null,
-        Address1: null,
-        Address2: null,
-        Address3: null,
-        Postcode: null,
-        Phone: null,
-        Email: null,
-        Website: null,
-        Active: true,
-        AddedBy: null,
-        AddedDate: $filter("date")(Date.now(), 'yyyy-MM-dd'),
-        AddedFromIP: null,
-        UpdatedBy: null,
-        UpdatedDate: null,
-        UpdatedFromIP: null
     };
 
     cboService.getCboCompanyByCompanyGroup(null, function (result) {
@@ -121,82 +82,18 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
         $scope.entityTypeList = result;
     });
 
-    // #region AllDropDown
-
-    $scope.ContinentList = [];
-    $scope.CountryList = [];
-    $scope.StateList = [];
-    $scope.AreaList = [];
-    $scope.CityList = [];
-
-    addressService.getContinentCbo(function (result) {
-        $scope.ContinentList = result;
-    });
-
-    $scope.onContinentChange = function (continentId) {
-        addressService.getCountryByContinentCbo(continentId, function (result) {
-            $scope.CountryList = result;
-        });
-    };
-
-    $scope.onCountryChange = function (countryId) {
-        addressService.getCboStateByCountry(countryId, function (result) {
-            $scope.StateList = result;
-        });
-    };
-
-    $scope.onStateChange = function (countryId) {
-        addressService.getCboCityByCountry(countryId, function (result) {
-            $scope.CityList = result;
-        });
-    };
-
-    $scope.onCityChange = function (cityId) {
-        addressService.getCboAreaByCity(cityId, function (result) {
-            $scope.AreaList = result;
-        });
-    };
-
-    cboService.getCboCompanyGroup(function (result) {
-        $scope.companyGroupList = result;
-    });
-
-    $scope.getCboCompanyByCompanyGroup = function (companyGroupId) {
-        cboService.getCboCompanyByCompanyGroup(companyGroupId, function (result) {
-            $scope.companyList = result;
-        });
-    };
-    // #endregion
     $scope.Get = function (id) {
         $http.get('Organizations/entity/GetById?companyId=' + $scope.companyStructureSetup.CompanyId + '&&id=' + id)
             .then(function (response) {
                 $scope.companyStructureSetup = response.data;
                 $scope.getCompanyStructurerRelation($scope.companyStructureSetup.CompanyId, $scope.companyStructureSetup);
                 $scope.UseChecking($scope.companyStructureSetup.Id);
-                $scope.GetAddressMaster($scope.companyStructureSetup.AddressMasterId);
                 if (!$rootScope.isCollapsed) {
                     $rootScope.toggle();
                     $scope.Action = 'Update';
                 }
             });
     };
-
-    // #region GetAddressMaster
-
-    $scope.GetAddressMaster = function (id) {
-        $http.get('addresses/addressmaster/get/' + id)
-            .then(function (response) {
-                if (!baseService.isUndefinedOrNull(response.data)) {
-                    $scope.addressMaster = response.data;
-                    $scope.onContinentChange($scope.addressMaster.ContinentId);
-                    $scope.onCountryChange($scope.addressMaster.CountryId);
-                    $scope.onStateChange($scope.addressMaster.CountryId);
-                    $scope.onCityChange($scope.addressMaster.CityId);
-                }
-            });
-    };
-
-    // #endregion
 
     $scope.UseChecking = function (id) {
         $http.get('Organizations/entity/UseChecking/' + id)
@@ -212,7 +109,7 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
                 $http({
                     method: 'POST',
                     url: 'Organizations/entity/Create',
-                    data: { 'entity': $scope.companyStructureSetup, 'addressMaster': $scope.addressMaster },
+                    data: $scope.companyStructureSetup,
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -230,7 +127,7 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
                 $http({
                     method: 'POST',
                     url: 'Organizations/entity/Edit',
-                    data: { 'entity': $scope.companyStructureSetup, 'addressMaster': $scope.addressMaster },
+                    data: $scope.companyStructureSetup,
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -281,7 +178,6 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
         $scope.companyStructureSetup = { CompanyId: cId };
         $scope.companyStructureSetup.Active = true;
         $scope.isUsed = false;
-        $scope.addressMaster = {};
     }
 
     $scope.getCompanyStructurerRelation = function (id, data) {
@@ -343,7 +239,7 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Business Area</label>' +
                         '<div class="col-sm-8">' +
-                        '<input tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyBusinessArea" class="form-control" name="Third Party Business Area"></div></div>'
+                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyBusinessArea" class="form-control" name="Third Party Business Area"></div></div>'
                         ;
 
                     $scope.right += '<div class="form-group">' +
@@ -380,7 +276,7 @@ function entityController(addressService, cboService, commonMessage, $rootScope,
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Third Party Profit Center</label>' +
                         '<div class="col-sm-8">' +
-                        '<input tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyProfitCenter" class="form-control" name="Third Party Profit Center"></div></div>'
+                        '<input ng-disabled="isUsed" tabindex="14" type="text" maxlength="50" ng-model="companyStructureSetup.ThirdPartyProfitCenter" class="form-control" name="Third Party Profit Center"></div></div>'
                         ;
                 }
             });

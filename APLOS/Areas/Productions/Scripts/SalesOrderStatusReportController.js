@@ -2,52 +2,42 @@
 SalesOrderStatusReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
 function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = 'Sales Order Status Report';
-    $scope.path = 'Productions/SalesOrderStatusReport';
+    $scope.path = 'Productions/SalesOrderStatusReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     //The Filters 
     $scope.filters = [];
-    $scope.summaryfilters = [];
-    $scope.loadfilters = function () {
-        try {
-            $scope.filters = [];
-            $http({
-                method: 'GET',
-                url: $scope.path + 'getFilters',
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
+    $scope.SalesOrderStatusloadfilters = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getFilters',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.filters = response.data;
+            var columnList = [
+                { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
+                { field: 'OrderStatus', width: 20, headerText: "Order Status", type: "string" },
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
 
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $scope.filters = response.data;
-                    var columnList = [
-                        { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-                        { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
-                        { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
-                        { field: 'OrderStatus', width: 20, headerText: "Order Status", type: "string" },
-                    ];
-                    $("#filters").ejGrid({
-                        dataSource: $scope.filters,
-                        minWidth: 450, minHeight: 400,
-                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                        filterSettings: { filterType: "excel" },
-                        columns: columnList
-                    });
-
-                    var gridObj = $("#filters").data("ejGrid");
-                    gridObj.refreshContent(true);
-                    gridObj.refreshTemplate();
-                    $("#filters").children('.e-pager.e-js.e-pager').hide();
-                    $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-                    $("#filters").children('.e-gridcontent').hide();
-                }
+            ];
+            $("#filters").ejGrid({
+                dataSource: $scope.filters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
             });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+
+            var gridObj = $("#filters").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#filters").children('.e-pager.e-js.e-pager').hide();
+            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#filters").children('.e-gridcontent').hide();
+        });
     }
+    $scope.SalesOrderStatusloadfilters();
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -58,15 +48,15 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
             fl = $scope.filters;
         }
 
-
         var parameters = [];
+
         parameters.push({ "Key": "SOId", "Value": getString(fl, "SOId") });
         parameters.push({ "Key": "OrderStatus", "Value": getString(fl, "OrderStatus") });
         parameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
         parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
 
-        $scope.parameters = parameters;
 
+        $scope.parameters = parameters;
     }
 
     var getString = function (data, column) {
@@ -75,7 +65,6 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
 
         for (var i = 0; i < data.length; i++) {
             if (collection.includes(data[i][column]) == false) {
-                /* var replace = data[i][column].replace(",", "','");*/
                 string += ",'" + data[i][column] + "'";
                 collection.push(data[i][column]);
             }
@@ -83,8 +72,10 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
         return string;
     }
 
+  
     //Destroy The Grid Before ReBuilding And Clearing of the Filters
     $scope.clearFilters = function () {
+
         var gridObj = $("#filters").data("ejGrid");
         gridObj.clearFiltering();
     }
@@ -98,7 +89,6 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
         var k = 100;
     }
 
-
     $scope.OrderStatusId = null;
     $scope.orderStatusList = [];
     $http.get("OrderManagements/orderstatus/getcbo/")
@@ -107,21 +97,21 @@ function SalesOrderStatusReportController(commonMessage, $scope, $rootScope, bas
         });
 
 
-
     $scope.GetReport = function (reportType) {
         try {
+            $scope.filterComplete();
 
-            var DropDownJobLocationListObjE = $("#selOS").data("ejDropDownList");
-            var osLists = DropDownJobLocationListObjE.getSelectedValue();
-            if (angular.isUndefinedOrNull(osLists)) {
-                throw "Select Order Status.";
-            }
-
+            //var DropDownJobLocationListObjE = $("#selOS").data("ejDropDownList");
+            //var osLists = DropDownJobLocationListObjE.getSelectedValue();
+            //if (angular.isUndefinedOrNull(osLists)) {
+            //    throw "Select Order Status.";
+            //}
             // The Report Code
             $http({
                 method: 'POST',
-                url: $scope.path + '/XlsSalesOrderStatusReport',
-                data: { 'orderStatusId': osLists },
+                url: $scope.path + 'XlsSalesOrderStatusReport',
+                //data: { 'orderStatusId': osLists },
+                data: { 'parameters': $scope.parameters },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
