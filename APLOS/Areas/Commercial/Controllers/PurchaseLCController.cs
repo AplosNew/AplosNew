@@ -699,7 +699,7 @@ namespace Aplos.Areas.Commercial.Controllers
                         SELECT A.* FROM 
 					    (SELECT Type=CASE WHEN M.Version=1 THEN 'Open' ELSE 'Amendment' END,0 Active, M.Id,M.Version,FORMAT(M.LCDate,'dd-MMM-yyyy') LCDate,M.Amount
 						,FORMAT(M.AmendmentDate,'dd-MMM-yyyy') AmendmentDate,0 AmendmentAmount,M.Rate CompanyCurrencyRate,M.Rate
-						,FORMAT(M.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, CN.Code Currency,P.UserName PartyName,OB.AccountTitle OpeningBank,M.LCRef,CH.PurchaseLCId,CH.VoucherId
+						,FORMAT(M.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,CH.CurrencyId, CN.Code Currency,P.UserName PartyName,OB.AccountTitle OpeningBank,M.LCRef,CH.PurchaseLCId,CH.VoucherId,M.OpeningBankMasterId
                         FROM [dbo].[PurchaseLC] M 
                         LEFT JOIN dbo.[Contract] C ON C.Id=M.ContractId
                         LEFT JOIN HKP.Party P  ON P.Id=M.VendorId
@@ -709,7 +709,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						UNION
 						SELECT Type=CASE WHEN M.Version=1 THEN 'Open' ELSE 'Amendment' END,0 Active, M.PurchaseLCId Id,M.Version,FORMAT(M.LCDate,'dd-MMM-yyyy') LCDate,0 Amount
 						,FORMAT(M.AmendmentDate,'dd-MMM-yyyy') AmendmentDate, M.Amount AmendmentAmount ,M.Rate CompanyCurrencyRate,M.Rate
-						,FORMAT(M.ExpiryDate,'dd-MMM-yyyy') ExpiryDate, CN.Code Currency,P.UserName PartyName,OB.AccountTitle OpeningBank,M.LCRef,CH.PurchaseLCId,CH.VoucherId
+						,FORMAT(M.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,CH.CurrencyId, CN.Code Currency,P.UserName PartyName,OB.AccountTitle OpeningBank,M.LCRef,CH.PurchaseLCId,CH.VoucherId,M.OpeningBankMasterId
                         FROM [dbo].[PurchaseLCVersion] M 
                         LEFT JOIN dbo.[Contract] C ON C.Id=M.ContractId
                         LEFT JOIN HKP.Party P  ON P.Id=M.VendorId
