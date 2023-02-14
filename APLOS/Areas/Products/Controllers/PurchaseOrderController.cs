@@ -28,6 +28,7 @@ using Library.OrderManagement.ShipmentControl;
 using Library.OrderManagement.TermsAndConditions;
 using Library.MaterialManagement.InventoryManagements;
 using Aplos.MaterialManagement.MaterialQuery;
+using System.Linq;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -4201,10 +4202,10 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var rdBuilder = new System.Text.StringBuilder();
-                var poDetailSql = @"select from trn.PourchaseOrderDetail where InventoryReceiveId='" + Id + "'";
+                var poDetailSql = _purchseOrderDetailService.Query(r=>r.InventoryReceiveId== Id).Select().FirstOrDefault();
                 if (poDetailSql == null)
                 {
-                    var PoSql = @"delete from trn.PourchaseOrder where id='" + Id + "'";
+                    var PoSql = @"delete from trn.PurchaseOrder where Id='" + Id + "'";
                     rdBuilder.Append(PoSql);
                 }
                 else
