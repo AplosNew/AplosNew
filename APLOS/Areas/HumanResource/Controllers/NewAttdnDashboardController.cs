@@ -95,7 +95,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2016;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var sheet = workbook.Worksheets[0];
@@ -227,8 +227,8 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColMobileNo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "PO1 Name", 13, ExcelHAlign.HAlignCenter);
-            int ColPO1Name = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "PR1 Name", 13, ExcelHAlign.HAlignCenter);
+            int ColPR1Name = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "RO1 Name", 13, ExcelHAlign.HAlignCenter);
@@ -280,8 +280,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColResidence].Text = dtData.Rows[i]["Residence"].ToString();
                 sheet[ROW, ColEntryType].Text = dtData.Rows[i]["EntryType"].ToString();
                 sheet[ROW, ColMobileNo].Text = dtData.Rows[i]["MobileNo"].ToString();
-                sheet[ROW, ColPO1Name].Text = dtData.Rows[i]["PO1Name"].ToString();
-                sheet[ROW, ColRO1Name].Text = dtData.Rows[i]["RO1Name"].ToString();
+                sheet[ROW, ColPR1Name].Text = dtData.Rows[i]["PREmployeeName"].ToString();
+                sheet[ROW, ColRO1Name].Text = dtData.Rows[i]["ROEmployeeName"].ToString();
                 sheet[ROW, ColEmployeeCurrentStatus].Text = dtData.Rows[i]["EmployeeCurrentStatus"].ToString();
 
 
