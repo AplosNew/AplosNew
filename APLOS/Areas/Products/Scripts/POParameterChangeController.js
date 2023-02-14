@@ -1,6 +1,6 @@
 ﻿'use strict';
-POParameterChangeController.$inject = ['accountService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
-function POParameterChangeController(accountService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
+POParameterChangeController.$inject = [  '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window', 'cboService',  '$controller'];
+function POParameterChangeController(  $scope, $rootScope, baseService, $http, $filter, $window, cboService,  $controller) {
     $rootScope.title = "PO";
     $scope.Action = 'Save';
     $scope.path = 'Products/POParameterChange/';
@@ -197,7 +197,7 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
             window.lst = response.data;
         });
     }
-    $scope.POListDetails();
+   // $scope.POListDetails();
 
     $scope.detailgrid = function detailGridData(e) {
         var filteredData = e.data["Id"];
