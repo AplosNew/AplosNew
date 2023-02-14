@@ -582,42 +582,47 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = "";
                 if(secSql == 0)
                 {
-                     str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
-                            FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
-                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
-                            subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity,
-                            FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut 
-                            , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration --, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration
-                             ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo,MPBB.EmployeeName RO1Name,MPBB2.EmployeeName PO1Name
-
-                            from dbo.AttdnProcessData apd
-                             left join org.Plant plant on plant.Id = apd.PlantID
-                            left join org.Company company on company.Id = plant.CompanyId
-                            left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
-                            left join org.Position pos on pos.Id = mb.PositionId
-                            left join org.Division division on division.Id = pos.DivisionId
-                            left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
-                            left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
-                            left join org.Unit unit on unit.Id = ei.UnitId
-							left join org.Entity e on e.Id = mb.EntityId
-                            left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
-                            left join org.Department department on department.Id = pos.DepartmentId
-                            left join org.Section section on section.Id = pos.SectionId
-                            left join org.SubSection subsection on subsection.id = pos.SubSectionId
-                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
-                            left join hkp.Designation desg on desg.Id = dm.DesignationId
-                            left join org.Department dept on dept.id = pos.DepartmentId
-                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date + @"'
-                            left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
-                            left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
-							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-							left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.ROBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
-							left join EmployeeInformation e on e.BudgetCode=mb.ROBudgetCode 
-							group by e.EmployeeCode,mb.ROBudgetCode,mb.Code,e.EmployeeName) MPBB on MPBB.ROBudgetCode=MPB.Id
-							left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.PRBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
-							left join EmployeeInformation e on e.BudgetCode=mb.PRBudgetCode 
-							group by e.EmployeeCode,mb.PRBudgetCode,mb.Code,e.EmployeeName) MPBB2 on MPBB2.PRBudgetCode=MPB.Id
+                     str = @"Select ei.EmployeeCode , ei.EmployeeName , apd.DayStatus , apd.InStatus , 
+                            FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
+                            ,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
+                            subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity,
+                            FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut 
+                            , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration --, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration
+                             ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo
+                             --,MPBB.EmployeeName RO1Name,MPBB2.EmployeeName PO1Name
+                             ,eDOJ.DOJ,eDOJ.EmployeeName LastJoinEmployee
+                            from dbo.AttdnProcessData apd
+                             left join org.Plant plant on plant.Id = apd.PlantID
+                            left join org.Company company on company.Id = plant.CompanyId
+                            left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+                            left join org.Position pos on pos.Id = mb.PositionId
+                            left join org.Division division on division.Id = pos.DivisionId
+                            left join org.SubDivision subdivision on subdivision.id = pos.SubDivisionId
+                            left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
+                            left join(select top(1) ei.EmployeeName,ei.SystemId,ei.BudgetCode,mb.ROBudgetCode,ei.DOJ 
+                                    from  dbo.EmployeeInformation ei 
+                                    join mst.ManpowerBudget mb on mb.ROBudgetCode=ei.BudgetCode
+                                    order by ei.DOJ desc) eDOJ on mb.ROBudgetCode = eDOJ.ROBudgetCode and eDOJ.SystemId=ei.SystemId
+                            left join org.Unit unit on unit.Id = ei.UnitId
+                            left join org.Entity e on e.Id = mb.EntityId
+                            left join org.CompanyGroup cg on cg.Id = company.CompanyGroupId
+                            left join org.Department department on department.Id = pos.DepartmentId
+                            left join org.Section section on section.Id = pos.SectionId
+                            left join org.SubSection subsection on subsection.id = pos.SubSectionId
+                            left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
+                            left join hkp.Designation desg on desg.Id = dm.DesignationId
+                            left join org.Department dept on dept.id = pos.DepartmentId
+                            left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
+                            left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '"+date+@"'
+                            left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
+                            left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
+                            left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            --left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.ROBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
+                            --left join EmployeeInformation e on e.BudgetCode=mb.ROBudgetCode 
+                            --group by e.EmployeeCode,mb.ROBudgetCode,mb.Code,e.EmployeeName) MPBB on MPBB.ROBudgetCode=MPB.Id
+                            --left join (select min(e.DOJ) FDOJ,e.EmployeeCode,mb.PRBudgetCode,mb.Code BudgetCode,e.EmployeeName from MST.ManpowerBudget mb 
+                            --left join EmployeeInformation e on e.BudgetCode=mb.PRBudgetCode 
+                            --group by e.EmployeeCode,mb.PRBudgetCode,mb.Code,e.EmployeeName) MPBB2 on MPBB2.PRBudgetCode=MPB.Id
 
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @"
