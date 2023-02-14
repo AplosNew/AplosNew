@@ -168,12 +168,26 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
                 });
     };
     $scope.getSavedData();
+    var LCOpeningDate = null;
     $scope.validation = function () {
         for (var j = 0; j < $scope.chargesVoucherRow.length; j++) {
             if (baseService.isUndefinedOrNull($scope.chargesVoucherRow[j].Rate)) {
                 ShowResult("Rate Can not 0!", "failure");
                 return true;
             }
+            if (baseService.isUndefinedOrNull($scope.chargesVoucherRow[j].OpeningBankMasterId)) {
+                ShowResult("OpeningBankMasterId Can not Empty!", "failure");
+                return true;
+            }
+            if (baseService.isUndefinedOrNull($scope.chargesVoucherRow[j].LCDate)) {
+                ShowResult("LC Opening Date Can not Empty!", "failure");
+                return true;
+            }
+            if (new Date($scope.chargesVoucherRow[j].LCDate) > new Date()) {
+                ShowResult("LC Opening Date must be below or equal to current Date!", "failure");
+                return true;
+            }
+            
         }
         
         for (var i = 0; i < $scope.ChargesList.length; i++) {
@@ -188,26 +202,36 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
     $scope.Save = function () {
         try {
             $scope.ChargesList = [];
+            LCOpeningDate = null;
             for (var i = 0; i < $scope.purchaseLCList.length; i++) {
                 if ($scope.purchaseLCList[i].Active) {
                     for (var j = 0; j < $scope.purchaseLCChargesList.length; j++) {
                         if ($scope.purchaseLCList[i].Id === $scope.purchaseLCChargesList[j].PurchaseLCId &&
                             $scope.purchaseLCList[i].Type === $scope.purchaseLCChargesList[j].Type &&
-                            $scope.purchaseLCList[i].Version === $scope.purchaseLCChargesList[j].Version) {
+                            $scope.purchaseLCList[i].Version === $scope.purchaseLCChargesList[j].Version){
                             $scope.ChargesList.push($scope.purchaseLCChargesList[j]);
                         }
                     }
+                    var getRowDr = $filter("filter")($scope.chargesVoucherRow, { "OpeningBankMasterId": $scope.purchaseLCList[i].OpeningBankMasterId });
+                    if (getRowDr.length == 0 && $scope.purchaseLCList[i].OpeningBankMasterId != null) {
+                        $scope.chargesVoucherRow.push($scope.purchaseLCList[i]);
+                    }
+                    if (LCOpeningDate !== null && new Date(LCOpeningDate) !== Date($scope.purchaseLCList[i].LCDate)) {
+                        ShowResult("LC Opening Date must be same Date!", "failure");
+                        return true;
+                    }
+                    LCOpeningDate = $scope.purchaseLCList[i].LCDate;
                 }
             }
             if ($scope.ChargesList.length == 0)
                 throw "Select Charges.";
-            for (var i = 0; i < $scope.ChargesList.length; i++) {
-                var getRowDr = $filter("filter")($scope.chargesVoucherRow, { "OpeningBankMasterId": $scope.ChargesList[i].OpeningBankMasterId });
-                if (getRowDr.length == 0 && $scope.ChargesList[i].OpeningBankMasterId != null) {
-                    $scope.chargesVoucherRow.push($scope.ChargesList[i]);
-                }
+            //for (var i = 0; i < $scope.ChargesList.length; i++) {
+            //    var getRowDr = $filter("filter")($scope.chargesVoucherRow, { "OpeningBankMasterId": $scope.ChargesList[i].OpeningBankMasterId });
+            //    if (getRowDr.length == 0 && $scope.ChargesList[i].OpeningBankMasterId != null) {
+            //        $scope.chargesVoucherRow.push($scope.ChargesList[i]);
+            //    }
 
-            }
+            //}
             if (!$scope.validation()) {
                 if ($scope.Action === 'Save' || $scope.Action === 'Update') {
                     $http({

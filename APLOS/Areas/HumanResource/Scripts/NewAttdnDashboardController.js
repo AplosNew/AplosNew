@@ -376,7 +376,6 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         }).then(function successCallback(response) {
             $scope.ClickDetail = [];
             $scope.ClickDetail = response.data;
-
             if ($scope.RptColumn == "BB") {
                 angular.element(document.querySelector('#TableDetailModalBB')).modal('show');
 

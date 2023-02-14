@@ -1064,7 +1064,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult HREmployeeAdvanceRequisitionSave(Dictionary<string, object> EmpAdvanceReqList, IEnumerable<AdvanceReqSchedule> advanceSalarySchedulelist)
         {
             try

@@ -24,7 +24,8 @@
                             <div e-column e-field="LCRef" e-headertext="LC No" e-width="20"></div>
                             <div e-column e-field="Type" e-headertext="Type" e-width="20"></div>
                             <div e-column e-field="Version" e-headertext="Version" e-width="15"></div>
-                            <div e-column e-field="LCDate" e-headertext="Opening Date" e-width="30"></div>
+                            <div e-column e-headertext="Opening Date" e-width="30" e-template="#lcPostigDate"></div>
+                            @*<div e-column e-field="LCDate" e-headertext="Opening Date" e-width="30"></div>*@
                             <div e-column e-field="Amount" e-headertext="Opening Value" e-width="20"></div>
                             <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-width="30"></div>
                             <div e-column e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="20"></div>
@@ -35,11 +36,14 @@
                             @*<div e-column e-headertext="Tax" e-commands="commandTax" e-isunbound=true e-textalign="center" e-width="60"></div>*@
 
                             @*<div e-column e-headertext="Actions" e-width="20">
-                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon" title="Tax" ng-click="$parent.onClickTax('popUpData');" style="margin: -6px;">Tax</i></button>
-                            </div>*@
+                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon" title="Tax" ng-click="$parent.onClickTax('popUpData');" style="margin: -6px;">Tax</i></button>
+                    </div>*@
                         </div>
                     </div>
                 </div>
+                <script type="text/template" id="lcPostigDate">
+                    <input type="text" ng-model="data.LCDate" datepicker class="form-control">
+                </script>
                 <script type="text/template" id="checkboxLC">
                     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
                 </script>
@@ -73,12 +77,12 @@
                         <div e-column e-field="PurchaseLCId" e-headertext="LC No" e-width="20"></div>
                         <div e-column e-field="DocRefNo" e-headertext="LC Ref" e-width="20"></div>
                         <div e-column e-field="Type" e-headertext="Type" e-width="20"></div>
-                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="20"></div>
+                        <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="40"></div>
                         <div e-column e-field="Amount" e-headertext="Amount" e-width="20"></div>
                         <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="15"></div>
                         <div e-column e-field="VendorName" e-headertext="Vendor" e-width="50"></div>
                         <div e-column e-field="OpeningBankMaster" e-headertext="Opening Bank" e-width="50"></div>
-                        <div e-column e-headertext="Actions" e-width="60">
+                        <div e-column e-headertext="Actions" e-width="40">
                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="PDF" class="btn"><i class="fa fa-file-word-o" ng-click="$parent.onClickReportDownloadWord($event);"></i></button>
                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="XL" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.onClickReportDownloadExcel($event);"></i></button>
                         </div>
