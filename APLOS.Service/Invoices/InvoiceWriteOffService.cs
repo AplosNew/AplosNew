@@ -7476,12 +7476,16 @@ namespace Library.Service.Invoices
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
-                //var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().FirstOrDefault();
+                var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().FirstOrDefault();
 
-                //if (bankCharges != null)
-                //{
-                //    _bankChargeRepository.Delete(bankCharges.Id);
-                //}
+                if (bankCharges != null)
+                {
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE BankChargeId='" + bankCharges.Id + "'";
+                    rdBuilder.Append(builderSql);
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    _bankChargeRepository.Delete(bankCharges.Id);
+                }
                 foreach (var item in voucherdetail)
                 {
                     var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
@@ -7797,15 +7801,15 @@ namespace Library.Service.Invoices
                 if (voucherRows != null)
                 {
                     var purchaseLC = _purchaseLCRepository.Find(voucherRows.Select(r => r.PurchaseLCId).FirstOrDefault());
-                    voucherVM.PostingDate = Convert.ToDateTime(purchaseLC.LCDate);
-                    voucherVM.DocDate = Convert.ToDateTime(purchaseLC.LCDate);
+                    //voucherVM.PostingDate = Convert.ToDateTime(purchaseLC.LCDate);
+                    //voucherVM.DocDate = Convert.ToDateTime(purchaseLC.LCDate);
                     voucherVM.DocRefNo = purchaseLC.LCRef;
                     voucherVM.Narration = "Being LC Openning Charges for LC No. " + voucherVM.DocRefNo;
 
                     AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
-                    _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
-                    _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
-                    _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+                    //_accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                    //_accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                    //_accountsCommonService.CheckingTaxYearPeriod(voucherVM);
 
                     _unitOfWork.BeginTransaction();
                     flag = true;
@@ -7818,7 +7822,12 @@ namespace Library.Service.Invoices
 
                     foreach (var item in voucherRows)
                     {
+                        voucherVM.PostingDate = Convert.ToDateTime(item.LCDate);
+                        voucherVM.DocDate = Convert.ToDateTime(item.LCDate);
                         voucherVM.CurrencyId = item.CurrencyId;
+                        _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                        _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                        _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                         var voucher = _voucherService.InsertVoucher(voucherVM);
 
 

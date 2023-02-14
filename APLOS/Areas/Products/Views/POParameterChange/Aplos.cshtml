@@ -119,6 +119,17 @@
                 </div>
             </div>
             <div class="form-group">
+                <label class="col-sm-4 control-label">Is Tolerance Update</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input tabindex="8" ng-checked="IsToleranceUpdateChange()" type="checkbox" ng-model="IsToleranceUpdate">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
                 <label class="col-sm-12 control-label" style="color:blue"></label>
             </div>
             <div class="form-group">
@@ -179,9 +190,9 @@
                                     <td>{{x.SecondCharacteristicsValue}}</td>
                                     <td>{{x.ThirdCharacteristicsValue}}</td>
                                     <td>{{x.CountryName}}</td>
-                                    <td class="text-right" style="width:200px;"><input type="number"  name="TransactionQty" ng-model="x.TransactionQty" ng-keyup="calculateAmount(x)" class="form-control"></td>
+                                    <td class="text-right" style="width:200px;"><input type="number" ng-disabled="IsToleranceUpdate"  name="TransactionQty" ng-model="x.TransactionQty" ng-keyup="calculateAmount(x)" class="form-control"></td>
                                     <td class="text-right" style="width:50px;">{{x.TransactionUoM}}</td>
-                                    <td class="text-right" style="width:200px;"><input type="number" name="TransactionRate" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x)" class="form-control"></td>
+                                    <td class="text-right" style="width:200px;"><input type="number" ng-disabled="IsToleranceUpdate" name="TransactionRate" ng-model="x.TransactionRate" ng-keyup="calculateAmount(x)" class="form-control"></td>
                                     <td class="text-right" style="width:150px;">{{x.TrnAmount| number:2}}</td>
                                     <td class="text-right" style="width:150px;">{{x.BaseTaxAmount| number:2}}</td>
                                     <td class="text-right" style="width:150px;">{{x.TotalAmount| number:2}}</td>
@@ -190,7 +201,7 @@
                                     <td>{{x.DeliveryDate}}</td>
                                     <td class="text-right" style="width:150px;">{{x.GRNAmount| number:2}}</td>
                                     <td class="text-right" style="width:150px;">{{x.ACPTAmount| number:2}}</td>
-                                    <td class="text-right" style="width:150px;"><input type="text" name="Tolerance" ng-model="x.Tolerance" class="form-control"></td>
+                                    <td class="text-right" style="width:150px;"><input type="text" name="Tolerance" ng-disabled="IsToleranceUpdate==false" ng-model="x.Tolerance" class="form-control"></td>
                                     <td class="text-right">
                                         <ul class="list-inline action-list">
                                             <li><button ng-click="UpdateDetail(x)" class="btn btn-action tooltip-here" data-placement="top" title="Update"><i class="glyphicon glyphicon-floppy-saved"></i></button></li>

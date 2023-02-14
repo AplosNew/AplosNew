@@ -207,11 +207,11 @@ namespace Aplos.Areas.Organizations.Controllers
         }
 
         [HttpPost]
-        public JsonResult Edit(Entity entity, AddressMaster addressMaster)
+        public JsonResult Edit(Entity entity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
-            _entityService.Update(entity, addressMaster);
+            _entityService.Update(entity);
             return Json(new { Message = AplosMessage.Updated });
         }
 
@@ -222,11 +222,11 @@ namespace Aplos.Areas.Organizations.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Entity entity, AddressMaster addressMaster)
+        public JsonResult Create(Entity entity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             entity.CompanyGroupId = identity.CompanyGroupId;
-            _entityService.Insert(entity, addressMaster);
+            _entityService.Insert(entity);
             return Json(new { Message = AplosMessage.Insert });
         }
 

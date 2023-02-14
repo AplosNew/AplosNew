@@ -2456,5 +2456,35 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
         //	$scope.GetAdvanceTaxInfo($scope.productNew.Id);
         //}
     };
+
+    $scope.workCenterList = [];
+
+    $scope.popUpWorkCenterList = function () {
+        try {            
+            $http({
+                method: 'GET',
+                url: $scope.path + 'GetWorkCenterList'
+            }).then(function successCallback(res) {
+                $scope.workCenterList = res.data;
+            });
+            var eDialog = $("#workCenterPopUp").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SetworkCenter = function (data) {
+        $scope.WorkCenterMaster = data.data.UserName;
+        $scope.WorkCenterMasterId = data.data.WorkCenterMasterId;
+        $scope.CloseWorkCenter();
+    }
+
+    $scope.CloseWorkCenter = function () {
+        var eDialog = $("#workCenterPopUp").data("ejDialog");
+        eDialog.close();
+    }
+
+
 }
 
