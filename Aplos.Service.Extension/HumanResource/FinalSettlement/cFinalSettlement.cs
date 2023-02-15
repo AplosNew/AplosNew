@@ -83,10 +83,10 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                 string sql = @"Select efs.Id, FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate
 							--,efs.SalaryRate 
                             ,SalRate = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End
-                            ,LeaveEncash = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * efs.[LvEncashmentDayNo]
-							,NetPayAmount = (case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(varchar(100),(efs.SeparationTypeAmount)) end + 
-							(case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * efs.[LvEncashmentDayNo]) +
-							convert(int,ROUND(efs.LastMonthNetPayAmount,0)))
+                            ,LeaveEncash = CONVERT(NUMERIC(10,0),case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo]))
+							,NetPayAmount = CONVERT(NUMERIC(10,0),(case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(varchar(100),(efs.SeparationTypeAmount)) end + 
+							(case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo])) +
+							convert(int,ROUND(efs.LastMonthNetPayAmount,0))))
 							,efs.OTRate
                             ,convert(int,ROUND(efs.[TotalDeductionAmount],0)) TotalDeductionAmount
                             ,convert(int,ROUND(efs.LvEncashmentAmount,0)) LvEncashmentAmount
