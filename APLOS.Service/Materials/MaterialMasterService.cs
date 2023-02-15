@@ -1053,13 +1053,22 @@ namespace Library.Service.Materials
             return _sqlRepository.GetDataCollection(_sql, null);
         }
 
-        public IEnumerable<object> GetCharacteristicsWithoutMaterial()
+        public IEnumerable<object> GetCharacteristicsWithoutMaterialSKU1()
         {
             var _sql = @"SELECT  CR.UserName Characteristics,CV.UserName AS [Text],CV.Id AS [Value],CV.CharacteristicsId
 							FROM HKP.CharacteristicsValue CV 
 							JOIN HKP.Characteristics CR ON CR.Id=CV.CharacteristicsId
-							where CV.Active=1 and CV.MaterialMasterId is null
-							order by CV.UserName";
+							WHERE CV.Active=1 AND CV.MaterialMasterId is null AND CharacteristicsId=1
+							ORDER BY CV.UserName";
+            return _sqlRepository.GetDataCollection(_sql, null);
+        }
+        public IEnumerable<object> GetCharacteristicsWithoutMaterialSKU2()
+        {
+            var _sql = @"SELECT  CR.UserName Characteristics,CV.UserName AS [Text],CV.Id AS [Value],CV.CharacteristicsId
+							FROM HKP.CharacteristicsValue CV 
+							JOIN HKP.Characteristics CR ON CR.Id=CV.CharacteristicsId
+							WHERE CV.Active=1 AND CV.MaterialMasterId is null AND CharacteristicsId=2
+							ORDER BY CV.UserName";
             return _sqlRepository.GetDataCollection(_sql, null);
         }
 
