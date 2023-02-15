@@ -199,7 +199,7 @@ namespace Library.Service.OrderManagements
 								    ,A.ExtraOrderPercentage,A.BuyerDepartmentId
 								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,A.SpecialTaxId,A.IsExtraOrderPercentage,PM.UserName ProductMaster,OS.UserName OrderStatus,A.AddedDate,A.AddedBy
                                       ,A.OwnReferenceNo,A.BuyerReferenceNo,A.PaymentTermId,A.PaymentTermDays,A.ExceptionalProcessId,A.ExceptionalSubProcessId
-                                    ,[BuyerItem]=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                                    ,[BuyerRefNoItem]=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
 																			trn.MasterOrderItem XMOI 	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                      [OwnItem]=STUFF((select distinct ','+XMOI.OwnReferenceNo from 

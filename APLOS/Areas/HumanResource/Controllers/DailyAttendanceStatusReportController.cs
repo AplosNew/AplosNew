@@ -123,36 +123,6 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
                 var sqlCondition = "";
                 var condition2 = "";
 
-                #region Commented
-
-
-
-                //if ((employeecategory != null || employeecategory != "null") && (teamleaderid != null || teamleaderid != "null") && (responsibleperson != null || responsibleperson != "null") && (shift != null || shift != "null"))
-                //{
-                //    sqlCondition = "EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + " and EI2.EmployeeName = " + responsibleperson + " and ST.Id = " + shift + "";
-                //}
-
-                //if (employeecategory != null && teamleaderid != null && responsibleperson != null)
-                //{
-                //    sqlCondition = "EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + " and EI2.EmployeeName = " + responsibleperson + "";
-                //}
-
-                //if (employeecategory != null && teamleaderid != null)
-                //{
-                //    sqlCondition = "EC.Id = " + employeecategory + " and TD.TeamLeaderId = " + teamleaderid + "";
-                //}
-
-                //if ((employeecategory != null || employeecategory != "null") && (shift != null || shift != "null"))
-                //{
-                //    sqlCondition = "EC.Id = " + employeecategory + "  and MBGT.ShiftDefinationId = '" + shift + "'";
-                //}
-                //if (employeecategory != null)
-                //{
-                //    sqlCondition = "EC.Id = " + employeecategory + "";
-                //}
-                #endregion commented
-
-                
 
                 if(instatus != "null" && employeecategory == "null" && shift == "null" && teamleaderid == "null" && responsibleperson == "null" && daystatus == "null" && employeestatus == "null")
                 {
@@ -264,7 +234,9 @@ LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2+ " order by APD.WorkDate DESC";
 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception)
             {
@@ -779,6 +751,8 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2 + " order by APD.WorkDate DESC";
 
                 data = _sqlRepository.GetDataTable(strSQL);
+
+
 
             }
             catch (Exception ex)

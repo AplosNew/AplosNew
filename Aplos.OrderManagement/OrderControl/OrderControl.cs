@@ -601,7 +601,7 @@ namespace Library.OrderManagement.OrderControl
                             , CommitmentDate = REPLACE(CONVERT(CHAR(11), SO.CommitmentDate, 106),' ','-')
                             , SO.ShipmentModeId
                             , SO.CustomerPOId
-		                    , po.PONumber
+		                    , po.PONumber BuyerPo
                             ,MOI.TotalQty MOIQty
                             ,SO.DestinationDescription
                             , SO.OrderStatusId, SO.OrderCategoryId

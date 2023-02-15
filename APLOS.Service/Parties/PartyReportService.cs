@@ -456,7 +456,7 @@ namespace Library.Service.Parties
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
                 // Get party opening balance data.
-                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
+                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -469,7 +469,7 @@ namespace Library.Service.Parties
 
                 }
 
-                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
                 row++;
                 int sumStrRow = 0;
                 // Get bank transaction data.
@@ -684,7 +684,7 @@ namespace Library.Service.Parties
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
-                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
+                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -697,7 +697,7 @@ namespace Library.Service.Parties
 
                 }
 
-                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
                 row++;
                 int sumStrRow = 0;
                 // Get bank transaction data.
@@ -896,7 +896,7 @@ namespace Library.Service.Parties
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 20;
                 // Get party opening balance data.
-                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
+                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -909,7 +909,7 @@ namespace Library.Service.Parties
 
                 }
 
-                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
+                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
                 row++;
                 int sumStrRow = 0;
                 // Get bank transaction data.
@@ -1010,8 +1010,17 @@ namespace Library.Service.Parties
 
 
 
-        private List<Dictionary<string, object>> GetPartyOpeningBalance(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate)
+        private List<Dictionary<string, object>> GetPartyOpeningBalance(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string partyType)
         {
+            string tempPartyType = null;
+            if (partyType == "Vendor" || partyType == "Customer")
+            {
+                tempPartyType = partyType;
+            }
+            if (partyType == null || partyType == "null")
+            {
+                tempPartyType = "Vendor" + "','" + "Customer";
+            }
             var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                         SELECT SUM(DrAmount) - SUM(CrAmount) AS OB, CompanyCurrencyId, SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyCurrencyOB FROM (
                         SELECT SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount
@@ -1023,7 +1032,7 @@ namespace Library.Service.Parties
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate < '" + fromDate.ToDbDate() + "'";
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate < '" + fromDate.ToDbDate() + "'";
             if (!string.IsNullOrEmpty(partyPlantId))
                 sql += " AND VD.PartyPlantId='" + partyPlantId + "'";
             sql += @" GROUP BY CC.CompanyCurrencyId
@@ -1036,7 +1045,7 @@ namespace Library.Service.Parties
 	                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                     ) AS CC ON CC.VoucherDetailId=VD.Id
-                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate ='" + fromDate.ToDbDate() + "' AND V.SourceType='OpeningBalance'";
+                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate ='" + fromDate.ToDbDate() + "' AND V.SourceType='OpeningBalance'";
             if (!string.IsNullOrEmpty(partyPlantId))
                 sql += " AND VD.PartyPlantId='" + partyPlantId + "'";
             sql += " GROUP BY CC.CompanyCurrencyId) AS X GROUP BY X.CompanyCurrencyId";
@@ -1076,8 +1085,17 @@ namespace Library.Service.Parties
         //    return _sqlRepository.GetDataCollection(sql);
         //}
 
-        private DataTable GetPartyPlantLedger(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId)
+        private DataTable GetPartyPlantLedger(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId, string partyType)
         {
+            string tempPartyType = null;
+            if (partyType == "Vendor" || partyType == "Customer")
+            {
+                tempPartyType = partyType;
+            }
+            if (partyType == null || partyType == "null")
+            {
+                tempPartyType = "Vendor" + "','" + "Customer";
+            }
             var cmdText = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                             SELECT REPLACE(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
                             , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), v.DocDate, 106), ' ', '-') AS DocDate, V.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
@@ -1115,7 +1133,7 @@ namespace Library.Service.Parties
 	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                             ) AS CC ON CC.VoucherDetailId=VD.Id
-                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate BETWEEN '" + fromDate.ToDbDate() + "' AND '" + toDate + @"'
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND VD.PartyId='" + partyId + "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate BETWEEN '" + fromDate.ToDbDate() + "' AND '" + toDate + @"'
                             AND V.SourceType<>'OpeningBalance'";
             if (!string.IsNullOrEmpty(partyPlantId))
                 cmdText += " AND VD.PartyPlantId='" + partyPlantId + "'";
@@ -1138,8 +1156,17 @@ namespace Library.Service.Parties
                 cmdText += " AND PP.Id='" + partyPlantId + "'";
             return _sqlRepository.GetDataTable(cmdText);
         }
-        private DataTable GetPartyOpeningBalanceGroupByGL(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string gl)
+        private DataTable GetPartyOpeningBalanceGroupByGL(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string gl, string partyType)
         {
+            string tempPartyType = null;
+            if (partyType == "Vendor" || partyType == "Customer")
+            {
+                tempPartyType = partyType;
+            }
+            if (partyType == null || partyType == "null")
+            {
+                tempPartyType = "Vendor" + "','" + "Customer";
+            }
             var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                         SELECT SUM(DrAmount) - SUM(CrAmount) AS OB, CompanyCurrencyId, SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyCurrencyOB 
 						, GLGeneralInfoId
@@ -1154,7 +1181,7 @@ namespace Library.Service.Parties
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + gl + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate < '" + fromDate.ToDbDate() + "'";
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + gl + "' AND VD.PartyId='" + partyId + "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate < '" + fromDate.ToDbDate() + "'";
             if (!string.IsNullOrEmpty(partyPlantId))
                 sql += " AND VD.PartyPlantId='" + partyPlantId + "'";
             sql += @" GROUP BY CC.CompanyCurrencyId, VD.GLGeneralInfoId
@@ -1168,7 +1195,7 @@ namespace Library.Service.Parties
 	                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                     ) AS CC ON CC.VoucherDetailId=VD.Id
-                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + gl + "' AND VD.PartyId='" + partyId + "' AND V.PostingDate ='" + fromDate.ToDbDate() + "' AND V.SourceType='OpeningBalance'";
+                    WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId=@companyId AND V.PlantId='" + plantId + "' AND VD.GLGeneralInfoId='" + gl + "' AND VD.PartyId='" + partyId + "' AND VD.PartyType IN ('" + tempPartyType + "') AND V.PostingDate ='" + fromDate.ToDbDate() + "' AND V.SourceType='OpeningBalance'";
             if (!string.IsNullOrEmpty(partyPlantId))
                 sql += " AND VD.PartyPlantId='" + partyPlantId + "'";
             sql += " GROUP BY CC.CompanyCurrencyId ,VD.GLGeneralInfoId) AS X GROUP BY X.CompanyCurrencyId, X.GLGeneralInfoId";
@@ -1245,9 +1272,9 @@ namespace Library.Service.Parties
                 row++;
 
                 // Get Cash transaction data.
-                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                var obValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
-                var clValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, toDate);
+                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
+                var obValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
+                var clValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, toDate, partyType.ToString());
 
 
                 if (ledgerData.Rows.Count > 0)
@@ -1292,7 +1319,7 @@ namespace Library.Service.Parties
                         // Get Cash opening balance data.
                         //if (obVal.Rows.Count > 0)//&& isOB
                         //{
-                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString()).Select().FirstOrDefault();
+                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString(), partyType.ToString()).Select().FirstOrDefault();
                         if (obVal != null)
                         {
                             var ob = Convert.ToDouble(obVal["OB"]); ;
@@ -1485,9 +1512,9 @@ namespace Library.Service.Parties
                 row++;
 
                 // Get Cash transaction data.
-                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                var obValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
-                var clValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, toDate);
+                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
+                var obValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
+                var clValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, toDate, partyType.ToString());
 
 
                 if (ledgerData.Rows.Count > 0)
@@ -1532,7 +1559,7 @@ namespace Library.Service.Parties
                         // Get Cash opening balance data.
                         //if (obVal.Rows.Count > 0)//&& isOB
                         //{
-                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString()).Select().FirstOrDefault();
+                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString(), partyType.ToString()).Select().FirstOrDefault();
                         if (obVal != null)
                         {
                             var ob = Convert.ToDouble(obVal["OB"]); ;
@@ -1723,9 +1750,9 @@ namespace Library.Service.Parties
                 row++;
 
                 // Get Cash transaction data.
-                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId);
-                var obValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
-                var clValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, toDate);
+                var ledgerData = GetPartyPlantLedger(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, toDate, glId, active, gSTINId, partyType.ToString());
+                var obValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
+                var clValParty = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, toDate, partyType.ToString());
 
 
                 if (ledgerData.Rows.Count > 0)
@@ -1770,7 +1797,7 @@ namespace Library.Service.Parties
                         // Get Cash opening balance data.
                         //if (obVal.Rows.Count > 0)//&& isOB
                         //{
-                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString()).Select().FirstOrDefault();
+                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString(), partyType.ToString()).Select().FirstOrDefault();
                         if (obVal != null)
                         {
                             var ob = Convert.ToDouble(obVal["OB"]); ;
@@ -2618,7 +2645,7 @@ union
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
 
                 // Get party opening balance data.
-                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
+                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -3918,7 +3945,7 @@ union
                         // Get Cash opening balance data.
                         //if (obVal.Rows.Count > 0)//&& isOB
                         //{
-                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString()).Select().FirstOrDefault();
+                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString(), partyType.ToString()).Select().FirstOrDefault();
                         if (obVal != null)
                         {
                             var ob = Convert.ToDouble(obVal["OB"]); ;
@@ -4277,7 +4304,7 @@ union
                         // Get Cash opening balance data.
                         //if (obVal.Rows.Count > 0)//&& isOB
                         //{
-                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString()).Select().FirstOrDefault();
+                        var obVal = GetPartyOpeningBalanceGroupByGL(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, dt.Rows[j]["GLGeneralInfoId"].ToString(), partyType.ToString()).Select().FirstOrDefault();
                         if (obVal != null)
                         {
                             var ob = Convert.ToDouble(obVal["OB"]); ;
@@ -4583,7 +4610,7 @@ union
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
                 // Get party opening balance data.
-                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
+                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
@@ -4898,7 +4925,7 @@ union
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].Merge();
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + row + ":" + reportUtility.GetColumnNameForXls(colLast1) + row].RowHeight = 30;
                 // Get party opening balance data.
-                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate);
+                var obVal = GetPartyOpeningBalance(companyGroupId, companyId, plantId, partyId, partyPlantId, fromDate, partyType.ToString());
                 if (obVal.Count > 0)
                 {
                     // Set Opening Balance
