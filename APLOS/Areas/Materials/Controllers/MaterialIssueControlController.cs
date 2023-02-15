@@ -89,13 +89,13 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetApprovedData()
+        [HttpPost, Authorize]
+        public ActionResult GetApprovedData(string column, string value)
         {
             try
             {
 
-                return Json(clsM.GetApprovedData(), JsonRequestBehavior.AllowGet);
+                return Json(clsM.GetApprovedData(column,value), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
