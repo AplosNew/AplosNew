@@ -148,20 +148,25 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
     };
 
+    $scope.MCFilterByList = [
+        { 'name': 'Prod. Order#', 'value': 'POId' },
+        { 'name': 'IssueId', 'value': 'IssueId' },
+    ];
+
+    $scope.MCSearchColumn = 'POId';
+    $scope.MCSearchValue = null;
     $scope.savedList = [];
     $scope.GetSavedData = function () {
         $scope.savedList = [];
-        $http.get('Materials/MaterialIssueControl/GetApprovedData')
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.savedList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
-
+        $http({
+            method: 'POST',
+            data: {
+                'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+            },
+            url: 'Materials/MaterialIssueControl/GetApprovedData'
+        }).then(function successCallback(response) {
+            $scope.savedList = response.data;
+        });
     };
     $scope.GetSavedData();
 
@@ -347,7 +352,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             ShowResult(e, "failure");
         }
     };
-    
+
 
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
