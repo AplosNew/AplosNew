@@ -84,6 +84,9 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							--,efs.SalaryRate 
                             ,SalRate = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End
                             ,LeaveEncash = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * efs.[LvEncashmentDayNo]
+							,NetPayAmount = (case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(varchar(100),(efs.SeparationTypeAmount)) end + 
+							(case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * efs.[LvEncashmentDayNo]) +
+							convert(int,ROUND(efs.LastMonthNetPayAmount,0)))
 							,efs.OTRate
                             ,convert(int,ROUND(efs.[TotalDeductionAmount],0)) TotalDeductionAmount
                             ,convert(int,ROUND(efs.LvEncashmentAmount,0)) LvEncashmentAmount
@@ -93,12 +96,12 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,efs.[LastMonthAbsentDay]
                             ,efs.OTRate OTRateA
 							,convert(int,ROUND(efs.[TotalPayableAmount],0)) TotalPayableAmount
-							,convert(int,ROUND(efs.[NetPayAmount],0)) NetPayAmount
+							--,convert(int,ROUND(efs.[NetPayAmount],0)) NetPayAmount
 							,efs.[LastMonthOTHour]
 							,efs.[LastMonthOTAmount]
                             ---,efs.[StampAmount]
 							,efs.[LastMonthAbsenteeismAmount]
-							,efs.[LvEncashmentDayNo]
+                            ,CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo]) LvEncashmentDayNo
 							,convert(int,ROUND(efs.[LastMonthProcDay],0)) LastMonthProcDay
 							,convert(int,ROUND(efs.[LastMonthGrossAmount],0)) LastMonthGrossAmount
 
@@ -114,7 +117,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             ,CONVERT(INT, ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0)) PolicyDayNo
                             ,SY.UserName AS SeprationName
                             ,convert(int,ROUND(efs.TenureDayNo,0)) TenureDayNo
-							,case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 'N/A' else convert(varchar(100),(efs.SeparationTypeAmount)) end  SeparationTypeAmount
+							,case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(varchar(100),(efs.SeparationTypeAmount)) end  SeparationTypeAmount
 							,convert(int,ROUND(efs.GrossAmount,0)) GrossAmount
 							,convert(int,ROUND(efs.BasicAmount,0)) BasicAmount
 							,convert(int,efs.[TenureYearNo]) TenureYearNo
@@ -126,6 +129,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,CONVERT(int,ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0),0) SeparationTypeDay
 							,case when PolicyDayNo*PolicyYearNo = 0 then 'N/A' else convert(varchar(100),(SeparationTypeAmount/(PolicyDayNo*PolicyYearNo)),0) end SeparationTypeRate,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate,SPAD.TotalPayDay
                             --,isnull(efs.GratuityNoOfDaysOrYear,0) SeparationTypeDay
+
                             From [dbo].[EmployeeFinalSettlement] efs 
 	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
                             LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
