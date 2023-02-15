@@ -264,7 +264,9 @@ LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2+ " order by APD.WorkDate DESC";
 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception)
             {
@@ -779,6 +781,8 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2 + " order by APD.WorkDate DESC";
 
                 data = _sqlRepository.GetDataTable(strSQL);
+
+
 
             }
             catch (Exception ex)

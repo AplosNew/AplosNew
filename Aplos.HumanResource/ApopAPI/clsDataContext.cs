@@ -199,7 +199,7 @@ namespace HRService
 
         // Written by Nitesh
         #region Written By Nitesh
-        public void getWorkcenter(out List<WorkCenterList> DataList , string processid)
+        public void getWorkcenter(out List<WorkCenterList> DataList, string processid)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -246,7 +246,7 @@ namespace HRService
                 strSQL = @"select distinct DMD.DepartmentId Value, D.UserName Text from org.Department D
                         left join dbo.DetentionMasterDepartment DMD on DMD.DepartmentId = D.Id
                         left join dbo.DetentionMaster DM on DM.Id = DMD.DetentionMasterId
-                        where DM.DetentionTypeId = '" + detentionid+ "'order by Text";
+                        where DM.DetentionTypeId = '" + detentionid + "'order by Text";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -494,7 +494,7 @@ where FullName != 'null'  and U.UserId = '" + userid + "' and ARD.ModuleId = '" 
                             --Left join TRN.DetentionLogResponsiblePerson DLRP on DLRP.ResponsiblePersonId = E.SystemId
                             left join dbo.DetentionMaster DM on DM.Id = DR.DetentionMasterId
                             left join hkp.DetentionType DT on DT.Id = DM.DetentionTypeId
-                            where DT.Id = '"+ detentiontypeid +"'";
+                            where DT.Id = '" + detentiontypeid + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -692,19 +692,19 @@ where FullName != 'null'  and U.UserId = '" + userid + "' and ARD.ModuleId = '" 
             }
         }
         #region Aman
-        public void GetDetentionLogDetail(out List<GetDetentionclose> DataList , string from, string to, string departmentId, string detentionTypeId)
+        public void GetDetentionLogDetail(out List<GetDetentionclose> DataList, string from, string to, string departmentId, string detentionTypeId)
         {
             clsConnectionManager objCon = null;
-                string strSQL = "";
-                DataList = new List<GetDetentionclose>();
+            string strSQL = "";
+            DataList = new List<GetDetentionclose>();
 
-                System.Data.DataSet dsRef;
-                try
-                {
+            System.Data.DataSet dsRef;
+            try
+            {
                 #region cmnt
 
-                
-                    strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
+
+                strSQL = @"select distinct DL.Id, WM.UserName WorkCenter, DT.UserName DetentionType,FORMAT(DL.AddedDate,'dd-MMM-yyyy')AddedDate,
 FORMAT(DL.AddedDate,'hh:mm tt')AddedTime, DL.LoginTime,  DL.IssueByNo ,  DL.Remarks,  DL.UpdateRemarks,
                             WM.Id WorkCenterId ,  DT.Id DetentionTypeId, DL.isClose, DL.isUpdate,
                             P.UserName Process,  DL. ProcessId, DL.AddedBy, DL.AddedFromIP
@@ -745,55 +745,55 @@ isnull(DATEDIFF(MINUTE, DL.AddedDate, DL.LogoutTime), 0)Duration,
                             left join ORG.Department DP on DP.Id = DL.DepartmentId
                                 where DL.LoginTime between '" + from + " 00:00:00' and '" + to + " 12:59:59' and DL.DepartmentId = '" + departmentId + @"'
 								and DL.DetentionTypeId = '" + detentionTypeId + "' and  DL.isClose = 1";
-                
-                    #endregion cmnt
-                    objCon = new clsConnectionManager();
-                    objCon.BeginTransaction();
-                    objCon.getDataSet(strSQL, out dsRef);
-                    objCon.CommitTransaction();
-                    for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                    {
-                        DataList.Add(new GetDetentionclose
-                        {
-                            Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
-                            WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
-                            DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
-                            LoginTime = dsRef.Tables[0].Rows[i]["LoginTime"].ToString(),
-                            IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
-                            ResponsiblePersonName = dsRef.Tables[0].Rows[i]["ResponsiblePersonName"].ToString(),
-                            ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
-                            ContactNo = dsRef.Tables[0].Rows[i]["ContactNo"].ToString(),
-                            Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
-                            WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
-                            DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
-                            isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isClose"]),
-                            isUpdate = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isUpdate"]),
-                            Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
-                            ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
-                            AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
-                            AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
-                            AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
-                            AddedTime = dsRef.Tables[0].Rows[i]["AddedTime"].ToString(),
-                            LogoutDate = dsRef.Tables[0].Rows[i]["LogoutDate"].ToString(),
-                            LogoutTime = dsRef.Tables[0].Rows[i]["LogoutTime"].ToString(),
-                            Duration = dsRef.Tables[0].Rows[i]["Duration"].ToString(),
-                            DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
-                            Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
-                            DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
-                            UpdateRemarks = dsRef.Tables[0].Rows[i]["UpdateRemarks"].ToString(),
-                        });
-                    }
 
-                }
-                catch (System.Exception ex)
+                #endregion cmnt
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
-                    throw (ex);
+                    DataList.Add(new GetDetentionclose
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        WorkCenter = dsRef.Tables[0].Rows[i]["WorkCenter"].ToString(),
+                        DetentionType = dsRef.Tables[0].Rows[i]["DetentionType"].ToString(),
+                        LoginTime = dsRef.Tables[0].Rows[i]["LoginTime"].ToString(),
+                        IssueByNo = dsRef.Tables[0].Rows[i]["IssueByNo"].ToString(),
+                        ResponsiblePersonName = dsRef.Tables[0].Rows[i]["ResponsiblePersonName"].ToString(),
+                        ResponsiblePersonId = dsRef.Tables[0].Rows[i]["ResponsiblePersonId"].ToString(),
+                        ContactNo = dsRef.Tables[0].Rows[i]["ContactNo"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        WorkCenterId = dsRef.Tables[0].Rows[i]["WorkCenterId"].ToString(),
+                        DetentionTypeId = dsRef.Tables[0].Rows[i]["DetentionTypeId"].ToString(),
+                        isClose = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isClose"]),
+                        isUpdate = bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[i]["isUpdate"]),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
+                        ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedFromIP = dsRef.Tables[0].Rows[i]["AddedFromIP"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        AddedTime = dsRef.Tables[0].Rows[i]["AddedTime"].ToString(),
+                        LogoutDate = dsRef.Tables[0].Rows[i]["LogoutDate"].ToString(),
+                        LogoutTime = dsRef.Tables[0].Rows[i]["LogoutTime"].ToString(),
+                        Duration = dsRef.Tables[0].Rows[i]["Duration"].ToString(),
+                        DLRPId = dsRef.Tables[0].Rows[i]["DLRPId"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
+                        DepartmentId = dsRef.Tables[0].Rows[i]["DepartmentId"].ToString(),
+                        UpdateRemarks = dsRef.Tables[0].Rows[i]["UpdateRemarks"].ToString(),
+                    });
                 }
-                finally
-                {
-                    objCon = null;
-                }
-            
+
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+
         }
 
         public void GetDetentionLogDetailfromto(out List<GetDetentionclose> DataList, string from, string to)
@@ -1131,7 +1131,7 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
                         AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
                         DueDate = dsRef.Tables[0].Rows[i]["DueDate"].ToString(),
                         CommitmentDate = dsRef.Tables[0].Rows[i]["CommitmentDate"].ToString(),
-                       
+
                     });
                 }
             }
@@ -1157,7 +1157,7 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
             {
 
                 strSQL = @"select tc.Id, tc.TaskManagerMasterId,CreatedById, CommentText , ei.EmployeeName , ei.EmpPicPath from dbo.TaskComments As tc  
-left join dbo.EmployeeInformation As ei on tc.CreatedById = ei.SystemId where tc.TaskManagerMasterId = '"+Id+"'";
+left join dbo.EmployeeInformation As ei on tc.CreatedById = ei.SystemId where tc.TaskManagerMasterId = '" + Id + "'";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -1173,7 +1173,7 @@ left join dbo.EmployeeInformation As ei on tc.CreatedById = ei.SystemId where tc
                         CommentText = dsRef.Tables[0].Rows[i]["CommentText"].ToString(),
                         EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
                         EmpPicPath = dsRef.Tables[0].Rows[i]["EmpPicPath"].ToString(),
-                       
+
                     });
                 }
             }
@@ -1370,7 +1370,7 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy' and t
 
 
 
-         public void GetTodayCreateTask(out List<Tasks> DataList, string UserId, string Date)
+        public void GetTodayCreateTask(out List<Tasks> DataList, string UserId, string Date)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -1402,7 +1402,7 @@ where tm.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy' and ta
                         AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
                         DueDate = dsRef.Tables[0].Rows[i]["DueDate"].ToString(),
                         CommitmentDate = dsRef.Tables[0].Rows[i]["CommitmentDate"].ToString(),
-                       
+
                     });
                 }
             }
@@ -1874,8 +1874,8 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.Closin
                 {
                     DataList.Add(new Process
                     {
-                         Value= dsRef.Tables[0].Rows[i]["Value"].ToString(),
-                         Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
 
                     });
                 }
@@ -1890,7 +1890,7 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.Closin
             }
         }
 
-        public void GetActiveTask(out List<ActiveTask> DataList , string UserId, string Date)
+        public void GetActiveTask(out List<ActiveTask> DataList, string UserId, string Date)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -1907,40 +1907,40 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = '" + Date + @"'
 Union All
 select 'FutureCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
 LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy'
-and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate > DATEADD(day, 7, '"+Date+@"')
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate > DATEADD(day, 7, '" + Date + @"')
 
 Union All
 select 'OverDueCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
 LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy'
-and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate < '"+Date+@"'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate < '" + Date + @"'
 
 Union All
 
 select 'NextWeekCreation' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
 LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType = 'CreatedBy'
-and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate = DATEADD(day, 7, '"+Date+@"')
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '" + Date + @"')
 
 Union All
 select 'TodayAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
 LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
-and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate = '"+Date+@"'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = '" + Date + @"'
 
 Union All
 select 'FutureAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
 LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
-and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate > DATEADD(day, 7, '"+Date+@"')
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate > DATEADD(day, 7, '" + Date + @"')
 
 Union All
 
 select 'OverDueAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
 LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
-and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate < '"+Date+@"'
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate < '" + Date + @"'
 
 Union All
 
 select 'NextWeekAssigned' As Dated, Count(ei.Id) Counted from dbo.TaskAudit As ta
 LEFT JOIN dbo.TaskManagerMaster As ei on ta.TaskManagerMasterId = ei.Id  where ei.CurrentStatus <> 'Closed' and ta.AuthorizationType <> 'CreatedBy'
-and ta.ResponsiblePersonId = '"+UserId+"' and ta.DueDate = DATEADD(day, 7, '"+Date+"')";
+and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '" + Date + "')";
 
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -2117,7 +2117,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             }
         }
 
-      
+
 
 
         // Detention Log Out
@@ -3072,47 +3072,81 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"Select 'RequisitionCount' AS Text, count(MRM.Id) Value
-                        FROM[TRN].[MaterialRequsitionMaster] MRM
-                        Where MRM.CheckedByStatus <> 'Checked' AND MRM.CheckedByStatus <>'Hold' and MRM.CheckedByStatus <> 'Reject' 
-                        AND MRM.CheckedBy='" + UserId + @"'
+                strSQL = @"select 'RequisitionCount' AS Text, count(x.Id) Value
+                        FROM(select * from [TRN].[MaterialRequsitionMaster] MRM
+                        Where MRM.CheckedByStatus <> 'Checked'
+and  MRM.CheckedBy = '" + UserId + @"' 
+union All
+select * from [TRN].[MaterialRequsitionMaster] MRM
+                        Where MRM.AuthorizedByStatus <> 'Approved' 
+and MRM.AuthorizedBy = '" + UserId + @"') x
 Union All
- Select 'POCount' AS Text, count(IR.Id) Value
-                       FROM [TRN].[PurchaseOrder] AS IR
-                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
-                        AND IR.CheckedBy='" + UserId + @"'
+Select 'POCount' AS Text, count(x.Id) Value
+                       FROM( select * from [TRN].[PurchaseOrder] AS IR
+                        Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
+and  IR.CheckedBy = '" + UserId + @"'
+union All
+select * from [TRN].[PurchaseOrder] AS IR
+                        Where IR.AuthorizedByStatus <> 'Approved' 
+and IR.AuthorizedBy = '" + UserId + @"') x
 Union All
-Select 'GRNCount' AS Text, count(IR.Id) Value
-                        from trn.InventoryReceive AS IR
-                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
-                        AND IR.CheckedBy='" + UserId + @"'
+Select 'GRNCount' AS Text, count(x.Id) Value
+                        from( Select * from  trn.InventoryReceive AS IR
+                        Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject'
+and  IR.CheckedBy = '" + UserId + @"'
+union All
+Select * from  trn.InventoryReceive AS IR
+                        Where IR.AuthorizedByStatus <> 'Approved'
+and IR.AuthorizedBy = '" + UserId + @"') x
 Union All
-Select 'ServicePOCount' AS Text, count(IR.Id) Value
-                        from trn.ServicePOMaster AS IR
-                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
-                        AND IR.CheckedBy='" + UserId + @"'
+Select 'ServicePOCount' AS Text, count(x.Id) Value
+                        from  (select * from trn.ServicePOMaster AS IR
+                         Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
+and  IR.CheckedBy = '" + UserId + @"' 
+union All
+Select * from  trn.ServicePOMaster AS IR
+                        Where IR.ApprovedByStatus <> 'Approved'
+and IR.ApprovedBy = '" + UserId + @"') x
 Union All
-Select 'ServiceCount' AS Text, count(IR.Id) Value
-                        from trn.ServiceAcknowledgementMaster AS IR
-                        Where IR.CheckedByStatus <> 'Checked' AND IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
-                        AND IR.CheckedBy='" + UserId + @"'
-
-
+Select 'ServiceAckCount' AS Text, count(x.Id) Value
+                        from ( select * from trn.ServiceAcknowledgementMaster AS IR
+                        Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
+and  IR.CheckedBy = '" + UserId + @"'
+union All
+Select * from  trn.ServiceAcknowledgementMaster AS IR
+                        Where IR.ApprovedByStatus <> 'Approved'
+and IR.ApprovedBy = '" + UserId + @"') x 
 Union All
-select 'AdvanceCount' AS Text, Count(EmpSystemId) As Value  from TRN.EmployeeAdvanceRequisition where IsPost  =
-0 and EmpSystemId = '" + UserId + @"'
-
+select 'AdvanceCount' AS Text, Count(x.EmpSystemId) As Value  from(select * from 
+TRN.EmployeeAdvanceRequisition where ApprovalStatus = 'ToBeApproved'
+and  ApprovedBy = '" + UserId + @"' 
+union All 
+select * from 
+TRN.EmployeeAdvanceRequisition where ApprovalStatus = 'ToBeChecked'
+and  ApprovedBy = '" + UserId + @"') x
 Union All
-select 'ExpenseCount' AS Text , Count(EmployeeId) As Value from TRN.ExpenseBooking where VoucherId Is Null and EmployeeId = '" + UserId + @"'
-
-Union All
-select 'IssueCount' AS Text, Count(EmployeeId) As Value from TRN.InventoryIssue Where  VoucherId Is Null and EmployeeId = '" + UserId + @"'
-
-Union All
-select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction   WHERE  IsNull(IsApproved,0) = 0
-                             AND ISNULL(SystemID,'')<> ''
-                             AND IsCancel=0
-                             AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'";
+select 'ExpenseCount' AS Text , Count(EB.Id) As Value from  TRN.ExpenseBooking as EB 
+left Join TRN.ExpenseBookingApprovalHistory as EBA  on EBA.ExpenseBookingId = EB.Id
+where VoucherId Is Null and EB.ResponsiblePersonId = '" + UserId + @"' and EBA.ApprovalStatus <> 'Approved' Union All
+select 'IssueCount' AS Text, Count(x.Id) As Value from ( select * from TRN.IssueRequestMaster Where CheckedByStatus <> 'Checked'
+and  CheckedBy = '" + UserId + @"' 
+union All
+select * from [TRN].[IssueRequestMaster]
+                        Where AuthorizedByStatus <> 'Approved' 
+and AuthorizedBy = '" + UserId + @"') x Union All 
+select 'TaskCount' As Text, Count(ta.Id) As Value from dbo.TaskAudit as ta
+left Join dbo.TaskManagerMaster as tm on tm.Id = ta.TaskManagerMasterId
+where AuthorizationType <> 'CreatedBy' and isRead <> 1  and tm.CurrentStatus <> 'Closed' and ResponsiblePersonId = '" + UserId + @"' Union All
+select 'GatePassCount' As Text, COUNT(x.Id) As Value from ( select * from TRN.GatePassMaster Where GatePassStatus <> 'NonReturnable' and CheckedByStatus <> 'Checked'
+and  CheckedBy = '" + UserId + @"' 
+union All
+select * from [TRN].[GatePassMaster]
+                        Where ApprovedByStatus <> 'Approved' and GatePassStatus <> 'NonReturnable' 
+and ApprovedBy = '" + UserId + @"') x Union All
+select 'LeaveCount' AS Text , Count(SystemID) As Value from dbo.LeaveTransaction   WHERE  IsNull(IsApproved,0) = 0
+                             AND ISNULL(SystemID,'')<> ''
+                             AND IsCancel=0
+                             AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -3247,9 +3281,9 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
 
     public class MyAppDefaultlist
     {
-        public string Id { get; set; } 
-        public string MenuName { get; set; } 
-        public string IconName { get; set; } 
+        public string Id { get; set; }
+        public string MenuName { get; set; }
+        public string IconName { get; set; }
     }
     #region Written by Nitesh
 
@@ -3342,7 +3376,7 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
         public string Department { get; set; }
         public string DepartmentId { get; set; }
         public string UpdateRemarks { get; set; }
-        
+
     }
 
     public class GetDetentionLog
@@ -3433,7 +3467,7 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
         public string CommentText { get; set; }
         public string EmployeeName { get; set; }
         public string EmpPicPath { get; set; }
-       
+
     }
 
     public class AssignTaskDatals
@@ -3476,10 +3510,10 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
     }
 
     public class Default
-    {
-        public string Text { get; set; } = "";
-        public string Value { get; set; } = "";
-    }
+    {
+        public string Text { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
 
 
 }

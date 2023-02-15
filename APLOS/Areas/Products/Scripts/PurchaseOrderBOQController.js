@@ -1643,8 +1643,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         ShowResult(response.data.Message, 'failure');
                     else {
                         ShowResult('Data Deleted Successfully', 'success');
-                        $scope.getDataList();
-                        ClearFields();
+                        $scope.getalldata();
+                        $scope.Clear();
                     }
                     function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');

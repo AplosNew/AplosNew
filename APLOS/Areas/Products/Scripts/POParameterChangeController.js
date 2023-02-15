@@ -1,6 +1,6 @@
 ﻿'use strict';
-POParameterChangeController.$inject = ['accountService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
-function POParameterChangeController(accountService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
+POParameterChangeController.$inject = [  '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window', 'cboService',  '$controller'];
+function POParameterChangeController(  $scope, $rootScope, baseService, $http, $filter, $window, cboService,  $controller) {
     $rootScope.title = "PO";
     $scope.Action = 'Save';
     $scope.path = 'Products/POParameterChange/';
@@ -9,7 +9,7 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
     $scope.searchBy = "Id"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "PO No" }, { value: 'PartyName', name: "Vendor" }, { value: 'DocRefNo', name: "Vendor DocNo" }];
     $scope.partyType = 'Vendor';
-
+    $scope.IsToleranceUpdate = false;
     $scope.product = {
         Id: null
         , GRNDate: null
@@ -197,7 +197,7 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
             window.lst = response.data;
         });
     }
-    $scope.POListDetails();
+   // $scope.POListDetails();
 
     $scope.detailgrid = function detailGridData(e) {
         var filteredData = e.data["Id"];
@@ -330,22 +330,18 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
 
     $scope.Save = function () {
         try {
-            //if (!baseService.isUndefinedOrNull($scope.LCRef)) {
-            //    throw "Data update is not possible as this PO has LC.";
-            //}
-            //if ($scope.GRNValue!=0) {
-            //    throw "Data update is not possible as this PO has GRN value.";
-            //}
-            //if ($scope.AcptValue!=0) {
-            //    throw "Data update is not possible as this PO has Acceptance value.";
-            //}
+            $scope.temptaxlist = [];
+           /* taxforUpdate(data);*/
             $scope.product = Object.assign({}, $scope.productNew);
             if ($scope.Action == "Update") {
                 $http({
                     method: 'POST',
-                    url: 'Products/POParameterChange/Update',
+                    url: 'Products/POParameterChange/POUpdate',
                     data: {
-                        'entity': $scope.product,
+                        'data': $scope.product,
+                        'detaildataList': $scope.inventoryMaterialList,
+                        'poTaxList': $scope.POTaxUpdateList,
+                        'isToleranceUpdate': $scope.IsToleranceUpdate
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -509,4 +505,9 @@ function POParameterChangeController(accountService, commonMessage, $scope, $roo
         data.TotalAmount = parseFloat(data.TransactionAmount) + data.BaseTaxAmount;
         $scope.productNew.TransactionAmount = Math.round($filter("sumByKey")($filter("filter")($scope.inventoryMaterialList), "TotalAmount") * 1000 + Number.EPSILON) / 1000;
     };
+
+    $scope.IsToleranceUpdateChange = function () {
+        getInventoryMaterialList($scope.Id);
+        $scope.GetPOTaxUpdate($scope.Id);
+    }
 }
