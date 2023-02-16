@@ -49,7 +49,8 @@ function ProductIntegrityAnalysisMasterController(cboService, commonMessage, $sc
         , ProcessId: null
         , Category: null
         , Remarks: null
-        
+        , StandardValueApplicable:true
+        , AttachmentApplicable: true
     };
     $scope.ItemNew = Object.assign({}, $scope.Item);
 
