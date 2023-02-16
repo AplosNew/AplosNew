@@ -262,5 +262,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             controller: 'ProductIntegrityAnalysisMasterController'
         })
 
+        .when('/product-integrity-analysis', {
+            templateUrl: 'OrderManagements/ProductIntegrityAnalysis/Aplos',
+            controller: 'ProductIntegrityAnalysisController'
+        })
+
         ;
 }
