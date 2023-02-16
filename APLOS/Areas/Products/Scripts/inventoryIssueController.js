@@ -826,16 +826,46 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			ShowResult(e, '', 'searchIndependentcharacterepopup');
 		}
 	};
+	$scope.selectIndependentSKU2 = function (x) {
+		//debugger;
+		try {
+			if (!$scope.hasSku) {
+				var tempSKU = x.data;
+				$scope.detailModel.SecondCharacteristicsId = tempSKU.CharacteristicsId;
+				$scope.detailModel.SecondCharacteristicsValueId = tempSKU.Value;
+				$scope.detailModel.SKU2 = tempSKU.Text;
+				$scope.detailModel.SecondCharacteristicText = tempSKU.Text;
+				getMaterialStock();
+			}
+
+			angular.element(document.querySelector('#searchIndependentSKU2popup')).modal('hide');
+		} catch (e) {
+			ShowResult(e, '', 'searchIndependentSKU2popup');
+		}
+	};
 	$scope.IndependentcharacteristicsList = [];
 	$scope.getIndependentCharacteristicsList = function () {
 		$http({
 			method: 'GET',
-			url: 'Materials/MaterialMaster/GetCharacteristicsWithoutMaterial/',
+			url: 'Materials/MaterialMaster/GetCharacteristicsWithoutMaterialSKU1/',
 		}).then(function (response) {
 			$scope.IndependentcharacteristicsList = [];
 			$scope.IndependentcharacteristicsList = response.data.charData;
 		});
 		angular.element(document.querySelector('#searchIndependentcharacterepopup')).modal('show');
+
+	};
+
+	$scope.IndependentSKU2List = [];
+	$scope.getIndependentSKU2List = function () {
+		$http({
+			method: 'GET',
+			url: 'Materials/MaterialMaster/GetCharacteristicsWithoutMaterialSKU2/',
+		}).then(function (response) {
+			$scope.IndependentSKU2List = [];
+			$scope.IndependentSKU2List = response.data.charData;
+		});
+		angular.element(document.querySelector('#searchIndependentSKU2popup')).modal('show');
 
 	};
 

@@ -283,7 +283,18 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div class="form-group div_ar" ng-show="hasSku==false">
+                            <label class="col-sm-4 control-label">SKU1</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group show-message">
+                                    <input type="text" name="SKU 1" ng-model="detailModel.SKU1" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button tabindex="1" ng-click="getIndependentCharacteristicsList(detailModel.MaterialMasterId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group div_ar" ng-show="hasArticle">
                             <label class="col-sm-4 control-label">Article</label>
@@ -295,11 +306,11 @@
                             </div>
                         </div>
                         <div class="form-group div_ar" ng-show="hasSku==false">
-                            <label class="col-sm-4 control-label">SKU</label>
+                            <label class="col-sm-4 control-label">SKU2</label>
                             <div class="input-group show-message">
-                                <input type="text" name="Finished Goods" ng-model="detailModel.SKU1" class="form-control" readonly>
+                                <input type="text" name="SKU 2" ng-model="detailModel.SKU2" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <button tabindex="1" ng-click="getIndependentCharacteristicsList(detailModel.MaterialMasterId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button tabindex="1" ng-click="getIndependentSKU2List(detailModel.MaterialMasterId);" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -510,6 +521,7 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_IndependentCharacteristicsValuePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_IndependentSKU2PopUp.cshtml")
 @Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
 
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_StockPopUp.cshtml")

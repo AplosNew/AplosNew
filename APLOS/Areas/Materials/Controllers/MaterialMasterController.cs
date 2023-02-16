@@ -211,9 +211,16 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetCharacteristicsWithoutMaterial()
+        public JsonResult GetCharacteristicsWithoutMaterialSKU1()
         {
-            var charData = _materialMasterService.GetCharacteristicsWithoutMaterial();
+            var charData = _materialMasterService.GetCharacteristicsWithoutMaterialSKU1();
+            return Json(new { charData, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetCharacteristicsWithoutMaterialSKU2()
+        {
+            var charData = _materialMasterService.GetCharacteristicsWithoutMaterialSKU2();
             return Json(new { charData, Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
         }
 
