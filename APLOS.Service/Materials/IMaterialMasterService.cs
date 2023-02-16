@@ -97,7 +97,8 @@ namespace Library.Service.Materials
            , IEnumerable<MaterialMasterRevenueBudget> revenuList);
 
         IEnumerable<object> GetCharacteristicsByMaterialMasterId(string materialMasterId);
-        IEnumerable<object> GetCharacteristicsWithoutMaterial();
+        IEnumerable<object> GetCharacteristicsWithoutMaterialSKU1();
+        IEnumerable<object> GetCharacteristicsWithoutMaterialSKU2();
 
         GridModel MaterialMasterSearch(GridParameter parameters, string companyGroupId);
 
