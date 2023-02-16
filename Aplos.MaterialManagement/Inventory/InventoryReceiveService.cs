@@ -12422,7 +12422,9 @@ namespace Library.MaterialManagement.Inventory
 						else ''
 						END
 						,p.UserName ProcessName,po.SalesOrderId,FGColor=isnull(po.FGColor1,'')+','+isnull(po.FGColor2,'')+','+isnull(po.FGColor3,'')
-						,po.ProductionOrder,PreparedBy.EmployeeName AddedBy
+						--,po.ProductionOrder
+                        ,'PONo: ' + ISNULL(IsR.ProductionOrderId,po.ProductionOrder) ProductionOrder
+                        ,PreparedBy.EmployeeName AddedBy
 						FROM TRN.IssueRequestMaster As IsR
 						                LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IsR.CheckedBy
                                          LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IsR.AuthorizedBy
