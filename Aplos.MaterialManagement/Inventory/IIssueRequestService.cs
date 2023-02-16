@@ -15,7 +15,7 @@ namespace Library.MaterialManagement.Products
 {
     public interface IIssueRequestService : IService<IssueRequest>
     {
-
+        void CreateOrUpdateMaterialControlIssueSlip(IssueRequestMaster Issentry, IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData, string IssueSlipType, IEnumerable<IssueRequestViewModel> SOListSelectedNew);
         IEnumerable<object> GetPurchaseOrderGroupGridData();
         void InsertOrUpdateGraphIssueSlipCreate(IssueRequestMaster Issentity,IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData ,string IssueSlipType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti
             , IEnumerable<IssueRequestViewModel> SOListSelectedNew, IEnumerable<IssueRequestViewModel> MaterialColorListNew, string ProcessId, List<Dictionary<string, object>> machinepopUpDataList);

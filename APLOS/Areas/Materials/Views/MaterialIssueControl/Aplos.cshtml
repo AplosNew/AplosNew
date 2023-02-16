@@ -28,7 +28,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Plan(%)<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" only-numbers class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
+                        <input type="text" name="Plan Percentage" ng-model="ModelNew.PlanPercentage" n-decimals="2" class="form-control" ng-change="CalculationByPlan();" required tabindex="5">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -281,7 +281,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Production Orders</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);" href="" data-toggle="tab">Saved Data</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetSavedData();" href="" data-toggle="tab">Saved Data</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -352,6 +352,27 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="MCSearchColumn">
+                                            <option ng-repeat="option in MCFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="MCSearchValue" ng-enter="GetSavedData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetSavedData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-12" style="color:black;">
                         <div id="Gridunassigned" e-load="actionCompleteSearch" ej-grid e-datasource="savedList" e-recorddoubleclick="GetSaved"
@@ -364,7 +385,7 @@
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
-                                <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId"e-width="50"></div>
+                                <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>

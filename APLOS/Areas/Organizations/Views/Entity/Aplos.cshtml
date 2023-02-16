@@ -1,160 +1,30 @@
 ﻿<togglable name="Entity Setup"></togglable>
-<div ng-form name="companySSForm3" id="companySSForm3" class="form-horizontal">
-    <div class="form-group form-element-ctrl">
-        <label class="col-sm-2 col-md-2 control-label">Company</label>
-        <div class="col-sm-4 col-md-4">
-            <div class="select-style">
-                <select ng-change="getCboPlantByCompany(companyStructureSetup.CompanyId); getCompanyStructurerRelation(companyStructureSetup.CompanyId);"
-                        class="form-control" ng-model="companyStructureSetup.CompanyId" ng-options="item.Value as item.Text for item in companyList"></select>
-            </div>
-            <p ng-show="selectMessage" style="color:red" class="show-message">{{selectMessage}}</p>
+<div class="form-group form-element-ctrl">
+    <label class="col-sm-2 col-md-2 control-label">Company</label>
+    <div class="col-sm-4 col-md-4">
+        <div class="select-style">
+            <select ng-change="getCboPlantByCompany(companyStructureSetup.CompanyId); getCompanyStructurerRelation(companyStructureSetup.CompanyId);"
+                    class="form-control" ng-model="companyStructureSetup.CompanyId" ng-options="item.Value as item.Text for item in companyList"></select>
         </div>
+        <p ng-show="selectMessage" style="color:red" class="show-message">{{selectMessage}}</p>
     </div>
-    <div class="clearfix"></div>
-
-    <div class="form-elements">
-        <div class="tab-design" id="tab_show">
-            <div class="site-tab">
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Basic</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Address</a></li>
-                </ul>
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1)}" id="general">
-                        <div class="row" ng-form name="companySSForm">
-                            <input type="hidden" ng-model="companyStructureSetup.Id">
-                            <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal" compile="left">
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal" compile="right">
-                            </div>
-                        </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                        <div class="row" ng-form name="companySSForm2">
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Continent</label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style">
-                                            <select name="Continent" ng-model="addressMaster.ContinentId" ng-change="onContinentChange(addressMaster.ContinentId)" class="col-sm-3 form-control"
-                                                    ng-options="item.Value as item.Text for item in ContinentList" tabindex="1" required></select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">State</label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style">
-                                            <select name="State" ng-model="addressMaster.StateId" class="col-sm-3 form-control"
-                                                    ng-options="item.Value as item.Text for item in StateList" tabindex="3" required></select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Area</label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style">
-                                            <select name="Area" ng-model="addressMaster.AreaId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in AreaList" tabindex="5"></select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Thana</label>
-                                    <div class="col-sm-8">
-                                        <input name="Thana" maxlength="50" type="text" ng-model="addressMaster.Thana" class="form-control" tabindex="7">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Ward</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Ward" maxlength="50" ng-model="addressMaster.Ward" class="form-control" tabindex="9">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Phone</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Phone" maxlength="20" ng-model="addressMaster.Phone" class="form-control" tabindex="11">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Website</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Website" maxlength="50" ng-model="addressMaster.Website" class="form-control" tabindex="13">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Address Line1</label>
-                                    <div class="col-sm-8">
-                                        <textarea class="form-control" rows="3" ng-model="addressMaster.Address1" name="Address Line1" maxlength="300" tabindex="15" required></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-6 col-md-6">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Country</label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style">
-                                            <select name="Country" ng-model="addressMaster.CountryId" ng-change="onCountryChange(addressMaster.CountryId);onStateChange(addressMaster.CountryId)" class="col-sm-3 form-control"
-                                                    ng-options="item.Value as item.Text for item in CountryList" tabindex="2" required></select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">City</label>
-                                    <div class="col-sm-8">
-                                        <div class="select-style">
-                                            <select name="City" ng-model="addressMaster.CityId" ng-change="onCityChange(addressMaster.CityId)" class="col-sm-3 form-control"
-                                                    ng-options="item.Value as item.Text for item in CityList" tabindex="4" required></select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Circle</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Circle" maxlength="50" ng-model="addressMaster.Circle" class="form-control" tabindex="6">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Village</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Village" maxlength="100" ng-model="addressMaster.Village" class="form-control" tabindex="8">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Postcode</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" name="Postcode" maxlength="50" ng-model="addressMaster.Postcode" class="form-control" tabindex="10">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Email</label>
-                                    <div class="col-sm-8">
-                                        <input type="email" name="Email" maxlength="50" ng-model="addressMaster.Email" class="form-control" placeholder="example@gmail.co" tabindex="12">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Address Line2</label>
-                                    <div class="col-sm-8">
-                                        <textarea class="form-control" rows="3" ng-model="addressMaster.Address2" name="Address Line2" maxlength="300" tabindex="14"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                <li><button ng-click="entityReport()" class="btn"><i class="glyphicon glyphicon-print"></i> Report</button></li>
-            </ul>
-        </div>
+</div>
+<div class="clearfix"></div>
+<br />
+<div ng-form id="companySSForm" name="companySSForm" class="form-elements">
+    <input type="hidden" ng-model="companyStructureSetup.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal" compile="left">
     </div>
-
-
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal" compile="right">
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li><button ng-click="entityReport()" class="btn"><i class="glyphicon glyphicon-print"></i> Report</button></li>
+        </ul>
+    </div>
 </div>
 <div class="row text-right aplos-grid-toggle" ng-show="dataList.length">
     <div class="col-xs-12 col-sm-12 col-sm-12">

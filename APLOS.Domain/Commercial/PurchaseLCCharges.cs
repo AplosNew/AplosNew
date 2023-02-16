@@ -21,7 +21,8 @@ namespace Library.Model.Commercial
         public decimal Rate { get; set; }
         public decimal BankAmount { get; set; }
         public decimal Version { get; set; }
-        
+        public DateTime? LCDate { get; set; }
+
 
         #endregion Scalar Properties
 

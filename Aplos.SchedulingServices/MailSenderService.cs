@@ -16096,5 +16096,117 @@ AND (E.EmployeeStatus='Active' OR Year(DOS) >= '" + objm.AYear + @"' AND MONTH(D
         #endregion
 
         #endregion
+
+        #region ScanDataToBook
+        public void GetFinishedGoodsPackingData( out DataTable dtOrder)
+        {
+            try
+            {
+                string fromDate = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
+                var str = @"Select SUM(A.NetWeight)Quantity,A.POId ProductionOrderId,A.LotNo LotNumber,A.EntityId,A.WorkDate ProductionDate,A.ShiftId,A.Grade,A.ProcessId,A.PlantId from(
+select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId,ISM.Id,ISM.ShiftId,ISM.Grade,MP.ProcessId,E.PlantId  
+FROM ItemScanChild S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+left join ORG.Entity E ON E.Id=R.EntityId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN(SELECT Id FROM HKP.MaterialMovementPurpose Where ProcessId=(Select Id from HKP.Process Where UserName='Packing')) AND ISM.WorkDate between '" + fromDate + @"' and '" + fromDate + @"'
+union all
+select distinct MP.UserName AS 'PROD_TYPE',
+S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
+S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId,ISM.Id,ISM.ShiftId,ISM.Grade,MP.ProcessId,E.PlantId
+FROM ItemScanChildHistory S 
+LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
+LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
+left join ORG.Entity E ON E.Id=R.EntityId
+LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
+WHERE R.PurposeId IN(SELECT Id FROM HKP.MaterialMovementPurpose Where ProcessId=(Select Id from HKP.Process Where UserName='Packing')) AND ISM.WorkDate between '" + fromDate + @"' and '" + fromDate + @"'
+)A
+Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.PlantId
+";
+                dtOrder = _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public void SaveScandataToBooking(string addedBy, string ip, string appVersion)
+        {
+            try
+            {
+                DataTable data = null;
+                DataSet dsProductionSummary = null;
+                GetFinishedGoodsPackingData(out data);
+                #region ProductionSummary
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                if (data.Rows.Count > 0)
+                {
+                    for (int i = 0; i < data.Rows.Count; i++)
+                    {
+                        string pssql = @"SELECT * FROM TRN.ProductionSummary WHERE ProductionDate between '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND '" + Convert.ToDateTime(data.Rows[i]["ProductionDate"]).ToString("dd-MMM-yyyy") + @"' AND ProductionOrderId='" + data.Rows[i]["ProductionOrderId"].ToString() + @"' AND EntityId='" + data.Rows[i]["EntityId"].ToString() + @"' AND ProcessId='" + data.Rows[i]["ProcessId"].ToString() + @"' AND LotNumber='" + data.Rows[i]["LotNumber"].ToString() + @"'";
+                        con.OpenDataSetThroughAdapter(pssql, out dsProductionSummary, false, "1");
+
+                        dsProductionSummary.Tables[0].DefaultView.RowFilter = "ProductionDate='" + data.Rows[i]["ProductionDate"].ToString() + "' AND ProductionOrderId = '" + data.Rows[i]["ProductionOrderId"] + "' AND EntityId = '" + data.Rows[i]["EntityId"].ToString() + "' AND ProcessId = '" + data.Rows[i]["ProcessId"].ToString() + "'AND LotNumber = '" + data.Rows[i]["LotNumber"].ToString() + "'";
+
+                        if (dsProductionSummary.Tables[0].DefaultView.Count > 0)
+                        {
+                            //edit
+                            DataRow dr = dsProductionSummary.Tables[0].DefaultView[0].Row;
+
+                            dr.BeginEdit();
+                            dr["Quantity"] = data.Rows[i]["Quantity"].ToString();
+                            dr["UpdatedBy"] = "schedule";
+                            dr["UpdatedDate"] = DateTime.Now.ToString();
+                            dr["UpdatedFromIP"] = "";
+
+                            dr.EndEdit();
+                        }
+                        else
+                        {
+                            bplib.clsGenID objGenID = new bplib.clsGenID();
+                            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionSummary", out string sID);
+
+                            DataRow drProductionSummary = dsProductionSummary.Tables[0].NewRow();
+                            drProductionSummary["Id"] = "PS" + sID;
+                            drProductionSummary["PlantId"] = data.Rows[i]["PlantId"].ToString();//identity.PlantId;
+                            drProductionSummary["EntityId"] = data.Rows[i]["EntityId"].ToString();
+                            drProductionSummary["ProcessId"] = data.Rows[i]["ProcessId"].ToString();
+                            drProductionSummary["ProductionDate"] = data.Rows[i]["ProductionDate"].ToString();
+                            drProductionSummary["Quantity"] = data.Rows[i]["Quantity"].ToString();
+                            drProductionSummary["ProductionOrderId"] = data.Rows[i]["ProductionOrderId"].ToString();
+                            drProductionSummary["ProductionShiftId"] = data.Rows[i]["ShiftId"].ToString();
+                            drProductionSummary["ProductionGrade"] = data.Rows[i]["Grade"].ToString();
+                            drProductionSummary["LotNumber"] = data.Rows[i]["LotNumber"].ToString();
+
+                            drProductionSummary["AddedBy"] = "schedule";
+                            drProductionSummary["AddedDate"] = DateTime.Now;
+                            drProductionSummary["AddedFromIP"] = "";
+
+                            dsProductionSummary.Tables[0].Rows.Add(drProductionSummary);
+                        }
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsProductionSummary);
+
+                    }
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #endregion
+
     }
 }

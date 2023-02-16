@@ -10,6 +10,7 @@ namespace Library.Model.Costings.IssueTracker
         {
             ToTable(nameof(PurchaseLCCharges), DbSchema.Dbo);
             Ignore(r => r.ModelState);
+            Ignore(t => t.LCDate);
         }
     }
 }

@@ -23902,12 +23902,17 @@ namespace Library.Service.HumanResources
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
 
                             }
+                            if (colName == "TotalPayDay")
+                            {
+                                replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
+
+                            }
                             else if (colName == "LvEncashmentRateAmount")
                             {
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
 
                             }
-                            else if (colName == "SalaryRate")
+                            else if (colName == "SalRate")
                             {
                                 replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString(), UserName), false, true);
 
@@ -23980,6 +23985,7 @@ namespace Library.Service.HumanResources
                 decimal TotalEarning = 0;
                 decimal SeparationTypeAmount = 0;
                 decimal LvEncashmentAmount = 0;
+                decimal LeaveEncash = 0;
                 decimal LastMonthNetPayAmount = 0;
                 decimal FinalSettlementEarningData = 0;
                 decimal SepTypeAmount = 0;
@@ -24008,9 +24014,10 @@ namespace Library.Service.HumanResources
 
                     SeparationTypeAmount = SepTypeAmount;
                     LvEncashmentAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LvEncashmentAmount"].ToString());
+                    LeaveEncash = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LeaveEncash"].ToString());
                     LastMonthNetPayAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LastMonthNetPayAmount"].ToString());
                     FinalSettlementEarningData = dtFinalSettlementEarningData.Rows.Count > 0 ? Convert.ToDecimal(dtFinalSettlementEarningData.Compute("SUM(Amount)", string.Empty)) : 0;
-                    TotalEarning = SeparationTypeAmount + LvEncashmentAmount + LastMonthNetPayAmount + FinalSettlementEarningData;
+                    TotalEarning = SeparationTypeAmount + LeaveEncash + LastMonthNetPayAmount + FinalSettlementEarningData;
 
                     decimal TotalDeduction = dtFinalSettlementDedutionData.Rows.Count > 0 ? Convert.ToDecimal(dtFinalSettlementDedutionData.Compute("SUM(Amount)", string.Empty)) : 0;
                     decimal Payable = TotalEarning - TotalDeduction;

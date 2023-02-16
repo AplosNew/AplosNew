@@ -136,11 +136,15 @@ LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId";
             }
         }
 
-        public IEnumerable<object> GetApprovedData()
+        public IEnumerable<object> GetApprovedData(string column, string value)
         {
             try
             {
-                string sql = @"SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                string sql = @"select * from (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
 LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId
@@ -148,7 +152,7 @@ LEFT JOIN(Select distinct M.Id IssueId,D.MaterialIssueControlMasterId from TRN.I
 LEFT JOIN [dbo].[MaterialIssueControlDetail] D ON D.Id=IR.MaterialIssueControlDetailId
 LEFT JOIN TRN.IssueRequestMaster M ON M.Id=IR.IssueRequestMasterId
 ) DT ON DT.MaterialIssueControlMasterId=M.Id
-order by M.AddedDate DESC";
+) AS TEMP WHERE " + strkey + " Order by AddedDate Desc";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

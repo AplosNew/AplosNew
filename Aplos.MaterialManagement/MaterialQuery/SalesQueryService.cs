@@ -1292,12 +1292,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
 									LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
-									LEFT JOIN (SELECT PartyId,sum(WrittenOffAmount) SetOff,SourceType 
+									LEFT JOIN (SELECT PartyId,PartyPlantId,sum(WrittenOffAmount) SetOff,SourceType 
 													from [TRN].Invoice where  PartyType='Customer' and SourceType='SalesInvoice'
 													and CONVERT(Date,DocDate) 
 													between '" + FromDate + @"' AND '" + ToDate + @"'
-													GROUP BY PartyId,SourceType
-													) IV ON  IV.PartyId=SA.PartyId 
+													GROUP BY PartyId,SourceType,PartyPlantId
+													) IV ON  IV.PartyId=SA.PartyId and iv.PartyPlantId=sa.InvoicingPartyPlantId
 									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount ,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 												FROM [TRN].[SalesTax] A
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 

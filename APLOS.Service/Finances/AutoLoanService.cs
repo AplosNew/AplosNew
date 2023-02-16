@@ -731,15 +731,15 @@ namespace Library.Service.Finances
                         {
                             PartyType = voucherVM.PartyType
                         };
-                        if (voucherVM.PartyType == PartyType.Vendor.ToString())
-                        {
-                            if (string.IsNullOrEmpty(financing.PartyId))
-                                throw new CustomException("Vendor Id not found!");
+                        //if (voucherVM.PartyType == PartyType.Vendor.ToString())
+                        //{
+                        //    if (string.IsNullOrEmpty(financing.PartyId))
+                        //        throw new CustomException("Vendor Id not found!");
 
-                            voucherDetailTo.PartyId = financing.PartyId;
-                            voucherDetailTo.PartyPlantId = financing.PartyPlantId;
-                            voucherDetailTo.TrnNature = TransactionNature.Vendor.ToString();
-                        }
+                        //    voucherDetailTo.PartyId = financing.PartyId;
+                        //    voucherDetailTo.PartyPlantId = financing.PartyPlantId;
+                        //    voucherDetailTo.TrnNature = TransactionNature.Vendor.ToString();
+                        //}
 
                         voucherDetailTo.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
                         voucherDetailTo.BudgetMasterId = voucherDetailVM.BudgetMasterId;

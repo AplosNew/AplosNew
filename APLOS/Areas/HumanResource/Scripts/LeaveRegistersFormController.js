@@ -120,7 +120,7 @@ function LeaveRegistersFormController(commonMessage, $scope, $rootScope, baseSer
     $scope.getLeaveRegisterFormReport = function (data) {
 
         try {
-            var file_src = 'HumanResource/LeaveRegistersFormController/FormLeaveRegister?year=' + $scope.year + '&empId=' + data.EmpSystemId;
+            var file_src = 'HumanResource/LeaveRegistersForm/FormLeaveRegister?year=' + $scope.year + '&empId=' + data.EmpSystemId;
             $rootScope.report(file_src);
 
         } catch (e) {

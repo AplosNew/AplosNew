@@ -306,13 +306,13 @@ namespace Library.Service.SalaryDisbursement
                                 var directdata = voucherVM;
                                 directdata.VoucherId = directVoucherId;
                                 directdata.PartyType = "Employee";
-                                directdata.Amount = directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance").Sum(r => r.Amount);
-                                bool isAdvance = CheckAdvanceWriteOff(directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"));
+                                directdata.Amount = directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId).Sum(r => r.Amount);
+                                bool isAdvance = CheckAdvanceWriteOff(directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId));
                                 if (isAdvance)
                                 {
                                     var advanceWriteOff = InsertAdvanceWriteOff(directdata);
                                     decimal directAmount = 0;
-                                    foreach (var item in directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance"))
+                                    foreach (var item in directSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == directVoucherDetailVM.ActivityId))
                                     {
 
                                         var advance = _advanceService.Find(item.AdvanceId);
@@ -602,12 +602,12 @@ namespace Library.Service.SalaryDisbursement
                         else if (voucherDetailVM.SalaryHeadCategory == "Advance")
                         {
                             var currentAdvanceWriteOffDetailId = 0;
-                            if (indirectSalaryLockList != null  )
+                            if (indirectSalaryLockList != null)
                             {
                                 var indirectdata = voucherVM;
                                 indirectdata.VoucherId = InDirectVoucherId;
                                 indirectdata.PartyType = "Employee";
-                                indirectdata.Amount = indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId== voucherDetailVM.ActivityId).Sum(r => r.Amount);
+                                indirectdata.Amount = indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId).Sum(r => r.Amount);
                                 bool isAdvance = CheckAdvanceWriteOff(indirectSalaryLockList.Where(r => r.SalaryHeadCategory == "Advance" && r.ActivityId == voucherDetailVM.ActivityId));
                                 if (isAdvance)
                                 {
@@ -721,41 +721,41 @@ namespace Library.Service.SalaryDisbursement
                                             AuditService.AddedLog(EmployeeSubsequentAdvancedirect);
                                             _employeeSubsequentTransactionRepository.Insert(EmployeeSubsequentAdvancedirect);
                                         }
-                                        
+
                                     }
-                                    
-                                        if (voucherDetailVM.CrAmount - indirectAdvanceAmountTemp > 0)
-                                        {
+
+                                    if (voucherDetailVM.CrAmount - indirectAdvanceAmountTemp > 0)
+                                    {
                                         currentVoucherDetailId++;
                                         // If no advance found against employee then only voucher will save. Advance SetOff will not occur.
                                         var voucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
-                                            {
-                                                GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
-                                                BudgetMasterId = voucherDetailVM.BudgetMasterId,
-                                                ActivityId = voucherDetailVM.ActivityId,
-                                                DrAmount = voucherDetailVM.DrAmount,
-                                                CrAmount = voucherDetailVM.CrAmount - indirectAdvanceAmountTemp,
-                                                TrnNature = voucherDetailVM.SalaryHead,
-                                                SalaryHeadId = voucherDetailVM.SalaryHeadId,
-                                                SalaryType = voucherDetailVM.SalaryType
+                                        {
+                                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                                            ActivityId = voucherDetailVM.ActivityId,
+                                            DrAmount = voucherDetailVM.DrAmount,
+                                            CrAmount = voucherDetailVM.CrAmount - indirectAdvanceAmountTemp,
+                                            TrnNature = voucherDetailVM.SalaryHead,
+                                            SalaryHeadId = voucherDetailVM.SalaryHeadId,
+                                            SalaryType = voucherDetailVM.SalaryType
                                         }, currentVoucherDetailId);
 
-                                            // INSERT INTO VoucherDetailCurrency
-                                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
-                                            {
-                                                ParallelCurrencyId = companyCurrencyId,
-                                                FromCurrencyId = voucherDetailDr.CurrencyId,
-                                                ToCurrencyId = companyCurrencyId,
-                                                ToCurrencyRate = InDirectVoucherData.CompanyCurrencyRate,
-                                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                                DrAmount = InDirectVoucherData.CompanyCurrencyRate * voucherDetailDr.DrAmount,
-                                                CrAmount = InDirectVoucherData.CompanyCurrencyRate * voucherDetailDr.CrAmount
-                                            });
+                                        // INSERT INTO VoucherDetailCurrency
+                                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailDr, new VoucherDetailCurrency
+                                        {
+                                            ParallelCurrencyId = companyCurrencyId,
+                                            FromCurrencyId = voucherDetailDr.CurrencyId,
+                                            ToCurrencyId = companyCurrencyId,
+                                            ToCurrencyRate = InDirectVoucherData.CompanyCurrencyRate,
+                                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                            DrAmount = InDirectVoucherData.CompanyCurrencyRate * voucherDetailDr.DrAmount,
+                                            CrAmount = InDirectVoucherData.CompanyCurrencyRate * voucherDetailDr.CrAmount
+                                        });
                                     }
                                 }
                                 else
                                 {
-                                    
+
                                     var voucherDetailDr = _voucherService.InsertVoucherDetail(voucherI, new VoucherDetail
                                     {
                                         GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,

@@ -385,6 +385,204 @@ namespace Library.MaterialManagement.Products
                 }
             }
         }
+
+        public void CreateOrUpdateMaterialControlIssueSlip(IssueRequestMaster Issentry, IEnumerable<IssueRequestViewModel> entity, IEnumerable<IssueRequestViewModel> entityGroupData, string IssueSlipType, IEnumerable<IssueRequestViewModel> SOListSelectedNew)
+        {
+            var flag = false;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+
+                _unitOfWork.BeginTransaction();
+                var currentId1 = _issueRequestRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(id, CHARINDEX('-',id)+1,len(id)) AS INT)), 0) Id FROM [TRN].[IssueRequest]  WHERE IssueRequestMasterId ='{Issentry.Id}'").First();
+                var currentBOQMapId = currentId1;
+                if (identity.EmployeeId == Issentry.CheckedBy)
+                {
+                    throw new CustomException("Please select another employee for Check by.");
+                }
+               
+                else
+                {
+                    Issentry.CheckedBy = Issentry.CheckedBy;
+                    Issentry.CheckedByStatus = "ForChecked";
+                    Issentry.AuthorizedBy = null;
+                    Issentry.AuthorizedByStatus = null;
+
+                }
+                if (!string.IsNullOrEmpty(identity.EmployeeId))
+                    Issentry.Preparedby = identity.EmployeeId;
+
+                Issentry.IssueSlipType = IssueSlipType;
+
+                _issueRequestMasterService.Insert(Issentry);
+               
+                var slipDetailId = "";
+                var Material = "";
+                var Article = "";
+                var SKU1 = "";
+                var SKU2 = "";
+                var SKU3 = "";
+                var SalesOrderId = "";
+                var TransactionUoMId = "";
+                flag = true;
+                //List<IDictionary<string, object>> newMachineAllocationDb = new List<IDictionary<string, object>>();
+                foreach (var itemDetail in entityGroupData)
+                {
+                    if (string.IsNullOrEmpty(itemDetail.Id))
+                    {
+                        var NewId = Issentry.Id + "-";
+                        currentId1++;
+                        //grndId = NewId + currentId1;
+                        var IssueRequstD = new IssueRequest
+                        {
+                            Id = NewId + currentId1,
+                            IssueRequestMasterId = Issentry.Id,
+                            RequisitionId = itemDetail.RequisitionNo,
+                            RequisitionDetailId = itemDetail.RequisitionDetailId,
+                            CostCenterId = itemDetail.CostCenterId,
+                            ExpenseActivityId = itemDetail.ExpenseActivityId,
+                            RequestedQty = Convert.ToDecimal(itemDetail.RequestedQty),
+                            RejectedQty = itemDetail.RejectedQty,
+                            BudgetMasterId = itemDetail.BudgetMasterId,
+                            GLGeneralInfoId = itemDetail.GLGeneralInfoId,
+                            MaterialMasterId = itemDetail.MaterialMasterId,
+                            ArticleId = itemDetail.ArticleId,
+                            FirstCharacteristicsId = itemDetail.FirstCharacteristicsId,
+                            FirstCharacteristicsValueId = itemDetail.BOQDFirstCharacteristicsValueId,
+                            SecondCharacteristicsId = itemDetail.SecondCharacteristicsId,
+                            SecondCharacteristicsValueId = itemDetail.BOQDSecondCharacteristicsValueId,
+                            ThirdCharacteristicsId = itemDetail.ThirdCharacteristicsId,
+                            ThirdCharacteristicsValueId = itemDetail.BOQDThirdCharacteristicsValueId,
+                            TransactionUoMId = itemDetail.TransactionUoMId,
+                            InventoryMaterialId = itemDetail.InventoryMaterialId,
+                            MaterialIssueControlDetailId = itemDetail.MaterialIssueControlDetailId,
+                            CountryId = itemDetail.CountryId
+                        };
+                        try
+                        {
+
+
+
+                            if (string.IsNullOrEmpty(itemDetail.InventoryMaterialId))
+                            {
+                                var inventoryMaterialData = _inventoryMaterialMasterService.Query(r => r.MaterialMasterId == itemDetail.MaterialMasterId && r.ArticleId == itemDetail.ArticleId &&
+                                r.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && r.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId).Select(r => r.Id).FirstOrDefault();
+
+
+                                IssueRequstD.InventoryMaterialId = inventoryMaterialData;
+
+                                if (string.IsNullOrEmpty(inventoryMaterialData))
+                                {
+                                    InventoryMaterialViewModel inventoryMaterial = new InventoryMaterialViewModel();
+
+                                    inventoryMaterial.Id = null;
+                                    inventoryMaterial.CountryId = itemDetail.CountryId;
+                                    inventoryMaterial.CompanyGroupId = identity.CompanyGroupId;
+                                    inventoryMaterial.CompanyId = identity.CompanyId;
+                                    inventoryMaterial.PlantId = identity.PlantId;
+                                    inventoryMaterial.MaterialStorageId = null;
+                                    inventoryMaterial.OpeningBalanceId = null;
+                                    inventoryMaterial.MaterialMasterId = itemDetail.MaterialMasterId;
+                                    inventoryMaterial.ArticleId = itemDetail.ArticleId;
+                                    inventoryMaterial.FirstCharacteristicsId = itemDetail.FirstCharacteristicsId;
+                                    inventoryMaterial.FirstCharacteristicsValueId = itemDetail.FirstCharacteristicsValueId;
+                                    inventoryMaterial.SecondCharacteristicsId = itemDetail.SecondCharacteristicsId;
+                                    inventoryMaterial.SecondCharacteristicsValueId = itemDetail.SecondCharacteristicsValueId;
+                                    inventoryMaterial.ThirdCharacteristicsId = itemDetail.ThirdCharacteristicsId;
+                                    inventoryMaterial.ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId;
+                                    inventoryMaterial.TotalQty = 0;
+                                    inventoryMaterial.AvgRate = 0;
+                                    inventoryMaterial.ShortageQty = 0;
+                                    inventoryMaterial.RejectionQty = 0;
+                                    inventoryMaterial.ApprovedQty = 0;
+
+
+                                    _inventoryMaterialMasterService.InsertOrUpdateFromReceive(inventoryMaterial);
+                                    IssueRequstD.InventoryMaterialId = inventoryMaterial.InventoryMaterialId;
+
+                                }
+
+                            }
+
+                            AuditService.AddedLog(IssueRequstD);
+                            _issueRequestRepository.Insert(IssueRequstD);
+
+                            slipDetailId = IssueRequstD.Id;
+                            Material = IssueRequstD.MaterialMasterId;
+                            Article = IssueRequstD.ArticleId;
+                            SKU1 = IssueRequstD.FirstCharacteristicsValueId;
+                            SKU2 = IssueRequstD.SecondCharacteristicsValueId;
+                            SKU3 = IssueRequstD.ThirdCharacteristicsValueId;
+                            SalesOrderId = itemDetail.SalesOrderId;
+                            TransactionUoMId = IssueRequstD.TransactionUoMId;
+
+                            
+
+                        }
+                        catch (DivideByZeroException ex)
+                        {
+
+                        }
+                        finally
+                        {
+
+                        }
+                    }
+                    var FilterentityData = entity.Where(r => r.MaterialMasterId == Material && r.ArticleId == Article && r.BOQDFirstCharacteristicsValueId == SKU1 && r.BOQDSecondCharacteristicsValueId == SKU2 && r.BOQDThirdCharacteristicsValueId == SKU3 && r.SalesOrderId == itemDetail.SalesOrderId && r.TransactionUoMId == TransactionUoMId).ToList();
+                    foreach (var itemDetailentity in FilterentityData)
+                    {
+
+                        // Insert in receive detail
+                        if (string.IsNullOrEmpty(itemDetailentity.Id))
+                        {
+                            var NewId = Issentry.Id + "-";
+                            currentBOQMapId++;
+                            //grndId = NewId + currentId1;
+                            var IssueRequestBOQMap = new IssueRequestBOQMap
+                            {
+                                Id = NewId + currentBOQMapId,
+                                IssueRequestDetailId = slipDetailId,
+                                BOQID = itemDetailentity.BOQId,
+                                Qty = Convert.ToDecimal(itemDetailentity.RequestedQty)
+                            };
+                            try
+                            {
+                                AuditService.AddedLog(IssueRequestBOQMap);
+                                _issueRequestBOQMap.Insert(IssueRequestBOQMap);
+                            }
+                            catch (DivideByZeroException ex)
+                            {
+
+                            }
+                            finally
+                            {
+
+                            }
+                        }
+                    }
+                }
+
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                
+            }
+
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
+
         public void SaveIssueMaterailMachineAllocation(List<Dictionary<string, object>> dataList)
         {
             try

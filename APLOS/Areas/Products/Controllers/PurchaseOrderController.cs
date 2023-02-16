@@ -28,6 +28,7 @@ using Library.OrderManagement.ShipmentControl;
 using Library.OrderManagement.TermsAndConditions;
 using Library.MaterialManagement.InventoryManagements;
 using Aplos.MaterialManagement.MaterialQuery;
+using System.Linq;
 
 namespace Aplos.Areas.Products.Controllers
 {
@@ -4194,7 +4195,34 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
             }
         }
 
+        [HttpPost]
+        public JsonResult DeletePOMaster(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var rdBuilder = new System.Text.StringBuilder();
+                var poDetailSql = _purchseOrderDetailService.Query(r=>r.InventoryReceiveId== Id).Select().FirstOrDefault();
+                if (poDetailSql == null)
+                {
+                    var PoSql = @"delete from trn.PurchaseOrder where Id='" + Id + "'";
+                    rdBuilder.Append(PoSql);
+                }
+                else
+                {
+                    throw new Exception("Detail have to Delete First !!!");
+                }
+               
+                return Json(_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString()), JsonRequestBehavior.AllowGet);
 
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
         public ActionResult DeletePODetailPOPup(string id)
         {
             try

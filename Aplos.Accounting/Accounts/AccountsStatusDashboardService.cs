@@ -329,38 +329,38 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
-							and I.SourceType in ('VendorPayment') 
+							and I.SourceType in ('VendorPayment','CreditNote') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-30
-							and I.SourceType in ('VendorPayment') 
+							and I.SourceType in ('VendorPayment','CreditNote') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) OM15 ON OM15.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OverDdueBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-15
-							and I.SourceType in ('VendorPayment') 
+							and I.SourceType in ('VendorPayment','CreditNote') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) OV ON OV.Id=IV.Id
 
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.AdjustmentNote I 
-							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)=0 and I.SourceType in ('VendorPayment') 
+							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)=0 and I.SourceType in ('VendorPayment','CreditNote') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) TB ON TB.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=7 
-							and I.SourceType in ('VendorPayment') 
+							and I.SourceType in ('VendorPayment','CreditNote') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) OTS ON OTS.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=30 
-							and I.SourceType in ('VendorPayment') 
+							and I.SourceType in ('VendorPayment','CreditNote') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) ETT ON ETT.Id=IV.Id
 
 								LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=60
-							and I.SourceType in ('VendorPayment') 
+							and I.SourceType in ('VendorPayment','CreditNote') 
                             and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0  AND I.IsWrittenOff=0 AND i.IsPark=0 " + searchDateODue + @"
                             group by Id) TTS ON TTS.Id=IV.Id
 
@@ -1773,9 +1773,8 @@ group by Id) O60 ON O60.Id=IV.Id
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
 															end
-										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
-                                         SetOff=ISNULL(IwV.SetOffBooksAmount, 0) - (ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-ISNULL(IwV.SetOffBooksAmount,0),0) AS Balance
-										
+										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,ISNULL(IWD.TaxAmount,0) TaxAmount, SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
+                                        , ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance								
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -1791,19 +1790,19 @@ group by Id) O60 ON O60.Id=IV.Id
 										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 										 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-										WHERE  ( convert(Date,WV.PostingDate) <= '"+ toDate + @"' )
+										WHERE  ( convert(Date,WV.PostingDate) <= '" + toDate + @"' ) and  isnull(iw.PaymentSource,'') not in('Tax') and  isnull(iw.SourceType,'') not in('DebitNoteSetOff')
 										GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 										)AS IwV ON IwV.InvoiceDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
                                         
 										LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
 											LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
-								            where w.PaymentSource='Tax' AND ( convert(Date,W.PostingDate) <= '"+ toDate + @"' )
+								            where w.PaymentSource='Tax' AND ( convert(Date,W.PostingDate) <= '" + toDate + @"' )
 								            group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
 
                                         LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>'' and DNW.PaymentSource not in ('Tax','Bank')
+								                where WD.InvoiceDetailId<>'' and DNW.SourceType='DebitNoteSetOff'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
 										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
@@ -1817,7 +1816,8 @@ group by Id) O60 ON O60.Id=IV.Id
 									
                                         WHERE IV.Archive=0  AND V.IsPark=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @" --AND IV.PlantId='20171'
-                                        and (IVD.NetAmount-ISNULL(IwV.SetOffBooksAmount,0))>0 and IV.PartyId in(" + vendorIdLoop + @") 
+                                        AND ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
+                                        and IV.PartyId in(" + vendorIdLoop + @") 
 										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
 
 								   UNION ALL
@@ -1854,8 +1854,8 @@ group by Id) O60 ON O60.Id=IV.Id
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onword'
 															end
-										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,IWD.TaxAmount TaxAmount,
-                                        SetOff=ISNULL(IwV.SetOffBooksAmount, 0) -(ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)), ISNULL(IVD.NetAmount-IwV.SetOffBooksAmount,0) AS Balance
+										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,ISNULL(IWD.TaxAmount,0) TaxAmount,SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
+                                        , ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
@@ -1872,7 +1872,7 @@ group by Id) O60 ON O60.Id=IV.Id
 										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 										 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '"+toDate+@"' )
+										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate+ @"' ) and  isnull(iw.PaymentSource,'') not in('Tax') and  isnull(iw.SourceType,'') not in('DebitNoteSetOff')
 										GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 										)AS IwV ON IwV.InvoiceDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
                                                 LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
@@ -1882,7 +1882,7 @@ group by Id) O60 ON O60.Id=IV.Id
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
                                         LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>''
+								                where WD.InvoiceDetailId<>'' and DNW.SourceType='DebitNoteSetOff'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
                                         LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
@@ -1898,13 +1898,37 @@ group by Id) O60 ON O60.Id=IV.Id
                                         WHERE IV.Archive=0 AND   V.IsPark=0  AND IV.SourceType in ('InventoryPayable','ServicePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
 										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + vendorIdLoop + @")
-                                        AND (IVD.NetAmount-ISNULL(IwV.SetOffBooksAmount,0))>0
+                                        AND ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
 
                                         UNION ALL
 				                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
 										                        ,V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate,V.DocRefNo InvoiceNo
 										                        ,replace (convert(varchar(11),iv.DocDate, 106),'', '-')as DocDate ,iv.DocDate  SortDocDate
-										                        ,C.Code CurrencyCode,0 BaseNoOfDays, ''  BaseOnDueDate, '' ActualDueDate, 0 Days,'' AgingInvoice,'' AgingSorting
+										                        ,C.Code CurrencyCode,0 BaseNoOfDays, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') AS ActualDueDate
+																,Days=DATEDIFF(DAY, GETDATE(),IV.PostingDate)
+																,AgingInvoice= case 
+														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then 'OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then 'OverDueLessThan15'
+
+
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then 'Today'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '60 Onword'
+															end
+														,AgingSorting= case 
+														when DATEDIFF(DAY, GETDATE(),Iv.PostingDate)<-30  OR IV.PostingDate IS NULL then '1.OverDueMoreThan30'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-30  OR IV.PostingDate IS NULL then '2.OverDueMoreThan15'
+														when DATEDIFF(DAY, GETDATE(),IV.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)>=-15  OR IV.PostingDate IS NULL then '3.OverDueLessThan15'
+
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)=0 then '4.Today'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=7 then '5.1-7'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=30 then '6.8-30'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '7.31-60'
+															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '8.60 Onword'
+															end
 										                        , ISNULL(IVD.Amount,0) AS Gross,0  DebitNoteAmount,0 TaxAmount,
                                                                 SetOff=ISNULL(IwV.SetOffBooksAmount, 0) , ISNULL(IVD.Amount-isnull(IwV.SetOffBooksAmount,0),0) AS Balance
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD

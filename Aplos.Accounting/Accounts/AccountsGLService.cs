@@ -159,7 +159,8 @@ namespace Library.Accounting.Accounts
             try
             {
                 parameters.CmdText = GetGLSQL() + " AND GLGI.COAId = '" + coaId + "' AND ACT.Id in ('" + AccountTypeEnum.Expense + "','"+ AccountTypeEnum.Asset + @"')
-                    AND GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')";
+                    AND GLGI.Id NOT IN (SELECT GLAT.GLGeneralInfoId FROM [HKP].[GLAccountType] as GLAT WHERE GLAT.GLGeneralInfoId<>'')
+                    ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
