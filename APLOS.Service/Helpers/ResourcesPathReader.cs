@@ -199,6 +199,18 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetPAIDocumentPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/PAIDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 		// Written By Nitesh
 		public static string GetGeneralContractPath()
 		{

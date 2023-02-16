@@ -45,6 +45,7 @@ virtualPath.ICUPath = virtualPath.ROOT_FOLDRR + '/ICUDocument';
 virtualPath.GeneralContractPath = virtualPath.ROOT_FOLDRR + '/GeneralContractDocument';
 virtualPath.SMEPath = virtualPath.ROOT_FOLDRR + '/SMEDocument';
 virtualPath.FabricRollFile = virtualPath.ROOT_FOLDRR + '/FabricRollFile';
+virtualPath.PAIPath = virtualPath.ROOT_FOLDRR + '/PAIDocument';
 
 
 function getCookie(cname) {
