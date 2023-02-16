@@ -321,31 +321,31 @@ namespace Aplos.Areas.Productions.Controllers
                             {
                                 string NetWeight = "0.0";
                                 string GWeight = "0.0";
-                                NetWeight = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
-                                GWeight = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                NetWeight = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                GWeight = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
                                 PackingScanUploadedData vm = new PackingScanUploadedData();
 
-                                vm.MasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
-                                vm.ProductCode = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                vm.POId = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-                                vm.LotNo = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
-                                vm.RefNo = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
-                                vm.Cones = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                //vm.MasterId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.ProductCode = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.POId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.LotNo = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.RefNo = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.Cones = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
                                 vm.NetWeight = Convert.ToDecimal(string.IsNullOrEmpty(NetWeight) ? "0" : NetWeight);
                                 vm.GWeight = Convert.ToDecimal(string.IsNullOrEmpty(GWeight) ? "0" : GWeight);
-                                vm.PackedBy = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
-                                vm.Shade = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
-                                vm.Booked = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
-                                vm.PackingId = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
-                                vm.AddedBy = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
-                                vm.AddedDate = dsExcel.Tables[0].Rows[i][13].ToString().Trim();
-                                vm.UpdatedBy = dsExcel.Tables[0].Rows[i][14].ToString().Trim();
-                                vm.UpdatedDate = dsExcel.Tables[0].Rows[i][15].ToString().Trim();
-                                vm.LocMasterId = dsExcel.Tables[0].Rows[i][16].ToString().Trim();
-                                vm.IsDespatch = dsExcel.Tables[0].Rows[i][17].ToString().Trim();
-                                vm.BookedDate = dsExcel.Tables[0].Rows[i][18].ToString().Trim();
-                                vm.InventoryReceiveDetailId = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
-                                vm.SalesId = dsExcel.Tables[0].Rows[i][20].ToString().Trim();
+                                vm.PackedBy = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.Shade = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                vm.Booked = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.PackingId = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.AddedBy = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
+                                vm.AddedDate = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
+                                vm.UpdatedBy = dsExcel.Tables[0].Rows[i][13].ToString().Trim();
+                                vm.UpdatedDate = dsExcel.Tables[0].Rows[i][14].ToString().Trim();
+                                vm.LocMasterId = dsExcel.Tables[0].Rows[i][15].ToString().Trim();
+                                vm.IsDespatch = dsExcel.Tables[0].Rows[i][16].ToString().Trim();
+                                vm.BookedDate = dsExcel.Tables[0].Rows[i][17].ToString().Trim();
+                                vm.InventoryReceiveDetailId = dsExcel.Tables[0].Rows[i][18].ToString().Trim();
+                                vm.SalesId = dsExcel.Tables[0].Rows[i][19].ToString().Trim();
                                 data.Add(vm);
 
                             }
