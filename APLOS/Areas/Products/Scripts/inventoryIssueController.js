@@ -717,10 +717,13 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				$scope.detailModel.FirstCharacteristicsId = $scope.char1.CharacteristicsId;
 				$scope.detailModel.FirstCharacteristicsValueId = $scope.char1.CharacteristicsValueId;
 				$scope.detailModel.FirstCharacteristicText = $scope.char1.FreeText;
+			}
+			if (!$scope.detailModel.SKU2) {
+				$scope.detailModel.SecondCharacteristicsId = $scope.char2.CharacteristicsId;
+				$scope.detailModel.SecondCharacteristicText = $scope.char2.FreeText;
+				$scope.detailModel.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
             }
-			$scope.detailModel.SecondCharacteristicsId = $scope.char2.CharacteristicsId;
-			$scope.detailModel.SecondCharacteristicText = $scope.char2.FreeText;
-			$scope.detailModel.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
+			
 
 			$scope.detailModel.ThirdCharacteristicsId = $scope.char3.CharacteristicsId;
 			$scope.detailModel.ThirdCharacteristicText = $scope.char3.FreeText;
@@ -826,16 +829,46 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 			ShowResult(e, '', 'searchIndependentcharacterepopup');
 		}
 	};
+	$scope.selectIndependentSKU2 = function (x) {
+		//debugger;
+		try {
+			if (!$scope.hasSku) {
+				var tempSKU = x.data;
+				$scope.detailModel.SecondCharacteristicsId = tempSKU.CharacteristicsId;
+				$scope.detailModel.SecondCharacteristicsValueId = tempSKU.Value;
+				$scope.detailModel.SKU2 = tempSKU.Text;
+				$scope.detailModel.SecondCharacteristicText = tempSKU.Text;
+				getMaterialStock();
+			}
+
+			angular.element(document.querySelector('#searchIndependentSKU2popup')).modal('hide');
+		} catch (e) {
+			ShowResult(e, '', 'searchIndependentSKU2popup');
+		}
+	};
 	$scope.IndependentcharacteristicsList = [];
 	$scope.getIndependentCharacteristicsList = function () {
 		$http({
 			method: 'GET',
-			url: 'Materials/MaterialMaster/GetCharacteristicsWithoutMaterial/',
+			url: 'Materials/MaterialMaster/GetCharacteristicsWithoutMaterialSKU1/',
 		}).then(function (response) {
 			$scope.IndependentcharacteristicsList = [];
 			$scope.IndependentcharacteristicsList = response.data.charData;
 		});
 		angular.element(document.querySelector('#searchIndependentcharacterepopup')).modal('show');
+
+	};
+
+	$scope.IndependentSKU2List = [];
+	$scope.getIndependentSKU2List = function () {
+		$http({
+			method: 'GET',
+			url: 'Materials/MaterialMaster/GetCharacteristicsWithoutMaterialSKU2/',
+		}).then(function (response) {
+			$scope.IndependentSKU2List = [];
+			$scope.IndependentSKU2List = response.data.charData;
+		});
+		angular.element(document.querySelector('#searchIndependentSKU2popup')).modal('show');
 
 	};
 

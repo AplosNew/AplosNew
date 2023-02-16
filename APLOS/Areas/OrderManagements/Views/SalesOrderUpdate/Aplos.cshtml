@@ -34,6 +34,7 @@
                             <div e-column e-type="string" e-field="Id" e-headertext="Sales order No." e-width="80"></div>
                             <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="300"></div>
                             <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Ref No" e-width="100"></div>
+                            <div e-column e-type="string" e-field="BuyerPo" e-headertext="Buyer PO" e-width="70"></div>
                             <div e-column e-type="date" e-field="DeliveryDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Delivery Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="Destination" e-headertext="Destination" e-width="100"></div>
                             <div e-column e-type="date" e-field="CommitmentDate" e-format="{0:dd-MMM-yyyy}" e-headertext="Commitment Date" e-width="80"></div>
@@ -45,7 +46,6 @@
                             <div e-column e-type="number" e-field="Rate" e-textalign="right" e-format="{0:N2}" e-headertext="Rate" e-width="100"></div>
                             <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="120"></div>
                             <div e-column e-type="number" e-field="Discount" e-textalign="right" e-format="{0:N2}" e-headertext="Discount" e-width="100"></div>
-                            <div e-column e-type="string" e-field="PONumber	" e-headertext="PO No." e-width="50"></div>
                             <div e-column e-type="date" e-field="LSD" e-format="{0:dd-MMM-yyyy}" e-headertext="LSD" e-width="80"></div>
                             <div e-column e-type="date" e-field="MainRawMaterialInhouseDate" e-format="{0:dd-MMM-yyyy}" e-headertext="MainRawMaterialInhouseDate" e-width="80"></div>
                             <div e-column e-type="date" e-field="OtherRawMaterialInhouseDate" e-format="{0:dd-MMM-yyyy}" e-headertext="OtherRawMaterialInhouseDate" e-width="80"></div>
@@ -91,9 +91,11 @@
                                 <div e-column e-field="CustomerName" e-headertext="Customer" e-width="80"></div>
                                 <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
                                 <div e-column e-field="MasterOrderNo" e-headertext="Master Order No." e-width="80"></div>
+                                <div e-column e-field="BuyerItem" e-headertext="Buyer Item" e-width="80"></div>
+                                <div e-column e-field="OwnItem" e-headertext="Own Item" e-width="80"></div>
+                                <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
                                 <div e-column e-field="OrderCategory" e-headertext="Order Category" e-width="80"></div>
                                 <div e-column e-field="OrderYear" e-headertext="Order Year" e-width="80"></div>
-                                <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
                                 <div e-column e-field="NoOfLineItem" e-headertext="No Of Line Item" e-width="80"></div>
                                 <div e-column e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="80"></div>
                                 <div e-column e-field="InvoicingByAddress" e-headertext="Invoicing By Address" e-width="80"></div>
@@ -112,8 +114,6 @@
                                 <div e-column e-field="OwnReferenceNo" e-headertext="Own Reference No." e-width="80"></div>
                                 <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Reference No." e-width="80"></div>
                                 <div e-column e-field="PaymentTermDays" e-headertext="Payment Term Days" e-width="80"></div>
-                                <div e-column e-field="BuyerItem" e-headertext="Buyer Item" e-width="80"></div>
-                                <div e-column e-field="OwnItem" e-headertext="Own Item" e-width="80"></div>
                                 <div e-column e-field="ContractNo" e-headertext="Contract No." e-width="80"></div>
                                 <div e-column e-field="MasterLCNo" e-headertext="Master LC No." e-width="80"></div>
                             </div>
