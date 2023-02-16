@@ -717,10 +717,13 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				$scope.detailModel.FirstCharacteristicsId = $scope.char1.CharacteristicsId;
 				$scope.detailModel.FirstCharacteristicsValueId = $scope.char1.CharacteristicsValueId;
 				$scope.detailModel.FirstCharacteristicText = $scope.char1.FreeText;
+			}
+			if (!$scope.detailModel.SKU2) {
+				$scope.detailModel.SecondCharacteristicsId = $scope.char2.CharacteristicsId;
+				$scope.detailModel.SecondCharacteristicText = $scope.char2.FreeText;
+				$scope.detailModel.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
             }
-			$scope.detailModel.SecondCharacteristicsId = $scope.char2.CharacteristicsId;
-			$scope.detailModel.SecondCharacteristicText = $scope.char2.FreeText;
-			$scope.detailModel.SecondCharacteristicsValueId = $scope.char2.CharacteristicsValueId;
+			
 
 			$scope.detailModel.ThirdCharacteristicsId = $scope.char3.CharacteristicsId;
 			$scope.detailModel.ThirdCharacteristicText = $scope.char3.FreeText;
