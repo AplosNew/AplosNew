@@ -152,7 +152,7 @@ LEFT JOIN(Select distinct M.Id IssueId,D.MaterialIssueControlMasterId from TRN.I
 LEFT JOIN [dbo].[MaterialIssueControlDetail] D ON D.Id=IR.MaterialIssueControlDetailId
 LEFT JOIN TRN.IssueRequestMaster M ON M.Id=IR.IssueRequestMasterId
 ) DT ON DT.MaterialIssueControlMasterId=M.Id
-) AS TEMP WHERE " + strkey + "";
+) AS TEMP WHERE " + strkey + " Order by AddedDate Desc";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
