@@ -201,9 +201,9 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
 , ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus
-,MBGT.ROBudgetCode,APD.WorkDate , PV.AddedBy
-,ApprovedStatus = case when PV.AddedBy is not null then 'Approved' else 'Not Approved' end
+,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
+,MBGT.ROBudgetCode,APD.WorkDate , PV.UpdatedBy
+,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
@@ -221,15 +221,16 @@ LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date=APD.WorkDate
+left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '" + fromdate + "' and '" + todate + @"'
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
 left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
 LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId and RAE.isOccupied = 1
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
 left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
+left join HKP.Stoppage SPG on SPG.Id = ETA.StoppageId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
-left join (select distinct top(1) WorkDate, EmpSystemID, AddedBy  from PhysicalVerification order by WorkDate desc)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
+left join (select distinct WorkDate, EmpSystemID, UpdatedBy  from PhysicalVerification)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2+ " order by APD.WorkDate DESC";
@@ -311,6 +312,24 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColDivision = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColEmpCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shift";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColShift = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Department";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColDepartment = COL;
@@ -345,11 +364,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColGivenDesignation = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Shift";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColShift = COL;
-                COL++;
+                
 
                 sheet[ROW, COL].Text = "Employee Category";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -361,18 +376,6 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBudgetCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Employee Code";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColEmpCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Employee Name";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColEmployeeName = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "State";
@@ -417,7 +420,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColInStatus = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "LateIn";
+                sheet[ROW, COL].Text = "LateIn Time";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColLateIn = COL;
@@ -429,7 +432,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 //int ColInActive = COL;
                 //COL++;
 
-                sheet[ROW, COL].Text = "Employee Status";
+                sheet[ROW, COL].Text = "Employee Current Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColEmpStatus = COL;
@@ -451,6 +454,12 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColFeedback = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Feedback Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColFeedbackDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Reason";
@@ -477,6 +486,18 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColPresentArea = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Transport Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColTransportStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Stoppage";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColStoppage = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Verification Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -493,13 +514,9 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColROBudgetCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Transport Status";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColTransportStatus = COL;
                 //COL++;
+
+                
 
                 
                
@@ -546,17 +563,18 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                     sheet[ROW, ColResPerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
                     sheet[ROW, ColTeamLeader].Text = data.Rows[i]["TeamLeader"].ToString();
                     sheet[ROW, ColFeedback].Text = data.Rows[i]["Feedback"].ToString();
-                    //sheet[ROW, ColFeed].Text = data.Rows[i]["FeedbackDate"].ToString();
+                    sheet[ROW, ColFeedbackDate].Text = data.Rows[i]["FeedbackDate"].ToString();
                     sheet[ROW, ColReason].Text = data.Rows[i]["FeedbackRason"].ToString();
-                    //sheet[ROW, ColFeedbackBy].Text = data.Rows[i]["FeedbackBy"].ToString();
+                    sheet[ROW, ColFeedbackBy].Text = data.Rows[i]["FeedbackBy"].ToString();
                     sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
                     sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();                    
                     sheet[ROW, ColResidenceStatus].Text = data.Rows[i]["isOccupied"].ToString();                  
                     sheet[ROW, ColPresentArea].Text = data.Rows[i]["PresentArea"].ToString();                  
                     sheet[ROW, ColVerifStatus].Text = data.Rows[i]["ApprovedStatus"].ToString();
-                    sheet[ROW, ColVerifiedBy].Text = data.Rows[i]["AddedBy"].ToString();
-                    sheet[ROW, ColROBudgetCode].Text = data.Rows[i]["ROBudgetCode"].ToString();
+                    sheet[ROW, ColVerifiedBy].Text = data.Rows[i]["UpdatedBy"].ToString();
+                    sheet[ROW, ColROBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ROBudgetCode"].ToString());
                     sheet[ROW, ColTransportStatus].Text = data.Rows[i]["AssignStatus"].ToString();
+                    sheet[ROW, ColStoppage].Text = data.Rows[i]["Stoppage"].ToString();
                     sheet[ROW, ColState].Text = data.Rows[i]["State"].ToString();
 
 
@@ -716,9 +734,9 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 
                 strSQL = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
 , ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus
-,MBGT.ROBudgetCode,APD.WorkDate , PV.AddedBy
-,ApprovedStatus = case when PV.AddedBy is not null then 'Approved' else 'Not Approved' end
+,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
+,MBGT.ROBudgetCode,APD.WorkDate , PV.UpdatedBy
+,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
 
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
@@ -737,15 +755,16 @@ LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date=APD.WorkDate
+left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '" + fromdate + "' and '" + todate + @"'
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
 left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
 LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId and RAE.isOccupied = 1
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
 left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
+left join HKP.Stoppage SPG on SPG.Id = ETA.StoppageId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
-left join (select distinct top(1) WorkDate, EmpSystemID, AddedBy  from PhysicalVerification order by WorkDate desc)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
+left join (select distinct WorkDate, EmpSystemID, UpdatedBy  from PhysicalVerification)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2 + " order by APD.WorkDate DESC";
