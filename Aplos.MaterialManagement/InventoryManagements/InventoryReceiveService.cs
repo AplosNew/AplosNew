@@ -1824,13 +1824,8 @@ namespace Library.MaterialManagement.InventoryManagements
 
 					,IRD.IsAsset						
 					,CASE WHEN IRD.IsAsset=1 THEN 'Asset' ELSE 'Inventory' END IsAssetStatus
-					--select x.InventoryReceiveDetailId,x.IssueDate,x.IssueNo,x.IssueType,x.PurchaseReturnNo,x.POReturnDate,x.ReturnIssueDate,x.ReturnIssueReturnNo,x.PhysicalIssueDate,x.PhysicalIssueNo,
+					,IRD.LotNo,P.UserName VendorName
 
-					-- x.IssueAmount,x.IssueQty,x.Rate,x.PurchaseReturnQty,x.PurchaseReturnRate,x.PurchaseReturnAmount,x.IssueReturnQty,x.IssueReturnRate
-
-					-- ,x.IssueReturnAmount,x.PhysicalStockAdjustmentqty,x.PhysicalStockAdjustmentRate,x.PhysicalStockAdjustmentAmount
- 
-					--from (
 					FROM TRN.InventoryMaterial AS IM
 						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1846,6 +1841,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+						left join HKP.Party P on IR.PartyId=p.Id
 						left join(select IH.InventoryReceiveDetailId,II.IssueDate,II.Id IssueNo,II.IssueType,II.VoucherId IssueVoucherNo,NULL POReturnDate,NULL PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
 
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
@@ -2181,16 +2177,42 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
 
-                    var colRCVMaterial = sheet1headreColIndex;
-                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material";
+                    //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "MRNo");
+                    var colRCVMRNo = sheet1headreColIndex;
+				    sheet1.Range[_rowL, sheet1headreColIndex].Text = "MRNo";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
+
+					var colVendorName = sheet1headreColIndex;
+					sheet1.Range[_rowL, sheet1headreColIndex].Text = "Vendor Name";
+					sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 29;
+					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+					sheet1headreColIndex++;
+
+					var colLotNo = sheet1headreColIndex;
+					sheet1.Range[_rowL, sheet1headreColIndex].Text = "Lot No";
+					sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+					sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+					sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+					sheet1headreColIndex++;
+
+					var colRCVMaterial = sheet1headreColIndex;
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 22;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
                     var colRCVArticle = sheet1headreColIndex;
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Article";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2200,21 +2222,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     //sheet1headreColIndex++;
                     var colIsAssetStatus = sheet1headreColIndex;
 
-
-
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Type";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-                    sheet1headreColIndex++;
-
-
-
-                    //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "MRNo");
-                    var colRCVMRNo = sheet1headreColIndex;
-
-                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "MRNo";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2224,7 +2232,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     var colRCVVoucherNo = sheet1headreColIndex;
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "VoucherNo";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 12;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2234,9 +2242,8 @@ namespace Library.MaterialManagement.InventoryManagements
                     //sheet1headreColIndex++;
                     var colUOM = sheet1headreColIndex;
 
-
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "UOM";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2575,6 +2582,8 @@ namespace Library.MaterialManagement.InventoryManagements
 
                             report.SetText(ref sheet1, _rowL, colRCVDate, inventoryMaterialList.Rows[n]["RcvDate"].ToString());
                             report.SetText(ref sheet1, _rowL, colRCVMRNo, rcvid);
+                            report.SetText(ref sheet1, _rowL, colVendorName, inventoryMaterialList.Rows[n]["VendorName"].ToString());
+                            report.SetText(ref sheet1, _rowL, colLotNo, inventoryMaterialList.Rows[n]["LotNo"].ToString());
                             report.SetText(ref sheet1, _rowL, colIsAssetStatus, inventoryMaterialList.Rows[n]["IsAssetStatus"].ToString());
                             report.SetText(ref sheet1, _rowL, colUOM, inventoryMaterialList.Rows[n]["UOM"].ToString());
                             report.SetText(ref sheet1, _rowL, colRCVQuantity, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RcvQty"].ToString()));

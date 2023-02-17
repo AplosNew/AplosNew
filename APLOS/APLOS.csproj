@@ -800,6 +800,7 @@
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
     <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
+    <Compile Include="Areas\OrderManagements\Controllers\ProductIntegrityAnalysisController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\SalesOrderApprovalController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\PackingTypeController.cs" />
     <Compile Include="Areas\OrderManagements\Controllers\ProductIntegrityAnalysisMasterController.cs" />
@@ -2286,6 +2287,7 @@
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
     <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
+    <Content Include="Areas\OrderManagements\Scripts\ProductIntegrityAnalysisController.js" />
     <Content Include="Areas\OrderManagements\Scripts\SalesOrderApprovalController.js" />
     <Content Include="Areas\OrderManagements\Scripts\PackingTypeController.js" />
     <Content Include="Areas\OrderManagements\Scripts\ProductIntegrityAnalysisMasterController.js" />
@@ -4524,6 +4526,8 @@
     <Content Include="Areas\HumanResource\Views\LeaveRegistersForm\Aplos.cshtml" />
     <Content Include="Areas\Parties\Views\Party\_VendorPopUpNew_Loan.cshtml" />
     <Content Include="Areas\HumanResource\Views\DailyAttendanceStatusReport\_FavoritePopup.cshtml" />
+    <Content Include="Areas\Materials\Views\Shared\_IndependentSKU2PopUp.cshtml" />
+    <Content Include="Areas\OrderManagements\Views\ProductIntegrityAnalysis\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

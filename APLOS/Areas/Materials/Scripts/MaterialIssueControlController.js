@@ -161,7 +161,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         $http({
             method: 'POST',
             data: {
-                'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                'column': $scope.MCSearchColumn, 'value': $scope.MCSearchValue
             },
             url: 'Materials/MaterialIssueControl/GetApprovedData'
         }).then(function successCallback(response) {

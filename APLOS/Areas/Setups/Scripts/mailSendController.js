@@ -575,6 +575,26 @@ $scope.SendAccountDelayPosting = function () {
         };
     };
 
-
+    $scope.SaveScanToPacking = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveScandataToBooking',
+            params: {
+                'addedBy': "",
+                'ip': "",
+                'appVersion': ""
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        }), function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
 
 }

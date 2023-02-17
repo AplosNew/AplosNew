@@ -215,5 +215,6 @@ namespace Library.Service.Setups
         void SendTNAReportMail(string addedBy, string ip, string appVersion);
         void SendLastFewDaysPayableCreatedMail(string addedBy, string ip, string appVersion);
         void SendLastFewDaysPaymentMadeMail(string addedBy, string ip, string appVersion);
+        void SaveScandataToBooking(string addedBy, string ip, string appVersion);
     }
 }
