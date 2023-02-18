@@ -613,7 +613,8 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-							left join [HKP].[EmployeeCategory] EC on EC.Id=ei.EmployeeCategorySystemId
+							left join mst.DesignationMaster dmm on dmm.DesignationId = ei.GivenDesignationId
+							left join [HKP].[EmployeeCategory] EC on EC.Id=dmm.EmployeeCategoryId
                             
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @")x
@@ -891,7 +892,8 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                            left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
 							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-							left join [HKP].[EmployeeCategory] EC on EC.Id=eui.EmployeeCategorySystemId
+							left join mst.DesignationMaster dmm on dmm.DesignationId = ei.GivenDesignationId
+							left join [HKP].[EmployeeCategory] EC on EC.Id=dmm.EmployeeCategoryId
 
                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @")x
