@@ -3063,87 +3063,97 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where ta.Author
         #endregion AllTaskList
 
         #region Deshboard
-        public void GetDeshboard(out List<Default> DataList, string UserId)
+        public void GetDeshboard(out List<Default2> DataList, string UserId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<Default>();
+            DataList = new List<Default2>();
 
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select 'RequisitionCount' AS Text, count(x.Id) Value
-                        FROM(select * from [TRN].[MaterialRequsitionMaster] MRM
-                        Where MRM.CheckedByStatus <> 'Checked'
-and  MRM.CheckedBy = '" + UserId + @"' 
+                strSQL = @"Select 'RequisitionCount' AS Name, count(x.Id) Value
+                        FROM(select * from [TRN].[MaterialRequsitionMaster] MRM
+                        Where MRM.CheckedByStatus = 'For Checking'
+and  MRM.CheckedBy = '" + UserId + @"' 
 union All
 select * from [TRN].[MaterialRequsitionMaster] MRM
-                        Where MRM.AuthorizedByStatus <> 'Approved' 
+                        Where MRM.AuthorizedByStatus = 'For Approval' 
 and MRM.AuthorizedBy = '" + UserId + @"') x
 Union All
-Select 'POCount' AS Text, count(x.Id) Value
-                       FROM( select * from [TRN].[PurchaseOrder] AS IR
-                        Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
-and  IR.CheckedBy = '" + UserId + @"'
+ Select 'POCount' AS Name, count(x.Id) Value
+                       FROM( select * from [TRN].[PurchaseOrder] AS IR
+                        Where IR.CheckedByStatus = 'For Checking'
+and  IR.CheckedBy = '" + UserId + @"'
 union All
 select * from [TRN].[PurchaseOrder] AS IR
-                        Where IR.AuthorizedByStatus <> 'Approved' 
+                        Where IR.AuthorizedByStatus = 'For Approval'
 and IR.AuthorizedBy = '" + UserId + @"') x
 Union All
-Select 'GRNCount' AS Text, count(x.Id) Value
-                        from( Select * from  trn.InventoryReceive AS IR
-                        Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject'
-and  IR.CheckedBy = '" + UserId + @"'
+Select 'GRNCount' AS Name, count(x.Id) Value
+                        from( Select * from  trn.InventoryReceive AS IR
+                        Where IR.CheckedByStatus = 'For Checking' 
+and  IR.CheckedBy = '" + UserId + @"'
 union All
-Select * from  trn.InventoryReceive AS IR
-                        Where IR.AuthorizedByStatus <> 'Approved'
+ Select * from  trn.InventoryReceive AS IR
+                        Where IR.AuthorizedByStatus = 'For Approval'
 and IR.AuthorizedBy = '" + UserId + @"') x
 Union All
-Select 'ServicePOCount' AS Text, count(x.Id) Value
-                        from  (select * from trn.ServicePOMaster AS IR
-                         Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
-and  IR.CheckedBy = '" + UserId + @"' 
+Select 'ServicePOCount' AS Name, count(x.Id) Value
+                        from  (select * from trn.ServicePOMaster AS IR
+                         Where IR.CheckedByStatus = 'For Checking'
+and  IR.CheckedBy = '" + UserId + @"' 
 union All
-Select * from  trn.ServicePOMaster AS IR
-                        Where IR.ApprovedByStatus <> 'Approved'
+Select * from  trn.ServicePOMaster AS IR
+                        Where IR.ApprovedByStatus = 'For Approval'
 and IR.ApprovedBy = '" + UserId + @"') x
 Union All
-Select 'ServiceAckCount' AS Text, count(x.Id) Value
-                        from ( select * from trn.ServiceAcknowledgementMaster AS IR
-                        Where IR.CheckedByStatus <> 'Checked' and IR.CheckedByStatus <>'Hold' and IR.CheckedByStatus <> 'Reject' 
-and  IR.CheckedBy = '" + UserId + @"'
+Select 'ServiceAckCount' AS Name, count(x.Id) Value
+                        from ( select * from trn.ServiceAcknowledgementMaster AS IR
+                        Where IR.CheckedByStatus = 'For Checking'
+and  IR.CheckedBy = '" + UserId + @"'
 union All
-Select * from  trn.ServiceAcknowledgementMaster AS IR
-                        Where IR.ApprovedByStatus <> 'Approved'
-and IR.ApprovedBy = '" + UserId + @"') x 
+Select * from  trn.ServiceAcknowledgementMaster AS IR
+                        Where IR.ApprovedByStatus = 'For Approval'
+and IR.ApprovedBy = '" + UserId + @"') x
+
+
 Union All
-select 'AdvanceCount' AS Text, Count(x.EmpSystemId) As Value  from(select * from 
+select 'AdvanceCount' AS Name, Count(x.EmpSystemId) As Value  from(select * from 
 TRN.EmployeeAdvanceRequisition where ApprovalStatus = 'ToBeApproved'
-and  ApprovedBy = '" + UserId + @"' 
-union All 
-select * from 
+and  ApprovedBy = '" + UserId + @"' 
+union All 
+select * from 
 TRN.EmployeeAdvanceRequisition where ApprovalStatus = 'ToBeChecked'
-and  ApprovedBy = '" + UserId + @"') x
+and  ApprovedBy = '" + UserId + @"') x
 Union All
-select 'ExpenseCount' AS Text , Count(EB.Id) As Value from  TRN.ExpenseBooking as EB 
-left Join TRN.ExpenseBookingApprovalHistory as EBA  on EBA.ExpenseBookingId = EB.Id
-where VoucherId Is Null and EB.ResponsiblePersonId = '" + UserId + @"' and EBA.ApprovalStatus <> 'Approved' Union All
-select 'IssueCount' AS Text, Count(x.Id) As Value from ( select * from TRN.IssueRequestMaster Where CheckedByStatus <> 'Checked'
-and  CheckedBy = '" + UserId + @"' 
+select 'ExpenseCount' AS Name , Count(EB.Id) As Value from  TRN.ExpenseBooking as EB 
+left Join TRN.ExpenseBookingApprovalHistory as EBA  on EBA.ExpenseBookingId = EB.Id
+where VoucherId Is Null and EB.ResponsiblePersonId = '" + UserId + @"' and EBA.ApprovalStatus = 'For Approval'
+
+Union All
+select 'IssueCount' AS Name, Count(x.Id) As Value from ( select * from TRN.IssueRequestMaster Where CheckedByStatus = 'For Checking'
+and  CheckedBy = '" + UserId + @"' 
 union All
 select * from [TRN].[IssueRequestMaster]
-                        Where AuthorizedByStatus <> 'Approved' 
-and AuthorizedBy = '" + UserId + @"') x Union All 
+                        Where AuthorizedByStatus = 'For Approval'
+and AuthorizedBy = '" + UserId + @"') x
+
+Union All 
 select 'TaskCount' As Text, Count(ta.Id) As Value from dbo.TaskAudit as ta
 left Join dbo.TaskManagerMaster as tm on tm.Id = ta.TaskManagerMasterId
-where AuthorizationType <> 'CreatedBy' and isRead <> 1  and tm.CurrentStatus <> 'Closed' and ResponsiblePersonId = '" + UserId + @"' Union All
-select 'GatePassCount' As Text, COUNT(x.Id) As Value from ( select * from TRN.GatePassMaster Where GatePassStatus <> 'NonReturnable' and CheckedByStatus <> 'Checked'
-and  CheckedBy = '" + UserId + @"' 
+where AuthorizationType <> 'CreatedBy' and isRead <> 1  and tm.CurrentStatus <> 'Closed' and ResponsiblePersonId = '" + UserId + @"'
+
+Union All
+select 'GatePassCount' As Text, COUNT(x.Id) As Value from ( select * from TRN.GatePassMaster Where GatePassStatus <> 'NonReturnable' and CheckedByStatus = 'For Checking'
+and  CheckedBy = '" + UserId + @"' 
 union All
 select * from [TRN].[GatePassMaster]
-                        Where ApprovedByStatus <> 'Approved' and GatePassStatus <> 'NonReturnable' 
-and ApprovedBy = '" + UserId + @"') x Union All
-select 'LeaveCount' AS Text , Count(SystemID) As Value from dbo.LeaveTransaction   WHERE  IsNull(IsApproved,0) = 0
+                        Where ApprovedByStatus = 'For Approval' and GatePassStatus <> 'NonReturnable' 
+and ApprovedBy = '" + UserId + @"') x
+
+Union All
+select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction   WHERE  IsNull(IsApproved,0) = 0
                              AND ISNULL(SystemID,'')<> ''
                              AND IsCancel=0
                              AND FirstApprovingStatus = 0  AND FirstApprovingAuthority = '" + UserId + @"'";
@@ -3153,10 +3163,10 @@ select 'LeaveCount' AS Text , Count(SystemID) As Value from dbo.LeaveTransaction
                 objCon.CommitTransaction();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
-                    DataList.Add(new Default
+                    DataList.Add(new Default2
                     {
                         Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
-                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
 
                     });
                 }
@@ -3512,6 +3522,12 @@ select 'LeaveCount' AS Text , Count(SystemID) As Value from dbo.LeaveTransaction
     public class Default
     {
         public string Text { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
+
+    public class Default2
+    {
+        public string Name { get; set; } = "";
         public string Value { get; set; } = "";
     }
 
