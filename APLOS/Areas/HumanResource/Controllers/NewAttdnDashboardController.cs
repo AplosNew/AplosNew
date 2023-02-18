@@ -118,6 +118,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColName = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 13, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCategory = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Day Status", 13, ExcelHAlign.HAlignCenter);
             int ColDStat = COL;
             COL++;
@@ -252,6 +256,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 sheet[ROW, ColCode].Text = dtData.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColName].Text = dtData.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColEmployeeCategory].Text = dtData.Rows[i]["EmployeeCategory"].ToString();
                 sheet[ROW, ColDStat].Text = dtData.Rows[i]["DayStatus"].ToString();
                 sheet[ROW, ColInStat].Text = dtData.Rows[i]["InStatus"].ToString();
                 sheet[ROW, ColITime].Text = dtData.Rows[i]["InTime"].ToString();
