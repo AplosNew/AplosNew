@@ -235,6 +235,8 @@ namespace Aplos.Areas.Products.Controllers
             DataSet dsMaster;
             DataSet dsDetail;
             DataSet dsPOTax;
+            DataSet dsPOLog;
+            DataSet dsPOVersionLog;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
@@ -243,10 +245,14 @@ namespace Aplos.Areas.Products.Controllers
                 string sqlmaster = "SELECT * FROM [TRN].[PurchaseOrder] WHERE Id='" + data.Id + "'";
                 string sqlDetail = "SELECT * FROM [TRN].[PurchaseOrderDetail] WHERE InventoryReceiveId='" + data.Id + "'";
                 string poTaxsql = "SELECT * FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveId='" + data.Id + "'";
+                string poUpdateLogsql = "SELECT Top(1) * FROM [TRN].[PurchaseOrderUpdateLog] WHERE 1=2";
+                string poUpdateLogVersionsql = "SELECT Count(Id) Id  FROM [TRN].[PurchaseOrderUpdateLog] WHERE PurchaseOrderId='" + data.Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlmaster, out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
                 objCon.OpenDataSetThroughAdapter(poTaxsql, out dsPOTax, false, "1");
+                objCon.OpenDataSetThroughAdapter(poUpdateLogsql, out dsPOLog, false, "1");
+                objCon.OpenDataSetThroughAdapter(poUpdateLogVersionsql, out dsPOVersionLog, false, "1");
 
                 if (dsMaster.Tables[0].Rows.Count > 0)
                 {
@@ -316,8 +322,22 @@ namespace Aplos.Areas.Products.Controllers
                     }
                 }
 
+                if (dsPOLog.Tables[0].Rows.Count == 0)
+                {
+                    DataRow drPOLog = dsPOLog.Tables[0].NewRow();
+                    drPOLog["PurchaseOrderId"] = data.Id;
+                    drPOLog["PlantId"] = identity.PlantId;
+                    drPOLog["CompanyId"] = identity.CompanyId;
+                    drPOLog["IsToleranceUpdate"] = isToleranceUpdate;
+                    drPOLog["Version"] =Convert.ToInt32(dsPOVersionLog.Tables[0].Rows[0]["Id"].ToString()) + 1;
+                    drPOLog["Status"] = "Update";
+                    drPOLog["UpdatedBy"] = identity.UserId;
+                    drPOLog["UpdatedDate"] = DateTime.Now;
+                    drPOLog["UpdatedFromIP"] = identity.IPAddress;
+                    dsPOLog.Tables[0].Rows.Add(drPOLog);
+                }
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDetail, dsPOTax);
+                obj.SaveDataSets(dsMaster, dsDetail, dsPOTax, dsPOLog);
             }
             catch (Exception ex)
             {
