@@ -25,6 +25,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Aplos.MaterialManagement;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
 
 
 
@@ -151,6 +153,11 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
         public ActionResult ServicePORegister()
+        {
+            return View();
+        }
+
+        public ActionResult InWardMaterial()
         {
             return View();
         }
@@ -869,6 +876,30 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
         #endregion
+
+        #region In Ward Material Report
+
+        [HttpGet, Authorize]
+        public ActionResult InWardMaterialReport(string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                IWorkbook workbook = _materialMasterService.CreateInWardMaterialReport( identity.CompanyId, identity.PlantId, fromDate, toDate);
+                string strFileName = "In Ward Material.xlsx";
+                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                workbook.Close();
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+            return null;
+        }
+
+        #endregion
+
     }
 
 

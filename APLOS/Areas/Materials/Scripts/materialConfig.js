@@ -338,4 +338,10 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/RawMaterialPlanning/Aplos',
             controller: 'RawMaterialPlanningController'
         })
+        .when('/in-ward-material', {
+            templateUrl: 'materials/MaterialLedger/InWardMaterial',
+            controller: 'InWardMaterialController'
+        })
+
+
 };
