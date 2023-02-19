@@ -741,10 +741,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet]
-        public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
+        public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel,string partyId,string partyPlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = GetTrialBalanceReport(identity.CompanyId, identity.PlantId, identity.PlantName, date, isBudgetLevel, isActivityLevel, isDetailLevel);
+            var workbook = GetTrialBalanceReport(identity.CompanyId, identity.PlantId, identity.PlantName, date, isBudgetLevel, isActivityLevel, isDetailLevel, partyId, partyPlantId);
             var reportFileName = DateTime.Now.ToString("yyMMdd") + " Trial Balance Sheet";
             switch (reportFormat)
             {
@@ -760,11 +760,11 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
        
-        public IWorkbook GetTrialBalanceReport(string companyId, string plantId, string plantName, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
+        public IWorkbook GetTrialBalanceReport(string companyId, string plantId, string plantName, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel, string partyId, string partyPlantId)
         {
             var excelEngine = new ExcelEngine();
             var oRU = new ReportUtility();
-            var dsLocal = GetTrialBalanceInfo(companyId, plantId, toDate, isBudgetLevel, isActivityLevel, isDetailLevel);
+            var dsLocal = GetTrialBalanceInfo(companyId, plantId, toDate, isBudgetLevel, isActivityLevel, isDetailLevel, partyId, partyPlantId);
             var workbook = oRU.GetWorkbook(ref excelEngine, 1);
             workbook.Version = ExcelVersion.Excel2013;
             var sheet = workbook.Worksheets[0];
@@ -2527,12 +2527,20 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-        private DataSet GetTrialBalanceInfo(string companyId, string plantId, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
+        private DataSet GetTrialBalanceInfo(string companyId, string plantId, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel,string partyId, string partyPlantId)
         {
             GridParameter parameters = null;
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var tempSql = "";
+                if (!string.IsNullOrEmpty(partyId) && !string.IsNullOrEmpty(partyPlantId))
+                {
+                    tempSql = " AND VD.PartyId='"+ partyId + "' AND VD.PartyPlantId='"+ partyPlantId + @"'";
+                } else if(partyId != null && partyPlantId == null)
+                    {
+                        tempSql = " AND VD.PartyId='" + partyId + @"'";
+                    }
                 parameters = new GridParameter
                 {
                     ExportType = "DATASET"
@@ -2635,7 +2643,7 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
 											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
-                                            AND  v.IsPark=0
+                                            AND  v.IsPark=0 "+ tempSql + @"
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
 											,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId ) ttd 
