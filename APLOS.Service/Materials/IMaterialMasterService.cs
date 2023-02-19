@@ -56,7 +56,7 @@ namespace Library.Service.Materials
         IWorkbook CreateMaterialStoreLedger(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId, string Sku1, string Sku2,string Sku3);
         //IWorkbook CreateMaterialStoreLedgerAll(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string MaterialId, string ArticleId);
 
-
+        IWorkbook CreateInWardMaterialReport(string CompanyId, string plantId, string fromDate, string toDate);
 
         IWorkbook CreateMaterialConsumptionReport(string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue);
 
