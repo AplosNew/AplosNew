@@ -201,12 +201,13 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
 , ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
-,MBGT.ROBudgetCode,APD.WorkDate , PV.UpdatedBy
+,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
+,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+left join  MST.ManpowerBudget MBGT2 on MBGT2.Id = MBGT.ROBudgetCode
 LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson
 LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -734,13 +735,14 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 
                 strSQL = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
 , ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, EFB.AddedDate FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
-,MBGT.ROBudgetCode,APD.WorkDate , PV.UpdatedBy
+,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
+,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
 
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+left join  MST.ManpowerBudget MBGT2 on MBGT2.Id = MBGT.ROBudgetCode
 LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson
 LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID

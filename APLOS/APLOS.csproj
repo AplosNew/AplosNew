@@ -2259,6 +2259,7 @@
     <Content Include="Areas\Machines\Scripts\maintenanceStatusDetailsController.js" />
     <Content Include="Areas\Machines\Scripts\maintenanceSchedulingController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionLogReportController.js" />
+    <Content Include="Areas\Materials\Scripts\InWardMaterialController.js" />
     <Content Include="Areas\Materials\Scripts\RawMaterialPlanningController.js" />
     <Content Include="Areas\Materials\Scripts\ScanDataController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityGroupController.js" />
@@ -4531,6 +4532,7 @@
     <Content Include="Areas\Materials\Views\Shared\_IndependentSKU2PopUp.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductIntegrityAnalysis\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\SalesOrderWiseProductionCompletionReport\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\MaterialLedger\InWardMaterial.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

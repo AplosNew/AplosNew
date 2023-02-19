@@ -1145,6 +1145,7 @@ upanelApp.controller("ProductIntegrityAnalysisMasterController", ProductIntegrit
 upanelApp.controller("LeaveRegistersFormController", LeaveRegistersFormController)
 upanelApp.controller("ProductIntegrityAnalysisController", ProductIntegrityAnalysisController)
 upanelApp.controller("SalesOrderWiseProductionCompletionReportController", SalesOrderWiseProductionCompletionReportController)
+upanelApp.controller("InWardMaterialController", InWardMaterialController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
