@@ -112,6 +112,16 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <div class="select-style">
+                                                <select class="form-control" ng-disabled="IsGo" ng-model="ProductionShiftId2" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                                                    <option value=""></option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-6 col-md-6">
                                     <div class="form-group">
