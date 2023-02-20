@@ -118,9 +118,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetShiftListAnother()
+        public JsonResult GetAllShiftList()
         {
-            return Json(_productionSummaryData.GetShiftListAnother(), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetAllShiftList(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

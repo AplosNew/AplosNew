@@ -171,21 +171,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
         }
     }
 
-    $scope.shiftList = [];
-    $scope.ProcessId2 = null;
-    $scope.GetShiftList = function () {
-        $scope.shiftList = [];
-        $http.get('Productions/Productionsummary/GetShiftListAnother')
-            .then(function (response) {
-                if (baseService.arrayLength(response.data) > 0) {
-                    $scope.shiftList = response.data;
-                    if (baseService.arrayLength(response.data) === 1) {
-                        $scope.ProductionShiftId2 = $scope.shiftList[0].Value;
-                    }
-                }
-            });
-    }
-
+   
 
     $scope.fromDate2 = '';
     $scope.toDate2 = '';
@@ -195,17 +181,25 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.PerameterWiseReport = function () {
         try {
             if (angular.isUndefinedOrNull($scope.fromDate2)) {
-                throw "Select From Date";
+                throw "Select From Date.";
             }
 
             if (angular.isUndefinedOrNull($scope.toDate2)) {
-                throw "Select To Date";
+                throw "Select To Date.";
             }
 
             if (new Date($scope.fromDate) > new Date($scope.toDate2)) {
                 throw "From date can not be greater than To date.";
             }
 
+            if (angular.isUndefinedOrNull($scope.EntityId2)) {
+                throw "Select Entity.";
+            }
+
+
+            if (angular.isUndefinedOrNull($scope.ProcessId2)) {
+                throw "Select Process.";
+            }
 
             $scope.fileName = "ProductionOrderReportParameterWise.xlsx";
             $http({
@@ -232,97 +226,22 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;
-            if (baseService.arrayLength(result) === 1) {
-                $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
-                $scope.getProdLevel();
-                //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProductionShiftId);
-            }
         });
     };
 
-    $scope.getProdLevel = function () {
-        try {
-            $scope.PQEnable = false;
-
-            $scope.IsFirst = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].IsFirst;
-
-            $scope.ProductionBookingLevel = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].ProductionBookingLevel;
-
-            $scope.LotNumberCapture = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].LotNumberCapture;
-
-            $scope.LotNumberMandatory = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].LotNumberMandatory;
-
-            $scope.IsSKU1 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].IsSKU1;
-
-            $scope.IsSKU2 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].IsSKU2;
-
-            $scope.IsSKU3 = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].IsSKU3;
-
-            $scope.IsParameterBased = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.ProcessId;
-            })[0].IsParameterBased;
-
-            if ($scope.ProductionBookingLevel === 'ProductionOrder') {
-                $scope.ProductionLevel = 'Production Order';
-                $scope.disGo = false;
-            }
-            else if ($scope.ProductionBookingLevel === 'SalesOrder') {
-                $scope.ProductionLevel = 'Sales Order';
-                $scope.disGo = false;
-            }
-            else if ($scope.ProductionBookingLevel === 'MasterOrderItem') {
-                $scope.ProductionLevel = 'Master Order Item';
-                $scope.disGo = false;
-            }
-            else if ($scope.ProductionBookingLevel === 'ProductCode') {
-                $scope.ProductionLevel = 'Product Code';
-                $scope.disGo = false;
-            }
-            else {
-                $scope.disGo = true;
-                $scope.PQEnable = true;
-                throw 'Production Booking Level is not defined for selected process.';
-            }
-
-            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true || $scope.IsParameterBased == true) {
-                $scope.PQEnable = true;
-                $scope.disGo = false;
-            }
-
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
+   
 
     $scope.shiftList = [];
     $scope.GetShiftList = function () {
         $scope.shiftList = [];
-        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.ProcessId)
+        $http.get('Productions/Productionsummary/GetAllShiftList')
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.shiftList = response.data;
-                    if (baseService.arrayLength(response.data) === 1) {
-                        $scope.ProductionShiftId = $scope.shiftList[0].Value;
-                    }
                 }
             });
     }
+    $scope.GetShiftList();
 
 }
 
