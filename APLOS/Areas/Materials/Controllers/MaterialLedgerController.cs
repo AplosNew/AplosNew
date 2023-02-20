@@ -904,29 +904,8 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 throw ex;
             }
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult InWardMaterialReport(string fromDate, string toDate,List<Dictionary<string, string>> IRDId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = _materialMasterService.CreateInWardMaterialReport( identity.CompanyId, identity.PlantId, fromDate, toDate, IRDId);
-                string strFileName = "In Ward Material.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
-            }
-            catch (Exception ex)
-            {
-                return Json(ex.Message, JsonRequestBehavior.AllowGet);
-            }
-            return null;
-        }
-
+        }       
         #endregion
-
     }
 
 
