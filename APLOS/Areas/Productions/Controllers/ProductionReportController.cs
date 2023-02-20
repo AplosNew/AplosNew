@@ -29,6 +29,8 @@ namespace Aplos.Areas.Productions.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
+        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
+
         public ProductionReportController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -138,9 +140,9 @@ namespace Aplos.Areas.Productions.Controllers
                 workbook.Worksheets[0].Name = "Data";
                 sheet = workbook.Worksheets[0];
                 DataTable dtOrder, dtParameter;
-                GetProductionSummaryData(Date, Entity, ProcessId, out dtOrder);
+                _productionSummaryData.GetProductionSummaryData(Date, Entity, ProcessId, out dtOrder);
                 Dictionary<string, ProductionParameter> shtListNew = null;
-                Dictionary<string, List<DataRow>> dicParameter = GetProductionParameterData(Date, Entity, ProcessId, out dtParameter);
+                Dictionary<string, List<DataRow>> dicParameter = _productionSummaryData.GetProductionParameterData(Date, Entity, ProcessId, out dtParameter);
                 if (dtOrder.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found.");
@@ -338,106 +340,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void GetProductionSummaryData(string Date, string Entity, string ProcessId, out DataTable dtOrder)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            string strSql = string.Empty;
-            try
-            {
-               // string yd = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
-
-                strSql = @"select PS.Id ProductionSummaryId,wcm.Id,WCM.UserName WorkCenter,PS.ProductionOrderId PONo,PS.LotNumber  ,0 WIP
-
-,ProductionAsOnDate=(select sum(Quantity) from TRN.ProductionSummary 
-where ProductionDate between '"+ Date + @"' and '" + Date + @"'  and EntityId = '"+ Entity + @"' and ProcessId = '"+ ProcessId + @"' AND WorkCenterMasterId=PS.WorkCenterMasterId AND ProductionOrderId=PS.ProductionOrderId AND LotNumber=PS.LotNumber)
-
-,Article =STUFF((select distinct ','+MMA.StandardName from 
-	trn.SalesOrder XSO 
-    JOIN trn.MasterOrderItem AS MOI ON MOI.Id=XSO.MasterOrderItemId
-    left join MST.MaterialMasterArticle MMA on MMA.Id=MOI.ArticleId	
-    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,ProductCode =STUFF((select distinct ','+PL.Code from 
-	trn.SalesOrder XSO 
-    JOIN trn.MasterOrderItem AS MOI ON MOI.Id=XSO.MasterOrderItemId
-    left join dbo.ProductLibrary PL on PL.Id=MOI.ProductLibraryId
-    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,Product =STUFF((select distinct ','+PM.UserName from 
-	trn.SalesOrder XSO 
-    JOIN trn.MasterOrderItem AS MOI ON MOI.Id=XSO.MasterOrderItemId
-    left join MST.MaterialMaster MM on MM.Id=MOI.MaterialMasterId
-left join TRN.ProductDefinition AS PD ON PD.MaterialMasterId=MM.Id
-left join [MST].[ProductMaster] PM on PM.Id=PD.ProductMasterId
-    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,SONo =STUFF((select distinct ','+XSO.Id from 
-	trn.SalesOrder XSO 
-    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-    WHERE PS.ProductionOrderId=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-from TRN.ProductionSummary PS
-left join SCS.WorkCenterMaster WCM on WCM.Id=PS.WorkCenterMasterId AND WCM.Active=1							  
-WHERE PS.ProductionDate between '" + Date + @"' and '" + Date + @"' and PS.EntityId = '" + Entity + @"' and PS.ProcessId = '" + ProcessId + @"'";
-
-                dtOrder = _sqlRepository.GetDataTable(strSql);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }//End Function
-
-        public Dictionary<string, List<DataRow>> GetProductionParameterData(string Date, string Entity, string ProcessId, out DataTable dtParameter)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            string strSql = string.Empty;
-            DataSet dsRef = null;
-            Dictionary<string, List<DataRow>> dicParameter = new Dictionary<string, List<DataRow>>();
-            dtParameter = new DataTable("Tmp");
-            try
-            {
-                strSql = @"SELECT PV.* FROM [dbo].[ProductionSummaryParameterValue] PV
-LEFT JOIN [dbo].[ProductionBookingParameter] PB ON PB.Id=PV.ProductionBookingParameterId
-Where PB.EntryState='Entry' AND ProductionSummaryId IN(select Id from TRN.ProductionSummary where ProductionDate between '" + Date + @"' and '" + Date + @"' and EntityId = '" + Entity + @"' and ProcessId = '" + ProcessId + "') Order by ProductionSummaryId";
-
-                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
-                con.getDataSet(strSql, out dsRef);
-
-                dtParameter = dsRef.Tables[0].DefaultView.ToTable(true, "ProductionBookingParameterId", "UserName");
-                dtParameter = dtParameter.DefaultView.ToTable();
-
-                DataTable dt = dsRef.Tables[0];
-                List<DataRow> _data = new List<DataRow>();
-                string empId = "";
-                for (int i = 0; i < dt.Rows.Count; i++)
-                {
-                    if (empId != dt.Rows[i]["ProductionSummaryId"].ToString())
-                    {
-                        _data = new List<DataRow>();
-                        dicParameter.Add(dt.Rows[i]["ProductionSummaryId"].ToString(), _data);
-                    }
-                    _data.Add(dt.Rows[i]);
-
-                    empId = dt.Rows[i]["ProductionSummaryId"].ToString();
-                }
-
-                return dicParameter;
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
+       
         public void GetReportX(string Date, string Entity, string ProcessId, out DataTable dtOrder)
         {
             ConnectionManager.DAL.ConManager objCon;
