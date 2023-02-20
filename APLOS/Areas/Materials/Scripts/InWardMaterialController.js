@@ -2,21 +2,38 @@
 InWardMaterialController.$inject = ['fileReader', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'cboService', '$window', '$controller'];
 function InWardMaterialController(fileReader, commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService, $window, $controller) {
     $rootScope.title = "In Ward Material";
-
-    $scope.index = -1;
-
-    $scope.exportgriddataUrl = 'GridReports/ExcelExport';
-    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
-
     $scope.downloadgriddataUrl = 'GridReports/Download';
-
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     //In Ward Material-Start
 
     //$scope.fromDate = $filter('dateFiltering')(Date.now());
     $scope.toDate = $filter('dateFiltering')(Date.now());
 
-    $scope.InWardMaterialReportExcel = function (reportFormat) {
+    $scope.InWardMaterialList = [];
+    $scope.GetInWardMaterialData = function () {
+        if ($scope.fromDate === null || $scope.fromDate === "") {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        else if ($scope.toDate === null || $scope.toDate === "") {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+        $http({
+            method: 'POST',
+            url: 'Materials/MaterialLedger/GetInWardMaterialData',
+            data: {
+                fromDate: $scope.fromDate,
+                toDate: $scope.toDate
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.InWardMaterialList = response.data;
+        });
+    };
 
+
+    $scope.InWardMaterialReportExcel = function () {
         if (baseService.isUndefinedOrNull($scope.fromDate)) {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -26,29 +43,40 @@ function InWardMaterialController(fileReader, commonMessage, $scope, $rootScope,
             return false;
         }
 
+        var dataList = [];
+        var g = $("#GridPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.InWardMaterialList;
+        }
         try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/InWardMaterialReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.fromDate + '&toDate=' + $scope.toDate;
-            $rootScope.report(file_src);
+            $scope.fileName = 'In Ward Material Report';
+            $http({
+                method: 'POST',
+                url: $scope.exportgriddataUrl,
+                data: {
+                    'data': dataList,
+                    'reportFileName': $scope.fileName,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
         } catch (e) {
 
         }
     }
 
-    $scope.InWardMaterialReportPdf = function (reportFormat) {
-        if (baseService.isUndefinedOrNull($scope.fromDate)) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if (baseService.isUndefinedOrNull($scope.toDate)) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        var reportFormat = "Pdf";
-        //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/InWardMaterialReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.fromDate + '&toDate=' + $scope.toDate);
-
-    };
     //End In ward material
 
 }
