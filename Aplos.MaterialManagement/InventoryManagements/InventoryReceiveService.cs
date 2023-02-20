@@ -1684,6 +1684,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					-- ,x.IssueReturnAmount,x.PhysicalStockAdjustmentqty,x.PhysicalStockAdjustmentRate,x.PhysicalStockAdjustmentAmount
  
 					--from (
+					,IRD.LotNo,P.UserName VendorName
 					FROM TRN.InventoryMaterial AS IM
 						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
@@ -1699,6 +1700,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
 						left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
+						left join HKP.Party P on IR.PartyId=p.Id
 						left join(select IH.InventoryReceiveDetailId,II.IssueDate,II.Id IssueNo,II.IssueType,II.VoucherId IssueVoucherNo,NULL POReturnDate,NULL PurchaseReturnNo, NULL ReturnIssueDate  ,NULL ReturnIssueReturnNo, NULL PhysicalIssueDate,NULL PhysicalIssueNo
 
                                     ,(Sum(Isnull(Ih.Qty,0))) IssueQty 
