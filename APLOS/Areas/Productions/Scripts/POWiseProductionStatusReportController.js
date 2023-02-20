@@ -321,7 +321,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
 
             if (dataList.length == 0) {
-                throw "Select List.";
+                throw "First click on View button.";
             }
 
             $scope.fileName = "ProductionDataReport.xlsx";
@@ -432,7 +432,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
 
             if (dataList.length == 0) {
-                throw "Select List.";
+                throw "First click on View button.";
             }
 
             $scope.fileName = "ProductionDataWithWCReport.xlsx";
@@ -511,7 +511,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
                 dataList = $scope.ProductionDataSumReportList;
             }
             if (dataList.length == 0) {
-                throw "Select List.";
+                throw "First click on View button.";
             }
 
             $scope.fileName = "ProductionSummaryDataReport.xlsx";
@@ -547,7 +547,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
 
             if (dataList.length == 0) {
-                throw "Select List.";
+                throw "First click on View button.";
             }
             $scope.fileName = "ProductionDataSummary";
 
@@ -673,7 +673,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
 
             if (alldataLists.length == 0) {
-                throw "Select List.";
+                throw "First click on View button.";
             }
 
             $scope.fileName = "ProductionDataAllSummary";
@@ -709,7 +709,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
             }
 
             if (dataList.length == 0) {
-                throw "Select List.";
+                throw "First click on View button.";
             }
 
             $scope.fileName = "ProductionAllSummaryDataReport.xlsx";
