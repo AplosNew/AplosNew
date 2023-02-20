@@ -6,14 +6,14 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" ng-model="ModelNew.FromDate" name="From Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                    <input type="text" ng-model="ModelNew.FromDate" name="From Date" datepicker class="form-control" maxlength="50" tabindex="0">
                 </div>
             </div>
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">In Status</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.InStatus" required name="In Status"
+                        <select class="form-control" ng-model="ModelNew.InStatus" name="In Status"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in InStatusList" value="{{option.Value}}">{{option.Text}}</option>
@@ -70,7 +70,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="0" required>
+                <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="0">
             </div>
         </div>
 
@@ -78,7 +78,7 @@
             <label class="col-sm-4 control-label">Day Status</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.DayStatus" required name="In Status"
+                    <select class="form-control" ng-model="ModelNew.DayStatus" name="In Status"
                             tabindex="2">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in DayStatusList" value="{{option.Value}}">{{option.Text}}</option>
@@ -151,6 +151,7 @@
                 <div e-column e-field="Activity" e-headertext="Activity" e-width="150"></div>
                 <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
                 <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
                 <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
                 <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="100"></div>
                 <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="100"></div>
