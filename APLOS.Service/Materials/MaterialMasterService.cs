@@ -20793,8 +20793,7 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
-
-            DataTable dtGatenntryRegisterList = _sqlRepository.GetDataTable(@"select IRD.AddedDate Date,IR.DocRefNo,NULL PO,NULL StyleNO,P.UserName VendorName,MM.UserName Material,MMA.StandardName Article
+            string sql = @"select IRD.AddedDate Date,IR.DocRefNo,NULL PO,NULL StyleNO,P.UserName VendorName,MM.UserName Material,MMA.StandardName Article
 									,NULL SKU1,IRD.lotNo,IRD.TransactionQty Qty,uom.UserName UOM,IRD.MaterialTranRate Rate,0 RollBag,NULL Transporter,IR.Id GRNNo
 									from trn.InventoryReceiveDetail IRD
 									left join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
@@ -20804,7 +20803,8 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 									left join HKP.Party P on P.Id=IR.PartyId
 									left join [SCS].[UnitOfMeasurement] uom on uom.Id=IRD.TransactionUoMId	
                                      									 
-						where Convert(date ,IRD.AddedDate) between '" + fromDate + @"' AND '" + toDate + @"' ");
+						where Convert(date ,IRD.AddedDate) between '" + fromDate + @"' AND '" + toDate + @"' ";
+            DataTable dtGatenntryRegisterList = _sqlRepository.GetDataTable(sql);
 
             if (dtGatenntryRegisterList.Rows.Count == 0)
                 throw new Exception("No data found");
