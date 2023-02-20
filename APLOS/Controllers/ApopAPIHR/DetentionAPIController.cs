@@ -360,10 +360,10 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion AllTaskList
 
         #region Deshboard
-        public List<Default> GetDeshboard(string UserId)
+        public List<Default2> GetDeshboard(string UserId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetDeshboard(out List<Default> activelists, UserId);
+            clsData.GetDeshboard(out List<Default2> activelists, UserId);
             return activelists;
         }
         #endregion Deshboard

@@ -267,6 +267,11 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             controller: 'ProductIntegrityAnalysisController'
         })
 
+        .when('/so-pro-com', {
+            templateUrl: 'OrderManagements/SalesOrderWiseProductionCompletionReport/Aplos',
+            controller: 'SalesOrderWiseProductionCompletionReportController'
+        })
+
         .when('/productivity-recovery-master', {
             templateUrl: 'OrderManagements/ProductivityRecoveryMaster/Aplos',
             controller: 'ProductivityRecoveryMasterController'

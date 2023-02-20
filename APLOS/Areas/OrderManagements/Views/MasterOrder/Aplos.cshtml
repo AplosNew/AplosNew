@@ -2599,7 +2599,7 @@
                                 <td>{{x.MaterialMaster}}</td>
                                 <td>{{x.Article}}</td>
                                 <td class="text-right">{{x.MaterialCostPerUnit | setDecimal:2 | number:2}}</td>
-                                <td class="text-right">{{x.NetConsumptionPerUnit | setDecimal:3 | number:3}}</td>
+                                <td class="text-right">{{x.NetConsumptionPerUnit | setDecimal:4 | number:4}}</td>
                                 <td>{{x.ValueLossPercentage | setDecimal:2 | number:2}}</td>
                                 <td class="text-right">{{x.GrossConsumption  | setDecimal:4 | number:4}}</td>
                                 <td>{{x.Code}}</td>
@@ -2613,7 +2613,7 @@
                                 </td>
                                 <td></td>
                                 <td class="text-right">
-                                    <strong>{{qboqList | sumByKey : 'NetConsumptionPerUnit'| setDecimal:3 | number:3}}</strong>
+                                    <strong>{{qboqList | sumByKey : 'NetConsumptionPerUnit'| setDecimal:4 | number:4}}</strong>
                                 </td>
                                 <td colspan="6"></td>
                             </tr>
