@@ -1144,6 +1144,9 @@ upanelApp.controller("RawMaterialPlanningController", RawMaterialPlanningControl
 upanelApp.controller("ProductIntegrityAnalysisMasterController", ProductIntegrityAnalysisMasterController)
 upanelApp.controller("LeaveRegistersFormController", LeaveRegistersFormController)
 upanelApp.controller("ProductIntegrityAnalysisController", ProductIntegrityAnalysisController)
+upanelApp.controller("SalesOrderWiseProductionCompletionReportController", SalesOrderWiseProductionCompletionReportController)
+upanelApp.controller("InWardMaterialController", InWardMaterialController)
+upanelApp.controller("ProductivityRecoveryMasterController", ProductivityRecoveryMasterController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

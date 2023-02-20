@@ -4,6 +4,7 @@
 
         <div class="col-xs-12 col-sm-4 col-md-4">
             <fieldset class="scheduler-border">
+                <legend class="scheduler-border">{{legendTitle}}</legend>
                 <div class="form-group" show-errors>
                     <label class="col-sm-3 control-label">Level<sup>*</sup></label>
                     <div class="col-sm-9 radio">
@@ -29,7 +30,6 @@
                         </label>
                     </div>
                 </div>
-                <legend class="scheduler-border">{{legendTitle}}</legend>
                 <div class="form-group" show-errors id="div_FromDate">
                     <label class="col-sm-3 control-label">{{fromDateTitle}}<sup>*</sup></label>
                     <div class="col-sm-7 show-message">
@@ -42,29 +42,11 @@
                         <input type="text" name="Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="4">
                     </div>
                 </div>
-                @*<div class="form-group">
-            <label class="col-sm-3 control-label">Budget</label>
-            <div class="checkbox-site">
-                <label class="col-sm-9">
-                    <input type="checkbox" id="IsBudgetLevel" ng-model="report.IsBudgetLevel" ng-click="uncheck()">
-                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                </label>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label">Activity</label>
-            <div class="checkbox-site">
-                <label class="col-sm-9">
-                    <input type="checkbox" id="IsActivityLevel" ng-model="report.IsActivityLevel" ng-disabled="!report.IsBudgetLevel" ng-checked="report.IsActivityLevel">
-                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                </label>
-             </div>
-              </div>*@
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Up To<sup>*</sup></label>
                     <div class="col-sm-7 show-message">
                         <div class="select-style">
-                            <select class="form-control" name="CurrencyTransaction" ng-model="report.IsUpToLevel" ng-change="LevelAssaign(report.IsUpToLevel)" required tabindex="3">
+                            <select class="form-control" name="CurrencyTransaction" ng-model="report.IsUpToLevel" ng-change="LevelAssaign(report.IsUpToLevel);partyRefresh()" required tabindex="3">
                                 <option ng-repeat="option in upToLevelList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
@@ -91,53 +73,40 @@
             </fieldset>
 
         </div>
-        <div class="col-xs-12 col-sm-8 col-md-8">
-            @*<fieldset class="scheduler-border">
-                <legend class="scheduler-border">Within Date Range</legend>
-                <div class="form-group" show-errors id="div_WDFromDate">
-                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <input type="text" name="Date" ng-model="reportDateWise.FromDate" datepicker class="form-control" required tabindex="3">
-                    </div>
-                </div>
-                <div class="form-group" show-errors id="div_WDToDate">
-                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <input type="text" name="Date" ng-model="reportDateWise.ToDate" datepicker class="form-control" required tabindex="4">
-                    </div>
-                </div>
-               
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Up To<sup>*</sup></label>
-                    <div class="col-sm-7 show-message">
-                        <div class="select-style">
-                            <select class="form-control" name="CurrencyTransaction" ng-model="reportDateWise.IsUpToLevel" ng-change="LevelAssaign(reportDateWise.IsUpToLevel)" required tabindex="5">
-                                <option ng-repeat="option in upToLevelList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
+        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="report.IsUpToLevel=='Detail'">
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Party Trail Balance</legend>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-3 control-label">Party</label>
+                    <div class="col-sm-9 show-message">
+                        <div class="input-group">
+                            <input type="text" name="Party" ng-model="PartyName" class="form-control" readonly required>
+                            <span class="input-group-btn">
+                                <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="partyRefresh();" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                            </span>
                         </div>
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-3 control-label">Format<sup>*</sup></label>
-                    <div class="col-sm-9 radio">
-                        <label>
-                            <input type="radio" name="source" ng-model="reportDateWise.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
-                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
-                        </label>
-                        <label>
-                            <input type="radio" name="source" ng-model="reportDateWise.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
-                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
-                        </label>
+                    <label class="col-sm-3 control-label">Party Plant</label>
+                    <div class="col-sm-9 show-message">
+                        <div class="input-group">
+                            <div class="select-style">
+                                <select tabindex="1" class="form-control" name="Location" ng-model="PartyPlantId" ng-options="item.Value as item.Text for item in partyPlantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(advance.PartyPlantId,'billTo'); updateCrAmount();" required>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <span class="input-group-btn">
+                                <button ng-click="showPartyPlantPopUp(PartyPlantId);" class="btn single-small-btn"><i class="glyphicon glyphicon-list"></i></button>
+                            </span>
+                        </div>
                     </div>
                 </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-left">
-                        <li><button ng-click="getDateWiseTrialBalanceReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
-                    </ul>
-                </div>
-            </fieldset>*@
+            </fieldset>
         </div>
-
     </div>
-</div>
+
+    @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
 

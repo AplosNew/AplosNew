@@ -25,6 +25,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 using Aplos.MaterialManagement;
+using Syncfusion.ExcelToPdfConverter;
+using Syncfusion.Pdf;
 
 
 
@@ -151,6 +153,11 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
         public ActionResult ServicePORegister()
+        {
+            return View();
+        }
+
+        public ActionResult InWardMaterial()
         {
             return View();
         }
@@ -868,6 +875,36 @@ namespace Aplos.Areas.Materials.Controllers
                     return View();
             }
         }
+        #endregion
+
+        #region In Ward Material Report
+
+        public JsonResult GetInWardMaterialData(string fromDate, string toDate)
+        {
+            try
+            {
+                DateTime fDate = DateTime.Parse(fromDate);
+                DateTime tDate = DateTime.Parse(toDate);
+                if (fromDate == null || fromDate == "")
+                {
+                    throw new CustomException("Select From Date");
+                }
+                else if (toDate == null || toDate == "")
+                {
+                    throw new CustomException("Select To Date");
+                }
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
+                var jsondata = Json(obj.InWardMaterialSql(fromDate, toDate), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }       
         #endregion
     }
 

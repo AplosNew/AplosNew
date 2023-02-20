@@ -1,0 +1,77 @@
+﻿<div id="Test">
+
+    <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>In Ward Material Report</h3>
+
+    <div class="row">
+        <div class="form-elements form-horizontal" ng-form id="from" name="from">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">For the Period</legend>
+                    <div>
+                        <div class="form-group" show-errors id="div_FromDate">
+                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Date" ng-model="fromDate" datepicker class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors id="div_WDToDate">
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Date" ng-model="toDate" datepicker class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="GetInWardMaterialData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i>View</button></li>
+                        </ul>
+                    </div>
+
+
+                </fieldset>
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <div ej-tooltip e-showshadow="true" e-content="" ng-click="InWardMaterialReportExcel('Excel');" e-width="width">
+                                    <button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Excel</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <fieldset class="scheduler-border">
+        <div id="IWM">
+            <div class="content-container-fluid" style="color:black;">
+
+                <div style="color:black;" id="GridPrint" ej-grid e-datasource="InWardMaterialList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                     e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">                 
+                    <div e-columns>
+                        <div e-column e-field="Date" e-headertext="Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                        <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100" textAlign='Left'></div>
+                        <div e-column e-field="PO" e-headertext="PO" e-width="130" textAlign='Center'></div>
+                        <div e-column e-field="StyleNO" e-headertext="Style NO" e-width="180" textAlign='Left'></div>
+                        <div e-column e-field="VendorName" e-headertext="Vendor" e-width="100"></div>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="180"></div>
+                        <div e-column e-field="SKU1" e-headertext="SKU1" e-width="180"></div>
+                        <div e-column e-field="lotNo" e-headertext="lot No" e-width="180"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-format="{0:N2}" e-width="130" textAlign='Right'></div>
+                        <div e-column e-field="UOM" e-headertext="UOM" e-width="200"></div>
+                        <div e-column e-field="Rate" e-headertext="Rate" e-format="{0:N2}" e-width="130" textAlign='Right'></div>
+                        <div e-column e-field="RollBag" e-headertext="Roll/Bag" e-width="180"></div>
+                        <div e-column e-field="Transporter" e-headertext="Transporter" e-width="80"></div>
+                        <div e-column e-field="GRNNo" e-headertext="GRN No" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+</div>
+

@@ -23,7 +23,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
         IsDetailLevel: false,
         OrganizationType: "Plant",
         ReportFormat: 'Pdf',
-        FromDate: $filter('dateFiltering')(new Date(date.getFullYear(), date.getMonth(), 1)),   
+        FromDate: $filter('dateFiltering')(new Date(date.getFullYear(), date.getMonth(), 1)),
         ToDate: $filter('dateFiltering')(Date.now())
 
     };
@@ -48,8 +48,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
                 ToDate: $filter('dateFiltering')(Date.now())
             };
         }
-        else
-        {
+        else {
             $scope.fromDateTitle = "As On Date";
             $scope.legendTitle = "As On Date";
             $scope.toDateShow = false;
@@ -67,13 +66,11 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
         }
     };
 
-    $scope.reportFunctionCaller = function ()
-    {
+    $scope.reportFunctionCaller = function () {
         if ($scope.dateRange === "true") {
             $scope.getDateWiseTrialBalanceReport();
         }
-        else
-        {
+        else {
             $scope.getReport();
 
         }
@@ -111,8 +108,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
             $scope.reportDateWise.isACGroupLevel = false;
 
         }
-        if (level == 'Detail')
-        {
+        if (level == 'Detail') {
             $scope.report.IsDetailLevel = true;
             $scope.report.IsBudgetLevel = false;
             $scope.report.IsActivityLevel = false;
@@ -121,7 +117,6 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
             $scope.reportDateWise.IsActivityLevel = false;
             $scope.reportDateWise.IsDetailLevel = true;
             $scope.reportDateWise.isACGroupLevel = false;
-
         }
         else if (level == 'Activity') {
             $scope.report.IsBudgetLevel = false;
@@ -133,7 +128,7 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
 
         }
     };
-
+    $scope.PartyId = null; $scope.PartyPlantId = null;
     $scope.getReport = function () {
         if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
             manualValidation('div_FromDate', true, "Date is required.");
@@ -144,7 +139,10 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
                 $window.open(url, '_blank');
             }
             else {
-                var url = 'Accounts/Voucher/TrialBalanceReport?reportFormat=' + $scope.report.ReportFormat + '&date=' + $scope.report.FromDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel + '&isActivityLevel=' + $scope.report.IsActivityLevel + '&isDetailLevel=' + $scope.report.IsDetailLevel;
+                var url = 'Accounts/Voucher/TrialBalanceReport?reportFormat=' + $scope.report.ReportFormat
+                    + '&date=' + $scope.report.FromDate + '&isBudgetLevel=' + $scope.report.IsBudgetLevel
+                    + '&isActivityLevel=' + $scope.report.IsActivityLevel
+                    + '&isDetailLevel=' + $scope.report.IsDetailLevel + '&partyId=' + $scope.PartyId + '&partyPlantId=' + $scope.PartyPlantId;
                 $window.open(url, '_blank');
             }
         }
@@ -167,4 +165,88 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
             }
         }
     };
+    $scope.partyList = [];
+    $scope.partyPlantList = [];
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: "Party" }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+    $scope.searchByParty_Loan = "UserName"; $scope.searchParty_Loan = "";
+    $scope.searchByPartyList_Loan = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: "Party Name" }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+    $scope.showPartyPopUpNew = function () {
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
+    };
+
+    $scope.showPartyPlantPopUp = function (partyPlantId) {
+        $scope.getPartyLocationDetail(partyPlantId);
+        angular.element(document.querySelector('#partyPlantPopUp')).modal('show');
+    };
+
+    $scope.partyPlant = {
+        PartyCountry: null,
+        PartyState: null,
+        PartyCity: null,
+        PartyGSTIN: null,
+        PartyAddress: null
+    };
+
+    $scope.getPartyLocationDetail = function (id) {
+        if (!baseService.isUndefinedOrNull(id)) {
+            for (var i = 0; i < baseService.arrayLength($scope.partyPlantList); i++) {
+                if ($scope.partyPlantList[i].Value === id) {
+                    $scope.partyPlant.PartyCountry = $scope.partyPlantList[i].CountryName;
+                    $scope.partyPlant.PartyState = $scope.partyPlantList[i].StateCode + ' - ' + $scope.partyPlantList[i].StateName;
+                    $scope.partyPlant.PartyCity = $scope.partyPlantList[i].CityName;
+                    $scope.partyPlant.PartyGSTIN = $scope.partyPlantList[i].GSTIN;
+                    $scope.partyPlant.PartyAddress = $scope.partyPlantList[i].Address1;
+                }
+            }
+        }
+        else {
+            $scope.partyPlant.PartyCountry = null;
+            $scope.partyPlant.PartyState = null;
+            $scope.partyPlant.PartyCity = null;
+            $scope.partyPlant.PartyGSTIN = null;
+            $scope.partyPlant.PartyAddress = null;
+        }
+    };
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+            $scope.PartyId = party.Id;
+            $scope.PartyName = party.UserName;
+            $scope.getPartyPlantList(party.Id);
+        $scope.hidePartyPopUp();
+    };
+    $scope.getPartyPlantList = function (partyId) {
+        $scope.partyPlantList = [];
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + partyId)
+            .then(function (response) {
+                angular.forEach(response.data, function (item, i) {
+                    $scope.partyPlantList.push(item);
+                    if (item.IsDefault) {
+                        $scope.partyPlantId = item.Value;
+                    }
+                });
+            });
+    };
+    $scope.hidePartyPopUp = function () {
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        $scope.partyIndex = -1;
+        $scope.partySelected = null;
+    };
+
+    $scope.partyRefresh = function () {
+        $scope.PartyPlantId = null;
+        $scope.PartyId = null;
+        $scope.PartyName = null;
+    }
 }
