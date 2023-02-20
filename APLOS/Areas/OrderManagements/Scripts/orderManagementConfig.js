@@ -272,5 +272,10 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             controller: 'SalesOrderWiseProductionCompletionReportController'
         })
 
+        .when('/productivity-recovery-master', {
+            templateUrl: 'OrderManagements/ProductivityRecoveryMaster/Aplos',
+            controller: 'ProductivityRecoveryMasterController'
+        })
+
         ;
 }
