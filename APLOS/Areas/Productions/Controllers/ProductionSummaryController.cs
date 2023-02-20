@@ -1938,7 +1938,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                ProductionOrderParameterReportSQL(fromDate, toDate, Entity, ProcessId, ShiftId, out dtOrder);
+                _productionSummaryData.ProductionOrderParameterReportSQL(fromDate, toDate, Entity, ProcessId, ShiftId, out dtOrder);
 
                 int ROW = 6; int COL = 1;
 

@@ -4199,7 +4199,7 @@ Order BY A.PONo,A.ProcessIndex";
 
         }
 
-        public void ProductionOrderParameterReportSQL(string fromDate, string toDate, string EntityId, string ProcessId, out DataTable dtOrder)
+        public void ProductionOrderParameterReportSQL(string fromDate, string toDate, string EntityId, string ProcessId, string ShiftId, out DataTable dtOrder)
         {
             try
             {
