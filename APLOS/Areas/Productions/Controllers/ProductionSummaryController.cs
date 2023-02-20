@@ -118,6 +118,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetShiftListAnother()
+        {
+            return Json(_productionSummaryData.GetShiftListAnother(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetCharacteristicsValueCbo(string soid)
         {
             return Json(_ProductionSummaryService.GetCharacteristicsValueCbo(soid), JsonRequestBehavior.AllowGet);
@@ -1897,13 +1903,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
  
 
         [HttpPost, Authorize]
-        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId)
+        public ActionResult GetPerametreWiseOrderReport(string fromDate, string toDate, string EntityId, string ProcessId,string ShiftId)
         {
             try
             {
                 string fileName = "";
                 // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
-                fileName = PerametreWiseOrderReport(fromDate, toDate, "OrderReport", EntityId, ProcessId);
+                fileName = PerametreWiseOrderReport(fromDate, toDate, "OrderReport", EntityId, ProcessId, ShiftId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1913,7 +1919,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         }
 
-        public string PerametreWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId)
+        public string PerametreWiseOrderReport(string fromDate, string toDate, string SheetName, string EntityId, string ProcessId,string ShiftId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
@@ -1932,7 +1938,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 workbook.Worksheets[1].Name = "Data";
                 sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                _productionSummaryData.ProductionOrderParameterReportSQL(fromDate, toDate, Entity, ProcessId, out dtOrder);
+                ProductionOrderParameterReportSQL(fromDate, toDate, Entity, ProcessId, ShiftId, out dtOrder);
 
                 int ROW = 6; int COL = 1;
 

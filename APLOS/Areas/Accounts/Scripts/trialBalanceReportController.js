@@ -117,7 +117,6 @@ function trialBalanceReportController($scope, $rootScope, $filter, baseService, 
             $scope.reportDateWise.IsActivityLevel = false;
             $scope.reportDateWise.IsDetailLevel = true;
             $scope.reportDateWise.isACGroupLevel = false;
-
         }
         else if (level == 'Activity') {
             $scope.report.IsBudgetLevel = false;

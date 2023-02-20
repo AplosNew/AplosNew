@@ -171,10 +171,27 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
         }
     }
 
+    $scope.shiftList = [];
+    $scope.ProcessId2 = null;
+    $scope.GetShiftList = function () {
+        $scope.shiftList = [];
+        $http.get('Productions/Productionsummary/GetShiftListAnother')
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.shiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.ProductionShiftId2 = $scope.shiftList[0].Value;
+                    }
+                }
+            });
+    }
+
+
     $scope.fromDate2 = '';
     $scope.toDate2 = '';
     $scope.EntityId2 = null;
     $scope.ProcessId2 = null;
+    $scope.ProductionShiftId2 = null;
     $scope.PerameterWiseReport = function () {
         try {
             if (angular.isUndefinedOrNull($scope.fromDate2)) {
@@ -194,7 +211,7 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
             $http({
                 method: 'POST',
                 url: $scope.path + "GetPerametreWiseOrderReport",
-                data: { 'fromDate': $scope.fromDate2, 'toDate': $scope.toDate2, 'EntityId': $scope.EntityId2, 'ProcessId': $scope.ProcessId2 },
+                data: { 'fromDate': $scope.fromDate2, 'toDate': $scope.toDate2, 'EntityId': $scope.EntityId2, 'ProcessId': $scope.ProcessId2, 'ShiftId': $scope.ProductionShiftId2 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
