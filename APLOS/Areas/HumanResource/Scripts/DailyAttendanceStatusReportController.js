@@ -375,12 +375,13 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
             InStatus: null,
             FromDate: null,
             ToDate: null,
-            EmployeeCategoryId: null,
+            EmployeecategoryId: null,
             TeamLeaderId: null,
             EmpSystemId: null,
             ShiftId: null,
             EmployeeStatus: null,
-            FavoriteFilteruserId: null
+            FavoriteFilteruserId: null,
+            DayStatus:null
         };
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 

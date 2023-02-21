@@ -53,24 +53,60 @@ namespace Library.Accounting.Accounts
             }
 
             var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName,x.CurrencyCode
-                , ISNULL((SELECT sum(A.Amount-A.WrittenOffAmount) AdvanceAmount FROM TRN.Advance A
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType='VendorAdvance' and A.IsWrittenOff=0 AND IsPark=0  group by A.PartyId ),0) Advance 
-					 , ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) AdvanceAmount FROM [TRN].[AdjustmentNote] A
+                , ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+					INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+					INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                    LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType='VendorAdvance' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) Advance 
+					 , ISNULL((SELECT SUM(VDC.DrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                      INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId ),0) DebitNote 
-                , ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) CreditNoteAmount FROM [TRN].[AdjustmentNote] A
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote'  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) DebitNote 
+                , ISNULL((SELECT SUM(VDC.CrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) CreditNote
+                     INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select SUM(ISNULL(VDCW.DrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) CreditNote
 				, SUM(X.Gross) Gross 
 				,SUM(X.SetOff) SetOff
 				,SUM(X.Balance) Balance
-				,SUM(X.Balance)-ISNULL((SELECT sum(A.Amount-A.WrittenOffAmount) AdvanceAmount FROM TRN.Advance A
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyPlantId=X.PartyPlantId and A.SourceType='VendorAdvance' and A.IsWrittenOff=0 AND IsPark=0  group by A.PartyId ),0)
-				- ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) AdvanceAmount FROM [TRN].[AdjustmentNote] A
+				,SUM(X.Balance)-ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+					INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+					INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                    LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyPlantId=X.PartyPlantId and A.SourceType='VendorAdvance' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0)
+				- ISNULL((SELECT SUM(VDC.DrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote' and A.IsWrittenOff=0 AND IsPark=0  group by A.PartyId ),0) NetBalance
+                     INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote' AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) NetBalance
                 ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS LedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -310,11 +346,10 @@ namespace Library.Accounting.Accounts
                 , ISNULL(IVD.Amount,0) AS Gross
 				, ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
                 , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
-				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
-				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
-				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
+				,ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksSetOff
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksBalance
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS ActualBalance
                 , ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate,0) ODueMoreThan15
                 , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate,0) ODueLessThan15
@@ -323,17 +358,8 @@ namespace Library.Accounting.Accounts
 				, ISNULL(ETT.EightToThirtyBalance*CC.CompanyCurrencyRate,0) EightToThirtyBalance
 				, ISNULL(TTS.ThirtyToSixtyBalance*CC.CompanyCurrencyRate,0) ThirtyToSixtyBalance
 				, ISNULL(O60.Onword60*CC.CompanyCurrencyRate,0) Onword60
-
 				, ISNULL(IVD.Amount,0) AS GrossTranAmount
-				--,0 DebitNoteTranAmount
-				--,isnull( IWD.TaxAmount,0)as TranTaxAmount
-				--,isnull( DIWD.DiscountAmount,0)as TranDiscountAmount
-
 				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossAmount,0 as BooksDiscountAmount,0 TaxAmount
-				--,0 BooksDebitNoteAmount
-				--,isnull( IWD.TaxAmount*CC.CompanyCurrencyRate,0)as TaxAmount
-				--,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
-
                 FROM [TRN].[AdjustmentNoteDetail] AS IVD
                 LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -342,6 +368,12 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+				 LEFT JOIN (select SUM(ISNULL(VDCW.DrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=IVD.AdjustmentNoteId
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
 							and I.SourceType in ('VendorPayment','CreditNote') 
@@ -394,7 +426,8 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IV.PartyType='Vendor' AND IV.SourceType in ('VendorPayment','CreditNote')
+                WHERE IV.Archive=0  AND V.IsPark=0 AND IV.PartyType='Vendor' AND IV.SourceType in ('VendorPayment','CreditNote')
+                    AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 
 				)
@@ -3109,26 +3142,39 @@ group by Id) O60 ON O60.Id=IV.Id
 
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
 				,ISNULL( SUM(X.Receipts),0 )Receipts
-                , ISNULL((SELECT sum( (A.Amount-A.WrittenOffAmount) * A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId  and A.PartyPlantId=X.PartyPlantId AND A.IsPark=0 and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0 group by A.PartyId,A.PartyPlantId ),0) BooksAdvance
- , ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) DebitNoteAmount FROM [TRN].[AdjustmentNote] A
+                , ISNULL((SELECT sum(VDCA.CrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.DrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+					INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+					INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                    LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId  and A.PartyPlantId=X.PartyPlantId AND A.IsPark=0 and A.SourceType='CustomerAdvance'  group by A.PartyId,A.PartyPlantId ),0) BooksAdvance
+                , ISNULL((SELECT SUM(VDC.DrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) DebitNote 
-                , ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) CreditNoteAmount FROM [TRN].[AdjustmentNote] A
+                     INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote'  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) DebitNote 
+                , ISNULL((SELECT SUM(VDC.CrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) CreditNote 
-                , ISNULL( SUM(X.Balance),0)
-                -ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) CreditNoteAmount FROM [TRN].[AdjustmentNote] A
-					INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-				where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) Balance
-				,ISNULL( SUM(X.ActualBalance),0)
-                -ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) CreditNoteAmount FROM [TRN].[AdjustmentNote] A
-					INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-				where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) ActualBalance
+                     INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select SUM(ISNULL(VDCW.DrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) CreditNote 
+                ,ISNULL( SUM(X.Balance),0) Balance
+				,ISNULL( SUM(X.ActualBalance),0) ActualBalance
                  ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS LedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -3430,10 +3476,10 @@ group by Id) O60 ON O60.Id=IV.Id
                    ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-                , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
+                , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
-				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
-				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+				,ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksReceipts
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksBalance
                 , ISNULL(OM30.ODueMoreThan30 *CC.CompanyCurrencyRate,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate ,0) ODueMoreThan15
                 , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate ,0) ODueLessThan15
@@ -3452,6 +3498,12 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+                LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=IVD.AdjustmentNoteId
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
 							and I.SourceType in ('DebitNote') AND I.PartyType='Customer'
@@ -3502,7 +3554,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote')
+                WHERE IV.Archive=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote')
+                    AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
 				)
 				X 
@@ -4188,26 +4241,39 @@ group by Id) O60 ON O60.Id=IV.Id
 
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
 				,ISNULL( SUM(X.Receipts),0 )Receipts
-                , ISNULL((SELECT sum( (A.Amount-A.WrittenOffAmount) * A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId  and A.PartyPlantId=X.PartyPlantId AND A.IsPark=0 and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0 group by A.PartyId,A.PartyPlantId ),0) BooksAdvance
- , ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) DebitNoteAmount FROM [TRN].[AdjustmentNote] A
+                , ISNULL((SELECT sum(VDCA.CrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                    LEFT JOIN (select SUM(VDCW.DrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+					INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+					INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                    LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId  and A.PartyPlantId=X.PartyPlantId AND A.IsPark=0 and A.SourceType='CustomerAdvance'  group by A.PartyId,A.PartyPlantId ),0) BooksAdvance
+                , ISNULL((SELECT SUM(VDC.DrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) DebitNote 
-                , ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) CreditNoteAmount FROM [TRN].[AdjustmentNote] A
+                     INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote'  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) DebitNote 
+                , ISNULL((SELECT SUM(VDC.CrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					 INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) CreditNote 
-                , ISNULL( SUM(X.Balance),0)
-                -ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) CreditNoteAmount FROM [TRN].[AdjustmentNote] A
-					INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-				where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) Balance
-				,ISNULL( SUM(X.ActualBalance),0)
-                -ISNULL((SELECT sum(AD.Amount-AD.WrittenOffAmount) CreditNoteAmount FROM [TRN].[AdjustmentNote] A
-					INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
-					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
-				where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote' and A.IsWrittenOff=0 AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) ActualBalance
+                     INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                     INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+					 LEFT JOIN (select SUM(ISNULL(VDCW.DrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Customer' and A.PartyPlantId=X.PartyPlantId and A.SourceType='CreditNote'  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) CreditNote 
+                , ISNULL( SUM(X.Balance),0) Balance
+				,ISNULL( SUM(X.ActualBalance),0) ActualBalance
                  ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS LedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -4509,10 +4575,10 @@ group by Id) O60 ON O60.Id=IV.Id
                    ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-                , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
+                , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
-				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
-				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+				,ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksReceipts
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksBalance
                 , ISNULL(OM30.ODueMoreThan30 *CC.CompanyCurrencyRate,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate ,0) ODueMoreThan15
                 , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate ,0) ODueLessThan15
@@ -4531,6 +4597,12 @@ group by Id) O60 ON O60.Id=IV.Id
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+                LEFT JOIN (select SUM(ISNULL(VDCW.CrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+										INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+										INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=IVD.AdjustmentNoteId
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30 
 							and I.SourceType in ('DebitNote') AND I.PartyType='Customer'
@@ -4581,7 +4653,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote')
+                WHERE IV.Archive=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote')
+                    AND ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)>0
                  and IV.PartyId in 	(" + masterCustomerReceiptSummaryList + @") and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
 				)
 				X 
