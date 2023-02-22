@@ -257,6 +257,33 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
             }
         }
 
+        public IEnumerable<object> GetIssueRequestList(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT * FROM TRN.IssueRequest WHERE MaterialIssueControlDetailId IN(SELECT Id FROM MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(SELECT Id from MaterialIssueControlMaster Where Id IN('"+ masterId + "')))";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw  ex;
+            }
+        }
+
+        public IEnumerable<object> GetIssueRequestBOQMapList(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT * FROM TRN.IssueRequestBOQMap WHERE IssueRequestDetailId IN(SELECT ID FROM TRN.IssueRequest WHERE MaterialIssueControlDetailId IN(SELECT ID FROM MaterialIssueControlDetail WHERE MaterialIssueControlMasterId IN(SELECT ID FROM MaterialIssueControlMaster WHERE Id IN('" + masterId + "'))))";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         public IEnumerable<object> GetSavedDetailDataToApprove(string masterId)
         {
             try

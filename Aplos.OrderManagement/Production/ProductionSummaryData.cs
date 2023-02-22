@@ -3596,23 +3596,25 @@ Where C.Sequence=2";
         public void getOrderMaster(string entityid, out DataTable dtOrderMaster)
         {
 
-            string sql = @" SELECT trkp.UserName AS Plant,trke.UserName AS Entity,trke.Id as EntityId,so.Id AS SalesOrderId, b.UserName AS Buyer,ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,mm.UserName AS Material,
-                           OC.UserName AS OrderCategory,os.UserName AS OrderStatus,   MA.StandardName AS Article,                   
+            string sql = @"SELECT trkp.UserName AS Plant,trke.UserName AS Entity,trke.Id as EntityId,so.Id AS SalesOrderId, b.UserName AS Buyer,ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,mm.UserName AS Material,
+                           OC.UserName AS OrderCategory,so.OrderStatusId AS OrderStatus,   MA.StandardName AS Article,                   
                             pc.UserName AS ProductCategory,  pm.UserName AS Product,moi.BuyerReferenceNo,MOI.OwnReferenceNo,
                                                         ISNULL(mo.BuyerReferenceNo,'-') AS BuyerOrderNo,ISNULL(MO.OwnReferenceNo,'-') OwnOrderNo,ISNULL(SO.Description,'-') AS SODesc,
                             mm.Id AS MaterialRowId,pod.ProductionOrderId,CASE WHEN isnull(sed.ID,0)<>0 THEN 'YES' ELSE 'NO' END AS isProductionScheduled,
                             so.DeliveryDate,so.CommitmentDate,so.Qty AS SOQty, cp.PONumber,format(cp.PODate,'dd-MMM-yyyy') AS PODate,ps.UserName AS ProductionStatus,
                             CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0)))) AS PlannedQty,0 AS CummPlannedQty,
-
-                           
-                            --CEILING((so.Qty*(1+(moi.ExtraOrderPercentage/100)))*(1+(moi.OrderWastagePercentage/100))) AS PlannedQty,0 AS CummPlannedQty,
                             PO.Qty AS PRQty,case when isnull(SED.Qty,0)=0 THEN PO.PlannedQty ELSE  SED.Qty END AS PRActualPlannedQty,
-                            PO.PlannedQty AS PRPlannedQty,P.UserName AS Customer,ISNULL(PL.Code,'-') ProductCode
+                            PO.PlannedQty*M.Qty/100 AS PRPlannedQty,P.UserName AS Customer,ISNULL(PL.Code,'-') ProductCode
 							,ProductAttribute=ISNULL(STUFF((select distinct '/'+PLA.UserName+'-'+PLA.AttributeValue from
 [dbo].[ProductLibraryAttribute] PLA
 left join[dbo].[ProductLibrary] MA ON MA.Id=PLA.ProductLibraryId
 where MA.Id=MOI.ProductLibraryId for xml path('') ), 1, 1, ''),'-')
-,ExpectedExFactoryDate=ISNULL(FORMAT(DATEADD(DAY,M.Days,SO.PlanExFactoryDate),'dd-MMM-yyyy'),'-')
+,ExpectedExFactoryDate=ISNULL(FORMAT(DATEADD(DAY,M.Days,SO.PlanExFactoryDate),'dd-MMM-yyyy'),'-'),FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')PlanExFactoryDate
+
+,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or convert(varchar(11), BASEP.BaseProcProdStartDate, 106)  < convert(varchar(11), Type1.BaseProcPlanStartDate, 106)  then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
+,POCompletionDate=FORMAT((case when Type1.BaseProcPlanCompletionDate is null or convert(varchar(11), BASEP.BaseProcLatestProdDate, 106)  > convert(varchar(11), Type1.BaseProcPlanCompletionDate, 106)  then BASEP.BaseProcLatestProdDate else Type1.BaseProcPlanCompletionDate end ),'dd-MMM-yyyy')
+,ISNULL(FBPPD.POProduceQty,0)POProduceQty,RemainingQty=ISNULL(case when isnull(SED.Qty,0)=0 THEN PO.PlannedQty ELSE  SED.Qty END-FBPPD.POProduceQty,0)
+
                               FROM trn.MasterOrder MO
                             left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
                             left outer join dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
@@ -3620,6 +3622,14 @@ where MA.Id=MOI.ProductLibraryId for xml path('') ), 1, 1, ''),'-')
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS SED ON sed.ProductionOrderID=pod.ProductionOrderId
                             LEFT OUTER JOIN trn.ProductionOrder AS po ON po.Id=pod.ProductionOrderId
+							LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+
+							LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProcLatestProdDate,A.ProductionOrderId From TRN.ProductionSummary A
+LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
+Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=PO.Id
+
+LEFT JOIN(Select SUM(Quantity)POProduceQty ,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+
                             LEFT OUTER JOIN hkp.ProductionStatus AS ps ON ps.Id=po.ProductionStatusId
                             LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
                            LEFT JOIN trn.ProductionOrderProcessSet M ON m.ProductionOrderID=po.Id
@@ -3633,7 +3643,6 @@ where MA.Id=MOI.ProductLibraryId for xml path('') ), 1, 1, ''),'-')
                             left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                             left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                             left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-							 --LEFT OUTER JOIN hkp.ProductGroup AS pg ON pg.Id=moi.pro
                            
                             left outer join [HKP].[Party] p on P.Id=MO.PartyId
                             left outer join [HKP].[PartyPlant] PPI on ppi.id=mo.InvoicingPartyPlantId
@@ -3642,7 +3651,6 @@ where MA.Id=MOI.ProductLibraryId for xml path('') ), 1, 1, ''),'-')
                             left outer join [HKP].[BuyerBrand] BB on bb.id=mo.BuyerBrandId
                             left outer join [HKP].[BuyerDivision] BD on bd.id=mo.BuyerBrandId
                             left outer join [HKP].[OrderCategory] OC on oc.id=mo.OrderCategoryId
-                            left outer join [HKP].[OrderStatus] OS on OS.id=mo.OrderStatusId
                             left outer join mst.Destination DEST on dest.Id=so.DestinationId
                             left outer join [TRN].[CustomerPO] CPO ON CPO.Id=so.CustomerPOId
                             left outer join [MST].[ShipMode] SMO on SMO.Id=so.ShipmentModeId
