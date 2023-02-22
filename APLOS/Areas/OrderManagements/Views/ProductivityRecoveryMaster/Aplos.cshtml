@@ -264,6 +264,7 @@
                         <div e-column e-field="AttributeValue" e-headertext="Attribute Value" e-width="100"></div>
                         <div e-column e-template="#RMStdProduction" e-headertext="StdProduction" e-width="100"></div>
                         <div e-column e-template="#RMIntermediateTarget" e-headertext="Intermediate Target" e-width="100"></div>
+                        <div e-column e-template="#CostingItem" e-headertext="CostingItem" e-width="150"></div>
                         <div e-column e-template="#RMRemarks" e-headertext="Remarks" e-width="200"></div>
                     </div>
                 </div>
@@ -288,12 +289,43 @@
                         <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
                     </div>
                 </script>
+                <script type="text/template" id="CostingItem">
+                    <div class="col-sm-9" style="padding:0px;">
+                        <input type="text" name="Costing Item" ng-model="data.CostingItem" ng-disabled="true" class="form-control" readonly>
+                    </div>
+                    <div class="col-sm-3 text-left" style="padding:0px;padding-left:2px">
+                        <button ng-click="$parent.selectCostingItem(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>
+                </script>
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="RMArticleSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
                 </ul>
             </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div id="GridArticleMaster" ej-grid e-datasource="PRMArticleMasterList" e-templaterefresh="" e-recorddoubleclick=""
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBound">
+                    <div e-columns>
+                        <div e-column e-field="FGApplicableId" e-headertext="FG Applicable Name" e-width="100"></div>
+                        <div e-column e-field="RMApplicableId" e-headertext="RM Applicable Name" e-width="100"></div>
+                        <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="100"></div>
+                        <div e-column e-field="MaterialGroup" e-headertext="Material Group" e-width="100"></div>
+                        <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="100"></div>
+                        <div e-column e-field="AttributeValue" e-headertext="Attribute Value" e-width="200"></div>
+                        <div e-column e-field="StdWorkingHours" e-headertext="Std Working Hours" e-width="80"></div>
+                        <div e-column e-field="StdProduction" e-headertext="Std Production" e-width="80"></div>
+                        <div e-column e-field="IntermediateTarget" e-headertext="Intermediate Target" e-width="80"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="200"></div>
+                        <div e-column e-field="StdProductionRM" e-headertext="RM Std Production" e-width="80"></div>
+                        <div e-column e-field="IntermediateTargetRM" e-headertext="RM Intermediate Target" e-width="80"></div>
+                        <div e-column e-field="RemarksRM" e-headertext="RM Remarks" e-width="200"></div>
+                        <div e-column e-field="CostingItem" e-headertext="Costing Item" e-width="200"></div>
+                    </div>
+                </div>
         </div>
     </div>
 </div>
@@ -389,6 +421,40 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="CostingItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Costing Item List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Costing Item</p>
+                        <div style="color:black;" id="GridCostingItemPopUp" ej-grid e-datasource="CostingItemList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleCostingItem">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="100"></div>
+                                <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeCostingItemPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 

@@ -117,6 +117,32 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetIssueRequestList(string masterId)
+        {
+            try
+            {
+                return Json(clsM.GetIssueRequestList(masterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetIssueRequestBOQMapList(string masterId)
+        {
+            try
+            {
+                return Json(clsM.GetIssueRequestBOQMapList(masterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetSavedDetailDataToApprove(string masterId)
         {
             try
@@ -162,16 +188,136 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
+        public JsonResult Update(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList, List<Dictionary<string, object>> IssueRequestList, List<Dictionary<string, object>> BOQMapList)
         {
             try
             {
-                SaveData(model, soList, dataList);
+                UpdateData(model, soList, dataList, IssueRequestList, BOQMapList);
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        private void UpdateData(Dictionary<string, object> data, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList, List<Dictionary<string, object>> IssueRequestList, List<Dictionary<string, object>> BOQMapList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild, dsSOChild, dsIssueRequest, dsIssueRequestBOQMap, dsIssue;
+            string _Id = string.Empty;
+            try
+            {
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.IssueRequestMaster Where Id='" + data["IssueId"] + "' AND CheckedByStatus='Checked'", out dsIssue, false, "1");
+                if (dsIssue.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Checked issue slip could not update.");
+                }
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlMaster WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #region MaterialIssueControlSODetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlSODetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsSOChild, false, "1");
+                int socount = 0;
+                if (soList != null)
+                {
+                    foreach (var item in soList)
+                    {
+                        socount++;
+                        DataView dv = new DataView(dsSOChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                        
+                    }
+                }
+
+                #endregion
+
+                #region MaterialIssueControlDetail 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MaterialIssueControlDetail where  MaterialIssueControlMasterId='" + _Id + "'", out dsChild, false, "1");
+                
+                if (dataList != null)
+                {
+                    foreach (var item in dataList)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                        
+                    }
+                }
+
+                #endregion
+
+                #region IssueRequest 
+                objCon.OpenDataSetThroughAdapter("select * from TRN.IssueRequest where MaterialIssueControlDetailId IN(select Id from MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(select Id from MaterialIssueControlMaster Where Id IN('"+_Id+"')))", out dsIssueRequest, false, "1");
+               
+                if (IssueRequestList != null)
+                {
+                    foreach (var item in IssueRequestList)
+                    {
+                        socount++;
+                        DataView dv = new DataView(dsIssueRequest.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+
+                #region IssueRequestBOQMap 
+                objCon.OpenDataSetThroughAdapter("select * from TRN.IssueRequestBOQMap Where IssueRequestDetailId IN(select Id from TRN.IssueRequest where MaterialIssueControlDetailId IN(select Id from MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(select Id from MaterialIssueControlMaster Where Id IN('"+_Id+"'))))", out dsIssueRequestBOQMap, false, "1");
+
+                if (BOQMapList != null)
+                {
+                    foreach (var item in BOQMapList)
+                    {
+                        socount++;
+                        DataView dv = new DataView(dsIssueRequestBOQMap.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count > 0)
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsSOChild, dsChild, dsIssueRequest, dsIssueRequestBOQMap);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
 
