@@ -236,6 +236,30 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     };
 
+    $scope.IssueRequestList = [];
+    $scope.GetIssueRequestList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialIssueControl/GetIssueRequestList'
+        }).then(function successCallback(response) {
+            $scope.IssueRequestList = response.data;
+        });
+    }
+
+
+    $scope.IssueRequestBOQMapList = [];
+    $scope.GetIssueRequestBOQMapList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialIssueControl/GetIssueRequestBOQMapList'
+        }).then(function successCallback(response) {
+            $scope.IssueRequestBOQMapList = response.data;
+        });
+    }
+
+
+
+
     $scope.getArticle = function (data) {
         $scope.SelectedMaterial = data;
         $scope.getArticleSearchList(data.MaterialMasterId);

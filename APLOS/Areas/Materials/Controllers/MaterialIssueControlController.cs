@@ -117,6 +117,32 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetIssueRequestList(string masterId)
+        {
+            try
+            {
+                return Json(clsM.GetIssueRequestList(masterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetIssueRequestBOQMapList(string masterId)
+        {
+            try
+            {
+                return Json(clsM.GetIssueRequestBOQMapList(masterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetSavedDetailDataToApprove(string masterId)
         {
             try
