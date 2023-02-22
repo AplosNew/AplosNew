@@ -879,27 +879,33 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region In Ward Material Report
 
-        [HttpGet, Authorize]
-        public ActionResult InWardMaterialReport(string fromDate, string toDate)
+        public JsonResult GetInWardMaterialData(string fromDate, string toDate)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = _materialMasterService.CreateInWardMaterialReport( identity.CompanyId, identity.PlantId, fromDate, toDate);
-                string strFileName = "In Ward Material.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
+                DateTime fDate = DateTime.Parse(fromDate);
+                DateTime tDate = DateTime.Parse(toDate);
+                if (fromDate == null || fromDate == "")
+                {
+                    throw new CustomException("Select From Date");
+                }
+                else if (toDate == null || toDate == "")
+                {
+                    throw new CustomException("Select To Date");
+                }
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
+                var jsondata = Json(obj.InWardMaterialSql(fromDate, toDate), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
-                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                throw ex;
             }
-            return null;
-        }
-
+        }       
         #endregion
-
     }
 
 

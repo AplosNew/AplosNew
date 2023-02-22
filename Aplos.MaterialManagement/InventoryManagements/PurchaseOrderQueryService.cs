@@ -5586,5 +5586,32 @@ namespace Library.MaterialManagement.InventoryManagements
             return _sqlRepository.GetDataCollection(Sql);
         }
 
+        public IEnumerable<object> InWardMaterialSql(string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var _sql = @"select IRD.Id,format(IRD.AddedDate,'dd-MMM-yyyy') Date,IR.DocRefNo,NULL PO,NULL StyleNO,P.UserName VendorName,MM.UserName Material,MMA.StandardName Article
+									,NULL SKU1,IRD.lotNo,IRD.TransactionQty Qty,uom.UserName UOM,IRD.MaterialTranRate Rate,0 RollBag,NULL Transporter,IR.Id GRNNo
+									from trn.InventoryReceiveDetail IRD
+									left join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
+									left join trn.InventoryMaterial IM on IM.Id=IRD.InventoryMaterialId
+									left join MST.MaterialMaster MM on MM.Id=IM.MaterialMasterId
+									left join MST.MaterialMasterArticle MMA on MMA.Id=IM.ArticleId
+									left join HKP.Party P on P.Id=IR.PartyId
+									left join [SCS].[UnitOfMeasurement] uom on uom.Id=IRD.TransactionUoMId	
+                                     									 
+						where Convert(date,IR.GRNDate) between '" + fromDate + @"' AND '" + toDate + @"'";
+
+                return _sqlRepository.GetDataCollection(_sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
     }
 }

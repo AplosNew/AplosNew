@@ -8,7 +8,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.path = 'Materials/MaterialIssueControl/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'CreateIssue';
-    $scope.updateUrl = $scope.path + 'edit';
+    $scope.updateUrl = $scope.path + 'Update';
     $scope.deleteUrl = $scope.path + 'delete/';
 
     $scope.modelFilterByList = [
@@ -228,12 +228,35 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.QBOQCostingList = response.data;
+                        $scope.GetIssueRequestList()
                     }
                 },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
 
+    };
+
+    $scope.IssueRequestList = [];
+    $scope.GetIssueRequestList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialIssueControl/GetIssueRequestList?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.IssueRequestList = response.data;
+            $scope.GetIssueRequestBOQMapList();
+        });
+    };
+
+
+    $scope.IssueRequestBOQMapList = [];
+    $scope.GetIssueRequestBOQMapList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/MaterialIssueControl/GetIssueRequestBOQMapList?masterId=' + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            $scope.IssueRequestBOQMapList = response.data;
+        });
     };
 
     $scope.getArticle = function (data) {
@@ -293,15 +316,13 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
 
     $scope.Action = 'Save';
-    $scope.Save = function () {
+    $scope.SaveA = function () {
         $scope.QBOQCostingListNew = [];
 
         try {
             if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
                 for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
-                    //if (baseService.isUndefinedOrNull($scope.QBOQCostingList[p].InventoryMaterialId)) {
-                    //    throw "Stock Qty is not available.";
-                    //}
+                   
                     $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
                     $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
                     $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
@@ -309,9 +330,6 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                     $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
                 }
             }
-            //else {
-            //    throw "Stock data is not available.";
-            //}
 
             if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
                 throw "Select Production Order.";
@@ -353,6 +371,105 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
     };
 
+    $scope.Save = function () {
+        $scope.QBOQCostingListNew = [];
+
+        try {
+            if ($scope.Action === 'Save') {
+            if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
+                for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+
+                    $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+                    $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                    $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+                    $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+                    $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+                }
+            }
+
+            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+                throw "Select Production Order.";
+            }
+            if (baseService.arrayLength($scope.SOItemList) === 0) {
+                throw "Select SO Detail.";
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+               
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: {
+                            'model': $scope.ModelNew
+                            , 'soList': $scope.SOItemList
+                            , 'dataList': $scope.QBOQCostingListNew
+                            , 'dataLists': $scope.QBOQCostingListNew
+                        },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Clear();
+                            $scope.GetSavedData();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
+            }
+            else {
+
+                for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                    for (var j = 0; j < $scope.IssueRequestList.length; j++) {
+                        if ($scope.QBOQCostingList[i].Id == $scope.IssueRequestList[j].MaterialIssueControlDetailId) {
+                            $scope.IssueRequestList[j].RequestedQty = $scope.QBOQCostingList[i].PlanConsumption;
+                        }
+                    }
+                }
+
+                for (var i = 0; i < $scope.IssueRequestList.length; i++) {
+                    for (var j = 0; j < $scope.IssueRequestBOQMapList.length; j++) {
+                        if ($scope.IssueRequestList[i].Id == $scope.IssueRequestBOQMapList[j].IssueRequestDetailId) {
+                            $scope.IssueRequestBOQMapList[j].Qty = $scope.IssueRequestList[i].RequestedQty;
+                        }
+                    }
+                }
+
+
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl,
+                    data: {
+                        'model': $scope.ModelNew
+                        , 'soList': $scope.SOItemList
+                        , 'dataList': $scope.QBOQCostingList
+                        , 'IssueRequestList': $scope.IssueRequestList
+                        , 'BOQMapList': $scope.IssueRequestBOQMapList
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.Clear();
+                        $scope.GetSavedData();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
 
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
