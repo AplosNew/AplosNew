@@ -257,10 +257,19 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                                 DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
                                 TimeSpan t = ToDt.Subtract(FromDt);
                                 int N = t.Days;
+                                TimeSpan ts;
                                 DateTime date1 = Convert.ToDateTime(item["FromTime"]);
                                 DateTime date2 = Convert.ToDateTime(item["ToTime"]);
                                 DateTime NextDayDate = date2.AddDays(N);
-                                TimeSpan ts = date2 - date1;
+                                if (FromDt == ToDt)
+                                {
+                                    ts = date2 - date1;
+                                }
+                                else
+                                {
+                                    DateTime NextDayDate2 = date2.AddDays(N);
+                                    ts = NextDayDate2 - date1;
+                                }
                                 TimeSpan Nd = NextDayDate - date1;
                                 int minutes = (int)Nd.TotalMinutes;
 
@@ -296,10 +305,19 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                                             DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
                                             TimeSpan t = ToDt.Subtract(FromDt);
                                             int N = t.Days;
+                                            TimeSpan ts;
                                             DateTime date1 = Convert.ToDateTime(item["FromTime"]);
                                             DateTime date2 = Convert.ToDateTime(item["ToTime"]);
                                             DateTime NextDayDate = date2.AddDays(N);
-                                            TimeSpan ts = date2 - date1;
+                                            if (FromDt == ToDt)
+                                            {
+                                                ts = date2 - date1;
+                                            }
+                                            else
+                                            {
+                                                DateTime NextDayDate2 = date2.AddDays(N);
+                                                ts = NextDayDate2 - date1;
+                                            }
                                             TimeSpan Nd = NextDayDate - date1;
                                             int minutes = (int)Nd.TotalMinutes;
 
@@ -332,11 +350,20 @@ MS.StandardScheduleMinutes,MS.Remarks,(select D.UserName Department from Org.Dep
                                             DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
                                             DateTime ToDt = Convert.ToDateTime(item["ActualDate"]);
                                             TimeSpan t = ToDt.Subtract(FromDt);
+                                            TimeSpan ts;
                                             int N = t.Days;
                                             DateTime date1 = Convert.ToDateTime(item["FromTime"]);
                                             DateTime date2 = Convert.ToDateTime(item["ToTime"]);
                                             DateTime NextDayDate = date2.AddDays(N);
-                                            TimeSpan ts = date2 - date1;
+                                            if (FromDt == ToDt)
+                                            {
+                                                 ts = date2 - date1;
+                                            }
+                                            else
+                                            {
+                                                DateTime NextDayDate2 = date2.AddDays(N);
+                                                 ts = NextDayDate2 - date1;
+                                            }
                                             TimeSpan Nd = NextDayDate - date1;
                                             int minutes = (int)Nd.TotalMinutes;
 
