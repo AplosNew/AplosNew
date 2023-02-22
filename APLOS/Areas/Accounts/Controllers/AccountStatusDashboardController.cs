@@ -585,41 +585,19 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { DATA = accountsStatusDashboardService.GetCustomerListForConfirmation(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, FromDate, ToDate, PaymentStatus), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult FinancialDashboardCustomerSummaryReport(string[] masterCustomerSummaryList, string fromDate, string toDate)
+        [HttpPost, Authorize]
+        public ActionResult FinancialDashboardCustomerSummaryReport(List<Dictionary<string, object>> masterCustomerSummaryList, string fromDate, string toDate)
         {
 
             try
             {
-                //if (string.IsNullOrEmpty(MasterLCList))
-                //    throw new Exception("Please select at least one Invoice");
-
-                string masterCustomerReceiptList = "";
-
-                foreach (var item in masterCustomerSummaryList)
-                {
-                    if (string.IsNullOrEmpty(masterCustomerReceiptList))
-                    {
-                        masterCustomerReceiptList += "''," + item;
-                    }
-                    else
-                    {
-                        masterCustomerReceiptList += "," + item;
-                    }
-
-                }
-
-                //if (string.IsNullOrEmpty(masterLCList))
-                //   throw new Exception("Please select at least one Invoice");
-
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-                ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptSummaryReport(excelEngine, masterCustomerReceiptList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate);
-
+                var workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptSummaryReport(masterCustomerSummaryList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate);
                 string strFileName = "CustomerReceivableSummary.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
