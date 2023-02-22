@@ -91,6 +91,7 @@ namespace Library.Service.Leave
                              REPLACE(CONVERT(VARCHAR(11), LvT.ToDate, 113), ' ', '-') ToDate, LvT.LeaveDays, LvT.LvReason AS Reason, LvT.ComAssignLvSystemID,LVT.LTSystemID,LVT.SystemID LvTransSystemID , MP.isNoBenefit , MP.Id as MPolicyId
                         ,(SELECT YearlyCalendar.Id
                                  FROM YearlyCalendar WHERE LvT.FromDate BETWEEN FromDate AND ToDate AND PlantId='" + plantId + @"' ) CalanderYearID
+                            ,format(LvT.AppliedDate,'dd-MMM-yyyy') LeaveAppliedDate
                              FROM
 							 dbo.EmployeeInformation emp
 							 LEFT outer JOIN dbo.LeaveTransaction LvT on LvT.EmpSystemID = emp.SystemId
@@ -134,6 +135,7 @@ namespace Library.Service.Leave
                              REPLACE(CONVERT(VARCHAR(11), LvT.ToDate, 113), ' ', '-') ToDate, LvT.LeaveDays, LvT.LvReason AS Reason, LvT.ComAssignLvSystemID,LVT.LTSystemID,LVT.SystemID LvTransSystemID
                         ,(SELECT YearlyCalendar.Id
                                  FROM YearlyCalendar WHERE LvT.FromDate BETWEEN FromDate AND ToDate AND PlantId='" + plantId + @"' ) CalanderYearID
+                            ,format(LvT.AppliedDate,'dd-MMM-yyyy') LeaveAppliedDate
                              FROM
 							 dbo.EmployeeInformation emp
 							 LEFT outer JOIN dbo.LeaveTransaction LvT on LvT.EmpSystemID = emp.SystemId
