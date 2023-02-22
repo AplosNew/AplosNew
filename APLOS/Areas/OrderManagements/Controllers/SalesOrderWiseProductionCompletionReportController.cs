@@ -21,6 +21,7 @@ using System.Web.Hosting;
 using Library.Service.Productions.ProductionBooking;
 using System.Text.RegularExpressions;
 using Library.OrderManagement.Production;
+using System.IO;
 
 namespace Aplos.Areas.OrderManagements.Controllers
 {
@@ -55,6 +56,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
         #endregion
 
         #region -- Operations
+
+        [HttpGet, Authorize]
+        public ActionResult getFilters()
+        {
+            JsonResult json = Json(_productionSummaryData.GetSOCompletionReportFilter(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
         private string GetDate(string s)
         {
             if (string.IsNullOrEmpty(s))
@@ -87,8 +97,29 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return clsStaticInfo.GetxlsCol(Col) + Row.ToString();
         }
 
-        [HttpGet, Authorize]
-        public ActionResult OS3xls(string entityid)
+        [HttpPost, Authorize]
+        public ActionResult GetOS3xlsReport(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var workbook = GetOS3xls(parameters);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "OS3Report.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+      
+        public IWorkbook GetOS3xls(Dictionary<string, string> parameters)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -96,15 +127,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
             IWorksheet sheet = null;
             try
             {
-                if (string.IsNullOrEmpty(entityid) || entityid == "''")
-                    throw new Exception("Select entity");
-
-
+              
                 Dictionary<string, List<DataRow>> dicProductionQtyDistribution;
                 DataTable dt, dtOrderMaster;
-                _productionSummaryData.getSalesOrderDistribution(System.DateTime.Now.ToString("dd-MMM-yyyy"), entityid, out dicProductionQtyDistribution, out dt);
+                _productionSummaryData.getSalesOrderDistribution(System.DateTime.Now.ToString("dd-MMM-yyyy"), parameters, out dicProductionQtyDistribution, out dt);
 
-                _productionSummaryData.getOrderMaster(entityid, out dtOrderMaster);
+                _productionSummaryData.getOrderMaster(parameters, out dtOrderMaster);
 
 
                 if (dtOrderMaster.Rows.Count == 0)
@@ -895,19 +923,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 //#endregion Buyer Summary
 
-                string strFileName = "OS3.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
-                excelEngine.Dispose();
+                //string strFileName = "OS3.xlsx";
+                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //workbook.Close();
+                //excelEngine.Dispose();
+                return workbook;
             }
             catch (Exception ex)
             {
-                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                throw ex;
 
             }
-
-
-            return null;
         }
 
 
