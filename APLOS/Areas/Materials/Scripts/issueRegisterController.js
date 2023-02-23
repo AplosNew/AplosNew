@@ -100,7 +100,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}).then(function successCallback(response) {
 
 			$scope.IssueRegisterList = response.data.NewData;
-			$scope.setTabGRNGRNIssueList(2);
+			//$scope.setTabGRNGRNIssueList();
 		});
 
 	};
@@ -194,7 +194,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		angular.element(document.querySelector('#ListOfRequisition1')).modal('hide');
 	};
 	$scope.recorddoubleclick = function ($event) {
-		debugger;
 		var x = $event;
 		var Id = x.data.IssueDetailId;
 		IssueHistory(Id);
@@ -205,7 +204,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		$scope.tab = newTab;
 		//$scope.ReqStatus = 'ForChecked';
 		$scope.GetIssueRegister();
-
 	};
 	$scope.isSetIssueList = function (tabNum) {
 		return $scope.tab === tabNum;

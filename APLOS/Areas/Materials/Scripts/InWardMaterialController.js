@@ -4,8 +4,8 @@ function InWardMaterialController(fileReader, commonMessage, $scope, $rootScope,
     $rootScope.title = "In Ward Material";
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
-    //In Ward Material-Start
-
+    $scope.path = 'Materials/MaterialLedger/';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     //$scope.fromDate = $filter('dateFiltering')(Date.now());
     $scope.toDate = $filter('dateFiltering')(Date.now());
 
@@ -51,10 +51,10 @@ function InWardMaterialController(fileReader, commonMessage, $scope, $rootScope,
             dataList = $scope.InWardMaterialList;
         }
         try {
-            $scope.fileName = 'In Ward Material Report';
+            $scope.fileName = 'In Ward Material Report.xlsx';
             $http({
                 method: 'POST',
-                url: $scope.exportgriddataUrl,
+                url: $scope.path + "InWardMaterialDataXls",
                 data: {
                     'data': dataList,
                     'reportFileName': $scope.fileName,
@@ -65,8 +65,7 @@ function InWardMaterialController(fileReader, commonMessage, $scope, $rootScope,
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
