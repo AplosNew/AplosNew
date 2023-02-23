@@ -250,7 +250,7 @@ AttributeValue=STUFF((SELECT distinct ', '+ A.UserName+ '-' + MAV.StandardName
                             LEFT JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=MMA.MaterialAttributeId 
 							LEFT JOIN MST.MaterialMasterArticleValue MMAV ON MAV.Id=MMAV.MaterialAttributeValueId
                             WHERE MMA.MaterialMasterId = MA.MaterialMasterId and MMAV.MaterialMasterArticleId=MA.Id for xml path('') ), 1, 1, '')
-,PRA.Id,PRA.StdWorkingHours,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks,PRA.UtilizationPercentage
+,PRA.Id,PRA.StdWorkingHours,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks,PRA.UtilizationPercentage,PRA.MachineSpeed,isnull(PRM.UserName,'') as PRMUserName
 from MST.MaterialMasterArticle MA
 left Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
@@ -260,13 +260,14 @@ left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
 left outer join HKP.Product P ON P.Id=PM.ProductId
 left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
 left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
-LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
+LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id 
+left outer join MST.ProductivityRecoveryMaster PRM ON PRM.Id=PRA.PRMId
 where MT.UserName IN(" + parameters["MaterialType"] + @") AND
       MM.UserName IN(" + parameters["Material"] + @") AND
       P.UserName IN(" + parameters["Product"] + @") AND
       MC.UserName IN(" + parameters["MaterialCategory"] + @") AND
       MSC.UserName IN(" + parameters["MaterialSubCategory"] + @") 
-             order by PRA.ArticleId  desc";
+             order by PRA.Id  asc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet); 
             json.MaxJsonLength = int.MaxValue; 
             return json;
@@ -363,7 +364,7 @@ order by PRA.ArticleId  desc";
         public ActionResult createFGArticle(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
+            DataSet dsProdBooked, dsArticleValidation;
             string TableName = "[TRN].[PRMFGArticle]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
@@ -376,15 +377,23 @@ order by PRA.ArticleId  desc";
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and PRMId='" + item["PRMId"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and PRMId = '" + item["PRMId"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  ArticleId='" + item["ArticleId"] + "'", out dsArticleValidation, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
                         if (dv.Count == 0)
                         {
+                            if (dsArticleValidation.Tables[0].Rows.Count > 0)
+                            {
+                                throw new Exception("This Article is Already Mapped");
+                            }
+                            else
+                            { 
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "PRA" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
+                            }
                         }
                         else
                         {

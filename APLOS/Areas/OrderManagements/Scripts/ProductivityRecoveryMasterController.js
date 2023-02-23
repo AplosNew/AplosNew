@@ -647,6 +647,18 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
 
         }
     }
+
+    $scope.rowDataBoundFG = function rowDataBoundFG(e) {
+
+        if (e.data.PRMUserName != '') {
+            e.row.css("background-color", '#90EE90');
+        }
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+    }
+
     $scope.selectCostingItem = function (data) {
         $scope.Newobject = data.data;
         $scope.getCostingItem();
