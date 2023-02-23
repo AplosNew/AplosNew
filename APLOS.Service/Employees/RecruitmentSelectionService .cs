@@ -216,6 +216,7 @@ namespace Library.Service.Employees
                     //emailSetup.Subject = @"Congratulations! " + cgMessage;
                     emailSetup.Subject = "" + plantName + " recruitment system";
                     emailSetup.Message = "";
+                  
                     var date = item.SelectionDateTime.Value.Date.AddDays(item.ExpiredDays + 1).ToString("dd-MMM-yyyy");
                     emailSetup.Message = @"Dear " + item.FullName + @",<br /><br /><b>Congratulations!</b><br /><br />"
                         + cgMessage + "<br />Please update your profile by " + date + ", using the following information.<br/>"
@@ -223,7 +224,29 @@ namespace Library.Service.Employees
                         + "<br/>ID : " + item.Id + " <br/>OTP : " + item.InitialPIN
                         + "<br/><b>N.B.</b> Google Chrome is recommended browser.";
                     var em = new EmailSender(dom.Host, dom.Port, dom.MailingUserName, dom.Password, dom.IsSSL);
-                  em.Send(emailSetup.SenderName + " <" + emailSetup.SenderEmail + ">", item.Email, cc, emailSetup.Subject, emailSetup.Message);
+                    em.Send(emailSetup.SenderName + " <" + emailSetup.SenderEmail + ">", item.Email, cc, emailSetup.Subject, emailSetup.Message);
+
+                    //MailMessage msg = new MailMessage();
+
+                    //msg.From = new MailAddress(dom.MailingUserName);
+                    //msg.To.Add(item.Email);
+                    //msg.Subject = "" + plantName + " recruitment system";
+
+                    //msg.Body = @"Dear " + item.FullName + @",<br /><br /><b>Congratulations!</b><br /><br />"
+                    //  + cgMessage + "<br />Please update your profile by " + date + ", using the following information.<br/>"
+                    //  + "URL: " + emailSetup.Url + "/prerecruitment"
+                    //  + "<br/>ID : " + item.Id + " <br/>OTP : " + item.InitialPIN
+                    //  + "<br/><b>N.B.</b> Google Chrome is recommended browser.";
+
+
+                    //SmtpClient client = new SmtpClient();
+                    //client.Host = dom.Host;
+                    //var credentials = new System.Net.NetworkCredential(dom.MailingUserName, dom.Password);
+                    //client.Credentials = credentials;
+                    //client.Port = dom.Port;
+                    //client.EnableSsl = dom.IsSSL;
+                    //// client.UseDefaultCredentials = true;
+                    //client.Send(msg);
 
 
                     //SmtpClient client = new SmtpClient();

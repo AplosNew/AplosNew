@@ -3514,35 +3514,35 @@ Where C.Sequence=2";
             }
         }
 
-        public void getSalesOrderDistribution(string date, string entityid, out Dictionary<string, List<DataRow>> dicDistributedSO, out DataTable dt)
+        public void getSalesOrderDistribution(string date, Dictionary<string, string> parameters, out Dictionary<string, List<DataRow>> dicDistributedSO, out DataTable dt)
         {
 
             string sql = @"
                                 select D.*,MMN.ProductionStartDate,0 AS CummProductionQty,0 AS CummPlanQty,ISNULL(d.ProductionQty,0)+ISNULL(d.PlanQty,0) AS TotalQty,0 AS CummTotalQty  
                                 from (SELECT p1.ProductionOrderID,FORMAT(p1.ProductionDate,'dd-MMM-yyyy')AS ProductionDate,0 AS ProductionQty,SUM(p1.Quantity) AS PlanQty
                                                    from ProductionPlanningType1 p1 
-                                                 WHERE p1.ProductionDate>='" + date + @"'  AND P1.EntityId in (Select distinct EntityId from HKP.EntityProcessTag)
+                                                 WHERE p1.ProductionDate>='" + date + @"'  AND P1.EntityId in (" + parameters["EntityId"] + @")
                                                  GROUP BY  p1.ProductionDate,p1.ProductionOrderID
                  
                                                  UNION ALL
                  
                                                  SELECT s.ProductionOrderId,FORMAT(s.ProductionDate,'dd-MMM-yyyy') AS ProductionDate,SUM(s.Quantity) AS ProductionQty,0 AS PlanQty
 				                                FROM  trn.ProductionSummary S 
-					                                WHERE S.ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=S.ProductionOrderID) AND  S.EntityId in (Select distinct EntityId from HKP.EntityProcessTag) AND CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<CONVERT(DATETIME,'" + date + @"')
+					                                WHERE S.ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=S.ProductionOrderID) AND  S.EntityId in (" + parameters["EntityId"] + @") AND CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<CONVERT(DATETIME,'" + date + @"')
 				                                GROUP BY  s.ProductionOrderId,s.ProductionDate
                                 ) AS D 
                                 left join (
                                    select ProductionOrderID,FORMAT(MIN(ProductionDate),'dd-MMM-yyyy')  AS ProductionStartDate 
                                     from ( SELECT p1.ProductionOrderID,MIN(p1.ProductionDate) AS ProductionDate
                                                    from ProductionPlanningType1 p1 
-                                                 WHERE p1.ProductionDate>='" + date + @"'  AND P1.EntityId in (Select distinct EntityId from HKP.EntityProcessTag)
+                                                 WHERE p1.ProductionDate>='" + date + @"'  AND P1.EntityId in (" + parameters["EntityId"] + @")
                                                  GROUP BY  p1.ProductionOrderID
                  
                                                  UNION ALL
                  
                                                  SELECT s.ProductionOrderId,MIN(s.ProductionDate) AS ProductionDate
 				                                FROM  trn.ProductionSummary S 
-					                                WHERE S.ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=S.ProductionOrderID) AND  S.EntityId in (Select distinct EntityId from HKP.EntityProcessTag) AND CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<CONVERT(DATETIME,'" + date + @"')
+					                                WHERE S.ProcessID=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=S.ProductionOrderID) AND  S.EntityId in (" + parameters["EntityId"] + @") AND CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<CONVERT(DATETIME,'" + date + @"')
 				                                GROUP BY  s.ProductionOrderId) AS K group by ProductionOrderID
 
                                     ) AS MMN ON MMN.ProductionOrderId=D.ProductionOrderId
@@ -3593,7 +3593,7 @@ Where C.Sequence=2";
 
         }
 
-        public void getOrderMaster(string entityid, out DataTable dtOrderMaster)
+        public void getOrderMaster(Dictionary<string, string> parameters, out DataTable dtOrderMaster)
         {
 
             string sql = @"SELECT trkp.UserName AS Plant,trke.UserName AS Entity,trke.Id as EntityId,so.Id AS SalesOrderId, b.UserName AS Buyer,ei.EmployeeName AS ResponsiblePerson,mo.MasterOrderNo,mm.UserName AS Material,
@@ -3604,7 +3604,7 @@ Where C.Sequence=2";
                             so.DeliveryDate,so.CommitmentDate,so.Qty AS SOQty, cp.PONumber,format(cp.PODate,'dd-MMM-yyyy') AS PODate,ps.UserName AS ProductionStatus,
                             CEILING((isnull(SO.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0)))) AS PlannedQty,0 AS CummPlannedQty,
                             PO.Qty AS PRQty,case when isnull(SED.Qty,0)=0 THEN PO.PlannedQty ELSE  SED.Qty END AS PRActualPlannedQty,
-                            PO.PlannedQty*M.Qty/100 AS PRPlannedQty,P.UserName AS Customer,ISNULL(PL.Code,'-') ProductCode
+                            (case when isnull(SED.Qty,0)=0 THEN PO.PlannedQty ELSE  SED.Qty END)*PPS.Qty/100 AS PRPlannedQty,P.UserName AS Customer,ISNULL(PL.Code,'-') ProductCode
 							,ProductAttribute=ISNULL(STUFF((select distinct '/'+PLA.UserName+'-'+PLA.AttributeValue from
 [dbo].[ProductLibraryAttribute] PLA
 left join[dbo].[ProductLibrary] MA ON MA.Id=PLA.ProductLibraryId
@@ -3634,7 +3634,7 @@ LEFT JOIN(Select SUM(Quantity)POProduceQty ,ProductionOrderId From TRN.Productio
                             LEFT OUTER JOIN trn.CustomerPO AS cp ON cp.Id=so.CustomerPOId
                            LEFT JOIN trn.ProductionOrderProcessSet M ON m.ProductionOrderID=po.Id
                                 AND m.Id=(SELECT TOP 1 ID FROM trn.ProductionOrderProcessSet EII WHERE EII.ProductionOrderID=po.Id ORDER BY EII.Sequence DESC )
-
+                            LEFT JOIN(Select * from trn.ProductionOrderProcessSet Where IsBaseProcess=1) PPS ON PPS.ProductionOrderID=po.Id
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PO.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
 
@@ -3659,12 +3659,36 @@ LEFT JOIN(Select SUM(Quantity)POProduceQty ,ProductionOrderId From TRN.Productio
 
                             WHERE PO.Id IN (SELECT DISTINCT p.ProductionOrderId FROM trn.ProductionOrderDetail AS p
                                             JOIN trn.SalesOrder AS so ON so.Id=p.SalesOrderId
-                                            WHERE so.OrderStatusId<>'Closed') AND PO.EntityId IN (Select distinct EntityId from HKP.EntityProcessTag)
+                                            WHERE SO.OrderStatusId in(" + parameters["OrderStatusId"] + @")) AND PO.EntityId IN (" + parameters["EntityId"] + @")
+
+                            AND MO.EntityId in(" + parameters["EntityId"] + @")
+                            AND SO.OrderStatusId in(" + parameters["OrderStatusId"] + @")
+                            AND MO.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")
+                            AND p.Id in(" + parameters["PartyId"] + @")
             ORDER BY trkp.UserName,trke.UserName,trke.Id, pod.ProductionOrderId,so.DeliveryDate,SO.ID";
 
             dtOrderMaster = _sqlRepository.GetDataTable(sql);
 
 
+        }
+
+        public IEnumerable<object> GetSOCompletionReportFilter()
+        {
+            try
+            {
+                string sql = @"SELECT distinct MO.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,MO.EntityId,EN.UserName Entity,MO.PartyId,P.UserName Customer,SO.OrderStatusId FROM trn.MasterOrder MO
+LEFT JOIN ORG.Entity EN ON EN.Id=MO.EntityId
+LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=MO.ResponsiblePersonId
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
+LEFT JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         public void ReportSQL(Dictionary<string, string> parameters, out DataTable data)

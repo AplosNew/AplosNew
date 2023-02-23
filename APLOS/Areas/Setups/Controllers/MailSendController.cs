@@ -229,7 +229,7 @@ namespace Aplos.Areas.Setups.Controllers
         [HttpPost, Authorize]
         public JsonResult SaveScandataToBooking()
         {
-            _mailSenderService.SaveScandataToBooking("TS", "TS", "10215");
+            _mailSenderService.SendControlChart("TS", "TS", "10215");
             return Json(new { Message = AplosMessage.Success });
         }//SaveScandataToBookingforPacking 
     }

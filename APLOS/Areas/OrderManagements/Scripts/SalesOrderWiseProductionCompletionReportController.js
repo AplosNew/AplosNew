@@ -3,44 +3,93 @@ SalesOrderWiseProductionCompletionReportController.$inject = ["cboService", "com
 function SalesOrderWiseProductionCompletionReportController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http) {
     $rootScope.title = "Sales Order Wise Production Completion Report";
     $scope.Action = 'Save';
-    $scope.index = -1;
-    $scope.baseProcess = { Id: null, UserName: null };
-    $scope.modelList = [];
-    $scope.productionMaterialList = [];
-    $scope.prdProcessSetList = [];
-    $scope.productionEntityList = [];
-    $scope.productionWorkCenterList = [];
-    $scope.productWorkCenterList = [];
 
     $scope.path = 'OrderManagements/SalesOrderWiseProductionCompletionReport/';
-    $scope.FromDate = '';
-    $scope.ToDate = '';
-    $scope.EntityId = '';
-    $scope.prdProcessSetList = [];
-    $scope.ProcessID = '';
-    $scope.ProcessID = '';
+    //The Filters 
+    $scope.filters = [];
+    $scope.GetFilters = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getFilters',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.filters = response.data;
+            var columnList = [
+                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
+                { field: 'OrderStatusId', width: 20, headerText: "Order Status", type: "string" },
 
-    $scope.Plants = [];
-    $scope.Entities = [];
-    $scope.SinglePlantEntity = [];
-    angular.isUndefinedOrNull = function (val) {
-        return angular.isUndefined(val) || val === null || val === ""
-    };
-    ////////////////////////////////////////////////REPORT//////////////////////////////////////////////////
-    $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.GetControlChartReportXls = function () {
-        try {
-            var file_src = 'OrderManagements/OrderReport/GetControlChartReportXls';
-            $rootScope.report(file_src);
+            ];
+            $("#filters").ejGrid({
+                dataSource: $scope.filters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
+            });
 
-        } catch (e) {
+            var gridObj = $("#filters").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#filters").children('.e-pager.e-js.e-pager').hide();
+            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#filters").children('.e-gridcontent').hide();
+        });
+    }
+    $scope.GetFilters();
 
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
         }
-      
-    };
 
-    $scope.getos3 = function () {
+        var parameters = [];
 
+        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
+        parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+        parameters.push({ "Key": "OrderStatusId", "Value": getString(fl, "OrderStatusId") });
+
+
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
+
+
+    //Destroy The Grid Before ReBuilding And Clearing of the Filters
+    $scope.clearFilters = function () {
+        var gridObj = $("#filters").data("ejGrid");
+        gridObj.clearFiltering();
+    }
+
+    $scope.refreshPage = function (e) {
+        if (e.requestType == "paging") {
+            var gridObj = $("#slabGrid").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+        }
+        var k = 100;
+    }
+
+
+    $scope.Xgetos3 = function () {
         try {
             var file_src = 'OrderManagements/SalesOrderWiseProductionCompletionReport/OS3xls?entityid=' + 118;
             $rootScope.report(file_src);
@@ -49,5 +98,34 @@ function SalesOrderWiseProductionCompletionReportController(cboService, commonMe
 
         }
     }
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.getos3 = function (reportType) {
+        try {
+            $scope.filterComplete();
+            
+            $http({
+                method: 'POST',
+                url: $scope.path + 'GetOS3xlsReport',
+                data: { 'parameters': $scope.parameters },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+
+
 
 }
