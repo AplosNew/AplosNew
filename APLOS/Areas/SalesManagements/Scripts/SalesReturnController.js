@@ -1795,8 +1795,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     }
 
 
-
-
     // #endregion Details
 
     $scope.BudgetActivityList = [];
