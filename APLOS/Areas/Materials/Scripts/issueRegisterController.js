@@ -10,7 +10,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	$scope.exportgriddataUrl = 'GridReports/ExcelExport';
 	$scope.downloadgriddataUrl = 'GridReports/Download';
 	$scope.Print = function () {
-		debugger;
 		var gridObj1 = $("#GridPO").data("ejGrid");
 		var data1 = gridObj1.model.dataSource();
 		$http({
@@ -20,10 +19,8 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}).then(function successCallback(response) {
 			if (response.data.Error == true) {
 				// ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
-
 			}
 			else {
-
 				location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
 			}
 		});
@@ -39,10 +36,8 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}).then(function successCallback(response) {
 			if (response.data.Error == true) {
 				// ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
-
 			}
 			else {
-
 				location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
 			}
 		});
@@ -51,23 +46,21 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	$scope.productNew = {
 		Type: null
 	};
-	$scope.productNew.Type = 'NonPosted';
+	$scope.productNew.Type = 'All';
 	$scope.changeSourceFrom = function (from) {
-		//debugger;
+		if (from === 'All') {
+			$scope.productNew.Type = 'All';
+		}
 		if (from === 'Posted') {
 			$scope.productNew.Type = 'Posted';
-
 		}
 		if (from === 'NonPosted') {
 			$scope.productNew.Type = 'NonPosted';
-
-
 		}
 	};
 
 	$scope.GriddataMaterialLedger = [];
 	$scope.getaldataMaterialLedger = function () {
-		debugger;
 		$http({
 			method: 'POST',
 			//url: $scope.getSearchListUrl,
@@ -80,16 +73,12 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
 			$scope.GriddataMaterialLedger = response.data;
-
 			//entrydata = copy(searchdata);
 		});
 	};
 
-
-
 	$scope.IssueRegisterList = [];
 	$scope.GetIssueRegister = function () {
-		//debugger;
 		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -111,17 +100,13 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}).then(function successCallback(response) {
 
 			$scope.IssueRegisterList = response.data.NewData;
-			//for (var i = 0; i < $scope.IssueRegisterList.length; i++) {
-			//	response.data[i].IssueDate = new Date($scope.IssueRegisterList[i].IssueDate);
-			//}
+			$scope.setTabGRNGRNIssueList(2);
 		});
 
 	};
 
-
 	$scope.IssueRegisterListByGRN = [];
 	$scope.GetIssueRegisterListByGRN = function () {
-		//debugger;
 		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -142,19 +127,8 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
 			$scope.IssueRegisterListByGRN = response.data.NewData;
-
-			//entrydata = copy(searchdata);
 		});
 	};
-
-
-
-
-
-
-
-
-
 
 	$scope.getReport = function () {
 		$scope.getaldataMaterialLedger();
@@ -163,14 +137,11 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		$scope.GetPurchaseRegister();
 	}
 	$scope.getPurchaseRegisterReport1 = function () {
-		//$scope.GetPurchaseRegister();
 		$scope.ShowResultCustom("Coming Soon...");
 	}
 	
 	$window.onresize = function (event) {
-
 		$scope.actionCompleteSelected();
-
 	};
 	$scope.actionCompleteSelected = function (args) {
 		try {
@@ -188,9 +159,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	};
 
 	$window.onresize = function (event) {
-
 		$scope.actionCompleteSelected1();
-
 	};
 	$scope.actionCompleteSelected1 = function (args) {
 		try {
@@ -208,8 +177,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	};
 
 	function IssueHistory(IssueDetailId) {
-
-		debugger;
 		$scope.IssueDetailList = [];
 		$http.get($scope.path + 'GetIssueRegisterDetail?Id=' + IssueDetailId)
 			.then(function (response) {
@@ -217,7 +184,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
 			});
 		angular.element(document.querySelector('#ListOfRequisition1')).modal('show');
-
 	}
 	$scope.RequisitionListHide = function () {
 		$scope.taxCategoryList = [];
@@ -234,7 +200,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		IssueHistory(Id);
 	};
 
-
 	$scope.tab = 1;
 	$scope.setTabIssueList = function (newTab) {
 		$scope.tab = newTab;
@@ -249,18 +214,12 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		$scope.tab = newTab;
 		//$scope.ReqStatus = 'HoldReject';
 		$scope.GetIssueRegisterListByGRN();
-
 	};
 	$scope.isSetGRNIssueList = function (tabNum) {
 		return $scope.tab === tabNum;
-
 	};
 
-
-
-
 	$scope.IssueRegisterReportPdf = function (id, reportFormat) {
-		debugger;
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -275,9 +234,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
 			$window.open('Materials/IssueRegister/Report?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
 		//};
-
 	}
-	
 
 	$scope.IssueRegisterReportExcel = function (reportFormat) {
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
@@ -298,24 +255,20 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}
 	}
 
-
-
-
-	$scope.GRNIssueRegisterReportPdf = function (id, reportFormat) {
-		debugger;
-		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-			ShowResult('Select From Date', 'failure');
-			return false;
-		}
-		if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-			ShowResult('Select To Date', 'failure');
-			return false;
-		}
-		var reportFormat = "Pdf";
-		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-		$window.open('Materials/IssueRegister/CreateIssueRegisterGRNIssueReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
-	};
-	
+	//$scope.GRNIssueRegisterReportPdf = function (id, reportFormat) {
+	//	debugger;
+	//	if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+	//		ShowResult('Select From Date', 'failure');
+	//		return false;
+	//	}
+	//	if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+	//		ShowResult('Select To Date', 'failure');
+	//		return false;
+	//	}
+	//	var reportFormat = "Pdf";
+	//	//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
+	//	$window.open('Materials/IssueRegister/CreateIssueRegisterGRNIssueReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
+	//};
 
 	$scope.GRNIssueRegisterReportExcel = function (reportFormat) {
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
