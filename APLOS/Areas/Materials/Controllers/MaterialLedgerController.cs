@@ -904,7 +904,242 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 throw ex;
             }
-        }       
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult InWardMaterialDataXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = InWardMaterialSummaryReport(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string InWardMaterialSummaryReport(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "In Ward Material";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc Ref No";
+                sheet[ROW, COL].ColumnWidth = 11;
+                int colDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colPO = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Style NO";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStyleNO = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Vendor";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colVendorName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colMaterial = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 35;
+                int colArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SKU1";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colSKU1 = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "lot No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int collotNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Qty";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "UoM";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int colUOM = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Rate";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colRate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Roll/Bag";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colRollBag = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Transporter";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int colTransporter = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GR No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colGRNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colGRNNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colRemarks = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, colDate].Text = data.Rows[i]["Date"].ToString();
+                    sheet[ROW, colDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, colPO].Text = data.Rows[i]["PO"].ToString();
+                    sheet[ROW, colStyleNO].Text = data.Rows[i]["StyleNO"].ToString();
+                    
+                    sheet[ROW, colVendorName].Text = data.Rows[i]["VendorName"].ToString();
+                    sheet[ROW, colMaterial].Text = data.Rows[i]["Material"].ToString();
+                    sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
+                    sheet[ROW, colSKU1].Text = data.Rows[i]["SKU1"].ToString();
+                    sheet[ROW, collotNo].Text = data.Rows[i]["lotNo"].ToString();
+                    sheet[ROW, colQty].Number = clsStaticInfo.dbl(data.Rows[i]["Qty"].ToString());
+                    sheet[ROW, colUOM].Text = data.Rows[i]["UOM"].ToString();
+                    sheet[ROW, colRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+                    sheet[ROW, colRollBag].Text = data.Rows[i]["RollBag"].ToString();
+                    sheet[ROW, colTransporter].Text = data.Rows[i]["Transporter"].ToString();
+                    sheet[ROW, colGRNo].Text = data.Rows[i]["GRNo"].ToString();
+                    sheet[ROW, colGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
+                    sheet[ROW, colRemarks].Text = data.Rows[i]["Remarks"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "In Ward Material Report", identity.PlantId);
+                //reportUtility.PlantHeader(ref sheet, endCol, "In Ward Material Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 

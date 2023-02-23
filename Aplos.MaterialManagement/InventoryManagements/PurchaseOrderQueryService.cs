@@ -5592,7 +5592,7 @@ namespace Library.MaterialManagement.InventoryManagements
             try
             {
                 var _sql = @"select IRD.Id,format(IRD.AddedDate,'dd-MMM-yyyy') Date,IR.DocRefNo,NULL PO,NULL StyleNO,P.UserName VendorName,MM.UserName Material,MMA.StandardName Article
-									,NULL SKU1,IRD.lotNo,IRD.TransactionQty Qty,uom.UserName UOM,IRD.MaterialTranRate Rate,0 RollBag,NULL Transporter
+									,NULL SKU1,IRD.lotNo,IRD.TransactionQty Qty,uom.UserName UOM,IRD.MaterialTranRate Rate,'' RollBag,'' Transporter
                                     ,'' GRNo,IR.Id GRNNo,'' Remarks
 									from trn.InventoryReceiveDetail IRD
 									left join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
