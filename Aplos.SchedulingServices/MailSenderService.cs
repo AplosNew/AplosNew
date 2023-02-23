@@ -28,10 +28,12 @@ using System.Collections.Specialized;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Text;
 using static Library.Service.Helpers.ReportUtility;
 using static System.Net.Mime.MediaTypeNames;
+
 
 namespace Library.SchedulingServices.Setups
 {
@@ -4439,6 +4441,9 @@ namespace Library.SchedulingServices.Setups
                                     {
                                         var message = email.PrepareMessage(item.SenderName + "<" + item.SenderEmail + ">", toList, ccList, bccList, item.Subject, item.MessageBody);
                                         message.Attachments.Add(new Attachment(path.ToString()));
+                                        //NetworkCredential NetworkCred = new NetworkCredential(item.SenderName, null);
+                                        //email.Credentials = NetworkCred;
+                                        //email.UseDefaultCredentials = true;
                                         email.Send(message);
                                         // Set file name.
                                         log.AttachmentName = fileName + ".xls";
