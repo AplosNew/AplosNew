@@ -74,7 +74,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpPost, Authorize]
+       
         private IWorkbook SalesOrderStatusReport(Dictionary<string, string> parameters)
         {
             var excelEngine = new ExcelEngine();
