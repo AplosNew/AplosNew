@@ -890,7 +890,7 @@ namespace Library.Accounting.Accounts
 		                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
 		                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId
                         WHERE V.IsPark=1 AND VD.PartyType='" + partyType + "' and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + "' AND CONVERT(DATE, V.PostingDate) <= '" + toDate + @"'
-                        AND V.SourceType in ('CreditNoteSetOff','CustomerAdvanceWriteOff','CustomerBanksReceipt','CustomerReceipt','DebitNoteSetOff','ReceiptByBank','VendorAdvanceWriteOff','VendorPayment')
+                        AND V.SourceType in ('CreditNoteSetOff','CustomerAdvanceWriteOff','CustomerBanksReceipt','CustomerReceipt','DebitNoteSetOff','ReceiptByBank','VendorAdvanceWriteOff','VendorPayment','VendorInvoiceCharge','InvoiceCharge')
                         GROUP BY ISNULL( P.Code,'') ,ISNULL( P.UserName,'') ,ISNULL( PP.UserName,'') ,v.SourceType , V.VoucherNo
 		                ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') ,Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-')  ,V.DocRefNo
 		                ORDER BY V.SourceType ASC";
