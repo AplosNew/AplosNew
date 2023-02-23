@@ -728,11 +728,7 @@ namespace Library.Accounting.Accounts
 
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
-
+                
                 worksheet[ROW, colAdvance - 1].Text = "Total";
                 worksheet[ROW, colAdvance - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
@@ -804,8 +800,51 @@ namespace Library.Accounting.Accounts
 
 
                 worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
-                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                #region Sheet2 WriteOff Pending Posting
+                IWorksheet sheet2 = workbook.Worksheets[1];
+                sheet2.Name = "WriteOff Pending Posting";
+                
+                #region columns
+                int ROW2 = 1, COL2 = 1;
+                int startRow2 = ROW2;
+                sheet2[ROW2, COL2].Text = "Party Code"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyCode2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyName2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Plant Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyPlantName2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Voucher Type"; sheet2[ROW2, COL2].ColumnWidth = 14; int colVoucherType = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Voucher No"; sheet2[ROW2, COL2].ColumnWidth = 17; int colVoucherNo = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Posting Date"; sheet2[ROW2, COL2].ColumnWidth = 14; int colPostingDate = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Doc Date"; sheet2[ROW2, COL2].ColumnWidth = 14; int colDocDate = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Doc Ref No"; sheet2[ROW2, COL2].ColumnWidth = 15; int colDocRefNo = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Amount"; sheet2[ROW2, COL2].ColumnWidth = 15; int colAmount = COL2;
+                int endcol2 = COL2;
+                #endregion columns
+
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Bold = true;
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Size = 9f;
+                sheet2.Range[ROW2, 1, ROW2, endcol2].BorderInside(ExcelLineStyle.Hair);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].BorderAround(ExcelLineStyle.Hair);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Color = ExcelKnownColors.White;
+
+                DataTable dtPending = GetWriteOffPendingPostingData(companyGroupId, companyId, plantId, "Vendor", fromDate, toDate);
+
+                ROW2++;
+                for (int i = 0; i < dtPending.Rows.Count; i++)
+                {
+                    sheet2[ROW2, colPartyCode2].Text = dtPending.Rows[i]["PartyCode"].ToString();
+                    sheet2[ROW2, colPartyName2].Text = dtPending.Rows[i]["PartyName"].ToString();
+                    sheet2[ROW2, colPartyPlantName2].Text = dtPending.Rows[i]["PartyPlantName"].ToString();
+                    sheet2[ROW2, colVoucherType].Text = dtPending.Rows[i]["VoucherType"].ToString();
+                    sheet2[ROW2, colVoucherNo].Text = dtPending.Rows[i]["VoucherNo"].ToString();
+                    sheet2[ROW2, colPostingDate].Text = dtPending.Rows[i]["PostingDate"].ToString();
+                    sheet2[ROW2, colDocDate].Text = dtPending.Rows[i]["DocDate"].ToString();
+                    sheet2[ROW2, colDocRefNo].Text = dtPending.Rows[i]["DocRefNo"].ToString();
+                    sheet2[ROW2, colAmount].Number = clsStaticInfo.dbl(dtPending.Rows[i]["Amount"].ToString());
+                    sheet2[ROW2, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    ROW2++;
+                }
+                #endregion
 
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -837,6 +876,27 @@ namespace Library.Accounting.Accounts
                 throw (ex);
 
             }
+        }
+
+        public DataTable GetWriteOffPendingPostingData(string companyGroupId, string companyId, string plantId, string partyType, string fromDate, string toDate)
+        {
+            var cmdText = @"SELECT ISNULL( P.Code,'') PartyCode,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName
+                        ,VoucherType=v.SourceType , V.VoucherNo,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') PostingDate
+                        ,Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate ,V.DocRefNo
+		                ,CASE WHEN SUM(VDC.CrAmount)=0 THEN SUM(VDC.DrAmount) ELSE SUM(VDC.CrAmount) END Amount
+                        FROM [TRN].[VoucherDetail] AS VD 
+		                LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+		                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+		                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+		                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId
+                        WHERE V.IsPark=1 AND VD.PartyType='" + partyType + "' and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + "' AND CONVERT(DATE, V.PostingDate) <= '" + toDate + @"'
+                        AND V.SourceType in ('CreditNoteSetOff','CustomerAdvanceWriteOff','CustomerBanksReceipt','CustomerReceipt','DebitNoteSetOff','ReceiptByBank','VendorAdvanceWriteOff','VendorPayment','VendorInvoiceCharge','InvoiceCharge')
+                        GROUP BY ISNULL( P.Code,'') ,ISNULL( P.UserName,'') ,ISNULL( PP.UserName,'') ,v.SourceType , V.VoucherNo
+		                ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') ,Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-')  ,V.DocRefNo
+		                ORDER BY V.SourceType ASC";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
         }
 
         //Detail Or Aging Report
@@ -3772,7 +3832,52 @@ namespace Library.Accounting.Accounts
 
 
                 worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
-                
+
+                #region Sheet2 WriteOff Pending Posting
+                IWorksheet sheet2 = workbook.Worksheets[1];
+                sheet2.Name = "WriteOff Pending Posting";
+
+                #region columns
+                int ROW2 = 1, COL2 = 1;
+                int startRow2 = ROW2;
+                sheet2[ROW2, COL2].Text = "Party Code"; sheet2[ROW2, COL2].ColumnWidth = 10; int colPartyCode2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyName2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Party Plant Name"; sheet2[ROW2, COL2].ColumnWidth = 25; int colPartyPlantName2 = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Voucher Type"; sheet2[ROW2, COL2].ColumnWidth = 14; int colVoucherType = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Voucher No"; sheet2[ROW2, COL2].ColumnWidth = 17; int colVoucherNo = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Posting Date"; sheet2[ROW2, COL2].ColumnWidth = 14; int colPostingDate = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Doc Date"; sheet2[ROW2, COL2].ColumnWidth = 14; int colDocDate = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Doc Ref No"; sheet2[ROW2, COL2].ColumnWidth = 15; int colDocRefNo = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Amount"; sheet2[ROW2, COL2].ColumnWidth = 15; int colAmount = COL2;
+                int endcol2 = COL2;
+                #endregion columns
+
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Bold = true;
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Size = 9f;
+                sheet2.Range[ROW2, 1, ROW2, endcol2].BorderInside(ExcelLineStyle.Hair);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].BorderAround(ExcelLineStyle.Hair);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Color = ExcelKnownColors.White;
+
+                DataTable dtPending = GetWriteOffPendingPostingData(companyGroupId, companyId, plantId, "Customer", fromDate, toDate);
+
+                ROW2++;
+                for (int i = 0; i < dtPending.Rows.Count; i++)
+                {
+                    sheet2[ROW2, colPartyCode2].Text = dtPending.Rows[i]["PartyCode"].ToString();
+                    sheet2[ROW2, colPartyName2].Text = dtPending.Rows[i]["PartyName"].ToString();
+                    sheet2[ROW2, colPartyPlantName2].Text = dtPending.Rows[i]["PartyPlantName"].ToString();
+                    sheet2[ROW2, colVoucherType].Text = dtPending.Rows[i]["VoucherType"].ToString();
+                    sheet2[ROW2, colVoucherNo].Text = dtPending.Rows[i]["VoucherNo"].ToString();
+                    sheet2[ROW2, colPostingDate].Text = dtPending.Rows[i]["PostingDate"].ToString();
+                    sheet2[ROW2, colDocDate].Text = dtPending.Rows[i]["DocDate"].ToString();
+                    sheet2[ROW2, colDocRefNo].Text = dtPending.Rows[i]["DocRefNo"].ToString();
+                    sheet2[ROW2, colAmount].Number = clsStaticInfo.dbl(dtPending.Rows[i]["Amount"].ToString());
+                    sheet2[ROW2, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    ROW2++;
+                }
+                #endregion
+
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
