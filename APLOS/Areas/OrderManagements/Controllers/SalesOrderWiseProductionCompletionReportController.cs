@@ -140,9 +140,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(5);
-                workbook.Worksheets[3].Name = "OS3 Data";
-                sheet = workbook.Worksheets[3];
+                workbook = application.Workbooks.Create(3);
+                workbook.Worksheets[2].Name = "OS3 Data";
+                sheet = workbook.Worksheets[2];
 
 
                 int ROW = 6; int COL = 1;
@@ -528,7 +528,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 //#endregion ******************Report Header******************
 
-                IWorksheet sheet2 = workbook.Worksheets[4];
+                IWorksheet sheet2 = workbook.Worksheets[1];
                 sheet2.Name = "OS-W";
                 //sheet2.ImportDataTable(dt, true, 1, 1);
                 //int lc = sheet.UsedRange.LastColumn;
@@ -701,232 +701,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 #endregion Buyer Summary
 
-                //#region OS3- R2
-                //workbook.Worksheets[1].Name = "OS3- R2";
-                //sheet = workbook.Worksheets[1];
-
-                //pivotSheet = workbook.Worksheets[1];
-                //pivotTable = pivotSheet.PivotTables.Add("PivotTable2", pivotSheet["A6"], cache);
-
-
-                ////pivotTable.Fields[colEarlyBy - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colEarlyBy - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                ////pivotTable.Fields[colLateBy - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colLateBy - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colPlant - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
-
-                //pivotTable.Fields[colDeliveryMonth - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colDeliveryMonth - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
-                //pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colBuyer - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colBuyerOrderNo - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colMasterOrderNo - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProduct - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colPONo - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colSalesOrderId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colSalesOrderDesc - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOrderCategory - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOrderStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colproductionStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colDeliveryDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colCommitmentDate - 1].Axis = PivotAxisTypes.Row;
-
-                //pivotTable.Fields[colExpectedCompletionDate - 1].Axis = PivotAxisTypes.Row;
-
-                //pivotTable.Fields[colProductionCompletionMonth - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colCummPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
-                //for (int i = 0; i < pivotTable.Fields.Count; i++)
-                //{
-                //    if (i == colDeliveryMonth - 1 || i == colPlant - 1 || i == colEntity - 1)
-                //        continue;
-                //    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
-                //}
-
-
-                ////pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
-                ////pivotTable.Fields[colSOQty - 1].Name = "SO Qty";
-                ////pivotTable.Fields[colSOQty - 1].Subtotals = PivotSubtotalTypes.Sum;
-                ////pivotTable.Fields[colSOQty - 1].NumberFormat = clsStaticInfo.NumberFormat(0);
-
-                ////pivotTable.Fields[colPlannedQty - 1].Axis = PivotAxisTypes.Row;
-                ////pivotTable.Fields[colPlannedQty - 1].Name = "Plan Qty";
-                ////pivotTable.Fields[colPlannedQty - 1].Subtotals = PivotSubtotalTypes.Sum;
-                ////pivotTable.Fields[colPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat(0);
-
-                ////pivotTable.Fields[colAvailableProducedQty - 1].Axis = PivotAxisTypes.Row;
-                ////pivotTable.Fields[colAvailableProducedQty - 1].Name = "Available Produced Qty";
-                ////pivotTable.Fields[colAvailableProducedQty - 1].Subtotals = PivotSubtotalTypes.Sum;
-                ////pivotTable.Fields[colAvailableProducedQty - 1].NumberFormat = clsStaticInfo.NumberFormat(0);
-
-                //pivotTable.Fields[colPRQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPRQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colPRPlannedQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPRPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colCummPlannedQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colCummPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPRQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colPlannedQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPRPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colAvailableProducedQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colCummPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
-                //field = pivotTable.Fields[colPRQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "PR Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colPRPlannedQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "PR Plan Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colCummPlannedQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "Cumm. Plan Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colSOQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colPlannedQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "Plan Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colAvailableProducedQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "Available Produced Qty", PivotSubtotalTypes.Sum);
-
-
-                //field = pivotTable.Fields[colAvailablePlanQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "Available Plan Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colTotalAvailableQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "Total Available Qty", PivotSubtotalTypes.Sum);
-
-                ////int totalColumns = pivotTable2_1.RowFields.Count + pivotTable2_1.ColumnFields.Count;
-                ////int StartFormattingColumn = pivotTable.RowFields.Count + 1;
-                ////int endFormaatingColumn = StartFormattingColumn + pivotTable.ColumnFields[0].Items.Count + pivotTable.ColumnFields[1].Items.Count;
-
-
-                //pivotTable.ShowDrillIndicators = false;
-                ////pivotTable.ShowDataFieldInRow = true;
-                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
-                //pivotTable.Options.NullString = "";
-                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
-
-
-                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Production Completion Month Wise - Order Planning Status", identity.CompanyId, identity.CompanyName, "");
-
-                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                //sheet.IsGridLinesVisible = false;
-
-
-                //#endregion Buyer Summary
-
-
-                //#region OS3- R3
-                //workbook.Worksheets[2].Name = "OS3- R3";
-                //sheet = workbook.Worksheets[2];
-
-                //pivotSheet = workbook.Worksheets[2];
-                //pivotTable = pivotSheet.PivotTables.Add("PivotTable3", pivotSheet["A6"], cache);
-
-                //pivotTable.Fields[colPlant - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
-
-                //pivotTable.Fields[colEarlyBy - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colEarlyBy - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colLateBy - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colLateBy - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
-                //pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colBuyer - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colBuyerOrderNo - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colMasterOrderNo - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProduct - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colPRQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPRQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colPRPlannedQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colPRPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colCummPlannedQty - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colCummPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.Fields[colPONo - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colSalesOrderId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colSalesOrderDesc - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOrderCategory - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOrderStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colproductionStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colDeliveryDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colCommitmentDate - 1].Axis = PivotAxisTypes.Row;
-
-                //pivotTable.Fields[colExpectedCompletionDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colDeliveryMonth - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colDeliveryMonth - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
-                //pivotTable.Fields[colProductionCompletionMonth - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colCummPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat();
-
-                //for (int i = 0; i < pivotTable.Fields.Count; i++)
-                //{
-                //    //if (i == colBuyerOrderNo - 1)
-                //    //    continue;
-                //    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
-                //}
-
-
-                ////pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
-                ////pivotTable.Fields[colSOQty - 1].Name = "SO Qty";
-                ////pivotTable.Fields[colSOQty - 1].Subtotals = PivotSubtotalTypes.Sum;
-                ////pivotTable.Fields[colSOQty - 1].NumberFormat = clsStaticInfo.NumberFormat(0);
-
-                ////pivotTable.Fields[colPlannedQty - 1].Axis = PivotAxisTypes.Row;
-                ////pivotTable.Fields[colPlannedQty - 1].Name = "Plan Qty";
-                ////pivotTable.Fields[colPlannedQty - 1].Subtotals = PivotSubtotalTypes.Sum;
-                ////pivotTable.Fields[colPlannedQty - 1].NumberFormat = clsStaticInfo.NumberFormat(0);
-
-                ////pivotTable.Fields[colAvailableProducedQty - 1].Axis = PivotAxisTypes.Row;
-                ////pivotTable.Fields[colAvailableProducedQty - 1].Name = "Available Produced Qty";
-                ////pivotTable.Fields[colAvailableProducedQty - 1].Subtotals = PivotSubtotalTypes.Sum;
-                ////pivotTable.Fields[colAvailableProducedQty - 1].NumberFormat = clsStaticInfo.NumberFormat(0);
-
-                //field = pivotTable.Fields[colSOQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colPlannedQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "Plan Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colAvailableProducedQty - 1];
-                //field.NumberFormat = clsStaticInfo.NumberFormat();
-                //pivotTable.DataFields.Add(field, "Available Produced Qty", PivotSubtotalTypes.Sum);
-
-
-
-
-                ////int totalColumns = pivotTable2_1.RowFields.Count + pivotTable2_1.ColumnFields.Count;
-                ////int StartFormattingColumn = pivotTable.RowFields.Count + 1;
-                ////int endFormaatingColumn = StartFormattingColumn + pivotTable.ColumnFields[0].Items.Count + pivotTable.ColumnFields[1].Items.Count;
-
-
-                //pivotTable.ShowDrillIndicators = false;
-                ////pivotTable.ShowDataFieldInRow = true;
-                //pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
-                //pivotTable.Options.NullString = "";
-                //pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
-
-
-                //reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Early / Late Base Process  Wise  -  Order  Planning Status", identity.CompanyId, identity.CompanyName, "");
-
-                //reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-                //sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                //sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                //sheet.IsGridLinesVisible = false;
-
-
-                //#endregion Buyer Summary
-
-                //string strFileName = "OS3.xlsx";
-                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                //workbook.Close();
-                //excelEngine.Dispose();
+               
                 return workbook;
             }
             catch (Exception ex)
