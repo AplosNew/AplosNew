@@ -161,6 +161,7 @@
                         <div e-column e-template="#StdWorkingHours" e-headertext="Std Working Hours" e-width="80"></div>
                         <div e-column e-template="#StdProduction" e-headertext="StdProduction" e-width="80"></div>
                         <div e-column e-template="#IntermediateTarget" e-headertext="Intermediate Target" e-width="80"></div>
+                        <div e-column e-template="#Utilization" e-headertext="Utilization%" e-width="200"></div>
                         <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
                     </div>
                 </div>
@@ -183,6 +184,11 @@
                 <script type="text/template" id="IntermediateTarget">
                     <div class="col-sm-10" style="padding:0px;">
                         <input type="number" name="Intermediate Target" ng-model="data.IntermediateTarget" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="Utilization">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="number" name="Utilization" ng-model="data.UtilizationPercentage" ng-click="" class="form-control" maxlength="200">
                     </div>
                 </script>
                 <script type="text/template" id="Remarks">

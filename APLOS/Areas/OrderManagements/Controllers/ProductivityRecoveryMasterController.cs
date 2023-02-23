@@ -204,7 +204,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         public ActionResult LoadFGArticleFilter()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,PC.UserName ProductCategory,PSC.UserName ProductSubCategory 
+            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,MC.UserName MaterialCategory,MSC.UserName MaterialSubCategory 
 from MST.MaterialMasterArticle MA
 left outer Join  MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
@@ -212,8 +212,8 @@ left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
 left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
 left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
 left outer join HKP.Product P ON P.Id=PM.ProductId
-left outer join HKP.ProductCategory PC ON PC.Id=PM.ProductCategoryId
-left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -223,7 +223,7 @@ left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
         public ActionResult LoadFGArticleFilterRM()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,PC.UserName ProductCategory,PSC.UserName ProductSubCategory 
+            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,MC.UserName MaterialCategory,MSC.UserName MaterialSubCategory 
 from MST.MaterialMasterArticle MA
 left outer Join  MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
@@ -231,8 +231,8 @@ left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
 left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
 left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
 left outer join HKP.Product P ON P.Id=PM.ProductId
-left outer join HKP.ProductCategory PC ON PC.Id=PM.ProductCategoryId
-left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -244,14 +244,28 @@ left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN PRA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MA.Id as ArticleId,MA.StandardName Article,MM.Id MaterialMasterId,MM.UserName Material,
 MT.UserName MaterialType,MG.UserName MaterialGroup,
-AttributeValue=STUFF((select distinct ', '+ A.UserName+ '-' + MAV.StandardName from HKP.MaterialAttribute AS A  INNER JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=A.id left outer join MST.MaterialMasterAttribute MMA ON MAV.MaterialAttributeId=MMA.MaterialAttributeId where MMA.MaterialMasterId=MA.MaterialMasterId for xml path('') ), 1, 1, '')
-,PRA.Id,PRA.StdWorkingHours,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks
+AttributeValue=STUFF((SELECT distinct ', '+ A.UserName+ '-' + MAV.StandardName
+                            FROM MST.MaterialMasterAttribute AS MMA
+                            LEFT JOIN HKP.MaterialAttribute AS A ON MMA.MaterialAttributeId = A.Id
+                            LEFT JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=MMA.MaterialAttributeId 
+							LEFT JOIN MST.MaterialMasterArticleValue MMAV ON MAV.Id=MMAV.MaterialAttributeValueId
+                            WHERE MMA.MaterialMasterId = MA.MaterialMasterId and MMAV.MaterialMasterArticleId=MA.Id for xml path('') ), 1, 1, '')
+,PRA.Id,PRA.StdWorkingHours,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks,PRA.UtilizationPercentage
 from MST.MaterialMasterArticle MA
 left Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
 left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
-LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='"+ PRMId + @"'
-where MT.UserName IN(" + parameters["MaterialType"] + @")
+left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
+left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+left outer join HKP.Product P ON P.Id=PM.ProductId
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
+LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
+where MT.UserName IN(" + parameters["MaterialType"] + @") AND
+      MM.UserName IN(" + parameters["Material"] + @") AND
+      P.UserName IN(" + parameters["Product"] + @") AND
+      MC.UserName IN(" + parameters["MaterialCategory"] + @") AND
+      MSC.UserName IN(" + parameters["MaterialSubCategory"] + @") 
              order by PRA.ArticleId  desc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet); 
             json.MaxJsonLength = int.MaxValue; 
@@ -283,8 +297,17 @@ from MST.MaterialMasterArticle MA
 left Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
 left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
+left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
+left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+left outer join HKP.Product P ON P.Id=PM.ProductId
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
 LEFT JOIN [TRN].[PRMRMArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
-where MT.UserName IN(" + parametersRM["MaterialType"] + @")
+where MT.UserName IN(" + parametersRM["MaterialType"] + @") AND
+      MM.UserName IN(" + parametersRM["Material"] + @") AND
+      P.UserName IN(" + parametersRM["Product"] + @") AND
+      MC.UserName IN(" + parametersRM["MaterialCategory"] + @") AND
+      MSC.UserName IN(" + parametersRM["MaterialSubCategory"] + @")
 order by PRA.ArticleId  desc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
