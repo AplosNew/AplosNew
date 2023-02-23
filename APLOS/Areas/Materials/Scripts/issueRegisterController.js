@@ -255,20 +255,20 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}
 	}
 
-	$scope.GRNIssueRegisterReportPdf = function (id, reportFormat) {
-		debugger;
-		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-			ShowResult('Select From Date', 'failure');
-			return false;
-		}
-		if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-			ShowResult('Select To Date', 'failure');
-			return false;
-		}
-		var reportFormat = "Pdf";
-		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-		$window.open('Materials/IssueRegister/CreateIssueRegisterGRNIssueReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
-	};
+	//$scope.GRNIssueRegisterReportPdf = function (id, reportFormat) {
+	//	debugger;
+	//	if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+	//		ShowResult('Select From Date', 'failure');
+	//		return false;
+	//	}
+	//	if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+	//		ShowResult('Select To Date', 'failure');
+	//		return false;
+	//	}
+	//	var reportFormat = "Pdf";
+	//	//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
+	//	$window.open('Materials/IssueRegister/CreateIssueRegisterGRNIssueReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
+	//};
 
 	$scope.GRNIssueRegisterReportExcel = function (reportFormat) {
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
