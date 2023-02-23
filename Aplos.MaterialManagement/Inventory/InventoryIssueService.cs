@@ -2438,14 +2438,24 @@ namespace Library.MaterialManagement.Inventory
             try
             {
                 var sql = "";
+                var temp = "";
+                
                 if (Type == "Posted")
                 {
-                    sql = @"SELECT II.Id AS IssueId
+                    temp = "and v.VoucherNo is not null";
+                }
+                if (Type == "NonPosted")
+                {
+                    temp = "and v.VoucherNo is null";
+                }
+
+                sql = @"SELECT II.Id AS IssueId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
 	                        ,En.UserName AS Entityname
+                            ,HSNC.Code HSNCode,BUoM.UserName AS BaseUOM
+                            ,'' PostingDate,'' PostedBy,II.Remarks
 	                        ,MS.UserName AS MaterialStorageName
-	                        ,II.STATUS
-	                        ,v.VoucherNo ,IID.Id IssueDetailId ,IID.InventoryIssueId
+	                        ,v.VoucherNo,V.IsPark,IID.Id IssueDetailId ,IID.InventoryIssueId
 	                        ,MT.UserName MaterialType,II.IssueType ,MGM.UserName AS MaterialGroupMasterName
 	                        ,IM.MaterialMasterId ,MM.UserName MaterialMasterName
 	                        ,ART.StandardName ArticleName
@@ -2471,19 +2481,32 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
-                            ,ISNULL(IGL.AccountCode,'') AS GLCode
-                            ,ISNULL(IGL.UserName,'') AS GL
-							,ISNULL(IA.UserName,'') Activity
-							,isnull(B.UserName,'') AS Budget
-							,isnull(IBM.RefNo,'') AS BudgetRefNo
-                            ,ISNULL(IGL1.AccountCode,'') AS CGLCode
-							,isnull(IGL1.UserName,'') AS CGL
-							,isnull(IA1.UserName,'') AS CActivity
-							,isnull(B1.UserName,'') AS CBUdget
-                            ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
+
+                            ,GLCode=case when v.Id <>'' then  ISNULL(IGL.AccountCode,'') else ISNULL(IGLNP.AccountCode,'') end
+                            ,GL=case when v.Id <>'' then ISNULL(IGL.UserName,'') else ISNULL(IGLNP.UserName,'') end
+							,Activity=case when v.Id <>'' then ISNULL(IA.UserName,'') else ISNULL(IANP.UserName,'') end
+							,Budget=case when v.Id <>'' then isnull(B.UserName,'') else ISNULL(BNP.UserName,'') end
+							,BudgetRefNo=case when v.Id <>'' then isnull(IBM.RefNo,'') else ISNULL(IBMNP.RefNo,'') end
+
+                            ,CGLCode=case when v.Id <>'' then  ISNULL(IGL1.AccountCode,'') else ISNULL(IIH.CGLCode,'') end
+							,CGL=case when v.Id <>''  then  ISNULL(IGL1.UserName,'') else ISNULL(IIH.CGL,'') end
+							,CActivity=case when v.Id <>'' then  ISNULL(IA1.UserName,'') else ISNULL(IIH.CActivity,'') end
+							,CBUdget=case when v.Id <>'' then  ISNULL(B1.UserName,'') else ISNULL(IIH.CBUdget,'') end
+                            ,CBudgetRefNo=case when v.Id <>'' then  ISNULL(IBM1.RefNo,'') else ISNULL(IIH.CBudgetRefNo,'') end
+
                             ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
-                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
-                            ,CC1.UserName CLevel1,CC2.UserName CLevel2,CC3.UserName CLevel3,CC4.UserName CLevel4
+
+                            ,Level1=case when v.Id <>'' then C1.UserName else ISNULL(C1NP.UserName,'') end
+							,Level2=case when v.Id <>'' then C2.UserName else ISNULL(C2NP.UserName,'') end
+							,Level3=case when v.Id <>'' then C3.UserName else ISNULL(C3NP.UserName,'') end
+							,Level4=case when v.Id <>'' then C4.UserName else ISNULL(C4NP.UserName,'') end
+
+                            ,CLevel1=case when v.Id <>'' then CC1.UserName else ISNULL(IIH.CRLevel1,'') end
+							,CLevel2=case when v.Id <>'' then CC2.UserName else ISNULL(IIH.CRLevel2,'') end
+							,CLevel3=case when v.Id <>'' then CC3.UserName else ISNULL(IIH.CRLevel3,'') end
+							,CLevel4=case when v.Id <>'' then CC4.UserName else ISNULL(IIH.CRLevel4,'') end
+                            
+                            ,Status =case when II.VoucherId<>'' then 'Posted' else 'NonPosted' end
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2491,6 +2514,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
                         LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
                         LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
+                        LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
                         LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
                         LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
@@ -2520,81 +2544,16 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
                         LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
-                    where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
-
-                }
-                else
-                {
-                    sql = @"SELECT II.Id AS IssueId
-	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        ,En.UserName AS Entityname ,MS.UserName AS MaterialStorageName
-	                        ,II.STATUS ,v.VoucherNo
-	                        ,IID.Id IssueDetailId ,IID.InventoryIssueId ,MT.UserName MaterialType ,II.IssueType
-	                        ,MGM.UserName AS MaterialGroupMasterName
-	                        ,IM.MaterialMasterId
-	                        ,MM.UserName MaterialMasterName
-	                        ,ART.StandardName ArticleName
-	                        ,IsAsset = CASE  WHEN MM.IsAsset = 0 THEN 'No' ELSE 'Yes' END
-	                        ,FC.UserName AS FirstCharacteristics
-	                        ,IM.FirstCharacteristicsValueId
-	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
-	                        ,IM.SecondCharacteristicsId
-	                        ,SC.UserName AS SecondCharacteristics
-	                        ,IM.SecondCharacteristicsValueId
-	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
-	                        ,IM.ThirdCharacteristicsId
-	                        ,TC.UserName AS ThirdCharacteristics
-	                        ,IM.ThirdCharacteristicsValueId
-	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-	                        ,IID.TransactionQty
-	                        --,IID.BaseUOMId
-	                        ,TUoM.UserName AS UOM
-	                        ,Round(IID.AvgRate,2) AvgRate
-	                        ,Round(IID.AvgAmount,2) AvgAmount
-	                        ,Round(IID.PolicyRate,2) PolicyRate
-	                        ,Round(IID.PolicyAmount,2) PolicyAmount
-	                        ,IID.Policy
-	                        ,IID.BaseQty ,IID.InventoryReceiveId ,IID.InventoryReceiveDetailId
-                           
-                            ,CC.UserName CostCenterName ,EI.EmployeeName,D.UserName DepartmentName
-							,ISNULL(IGL.AccountCode,'') AS GLCode
-							,ISNULL(IGL.UserName,'') AS GL
-							,isnull(B.UserName,'') AS Budget
-							,ISNULL(IA.UserName,'') Activity
-							,ISNULL(IBM.RefNo,'') BudgetRefNo
-							,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
-							,IIH.CGLCode
-							,IIH.CGL
-							,IIH.CActivity
-							,IIH.CBUdget
-							,IIH.CBudgetRefNo,IIH.CRLevel1,IIH.CRLevel2,IIH.CRLevel3,IIH.CRLevel4
-                        FROM trn.InventoryIssue II
-                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
-                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
-                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
-                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
-                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
-                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
-						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-						LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
-						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
-						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
-						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+						LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
+						--NotPosted---
+						LEFT JOIN MST.BudgetMaster IBMNP ON IBMNP.Id=IID.BudgetMasterId
+						LEFT JOIN HKP.GLGeneralInfo IGLNP ON IGLNP.Id=IBMNP.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IANP ON IANP.Id=IID.ActivityId
+						Left JOIN hkp.Budget BNP On BNP.Id=IBMNP.BudgetId
+						LEFT JOIN HKP.COALevel1 C1NP ON C1NP.Id=IGLNP.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2NP ON C2NP.Id=IGLNP.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3NP ON C3NP.Id=IGLNP.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4NP ON C4NP.Id=IGLNP.COALevel4Id
 						LEFT JOIN (SELECT DISTINCT IIH.InventoryIssueDetailId,IGL1.AccountCode CGLCode,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget ,IBM1.RefNo CBudgetRefNo
@@ -2609,11 +2568,8 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL1.COALevel2Id
 						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
 						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
-                        LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
-                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
-                    where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
-
-                }
+						--NotPosted
+                    where II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' " + temp + @"";
 
                 return _sqlRepository.GetDataTable(sql);
 
@@ -4126,267 +4082,9 @@ namespace Library.MaterialManagement.Inventory
 
         private void CreateIssueRegisterReportSheet(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
         {
-            var cmdText = "";
-            if (Type == "Posted")
-            {
-                cmdText = @"SELECT II.Id AS IssueId,II.IssueType
-	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        --,II.CompanyId
-	                        --,II.PlantId
-	                        -- ,II.EntityId  ---userName as Entityname 
-	                        ,En.UserName AS Entityname
-	                        --,II.AddedBy
-	                        --,II.AddedDate
-	                        --,II.AddedFromIP
-	                        --,II.UpdatedBy
-	                        --,II.UpdatedDate
-	                        --,II.UpdatedFromIP
-	                        -- ,II.MaterialStorageId
-	                        ,MS.UserName AS MaterialStorageName
-	                        ,II.STATUS
-							,HSNC.Code HSNCode
-                             ,II.Remarks
-	                        -- ,II.VoucherId 
-	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-	                        ,v.VoucherNo,V.IsPark
-	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
-	                        ,IID.Id IssueDetailId
-	                        ,IID.InventoryIssueId
-	                        --,IID.InventoryMaterialId
-	                        ,MT.UserName MaterialType
-	                        ,MGM.UserName AS MaterialGroupMasterName
-	                        ,IM.MaterialMasterId
-	                        ,MM.UserName MaterialMasterName
-	                        -- , IM.ArticleId
-	                        ,ART.StandardName ArticleName
-	                        ,IsAsset = CASE 
-		                        WHEN MM.IsAsset = 0
-			                        THEN 'No'
-		                        ELSE 'Yes'
-		                        END
-	                        --, IM.FirstCharacteristicsId
-	                        ,FC.UserName AS FirstCharacteristics
-	                        ,IM.FirstCharacteristicsValueId
-	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
-	                        ,IM.SecondCharacteristicsId
-	                        ,SC.UserName AS SecondCharacteristics
-	                        ,IM.SecondCharacteristicsValueId
-	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
-	                        ,IM.ThirdCharacteristicsId
-	                        ,TC.UserName AS ThirdCharacteristics
-	                        ,IM.ThirdCharacteristicsValueId
-	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-	                        ,Round(IID.TransactionQty,2) TransactionQty
-	                        --,IID.BaseUOMId
-	                        ,TUoM.UserName AS UOM
-	                        ,BUoM.UserName AS BaseUOM
-	                        ,Round(IID.AvgRate,4) AvgRate
-	                        ,Round(IID.AvgAmount,2) AvgAmount
-	                        ,Round(IID.PolicyRate,4) PolicyRate
-	                        ,Round(IID.PolicyAmount,2) PolicyAmount
-	                        ,IID.Policy
-	                        --,IID.AddedBy
-	                        --,IID.AddedDate
-	                        --,IID.AddedFromIP
-	                        --,IID.UpdatedBy
-	                        --,IID.UpdatedDate
-	                        --,IID.UpdatedFromIP
-	                        ,IID.BaseQty
-	                        ,IID.InventoryReceiveId
-	                        ,IID.InventoryReceiveDetailId
-                             ,ISNULL(IGL.AccountCode,'') AS GLCode
-                            ,ISNULL(IGL.UserName,'') AS GL
-							,ISNULL(IA.UserName,'') Activity
-							,isnull(B.UserName,'') AS Budget
-							,isnull(IBM.RefNo,'') AS BudgetRefNo
-                            ,ISNULL(IGL1.AccountCode,'') AS CGLCode
-							,isnull(IGL1.UserName,'') AS CGL
-							,isnull(IA1.UserName,'') AS CActivity
-							,isnull(B1.UserName,'') AS CBUdget
-                            ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
-                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
-                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
-                            ,CC1.UserName CRLevel1,CC2.UserName CRLevel2,CC3.UserName CRLevel3,CC4.UserName CRLevel4
-                            ,format(V.PostingDate,'dd-MMM-yyyy') PostingDate,U.FullName PostedBy
-                        FROM trn.InventoryIssue II
-                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
-					    LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
-                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
-                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
-                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId = TUoM.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
-                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
-                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        LEFT JOIN [SEC].[User] U on U.UserId=V.AddedBy
-                        LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
-						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
-						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
-						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-                        LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
-						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
-						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
-						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
-                        LEFT JOIN HKP.COALevel1 CC1 ON CC1.Id=IGL1.COALevel1Id
-						LEFT JOIN HKP.COALevel2 CC2 ON CC2.Id=IGL1.COALevel2Id
-						LEFT JOIN HKP.COALevel3 CC3 ON CC3.Id=IGL1.COALevel3Id
-						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
-                        LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
-                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
-                    where v.VoucherNo is not null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+            DataTable cmdText = GetIssueRegister(fromDate, toDate, Type);
 
-            }
-            else
-            {
-                cmdText = @"SELECT II.Id AS IssueId,II.IssueType
-	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate
-	                        --,II.CompanyId
-	                        --,II.PlantId
-	                        -- ,II.EntityId  ---userName as Entityname 
-	                        ,En.UserName AS Entityname
-							,HSNC.Code HSNCode
-	                        --,II.AddedBy
-	                        --,II.AddedDate
-	                        --,II.AddedFromIP
-	                        --,II.UpdatedBy
-	                        --,II.UpdatedDate
-	                        --,II.UpdatedFromIP
-	                        -- ,II.MaterialStorageId
-	                        ,MS.UserName AS MaterialStorageName
-	                        ,II.STATUS
-                              ,II.Remarks
-	                        -- ,II.VoucherId 
-	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
-	                        ,v.VoucherNo,V.IsPark
-	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        ,'' PostingDate  
-	                        ,'' PostedBy
-	                        ,IID.Id IssueDetailId
-	                        ,IID.InventoryIssueId
-	                        --,IID.InventoryMaterialId
-	                        ,MT.UserName MaterialType
-	                        ,MGM.UserName AS MaterialGroupMasterName
-	                        ,IM.MaterialMasterId
-	                        ,MM.UserName MaterialMasterName
-	                        -- , IM.ArticleId
-	                        ,ART.StandardName ArticleName
-	                        ,IsAsset = CASE 
-		                        WHEN MM.IsAsset = 0
-			                        THEN 'No'
-		                        ELSE 'Yes'
-		                        END
-	                        --, IM.FirstCharacteristicsId
-	                        ,FC.UserName AS FirstCharacteristics
-	                        ,IM.FirstCharacteristicsValueId
-	                        ,ISNULL(FCV.UserName, '') AS FirstCharacteristicsValue
-	                        ,IM.SecondCharacteristicsId
-	                        ,SC.UserName AS SecondCharacteristics
-	                        ,IM.SecondCharacteristicsValueId
-	                        ,ISNULL(SCV.UserName, '') AS SecondCharacteristicsValue
-	                        ,IM.ThirdCharacteristicsId
-	                        ,TC.UserName AS ThirdCharacteristics
-	                        ,IM.ThirdCharacteristicsValueId
-	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-	                        ,Round(IID.TransactionQty,2) TransactionQty
-	                        --,IID.BaseUOMId
-	                        ,TUoM.UserName AS UOM
-	                        ,BUoM.UserName AS BaseUOM
-	                        ,Round(IID.AvgRate,4) AvgRate
-	                        ,Round(IID.AvgAmount,2) AvgAmount
-	                        ,Round(IID.PolicyRate,4) PolicyRate
-	                        ,Round(IID.PolicyAmount,2) PolicyAmount
-	                        ,IID.Policy
-	                        --,IID.AddedBy
-	                        --,IID.AddedDate
-	                        --,IID.AddedFromIP
-	                        --,IID.UpdatedBy
-	                        --,IID.UpdatedDate
-	                        --,IID.UpdatedFromIP
-	                        ,IID.BaseQty
-	                        ,IID.InventoryReceiveId
-	                        ,IID.InventoryReceiveDetailId
-                            ,ISNULL(IGL.AccountCode,'') AS GLCode
-							,ISNULL(IGL.UserName,'') AS GL
-							,ISNULL(IA.UserName,'') Activity
-							,isnull(B.UserName,'') AS Budget,ISNULL(IBM.RefNo,'') BudgetRefNo
-                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
-                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
-                            ,IIH.CGLCode
-							,IIH.CGL
-							,IIH.CActivity
-							,IIH.CBUdget
-							,IIH.CBudgetRefNo
-							,IIH.CRLevel1,IIH.CRLevel2,IIH.CRLevel3,IIH.CRLevel4
-                            
-                        FROM trn.InventoryIssue II
-                        LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
-                        LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
-                        LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
-                        LEFT JOIN HKP.MaterialStorage MS ON II.MaterialStorageId = MS.Id
-                        LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id = IID.InventoryMaterialId
-                        LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId = MM.Id
-						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
-                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
-                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
-                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
-                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
-                        LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.TransactionUoMId = TUoM.Id
-                        LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
-                        --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-                        --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
-                        LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
-                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
-						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-                        LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
-						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
-						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
-						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
-						LEFT JOIN (SELECT DISTINCT IIH.InventoryIssueDetailId,IGL1.AccountCode CGLCode,isnull(IGL1.UserName,'') AS CGL
-							,isnull(IA1.UserName,'') AS CActivity
-							,isnull(B1.UserName,'') AS CBUdget ,IBM1.RefNo CBudgetRefNo
-							,C1.UserName CRLevel1,C2.UserName CRLevel2,C3.UserName CRLevel3,C4.UserName CRLevel4
-							FROM TRN.InventoryIssueHistory IIH 
-					LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
-					LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostDrGLGeneralInfoId 
-					LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostDrBudgetMasterId
-					LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostDrActivityId
-					Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-						LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL1.COALevel1Id
-						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL1.COALevel2Id
-						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
-						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
-                        LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
-                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
-                    where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
-            }
-            var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
+            var inventoryMaterialList = cmdText;
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
             if (inventoryMaterialList.Rows.Count == 0)
                 throw new Exception("No Data Found !!!");
@@ -4421,27 +4119,27 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            sheet1[_row, 32].Text = "Posted (Dr.)";
-            sheet1[_row, 32].CellStyle.Font.Size = 10;
-            sheet1[_row, 32].CellStyle.Font.Bold = true;
-            sheet1[_row, 32].WrapText = true;
-            sheet1[_row, 32].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 32].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 32, _row, 36].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 32, _row, 36].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 32, _row, 36].Merge();
-            sheet1.Range[_row, 32, _row, 36].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 33].Text = "Posted (Dr.)";
+            sheet1[_row, 33].CellStyle.Font.Size = 10;
+            sheet1[_row, 33].CellStyle.Font.Bold = true;
+            sheet1[_row, 33].WrapText = true;
+            sheet1[_row, 33].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 33].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 33, _row, 37].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 33, _row, 37].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 33, _row, 37].Merge();
+            sheet1.Range[_row, 33, _row, 37].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 37].Text = "Posted (Cr.)";
-            sheet1[_row, 37].CellStyle.Font.Size = 10;
-            sheet1[_row, 37].CellStyle.Font.Bold = true;
-            sheet1[_row, 37].WrapText = true;
-            sheet1[_row, 37].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 37].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 37, _row, 41].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 37, _row, 41].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 37, _row, 41].Merge();
-            sheet1.Range[_row, 37, _row, 41].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 38].Text = "Posted (Cr.)";
+            sheet1[_row, 38].CellStyle.Font.Size = 10;
+            sheet1[_row, 38].CellStyle.Font.Bold = true;
+            sheet1[_row, 38].WrapText = true;
+            sheet1[_row, 38].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 38].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 38, _row, 42].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 38, _row, 42].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 38, _row, 42].Merge();
+            sheet1.Range[_row, 38, _row, 42].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
 
 
@@ -4473,7 +4171,7 @@ namespace Library.MaterialManagement.Inventory
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Entity name");
             //sheet1headreColIndex++;
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Voucher No";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 12;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -4806,7 +4504,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "BudgetRefNo";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 13;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -4847,7 +4545,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "CBudgetRefNo";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 13;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
