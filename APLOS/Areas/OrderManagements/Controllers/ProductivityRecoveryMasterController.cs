@@ -260,7 +260,7 @@ left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
 left outer join HKP.Product P ON P.Id=PM.ProductId
 left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
 left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
-LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id 
+LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
 left outer join MST.ProductivityRecoveryMaster PRM ON PRM.Id=PRA.PRMId
 where MT.UserName IN(" + parameters["MaterialType"] + @") AND
       MM.UserName IN(" + parameters["Material"] + @") AND
