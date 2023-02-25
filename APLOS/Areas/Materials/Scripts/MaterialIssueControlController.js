@@ -471,6 +471,29 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
     };
 
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Clear();
+                    $scope.GetSavedData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
