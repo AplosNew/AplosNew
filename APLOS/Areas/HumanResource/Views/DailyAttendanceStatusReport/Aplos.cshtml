@@ -1,7 +1,42 @@
-﻿<togglable name=" {{title}}"></togglable>
-<div class="form-elements form-horizontal">
-    <div class="row" ng-form name="ModelNewForm">
+﻿@*<togglable name=" {{title}}"></togglable>*@
+<div>
+    <span>{{title}}</span>
+    <div class="row form-horizontal" ng-form style="margin-top:20px;">
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            <div class="row">
+                <div class="col-xs-12 col-sm-8 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Filters</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="ModelNew.Id" ng-change="GetFavouriteFilter()" name="Process"
+                                        tabindex="2">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in FavoriteFilterList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-6">
+                    <button class="btn" style="background:red !important; color:#fff !important" ng-click="RemoveFavoriteFilter()" tabindex="9"><i class="glyphicon glyphicon-remove-sign"></i> Delete</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-8 col-md-6">
+            
+        </div>
+    </div>
+    <hr />
+</div>
+<div class="form-elements" ng-form>
+
+
+    <div class="row form-horizontal">
         @*COLUMN 1*@
+
         <div class="col-xs-12 col-sm-8 col-md-6">
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
@@ -37,7 +72,7 @@
                 <label class="col-sm-4 control-label">Shift</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.ShiftId" name="Process"
+                        <select class="form-control" ng-model="ModelNew.ShiftDefinationId" name="Process"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in ShiftList" value="{{option.Value}}">{{option.Text}}</option>
@@ -45,6 +80,62 @@
                     </div>
                 </div>
             </div>
+
+
+
+        </div>
+
+        @*COLUMN 2*@
+        <div class="col-xs-12 col-sm-8 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="0">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Day Status</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.DayStatus" name="Day Status"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in DayStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Employee Status</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EmployeeStatus" name="Process"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EmpStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            @*<div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Team Leader</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+
+                            <input type="text" name="Responsible Person" ng-model="ModelNew.TeamLeaderId" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="OpenTeamLeaderPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </span>
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="ClearTeamLeaderPopUp()" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>*@
+
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Responsible Person</label>
                 <div class="col-sm-8 show-message">
@@ -61,79 +152,21 @@
                 </div>
             </div>
 
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    @* <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>*@
+                    <li> <button class="btn" ng-click="OpenFavoritePopUp();" tabindex="9"><i class="glyphicon glyphicon-flag"></i> Add Favourite</button></li>
+                    <li> <button class="btn" ng-click="GetDailyAttendanceStatus();" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    <li> <button class="btn" ng-click="Clear();" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
-        </div>
-
-        @*COLUMN 2*@
-    <div class="col-xs-12 col-sm-8 col-md-6">
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="0">
+                </ul>
             </div>
         </div>
 
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Day Status</label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.DayStatus" name="In Status"
-                            tabindex="2">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in DayStatusList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Employee Status</label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.EmployeeStatus" name="Process"
-                            tabindex="2">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in EmpStatusList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Team Leader</label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-
-                    <input type="text" name="Responsible Person" ng-model="ModelNew.TeamLeader" class="form-control" readonly>
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="OpenTeamLeaderPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="ClearTeamLeaderPopUp()" class="btn single-small-btn" tabindex="2"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-        @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_FavoritePopup.cshtml")
-
-
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                @* <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>*@
-                <li> <button class="btn" ng-click="OpenFavoritePopUp();" tabindex="9"><i class="glyphicon glyphicon-flag"></i> Add Favourite</button></li>
-                <li> <button class="btn" ng-click="GetDailyAttendanceStatus();" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
-                <li> <button class="btn" ng-click="Clear();" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-
-            </ul>
-        </div>
 
     </div>
     <div class="">
-        <div style="color:black;" id="Grid" ej-grid e-datasource="DailyAttendanceStatusList"
+        <div style="color:black; margin-top:10px" id="Grid" ej-grid e-datasource="DailyAttendanceStatusList"
              e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="recorddoubleclick" e-allowfiltering="true" e-allowpaging="true"
              e-allowsorting="true" e-allowscrolling="true" e-filtersettings-filterType="excel" e-enabletouch="true"
              e-allowselection="true" e-detailsdatabound="detailgrid">
@@ -161,21 +194,33 @@
                 <div e-column e-type="date" e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
                 <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="100"></div>
                 <div e-column e-field="InTime" e-headertext="InTime" e-width="100"></div>
+                <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
                 <div e-column e-field="InStatus" e-headertext="InStatus" e-width="100"></div>
                 <div e-column e-type="number" e-field="LateIn" e-headertext="LateIn" e-width="100"></div>
             </div>
         </div>
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>
+                <li> <button ng-click="XlsDailyAttendanceReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>
+                <li> <button ng-click="XlsDailyAttendanceSummaryReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download SUmmary</button></li>
 
             </ul>
         </div>
     </div>
+    @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_FavoritePopup.cshtml")
 </div>
 
+        
 
-<div class="aplos-grid-toggle">
+
+        
+
+    
+   
+
+
+
+@*<div class="aplos-grid-toggle">
     <div class="row">
            
             <div style="color:black;" id="Grid" ej-grid e-datasource="FavoriteList"
@@ -197,7 +242,7 @@
        
     </div>
     
-</div>
+</div>*@
 
 @Html.Partial("~/Areas/Productions/Views/Parameter/_ResponsiblePerson.cshtml")
 @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_TeamLeader.cshtml")
