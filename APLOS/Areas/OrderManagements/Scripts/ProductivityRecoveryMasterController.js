@@ -263,8 +263,8 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
                     { field: 'MaterialType', width: 20, headerText: "Material Type", type: "string" },
                     { field: 'Material', width: 20, headerText: "Material", type: "string" },
                     { field: 'Product', width: 20, headerText: "Product", type: "string" },
-                    { field: 'ProductCategory', width: 20, headerText: "Product Category", type: "string" },
-                    { field: 'ProductSubCategory', width: 20, headerText: "Product Sub Category", type: "string" }
+                    { field: 'MaterialCategory', width: 20, headerText: "Material Category", type: "string" },
+                    { field: 'MaterialSubCategory', width: 20, headerText: "Material Sub Category", type: "string" }
                 ];
                 $("#filters").ejGrid({
                     dataSource: $scope.filters,
@@ -302,8 +302,8 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
         parameters.push({ "Key": "MaterialType", "Value": getString(fl, "MaterialType") });
         parameters.push({ "Key": "Material", "Value": getString(fl, "Material") });
         parameters.push({ "Key": "Product", "Value": getString(fl, "Product") });
-        parameters.push({ "Key": "ProductCategory", "Value": getString(fl, "ProductCategory") });
-        parameters.push({ "Key": "ProductSubCategory", "Value": getString(fl, "ProductSubCategory") });
+        parameters.push({ "Key": "MaterialCategory", "Value": getString(fl, "MaterialCategory") });
+        parameters.push({ "Key": "MaterialSubCategory", "Value": getString(fl, "MaterialSubCategory") });
 
 
         $scope.parameters = parameters;
@@ -335,8 +335,8 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
                     { field: 'MaterialType', width: 20, headerText: "Material Type", type: "string" },
                     { field: 'Material', width: 20, headerText: "Material", type: "string" },
                     { field: 'Product', width: 20, headerText: "Product", type: "string" },
-                    { field: 'ProductCategory', width: 20, headerText: "Product Category", type: "string" },
-                    { field: 'ProductSubCategory', width: 20, headerText: "Product Sub Category", type: "string" }
+                    { field: 'MaterialCategory', width: 20, headerText: "Material Category", type: "string" },
+                    { field: 'MaterialSubCategory', width: 20, headerText: "Material Sub Category", type: "string" }
                 ];
                 $("#filtersRM").ejGrid({
                     dataSource: $scope.filtersRM,
@@ -374,8 +374,8 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
         parametersRM.push({ "Key": "MaterialType", "Value": getString(fl, "MaterialType") });
         parametersRM.push({ "Key": "Material", "Value": getString(fl, "Material") });
         parametersRM.push({ "Key": "Product", "Value": getString(fl, "Product") });
-        parametersRM.push({ "Key": "ProductCategory", "Value": getString(fl, "ProductCategory") });
-        parametersRM.push({ "Key": "ProductSubCategory", "Value": getString(fl, "ProductSubCategory") });
+        parametersRM.push({ "Key": "MaterialCategory", "Value": getString(fl, "MaterialCategory") });
+        parametersRM.push({ "Key": "MaterialSubCategory", "Value": getString(fl, "MaterialSubCategory") });
 
 
         $scope.parametersRM = parametersRM;
@@ -420,15 +420,6 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
     $scope.PRMFGArticleList = [];
     $scope.LoadFGArticleDetails = function (pid) {
         $scope.PRMFGArticleList = [];
-        //$scope.filterComplete();
-        //$http({
-
-        //    method: 'Get',
-        //    url: 'OrderManagements/ProductivityRecoveryMaster/LoadFGArticleDetails?PRMId=' + pid + '&parameters='+ $scope.parameters
-        //}).then(function successCallback(response) {
-        //    $scope.PRMFGArticleList = response.data;
-        //}
-        //)
         $scope.filterComplete();
         $http({
             method: 'POST',
@@ -656,6 +647,18 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
 
         }
     }
+
+    $scope.rowDataBoundFG = function rowDataBoundFG(e) {
+
+        if (e.data.PRMUserName != '') {
+            e.row.css("background-color", '#90EE90');
+        }
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+    }
+
     $scope.selectCostingItem = function (data) {
         $scope.Newobject = data.data;
         $scope.getCostingItem();

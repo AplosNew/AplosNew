@@ -1241,14 +1241,14 @@ Where SO.Id " + soId + "";
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPlanQtyList(string soId)
+        public ActionResult GetPlanQtyList(string soId, string PlanId)
         {
             string CmdText = @"Select RawMaterialPlanningMasterId as PlanId,MOI.Id as LineItemId,TotalQty as LineItemQty,FC.ValueFreeText as SKU1,SC.ValueFreeText as SKU2,TotalQty+isnull(FC.Qty,0)+isnull(SC.Qty,0) as SumAmount,100 as PlanPercentage,(((TotalQty+isnull(FC.Qty,0)+isnull(SC.Qty,0))*100)/100) as PlanQty,'' Remarks from TRN.MasterOrderItem MOI
 left join TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 left join RawMaterialPlanningDetail MPD ON MPD.SOId=SO.Id
 left join TRN.FirstCharacteristics FC ON FC.SalesOrderId=SO.Id
 left join TRN.SecondCharacteristics SC ON SC.SalesOrderId=SO.Id
-Where SO.Id " + soId + "";
+Where SO.Id " + soId + " and MPD.RawMaterialPlanningMasterId = '"+ PlanId + "'";
             return Json(_sqlRepository.GetDataCollection(CmdText, null), JsonRequestBehavior.AllowGet);
         }
 

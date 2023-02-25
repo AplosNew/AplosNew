@@ -354,9 +354,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View();
         }
 
-        #endregion
-
-
         [HttpGet, Authorize]
         public ActionResult SalesReceivableReport(ReportFormat reportFormat, string voucherId)
         {
@@ -376,6 +373,39 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     return View();
             }
         }
+
+        #endregion
+
+        #region  Sales Return
+
+        public ActionResult SalesReturn()
+        {
+            return View("~/Areas/SalesManagements/Views/SalesReturn.cshtml");
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetMaterialSalesListForReturn(string column, string value)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsSalesService.GetMaterialSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesDetailDataBySales(string salesId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetMaterialSalesDetailBySales(salesId), JsonRequestBehavior.AllowGet);
+
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetMaterialSalesTaxDetail(string salesId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetMaterialSalesTaxDetail(salesId), JsonRequestBehavior.AllowGet);
+
+        }
+        #endregion
 
 
 
