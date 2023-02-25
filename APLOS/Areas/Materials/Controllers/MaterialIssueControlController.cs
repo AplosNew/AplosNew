@@ -722,23 +722,21 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost]
-        public JsonResult Delete(string id)
+        public JsonResult Delete(string id, string issueId)
         {
-            DeleteData(id);
+            DeleteData(id, issueId);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        public void DeleteData(string Id)
+        public void DeleteData(string Id, string issueId)
         {
             DataSet dsIssue=null;
-            string strSQL, strBSQL, strIRSQL, strMDSQL, strSOSQL;
+            string strSQL, strBSQL, strIRSQL, strMDSQL, strSOSQL, strISMSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
                 ConnectionManager.DAL.ConManager Con = new ConnectionManager.DAL.ConManager("1");
-                Con.OpenDataSetThroughAdapter(@"select * from TRN.IssueRequestMaster where Id IN( select IssueRequestMasterId from TRN.IssueRequest where MaterialIssueControlDetailId IN(select Id from MaterialIssueControlDetail 
-Where MaterialIssueControlMasterId IN(select Id from MaterialIssueControlMaster Where Id ='"+Id+@"')))
-AND CheckedByStatus='Checked'", out dsIssue, false, "1");
+                Con.OpenDataSetThroughAdapter("SELECT * FROM TRN.IssueRequestMaster Where Id='" + issueId + "' AND CheckedByStatus='Checked'", out dsIssue, false, "1");
 
                 if (dsIssue.Tables[0].Rows.Count > 0)
                 {
@@ -748,8 +746,9 @@ AND CheckedByStatus='Checked'", out dsIssue, false, "1");
                 strBSQL = @"delete from TRN.IssueRequestBOQMap Where IssueRequestDetailId IN(select Id from TRN.IssueRequest where MaterialIssueControlDetailId IN(select Id from MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(select Id from MaterialIssueControlMaster Where Id ='" + Id + "')))";
                 strIRSQL = @"delete from TRN.IssueRequest where MaterialIssueControlDetailId IN(select Id from MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(select Id from MaterialIssueControlMaster Where Id ='" + Id + "'))";
                 strMDSQL = @"delete from MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(select Id from MaterialIssueControlMaster Where Id ='" + Id + "')";
-                strSOSQL = @"delete from MaterialIssueControlMaster Where Id ='" + Id + "'";
+                strSOSQL = @"delete from MaterialIssueControlSODetail Where MaterialIssueControlMasterId IN(select Id from MaterialIssueControlMaster Where Id ='" + Id + "')";
                 strSQL = @"delete from MaterialIssueControlMaster Where Id ='" + Id + "'";
+                strISMSQL = @"delete from TRN.IssueRequestMaster Where Id='" + issueId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -761,6 +760,7 @@ AND CheckedByStatus='Checked'", out dsIssue, false, "1");
                 objCon.ExecuteNonQueryWrapper(strMDSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSOSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strISMSQL, true, "1");
                 objCon.CommitTransaction();
             }
             catch (Exception ex)

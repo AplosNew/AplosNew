@@ -475,7 +475,11 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deleteUrl,
+                data: {
+                    'id': $scope.ModelNew.Id
+                    , 'issueId': $scope.ModelNew.IssueId
+                },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
