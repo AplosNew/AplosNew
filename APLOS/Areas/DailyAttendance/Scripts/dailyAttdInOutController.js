@@ -1,6 +1,6 @@
 ﻿'use strict';
-dailyAttdInOutController.$inject = ['addressService', 'fileReader', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$cookies', '$window'];
-function dailyAttdInOutController(addressService, fileReader, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $cookies, $window) {
+dailyAttdInOutController.$inject = ['fileReader', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$cookies', '$window'];
+function dailyAttdInOutController( fileReader, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $cookies, $window) {
     $scope.user = $rootScope.empid;
     $rootScope.title = 'Pre-Recruitment Employee';
     $scope.Action = 'Save';
@@ -270,29 +270,7 @@ function dailyAttdInOutController(addressService, fileReader, cboService, common
                         $scope.loadAll();
 
                         $scope.citizenList = [];
-                        addressService.getCountryCbo(function (result) {
-                            $scope.citizenList = result;
-                            $scope.preRecruitmentEmployee.CitizenID = $rootScope.CountryId;
-
-                            $scope.PresCountryList = result;
-                            $scope.preRecruitmentEmployee.PresCountryID = $rootScope.CountryId;
-
-                            $scope.GetPresStateOnCountryChange($scope.preRecruitmentEmployee.PresCountryID);
-                            $scope.onPreCountryChange($scope.preRecruitmentEmployee.PresCountryID);
-                            $scope.getPresDisOnPreStateChange($scope.preRecruitmentEmployee.PresStateId);
-                            $scope.GetPresPoliceStationCboByDistrictChange($scope.preRecruitmentEmployee.PresDistrictID);
-                            $scope.GetPresPostOfficeCboByDistrictChange($scope.preRecruitmentEmployee.PresDistrictID);
-
-                            $scope.ParmCountryList = result;
-                            $scope.preRecruitmentEmployee.ParmCountryID = $rootScope.CountryId;
-                            $scope.GetParmStateOnCountryChange($scope.preRecruitmentEmployee.ParmCountryID);
-                            $scope.onParmCountryChange($scope.preRecruitmentEmployee.ParmCountryID);
-                            $scope.getParmDisOnParmStateChange($scope.preRecruitmentEmployee.ParmStateId);
-                            $scope.GetParmPoliceStationCboByDistrictChange($scope.preRecruitmentEmployee.ParmDistrictID);
-                            $scope.GetParmPostOfficeCboByDistrictChange($scope.preRecruitmentEmployee.ParmDistrictID);
-                        });
-
-                        $scope.celebrationMarriage();
+                     
                     }
                 }
                 else {
@@ -587,77 +565,7 @@ function dailyAttdInOutController(addressService, fileReader, cboService, common
         $scope.bloodGroupList = result;
     });
 
-    addressService.getCountryCbo(function (result) {
-        $scope.PresCountryList = result;
-        $scope.preRecruitmentEmployee.PresCountryID = $rootScope.CountryId;
 
-        $scope.ParmCountryList = result;
-        $scope.preRecruitmentEmployee.ParmCountryID = $rootScope.CountryId;
-    });
-
-    $scope.GetParmStateOnCountryChange = function (countryId) {
-        addressService.getCboStateByCountry(countryId, function (result) {
-            $scope.ParmStateList = result;
-        });
-    };
-
-    $scope.GetPresStateOnCountryChange = function (countryId) {
-        addressService.getCboStateByCountry(countryId, function (result) {
-            $scope.PresStateList = result;
-        });
-    };
-
-    $scope.onPreCountryChange = function (countryId) {
-        addressService.getCboCityByCountry(countryId, function (result) {
-            $scope.PresCityList = result;
-        });
-    };
-
-    $scope.onParmCountryChange = function (countryId) {
-        addressService.getCboCityByCountry(countryId, function (result) {
-            $scope.ParmCityList = result;
-        });
-    };
-
-    $scope.getPresDisOnPreStateChange = function (stateId) {
-        addressService.getCboDistrictByState(stateId, function (result) {
-            $scope.PresDistrictList = result;
-        });
-    };
-
-    $scope.getParmDisOnParmStateChange = function (stateId) {
-        addressService.getCboDistrictByState(stateId, function (result) {
-            $scope.ParmDistrictList = result;
-        });
-    };
-
-    $scope.GetParmPoliceStationCboByDistrictChange = function (districtId) {
-        addressService.getPoliceStationCboByDistrictChange(districtId, function (result) {
-            $scope.ParmPoliceStationList = result;
-        });
-    };
-
-    $scope.GetPresPoliceStationCboByDistrictChange = function (districtId) {
-        addressService.getPoliceStationCboByDistrictChange(districtId, function (result) {
-            $scope.PresPoliceStationList = result;
-        });
-    };
-
-    $scope.GetPresPostOfficeCboByDistrictChange = function (districtId) {
-        addressService.getCboPostOfficeByDistrict(districtId, function (result) {
-            $scope.PresPostOfficeList = result;
-        });
-    };
-
-    $scope.GetParmPostOfficeCboByDistrictChange = function (districtId) {
-        addressService.getCboPostOfficeByDistrict(districtId, function (result) {
-            $scope.ParmPostOfficeList = result;
-        });
-    };
-
-    addressService.getCboArea(function (result) {
-        $scope.AreaList = result;
-    });
 
     cboService.getCboQualificationLevel(function (result) {
         $scope.EductLevelSystemList = result;
@@ -1225,10 +1133,7 @@ function dailyAttdInOutController(addressService, fileReader, cboService, common
                         $scope.savedisable = false;
                         ClearFile();
                         $scope.preRecruitmentEmpQualificationNew.SystemID = null;
-                        addressService.getCountryCbo(function (result) {
-                            $scope.CountryList = result;
-                            $scope.preRecruitmentEmpQualificationNew.CountryId = $rootScope.CountryId;
-                        });
+                        
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.status.Message, "failure", "QualificationPopUp");
@@ -1310,10 +1215,7 @@ function dailyAttdInOutController(addressService, fileReader, cboService, common
                         $scope.savedisable = false;
                         ClearFile();
                         $scope.preRecruitmentEmpTrainingNew.SystemID = null;
-                        addressService.getCountryCbo(function (result) {
-                            $scope.CountryList = result;
-                            $scope.preRecruitmentEmpTrainingNew.CountryId = $rootScope.CountryId;
-                        });
+                    
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.status.Message, "failure", "TrainingPopUp");
@@ -1460,28 +1362,7 @@ function dailyAttdInOutController(addressService, fileReader, cboService, common
         $scope.indexExp = index;
     };
 
-    addressService.getCountryCbo(function (result) {
-        $scope.CountryList = result;
-    });
-
-    $scope.qualificationShow = function () {
-        $scope.SetYearOfPassing();
-        addressService.getCountryCbo(function (result) {
-            $scope.CountryList = result;
-            $scope.preRecruitmentEmpQualificationNew.CountryId = $rootScope.CountryId;
-        });
-        $scope.Clear();
-        angular.element(document.querySelector('#QualificationPopUp')).modal('show');
-    }
-
-    $scope.TrainingShow = function () {
-        addressService.getCountryCbo(function (result) {
-            $scope.CountryList = result;
-            $scope.preRecruitmentEmpTrainingNew.CountrySystemID = $rootScope.CountryId;
-        });
-        $scope.Clear();
-        angular.element(document.querySelector('#TrainingPopUp')).modal('show');
-    }
+   
 
     $scope.ExperienceShow = function () {
         $scope.Clear();
