@@ -99,9 +99,9 @@ namespace Aplos.Areas.DailyAttendance.Controllers
 #else
             var appName = IISManager.GetApplicationName("APP_NAME");
             if (string.IsNullOrEmpty(appName))
-                ViewBag.BasePath = "/recruitments";
+                ViewBag.BasePath = "/dailyattendance";
             else
-                ViewBag.BasePath = "/" + appName + "/recruitments";
+                ViewBag.BasePath = "/" + appName + "/dailyattendance";
 #endif
             ViewBag.id = id;
             return View();

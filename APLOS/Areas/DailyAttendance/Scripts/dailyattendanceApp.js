@@ -39,7 +39,7 @@ var dailyattendanceApp = angular.module('dailyattendanceApp', ['ngRoute', 'ngCoo
             });
     }])
     .run(['$rootScope', '$cookies', function ($rootScope, $cookies) {
-        $rootScope.title = 'Pre-Recruitment';
+        $rootScope.title = 'Daily-Attendance';
         $rootScope.bootPoint = '#!/';
         $rootScope.empid = $cookies.get('empId');
     }])
@@ -62,7 +62,6 @@ var dailyattendanceApp = angular.module('dailyattendanceApp', ['ngRoute', 'ngCoo
     .factory('baseService', baseService)
     .factory('errorInterceptor', errorInterceptor)
     .factory('fileReader', fileReader)
-    .factory('addressService', addressService)
     .constant('commonMessage', {
         appName: 'Aplos ERP',
         appVersion: 2.0,
