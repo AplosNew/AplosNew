@@ -253,6 +253,14 @@ namespace Aplos
                  "~/Areas/Addresses/Scripts/addressService.js",
                  "~/Areas/Recruitments/Scripts/recruitmentApp.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/dailyattendance").Include(
+                 "~/Areas/DailyAttendance/Scripts/dailyAttendanceInOutLoginController.js",
+                 "~/Areas/DailyAttendance/Scripts/changePinController.js",
+                 "~/Areas/DailyAttendance/Scripts/dailyAttdInOutController.js",
+                 "~/Areas/DailyAttendance/Scripts/dashBoardController.js",
+
+                 "~/Areas/DailyAttendance/Scripts/dailyattendanceApp.js"));
+
             #endregion js
 
 #if DEBUG
