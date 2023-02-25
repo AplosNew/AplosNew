@@ -1,23 +1,29 @@
 ﻿<togglable name="{{title}}"></togglable>
 
 <div id="maincontent">
-    <div class="common-btn" style="margin-top:10px;">
+    @*<div class="common-btn" style="margin-top:10px;">
         <ul class="list-inline text-right">
             <li> <button ng-click="getos3();" class="btn"><i class="glyphicon glyphicon-download"></i>OS3 Report </button></li>
 
         </ul>
-    </div>
-    @*<div class="row" style="padding-top:40px;">
-        <div class="form-group">
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <ul class="common-btn list-inline text-left">
-                    <li>
-                        <div ej-tooltip e-showshadow="true" e-content="Order Report" ng-click="getos3();" e-width="width">
-                            <button class="btn" style="background-color:cornflowerblue;"><i class="glyphicon glyphicon-file"></i>OS3 Report</button>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
     </div>*@
+ 
+
+
+     <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12 ">
+            <div class="row">
+                <div id="filters">
+                </div>
+            </div>
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="getos3('EXCEL');" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> OS3 Report</button></li>
+                    </ul>
+                </div>
+        </div>
+
+    </div>
+
 </div>

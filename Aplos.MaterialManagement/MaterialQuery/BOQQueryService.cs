@@ -146,6 +146,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						, ISNULL(II.IssueQty,0) IssueQty, ISNULL(II.IssueQty,0) BaseIssueQty
 						, ISNULL(IRD.PurchaseReturnQty,0) PurchaseReturnQty,ISNULL(IRD.IssueReturnQty,0) IssueReturnQty,ISNULL(IRD.ReductionByAdjustmentQty,0) ReductionByAdjustmentQty,ISNULL(IRD.InventorySalesQty,0) InventorySalesQty,ISNULL(IRD.InventoryScrapQty,0) InventoryScrapQty,ISNULL(IRD.InventoryTransferQty,0) InventoryTransferQty
 						 ,((((((ISNULL(grnmap.BaseQty,0) - ISNULL(II.IssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS BalanceStock
+                        ,((((((ISNULL(IRD.BaseQty,0) - ISNULL(IIH.ActualIssueQty, 0)-ISNULL(IRD.PurchaseReturnQty,0))+ISNULL(IRD.IssueReturnQty,0))-ISNULL(IRD.ReductionByAdjustmentQty,0))-ISNULL(IRD.InventorySalesQty,0))-ISNULL(IRD.InventoryScrapQty,0))-ISNULL(IRD.InventoryTransferQty,0)) AS ActualBalanceStock
                         ,ISNULL(IRD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4) BooksCurrencyBaseRate
@@ -194,6 +195,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 										,IHB.BOQDetailId
 									    ) II ON II.InventoryReceiveDetailId=grnmap.InventoryReceiveDetailId 
 										and ii.BOQDetailId=grnmap.BOQDetailId
+                    LEFT JOIN (
+									    select IH.InventoryReceiveDetailId
+                                        , Sum(ISNULL(IH.Qty,0)) ActualIssueQty 
+									    FROM TRN.InventoryIssueHistory IH 
+									    GROUP BY IH.InventoryReceiveDetailId
+									    ) IIH ON IIH.InventoryReceiveDetailId=IRD.Id
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
                     AND IR.[Status]='Posting' AND IR.IsFOC=0

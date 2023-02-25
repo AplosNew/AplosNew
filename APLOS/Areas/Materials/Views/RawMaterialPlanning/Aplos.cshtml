@@ -264,13 +264,13 @@
                         @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.CostCalculation(this)" e-width="80" />*@
                     </div>
                 </script>
-                <div class="common-btn">
+            </div>
+             <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                         <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
-            </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
                 <div style="color:black;" id="PlanQtyGrid" ej-grid e-datasource="PlanQtyList" e-allowscrolling="true"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"

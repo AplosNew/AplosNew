@@ -204,7 +204,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         public ActionResult LoadFGArticleFilter()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,PC.UserName ProductCategory,PSC.UserName ProductSubCategory 
+            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,MC.UserName MaterialCategory,MSC.UserName MaterialSubCategory 
 from MST.MaterialMasterArticle MA
 left outer Join  MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
@@ -212,8 +212,8 @@ left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
 left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
 left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
 left outer join HKP.Product P ON P.Id=PM.ProductId
-left outer join HKP.ProductCategory PC ON PC.Id=PM.ProductCategoryId
-left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -223,7 +223,7 @@ left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
         public ActionResult LoadFGArticleFilterRM()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,PC.UserName ProductCategory,PSC.UserName ProductSubCategory 
+            string sql = @"select MT.UserName MaterialType,MM.UserName Material,P.UserName Product,MC.UserName MaterialCategory,MSC.UserName MaterialSubCategory 
 from MST.MaterialMasterArticle MA
 left outer Join  MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
@@ -231,8 +231,8 @@ left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
 left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
 left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
 left outer join HKP.Product P ON P.Id=PM.ProductId
-left outer join HKP.ProductCategory PC ON PC.Id=PM.ProductCategoryId
-left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -244,15 +244,30 @@ left outer join HKP.ProductSubCategory PSC ON PSC.Id=PM.ProductSubCategoryId";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN PRA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MA.Id as ArticleId,MA.StandardName Article,MM.Id MaterialMasterId,MM.UserName Material,
 MT.UserName MaterialType,MG.UserName MaterialGroup,
-AttributeValue=STUFF((select distinct ', '+ A.UserName+ '-' + MAV.StandardName from HKP.MaterialAttribute AS A  INNER JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=A.id left outer join MST.MaterialMasterAttribute MMA ON MAV.MaterialAttributeId=MMA.MaterialAttributeId where MMA.MaterialMasterId=MA.MaterialMasterId for xml path('') ), 1, 1, '')
-,PRA.Id,PRA.StdWorkingHours,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks
+AttributeValue=STUFF((SELECT distinct ', '+ A.UserName+ '-' + MAV.StandardName
+                            FROM MST.MaterialMasterAttribute AS MMA
+                            LEFT JOIN HKP.MaterialAttribute AS A ON MMA.MaterialAttributeId = A.Id
+                            LEFT JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=MMA.MaterialAttributeId 
+							LEFT JOIN MST.MaterialMasterArticleValue MMAV ON MAV.Id=MMAV.MaterialAttributeValueId
+                            WHERE MMA.MaterialMasterId = MA.MaterialMasterId and MMAV.MaterialMasterArticleId=MA.Id for xml path('') ), 1, 1, '')
+,PRA.Id,PRA.StdWorkingHours,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks,PRA.UtilizationPercentage,PRA.MachineSpeed,isnull(PRM.UserName,'') as PRMUserName
 from MST.MaterialMasterArticle MA
 left Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
 left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
-LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='"+ PRMId + @"'
-where MT.UserName IN(" + parameters["MaterialType"] + @")
-             order by PRA.ArticleId  desc";
+left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
+left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+left outer join HKP.Product P ON P.Id=PM.ProductId
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
+LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
+left outer join MST.ProductivityRecoveryMaster PRM ON PRM.Id=PRA.PRMId
+where MT.UserName IN(" + parameters["MaterialType"] + @") AND
+      MM.UserName IN(" + parameters["Material"] + @") AND
+      P.UserName IN(" + parameters["Product"] + @") AND
+      MC.UserName IN(" + parameters["MaterialCategory"] + @") AND
+      MSC.UserName IN(" + parameters["MaterialSubCategory"] + @") 
+             order by PRA.Id  asc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet); 
             json.MaxJsonLength = int.MaxValue; 
             return json;
@@ -278,13 +293,22 @@ where MT.UserName IN(" + parameters["MaterialType"] + @")
             string sql = @"select CAST (CASE WHEN PRA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MA.Id as ArticleId,MA.StandardName Article,MM.Id MaterialMasterId,MM.UserName Material,
 MT.UserName MaterialType,MG.UserName MaterialGroup,
 AttributeValue=STUFF((select distinct ', '+ A.UserName+ '-' + MAV.StandardName from HKP.MaterialAttribute AS A  INNER JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=A.id left outer join MST.MaterialMasterAttribute MMA ON MAV.MaterialAttributeId=MMA.MaterialAttributeId where MMA.MaterialMasterId=MA.MaterialMasterId for xml path('') ), 1, 1, ''),
-PRA.Id,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks
+PRA.Id,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks,(select UserName from HKP.CostingItem where Id=PRA.CostingItemId) as CostingItem
 from MST.MaterialMasterArticle MA
 left Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
 left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
+left outer join TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
+left outer join MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+left outer join HKP.Product P ON P.Id=PM.ProductId
+left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
+left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
 LEFT JOIN [TRN].[PRMRMArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
-where MT.UserName IN(" + parametersRM["MaterialType"] + @")
+where MT.UserName IN(" + parametersRM["MaterialType"] + @") AND
+      MM.UserName IN(" + parametersRM["Material"] + @") AND
+      P.UserName IN(" + parametersRM["Product"] + @") AND
+      MC.UserName IN(" + parametersRM["MaterialCategory"] + @") AND
+      MSC.UserName IN(" + parametersRM["MaterialSubCategory"] + @")
 order by PRA.ArticleId  desc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
@@ -340,7 +364,7 @@ order by PRA.ArticleId  desc";
         public ActionResult createFGArticle(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
+            DataSet dsProdBooked, dsArticleValidation;
             string TableName = "[TRN].[PRMFGArticle]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
@@ -353,15 +377,23 @@ order by PRA.ArticleId  desc";
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and PRMId='" + item["PRMId"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and PRMId = '" + item["PRMId"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  ArticleId='" + item["ArticleId"] + "'", out dsArticleValidation, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
                         if (dv.Count == 0)
                         {
+                            if (dsArticleValidation.Tables[0].Rows.Count > 0)
+                            {
+                                throw new Exception("This Article is Already Mapped");
+                            }
+                            else
+                            { 
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "PRA" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
+                            }
                         }
                         else
                         {
@@ -510,404 +542,35 @@ order by PRA.ArticleId  desc";
             dr.EndEdit();
         }
 
-        
-
         [Authorize, HttpPost]
-        public ActionResult EACategoryDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                
-                conC.BeginTransaction();
-                conC.executeQuery("delete from HKP.EmployeeActivityCategory where Id ='" + id + @"'");
-                conC.CommitTransaction();
-               
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult TeamCategoryDelete(string id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-
-                conC.BeginTransaction();
-                conC.executeQuery("delete from HKP.TeamCategory where Id ='" + id + @"'");
-                conC.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadBudgetCodeDetails(string TeamId)
+        public ActionResult GetCostingItem()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select distinct CAST (CASE WHEN TBC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,TBC.Id,MP.Id BudgetCodeId, MP.Code, E.UserName Entity, P.UserName Position,P.Activity,
-DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection from MST.ManpowerBudget MP
-                            left join ORG.Entity E on E.Id = MP.EntityId
-                            left join ORG.Position P on P.Id = MP.PositionId
-							left join EmployeeInformation EI on EI.BudgetCode=MP.Id and EI.EmployeeStatus='Active'
-							LEFT JOIN ORG.Department AS DEP ON DEP.Id=P.DepartmentId
-							LEFT OUTER JOIN ORG.Section S ON S.Id=P.SectionId
-							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=P.SubSectionId
-							LEFT JOIN TRN.TeamBudgetCode TBC ON TBC.BudgetCodeId=MP.Id and TBC.TeamDefinitionId='TD1'
-                            where MP.Active = 1 
-							order by TBC.Id  desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            string str = @"SELECT CI.Id, CI.Code,CI.StandardName,CI.UserName,CI.Remarks
+                            FROM HKP.CostingItem AS CI
+                            WHERE CI.Active=1";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        
-        [Authorize, HttpGet]
-        public ActionResult LoadTeamDefinitionCategoryDetails(string TeamId)
+        [HttpGet, Authorize]
+        public ActionResult LoadArticleMasterDetails(string PRMId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN TDC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,TDC.Id,TC.Id TeamCategoryId,TC.ShortName,TC.StandardName,TC.UserName,TC.Code,TDC.Remarks 
-                            from HKP.TeamCategory TC
-							LEFT JOIN TRN.TeamDefinitionCategory TDC ON TDC.TeamCategoryId=TC.Id and TDC.TeamDefinitionId='" + TeamId + @"'
-                            where TC.Active = 1 order by TDC.TeamCategoryId  desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            string sql = @"select isnull(FGA.Id,'') as FGApplicableId,isnull(RMA.Id,'') as RMApplicableId,MA.Id as ArticleId,MA.StandardName Article,MM.Id MaterialMasterId,MM.UserName Material,
+MT.UserName MaterialType,MG.UserName MaterialGroup,
+AttributeValue=STUFF((select distinct ', '+ A.UserName+ '-' + MAV.StandardName from HKP.MaterialAttribute AS A  INNER JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=A.id left outer join MST.MaterialMasterAttribute MMA ON MAV.MaterialAttributeId=MMA.MaterialAttributeId where MMA.MaterialMasterId=MA.MaterialMasterId for xml path('') ), 1, 1, '')
+,FGA.StdWorkingHours,FGA.StdProduction,FGA.IntermediateTarget,FGA.Remarks,RMA.StdProduction as StdProductionRM,RMA.IntermediateTarget as IntermediateTargetRM,RMA.Remarks as RemarksRM,(select UserName from HKP.CostingItem where Id=RMA.CostingItemId) as CostingItem
+from MST.MaterialMasterArticle MA
+left outer Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
+left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
+left outer join HKP.MaterialType MT ON MT.Id=MG.MaterialTypeId
+left outer join [TRN].[PRMFGArticle] FGA ON FGA.ArticleId=MA.Id and FGA.PRMId='" + PRMId + @"'
+left outer join [TRN].[PRMRMArticle] RMA ON RMA.ArticleId=MA.Id and RMA.PRMId= '" + PRMId + @"' ";
+            JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadEACategoryDetails()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * from HKP.EmployeeActivityCategory";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadTeamCategoryDetails()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * from HKP.TeamCategory";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadEACategoryEditData(string CategoryId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"SELECT * from HKP.EmployeeActivityCategory where Id ='" + CategoryId + @"'";
-            return Json(new { category = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadTeamCategoryEditData(string TeamCategoryId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"SELECT * from HKP.TeamCategory where Id ='" + TeamCategoryId + @"'";
-            return Json(new { teamcategory = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadEmployeeDetails(string TeamId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"Select CAST (CASE WHEN TDE.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,TDE.Id,MB.Code Budgetcode,EI.SystemId as EmployeeId,EI.EmployeeName as EmployeeName,DEG.UserName as Designation,TDE.PlanHours,TDE.ResponsibilityLevel,TDE.EmployeeActiviyCategory,
-TDE.Remarks,SD.UserName as Shift,S.UserName as Section,SS.UserName as SubSection,DEP.UserName AS Department,format(EI.DOJ,'dd-MMM-yyyy') as DOJ,EI.EmployeeStatus,EI.EmployeeCurrentStatus EmplCurrentStatus,P.Activity EmployeeActivity,EC.UserName EmployeeCategory
-FROM dbo.EmployeeInformation AS EI
-LEFT JOIN [MST].[ManpowerBudget]  MB ON MB.Id=EI.BudgetCode
-LEFT JOIN ShiftDefination SD ON SD.SystemID=MB.ShiftDefinationId
-LEFT JOIN HKP.Designation DEG ON DEG.Id=EI.DesignationSystemID
-LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
-LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
-left join ORG.Position P on P.Id = MB.PositionId
-left join MST.DesignationMaster DM on DM.DesignationId = P.DesignationId
-left join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
-left Join [TRN].[TeamDefinitionEmployee] TDE ON TDE.EmployeeId=EI.SystemId and TDE.TeamDefinitionId='" + TeamId + @"'
-where EI.EmployeeStatus='Active' and EI.BudgetCode in (select BudgetCodeId from [TRN].[TeamBudgetCode] where TeamDefinitionId='" + TeamId + "') order by TDE.Id  desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult createBudgetCode(List<Dictionary<string, object>> DataList)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
-            string TableName = "TRN.TeamBudgetCode";
-            string contId = string.Empty;
-            string _Id, Id = string.Empty;
-            try
-            {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-
-
-                if (DataList != null)
-                {
-                    foreach (var item in DataList)
-                    {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
-                        DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "TBC" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
-                    }
-                }
-                return Json(new { Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        
-        [Authorize, HttpPost]
-        public ActionResult createTeamDefinitionCategory(List<Dictionary<string, object>> DataList)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
-            string TableName = "TRN.TeamDefinitionCategory";
-            string contId = string.Empty;
-            string _Id, Id = string.Empty;
-            try
-            {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-
-                if (DataList != null)
-                {
-                    foreach (var item in DataList)
-                    {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
-                        DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "TDC" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
-                    }
-                }
-                return Json(new { Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult createEACategory(Dictionary<string, object> EACategoryData)
-        {
-            try
-            {
-
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where ShortName='" + EACategoryData["ShortName"] + "'", out DataSet dsTeamShortNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where StandardName='" + EACategoryData["StandardName"] + "'", out DataSet dsTeamStandardNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where UserName='" + EACategoryData["UserName"] + "'", out DataSet dsTeamUserNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where Code='" + EACategoryData["Code"] + "'", out DataSet dsTeamCodeValidation, false, "1");
-
-                DataSet dsEmployeeActivityCategory;
-
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.EmployeeActivityCategory where Id='" + EACategoryData["Id"] + "'", out dsEmployeeActivityCategory, false, "1");
-                string _Id = "";
-
-                #region data update
-                if (dsEmployeeActivityCategory.Tables[0].Rows.Count == 0)
-                {
-                    if (dsTeamShortNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Short Name Already Exist.");
-                    }
-                    else if (dsTeamStandardNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Standared Name Already Exist.");
-                    }
-                    else if (dsTeamUserNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("User Name Already Exist.");
-                    }
-                    else if (dsTeamCodeValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Code Already Exist.");
-                    }
-                    else
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("EmployeeActivityCategory", out _Id);
-                        _Id = "EAC" + _Id;
-                        EACategoryData["Id"] = _Id;
-                        AddNewRow(dsEmployeeActivityCategory.Tables[0], EACategoryData);
-                    }
-                }
-                else
-                {
-                    _Id = EACategoryData["Id"].ToString();
-                    EditRow(dsEmployeeActivityCategory.Tables[0].Rows[0], EACategoryData);
-                }
-                #endregion data update
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsEmployeeActivityCategory);
-
-                return Json(new { Error = false, Data = EACategoryData, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        [HttpPost, Authorize]
-        public JsonResult createTeamCategory(Dictionary<string, object> TeamCategoryData)
-        {
-            try
-            {
-
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where ShortName='" + TeamCategoryData["ShortName"] + "'", out DataSet dsTeamShortNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where StandardName='" + TeamCategoryData["StandardName"] + "'", out DataSet dsTeamStandardNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where UserName='" + TeamCategoryData["UserName"] + "'", out DataSet dsTeamUserNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where Code='" + TeamCategoryData["Code"] + "'", out DataSet dsTeamCodeValidation, false, "1");
-
-                DataSet dsTeamCategory;
-
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from HKP.TeamCategory where Id='" + TeamCategoryData["Id"] + "'", out dsTeamCategory, false, "1");
-                string _Id = "";
-
-                #region data update
-                if (dsTeamCategory.Tables[0].Rows.Count == 0)
-                {
-                    if (dsTeamShortNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Short Name Already Exist.");
-                    }
-                    else if (dsTeamStandardNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Standared Name Already Exist.");
-                    }
-                    else if (dsTeamUserNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("User Name Already Exist.");
-                    }
-                    else if (dsTeamCodeValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Code Already Exist.");
-                    }
-                    else
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("TeamCategory", out _Id);
-                        _Id = "TC" + _Id;
-                        TeamCategoryData["Id"] = _Id;
-                        AddNewRow(dsTeamCategory.Tables[0], TeamCategoryData);
-                    }
-                }
-                else
-                {
-                    _Id = TeamCategoryData["Id"].ToString();
-                    EditRow(dsTeamCategory.Tables[0].Rows[0], TeamCategoryData);
-                }
-                #endregion data update
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsTeamCategory);
-
-                return Json(new { Error = false, Data = TeamCategoryData, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult createEmployee(List<Dictionary<string, object>> DataList)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
-            string TableName = "TRN.TeamDefinitionEmployee";
-            string contId = string.Empty;
-            string _Id, Id = string.Empty;
-            try
-            {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-
-
-                if (DataList != null)
-                {
-                    foreach (var item in DataList)
-                    {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and TeamDefinitionId='" + item["TeamDefinitionId"] + "'", out dsProdBooked, false, "1");
-                        DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "TDE" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
-                    }
-                }
-                return Json(new { Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
         #endregion -- Operations
     }
 }

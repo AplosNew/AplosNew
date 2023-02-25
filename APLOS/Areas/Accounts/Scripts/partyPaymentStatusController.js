@@ -2720,25 +2720,38 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     };
 
     $scope.CustomerSummaryReport = function () {
-
         try {
             var NewMasterCustomerList = [];
             for (var i = 0; i < $scope.CustomerReceiptMasterList.length; i++) {
                 if ($scope.CustomerReceiptMasterList[i].isSelected == true) {
-
-                    if (NewMasterCustomerList, $scope.CustomerReceiptMasterList[i].PartyId) {
-                        NewMasterCustomerList.push($scope.CustomerReceiptMasterList[i].PartyId);
-                    }
+                    NewMasterCustomerList.push($scope.CustomerReceiptMasterList[i]);
                 }
             }
             if (NewMasterCustomerList.length == 0) {
-                //(angular.isUndefinedOrNull(NewMasterLCList)) 
                 ShowResult('Please select at least one Party', 'failure');
-                //throw 'Please enter to date';
 
             } else {
-                var file_src = $scope.path + "FinancialDashboardCustomerSummaryReport?masterCustomerSummaryList=" + NewMasterCustomerList + '&fromDate=' + "" + '&toDate=' + $scope.material.CustomerToDate;
-                $rootScope.report(file_src);
+                
+                $scope.downloadgriddataUrl = 'GridReports/Download';
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "FinancialDashboardCustomerSummaryReport",
+                    data: {
+                        'masterCustomerSummaryList': NewMasterCustomerList,
+                        'fromDate': "",
+                        'toDate': $scope.material.CustomerToDate
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == false) {
+                        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
             }
 
 

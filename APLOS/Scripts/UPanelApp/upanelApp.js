@@ -1147,6 +1147,7 @@ upanelApp.controller("ProductIntegrityAnalysisController", ProductIntegrityAnaly
 upanelApp.controller("SalesOrderWiseProductionCompletionReportController", SalesOrderWiseProductionCompletionReportController)
 upanelApp.controller("InWardMaterialController", InWardMaterialController)
 upanelApp.controller("ProductivityRecoveryMasterController", ProductivityRecoveryMasterController)
+upanelApp.controller("SalesReturnController", SalesReturnController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
