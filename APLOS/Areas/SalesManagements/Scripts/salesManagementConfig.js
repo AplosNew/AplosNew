@@ -34,5 +34,9 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/Sales/AdditionalInfo",
             controller: "masterOrderSalesAdditionalController"
         })
+        .when("/sales-return", {
+            templateUrl: "SalesManagements/Sales/SalesReturn",
+            controller: "SalesReturnController"
+        })
         ;
 }

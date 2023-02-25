@@ -189,6 +189,7 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
 
     $scope.SOItemList = [];
     $scope.Get = function (obj) {
+        $scope.Clear();
         $scope.RMPlanningNew.POId = obj.data.Id;
         $scope.LoadPlanDetails($scope.RMPlanningNew.POId);
         $scope.SOItemList = [];
@@ -526,7 +527,7 @@ function RawMaterialPlanningController(cboService, commonMessage, $scope, $rootS
         $scope.PlanQtyList = [];
             $http({
                 method: 'GET',
-                url: 'Materials/RawMaterialPlanning/GetPlanQtyList?soId=' + $scope.sqlInStatement
+                url: 'Materials/RawMaterialPlanning/GetPlanQtyList?soId=' + $scope.sqlInStatement + '&planId=' + $scope.RMPlanningNew.Id
 
             }).then(function successCallback(response) {
                 $scope.PlanQtyList = response.data;
