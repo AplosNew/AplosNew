@@ -440,6 +440,35 @@
                             </div>
                         </div>
 
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" @*ng-show="!EarnLeaveVar"*@>
+                                <label class="col-sm-10 control-label">Back Date Posting Not Allowed</label>
+                                <div class="col-sm-2" style="margin-top: 6px;">
+                                    <div class="checkbox-site" style="margin-top: 6px;">
+                                        <label>
+                                            <input tabindex="1" type="checkbox" ng-model="LeavePolicyModelDetails.IsBackDatePosting">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4  col-md-4" ng-show="LeavePolicyModelDetails.IsBackDatePosting === true">
+                            <div class="form-group">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Emp Cat.</label>
+                                        <div class="col-sm-8">
+                                            <div class="select-style">
+                                                <select id="EmpCatId" class="form-control" name="EmpCat" ng-model="LeavePolicyModelDetails.EmpCatId" tabindex="1">
+                                                    <option value="">--Select--</option>
+                                                    <option ng-repeat="option in EmployeeCategoryList" value="{{option.Id}}">{{option.UserName}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>                              
+                            </div>
+                        </div>
+
                         <br />
                         <br />
 
