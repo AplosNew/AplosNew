@@ -4549,6 +4549,7 @@
     <Content Include="Areas\OrderManagements\Views\SalesOrderWiseProductionCompletionReport\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialLedger\InWardMaterial.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductivityRecoveryMaster\Aplos.cshtml" />
+    <Content Include="Areas\DailyAttendance\Views\Home\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4665,7 +4666,6 @@
     <Content Include="Areas\TaskManagement\Views\TaskAppliedOn\UserUnit.cshtml" />
     <Content Include="Areas\SalesManagements\Views\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesReturn.cshtml" />
-    <Content Include="Areas\DailyAttendance\Views\Home\Aplos.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\Home\ChangePin.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\Home\Login.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\PreDashBoard\Aplos.cshtml" />
