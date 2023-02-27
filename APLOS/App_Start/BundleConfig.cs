@@ -261,6 +261,19 @@ namespace Aplos
 
                  "~/Areas/DailyAttendance/Scripts/dailyattendanceApp.js"));
 
+
+            bundles.Add(new ScriptBundle("~/bundles/dapanelLogin").Include(
+                   "~/Scripts/DailyAttendances/dapanelLoginController.js",
+                  "~/Scripts/DailyAttendances/ppanelLogoutController.js",
+                   "~/Scripts/DailyAttendances/dapanelLoginApp.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/dapanel").Include(
+
+                  "~/Scripts/DailyAttendances/ppanelLogoutController.js",
+                  "~/Scripts/DailyAttendances/daPasswordChangeController.js",
+                  "~/Scripts/DailyAttendances/dapanelApp.js"
+                  ));
+
             #endregion js
 
 #if DEBUG
