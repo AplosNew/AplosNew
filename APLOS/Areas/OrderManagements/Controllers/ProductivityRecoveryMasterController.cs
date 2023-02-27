@@ -264,9 +264,9 @@ LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRM
 left outer join MST.ProductivityRecoveryMaster PRM ON PRM.Id=PRA.PRMId
 where MT.UserName IN(" + parameters["MaterialType"] + @") AND
       MM.UserName IN(" + parameters["Material"] + @") AND
-      P.UserName IN(" + parameters["Product"] + @") AND
       MC.UserName IN(" + parameters["MaterialCategory"] + @") AND
-      MSC.UserName IN(" + parameters["MaterialSubCategory"] + @") 
+      (P.UserName IN (" + parameters["Product"] + @") or P.UserName is null) AND
+      (MSC.UserName IN (" + parameters["MaterialSubCategory"] + @") or MSC.UserName is null) 
              order by PRA.Id  asc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet); 
             json.MaxJsonLength = int.MaxValue; 
@@ -277,12 +277,12 @@ where MT.UserName IN(" + parameters["MaterialType"] + @") AND
         public ActionResult LoadProcessDetails(string PRMId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select  CAST (CASE WHEN PRP.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,PRP.Id,P.Id ProcessId,P.UserName Process,PRP.Remarks,PRP.StdRecovery,PRP.TargetRecovery
+            string sql = @"select distinct CAST (CASE WHEN PRP.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,PRP.Id,P.Id ProcessId,P.UserName Process,PRP.Remarks,PRP.StdRecovery,PRP.TargetRecovery
                             from HKP.EntityProcessTag EP
 							Left JOIN HKP.Process P ON P.Id=EP.ProcessId
 							LEFT JOIN [TRN].[PRMProcess] PRP ON PRP.ProcessId=P.Id and PRP.PRMId='" + PRMId + @"'
                             where P.Active = 1 and EP.EntityId in (select EntityId from TRN.PRMEntity where PRMId='" + PRMId + @"')
-							order by PRP.ProcessId  desc";
+							order by PRP.Id desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -292,7 +292,12 @@ where MT.UserName IN(" + parameters["MaterialType"] + @") AND
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select CAST (CASE WHEN PRA.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MA.Id as ArticleId,MA.StandardName Article,MM.Id MaterialMasterId,MM.UserName Material,
 MT.UserName MaterialType,MG.UserName MaterialGroup,
-AttributeValue=STUFF((select distinct ', '+ A.UserName+ '-' + MAV.StandardName from HKP.MaterialAttribute AS A  INNER JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=A.id left outer join MST.MaterialMasterAttribute MMA ON MAV.MaterialAttributeId=MMA.MaterialAttributeId where MMA.MaterialMasterId=MA.MaterialMasterId for xml path('') ), 1, 1, ''),
+AttributeValue=STUFF((SELECT distinct ', '+ A.UserName+ '-' + MAV.StandardName
+                            FROM MST.MaterialMasterAttribute AS MMA
+                            LEFT JOIN HKP.MaterialAttribute AS A ON MMA.MaterialAttributeId = A.Id
+                            LEFT JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=MMA.MaterialAttributeId 
+							LEFT JOIN MST.MaterialMasterArticleValue MMAV ON MAV.Id=MMAV.MaterialAttributeValueId
+                            WHERE MMA.MaterialMasterId = MA.MaterialMasterId and MMAV.MaterialMasterArticleId=MA.Id for xml path('') ), 1, 1, ''),
 PRA.Id,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks,(select UserName from HKP.CostingItem where Id=PRA.CostingItemId) as CostingItem
 from MST.MaterialMasterArticle MA
 left Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
@@ -306,9 +311,9 @@ left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
 LEFT JOIN [TRN].[PRMRMArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
 where MT.UserName IN(" + parametersRM["MaterialType"] + @") AND
       MM.UserName IN(" + parametersRM["Material"] + @") AND
-      P.UserName IN(" + parametersRM["Product"] + @") AND
       MC.UserName IN(" + parametersRM["MaterialCategory"] + @") AND
-      MSC.UserName IN(" + parametersRM["MaterialSubCategory"] + @")
+      (P.UserName IN (" + parametersRM["Product"] + @") or P.UserName is null) AND
+      (MSC.UserName IN (" + parametersRM["MaterialSubCategory"] + @") or MSC.UserName is null)
 order by PRA.ArticleId  desc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
