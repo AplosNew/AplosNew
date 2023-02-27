@@ -1195,6 +1195,10 @@
     <Compile Include="Areas\QMS\Controllers\DocumentTypeController.cs" />
     <Compile Include="Areas\QMS\Controllers\StockKeepingUnitController.cs" />
     <Compile Include="Areas\QMS\QMSAreaRegistration.cs" />
+    <Compile Include="Areas\DailyAttendance\Controllers\HomeController.cs" />
+    <Compile Include="Areas\DailyAttendance\Controllers\PreDashBoardController.cs" />
+    <Compile Include="Areas\DailyAttendance\Controllers\DailyAttendanceInAndOut.cs" />
+    <Compile Include="Areas\DailyAttendance\DailyAttdAreaRegistration.cs" />
     <Compile Include="Areas\SalesManagements\Controllers\SalesInvoiceController.cs" />
     <Compile Include="Areas\SalesManagements\Controllers\SalesController.cs" />
     <Compile Include="Areas\SalesManagements\SalesManagementsAreaRegistration.cs" />
@@ -1255,10 +1259,12 @@
     <Compile Include="Controllers\AttendanceController.cs" />
     <Compile Include="Controllers\AplosConnectivityController.cs" />
     <Compile Include="Controllers\BookingSaudaController.cs" />
+    <Compile Include="Controllers\DailyAttendanceInOut.cs" />
     <Compile Include="Controllers\EmpWiseProductionsController.cs" />
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\DailyAttendancesController.cs" />
     <Compile Include="Controllers\VehicleRequistionController.cs" />
     <Compile Include="Controllers\VisitorServiceController.cs" />
     <Compile Include="Controllers\MyParentsController.cs" />
@@ -2766,6 +2772,13 @@
     <Content Include="Areas\QMS\Scripts\documentTypeController.js" />
     <Content Include="Areas\QMS\Scripts\qmsConfig.js" />
     <Content Include="Areas\QMS\Scripts\StockKeepingUnitController.js" />
+    <Content Include="Areas\DailyAttendance\Images\female-alt.png" />
+    <Content Include="Areas\DailyAttendance\Images\male-alt.png" />
+    <Content Include="Areas\DailyAttendance\Scripts\changePinController.js" />
+    <Content Include="Areas\DailyAttendance\Scripts\dashBoardController.js" />
+    <Content Include="Areas\DailyAttendance\Scripts\dailyAttdInOutController.js" />
+    <Content Include="Areas\DailyAttendance\Scripts\dailyAttendanceInOutLoginController.js" />
+    <Content Include="Areas\DailyAttendance\Scripts\dailyattendanceApp.js" />
     <Content Include="Areas\SalesManagements\Scripts\EInvoiceController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesReturnController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesAdditionalController.js" />
@@ -4537,6 +4550,7 @@
     <Content Include="Areas\OrderManagements\Views\SalesOrderWiseProductionCompletionReport\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\MaterialLedger\InWardMaterial.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductivityRecoveryMaster\Aplos.cshtml" />
+    <Content Include="Areas\DailyAttendance\Views\Home\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4653,6 +4667,11 @@
     <Content Include="Areas\TaskManagement\Views\TaskAppliedOn\UserUnit.cshtml" />
     <Content Include="Areas\SalesManagements\Views\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesReturn.cshtml" />
+    <Content Include="Areas\DailyAttendance\Views\Home\ChangePin.cshtml" />
+    <Content Include="Areas\DailyAttendance\Views\Home\Login.cshtml" />
+    <Content Include="Areas\DailyAttendance\Views\PreDashBoard\Aplos.cshtml" />
+    <Content Include="Areas\DailyAttendance\Views\PreRecruitment\Aplos.cshtml" />
+    <Content Include="Areas\DailyAttendance\Views\web.config" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
@@ -4665,6 +4684,8 @@
     <Content Include="Scripts\CPanelApp\cpanelLogoutController.js" />
     <Content Include="Scripts\CPanelApp\queryEditorController.js" />
     <Content Include="Scripts\custom-datetime-validate.js" />
+    <Content Include="Scripts\DailyAttendances\dapanelLoginApp.js" />
+    <Content Include="Scripts\DailyAttendances\daPasswordChangeController.js" />
     <Content Include="Scripts\dirPagination.js" />
     <Content Include="Scripts\dom-to-image.js" />
     <Content Include="Scripts\fileSaver.js" />
@@ -4911,6 +4932,9 @@
     <Content Include="Scripts\MPanelApp\mpanelLogoutController.js" />
     <Content Include="Scripts\MPanelApp\plantSelectionController.js" />
     <Content Include="Scripts\multi-select-load.js" />
+    <Content Include="Scripts\DailyAttendances\dapanelApp.js" />
+    <Content Include="Scripts\DailyAttendances\dapanelLoginController.js" />
+    <Content Include="Scripts\DailyAttendances\ppanelLogoutController.js" />
     <Content Include="Scripts\MyParents\myParentsCalendarController.js" />
     <Content Include="Scripts\MyParents\parentsPasswordChangeController.js" />
     <Content Include="Scripts\MyParents\ppanelApp.js" />
@@ -7617,6 +7641,7 @@
     <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.min.map" />
     <Content Include="SyncfusionLib\Scripts\jquery-3.3.1.slim.min.map" />
     <None Include="SyncfusionLib\Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Views\DailyAttendanceInOut\Aplos.cshtml" />
     <None Include="Views\Home\_ConfirmBox.cshtml" />
     <Content Include="Areas\Securities\Views\ControlAdmin\EncryptDecrypt.cshtml" />
     <Content Include="Views\Shared\modal.html" />
@@ -7667,6 +7692,11 @@
     <Content Include="Views\MyParents\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\PLayout.cshtml" />
     <Content Include="Web.Config" />
+    <Content Include="Views\DailyAttendances\Aplos.cshtml" />
+    <Content Include="Views\DailyAttendances\Calendar.cshtml" />
+    <Content Include="Views\DailyAttendances\Dashboard.cshtml" />
+    <Content Include="Views\DailyAttendances\PasswordChange.cshtml" />
+    <Content Include="Views\DailyAttendances\DALayout.cshtml" />
     <None Include="Web.Debug.Config">
       <DependentUpon>Web.Config</DependentUpon>
     </None>

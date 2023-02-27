@@ -3,6 +3,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     $rootScope.title = 'Daily Attendance Status';
     $scope.path = 'humanresource/DailyAttendanceStatusReport/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.Action = 'Save';
     $scope.InStatusList = [];
     $scope.LateStatusList = [];
@@ -163,10 +164,11 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         EmployeecategoryId: null,
         TeamLeaderId:null,
         EmpSystemId:null,
-        ShiftId:null,
+        ShiftDefinationId:null,
         EmployeeStatus: null,
         FavoriteFilteruserId: null,
-        DayStatus:null
+        DayStatus: null,
+        ResponsiblePersonId: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -200,6 +202,8 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         });
 
     }
+
+    
 
     //$scope.EmpSystemId = null;
     //$scope.EmployeeName = null;
@@ -261,11 +265,34 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     }
     $scope.GetFavoriteListByUser();
 
+    $scope.FavoriteFilterList = [];
+    $scope.GetFavoriteFilterByUser = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetFavoriteFilterByUser',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.FavoriteFilterList = resp.data;
+        });
+    }
+    $scope.GetFavoriteFilterByUser();
+
+    $scope.GetFavouriteFilter = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetFavouriteFilter?filterId=' + $scope.ModelNew.Id ,
+            
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ModelNew = Object.assign({}, resp.data[0]);
+        });
+    }
+
     $scope.DailyAttendanceStatusList = [];
     $scope.GetDailyAttendanceStatus = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetDailyAttendanceStatus?instatus=' + $scope.ModelNew.InStatus + '&fromdate=' + $scope.ModelNew.FromDate + '&todate=' + $scope.ModelNew.ToDate + '&employeecategory=' + $scope.ModelNew.EmployeecategoryId + '&teamleaderid=' + $scope.ModelNew.TeamLeaderId + '&responsibleperson=' + $scope.ModelNew.EmpSystemId + '&shift=' + $scope.ModelNew.ShiftId + '&employeestatus=' + $scope.ModelNew.EmployeeStatus + '&daystatus=' + $scope.ModelNew.DayStatus,           
+            url: $scope.path + 'GetDailyAttendanceStatus?instatus=' + $scope.ModelNew.InStatus + '&fromdate=' + $scope.ModelNew.FromDate + '&todate=' + $scope.ModelNew.ToDate + '&employeecategory=' + $scope.ModelNew.EmployeecategoryId + '&teamleaderid=' + $scope.ModelNew.TeamLeaderId + '&responsibleperson=' + $scope.ModelNew.ResponsiblePersonId + '&shift=' + $scope.ModelNew.ShiftDefinationId + '&employeestatus=' + $scope.ModelNew.EmployeeStatus + '&daystatus=' + $scope.ModelNew.DayStatus,           
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.DailyAttendanceStatusList = resp.data;
@@ -303,10 +330,10 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     // #region Save
     $scope.Save = function () {  
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+       /* if ($scope.ModelNewForm.$valid) {*/
             $http({
                 method: 'POST',
-                url: $scope.path + 'Save',
+                url: $scope.path + $scope.Action,
                 data: {
                     'datas': $scope.ModelNew
                 },
@@ -324,43 +351,97 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-        }
+       /* }*/
 
     };
     // #endregion Save
 
-    $scope.summaryfileName = "Daily Attendance Status.xlsx"
-    $scope.XlsSalaryUnDisburseReport = function () {
-       
-        
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.summaryfileName = "Daily Attendance Status.xlsx";
+
+    $scope.XlsDailyAttendanceReport = function () {
+        var dataList = [];
+        var g = $("#Grid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0)
+        {
+            
+             dataList = $scope.DailyAttendanceStatusList;
+        }
+        $scope.fileName = 'Daily Attendance Status.xlsx';
             $http({
                 method: "POST",
-                dataType: 'JSON',
-                url: $scope.path + 'GetDailyAttendanceStatusXls',
+                
+               // url: $scope.path + 'GetDailyAttendanceStatusXls',
+                url: $scope.exportgriddataUrl,
                 data: {
-                    'instatus': $scope.ModelNew.InStatus,
-                    'fromdate': $scope.ModelNew.FromDate,
-                    'todate': $scope.ModelNew.ToDate,
-                    'employeecategory': $scope.ModelNew.EmployeecategoryId,
-                    'teamleaderid': $scope.ModelNew.TeamLeaderId,
-                    'responsibleperson': $scope.ModelNew.EmpSystemId,
-                    'shift': $scope.ModelNew.ShiftId,
-                    'employeestatus': $scope.ModelNew.EmployeeStatus,
-                    'daystatus' : $scope.ModelNew.DayStatus
-                }
+                    //'instatus': $scope.ModelNew.InStatus,
+                    //'fromdate': $scope.ModelNew.FromDate,
+                    //'todate': $scope.ModelNew.ToDate,
+                    //'employeecategory': $scope.ModelNew.EmployeecategoryId,
+                    //'teamleaderid': $scope.ModelNew.TeamLeaderId,
+                    //'responsibleperson': $scope.ModelNew.EmpSystemId,
+                    //'shift': $scope.ModelNew.ShiftDefinationId,
+                    //'employeestatus': $scope.ModelNew.EmployeeStatus,
+                    //'daystatus': $scope.ModelNew.DayStatus,
+                    'data': dataList,
+                    'reportFileName': $scope.fileName,
+                },
+                dataType: 'JSON'
             })
                 .then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
-                        $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.summaryfileName);
+                        //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.summaryfileName);
+                        
+                        //$rootScope.report($scope.downloadgriddataUrlPath + "?fileName=" + $scope.summaryfileName);
+                        $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
                     }
                 }, function errorCallback(response) {
                     ShowResult(response.data.Message, 'failure');
                 });
 
-        };
+    };
+
+    $scope.XlsDailyAttendanceSummaryReport = function () {
+        
+        $scope.fileName = 'Daily Attendance Status Summary.xlsx';
+        $http({
+            method: "POST",
+
+            url: $scope.path + 'GetDailyAttendanceStatusXls',
+            
+            data: {
+                'instatus': $scope.ModelNew.InStatus,
+                'fromdate': $scope.ModelNew.FromDate,
+                'todate': $scope.ModelNew.ToDate,
+                'employeecategory': $scope.ModelNew.EmployeecategoryId,
+                'teamleaderid': $scope.ModelNew.TeamLeaderId,
+                'responsibleperson': $scope.ModelNew.EmpSystemId,
+                'shift': $scope.ModelNew.ShiftDefinationId,
+                'employeestatus': $scope.ModelNew.EmployeeStatus,
+                'daystatus': $scope.ModelNew.DayStatus,
+                
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
    
     $scope.Clear = function () {
         ClearFields();
@@ -378,7 +459,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
             EmployeecategoryId: null,
             TeamLeaderId: null,
             EmpSystemId: null,
-            ShiftId: null,
+            ShiftDefinationId: null,
             EmployeeStatus: null,
             FavoriteFilteruserId: null,
             DayStatus:null
@@ -423,5 +504,25 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     $scope.closeFavoritePopUp = function () {
         angular.element(document.querySelector('#FavoritePopupId')).modal('hide');
 
+    }
+
+    $scope.RemoveFavoriteFilter = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'RemoveFavoriteFilter?id=' + $scope.ModelNew.Id,
+            
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
     }
 }

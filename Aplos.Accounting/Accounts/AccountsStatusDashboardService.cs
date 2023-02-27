@@ -72,7 +72,7 @@ namespace Library.Accounting.Accounts
 										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
 										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote'  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) DebitNote 
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and VDA.PartyType='Vendor' and A.PartyPlantId=X.PartyPlantId and A.SourceType in('DebitNote','InventoryReturnPayable')  AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) DebitNote 
                 , ISNULL((SELECT SUM(VDC.CrAmount) - SUM(ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))  FROM [TRN].[AdjustmentNote] A
 					 INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
                      INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
@@ -87,7 +87,8 @@ namespace Library.Accounting.Accounts
 				, SUM(X.Gross) Gross 
 				,SUM(X.SetOff) SetOff
 				,SUM(X.Balance) Balance
-				,SUM(X.Balance)-ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
+                ,SUM(X.ActualBalance) ActualBalance
+				,ABS(SUM(X.Balance)-ISNULL((SELECT sum(VDCA.DrAmount) -sum(ISNULL(AW.AdvanceWriteOffBooksAmount,0)) FROM TRN.Advance A
 					INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
 					INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
 				    INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
@@ -106,7 +107,7 @@ namespace Library.Accounting.Accounts
 										 INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
 										where IW.IsPark=0 AND IWD.AdjustmentNoteId is not null
 										GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
-					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyPlantId=X.PartyPlantId and A.SourceType='DebitNote' AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0) NetBalance
+					where A.PlantId='" + plantId + @"' and A.PartyId=X.PartyId and A.PartyPlantId=X.PartyPlantId and A.SourceType in('DebitNote','InventoryReturnPayable') AND A.IsPark=0  group by A.PartyId,A.PartyPlantId ),0)) NetBalance
                 ,ISNULL((SELECT  ABS(SUM(ISNULL(CC.CompanyCurrencyDrAmount, 0)) - SUM(ISNULL(CC.CompanyCurrencyCrAmount, 0))) AS LedgerBalanceAmount
                     FROM [TRN].[VoucherDetail] AS VD
                     LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
@@ -547,9 +548,9 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
-                worksheet[ROW, COL].Text = "Net Balance";
+                worksheet[ROW, COL].Text = "Actual Balance";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colNetBalance = COL;
+                int colActualBalance = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
@@ -686,8 +687,8 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dt.Rows[i]["TaxAmount"].ToString());
                     worksheet[ROW, colTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                    worksheet[ROW, colNetBalance].Number = clsStaticInfo.dbl(dt.Rows[i]["NetBalance"].ToString());
-                    worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dt.Rows[i]["ActualBalance"].ToString());
+                    worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
                     worksheet[ROW, colWriteOffPendingPost].Text = dt.Rows[i]["WriteOffPendingPost"].ToString();
 
@@ -756,9 +757,9 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colCreditNote].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colCreditNote].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                worksheet[ROW, colNetBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colNetBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colNetBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                worksheet[ROW, colActualBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colActualBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colActualBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 worksheet[ROW, colLedgerBalanceAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colLedgerBalanceAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colLedgerBalanceAmount) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colLedgerBalanceAmount].NumberFormat = "#,##0.00;(#,##0.00)";

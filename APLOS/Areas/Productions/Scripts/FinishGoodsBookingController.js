@@ -17,8 +17,21 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
         ToCurrencyRate: null,
         CurrencyId: null,
         SourceType: 'ProductionBooking',
-        CompanyCurrencyId:null
+        CompanyCurrencyId: null,
+        Level: "QBOQ"
     }
+
+    $scope.LevelList = [];
+    $scope.LevelList = [
+        {
+            'Value': 'Costing',
+            'Text': 'Costing'
+        },
+        {
+            'Value': 'QBOQ',
+            'Text': 'QBOQ'
+        }
+    ];
 
     $scope.GetProductionBookFromToDate = function () {
         $http({
@@ -250,7 +263,8 @@ function FinishGoodsBookingController(cboService, commonMessage, $scope, $rootSc
             ToCurrencyRate: null,
             CurrencyId: null,
             SourceType: 'ProductionBooking',
-            CompanyCurrencyId: $scope.companyCurrencyId
+            CompanyCurrencyId: $scope.companyCurrencyId,
+            Level: "QBOQ"
         }
         $scope.ProductCodeList = [];
         $scope.SalesOrderLineItems = [];
