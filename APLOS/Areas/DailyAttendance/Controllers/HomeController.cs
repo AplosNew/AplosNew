@@ -2,6 +2,7 @@
 using Aplos.Properties;
 using Library.Core;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Employees;
 using Library.Service.Employees;
 using Library.Service.Helpers;
@@ -16,7 +17,7 @@ using System.Web.Script.Serialization;
 
 namespace Aplos.Areas.DailyAttendance.Controllers
 {
-    [AllowAnonymous]
+    
     public class HomeController : BaseController
     {
         #region Constructor
@@ -27,6 +28,7 @@ namespace Aplos.Areas.DailyAttendance.Controllers
         private readonly IPreRecruitmentEmpExperienceService _preRecruitmentEmpExperience;
         private readonly IPreRecruitmentEmpTrainingService _preRecruitmentEmpTraining;
         private readonly IPreRecruitmentDocumentService _preRecruitmentDocument;
+        private readonly SqlRepository _sqlRepository;
 
         public HomeController(
               IPreRecruitmentEmployeeService preRecruitmentEmployee
@@ -35,6 +37,7 @@ namespace Aplos.Areas.DailyAttendance.Controllers
             , IPreRecruitmentEmpExperienceService preRecruitmentEmpExperience
             , IPreRecruitmentEmpTrainingService preRecruitmentEmpTraining
             , IPreRecruitmentDocumentService preRecruitmentDocument
+
             )
         {
             _preRecruitmentEmployee = preRecruitmentEmployee;
@@ -43,6 +46,7 @@ namespace Aplos.Areas.DailyAttendance.Controllers
             _preRecruitmentEmpExperience = preRecruitmentEmpExperience;
             _preRecruitmentEmpTraining = preRecruitmentEmpTraining;
             _preRecruitmentDocument = preRecruitmentDocument;
+            _sqlRepository = new SqlRepository();
         }
 
         #endregion Constructor
@@ -71,24 +75,12 @@ namespace Aplos.Areas.DailyAttendance.Controllers
         }
 
         [HttpPost]
-        public ActionResult Login(string id, string pin)
+        public ActionResult LoginDailyAttendance(string id)
         {
             HttpContext.Response.Cookies.Add(new HttpCookie("ROOT_FOLDRR", ResourcesPathReader.GetROOT_FOLDER()));
-            return Json(new { IsFirstLogin = _preRecruitmentEmployee.Login(id, pin) }, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet]
-        public ActionResult ChangePin(string id)
-        {
-            ViewBag.Id = id;
-            return View();
-        }
-
-        [HttpPost]
-        public ActionResult ChangePin(string id, string pin)
-        {
-            _preRecruitmentEmployee.UpdatePinAndLoginFlag(id, pin);
-            return Json(new { Message = "Success" }, JsonRequestBehavior.AllowGet);
+            var sqlQuery = @"select Count(EI.EmployeeCode)EmployeeCode from EmployeeInformation EI where EI.EmployeeCode = '" + id + "'";
+            
+            return Json(_sqlRepository.GetDataCollection(sqlQuery), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
