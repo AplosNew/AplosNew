@@ -1264,6 +1264,7 @@
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
+    <Compile Include="Controllers\DailyAttendancesController.cs" />
     <Compile Include="Controllers\VehicleRequistionController.cs" />
     <Compile Include="Controllers\VisitorServiceController.cs" />
     <Compile Include="Controllers\MyParentsController.cs" />
@@ -4683,6 +4684,8 @@
     <Content Include="Scripts\CPanelApp\cpanelLogoutController.js" />
     <Content Include="Scripts\CPanelApp\queryEditorController.js" />
     <Content Include="Scripts\custom-datetime-validate.js" />
+    <Content Include="Scripts\DailyAttendances\dapanelLoginApp.js" />
+    <Content Include="Scripts\DailyAttendances\daPasswordChangeController.js" />
     <Content Include="Scripts\dirPagination.js" />
     <Content Include="Scripts\dom-to-image.js" />
     <Content Include="Scripts\fileSaver.js" />
@@ -4929,6 +4932,9 @@
     <Content Include="Scripts\MPanelApp\mpanelLogoutController.js" />
     <Content Include="Scripts\MPanelApp\plantSelectionController.js" />
     <Content Include="Scripts\multi-select-load.js" />
+    <Content Include="Scripts\DailyAttendances\dapanelApp.js" />
+    <Content Include="Scripts\DailyAttendances\dapanelLoginController.js" />
+    <Content Include="Scripts\DailyAttendances\ppanelLogoutController.js" />
     <Content Include="Scripts\MyParents\myParentsCalendarController.js" />
     <Content Include="Scripts\MyParents\parentsPasswordChangeController.js" />
     <Content Include="Scripts\MyParents\ppanelApp.js" />
@@ -7686,6 +7692,11 @@
     <Content Include="Views\MyParents\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\PLayout.cshtml" />
     <Content Include="Web.Config" />
+    <Content Include="Views\DailyAttendances\Aplos.cshtml" />
+    <Content Include="Views\DailyAttendances\Calendar.cshtml" />
+    <Content Include="Views\DailyAttendances\Dashboard.cshtml" />
+    <Content Include="Views\DailyAttendances\PasswordChange.cshtml" />
+    <Content Include="Views\DailyAttendances\DALayout.cshtml" />
     <None Include="Web.Debug.Config">
       <DependentUpon>Web.Config</DependentUpon>
     </None>

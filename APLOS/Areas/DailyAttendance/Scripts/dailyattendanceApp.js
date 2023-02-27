@@ -30,7 +30,7 @@ var dailyattendanceApp = angular.module('dailyattendanceApp', ['ngRoute', 'ngCoo
                 controller: 'preRecruitmentLogoutController'
             })
             .otherwise({
-                redirectTo: 'dailyattendance/home/Login'
+                redirectTo: 'Login'
             });
     }])
     .run(['$rootScope', '$cookies', function ($rootScope, $cookies) {

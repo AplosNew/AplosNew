@@ -28,24 +28,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Consumption Process<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" ng-model="modelNew.ProcessId" disabled name="Consumption Process" ng-options="item.Value as item.Text for item in processList" required>
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label" id="tDate">To Date<sup>*</sup></label>
-            <div class="col-sm-8  show-message">
-                <input type="text" name="To Date" ng-model="modelNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="3">
-            </div>
-        </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
             <div class="col-sm-5 show-message">
@@ -60,15 +42,43 @@
                 <input type="text" n-decimals="2" id="ToCurrencyRate" name="ToCurrencyRate" ng-model="modelNew.ToCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="modelNew.CurrencyId==companyCurrencyId" required>
             </div>
         </div>
-    </div>
-    <div class="col-lg-12">
-        <div class="form-group">
-            <label class="col-sm-2 control-label" title="Description">Description</label>
-            <div class="col-sm-10">
-                <textarea rows="2" type="text" ng-maxlength="250" name="Description" tabindex="8" class="form-control" ng-model="modelNew.Description"></textarea>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Consumption Process<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="modelNew.ProcessId" disabled name="Consumption Process" ng-options="item.Value as item.Text for item in processList" required>
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label" id="tDate">To Date<sup>*</sup></label>
+                <div class="col-sm-8  show-message">
+                    <input type="text" name="To Date" ng-model="modelNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="3">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Level<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+
+                        <select class="form-control" ng-model="modelNew.Level" placeholder="Level" name="Level" ng-options="item.Value as item.Text for item in LevelList" ng-change="GetQBOQCostingData();" required tabindex="6">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" title="Description">Description</label>
+                <div class="col-sm-8">
+                    <textarea rows="2" type="text" ng-maxlength="250" name="Description" tabindex="8" class="form-control" ng-model="modelNew.Description"></textarea>
+                </div>
             </div>
         </div>
     </div>
+    
     <div class="clearfix"></div>
     <div class="common-btn">
         <ul class="list-inline text-left">

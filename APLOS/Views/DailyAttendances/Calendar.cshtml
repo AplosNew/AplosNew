@@ -1,0 +1,39 @@
+﻿
+<link href="~/Content/fullcalendar.css" rel="stylesheet" />
+
+<script type="text/ng-template" id="modalPopUp.html">
+    <div class="modal-header">
+        <h3 class="modal-title"> CUD Events </h3>
+    </div>
+    <div class="modal-body">
+
+        <div class="form-group">
+            <label>Event Title : </label>
+            <input type="text" ng-model="EventObj.EventTitle" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Description : </label>
+            <input type="text" ng-model="EventObj.EventDescription" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label>Date (Start - END) : </label>
+            <span>{{EventObj.StartDate}} - {{EventObj.EndDate}}</span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="AddOrUpdateEvent()">Add Or Update Event</button>
+        <button class="btn btn-success" type="button" ng-show="EventObj.EventID > 0" ng-click="DeleteEvent()">Delete Event</button>
+        <button class="btn btn-info" type="button" ng-click="CancelEvent()">Cancel Event</button>
+    </div>
+
+</script>
+
+<div>
+    <div class="row">
+        <div class="col-md-12">
+            <div ui-calendar="uiConfig.calendar" class="calendar" ng-model="events" calendar="Calendar"></div>
+        </div>
+    </div>
+</div>
