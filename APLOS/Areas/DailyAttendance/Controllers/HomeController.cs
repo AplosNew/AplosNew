@@ -87,13 +87,13 @@ namespace Aplos.Areas.DailyAttendance.Controllers
         public ActionResult Aplos(string id)
         {
 #if DEBUG
-            ViewBag.BasePath = "/dailyAttendance";
+            ViewBag.BasePath = "/dailyAttdn";
 #else
             var appName = IISManager.GetApplicationName("APP_NAME");
             if (string.IsNullOrEmpty(appName))
-                ViewBag.BasePath = "/dailyattendance";
+                ViewBag.BasePath = "/dailyAttdn";
             else
-                ViewBag.BasePath = "/" + appName + "/dailyattendance";
+                ViewBag.BasePath = "/" + appName + "/dailyAttdn";
 #endif
             ViewBag.id = id;
             return View();

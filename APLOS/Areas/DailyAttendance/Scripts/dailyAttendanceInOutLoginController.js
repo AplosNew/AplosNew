@@ -17,7 +17,7 @@ function dailyAttendanceInOutLoginController($scope, $http, $location, $rootScop
                 url: $scope.path + 'LoginDailyAttendance',
                 params: {
                     'id': $scope.model.Id,
-                    //'pin': $scope.model.Pin
+                    
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -25,7 +25,8 @@ function dailyAttendanceInOutLoginController($scope, $http, $location, $rootScop
                     $scope.errorText = response.data.ErrorText || response.data.Message;
                 else {
 
-                    $window.location = 'dailyattendance/home/Aplos?u=' + $scope.model.Id;
+                   // $window.location = 'dailyattendance/home/Aplos?u=' + $scope.model.Id;
+                    $window.location = 'dailyAttdn';
                         $cookies.put('empId', '');
                         $cookies.put('empId', $scope.model.Id);
                    
