@@ -4653,6 +4653,7 @@
     <Content Include="Areas\TaskManagement\Views\TaskAppliedOn\UserUnit.cshtml" />
     <Content Include="Areas\SalesManagements\Views\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesReturn.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\_ItemScanChildPopUp.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
