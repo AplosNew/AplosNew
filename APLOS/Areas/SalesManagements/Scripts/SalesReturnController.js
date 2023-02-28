@@ -146,7 +146,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
         $scope.tab = newTab;
         $scope.tabType = '1';
-       /* $scope.getdataInventorySales($scope.tabType);*/
+        /* $scope.getdataInventorySales($scope.tabType);*/
 
     };
     $scope.isSetFirst = function (tabNum) {
@@ -168,7 +168,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.setTabThird = function (newTab) {
         $scope.tab = newTab;
         $scope.tabType = '3';
-      /*  $scope.getdataInventorySales($scope.tabType);*/
+        /*  $scope.getdataInventorySales($scope.tabType);*/
     };
     $scope.isSetThird = function (tabNum) {
         return $scope.tab === tabNum;
@@ -220,6 +220,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         , EntityName: null
         , MaterialStorageId: null
         , SalesDate: $filter("dateFiltering")(Date.now())
+        , SalesReturnDate: null
         , Remarks: null
         , EmployeeId: null
         , EmployeeName: null
@@ -273,8 +274,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         location.href = "Products/InventoryIssue/inventorySalesReportPrint?grnId=" + data.Id;
 
     };
-   
-   
+
+
     //#region report
     $scope.InventorySalesReportExcels = function (id, reportFormat) {
 
@@ -284,7 +285,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 ShowResult('Select To Date', 'failure');
                 return false;
             }
-            
+
         }
         else {
 
@@ -358,7 +359,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
     }
 
-    
+
     $scope.lst = [];
     $scope.SalesDetails = function () {
         //debugger;
@@ -461,7 +462,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     };
 
 
-   
+
     $scope.Clear = function () {
         ClearFields();
         return true;
@@ -478,7 +479,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.specificStockList = [];
         $scope.IssueType = 'Revenue';
     }
-   
+
 
     function getIssueDetailList() {
         if ($scope.productNew.SourceType == 'Packing') {
@@ -533,13 +534,24 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
         for (var j = 0; j < $scope.taxlist.length; j++) {
             if ($scope.taxlist[j].SalesMaterialId == $scope.tempData.SalesMaterialId) {
-                $scope.taxlist[j].Amount = Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage/100)) * 100 + Number.EPSILON) / 100
-                $scope.tempData.TaxAmount += Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage/100)) * 100 + Number.EPSILON) / 100
+                $scope.taxlist[j].Amount = Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
+                $scope.tempData.TaxAmount += Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
             }
         }
         angular.element(document.querySelector('#ISCpopUp')).modal('hide');
     }
 
+    $scope.returnAmountCalculation = function (data) {
+        data.Amount = Math.round((data.ReturnQty * data.TransactionRate) * 100 + Number.EPSILON) / 100
+
+        for (var j = 0; j < $scope.taxlist.length; j++) {
+            if ($scope.taxlist[j].SalesMaterialId == data.SalesMaterialId) {
+                $scope.taxlist[j].Amount = Math.round((data.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
+                data.TaxAmount += Math.round((data.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
+            }
+        }
+        angular.element(document.querySelector('#ISCpopUp')).modal('hide');
+    }
     // #endregion Details
 
     $scope.BudgetActivityList = [];
