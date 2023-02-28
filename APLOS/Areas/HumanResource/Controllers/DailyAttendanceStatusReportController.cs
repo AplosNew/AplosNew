@@ -29,6 +29,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             _sqlRepository = new SqlRepository();
         }
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -112,6 +113,31 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
 
                 throw;
             }
+        }
+
+        public JsonResult GetFavoriteFilterByUser()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select DAF.Id Value, DAF.FavoriteName Text from [TRN].[DailyAttendanceFavoriteFilter] DAF where DAF.FavoriteFilteruserId = '2022051'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetFavouriteFilter(string filterId)
+        {
+            var sql = @"select DAF.Id, FORMAT(DAF.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(DAF.FromDate, 'dd-MMM-yyyy')FromDate, DAF.InStatus, DAF.TeamLeaderId, DAF.EmployeecategoryId, DAF.ShiftDefinationId, DAF.ResponsiblePersonId, DAF.FavoriteFilteruserId, DAF.FavoriteName, EI.EmployeeName, DAF.DayStatus, DAF.EmployeeStatus
+from [TRN].[DailyAttendanceFavoriteFilter] DAF  
+left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where DAF.Id = '" + filterId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult RemoveFavoriteFilter(string id)
+        {
+            var sql = @"delete from [TRN].[DailyAttendanceFavoriteFilter] where Id = '"+id+"'";
+
+            return Json(new { Data = _sqlRepository.GetDataCollection(sql), Message = AplosMessage.Deleted });
+            //Json(_sqlRepository.GetDataCollection(sql), AplosMessage.Deleted, JsonRequestBehavior.AllowGet);
+            
         }
 
         [Authorize]
@@ -200,8 +226,8 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
                 }
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
-, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
+, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.OutTime, 'hh:mm tt')OutTime, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
+,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy, RM.ResidenceNumber, RAE.isOccupied,  R.UserName TransportRoute
 ,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
 from AttdnProcessData APD
@@ -222,7 +248,7 @@ LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '" + fromdate + "' and '" + todate + @"'
+left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '22-Feb-2023' and '23-Feb-2023'
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
 left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
@@ -230,6 +256,8 @@ LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
 left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
 left join HKP.Stoppage SPG on SPG.Id = ETA.StoppageId
+left join MST.RouteStoppage RSG on RSG.StoppageId = SPG.Id
+left join MST.Route R on R.Id = RSG.RouteId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
 left join (select distinct WorkDate, EmpSystemID, UpdatedBy  from PhysicalVerification)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
@@ -256,7 +284,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
             {
 
                 string fileName = "";
-                fileName = DailyAttendanceStatusReport(instatus, fromdate, todate, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, daystatus, "DailyAttendanceStatusReport");
+                fileName = DailyAttendanceStatusReport(instatus, fromdate, todate, employeecategory, teamleaderid, responsibleperson, shift, employeestatus, daystatus, "DailyAttendanceStatusSummaryReport");
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -285,7 +313,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "Daily Attendance Status Report";
+                workbook.Worksheets[0].Name = "Daily Attendance Status Summary Report";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
                 DailyAttdnStatusReportQry(instatus, fromdate, todate ,employeecategory, teamleaderid, responsibleperson, shift, employeestatus, daystatus, out data);
@@ -293,28 +321,28 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ROW = 6; int COL = 1;
 
                 #region Columns
-                sheet[ROW, COL].Text = "SrlNo";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColSrlNo = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "SrlNo";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColSrlNo = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Work Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColWorkDate = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Work Date";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColWorkDate = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Entity";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColEntity = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Entity";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColEntity = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Division";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColDivision = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Division";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColDivision = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Employee Code";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColEmpCode = COL;
                 COL++;
@@ -325,21 +353,21 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColEmployeeName = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Shift";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColShift = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Shift";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColShift = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Department";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColDepartment = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Department";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColDepartment = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Section";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColSection = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Section";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColSection = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Sub Section";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -347,17 +375,17 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColSubSec = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Activity";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColActivity = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Activity";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColActivity = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Designation";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColDesignation = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Designation";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColDesignation = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Given Designation";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -373,20 +401,20 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColEmployeeCategory = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Budget Code";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColBudgetCode = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Budget Code";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColBudgetCode = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "State";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColState = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "State";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColState = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Mobile No";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColMobileNo = COL;
                 COL++;
@@ -415,7 +443,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColInTime = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "InStatus";
+                sheet[ROW, COL].Text = "In Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColInStatus = COL;
@@ -445,82 +473,86 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 int ColResPerson = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Team Leader";
+                //sheet[ROW, COL].Text = "Team Leader";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColTeamLeader = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "Feedback";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColFeedback = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "Feedback Date";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColFeedbackDate = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "Reason";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColReason = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "Feedback By";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColFeedbackBy = COL;
+                //COL++;
+
+                // Replace Residence Status with Residdence No
+                sheet[ROW, COL].Text = "Residence Number";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColTeamLeader = COL;
+                int ColResidenceNo = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Feedback";
+                //sheet[ROW, COL].Text = "Present Area";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColPresentArea = COL;
+                //COL++;
+
+                //sheet[ROW, COL].Text = "Transport Status";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColTransportStatus = COL;
+                //COL++;
+
+                // Replace Stoppage with Transport Root
+                sheet[ROW, COL].Text = "Transport Route";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColFeedback = COL;
+                int ColTransportRoute = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Feedback Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColFeedbackDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Reason";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColReason = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Feedback By";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColFeedbackBy = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Residence Status";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColResidenceStatus = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Present Area";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColPresentArea = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Transport Status";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColTransportStatus = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Stoppage";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColStoppage = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Verification Status";
+                sheet[ROW, COL].Text = "Leave Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColVerifStatus = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Verified By";
-                sheet[ROW, COL].ColumnWidth = 16;
-                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColVerifiedBy = COL;
-                COL++;
+                // Add PO, RO1
+                //sheet[ROW, COL].Text = "RO";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int ColRO = COL;
+                // COL++;
 
                 sheet[ROW, COL].Text = "RO Budget Code";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColROBudgetCode = COL;
-                //COL++;
+                COL++;
 
-                
+                sheet[ROW, COL].Text = "PO Budget Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColPOBudgetCode = COL;
 
-                
-               
                 #endregion Columns
 
                 int endCol = COL;
@@ -537,18 +569,18 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
 
-                    sheet[ROW, ColSrlNo].Number = clsStaticInfo.dbl(data.Rows[i]["SrlNo"].ToString());
-                    sheet[ROW, ColWorkDate].DateTime = Convert.ToDateTime(data.Rows[i]["WorkDate"].ToString());
-                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-                    sheet[ROW, ColDivision].Text = data.Rows[i]["Division"].ToString();
-                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    //sheet[ROW, ColSrlNo].Number = clsStaticInfo.dbl(data.Rows[i]["SrlNo"].ToString());
+                    //sheet[ROW, ColWorkDate].DateTime = Convert.ToDateTime(data.Rows[i]["WorkDate"].ToString());
+                    //sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                    //sheet[ROW, ColDivision].Text = data.Rows[i]["Division"].ToString();
+                    //sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    //sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
                     //sheet[ROW, ColSection].DateTime = Convert.ToDateTime(data.Rows[i]["DOJ"].ToString());
                     sheet[ROW, ColSubSec].Text = data.Rows[i]["SubSection"].ToString();
-                    sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
-                    sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
-                    sheet[ROW, ColShift].Text = data.Rows[i]["Shift"].ToString();
-                    sheet[ROW, ColBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["BudgetCode"].ToString());
+                    //sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
+                    //sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                    //sheet[ROW, ColShift].Text = data.Rows[i]["Shift"].ToString();
+                    //sheet[ROW, ColBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["BudgetCode"].ToString());
                     sheet[ROW, ColEmpCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
                     sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                     sheet[ROW, ColMobileNo].Number = clsStaticInfo.dbl(data.Rows[i]["CellPhnNo"].ToString());
@@ -562,21 +594,22 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
                     //sheet[ROW, ColInActive].Text = data.Rows[i]["InActive"].ToString();                   
                     sheet[ROW, ColEmpStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
                     sheet[ROW, ColResPerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
-                    sheet[ROW, ColTeamLeader].Text = data.Rows[i]["TeamLeader"].ToString();
-                    sheet[ROW, ColFeedback].Text = data.Rows[i]["Feedback"].ToString();
-                    sheet[ROW, ColFeedbackDate].Text = data.Rows[i]["FeedbackDate"].ToString();
-                    sheet[ROW, ColReason].Text = data.Rows[i]["FeedbackRason"].ToString();
-                    sheet[ROW, ColFeedbackBy].Text = data.Rows[i]["FeedbackBy"].ToString();
+                    //sheet[ROW, ColTeamLeader].Text = data.Rows[i]["TeamLeader"].ToString();
+                    //sheet[ROW, ColFeedback].Text = data.Rows[i]["Feedback"].ToString();
+                    //sheet[ROW, ColFeedbackDate].Text = data.Rows[i]["FeedbackDate"].ToString();
+                    //sheet[ROW, ColReason].Text = data.Rows[i]["FeedbackRason"].ToString();
+                    //sheet[ROW, ColFeedbackBy].Text = data.Rows[i]["FeedbackBy"].ToString();
                     sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
                     sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();                    
-                    sheet[ROW, ColResidenceStatus].Text = data.Rows[i]["isOccupied"].ToString();                  
-                    sheet[ROW, ColPresentArea].Text = data.Rows[i]["PresentArea"].ToString();                  
+                    //sheet[ROW, ColResidenceStatus].Text = data.Rows[i]["isOccupied"].ToString();                  
+                    //sheet[ROW, ColPresentArea].Text = data.Rows[i]["PresentArea"].ToString();                  
                     sheet[ROW, ColVerifStatus].Text = data.Rows[i]["ApprovedStatus"].ToString();
-                    sheet[ROW, ColVerifiedBy].Text = data.Rows[i]["UpdatedBy"].ToString();
+                    //sheet[ROW, ColVerifiedBy].Text = data.Rows[i]["UpdatedBy"].ToString();
                     sheet[ROW, ColROBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["ROBudgetCode"].ToString());
-                    sheet[ROW, ColTransportStatus].Text = data.Rows[i]["AssignStatus"].ToString();
-                    sheet[ROW, ColStoppage].Text = data.Rows[i]["Stoppage"].ToString();
-                    sheet[ROW, ColState].Text = data.Rows[i]["State"].ToString();
+                    //sheet[ROW, ColTransportStatus].Text = data.Rows[i]["AssignStatus"].ToString();
+                    sheet[ROW, ColTransportRoute].Text = data.Rows[i]["TransportRoute"].ToString();
+                    sheet[ROW, ColResidenceNo].Text = data.Rows[i]["ResidenceNumber"].ToString();
+                    //sheet[ROW, ColState].Text = data.Rows[i]["State"].ToString();
 
 
                     ROW++;
@@ -733,16 +766,16 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
             try
             {
 
-                strSQL = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
-, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,EI2.EmployeeName ResponsiblePerson, TDEmp.EmployeeName TeamLeader, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy,  RG.IsResidenceApplicable, EMP.PresentArea, RAE.isOccupied, ETA.AssignStatus, SPG.StandardName Stoppage
-,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
+                strSQL = @"Select EMP.EmployeeCode, EMP.EmployeeName, SBC.UserName SubSection, LDSG.UserName GivenDesignation, EC.UserName EmployeeCategory, FORMAT(EMP.DOJ, 'dd-MMM-yyyy')DOJ, EMP.CellPhnNo, APD.DayStatus, APD.InStatus
+,FORMAT(APD.InTime, 'hh:mm tt')InTime, EMP.EmployeeStatus, EI2.EmployeeName ResponsiblePerson, RM.ResidenceNumber, R.UserName TransportRoute
+,APD.LateIn
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
-
+,MBGT2.Code ROBudgetCode --, RO.EmployeeName
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 left join  MST.ManpowerBudget MBGT2 on MBGT2.Id = MBGT.ROBudgetCode
+--left join (select distinct   EmployeeName, BudgetCode from EmployeeInformation ) RO on RO.BudgetCode = MBGT2.Id 
 LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson
 LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -757,7 +790,7 @@ LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '" + fromdate + "' and '" + todate + @"'
+left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '21-Feb-2023' and '22-Feb-2023'
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
 left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
@@ -765,6 +798,8 @@ LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
 LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
 left join EmployeeTransportAllocation ETA on ETA.EmployeeSystemId = EMP.SystemId and ETA.AssignStatus = 1
 left join HKP.Stoppage SPG on SPG.Id = ETA.StoppageId
+left join MST.RouteStoppage RSG on RSG.StoppageId = SPG.Id
+left join MST.Route R on R.Id = RSG.RouteId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
 left join (select distinct WorkDate, EmpSystemID, UpdatedBy  from PhysicalVerification)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId

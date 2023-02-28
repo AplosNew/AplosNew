@@ -469,7 +469,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
 
     $scope.getPopupCustomerReceivableList = function () {
         $scope.customerreceivableGLData = function (pageno) {
-            $scope.customerReceivableGLUrl1 = "accounts/AdjustmentNote/GetDebitNoteAvailableList?partyId=" + $scope.voucher.PartyId;
+            $scope.customerReceivableGLUrl1 = "accounts/AdjustmentNote/GetDebitNoteAvailableList?partyId=" + $scope.voucher.PartyId + '&partyType=' + $scope.partyType;
             baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.customerInvoiceParameters)
                 .then(function (result) {
                     try {

@@ -246,7 +246,9 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
                 LvEncashmentFormulaDesID: null,
                 FormulaDescription: null,
                 EncashmentDate: null,
-                LeaveCalculationRoundOption: null
+                LeaveCalculationRoundOption: null,
+                IsBackDatePosting: false,
+                EmpCatId: null
             };
 
             $scope.ShowDiv = true;
@@ -277,7 +279,7 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
 
         var gridObj = $("#DetailsABC").data("ejGrid");
         $scope.LeavePolicyModelDetails = gridObj.getSelectedRecords()[0];
-        
+
         try {
             $scope.ShowDiv = true;
             var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
@@ -315,7 +317,7 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
     $scope.MasterId = null;
     $scope.Save = function () {
         try {
-            
+
 
             validation();
             ValidationMaster();
@@ -381,10 +383,10 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.LeavePolicyDetailsList = response.data;
-                        
+
                         $scope.salaryRuleGeneral.FormulaDescription = $scope.LeavePolicyModelDetails.FormulaDescription;
                         $scope.salaryRuleGeneral.FormulaIDDescription = $scope.LeavePolicyModelDetails.LvEncashmentFormulaDesID;
-                  
+
                     }
                 },
                 function errorCallback(response) {
@@ -898,7 +900,7 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
         $scope.IsAsperEntryOnW = true;
         $scope.InBetweenWeekoff = false;
         $scope.IsNoLeaveOnW = false;
-        
+
         $scope.LeavePolicyModelDetails.InBetweenWeekoff = false;
         $scope.LeavePolicyModelDetails.IsAsperEntryOnW = true;
         $scope.LeavePolicyModelDetails.IsNoLeaveOnW = false;
@@ -948,4 +950,15 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
         $scope.LeavePolicyModelDetails.IsNoLeaveOnH = true;
     }
     // #endregion Radio button Value for Holiday
+
+    $scope.EmployeeCategoryList = [];
+    $scope.getEmpCat = function () {
+        $http({
+            method: "GET",
+            dataType: "Json",
+            url: 'Leave/LeavePolicy/GetEmployeeCategory'
+        }).then(function sucessCallback(response) {
+            $scope.EmployeeCategoryList = data;
+        });
+    };
 }

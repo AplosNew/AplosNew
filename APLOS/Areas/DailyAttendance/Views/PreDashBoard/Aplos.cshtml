@@ -1,0 +1,1346 @@
+﻿<h4><span class="glyphicon glyphicon-stats"></span> Pre-Recruitment Dashboard</h4>
+<div class="inner-content">
+    <div class="row">
+        <div id="pre-rec-overall" class="col-lg-3 table-responsive modal-table" style="width: 31%;margin-left: 0.5%;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+            <canvas id="OAChart" width="400" height="400"></canvas>
+            <br />
+            <div>
+                <table class="table table-hover " style="border:0px !important;">
+                    <thead style="background-color:white; color:gray; ">
+                        <tr><th colspan="5" style=" border-right:none;border-bottom:1px solid ghostwhite; text-align:center;">Overall status</th></tr>
+                        <tr>
+                            <th rowspan="2" colspan="2" style="border-right: none;">Status </th>
+                            <th rowspan="2" style="border-right: none;">Candidate</th>
+                            <th colspan="2" style="border-right: none; border-bottom: 1px solid ghostwhite;">
+                                <div data-placement="top" title="Pending Documents" tooltip>Pending Doc.</div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align:center;border-right: none;"><div data-placement="top" title="Mandatory Documents(Self and Department)" tooltip>M</div></th>
+                            <th style="text-align:center;border-right: none;"><div data-placement="top" title="Optional Documents(Self and Department)" tooltip>O</div></th>
+                        </tr>
+                    </thead>
+                    <tbody style="cursor:pointer;" ng-repeat="x in overAllTotalSql">
+                        <tr ng-click="ModalNotSelected();">
+                            <td>
+                                <div data-placement="right" title="Pending Appointment" tooltip>Selected</div>
+                            </td>
+                            <td><span style="background-color:rgba(11, 15, 63, .6);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.notSelected}}</td>
+                            <td class="text-right">N/A</td>
+                            <td class="text-right">N/A</td>
+                        </tr>
+                        <tr ng-click="ModalSelectedTotalInterviewee();">
+                            <td>
+                                <div data-placement="right" title="Confirmed Selected" tooltip>Conf. Selected</div>
+                            </td>
+                            <td><span style="background-color:rgba(17, 224, 93,.9);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.Selected}}</td>
+                            <td class="text-right">{{mendatoryS}}</td>
+                            <td class="text-right">{{optionalS}}</td>
+                        </tr>
+                        <tr ng-click="ModalOverDueTotalInterviewee();">
+                            <td>Over Due</td>
+                            <td><span style="background-color:rgba(240, 52, 52,1);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.TOverDue}}</td>
+                            <td class="text-right">{{mendatorySOVD}}</td>
+                            <td class="text-right">{{optionalSOVD}}</td>
+                        </tr>
+                        <tr ng-click="ModalSubmittedButNotConfirmed();">
+
+                            <td>To Be Join</td>
+                            <td><span style="background-color:rgba(216, 207, 190, 1);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.NotConfirmed}}</td>
+                            <td class="text-right">{{mendatoryNCDoc}}</td>
+                            <td class="text-right">{{optionalNCDoc}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-1" style="float:none;"></div>
+        <div id="pre_rec_LoggedIn" class="col-lg-3 table-responsive modal-table" style="width: 31%;margin-left: 3%;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+            <canvas id="LoggedInchart" width="400" height="400"></canvas>
+            <br />
+            <div>
+                <table class="table table-hover " style="border:0px !important;">
+                    <thead style="background-color:white; color:gray; ">
+                        <tr><th colspan="5" style=" border-right:none;border-bottom:1px solid ghostwhite; text-align:center;">Logged In status</th></tr>
+                        <tr>
+                            <th rowspan="2" colspan="2" style="border-right: none;">Status </th>
+                            <th rowspan="2" style="border-right: none;">Candidate</th>
+                            <th colspan="2" style="border-right: none; border-bottom: 1px solid ghostwhite;">
+                                <div data-placement="top" title="Pending Documents" tooltip>Pending Doc.</div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align:center;border-right: none;"><div data-placement="top" title="Mandatory Documents(Self and Department)" tooltip>M</div></th>
+                            <th style="text-align:center;border-right: none;"><div data-placement="top" title="Optional Documents(Self and Department)" tooltip>O</div></th>
+                        </tr>
+                    </thead>
+
+                    <tbody style="cursor:pointer;" ng-repeat="x in overAllTotalSql">
+                        <tr ng-click="ModalLoggedInInterviewee();">
+                            <td>Logged In</td>
+                            <td><span style="background-color:rgba(46, 204, 113, .6);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.LoggedIn}}</td>
+                            <td class="text-right">{{mendatoryLoggedInDoc}}</td>
+                            <td class="text-right">{{optionalLoggedInDoc}}</td>
+                        </tr>
+                        <tr ng-click="ModalODLoggedInInterviewee();">
+                            <td>Over Due</td>
+                            <td><span style="background-color:rgba(240, 52, 52,1);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.LOverDue}}</td>
+                            <td class="text-right">{{mendatoryLoggedInDocOVD}}</td>
+                            <td class="text-right">{{optionalLoggedInDocOVD}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-1" style="float:none; margin-left:8.2%;"></div>
+        <div id="pre_rec_ NotLoggedIn" class="col-lg-3 table-responsive modal-table" style="width: 30%;margin-left: 3%;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+            <canvas id="NotLoggedInchart" width="400" height="400"></canvas>
+            <br />
+            <div>
+                <table class="table table-hover " style="border:0px !important;">
+                    <thead style="background-color:white; color:gray; ">
+                        <tr><th colspan="5" style=" border-right:none;border-bottom:1px solid ghostwhite; text-align:center;">Not Logged In Status</th></tr>
+                        <tr>
+                            <th rowspan="2" colspan="2" style="border-right: none;">Status </th>
+                            <th rowspan="2" style="border-right: none;">Candidate</th>
+                            <th colspan="2" style="border-right: none; border-bottom: 1px solid ghostwhite;">
+                                <div data-placement="top" title="Pending Documents" tooltip>Pending Doc.</div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="text-align:center;border-right: none;"><div data-placement="top" title="Mandatory Documents(Self and Department)" tooltip>M</div></th>
+                            <th style="text-align:center;border-right: none;"><div data-placement="top" title="Optional Documents(Self and Department)" tooltip>O</div></th>
+                        </tr>
+                    </thead>
+
+                    <tbody style="cursor:pointer;" ng-repeat="x in overAllTotalSql">
+
+                        <tr ng-click="ModalNotLoggedInInterviewee();">
+                            <td>Not Logged In</td>
+                            <td><span style="background-color:rgba(241, 196, 15, .8);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.NotLoggedIn}}</td>
+                            <td class="text-right">{{mendatoryNLoggedInDoc}}</td>
+                            <td class="text-right">{{optionalNLoggedInDoc}}</td>
+                        </tr>
+                        <tr ng-click="ModalODNotLoggedInInterviewee();">
+                            <td>Over Due</td>
+                            <td><span style="background-color:rgba(231, 76, 60, 1);"> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</span></td>
+                            <td class="text-right">{{x.NLOverDue}}</td>
+                            <td class="text-right">{{mendatoryNLoggedInDocOVD}}</td>
+                            <td class="text-right">{{optionalNLoggedInDocOVD}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+    </div><br />
+    <div class="row">
+
+        <div class="col-sm-12" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);width: 98%;margin-left: 1%;">
+            <canvas id="docbarChart" width="400" height="95"></canvas>
+        </div>
+    </div>
+</div>
+<div id="ModalNotSelected" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog " style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Not Selected Interviewees</h4>
+            </div>
+
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                System Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.EmployeeCode">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr dir-paginate="x in NSelITList| orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersMNS.pageSize" total-items="projectPlanningListParametersMNS.total_count" pagination-id="metaData.name + 'NSelITList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowMNS($index)">
+                            <td>{{x.RowNum}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-class="{exceess: x.GivenDesignation != x.Designation}">{{x.BudgetId}}</td>
+                            <td>{{x.GivenDesignation}}</td>
+                            <td>{{x.Designation}}</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'NSelITList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetProjectPlanningListDataMNS(newPageNumber)">
+                </dir-pagination-controls>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalSelTotalInterviewee" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Selected Interviewees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                System Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.EmployeeCode">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchTextResults">
+                        <tr dir-paginate="x in SelITList| orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersSTI.pageSize" total-items="projectPlanningListParametersSTI.total_count" pagination-id="metaData.name + 'SelITList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowSTI($index)">
+
+                            <td>{{x.RowNum}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-class="{exceess: x.GivenDesignation != x.Designation}">{{x.BudgetId}}</td>
+                            <td>{{x.GivenDesignation}}</td>
+                            <td>{{x.Designation}}</td>
+                            <td ng-click="IntervieweeWiseDocSelfNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'><span ng-class="{redFont:x.TotalFileSelfPanding>0}"><b><u>{{x.TotalFileSelfPanding}}</u></b></span>  </td>
+                            <td ng-click="IntervieweeWiseDocDeptNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{redFont:x.TotalFileDeptPanding>0}"><b><u>{{x.TotalFileDeptPanding}}</u></b></span>
+                            </td>
+                            <td ng-click="modalIntervieweeWiseDoc(x)" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileSelf>0}"><b><u>{{x.TotalFileSelf}}</u></b></span>
+                            </td>
+                            <td ng-click="IntervieweeWiseDocDept(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileDept>0}"><b><u>{{x.TotalFileDept}}</u></b></span>
+                            </td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'SelITList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetProjectPlanningListDataSTI(newPageNumber)">
+                </dir-pagination-controls>
+                <div class="row">
+                    <div class="col-md-6 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title="Total Documents(Mandatory)" tooltip>Total Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Mandatory)" tooltip>Pending Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Total Documents(Optional)" tooltip>Total Doc.(O)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Optional)" tooltip>Pending Doc.(O)</div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in docStatList">
+                                    <td>{{x.totalDocMandtSelf}}</td>
+                                    <td>{{x.totalDocMandtDept}}</td>
+                                    <td>{{x.totalDocMandtpandingSelf}}</td>
+                                    <td>{{x.totalDocMandtpandingDept}}</td>
+                                    <td>{{x.totalDocOptSelf}}</td>
+                                    <td>{{x.totalDocOptDept}}</td>
+                                    <td>{{x.totalDocOptpandingSelf}}</td>
+                                    <td>{{x.totalDocOptpandingDept}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-striped" style="border:none !important">
+                            <tbody>
+                                <tr>
+                                    <td>Mismatched Designation</td>
+                                    <td> <span style="background-color:orangered;"> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalSubmittedButNotConfirmed" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Selected Interviewees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                System Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchTextResults">
+                        <tr dir-paginate="x in NotConList| orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersSBNC.pageSize" total-items="projectPlanningListParametersSBNC.total_count" pagination-id="metaData.name + 'NotConList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowSBNC($index)">
+                            <td>{{x.RowNum}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-class="{exceess: x.GivenDesignation != x.Designation}">{{x.BudgetId}}</td>
+                            <td>{{x.GivenDesignation}}</td>
+                            <td>{{x.Designation}}</td>
+                            <td ng-click="IntervieweeWiseDocSelfNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'><span ng-class="{redFont:x.TotalFileSelfPanding>0}"><b><u>{{x.TotalFileSelfPanding}}</u></b></span>  </td>
+
+                            <td ng-click="IntervieweeWiseDocDeptNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{redFont:x.TotalFileDeptPanding>0}"><b><u>{{x.TotalFileDeptPanding}}</u></b></span>
+                            </td>
+                            <td ng-click="modalIntervieweeWiseDoc(x)" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileSelf>0}"><b><u>{{x.TotalFileSelf}}</u></b></span>
+                            </td>
+                            <td ng-click="IntervieweeWiseDocDept(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileDept>0}"><b><u>{{x.TotalFileDept}}</u></b></span>
+                            </td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'NotConList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetProjectPlanningListDataSBNC(newPageNumber)">
+                </dir-pagination-controls>
+                <div class="row">
+                    <div class="col-md-6 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title="Total Documents(Mandatory)" tooltip>Total Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Mandatory)" tooltip>Pending Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Total Documents(Optional)" tooltip>Total Doc.(O)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Optional)" tooltip>Pending Doc.(O)</div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in docStatList">
+                                    <td>{{x.totalDocMandtSelf}}</td>
+                                    <td>{{x.totalDocMandtDept}}</td>
+                                    <td>{{x.totalDocMandtpandingSelf}}</td>
+                                    <td>{{x.totalDocMandtpandingDept}}</td>
+                                    <td>{{x.totalDocOptSelf}}</td>
+                                    <td>{{x.totalDocOptDept}}</td>
+                                    <td>{{x.totalDocOptpandingSelf}}</td>
+                                    <td>{{x.totalDocOptpandingDept}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-striped" style="border:none !important">
+                            <tbody>
+                                <tr>
+                                    <td>Mismatched Designation</td>
+                                    <td> <span style="background-color:orangered;"> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalOverDueTotalInterviewee" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;" onload="AutoRefresh(120000);">
+    <div class="modal-dialog modal-lg" style="width:95%">
+        <div class="modal-content" style="width:95%">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Overdued Interviewees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                System Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.EmployeeCode">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        <tr dir-paginate="x in ODList|orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersODT.pageSize" total-items="projectPlanningListParametersODT.total_count" pagination-id="metaData.name + 'ODList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowODT($index)">
+                            <td>{{$index+1}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-class="{exceess: x.GivenDesignation != x.Designation}">{{x.BudgetId}}</td>
+                            <td>{{x.GivenDesignation}}</td>
+                            <td>{{x.Designation}}</td>
+                            <td ng-click="IntervieweeWiseDocSelfNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'><span ng-class="{redFont:x.TotalFileSelfPanding>0}"><b><u>{{x.TotalFileSelfPanding}}</u></b></span>  </td>
+
+                            <td ng-click="IntervieweeWiseDocDeptNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{redFont:x.TotalFileDeptPanding>0}"><b><u>{{x.TotalFileDeptPanding}}</u></b></span>
+                            </td>
+                            <td ng-click="modalIntervieweeWiseDoc(x)" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileSelf>0}"><b><u>{{x.TotalFileSelf}}</u></b></span>
+                            </td>
+                            <td ng-click="IntervieweeWiseDocDept(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileDept>0}"><b><u>{{x.TotalFileDept}}</u></b></span>
+                            </td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'ODList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change=" GetProjectPlanningListDataODT(newPageNumber)">
+                </dir-pagination-controls>
+                <div class="row">
+                    <div class="col-md-6 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title="Total Documents(Mandatory)" tooltip>Total Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Mandatory)" tooltip>Pending Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Total Documents(Optional)" tooltip>Total Doc.(O)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Optional)" tooltip>Pending Doc.(O)</div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in docStatList">
+                                    <td>{{x.totalDocMandtSelf}}</td>
+                                    <td>{{x.totalDocMandtDept}}</td>
+                                    <td>{{x.totalDocMandtpandingSelf}}</td>
+                                    <td>{{x.totalDocMandtpandingDept}}</td>
+                                    <td>{{x.totalDocOptSelf}}</td>
+                                    <td>{{x.totalDocOptDept}}</td>
+                                    <td>{{x.totalDocOptpandingSelf}}</td>
+                                    <td>{{x.totalDocOptpandingDept}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-3"></div>
+                    <div class="col-md-3">
+                        <table class="table table-striped" style="border:none !important">
+                            <tbody>
+                                <tr>
+                                    <td>Mismatched Designation</td>
+                                    <td> <span style="background-color:orangered;"> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalLoggedInInterviewee" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:95%;">
+        <div class="modal-content" style="width:95%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Logged In Interviewees</h4>
+            </div>
+
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                Sysytem Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.EmployeeCode">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        <tr dir-paginate="x in LIList| orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersLI.pageSize" total-items="projectPlanningListParametersLI.total_count" pagination-id="metaData.name + 'LIList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowLI($index)">
+                            <td>{{$index+1}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-class="{exceess: x.GivenDesignation != x.Designation}">{{x.BudgetId}}</td>
+                            <td>{{x.GivenDesignation}}</td>
+                            <td>{{x.Designation}}</td>
+
+                            <td ng-click="IntervieweeWiseDocSelfNU(x);" style="cursor:pointer;align-content:center;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'><span ng-class="{redFont:x.TotalFileSelfPanding>0}"><b><u>{{x.TotalFileSelfPanding}}</u></b></span>  </td>
+
+                            <td ng-click="IntervieweeWiseDocDeptNU(x);" style="cursor:pointer;align-content:center;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{redFont:x.TotalFileDeptPanding>0}"><b><u>{{x.TotalFileDeptPanding}}</u></b></span>
+                            </td>
+                            <td ng-click="modalIntervieweeWiseDoc(x)" style="cursor:pointer;align-content:center;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileSelf>0}"><b><u>{{x.TotalFileSelf}}</u></b></span>
+                            </td>
+                            <td ng-click="IntervieweeWiseDocDept(x);" style="cursor:pointer;align-content:center;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileDept>0}"><b><u>{{x.TotalFileDept}}</u></b></span>
+                            </td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'LIList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetProjectPlanningListDataLI(newPageNumber)">
+                </dir-pagination-controls>
+                <div class="row">
+                    <div class="col-md-6 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title="Total Documents(Mandatory)" tooltip>Total Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Mandatory)" tooltip>Pending Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Total Documents(Optional)" tooltip>Total Doc.(O)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Optional)" tooltip>Pending Doc.(O)</div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in docStatList">
+                                    <td>{{x.totalDocMandtSelf}}</td>
+                                    <td>{{x.totalDocMandtDept}}</td>
+                                    <td>{{x.totalDocMandtpandingSelf}}</td>
+                                    <td>{{x.totalDocMandtpandingDept}}</td>
+                                    <td>{{x.totalDocOptSelf}}</td>
+                                    <td>{{x.totalDocOptDept}}</td>
+                                    <td>{{x.totalDocOptpandingSelf}}</td>
+                                    <td>{{x.totalDocOptpandingDept}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-striped" style="border:none !important">
+                            <tbody>
+                                <tr>
+                                    <td>Mismatched Designation</td>
+                                    <td> <span style="background-color:orangered;"> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalODLoggedInInterviewee" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:95%;">
+        <div class="modal-content" style="width:95%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List Overdued Logged In Interviewees</h4>
+            </div>
+
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                System Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.EmployeeCode">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        <tr dir-paginate="x in ODLIList| orderBy:propertyName:reverse| filter:search:strict| orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersODLI.pageSize" total-items="projectPlanningListParametersODLI.total_count" pagination-id="metaData.name + 'ODLIList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowODLI($index)">
+                            <td>{{$index+1}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-class="{exceess: x.GivenDesignation != x.Designation}">{{x.BudgetId}}</td>
+                            <td>{{x.GivenDesignation}}</td>
+                            <td>{{x.Designation}}</td>
+                            <td ng-click="IntervieweeWiseDocSelfNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'><span ng-class="{redFont:x.TotalFileSelfPanding>0}"><b><u>{{x.TotalFileSelfPanding}}</u></b></span>  </td>
+
+                            <td ng-click="IntervieweeWiseDocDeptNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{redFont:x.TotalFileDeptPanding>0}"><b><u>{{x.TotalFileDeptPanding}}</u></b></span>
+                            </td>
+                            <td ng-click="modalIntervieweeWiseDoc(x)" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileSelf>0}"><b><u>{{x.TotalFileSelf}}</u></b></span>
+                            </td>
+                            <td ng-click="IntervieweeWiseDocDept(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileDept>0}"><b><u>{{x.TotalFileDept}}</u></b></span>
+                            </td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'ODLIList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetProjectPlanningListDataODLI(newPageNumber)">
+                </dir-pagination-controls>
+                <div class="row">
+                    <div class="col-md-6 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title="Total Documents(Mandatory)" tooltip>Total Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Mandatory)" tooltip>Pending Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Total Documents(Optional)" tooltip>Total Doc.(O)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Optional)" tooltip>Pending Doc.(O)</div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in docStatList">
+                                    <td>{{x.totalDocMandtSelf}}</td>
+                                    <td>{{x.totalDocMandtDept}}</td>
+                                    <td>{{x.totalDocMandtpandingSelf}}</td>
+                                    <td>{{x.totalDocMandtpandingDept}}</td>
+                                    <td>{{x.totalDocOptSelf}}</td>
+                                    <td>{{x.totalDocOptDept}}</td>
+                                    <td>{{x.totalDocOptpandingSelf}}</td>
+                                    <td>{{x.totalDocOptpandingDept}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-striped" style="border:none !important">
+                            <tbody>
+                                <tr>
+                                    <td>Mismatched Designation</td>
+                                    <td> <span style="background-color:orangered;"> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalNotLoggedInInterviewee" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:95%;">
+        <div class="modal-content" style="width:95%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Not Logged In Interviewees</h4>
+            </div>
+
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                System Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.EmployeeCode">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="">
+                        <tr dir-paginate="x in NLIList| orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersNLI.pageSize" total-items="projectPlanningListParametersNLI.total_count" pagination-id="metaData.name + 'NLIList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowNLI($index)">
+                            <td>{{x.RowNum}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-class="{exceess: x.GivenDesignation != x.Designation}">{{x.BudgetId}}</td>
+                            <td>{{x.GivenDesignation}}</td>
+                            <td>{{x.Designation}}</td>
+                            <td ng-click="IntervieweeWiseDocSelfNU(x);" ng-class="{'some-class':hovering}" ng-mouseenter="hovering=true" ng-mouseleave="hovering=false">
+                                <span ng-class="{redFont:x.TotalFileSelfPanding>0}"><b><u>{{x.TotalFileSelfPanding}}</u></b></span>
+                            </td>
+
+                            <td ng-click="IntervieweeWiseDocDeptNU(x);" style="cursor:pointer;align-items:center;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{redFont:x.TotalFileDeptPanding>0}"><b><u>{{x.TotalFileDeptPanding}}</u></b></span>
+                            </td>
+                            <td ng-click="modalIntervieweeWiseDoc(x)" style="cursor:pointer;align-items:center;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileSelf>0}"><b><u>{{x.TotalFileSelf}}</u></b></span>
+                            </td>
+                            <td ng-click="IntervieweeWiseDocDept(x);" style="cursor:pointer;align-items:center;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileDept>0}"><b><u>{{x.TotalFileDept}}</u></b></span>
+                            </td>
+
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'NLIList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetProjectPlanningListDataNLI(newPageNumber)">
+                </dir-pagination-controls>
+                <div class="row">
+                    <div class="col-md-6 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title="Total Documents(Mandatory)" tooltip>Total Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Mandatory)" tooltip>Pending Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Total Documents(Optional)" tooltip>Total Doc.(O)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Optional)" tooltip>Pending Doc.(O)</div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in docStatList">
+                                    <td>{{x.totalDocMandtSelf}}</td>
+                                    <td>{{x.totalDocMandtDept}}</td>
+                                    <td>{{x.totalDocMandtpandingSelf}}</td>
+                                    <td>{{x.totalDocMandtpandingDept}}</td>
+                                    <td>{{x.totalDocOptSelf}}</td>
+                                    <td>{{x.totalDocOptDept}}</td>
+                                    <td>{{x.totalDocOptpandingSelf}}</td>
+                                    <td>{{x.totalDocOptpandingDept}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-striped" style="border:none !important">
+                            <tbody>
+                                <tr>
+                                    <td>Mismatched Designation</td>
+                                    <td> <span style="background-color:orangered;"> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalODNotLoggedInInterviewee" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog" style="width:95%;">
+        <div class="modal-content" style="width:95%; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel">List of Overdued Not Logged In Interviewees</h4>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th ng-click="sortBy('Id')">
+                                System Id&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'Id'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Id">
+                            </th>
+                            <th ng-click="sortBy('EmployeeCode')">
+                                Employee Code&nbsp;<span class="verticalLine"></span><span class="sortorder" ng-show="propertyName === 'EmployeeCode'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.EmployeeCode">
+                            </th>
+                            <th ng-click="sortBy('FullName')">
+                                Name&nbsp;<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'FullName'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.FullName">
+                            </th>
+                            <th ng-click="sortBy('BudgetId')">
+                                Budget Code<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'BudgetId'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.BudgetId">
+                            <th ng-click="sortBy('GivenDesignation')">
+                                Given Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'GivenDesignation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.GivenDesignation">
+                            </th>
+                            <th ng-click="sortBy('Designation')">
+                                Designation<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'Designation'" ng-class="{reverse: reverse}"></span>
+                                <input style="color:black !important;" ng-model="search.Designation">
+                            </th>
+                            <th ng-click="sortBy('TotalFileSelfPanding')">Self  Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelfPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDeptPanding')">Dept/ORG. Documents-Not Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDeptPanding'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileSelf')">Self Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileSelf'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-click="sortBy('TotalFileDept')">Dept/ORG. Documents-Uploaded<span class="verticalLine"></span>&nbsp;<span class="sortorder" ng-show="propertyName === 'TotalFileDept'" ng-class="{reverse: reverse}"></span></th>
+                            <th ng-repeat="x in ColList" ng-show="x.Sequence > -2">
+                                {{x.ColumnName}}
+                            </th>
+                            <th @*ng-click="sortBy('EmpCategory')"*@>Employee Category@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'EmpCategory'" ng-class="{reverse: reverse}"></span></th>
+                            <th @*ng-click="sortBy('DesigNationGroup')"*@>Designation Group@*<span class="verticalLine"></span>*@&nbsp;<span class="sortorder" ng-show="propertyName === 'DesigNationGroup'" ng-class="{reverse: reverse}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchTextResults">
+                        <tr dir-paginate="x in ODNLIList| orderBy:propertyName:reverse| filter:search:strict|itemsPerPage:projectPlanningListParametersODNLI.pageSize" total-items="projectPlanningListParametersODNLI.total_count" pagination-id="metaData.name + 'ODNLIList'" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRowODNLI($index)">
+                            @*<tr ng-repeat="x in ODNLIList | orderBy:propertyName:reverse| filter:search:strict">*@
+                            <td>{{$index+1}}</td>
+                            <td>{{x.Id}}</td>
+                            <td>{{x.EmployeeCode}}</td>
+                            <td>{{x.FullName}}</td>
+                            <td ng-click="IntervieweeWiseDocSelfNU(x);" style="cursor:pointer;"><span ng-class="{redFont:x.TotalFileSelfPanding>0}"><b><u>{{x.TotalFileSelfPanding}}</u></b></span>  </td>
+
+                            <td ng-click="IntervieweeWiseDocDeptNU(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue"; this.style.color = "#fff";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{redFont:x.TotalFileDeptPanding>0}"><b><u>{{x.TotalFileDeptPanding}}</u></b></span>
+                            </td>
+                            <td ng-click="modalIntervieweeWiseDoc(x)" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileSelf>0}"><b><u>{{x.TotalFileSelf}}</u></b></span>
+                            </td>
+                            <td ng-click="IntervieweeWiseDocDept(x);" style="cursor:pointer;" onmouseover='this.style.backgroundColor = "blue";' onmouseout='this.style.backgroundColor=""'>
+                                <span ng-class="{greenFont:x.TotalFileDept>0}"><b><u>{{x.TotalFileDept}}</u></b></span>
+                            </td>
+                            <td ng-repeat="y in ColList" ng-show="y.Sequence > -2">
+                                {{x[y.ColumnName]}}
+                            </td>
+                            <td>{{x.EmpCategory}}</td>
+                            <td>{{x.DesigNationGroup}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'ODNLIList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="GetProjectPlanningListDataODLI(newPageNumber)">
+                </dir-pagination-controls>
+                <div class="row">
+                    <div class="col-md-6 table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title="Total Documents(Mandatory)" tooltip>Total Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Mandatory)" tooltip>Pending Doc.(M)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Total Documents(Optional)" tooltip>Total Doc.(O)</div>
+                                    </th>
+                                    <th colspan="2">
+                                        <div data-placement="bottom" title=" Pending Documents(Optional)" tooltip>Pending Doc.(O)</div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                    <th>Self</th>
+                                    <th><div data-placement="top" title="Department" tooltip>Dept.</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in docStatList">
+                                    <td>{{x.totalDocMandtSelf}}</td>
+                                    <td>{{x.totalDocMandtDept}}</td>
+                                    <td>{{x.totalDocMandtpandingSelf}}</td>
+                                    <td>{{x.totalDocMandtpandingDept}}</td>
+                                    <td>{{x.totalDocOptSelf}}</td>
+                                    <td>{{x.totalDocOptDept}}</td>
+                                    <td>{{x.totalDocOptpandingSelf}}</td>
+                                    <td>{{x.totalDocOptpandingDept}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-striped" style="border:none !important">
+                            <tbody>
+                                <tr>
+                                    <td>Mismatched Designation</td>
+                                    <td> <span style="background-color:orangered;"> &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalSelfDocument" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h5 class="modal-title" id="myModalLabel"><u><strong>List of Self Document</strong></u></h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span style="color:#1abc9c">Emp. Id:</span>{{empId}} |
+                                <span style="color:#1abc9c">
+                                    Emp. Name:
+                                </span>{{empName}} |
+                                <span style="color:#1abc9c"> Given Desig.:</span>{{GivenDesignation}}
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Category of the Document</th>
+                            <th>Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="y in IntervieweeWiseDocList">
+                            <td>{{y.docName}}</td>
+                            <td>{{y.OptionalOrMandatory}}</td>
+                            <td ng-class="{nSubmitted:y.UploadStatus == 'No',Submitted:y.UploadStatus != 'No'}">{{y.UploadStatus}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModalDeptDocument" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" onload="AutoRefresh(120000);">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="myModalLabel"><u><strong>List of Department Document</strong></u></h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span style="color:#1abc9c">Emp. Id:</span>{{empId}} |
+                                <span style="color:#1abc9c">
+                                    Emp. Name:
+                                </span>{{empName}} |
+                                <span style="color:#1abc9c"> Given Desig.:</span>{{GivenDesignation}}
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <div class="modal-body table-responsive modal-table" style="overflow-y:scroll; max-height:375px;">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Category of the Document</th>
+                            <th>Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="y in IntervieweeWiseDocDeptList">
+                            <td>{{y.docName}}</td>
+                            <td>{{y.OptionalOrMandatory}}</td>
+                            <td ng-class="{nSubmitted:y.UploadStatus == 'No',Submitted:y.UploadStatus != 'No'}">{{y.UploadStatus}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

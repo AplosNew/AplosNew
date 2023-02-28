@@ -148,20 +148,23 @@
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div id="GridFGArticle" ej-grid e-datasource="PRMFGArticleList" e-templaterefresh="refreshTemplateFGArticle" e-recorddoubleclick=""
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true" 
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBoundFG">
                     <div e-columns>
                         <div e-column e-headertext="All" e-headertemplateid="#headerTemplateFGArticle" e-template="#checkboxTemplateFGArticle" e-textalign="center" e-width="30"></div>
                         <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
                         <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="100"></div>
                         <div e-column e-field="MaterialGroup" e-headertext="Material Group" e-width="100"></div>
                         <div e-column e-field="Material" e-headertext="Material" e-width="100"></div>
-                        <div e-column e-field="Article" e-headertext="Article" e-width="100"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="200"></div>
                         <div e-column e-field="AttributeValue" e-headertext="Attribute Value" e-width="200"></div>
                         <div e-column e-template="#StdWorkingHours" e-headertext="Std Working Hours" e-width="80"></div>
                         <div e-column e-template="#StdProduction" e-headertext="StdProduction" e-width="80"></div>
                         <div e-column e-template="#IntermediateTarget" e-headertext="Intermediate Target" e-width="80"></div>
+                        <div e-column e-template="#Utilization" e-headertext="Utilization%" e-width="80"></div>
+                        <div e-column e-template="#MachineSpeed" e-headertext="Machine Speed" e-width="80"></div>
                         <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
+                        <div e-column e-field="PRMUserName" e-headertext="PRM UserName" e-width="100"></div>
                     </div>
                 </div>
                 <script type="text/template" id="checkboxTemplateFGArticle">
@@ -183,6 +186,16 @@
                 <script type="text/template" id="IntermediateTarget">
                     <div class="col-sm-10" style="padding:0px;">
                         <input type="number" name="Intermediate Target" ng-model="data.IntermediateTarget" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="Utilization">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="number" name="Utilization" ng-model="data.UtilizationPercentage" ng-click="" class="form-control" maxlength="3">
+                    </div>
+                </script>
+                <script type="text/template" id="MachineSpeed">
+                    <div class="col-sm-10" style="padding:0px;">
+                        <input type="number" name="MachineSpeed" ng-model="data.MachineSpeed" ng-click="" class="form-control" maxlength="5">
                     </div>
                 </script>
                 <script type="text/template" id="Remarks">

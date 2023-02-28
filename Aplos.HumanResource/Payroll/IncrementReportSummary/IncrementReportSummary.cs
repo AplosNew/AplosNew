@@ -39,8 +39,7 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
         private string EmployeeInfoSql( string EmpSystemId,string languageId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                        return @" 
-                 SELECT format(salaryInfoTo.EffectiveDate,'dd-MMM-yyyy')AppraisalDate,
+                        return @"SELECT distinct format(salaryInfoTo.EffectiveDate,'dd-MMM-yyyy')AppraisalDate,
 			CONVERT(NUMERIC(10,2),salaryInfoFrom.EntryAmount) PreviousGross,
 			CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount) NewGross,
 			CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount-salaryInfoFrom.EntryAmount) IncrementAmount			
@@ -49,12 +48,12 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
             ,ei.Employeecode
             ,ei.Employeename
             
-,ISNULL(DP.Name, OLD.Department) as PreviousDepartment
-,ISNULL(DPN.Name,NEW.Department) as NewDepartment
-,ISNULL(DG.Name,OLDG.LegalDesignation) as PreviousDesignation
-,ISNULL(DGN.Name,NEWG.LegalDesignation) as NewDesignation
-,ISNULL(SG.Name,OLDG.SalaryGrade) as PreviousSalaryGrade
-,ISNULL(SGN.Name,NEWG.SalaryGrade) as NewSalaryGrade
+            ,ISNULL(DP.Name, isnull(OLD.Department,dep.username)) as PreviousDepartment
+            ,ISNULL(DPN.Name,NEW.Department) as NewDepartment
+            ,ISNULL(DG.Name,OLDG.LegalDesignation) as PreviousDesignation
+            ,ISNULL(DGN.Name,NEWG.LegalDesignation) as NewDesignation
+            ,ISNULL(SG.Name,OLDG.SalaryGrade) as PreviousSalaryGrade
+            ,ISNULL(SGN.Name,NEWG.SalaryGrade) as NewSalaryGrade
             
             from
             IncrementHistory IH
@@ -80,18 +79,28 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
               ) salaryInfoFrom on IH.EmpSystemID=salaryInfoFrom.EmpInfoSystemID AND IH.FromEffectiveDate=salaryInfoFrom.EffectiveDate --and IH.FromSalaryId=salaryInfoFrom.SystemID
             LEFT JOIN SalaryHead SH1 ON SH1.SalaryHeadID=salaryInfoFrom.SalaryHeadID
             LEFT JOIN EmployeeInformation ei ON EI.SystemId=salaryInfoTo.EmpInfoSystemID
+			left join org.Department dep on dep.Id = ei.DepartmentId     
             LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
             left join (
-            Select distinct dep.Id as DepartmentId, dep.UserName as Department ,mpb.Code
-            from org.Position p
-            left join mst.ManpowerBudget mpb on mpb.PositionId = p.Id
-            left join org.Department dep on dep.Id = p.DepartmentId            
+            --Select distinct dep.Id as DepartmentId, dep.UserName as Department ,mpb.Code
+            --from org.Position p
+            --left join mst.ManpowerBudget mpb on mpb.PositionId = p.Id
+            --left join org.Department dep on dep.Id = p.DepartmentId       
+			select dep.Id as DepartmentId, dep.UserName as Department ,mb.Code from MST.ManpowerBudget MB
+			LEFT JOIN [dbo].[EmployeeBudgetCodeHistory] H ON H.BudgetId=MB.Id AND H.Id=
+			(select top(1) Id from [dbo].[EmployeeBudgetCodeHistory] where BudgetId=MB.Id Order BY AddedDate DESC)
+			left join org.Position p on p.Id =mb.PositionId 
+			left join org.Department dep on dep.Id = p.DepartmentId 
+			where h.EmpSystemID='" + EmpSystemId + @"'
             ) OLD on old.Code=IH.FromBudgetCode
             left join (
-            Select distinct dep.Id as DepartmentId, dep.UserName as Department ,mpb.Code
-            from org.Position p
-            left join mst.ManpowerBudget mpb on mpb.PositionId = p.Id
-            left join org.Department dep on dep.Id = p.DepartmentId            
+            --Select distinct dep.Id as DepartmentId, dep.UserName as Department ,mpb.Code
+            --from org.Position p
+            --left join mst.ManpowerBudget mpb on mpb.PositionId = p.Id
+            --left join org.Department dep on dep.Id = p.DepartmentId  
+			select dep.Id as DepartmentId, dep.UserName as Department ,e.BudgetCode Code from EmployeeInformation E 
+			left join mst.ManpowerBudget mpb on mpb.Id = e.BudgetCode
+			left join org.Department dep on dep.Id = e.DepartmentId  
             ) NEW on NEW.Code=IH.ToBudgetCode  
             left join (
             select LSG.Id as SalaryGradeId, LSG.UserName SalaryGrade,LD.UserName LegalDesignation,LSGD.LegalDesignationId,lsgd.PlantId from [MST].[LegalSalaryGradeDesignation] LSGD
@@ -104,16 +113,15 @@ namespace Library.HumanResource.Payroll.IncrementReportSummary
             LEFT JOIN hkp.LegalDesignation LD ON LSGD.LegalDesignationId = LD.Id            
             ) OLDG ON OLDG.LegalDesignationId = IH.FROMLegalDesignationId and OLDG.PlantId=ei.PlantId
 
-LEFT JOIN HKP.LocalLanguage DP ON DP.DepartmentId =OLD.DepartmentId AND DP.LanguageId='" + languageId + @"'
-LEFT JOIN HKP.LocalLanguage DPN ON DPN.DepartmentId =NEW.DepartmentId AND DPN.LanguageId='" + languageId + @"'
-LEFT JOIN HKP.LocalLanguage DG ON DG.LegalDesignationId=OLDG.LegalDesignationId AND DG.LanguageId='" + languageId + @"'
-LEFT JOIN HKP.LocalLanguage DGN ON DGN.LegalDesignationId=NEWG.LegalDesignationId AND DGN.LanguageId='" + languageId + @"'
-LEFT JOIN HKP.LocalLanguage SG ON SG.LegalSalaryGradeId =OLDG.SalaryGradeId AND SG.LanguageId='" + languageId + @"'
-LEFT JOIN HKP.LocalLanguage SGN ON SGN.LegalSalaryGradeId =NEWG.SalaryGradeId AND SGN.LanguageId='" + languageId + @"' 
+            LEFT JOIN HKP.LocalLanguage DP ON DP.DepartmentId =OLD.DepartmentId AND DP.LanguageId='" + languageId + @"'                                  
+            LEFT JOIN HKP.LocalLanguage DPN ON DPN.DepartmentId =NEW.DepartmentId AND DPN.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage DG ON DG.LegalDesignationId=OLDG.LegalDesignationId AND DG.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage DGN ON DGN.LegalDesignationId=NEWG.LegalDesignationId AND DGN.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage SG ON SG.LegalSalaryGradeId =OLDG.SalaryGradeId AND SG.LanguageId='" + languageId + @"'
+            LEFT JOIN HKP.LocalLanguage SGN ON SGN.LegalSalaryGradeId =NEWG.SalaryGradeId AND SGN.LanguageId='" + languageId + @"'
             where IH.EmpSystemID='" + EmpSystemId + @"' and sh.HeadCategory='gross' and sh1.HeadCategory='gross'
-            ORDER BY convert(date,salaryInfoFrom.EffectiveDate)
-            
-                      ";
+            --ORDER BY convert(date,salaryInfoFrom.EffectiveDate)
+";
 
         }
         public void EmployeeInformation(string EmpSystemId,string languageId )
