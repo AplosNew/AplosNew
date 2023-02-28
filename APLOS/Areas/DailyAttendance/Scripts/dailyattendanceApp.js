@@ -20,22 +20,17 @@ var dailyattendanceApp = angular.module('dailyattendanceApp', ['ngRoute', 'ngCoo
                     }
                     else
                         id = params.id;
-                    return 'dailyattendance/home/aplos?u=' + id;
+                    return 'dailyattendance/home/Aplos?u=' + id;
                 }
             })
             
-            .when('/changepin', {
-                templateUrl: function (params) {
-                    controller: 'changePinController';
-                    return 'dailyattendance/home/changepin?id=' + params.id;
-                }
-            })
+            
             .when('/logout', {
                 template: ' ',
                 controller: 'preRecruitmentLogoutController'
             })
             .otherwise({
-                redirectTo: 'dailyattendance/home/Login'
+                redirectTo: 'Login'
             });
     }])
     .run(['$rootScope', '$cookies', function ($rootScope, $cookies) {

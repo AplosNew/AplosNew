@@ -13,16 +13,16 @@
             </div>
         </div>
         @*<div class="form-group">
-                <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
-                <div class="col-sm-8">
-                    <div class="input-group">
-                        <input type="text" name="ProductionOrder" ng-model="modelNew.ProductionOrderId" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
+            <label class="col-sm-4 control-label">Production Order<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="ProductionOrder" ng-model="modelNew.ProductionOrderId" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
                 </div>
-            </div>*@
+            </div>
+        </div>*@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
             <div class="col-sm-8  show-message">
@@ -37,6 +37,20 @@
                         <option value=""></option>
                     </select>
                 </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+            <div class="col-sm-5 show-message">
+                <div class="select-style">
+                    <select class="form-control" name="Currency" ng-model="modelNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                            ng-change="GetCurrencyExchangeRateList();" tabindex="8" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3 show-message" style="width: 22%; margin-left: -30px;">
+                <input type="text" n-decimals="2" id="ToCurrencyRate" name="ToCurrencyRate" ng-model="modelNew.ToCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="modelNew.CurrencyId==companyCurrencyId" required>
             </div>
         </div>
     </div>
@@ -58,28 +72,24 @@
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-            <div class="col-sm-5 show-message">
+            <label class="col-sm-4 control-label">Level<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" name="Currency" ng-model="modelNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
-                            ng-change="GetCurrencyExchangeRateList();" tabindex="8" required>
+
+                    <select class="form-control" ng-model="modelNew.Level" placeholder="Level" name="Level" ng-options="item.Value as item.Text for item in LevelList" ng-change="GetQBOQCostingData();" required tabindex="6">
                         <option value=""></option>
                     </select>
                 </div>
             </div>
-            <div class="col-sm-3 show-message" style="width: 22%; margin-left: -30px;">
-                <input type="text" n-decimals="2" id="ToCurrencyRate" name="ToCurrencyRate" ng-model="modelNew.ToCurrencyRate" class="form-control text-right" tabindex="5" autocomplete="off" ng-disabled="modelNew.CurrencyId==companyCurrencyId" required>
-            </div>
         </div>
-    </div>
-    <div class="col-lg-12">
         <div class="form-group">
-            <label class="col-sm-2 control-label" title="Description">Description</label>
-            <div class="col-sm-10">
+            <label class="col-sm-4 control-label" title="Description">Description</label>
+            <div class="col-sm-8">
                 <textarea rows="2" type="text" ng-maxlength="250" name="Description" tabindex="8" class="form-control" ng-model="modelNew.Description"></textarea>
             </div>
         </div>
     </div>
+    
     <div class="clearfix"></div>
     <div class="common-btn">
         <ul class="list-inline text-left">

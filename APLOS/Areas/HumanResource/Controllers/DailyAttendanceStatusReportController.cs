@@ -29,6 +29,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             _sqlRepository = new SqlRepository();
         }
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();

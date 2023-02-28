@@ -15,8 +15,22 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
         ToCurrencyRate: null,
         CurrencyId: null,
         SourceType: 'Packing',
-        CompanyCurrencyId: null
+        CompanyCurrencyId: null,
+        Level: "QBOQ"
     }
+
+    $scope.LevelList = [];
+    $scope.LevelList = [
+        {
+            'Value': 'Costing',
+            'Text': 'Costing'
+        },
+        {
+            'Value': 'QBOQ',
+            'Text': 'QBOQ'
+        }
+    ];
+
 
     $scope.GetFromDate = function () {
         $http({
@@ -350,7 +364,8 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
             ToCurrencyRate: null,
             CurrencyId: null,
             SourceType: 'Packing',
-            CompanyCurrencyId: $scope.companyCurrencyId
+            CompanyCurrencyId: $scope.companyCurrencyId,
+            Level: "QBOQ"
         }
 
         $scope.ProductCodeList = [];

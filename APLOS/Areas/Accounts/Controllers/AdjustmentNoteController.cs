@@ -191,10 +191,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetDebitNoteAvailableList(GridParameter parameters, string partyId)
+        public JsonResult GetDebitNoteAvailableList(GridParameter parameters, string partyId, string partyType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_adjustmentNoteService.GetDebitNoteList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyId), JsonRequestBehavior.AllowGet);
+            return Json(_adjustmentNoteService.GetDebitNoteList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyId, partyType), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -288,10 +288,10 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetCreditNoteAvailableList(GridParameter parameters, string partyId)
+        public JsonResult GetCreditNoteAvailableList(GridParameter parameters, string partyId, string partyType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_adjustmentNoteService.GetCreditNoteList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyId), JsonRequestBehavior.AllowGet);
+            return Json(_adjustmentNoteService.GetCreditNoteList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyId, partyType), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

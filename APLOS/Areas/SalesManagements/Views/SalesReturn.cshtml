@@ -5,7 +5,7 @@
             <label class="col-sm-3 control-label">Sales No</label>
             <div class="col-sm-9">
                 <div class="input-group">
-                    <input type="text" ng-model="productNew.InventorySalesId" class="form-control" readonly>
+                    <input type="text" ng-model="productNew.SalesId" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
@@ -201,14 +201,14 @@
                                     <th>SKU3</th>
                                     <th>Country Name</th>
                                     @*<th>GRN Qty</th>*@
-                                    <th>Inventory Amount</th>
+                                    <th> Amount</th>
+                                    <th>Sales Tax </th>
+                                    <th>Total Sales Amount</th>
                                     <th>Sales Rate</th>
                                     <th>Sales Qty</th>
                                     <th>Other Qty</th>
-                                    <th>Total Sales Amount</th>
-                                    <th>Sales Tax </th>
                                     <th>Balance Qty</th>
-                                    <th>Return Qty</th>
+                                    <th style="width:100px">Return_Qty</th>
                                     <th>Current Balance Qty</th>
                                     <th>Return Amount</th>
                                     <th>Return Tax</th>
@@ -223,23 +223,27 @@
                                     <td>{{x.SecondCharacteristicText}}</td>
                                     <td>{{x.ThirdCharacteristicText}}</td>
                                     <td>{{x.CountryName}}</td>
-                                    @*<td class="text-right">{{x.GRNQty}} {{x.GRNUoM}}</td>*@
-                                    <td class="text-right">{{x.InventoryAmount}}</td>
-                                    <td class="text-right">{{x.SalesRate}} </td>
+                                    <td class="text-right">{{x.TransactionAmount}}</td>
+                                    <td class="text-right">{{x.SalesTax}}</td>
+                                    <td class="text-right">{{x.TotalAmount}}</td>
+                                    <td class="text-right">{{x.TransactionRate}} </td>
                                     <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
                                     <td class="text-right">{{x.OtherQty}}</td>
-                                    <td class="text-right">{{x.TotalAmount}}</td>
-                                    <td class="text-right">{{x.SalesTaxAmount}}</td>
                                     <td class="text-right">{{x.BalanceQty}}</td>
                                     <td class="text-right">
-                                        <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                        <div class="input-group">
+                                            <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-disabled="productNew.SourceType == 'Packing'" ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                            <span class="input-group-btn">
+                                                <button ng-click="getItemScanChildPopUp(x)" ng-show="productNew.SourceType == 'Packing'" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="text-right">{{x.CurrentBalanceQty}}</td>
-                                    <td class="text-right">{{x.ReturnAmount}}</td>
+                                    <td class="text-right">{{x.Amount}}</td>
                                     <td class="text-right">{{x.TaxAmount}}</td>
                                     <td class="text-right table-td">
                                         <ul class="list-inline">
-                                            <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                            <li><button ng-click="getTaxList(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                             @*<li><button ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select GRN"><i class="glyphicon glyphicon-list"></i></button></li>*@
                                             @*<li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
                                         </ul>
@@ -349,7 +353,7 @@
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
                 <div e-column e-field="Id" e-headertext="Sales Return" e-width="20"></div>
-                <div e-column e-field="InventorySalesId" e-headertext="Sales No" e-width="30"></div>
+                <div e-column e-field="SalesId" e-headertext="Sales No" e-width="30"></div>
                 <div e-column e-field="Entity" e-headertext="Entity" e-width="40"></div>
                 <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="20"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
@@ -672,6 +676,7 @@
 @Html.Partial("~/Areas/Products/Views/InventoryIssue/_PostingStockPopUpInventorySales.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_IssueAUCGLBudgetActivityPopUp.cshtml")
+@Html.Partial("~/Areas/SalesManagements/Views/_ItemScanChildPopUp.cshtml")
 
 <confirm-archive-generic modalid="confirmSavePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Save();"></confirm-archive-generic>
 
@@ -804,7 +809,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in materialtaxCategoryListSavedData| filter:{ InventorySalesDetailId: filterInventorySalesDetailId }">
+                            <tr ng-repeat="x in taxlist| filter:{ SalesMaterialId: filterSalesMaterialId }">
                                 <td ng-hide="true">
                                     <div class="show-message">
                                         <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Id" readonly>
@@ -812,7 +817,7 @@
                                 </td>
                                 <td>
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="x.TaxCategoryId" ng-options="item.Value as item.Text for item in taxCategoryList" ng-change="onchangeFunction1(x.TaxCategoryId)"></select>
+                                        <select class="form-control" ng-model="x.TaxCategoryId" ng-options="item.Value as item.Text for item in taxCategoryList" ng-disabled="true" ng-change="onchangeFunction1(x.TaxCategoryId)"></select>
                                     </div>
                                 </td>
                                 <td ng-hide="true">
@@ -830,7 +835,7 @@
 
                                 <td class="text-right">
                                     <div class="show-message">
-                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TaxAmount" ng-keyup="checkRowValidation(x, $index)" ng-disabled="productNew.TaxOption==='Yes'">
+                                        <input type="text" n-decimals="2" class="form-control text-right" ng-model="x.Amount" ng-keyup="checkRowValidation(x, $index)" ng-disabled="productNew.TaxOption==='Yes'">
                                     </div>
                                 </td>
                                 <td class="text-right">
@@ -840,7 +845,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="3" class="text-right"><strong>{{materialtaxCategoryListSavedData| filter:{ InventorySalesDetailId: filterInventorySalesDetailId } | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
+                                <td colspan="3" class="text-right"><strong>{{taxlist| filter:{ SalesMaterialId: filterSalesMaterialId } | sumByKey : 'TaxAmount'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                             </tr>
                         </tbody>

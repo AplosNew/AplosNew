@@ -152,5 +152,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+        public string MakePK(string masterId, int currentId, int padLeft)
+        {
+            return masterId + currentId.ToString().PadLeft(padLeft, '0');
+        }
     }
 }
