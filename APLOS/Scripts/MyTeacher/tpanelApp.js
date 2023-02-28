@@ -23,7 +23,7 @@ var tpanelApp = angular.module('tpanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("employeeAdvanceRequisitionApprovalController", employeeAdvanceRequisitionApprovalController)
     .controller("baseMaterialAndArticleController", baseMaterialAndArticleController)
     .controller("RequisitionController", RequisitionController)
-    .controller("InventoryCheckApprovedController", InventoryCheckApprovedController)
+   // .controller("InventoryCheckApprovedController", InventoryCheckApprovedController)
     .controller("PurchaseOrderController", PurchaseOrderController)
     .controller("PurchaseOrderCheckController", PurchaseOrderCheckController)
     .controller("PurchaseOrderApproveController", PurchaseOrderApproveController)
@@ -34,7 +34,7 @@ var tpanelApp = angular.module('tpanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("ServiceRequisitionController", ServiceRequisitionController)
     .controller("ServiceRequisitionCheckApprovedController", ServiceRequisitionCheckApprovedController)
     .controller("ServicePOByRequisitionController", ServicePOByRequisitionController)
-    .controller("ServicePOCheckAndApprovedController", ServicePOCheckAndApprovedController)
+    //.controller("ServicePOCheckAndApprovedController", ServicePOCheckAndApprovedController)
     .controller("GatePassController", GatePassController) 
     .controller("InoutGetpassCheckedController", InoutGetpassCheckedController)
     .controller("PendingGateoutListController", PendingGateoutListController)
@@ -45,6 +45,7 @@ var tpanelApp = angular.module('tpanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("employeeMyAppLeaveApplicationController", employeeMyAppLeaveApplicationController)
     .controller("firstAuthEmpLeaveApprovalController", firstAuthEmpLeaveApprovalController)
     .controller("GatePassPotalController", GatePassPotalController)
+    .controller("DailyAttendanceStatusReportController", DailyAttendanceStatusReportController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -280,7 +281,11 @@ var tpanelApp = angular.module('tpanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'Products/InventoryIssue/InventoryScrapApproved',
                 controller: 'inventoryScrapCheckApproveController'
             })
-       
+
+            .when('/daily-attendance-status-report', {
+                templateUrl: 'humanResource/DailyAttendanceStatusReport/Aplos',
+                controller: 'DailyAttendanceStatusReportController'
+            })
            //#endregion
 
             .when('/logout', {

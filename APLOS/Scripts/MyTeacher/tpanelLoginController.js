@@ -44,8 +44,8 @@ function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
                         $cookies.put("MyTeacheremployeeName", response.data.result.EmployeeName);
 
                         $cookies.put("MyAppuserImage", response.data.profile.EmpPicPath);
-                       // $window.location = 'myTeacher#!/dashboard';
-                        $window.location = 'tpanel#!/task-list';
+                       $window.location = 'tpanel#!/daily-attendance-status-report';
+                        //$window.location = 'tpanel#!/task-list';
                     }
                 }
             }, function errorCallback(response) {
