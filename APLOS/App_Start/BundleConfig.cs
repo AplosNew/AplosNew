@@ -271,7 +271,8 @@ namespace Aplos
 
                   "~/Scripts/DailyAttendances/ppanelLogoutController.js",
                   "~/Scripts/DailyAttendances/daPasswordChangeController.js",
-                  "~/Scripts/DailyAttendances/dapanelApp.js"
+                  "~/Scripts/DailyAttendances/dapanelApp.js",
+                  "~/Scripts/HumanResource/DailyAttendanceStatusReportController.js"
                   ));
 
             #endregion js

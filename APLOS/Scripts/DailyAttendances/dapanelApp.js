@@ -4,6 +4,7 @@ var dapanelApp = angular.module('dapanelApp', ['ngRoute', 'ngCookies', 'angularU
     .controller('dapanelLogoutController', dapanelLogoutController)
     .controller('daPasswordChangeController', daPasswordChangeController)
     .controller("taskListController", taskListController)
+    .controller("DailyAttendanceStatusReportController", DailyAttendanceStatusReportController)
     //.controller("TeacherScheduleController", TeacherScheduleController)
 
     //#endregion
@@ -24,24 +25,12 @@ var dapanelApp = angular.module('dapanelApp', ['ngRoute', 'ngCookies', 'angularU
                 templateUrl: 'DailyAttendances/login',
                 controller: 'portalLoginController'
             })
-            .when('/password-change/:id', {
-                templateUrl: 'DailyAttendances/passwordchange',
-                controller: 'daPasswordChangeController'
-            })
-            //.when('/employee-calendar', {
-            //    templateUrl: 'DailyAttendances/Calendar',
-            //    controller: 'myParentsCalendarController'
-            //})
-            .when('/task-list', {
-                templateUrl: 'TaskManagement/TaskList/',
-                controller: 'taskListController'
-            })
 
-            //.when('/teacher-schedule', {
-            //    templateUrl: 'TaskManagement/TeacherSchedule/Aplos',
-            //    controller: 'TeacherScheduleController'
-            //})
-
+            .when('/daily-attendance-status-report', {
+                templateUrl: 'humanResource/DailyAttendanceStatusReport/Aplos',
+                controller: 'DailyAttendanceStatusReportController'
+            
+            
             .when('/logout', {
                 template: ' ',
                 controller: 'dapanelLogoutController'
