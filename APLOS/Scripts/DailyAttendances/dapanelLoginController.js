@@ -36,7 +36,7 @@ function dapanelLoginController($scope, $rootScope, $routeParams, $http, $filter
                 }
                 else {
                     if (response.data.result.Status === 'Success') {
-                        $cookies.put('DailyAttendancespanel', 'ppanel');
+                        $cookies.put('DailyAttendancespanel', 'dapanel');
                         $cookies.put("employeeId", response.data.result.EmployeeId);
                         $cookies.put("groupId", response.data.result.CompanyGroupId);
                         $cookies.put("companyId", response.data.result.CompanyId);
@@ -46,7 +46,8 @@ function dapanelLoginController($scope, $rootScope, $routeParams, $http, $filter
 
                         $cookies.put("MyAppuserImage", response.data.profile.EmpPicPath);
                         //$window.location = 'humanresource/DailyAttendanceStatusReport';
-                        $window.location = 'DailyAttendances#!/daily-attendance-status-report';
+                       // $window.location = 'DailyAttendances#!/daily-attendance-status-report';
+                        $window.location = 'DailyAttendances#!/task-list';
                     }
                 }
             }, function errorCallback(response) {

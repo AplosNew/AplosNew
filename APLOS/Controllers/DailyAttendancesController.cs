@@ -106,35 +106,35 @@ namespace Aplos.Controllers
 		[HttpPost, AllowAnonymous]
 		public ActionResult Login(string timezoneoffset, string employeeId, string remember)
 		{
-			var http = System.Web.HttpContext.Current;
-			var isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
-			var ip = AccessInfo.GetWorkstationIP(http);
-			dynamic location = AccessInfo.GetLocation(ip);
-			if (null == location)
-			{
-				location = new
-				{
-					country_code = " ",
-					country_name = " ",
-					region_code = " ",
-					region_name = " ",
-					city = " ",
-					latitude = " ",
-					longitude = " ",
-					time_zone = " ",
-					zip_code = " "
-				};
-			}
-			if (!string.IsNullOrEmpty(timezoneoffset))
-			{
-				HttpContext.Session[nameof(timezoneoffset)] = timezoneoffset;
-				var offset = int.Parse(timezoneoffset);
-				var requestDateTime = DateTime.UtcNow.AddMinutes(-1 * offset);
-				timezoneoffset = requestDateTime.DayOfWeek + " " + requestDateTime + " " + location.country_name + " Standard Time";
-			}
+			//var http = System.Web.HttpContext.Current;
+			//var isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
+			//var ip = AccessInfo.GetWorkstationIP(http);
+			//dynamic location = AccessInfo.GetLocation(ip);
+			//if (null == location)
+			//{
+			//	location = new
+			//	{
+			//		country_code = " ",
+			//		country_name = " ",
+			//		region_code = " ",
+			//		region_name = " ",
+			//		city = " ",
+			//		latitude = " ",
+			//		longitude = " ",
+			//		time_zone = " ",
+			//		zip_code = " "
+			//	};
+			//}
+			//if (!string.IsNullOrEmpty(timezoneoffset))
+			//{
+			//	HttpContext.Session[nameof(timezoneoffset)] = timezoneoffset;
+			//	var offset = int.Parse(timezoneoffset);
+			//	var requestDateTime = DateTime.UtcNow.AddMinutes(-1 * offset);
+			//	timezoneoffset = requestDateTime.DayOfWeek + " " + requestDateTime + " " + location.country_name + " Standard Time";
+			//}
 			var _result = ParentsLogin(employeeId);
-			if (_result["Status"].ToString() == "Success")
-				SetAuthentication(employeeId, _result, isRemember, ip);
+			//if (_result["Status"].ToString() == "Success")
+			//	SetAuthentication(employeeId, _result, isRemember, ip);
 			//_accessLogService.Insert(new AccessLog
 			//{
 			//	AccessTime = DateTime.UtcNow,
