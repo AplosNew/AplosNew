@@ -17,7 +17,7 @@ function dailyAttendanceInOutLoginController($scope, $http, $location, $rootScop
                 url: $scope.path + 'LoginDailyAttendance',
                 params: {
                     'id': $scope.model.Id,
-                    //'pin': $scope.model.Pin
+                    
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

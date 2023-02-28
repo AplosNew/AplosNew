@@ -1738,7 +1738,7 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
-        public GridModel GetDebitNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId)
+        public GridModel GetDebitNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId, string partyType)
         {
             try
             {
@@ -1775,8 +1775,8 @@ namespace Library.Service.Invoices
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS GC ON GC.VoucherDetailId=VD.Id
-                                    WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0  AND I.SourceType in ('"+ SourceType.DebitNote + @"','"+SourceType.InventoryReturnPayable+@"')
-                                    AND I.CompanyGroupId='"+ companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='"+ plantId + "' AND I.PartyId='"+ partyId + @"'";
+                                    WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0  AND I.SourceType in ('"+ SourceType.DebitNote + @"','"+SourceType.InventoryReturnPayable+ @"')
+                                    AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='"+ plantId + "' AND I.PartyId='"+ partyId + @"'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -1787,7 +1787,7 @@ namespace Library.Service.Invoices
             }
         }
 
-        public GridModel GetCreditNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId)
+        public GridModel GetCreditNoteList(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId, string partyType)
         {
             try
             {
@@ -1825,7 +1825,7 @@ namespace Library.Service.Invoices
 										WHERE CPC.ParallelCurrencyType='CompanyGroupCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS GC ON GC.VoucherDetailId=VD.Id
                                     WHERE I.Archive=0 AND V.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0  AND I.SourceType in ('" + SourceType.CreditNote + "','"+ SourceType.VendorPayment + @"') AND V.IsPark=0
-                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + @"'";
+                                    AND I.PartyType='" + partyType + "' AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + @"'";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
