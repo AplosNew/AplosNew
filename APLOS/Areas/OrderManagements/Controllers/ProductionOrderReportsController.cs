@@ -4598,6 +4598,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colActualQty = COL;
+                COL++;
 
                 sheet[ROW, COL].Text = "Scan Qty";
                 sheet[ROW, COL].ColumnWidth = 12;
