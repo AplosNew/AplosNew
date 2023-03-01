@@ -396,7 +396,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     //#endregion
 
     $scope.Save = function () {
-        //debugger;
         // $scope.SavePOPUpConfirm();
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
