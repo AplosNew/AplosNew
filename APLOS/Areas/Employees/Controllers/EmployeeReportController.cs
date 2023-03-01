@@ -29,7 +29,11 @@ namespace Aplos.Areas.Employees.Controllers
         {
             return View("~/Areas/Employees/Views/EmployeeLedgerReport.cshtml");
         }
-
+        [Authorize]
+        public ActionResult MyappEmployeeLedger()
+        {
+            return View("~/Areas/Employees/Views/MyappEmployeeLedger.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetEmployeeLedgerReport(ReportFormat reportFormat, string employeeId, string fromDate, string toDate)
         {
@@ -49,7 +53,25 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
-        
+        [HttpGet, Authorize]
+        public ActionResult GetMyAppEmployeeLedgerReport(ReportFormat reportFormat, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accountVoucherReportService.GetEmployeeLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, identity.EmployeeId, fromDate, toDate);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Employee Ledger";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
         public ActionResult EmployeeLedgerOpeningBalanceReport()
         {
             return View("~/Areas/Employees/Views/EmployeeLedgerOpeningBalanceReport.cshtml");
