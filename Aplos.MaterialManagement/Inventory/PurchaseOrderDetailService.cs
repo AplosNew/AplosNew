@@ -1846,10 +1846,11 @@ namespace Library.MaterialManagement.Inventory
                 flag = true;
                 //var currentId = _ServicePODetail.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(Id, CHARINDEX('-',id)+1,len(Id))    AS INT)), 0) Id FROM[TRN].[ServicePODetail] WHERE  ServiceMasterId = '{ServicePoMasterId}'").First();
                 var currentId = _ServicePODetail.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(Id, CHARINDEX('-',id)+1,len(Id))    AS INT)), 0) Id FROM[TRN].[ServicePOTax] WHERE  ServicePOMasterId = '{servicePOid}'").First();
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 if (receiveTaxList != null)
                 {
-
+                    var servicePODetail = _ServicePODetail.Find(ServicePODetailId);
                     var ServicePOId = servicePOid + "-";
                     foreach (var ServiceitemDetail in receiveTaxList)
                     {
@@ -1892,6 +1893,12 @@ namespace Library.MaterialManagement.Inventory
                             _ServicePOTax.Update(PurchaseDoService);
                         }
                     }
+
+                    servicePODetail.TotalTaxAmount = receiveTaxList.Sum(r => r.TaxAmount);
+                    servicePODetail.UpdatedDate = DateTime.Now;
+                    servicePODetail.UpdatedFromIP = identity.IPAddress;
+                    servicePODetail.UpdatedBy = identity.Name;
+                    _ServicePODetail.Update(servicePODetail);
                     _unitOfWork.SaveChanges();
                     flag = false;
                     _unitOfWork.Commit();
