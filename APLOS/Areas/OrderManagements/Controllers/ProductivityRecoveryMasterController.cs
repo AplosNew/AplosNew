@@ -59,11 +59,38 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetUOM()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select UM.Id UOMId, UM.Code,UM.StandardName, UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Active = 1";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetUOMPF()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select UOMId as Value,(select UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Active = 1 and UM.Id=UOMPF.UOMId) as Text from [MST].[UOMProductionFactor] UOMPF";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public ActionResult LoadPRMList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * ,(select BC.Code from [MST].[ManpowerBudget] BC where BC.Id=PRM.ResponsiblePersonBgtCodeId) as ResponsiblePersonBgtCode FROM [MST].[ProductivityRecoveryMaster] PRM";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadUOMPFList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * ,(select UM.UserName from scs.UnitOfMeasurement UM where UM.Id=UPF.UOMId) as UOM FROM [MST].[UOMProductionFactor] UPF";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -74,6 +101,15 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
             string sql = @"SELECT * ,(select BC.Code from [MST].[ManpowerBudget] BC where BC.Id=PRM.ResponsiblePersonBgtCodeId) as ResponsiblePersonBgtCode FROM [MST].[ProductivityRecoveryMaster] PRM where PRM.Id='" + PRMID + @"'";
             return Json(new { prm = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadUOMPFEditData(string UOMPFID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT * ,(select UM.UserName from scs.UnitOfMeasurement UM where UM.Id=UPF.UOMId) as UOM FROM [MST].[UOMProductionFactor] UPF where UPF.Id='" + UOMPFID + @"'";
+            return Json(new { uom = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -150,6 +186,59 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         }
 
         [Authorize, HttpPost]
+        public JsonResult CreateUOMPF(Dictionary<string, object> UOMData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[UOMProductionFactor] where UOMId='" + UOMData["UOMId"] + "'", out DataSet dsUOMProductionFactorUOMValidation, false, "1");
+                
+                DataSet dsUOMProductionFactor;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[UOMProductionFactor] where Id='" + UOMData["Id"] + "'", out dsUOMProductionFactor, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsUOMProductionFactor.Tables[0].Rows.Count == 0)
+                {
+                    if (dsUOMProductionFactorUOMValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("UOM Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("UPF", out _Id);
+                        _Id = "UPF" + _Id;
+                        UOMData["Id"] = _Id;
+                        AddNewRow(dsUOMProductionFactor.Tables[0], UOMData);
+                    }
+                }
+                else
+                {
+                    _Id = UOMData["Id"].ToString();
+                    EditRow(dsUOMProductionFactor.Tables[0].Rows[0], UOMData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsUOMProductionFactor);
+
+                return Json(new { Error = false, Data = UOMData, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpPost]
         public ActionResult PRMDelete(string id)
         {
             try
@@ -160,6 +249,25 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 conC.executeQuery("delete from [MST].[ProductivityRecoveryMaster] where Id ='" + id + @"'");
                 conC.CommitTransaction();
                 
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult UOMPFDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [MST].[UOMProductionFactor] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -250,7 +358,7 @@ AttributeValue=STUFF((SELECT distinct ', '+ A.UserName+ '-' + MAV.StandardName
                             LEFT JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=MMA.MaterialAttributeId 
 							LEFT JOIN MST.MaterialMasterArticleValue MMAV ON MAV.Id=MMAV.MaterialAttributeValueId
                             WHERE MMA.MaterialMasterId = MA.MaterialMasterId and MMAV.MaterialMasterArticleId=MA.Id for xml path('') ), 1, 1, '')
-,PRA.Id,PRA.StdWorkingHours,PRA.StdProduction,PRA.IntermediateTarget,PRA.Remarks,PRA.UtilizationPercentage,PRA.MachineSpeed,isnull(PRM.UserName,'') as PRMUserName
+,PRA.Id,PRA.StdWorkingHours,isnull(convert(decimal(18,0),round((60/PRA.SPT)*UPF.ProductionFactor,1)),0) as StdProduction,PRA.IntermediateEfficiency,PRA.TargetEfficiency,PRA.Remarks,PRA.UtilizationPercentage,PRA.MachineSpeed,isnull(PRM.UserName,'') as PRMUserName,PRA.UOMId,(select UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Active = 1 and UM.Id=PRA.UOMId) as UOM,PRA.SPT
 from MST.MaterialMasterArticle MA
 left Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
@@ -262,6 +370,7 @@ left outer join hkp.MaterialCategory MC ON MC.Id=MM.MaterialCategoryId
 left outer join hkp.MaterialSubCategory MSC ON MSC.Id=MM.MaterialSubCategoryId
 LEFT JOIN [TRN].[PRMFGArticle] PRA ON PRA.ArticleId=MA.Id and PRA.PRMId='" + PRMId + @"'
 left outer join MST.ProductivityRecoveryMaster PRM ON PRM.Id=PRA.PRMId
+left outer join [MST].[UOMProductionFactor] UPF ON UPF.UOMId=PRA.UOMId
 where MT.UserName IN(" + parameters["MaterialType"] + @") AND
       MM.UserName IN(" + parameters["Material"] + @") AND
       MC.UserName IN(" + parameters["MaterialCategory"] + @") AND
@@ -314,7 +423,7 @@ where MT.UserName IN(" + parametersRM["MaterialType"] + @") AND
       MC.UserName IN(" + parametersRM["MaterialCategory"] + @") AND
       (P.UserName IN (" + parametersRM["Product"] + @") or P.UserName is null) AND
       (MSC.UserName IN (" + parametersRM["MaterialSubCategory"] + @") or MSC.UserName is null)
-order by PRA.ArticleId  desc";
+order by PRA.Id  asc";
             JsonResult json = Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
@@ -565,7 +674,7 @@ order by PRA.ArticleId  desc";
             string sql = @"select isnull(FGA.Id,'') as FGApplicableId,isnull(RMA.Id,'') as RMApplicableId,MA.Id as ArticleId,MA.StandardName Article,MM.Id MaterialMasterId,MM.UserName Material,
 MT.UserName MaterialType,MG.UserName MaterialGroup,
 AttributeValue=STUFF((select distinct ', '+ A.UserName+ '-' + MAV.StandardName from HKP.MaterialAttribute AS A  INNER JOIN HKP.MaterialAttributeValue MAV ON MAV.MaterialAttributeId=A.id left outer join MST.MaterialMasterAttribute MMA ON MAV.MaterialAttributeId=MMA.MaterialAttributeId where MMA.MaterialMasterId=MA.MaterialMasterId for xml path('') ), 1, 1, '')
-,FGA.StdWorkingHours,FGA.StdProduction,FGA.IntermediateTarget,FGA.Remarks,RMA.StdProduction as StdProductionRM,RMA.IntermediateTarget as IntermediateTargetRM,RMA.Remarks as RemarksRM,(select UserName from HKP.CostingItem where Id=RMA.CostingItemId) as CostingItem
+,FGA.StdWorkingHours,FGA.StdProduction,FGA.IntermediateEfficiency,FGA.TargetEfficiency,FGA.Remarks,RMA.StdProduction as StdProductionRM,RMA.IntermediateTarget as IntermediateTargetRM,RMA.Remarks as RemarksRM,(select UserName from HKP.CostingItem where Id=RMA.CostingItemId) as CostingItem
 from MST.MaterialMasterArticle MA
 left outer Join MST.MaterialMaster MM ON MM.Id=MA.MaterialMasterId and MM.Active = 1 
 left outer join MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
