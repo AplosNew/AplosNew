@@ -1,7 +1,7 @@
 ﻿/// <reference path="../angular-constant-path.js" />
 'use strict';
-tpanelLoginController.$inject = ['$scope', '$rootScope', '$routeParams', '$http', '$filter', '$window', '$cookies'];
-function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter, $window, $cookies) {
+tpanelLoginController.$inject = ['$scope', '$rootScope', '$routeParams', '$http', '$filter', '$window', '$cookies', '$controller'];
+function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter, $window, $cookies, $controller) {
     $rootScope.title = 'Portal::Login';
     $scope.servicepanel = 'portal';
     $scope.returnUrl = $routeParams.returnUrl;
@@ -11,6 +11,8 @@ function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
     $scope.errorText = null;
     $scope.employeeName = null;
     $scope.companyGroupLogo = 'organization-alt.png';
+   
+    
     $scope.Login = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.loginForm.$valid) {
