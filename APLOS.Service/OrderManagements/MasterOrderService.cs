@@ -1748,6 +1748,7 @@ namespace Library.Service.OrderManagements
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM trn.SecondCharacteristics  WHERE SalesOrderId IN (SELECT Id FROM trn.SalesOrder WHERE MasterOrderItemId IN (SELECT Id FROM trn.MasterOrderItem WHERE MasterOrderId='" + id + @"'))", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM trn.FirstCharacteristics WHERE SalesOrderId IN (SELECT Id FROM trn.SalesOrder WHERE MasterOrderItemId IN (SELECT Id FROM trn.MasterOrderItem WHERE MasterOrderId='" + id + @"'))", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM trn.SalesOrder WHERE MasterOrderItemId IN (SELECT Id FROM trn.MasterOrderItem WHERE MasterOrderId='" + id + @"')", true, "1");
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM dbo.MasterOrderItemCostingRate WHERE MasterOrderItemId IN (SELECT Id FROM trn.MasterOrderItem WHERE MasterOrderId='" + id + @"')", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM trn.MasterOrderItem WHERE MasterOrderId='" + id + @"'", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM MasterOrderTaskTemplateDependency Where PreTaskTemplateId IN(select Id from dbo.MasterOrderTaskTemplate Where MasterOrderId='" + id + @"')", true, "1");
                 objCon.ExecuteNonQueryWrapper(@"DELETE FROM MasterOrderTaskTemplateSubTasks Where MasterOrderTaskTemplateId IN(select Id from dbo.MasterOrderTaskTemplate Where MasterOrderId='" + id + @"')", true, "1");

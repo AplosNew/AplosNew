@@ -120,7 +120,7 @@ namespace Aplos.Areas.Securities
             context.MapRoute(
                 "tpanel",
                 "tpanel/{controller}/{action}/{id}",
-                new { controller = "MyTeacher", action = "tlayout", id = UrlParameter.Optional },
+                new { controller = "DailyAttdStatus", action = "tlayout", id = UrlParameter.Optional },
                 new string[] { "Aplos.Controllers" });
         }
     }

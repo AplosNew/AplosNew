@@ -1,122 +1,33 @@
 ﻿/// <reference path="../angular-constant-path.js" />
 'use strict';
 var tpanelApp = angular.module('tpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.dirPagination', 'toaster', 'ui.calendar', 'ui.bootstrap', "ejangular"])
-    .controller('expenseBookingApprovalPotalController', expenseBookingApprovalPotalController)
-    .controller('expenseBookingDepartmentApprovalPotalController', expenseBookingDepartmentApprovalPotalController)
-    .controller('expenseBookingCheckedByPotalController', expenseBookingCheckedByPotalController)
-    .controller('expenseBookingPotalController', expenseBookingPotalController)
-    .controller('tpanelLogoutController', tpanelLogoutController)
-    .controller('teacherPasswordChangeController', teacherPasswordChangeController)
-    .controller("profileViewController", profileViewController)
-    .controller("jobCardInformationController", jobCardInformationController)
-    .controller("leaveApplicationController", leaveApplicationController)
-    .controller("currencyBaseController", currencyBaseController)
-    .controller("employeeBaseController", employeeBaseController)
-    .controller("myTeacherCalendarController", myTeacherCalendarController)
-    .controller("partyBaseController", partyBaseController)
-    .controller("employeeJobDescriptionController", employeeJobDescriptionController)
-    .controller("taskListController", taskListController)
-    //.controller("issueTransactionController", issueTransactionController)
-    .controller("taskScheduleController", taskScheduleController)
-    .controller("employeeAdvanceRequisitionController", employeeAdvanceRequisitionController)
-    .controller("employeeAdvanceRequisitionEditController", employeeAdvanceRequisitionEditController)
-    .controller("employeeAdvanceRequisitionApprovalController", employeeAdvanceRequisitionApprovalController)
-    .controller("baseMaterialAndArticleController", baseMaterialAndArticleController)
-    .controller("RequisitionController", RequisitionController)
-   // .controller("InventoryCheckApprovedController", InventoryCheckApprovedController)
-    .controller("PurchaseOrderController", PurchaseOrderController)
-    .controller("PurchaseOrderCheckController", PurchaseOrderCheckController)
-    .controller("PurchaseOrderApproveController", PurchaseOrderApproveController)
-    .controller("grnApprovalController", grnApprovalController)
-    .controller("IssueSlipController", IssueSlipController)
-    .controller("MaterialIssueSlipController", MaterialIssueSlipController)
-    .controller("TNAReportsController", TNAReportsController)
-    .controller("ServiceRequisitionController", ServiceRequisitionController)
-    .controller("ServiceRequisitionCheckApprovedController", ServiceRequisitionCheckApprovedController)
-    .controller("ServicePOByRequisitionController", ServicePOByRequisitionController)
-    //.controller("ServicePOCheckAndApprovedController", ServicePOCheckAndApprovedController)
-    .controller("GatePassController", GatePassController) 
-    .controller("InoutGetpassCheckedController", InoutGetpassCheckedController)
-    .controller("PendingGateoutListController", PendingGateoutListController)
-    .controller("ServiceAckCheckedApprovedByController", ServiceAckCheckedApprovedByController)
-    .controller("PurchaseReturnCheckedApprovedByController", PurchaseReturnCheckedApprovedByController)
-    .controller("inventorySalesCheckApproveController", inventorySalesCheckApproveController)
-    .controller("inventoryScrapCheckApproveController", inventoryScrapCheckApproveController)
-    .controller("employeeMyAppLeaveApplicationController", employeeMyAppLeaveApplicationController)
-    .controller("firstAuthEmpLeaveApprovalController", firstAuthEmpLeaveApprovalController)
-    .controller("GatePassPotalController", GatePassPotalController)
+    
     .controller("DailyAttendanceStatusReportController", DailyAttendanceStatusReportController)
+   
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
         $routeProvider
             .when('/', {
-                templateUrl: 'MyTeacher/dashboard'
+                templateUrl: 'DailyAttdStatus/dashboard'
             })
             .when('tpanel', {
-                templateUrl: 'MyTeacher/dashboard'
+                templateUrl: 'DailyAttdStatus/dashboard'
             })
             .when('/dashboard', {
-                templateUrl: 'MyTeacher/dashboard'
+                templateUrl: 'DailyAttdStatus/dashboard'
             })
-            .when("/expense-booking-potal", {
-                templateUrl: "Accounts/ExpenseBooking/ExpenseBookingPotal",
-                controller: "expenseBookingPotalController"
-            })
-            .when("/expense-booking-approval-potal", {
-                templateUrl: "Accounts/ExpenseBooking/ExpenseBookingApprovalPotal",
-                controller: "expenseBookingApprovalPotalController"
-            })
-            .when("/expense-department-approval-potal", {
-                templateUrl: "Accounts/ExpenseBooking/ExpenseBookingDepartmentApprovalPotal",
-                controller: "expenseBookingDepartmentApprovalPotalController"
-            })
-            .when("/expense-checkedby-potal", {
-                templateUrl: "Accounts/ExpenseBooking/ExpenseBookingCheckedByPotal",
-                controller: "expenseBookingCheckedByPotalController"
-            })
-            .when("/employee-profile-view", {
-                templateUrl: "Employees/EmployeeInformation/ProfileView",
-                controller: "profileViewController"  
-            })
-            .when("/employee-job-card", {
-                templateUrl: "Employees/EmployeeInformation/JobCard",
-                controller: "jobCardInformationController"
-            })
-            .when("/employee-leave-application", {
-                templateUrl: "Employees/EmployeeMyAppLeaveApplication/Aplos",
-                controller: "employeeMyAppLeaveApplicationController"
-            })
-            .when("/first-auth-employee-leave-approval", {
-                templateUrl: "Leave/FirstAuthEmpLeaveApproval",
-                controller: "firstAuthEmpLeaveApprovalController"
-            })
-            .when("/employee-advance-requisition", {
-                templateUrl: "Accounts/Advance/employeeAdvanceRequisition/",
-                controller: "employeeAdvanceRequisitionController"
-            })
-            .when("/employee-advance-requisition-edit", {
-                templateUrl: "Accounts/Advance/EmployeeAdvanceRequisitionEdit",
-                controller: "employeeAdvanceRequisitionEditController"
-            })
-            .when("/employee-advance-requisition-approval", {
-                templateUrl: "Accounts/Advance/EmployeeAdvanceRequisitionApprove",
-                controller: "employeeAdvanceRequisitionApprovalController"
-            })
-            .when('/employee-job-description', {
-                templateUrl: 'employees/employeejobdescription/',
-                controller: 'employeeJobDescriptionController'
-            })
+           
             .when('/login', {
-                templateUrl: 'MyTeacher/login',
+                templateUrl: 'DailyAttdStatus/login',
                 controller: 'portalLoginController'
             })
             .when('/password-change/:id', {
-                templateUrl: 'MyTeacher/passwordchange',
+                templateUrl: 'DailyAttdStatus/passwordchange',
                 controller: 'teacherPasswordChangeController'
             })
             .when('/employee-calendar', {
-                templateUrl: 'MyTeacher/Calendar',
+                templateUrl: 'DailyAttdStatus/Calendar',
                 controller: 'myTeacherCalendarController'
             })
             .when('/task-list', {
@@ -297,11 +208,11 @@ var tpanelApp = angular.module('tpanelApp', ['ngRoute', 'ngCookies', 'angularUti
             //    controller: 'taskMasterController'
             //})
             .otherwise({
-                redirectTo: 'MyTeacher/login'
+                redirectTo: 'DailyAttdStatus/login'
             });
     }])
     .run(['$rootScope', '$timeout', '$cookies', '$window', "$filter", "$http", function ($rootScope, $timeout, $cookies, $window, $filter, $http) {
-        $rootScope.title = 'MyTeacher';
+        $rootScope.title = 'DailyAttdStatus';
         $rootScope.bootPoint = '#!/';
 
         $window.employeeId = $cookies.get("MyTeacheremployeeId");
