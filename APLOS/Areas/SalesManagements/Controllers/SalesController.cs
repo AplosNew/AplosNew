@@ -466,7 +466,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     dr["Id"] = GetSalesReturnPK();
                     dr["SalesId"] = data["SalesId"].ToString();
                     dr["DocRefNo"] = data["DocRefNo"].ToString();
-                    //dr["SalesReturnDate"] = data["SalesReturnDate"].ToString();
+                    dr["SalesReturnDate"] = data["SalesReturnDate"].ToString();
                     dr["Narration"] = data["Narration"].ToString();
                     dr["EntryDate"] = DateTime.Now;
 
@@ -488,7 +488,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         if (dv.Count == 0)
                         {
                             ccount++; 
-                            string detailid = materialCommonService.MakePK(_Id, ccount, 1);
+                            string detailid = materialCommonService.MakePK(_Id, ccount, 2);
                             item["Id"] = detailid;
                             item["SalesReturnId"] = _Id;
                             item["TransactionQty"] = item["ReturnQty"];
@@ -513,7 +513,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                     if (dvtx.Count == 0)
                                     {
                                         taxcount++;
-                                        string taxid = materialCommonService.MakePK(detailid, taxcount, 1);
+                                        string taxid = materialCommonService.MakePK(detailid, taxcount, 2);
                                         tx["Id"] = taxid;
                                         tx["SalesReturnId"] = _Id;
                                         tx["SalesReturnDetailId"] = detailid;
@@ -579,8 +579,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
         private string GetSalesReturnPK()
         {
             string sID = string.Empty;
-            bplib.clsGenID objGenID = new bplib.clsGenID();
-            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesReturn", out sID);
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            materialCommonService.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesReturn", out sID);
             return sID;
         }
         #endregion
