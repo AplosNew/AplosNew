@@ -5,12 +5,14 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
     $scope.Action = 'Save';
     $scope.path = 'OrderManagements/ProductivityRecoveryMaster/';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUOMPFUrl = $scope.path + 'createUOMPF';
     $scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
     $scope.saveUrlEntity = $scope.path + 'createEntity';
     $scope.saveUrlFGArticle = $scope.path + 'createFGArticle';
     $scope.saveUrlProcess = $scope.path + 'createProcess';
     $scope.saveUrlRMArticle = $scope.path + 'createRMArticle';
-    //$scope.saveUrlTeamDefinitionCategory = $scope.path + 'createTeamDefinitionCategory';
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.ModelTemp = {
         Id: null,
@@ -27,6 +29,26 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.UOMTemp = {
+        Id: null,
+        UOMId: null,
+        UOM: null,
+        ProductionFactor: null
+    };
+    $scope.UOMNew = Object.assign({}, $scope.UOMTemp);
+
+    $scope.UOMPFDataList = [];
+    $scope.GetUOMPF = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetUOMPF',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.UOMPFDataList = resp.data;
+        });
+    }
+
 
     $scope.selectBudgetCode = function () {
         $scope.getBudgetCode();
@@ -78,6 +100,29 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
         }
     };
 
+    $scope.UOMPFSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.UOMProductionFactorForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUOMPFUrl,
+                data: { 'UOMData': $scope.UOMNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadUOMPFList();
+                    UOMPFClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
     $scope.PRMList = [];
     $scope.LoadPRMList = function () {
         $http({
@@ -92,6 +137,20 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
     }
     $scope.LoadPRMList();
 
+    $scope.UOMPFList = [];
+    $scope.LoadUOMPFList = function () {
+        $http({
+
+            method: 'Get',
+            url: 'OrderManagements/ProductivityRecoveryMaster/LoadUOMPFList'
+        }).then(function successCallback(response) {
+            $scope.UOMPFList = response.data;
+            var gridObj = $("#GridUOMPF").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        }
+        )
+    }
+    $scope.LoadUOMPFList();
+
     $scope.GetDetails = function (args) {
         $scope.PRMasterId = args.data.Id;
         $http({
@@ -99,6 +158,7 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
             url: 'OrderManagements/ProductivityRecoveryMaster/LoadPRMEditData?PRMID=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ModelNew = response.data.prm[0];
+            $scope.GetUOMPF();
             $scope.LoadEntityDetails($scope.PRMasterId);
             //$scope.LoadFGArticleDetails($scope.PRMasterId);
             $scope.LoadProcessDetails($scope.PRMasterId);
@@ -107,6 +167,16 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
+        }
+        )
+    }
+
+    $scope.GetUOMPFDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'OrderManagements/ProductivityRecoveryMaster/LoadUOMPFEditData?UOMPFID=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.UOMNew = response.data.uom[0];
         }
         )
     }
@@ -131,6 +201,26 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
         });
     };
 
+    $scope.UOMPFDelete = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/ProductivityRecoveryMaster/UOMPFDelete?id=' + $scope.UOMNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadUOMPFList();
+                UOMPFClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
     $scope.Clear = function () {
         PRMClearFields();
     };
@@ -139,6 +229,25 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
         $scope.Action = "Save";
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
+
+
+    $scope.UOMPFClear = function () {
+        UOMPFClearFields();
+    };
+
+    function UOMPFClearFields() {
+        $scope.Action = "Save";
+        $scope.UOMNew = Object.assign({}, $scope.UOMTemp);
+    }
+
+    $scope.tabPRM = 1;
+    $scope.setTabPRM = function (newTab) {
+        $scope.tabPRM = newTab;
+    };
+
+    $scope.isSetPRM = function (tabNum) {
+        return $scope.tabPRM === tabNum;
+    };
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -417,6 +526,32 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
         var gridObj = $("#GridFGArticle").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
+    $scope.selectUOM = function () {
+        $scope.getUOM();
+        angular.element(document.querySelector('#UOMPopUp')).modal('show');
+    }
+
+    $scope.UOMList = [];
+    $scope.getUOM = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetUOM',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.UOMList = resp.data;
+        });
+    }
+
+    $scope.doubleUOM = function (e) {
+        $scope.UOMNew.UOMId = e.data.UOMId;
+        $scope.UOMNew.UOM = e.data.UOM;
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
+    }
+
+    $scope.closeUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
+    }
+
     $scope.PRMFGArticleList = [];
     $scope.LoadFGArticleDetails = function (pid) {
         $scope.PRMFGArticleList = [];
@@ -438,8 +573,13 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
             $scope.SaveList = [];
             for (var i = 0; i < $scope.PRMFGArticleList.length; i++) {
                 if ($scope.PRMFGArticleList[i].Flag == true) {
-                    $scope.PRMFGArticleList[i].PRMId = $scope.ModelNew.Id;
-                    $scope.SaveList.push($scope.PRMFGArticleList[i]);
+                    if (baseService.isUndefinedOrNull($scope.PRMFGArticleList[i].UOMId)) {
+                        throw "Please Select UOM and Proceed.";
+                    }
+                    else {
+                        $scope.PRMFGArticleList[i].PRMId = $scope.ModelNew.Id;
+                        $scope.SaveList.push($scope.PRMFGArticleList[i]);
+                    }
                 }
             }
             $http({
@@ -565,10 +705,6 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
 
     $scope.PRMRMArticleList = [];
     $scope.LoadRMArticleDetails = function (pid) {
-        //$http({
-
-        //    method: 'Get',
-        //    url: 'OrderManagements/ProductivityRecoveryMaster/LoadRMArticleDetails?PRMId=' + pid
         $scope.filterCompleteRM();
         $http({
             method: 'POST',
@@ -684,5 +820,61 @@ function ProductivityRecoveryMasterController(cboService, commonMessage, $scope,
 
     $scope.closeCostingItemPopUp = function () {
         angular.element(document.querySelector('#CostingItemPopup')).modal('hide');
+    }
+
+    $scope.PRMFGArticleDetailsReport = function () {
+        var dataList = [];
+        var g = $("#GridFGArticle").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PRMFGArticleList;
+        }
+
+        $scope.fileName = "FG Article Details";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    $scope.PRMRMArticleDetailsReport = function () {
+        var dataList = [];
+        var g = $("#GridRMArticle").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PRMRMArticleList;
+        }
+
+        $scope.fileName = "RM Article Details";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     }
 }

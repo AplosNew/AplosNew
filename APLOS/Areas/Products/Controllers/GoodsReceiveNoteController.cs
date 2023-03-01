@@ -1445,7 +1445,6 @@ namespace Aplos.Areas.Products.Controllers
 
         [Authorize, HttpGet]
         public ActionResult GRNBOQPOReport(string grnBOQPOId)
-
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
