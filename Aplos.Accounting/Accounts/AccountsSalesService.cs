@@ -2316,7 +2316,22 @@ namespace Library.Accounting.Accounts
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
-
+		public IEnumerable<object> GetSalesReturnData(string plantId)
+		{
+			try
+			{
+				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate, 
+                                SUM(IID.TransactionQty) Qty,II.Narration,II.SalesId
+                                FROM [TRN].[SalesReturn] AS II
+                                JOIN TRN.SalesReturnDetail AS IID ON IID.SalesReturnId=II.Id
+                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate";
+				return _sqlRepository.GetDataCollection(CmdText);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 		public IEnumerable<object> GetMaterialSalesDetailBySales(string salesId)
 		{
 			try

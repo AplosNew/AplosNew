@@ -1,0 +1,35 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Employee Ledger</h3>
+<div class="form-elements form-horizontal" ng-form="form0">
+    <div class="col-xs-12 col-sm-5 col-md-5">
+        <div class="form-group" show-errors id="div_FromDate">
+            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <input type="text" name="Form Date" ng-model="ledgerReport.FromDate" datepicker class="form-control">
+            </div>
+        </div>
+        <div class="form-group" show-errors id="div_ToDate">
+            <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <input type="text" name="To Date" ng-model="ledgerReport.ToDate" datepicker class="form-control">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+            <div class="col-sm-9 radio">
+                <label>
+                    <input type="radio" name="source" ng-model="ledgerReport.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                </label>
+                <label>
+                    <input type="radio" name="source" ng-model="ledgerReport.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="report();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+        </ul>
+    </div>
+</div>

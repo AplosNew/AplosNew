@@ -2022,6 +2022,7 @@
     <Content Include="Areas\Employees\Scripts\EmployeeCodeGenerationController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\myappEmployeeLedgerReportController.js" />
     <Content Include="Areas\Employees\Scripts\multipleResignationApprovalNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
@@ -4551,6 +4552,7 @@
     <Content Include="Areas\Materials\Views\MaterialLedger\InWardMaterial.cshtml" />
     <Content Include="Areas\OrderManagements\Views\ProductivityRecoveryMaster\Aplos.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\Home\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\MyappEmployeeLedger.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
