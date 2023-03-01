@@ -384,6 +384,14 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return View("~/Areas/SalesManagements/Views/SalesReturn.cshtml");
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetSalesReturnData(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public JsonResult GetMaterialSalesListForReturn(string column, string value)
         {
@@ -527,20 +535,25 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             }
                             if (itemScanCildList != null)
                             {
-                                foreach (var isc in itemScanCildList.Where(r => r["SalesId"].ToString() == item["SalesId"].ToString() 
-                                    && r["ActualPackingId"].ToString() == item["PackingId"].ToString() 
+                                foreach (var scitem in itemScanCildList.Where(r => r["SalesId"].ToString() == item["SalesId"].ToString()
+                                    && r["ActualPackingId"].ToString() == item["PackingId"].ToString()
                                     && r["SalesOrderId"].ToString() == item["SalesOrderId"].ToString()))
                                 {
-                                    DataView dvisc = new DataView(dsitemscanChild.Tables[0]);
-                                    dvisc.RowFilter = "Id='" + isc["Id"] + "'";
-                                    if (dvisc.Count > 0)
+                                    DataView dvsc = new DataView(dsitemscanChild.Tables[0]);
+                                    dvsc.RowFilter = "Id='" + scitem["Id"] + "'";
+
+                                    if (dvsc.Count > 0)
                                     {
-                                        DataRow drisc = dvisc[0].Row;
-                                        drisc["IsDespatch"] = false;
-                                        drisc["Booked"] = false;
-                                        drisc["UpdatedBy"] = identity.UserId;
-                                        drisc["UpdatedDate"] = DateTime.Now;
-                                        EditItemScanChildRowD(drisc, isc);
+                                        DataRow drmo = dvsc[0].Row;
+
+                                        drmo.BeginEdit();
+                                        drmo["IsDespatch"] = 0;
+                                        drmo["Booked"] = 0;
+                                        drmo["SalesReturnId"] = _Id;
+                                        drmo["UpdatedBy"] = identity.Name;
+                                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                                        drmo.EndEdit();
+
                                     }
 
                                 }
@@ -559,23 +572,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
-        public void EditItemScanChildRowD(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit(); foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr.EndEdit();
-        }
+       
         private string GetSalesReturnPK()
         {
             string sID = string.Empty;

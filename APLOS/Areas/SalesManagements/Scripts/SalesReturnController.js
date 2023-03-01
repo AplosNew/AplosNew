@@ -41,7 +41,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/InventorySalesReturn/GetList',
+            url: 'SalesManagements/Sales/GetSalesReturnList',
         }).then(function successCallback(response) {
             $scope.SalesdataList = response.data;
         });
@@ -396,7 +396,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     //#endregion
 
     $scope.Save = function () {
-        //debugger;
         // $scope.SavePOPUpConfirm();
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
@@ -419,11 +418,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-
-                    $scope.Action = 'Update';
                     $scope.productNew.Id = response.data.inventoryIssue.Id;
-                    $scope.getdataInventorySales();
-                    $scope.SalesDetails();
                     $scope.getData();
                     $scope.Clear();
                 }
@@ -447,11 +442,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-
-                    $scope.Action = 'Update';
                     $scope.productNew.Id = response.data.inventoryIssue.Id;
-                    $scope.getdataInventorySales();
-                    $scope.SalesDetails();
+
                     $scope.getData();
                     $scope.Clear();
                 }
@@ -476,8 +468,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.detailModel = {};
         $scope.clearCharNames();
         $scope.detailList = [];
-        $scope.specificStockList = [];
-        $scope.IssueType = 'Revenue';
+        $scope.tempitemScanList = [];
+        $scope.taxlist = [];
     }
 
 
