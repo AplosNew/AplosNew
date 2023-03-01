@@ -202,7 +202,7 @@
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="XlsDailyAttendanceReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>
-                <li> <button ng-click="XlsDailyAttendanceSummaryReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download SUmmary</button></li>
+                <li> <button ng-click="XlsDailyAttendanceSummaryReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download-alt"></i> Download Summary</button></li>
 
             </ul>
         </div>
@@ -246,3 +246,10 @@
 
 @Html.Partial("~/Areas/Productions/Views/Parameter/_ResponsiblePerson.cshtml")
 @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_TeamLeader.cshtml")
+
+<style>
+    .inner-content {
+        width: 95vw;
+        margin: 15px -225px
+    }
+</style>
