@@ -3,50 +3,36 @@
 var dapanelApp = angular.module('dapanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.dirPagination', 'toaster', 'ui.calendar', 'ui.bootstrap', "ejangular"])
     .controller('dapanelLogoutController', dapanelLogoutController)
     .controller('daPasswordChangeController', daPasswordChangeController)
-    .controller("taskListController", taskListController)
-    //.controller("TeacherScheduleController", TeacherScheduleController)
-
+    .controller("DailyAttendanceStatusReportController", DailyAttendanceStatusReportController)
+    .controller('taskListController', taskListController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
         $routeProvider
             .when('/', {
-                templateUrl: 'DailyAttendances/dashboard'
+                templateUrl: 'MyApp/dashboard'
             })
-            .when('dapanel', {
-                templateUrl: 'DailyAttendances/dashboard'
+            .when('epanel', {
+                templateUrl: 'MyApp/dashboard'
             })
             .when('/dashboard', {
-                templateUrl: 'DailyAttendances/dashboard'
+                templateUrl: 'MyApp/dashboard'
             })
-            
-            .when('/login', {
-                templateUrl: 'DailyAttendances/login',
-                controller: 'portalLoginController'
+            .when("/daily-attendance-status-report", {
+                templateUrl: "humanResource/DailyAttendanceStatusReport/Aplos",
+                controller: "DailyAttendanceStatusReportController"
             })
-            .when('/password-change/:id', {
-                templateUrl: 'DailyAttendances/passwordchange',
-                controller: 'daPasswordChangeController'
-            })
-            //.when('/employee-calendar', {
-            //    templateUrl: 'DailyAttendances/Calendar',
-            //    controller: 'myParentsCalendarController'
-            //})
             .when('/task-list', {
                 templateUrl: 'TaskManagement/TaskList/',
                 controller: 'taskListController'
             })
-
-            //.when('/teacher-schedule', {
-            //    templateUrl: 'TaskManagement/TeacherSchedule/Aplos',
-            //    controller: 'TeacherScheduleController'
-            //})
+            //#endregion
 
             .when('/logout', {
                 template: ' ',
                 controller: 'dapanelLogoutController'
             })
-           
+          
             .otherwise({
                 redirectTo: 'DailyAttendances/login'
             });
@@ -72,6 +58,55 @@ var dapanelApp = angular.module('dapanelApp', ['ngRoute', 'ngCookies', 'angularU
             $("#dialogMessage").ejDialog("open");
         }
         $rootScope.MyAppuserImage = virtualPath.EmployeePic;
+
+        $rootScope.report = function (file_src) {
+            $("#iframe_div_for_report").empty();
+            var frame = $('<iframe id="report">')
+                .attr('height', '0px')
+                .attr('visibility', 'hidden')
+                .attr('width', '0px');
+            frame.on('load', function () {
+
+                try {
+                    var text = angular.fromJson($('#report')[0].contentDocument.body.innerText);
+
+                    if (text.hasOwnProperty('Message')) {
+                        if (angular.isUndefinedOrNull(text.Message) === false) {
+                            $('<div id="message">').attr('height', '0px')
+                                .attr('visibility', 'hidden')
+                                .attr('width', '0px').appendTo('#iframe_div_for_report');
+                            $("#message").ejDialog({
+                                title: "Error"
+                            });
+                            $("#message").ejDialog("setContent", text.Message);
+
+                        }
+                    }
+                    else {
+                        var text1 = $('#report')[0].contentDocument.body.innerText;
+
+                        $('<div id="message">').attr('height', '0px')
+                            .attr('visibility', 'hidden')
+                            .attr('width', '0px').appendTo('#iframe_div_for_report');
+                        $("#message").ejDialog({
+                            title: "Error"
+                        });
+                        $("#message").ejDialog("setContent", text1);
+                    }
+
+                } catch (e) {
+
+
+                }
+
+            });
+
+
+            frame.attr('src', file_src);
+            frame.appendTo('#iframe_div_for_report');
+        };
+
+
     }])
     .filter('safecontent', safecontent)
     .filter('dateFiltering', dateFiltering)

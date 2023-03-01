@@ -26,6 +26,7 @@ using System.Web.Mvc;
 using Syncfusion.XlsIO;
 using System.IO;
 using System.Data;
+using Aplos.MaterialManagement.MaterialQuery;
 
 namespace Aplos.Areas.SalesManagements.Controllers
 {
@@ -404,6 +405,183 @@ namespace Aplos.Areas.SalesManagements.Controllers
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
             return Json(accountsSalesService.GetMaterialSalesTaxDetail(salesId), JsonRequestBehavior.AllowGet);
 
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPackingSalesDetailDataBySales(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetItemScanChildData(string salesId,string packingId,string soId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetItemScanChildData(salesId, packingId, soId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult SaveSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList
+            , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList)
+        {
+            try
+            {
+                InsertSalesReturn(data, detaildataList, taxList, itemScanCildList);
+                return Json(new { data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList,  List<Dictionary<string, object>> itemScanCildList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            DataSet dsDetail;
+            DataSet dstax;
+            DataSet dsitemscanChild;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                string sqlmaster = "SELECT * FROM [TRN].[SalesReturn] WHERE Id='" + data["SalesId"].ToString() + "'";
+                string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE SalesId='" + data["SalesId"].ToString() + "'";
+                string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE SalesId='" + data["SalesId"].ToString() + "'";
+                string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
+                //string poUpdateLogsql = "SELECT Top(1) * FROM [TRN].[PurchaseOrderUpdateLog] WHERE 1=2";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlmaster, out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
+                objCon.OpenDataSetThroughAdapter(taxsql, out dstax, false, "1");
+                objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    dr["Id"] = GetSalesReturnPK();
+                    dr["SalesId"] = data["SalesId"].ToString();
+                    dr["DocRefNo"] = data["DocRefNo"].ToString();
+                    dr["SalesReturnDate"] = data["SalesReturnDate"].ToString();
+                    dr["Narration"] = data["Narration"].ToString();
+                    dr["EntryDate"] = DateTime.Now;
+
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                string _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                int ccount = 0;
+                int taxcount = 0;
+                if (detaildataList != null)
+                {
+                    foreach (var item in detaildataList)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'"; 
+                        if (dv.Count == 0)
+                        {
+                            ccount++; 
+                            string detailid = materialCommonService.MakePK(_Id, ccount, 2);
+                            item["Id"] = detailid;
+                            item["SalesReturnId"] = _Id;
+                            item["TransactionQty"] = item["ReturnQty"];
+                            item["BaseQty"] = item["ReturnQty"];
+                            item["BaseAmount"] = item["Amount"];
+                            item["TransactionAmount"] = item["Amount"];
+                            item["BooksCurrencyTransactionAmount"] = item["Amount"];
+                            item["BooksCurrencyTaxAmount"] = item["TaxAmount"];
+                            item["BooksCurrencyBaseRate"] = item["BaseRate"];
+                            item["AddedBy"] = identity.Name;
+                            item["AddedDate"] = DateTime.Now;
+                            item["AddedFromIP"] = identity.IPAddress;
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+
+                            if (taxList != null)
+                            {
+                                foreach (var tx in taxList.Where(r=>r["SalesMaterialId"].ToString()== item["SalesMaterialId"].ToString()))
+                                {
+                                    DataView dvtx = new DataView(dstax.Tables[0]);
+                                    dvtx.RowFilter = "Id='" + tx["Id"] + "'";
+
+                                    if (dvtx.Count == 0)
+                                    {
+                                        taxcount++;
+                                        string taxid = materialCommonService.MakePK(detailid, taxcount, 2);
+                                        tx["Id"] = taxid;
+                                        tx["SalesReturnId"] = _Id;
+                                        tx["SalesReturnDetailId"] = detailid;
+                                        tx["AddedBy"] = identity.Name;
+                                        tx["AddedDate"] = DateTime.Now;
+                                        tx["AddedFromIP"] = identity.IPAddress;
+                                        materialCommonService.AddNewRowD(dstax.Tables[0], tx);
+                                    }
+
+                                }
+                            }
+                            if (itemScanCildList != null)
+                            {
+                                foreach (var isc in itemScanCildList.Where(r => r["SalesId"].ToString() == item["SalesId"].ToString() 
+                                    && r["ActualPackingId"].ToString() == item["PackingId"].ToString() 
+                                    && r["SalesOrderId"].ToString() == item["SalesOrderId"].ToString()))
+                                {
+                                    DataView dvisc = new DataView(dsitemscanChild.Tables[0]);
+                                    dvisc.RowFilter = "Id='" + isc["Id"] + "'";
+                                    if (dvisc.Count > 0)
+                                    {
+                                        DataRow drisc = dvisc[0].Row;
+                                        drisc["IsDespatch"] = false;
+                                        drisc["Booked"] = false;
+                                        drisc["UpdatedBy"] = identity.UserId;
+                                        drisc["UpdatedDate"] = DateTime.Now;
+                                        EditItemScanChildRowD(drisc, isc);
+                                    }
+
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void EditItemScanChildRowD(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit(); foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr.EndEdit();
+        }
+        private string GetSalesReturnPK()
+        {
+            string sID = string.Empty;
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            materialCommonService.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesReturn", out sID);
+            return sID;
         }
         #endregion
 

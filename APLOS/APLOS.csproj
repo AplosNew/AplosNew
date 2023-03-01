@@ -1268,7 +1268,7 @@
     <Compile Include="Controllers\VehicleRequistionController.cs" />
     <Compile Include="Controllers\VisitorServiceController.cs" />
     <Compile Include="Controllers\MyParentsController.cs" />
-    <Compile Include="Controllers\MyTeacherController.cs" />
+    <Compile Include="Controllers\DailyAttdStatusController.cs" />
     <Compile Include="Controllers\WasteTransactionController.cs" />
     <Compile Include="Controllers\ManualAttndFromAppController.cs" />
     <Compile Include="Controllers\EmpUtilityController.cs" />
@@ -4672,6 +4672,7 @@
     <Content Include="Areas\DailyAttendance\Views\PreDashBoard\Aplos.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\PreRecruitment\Aplos.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\web.config" />
+    <Content Include="Areas\SalesManagements\Views\_ItemScanChildPopUp.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
@@ -7681,11 +7682,11 @@
     <Content Include="Views\PortalExtended\Aplos.cshtml" />
     <Content Include="Views\MyApp\Calendar.cshtml" />
     <Content Include="Views\Prerecruitment\Aplos.cshtml" />
-    <Content Include="Views\MyTeacher\Aplos.cshtml" />
-    <Content Include="Views\MyTeacher\Calendar.cshtml" />
-    <Content Include="Views\MyTeacher\Dashboard.cshtml" />
-    <Content Include="Views\MyTeacher\TLayout.cshtml" />
-    <Content Include="Views\MyTeacher\PasswordChange.cshtml" />
+    <Content Include="Views\DailyAttdStatus\Aplos.cshtml" />
+    <Content Include="Views\DailyAttdStatus\Calendar.cshtml" />
+    <Content Include="Views\DailyAttdStatus\Dashboard.cshtml" />
+    <Content Include="Views\DailyAttdStatus\TLayout.cshtml" />
+    <Content Include="Views\DailyAttdStatus\PasswordChange.cshtml" />
     <Content Include="Views\MyParents\Aplos.cshtml" />
     <Content Include="Views\MyParents\Calendar.cshtml" />
     <Content Include="Views\MyParents\Dashboard.cshtml" />

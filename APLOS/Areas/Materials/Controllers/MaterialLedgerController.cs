@@ -878,7 +878,7 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion
 
         #region In Ward Material Report
-
+        //[Authorize]
         public JsonResult GetInWardMaterialData(string fromDate, string toDate)
         {
             try
@@ -982,7 +982,7 @@ namespace Aplos.Areas.Materials.Controllers
                 COL++;
 
                 sheet[ROW, COL].Text = "Style NO";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 50;
                 int colStyleNO = COL;
                 COL++;
 
@@ -1069,8 +1069,8 @@ namespace Aplos.Areas.Materials.Controllers
                 {
                     sheet[ROW, colDate].Text = data.Rows[i]["Date"].ToString();
                     sheet[ROW, colDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
-                    sheet[ROW, colPO].Text = data.Rows[i]["PO"].ToString();
-                    sheet[ROW, colStyleNO].Text = data.Rows[i]["StyleNO"].ToString();
+                    sheet[ROW, colPO].Text = data.Rows[i]["PONo"].ToString();
+                    sheet[ROW, colStyleNO].Text = data.Rows[i]["BuyerReferenceNo"].ToString();
                     
                     sheet[ROW, colVendorName].Text = data.Rows[i]["VendorName"].ToString();
                     sheet[ROW, colMaterial].Text = data.Rows[i]["Material"].ToString();

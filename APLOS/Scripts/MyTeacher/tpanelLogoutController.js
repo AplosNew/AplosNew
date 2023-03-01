@@ -4,9 +4,9 @@ function tpanelLogoutController($scope, $location, $http, $window, signalR) {
     $scope.Logout = function () {
         $http({
             method: 'GET',
-            url: 'MyTeacher/logout'
+            url: 'DailyAttdStatus/logout'
         }).then(function (result) {
-            var path = $location.protocol() + '://' + $location.host() + ':' + $location.port() + result.data.BasePath + '/myapp';
+            var path = $location.protocol() + '://' + $location.host() + ':' + $location.port() + result.data.BasePath + '/DailyAttdStatus';
             $window.location.href = path;
             signalR.DisconnectUser();
         });

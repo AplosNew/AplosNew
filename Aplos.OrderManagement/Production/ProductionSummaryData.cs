@@ -3611,8 +3611,8 @@ left join[dbo].[ProductLibrary] MA ON MA.Id=PLA.ProductLibraryId
 where MA.Id=MOI.ProductLibraryId for xml path('') ), 1, 1, ''),'-')
 ,ExpectedExFactoryDate=ISNULL(FORMAT(DATEADD(DAY,M.Days,SO.PlanExFactoryDate),'dd-MMM-yyyy'),'-'),FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')PlanExFactoryDate
 
-,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or convert(varchar(11), BASEP.BaseProcProdStartDate, 106)  < convert(varchar(11), Type1.BaseProcPlanStartDate, 106)  then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
-,POCompletionDate=FORMAT((case when Type1.BaseProcPlanCompletionDate is null or convert(varchar(11), BASEP.BaseProcLatestProdDate, 106)  > convert(varchar(11), Type1.BaseProcPlanCompletionDate, 106)  then BASEP.BaseProcLatestProdDate else Type1.BaseProcPlanCompletionDate end ),'dd-MMM-yyyy')
+,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate < Type1.BaseProcPlanStartDate  then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
+,POCompletionDate=FORMAT((case when Type1.BaseProcPlanCompletionDate is null or BASEP.BaseProcLatestProdDate > Type1.BaseProcPlanCompletionDate then BASEP.BaseProcLatestProdDate else Type1.BaseProcPlanCompletionDate end ),'dd-MMM-yyyy')
 ,ISNULL(FBPPD.POProduceQty,0)POProduceQty,RemainingQty=ISNULL(case when isnull(SED.Qty,0)=0 THEN PO.PlannedQty ELSE  SED.Qty END-FBPPD.POProduceQty,0)
 
                               FROM trn.MasterOrder MO

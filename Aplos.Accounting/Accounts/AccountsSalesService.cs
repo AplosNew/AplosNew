@@ -2282,7 +2282,7 @@ namespace Library.Accounting.Accounts
 								,REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
 								,'Customer' [Type]
                                 ,CO.BaseCurrencyId,IVS.ToCurrencyRate
-                                ,'' NoteForAccounts
+                                ,'' NoteForAccounts,IVS.SourceType
                     FROM [TRN].[Sales] AS IVS LEFT JOIN [HKP].[Party] AS P ON IVS.PartyId=P.Id
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.PartyId AND CP.PlantId=IVS.PlantId
@@ -2328,7 +2328,8 @@ namespace Library.Accounting.Accounts
 		                        , IID.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IID.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
 		                        ,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.TransactionRate, IID.TransactionAmount
                                 ,II.ToCurrencyRate, II.DocRefNo, II.InvoiceDate , II.Narration
-                                ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,ISD.SalesRate, IID.TransactionQty,0 OtherQty,(IID.TransactionQty) BalanceQty,ISD.TotalAmount,0 SalesTaxAmount,0 ReturnAmount,0 TaxAmount,NULL TaxList
+                                ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,ISD.SalesRate, IID.TransactionQty,0 OtherQty,(IID.TransactionQty) BalanceQty
+								,ISD.TotalAmount,0 SalesTaxAmount,0 ReturnAmount,0 TaxAmount,IID.BaseRate,IID.BaseUoMFactor,NULL TaxList
                         FROM  [TRN].[SalesMaterial] AS IID
                         LEFT JOIN [TRN].[Sales] AS II ON IID.SalesId=II.Id
                         LEFT JOIN [MST].[MaterialMaster] AS MM ON IID.MaterialMasterId=MM.Id
@@ -2346,7 +2347,86 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IID.Id
 						--LEFT JOIN (SELECT SR.InventorySalesId,SRD.InventoryMaterialId,sum(SRD.TransactionQty) OtherQty FROM TRN.InventorySalesReturnDetail SRD 
 						--			JOIN TRN.InventorySalesReturn SR ON SR.Id=SRD.InventorySalesReturnId WHERE SR.InventorySalesId='MS2022451' group by SR.InventorySalesId,SRD.InventoryMaterialId) ISR ON ISR.InventorySalesId=II.Id and ISR.InventoryMaterialId=IID.InventoryMaterialId
-						WHERE IID.SalesId='"+ salesId + @"'";
+						WHERE IID.SalesId='" + salesId + @"'";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
+		{
+
+			var cmdText = @"SELECT '' Id,SP.PackingId,SM.Id SalesMaterialId,SM.SalesOrderId,SM.SalesId
+				, SM.MaterialMasterId, SM.ArticleId , SM.FirstCharacteristicsId , SM.TransactionUoMId, SM.BaseUOMId,SM.BaseRate,SM.BaseUoMFactor
+				, SM.TransactionRate, SM.TransactionAmount,SM.TaxAmount SalesTax,SM.NetAmount TotalAmount
+                ,SA.ToCurrencyRate, SA.DocRefNo, SA.InvoiceDate , SA.Narration
+				,  MGM.UserName AS MaterialGroupMasterName,MM.UserName MaterialMasterName,ART.StandardName AS ArticleName
+            , BUoM.UserName AS BaseUoM, TUoM.UserName AS TransactionUoM
+            , CU.Code AS Currency,NULL TaxList ,FC.ValueFreeText,FCV.UserName AS [FreeText] 
+            , SCV.UserName AS SecondCharacteristicsValue,TCV.UserName AS ThirdCharacteristicsValue
+
+			,FC.Id FirstCharacteristicsId
+			,FC.CharacteristicsValueId FirstCharacteristicsValueId
+			,CH.UserName FCH,FCV.UserName FirstCharacteristicText
+
+			,CH2.UserName SCH,SCV.UserName SecondCharacteristicText
+			,SC.Id SecondCharacteristicsId
+            ,SC.CharacteristicsValueId SecondCharacteristicsValueId
+
+			,CH3.UserName TCH,TCV.UserName SKU3
+			,TC.Id ThirdCharacteristicsId
+			,TC.CharacteristicsValueId ThirdCharacteristicsValueId
+            ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
+			, SO.SOType,SO.Rate,0 ReturnQty,0 Amount,0 TaxAmount
+           ,SM.TransactionQty SalesQty
+                ,SM.TransactionQty 
+                ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount,ISNULL(MM.HSNCodeId,ART.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode
+            FROM TRN.SalesMaterial AS SM 
+            LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
+			LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=SA.Id
+            LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+            JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+			LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+			LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
+
+            LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
+            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+            LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
+			LEFT JOIN HKP.HSNCode HM ON HM.Id=MM.HSNCodeId
+			LEFT JOIN HKP.HSNCode HA ON HA.Id=ART.HSNCodeId
+            LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
+			LEFT JOIN [HKP].[Characteristics] AS CH ON FC.CharacteristicsId=CH.Id
+
+            LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
+			LEFT JOIN [HKP].[Characteristics] AS CH2 ON SC.CharacteristicsId=CH2.Id
+
+            LEFT JOIN TRN.ThirdCharacteristics AS TC ON TC.Id=SM.ThirdCharacteristicsId AND SM.SalesOrderId=TC.SalesOrderId
+            LEFT JOIN HKP.CharacteristicsValue AS TCV ON TCV.Id=SM.ThirdCharacteristicsValueId
+			LEFT JOIN [HKP].[Characteristics] AS CH3 ON TC.CharacteristicsId=CH3.Id
+
+            LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+            JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
+            JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
+            WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "'";
+
+			return _sqlRepository.GetDataCollection(cmdText);
+		}
+
+		public IEnumerable<object> GetMaterialSalesTaxDetail(string salesId)
+		{
+			try
+			{
+				string sql = @"SELECT   '' Id,A.SalesId,a.SalesMaterialId,A.TaxCategoryId,A.HSNCodeId
+								,A.[Percentage],0 Amount ,0 TaxAmount,B.Code HSNCode,B.[Description]
+                                FROM TRN.SalesTax A
+                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
+                                where A.SalesId='" + salesId + "' and A.SalesServiceId is null";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -2355,21 +2435,15 @@ namespace Library.Accounting.Accounts
 			}
 		}
 
-		public IEnumerable<object> GetMaterialSalesTaxDetail(string salesId)
+		public List<Dictionary<string, object>> GetItemScanChildData(string salesId, string packingId, string soId)
 		{
-			try
-			{
-				string sql = @"SELECT  A.Id InventorySalesTaxId,A.SalesId,a.SalesMaterialId,A.TaxCategoryId,A.HSNCodeId
-								,A.[Percentage],A.Amount SalesTax,0 TaxAmount,B.Code HSNCode,B.[Description]
-                                FROM TRN.SalesTax A
-                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
-                                where A.SalesId='"+ salesId + "' and A.SalesServiceId is null";
-				return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw ex;
-			}
+
+			var cmdText = @"SELECT isc.*,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
+                                left join trn.POLotReference pol on pol.Id = isc.PackingId
+                                left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+                                where  pli.PackingId = '" + packingId + "' AND pli.SOId IN ('"+ soId + "') and isc.SalesId='"+ salesId + @"'";
+
+			return _sqlRepository.GetDataCollection(cmdText);
 		}
 
 	}

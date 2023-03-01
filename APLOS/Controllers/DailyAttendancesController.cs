@@ -104,69 +104,69 @@ namespace Aplos.Controllers
 		}
 
 		[HttpPost, AllowAnonymous]
-		public ActionResult Login(string timezoneoffset, string employeeId, string password, string remember)
+		public ActionResult Login(string timezoneoffset, string employeeId, string remember)
 		{
-			var http = System.Web.HttpContext.Current;
-			var isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
-			var ip = AccessInfo.GetWorkstationIP(http);
-			dynamic location = AccessInfo.GetLocation(ip);
-			if (null == location)
-			{
-				location = new
-				{
-					country_code = " ",
-					country_name = " ",
-					region_code = " ",
-					region_name = " ",
-					city = " ",
-					latitude = " ",
-					longitude = " ",
-					time_zone = " ",
-					zip_code = " "
-				};
-			}
-			if (!string.IsNullOrEmpty(timezoneoffset))
-			{
-				HttpContext.Session[nameof(timezoneoffset)] = timezoneoffset;
-				var offset = int.Parse(timezoneoffset);
-				var requestDateTime = DateTime.UtcNow.AddMinutes(-1 * offset);
-				timezoneoffset = requestDateTime.DayOfWeek + " " + requestDateTime + " " + location.country_name + " Standard Time";
-			}
-			var _result = ParentsLogin(employeeId, password);
-			if (_result["Status"].ToString() == "Success")
-				SetAuthentication(employeeId, _result, isRemember, ip);
-			_accessLogService.Insert(new AccessLog
-			{
-				AccessTime = DateTime.UtcNow,
-				AccessTimeWithCountry = timezoneoffset,
-				Browser = AccessInfo.GetBrowserName(http),
-				City = Convert.ToString(location.city),
-				CompanyGroupId = null,
-				CountryCode = Convert.ToString(location.country_code),
-				CountryName = Convert.ToString(location.country_name),
-				DaylightName = null,
-				DeviceType = null,
-				Dstoffset = http.Request.Browser.Platform,
-				Gmtoffset = null,
-				IsCookieEnable = http.Request.Browser.Cookies,
-				IsJavascriptEnable = http.Request.Browser.VBScript,
-				Latitude = Convert.ToString(location.latitude),
-				Longitude = Convert.ToString(location.longitude),
-				OS = AccessInfo.GetOS(http),
-				Panel = PanelEnum.Portal.ToString(),
-				RegionCode = Convert.ToString(location.region_code),
-				RegionName = Convert.ToString(location.region_name),
-				Resistered = _result["Status"].ToString() == "Success",
-				ScreenSize = null,
-				Status = _result["Status"].ToString() == "Success",
-				TimeZone = Convert.ToString(location.time_zone),
-				UserAgent = HttpContext.Request.UserAgent,
-				UserId = null,
-				EmployeeId = employeeId,
-				WorkStationIP = ip,
-				WorkStationName = AccessInfo.GetWorkstationName(ip),
-				ZipCode = Convert.ToString(location.zip_code)
-			});
+			//var http = System.Web.HttpContext.Current;
+			//var isRemember = !string.IsNullOrWhiteSpace(remember) && remember == "on";
+			//var ip = AccessInfo.GetWorkstationIP(http);
+			//dynamic location = AccessInfo.GetLocation(ip);
+			//if (null == location)
+			//{
+			//	location = new
+			//	{
+			//		country_code = " ",
+			//		country_name = " ",
+			//		region_code = " ",
+			//		region_name = " ",
+			//		city = " ",
+			//		latitude = " ",
+			//		longitude = " ",
+			//		time_zone = " ",
+			//		zip_code = " "
+			//	};
+			//}
+			//if (!string.IsNullOrEmpty(timezoneoffset))
+			//{
+			//	HttpContext.Session[nameof(timezoneoffset)] = timezoneoffset;
+			//	var offset = int.Parse(timezoneoffset);
+			//	var requestDateTime = DateTime.UtcNow.AddMinutes(-1 * offset);
+			//	timezoneoffset = requestDateTime.DayOfWeek + " " + requestDateTime + " " + location.country_name + " Standard Time";
+			//}
+			var _result = ParentsLogin(employeeId);
+			//if (_result["Status"].ToString() == "Success")
+			//	SetAuthentication(employeeId, _result, isRemember, ip);
+			//_accessLogService.Insert(new AccessLog
+			//{
+			//	AccessTime = DateTime.UtcNow,
+			//	AccessTimeWithCountry = timezoneoffset,
+			//	Browser = AccessInfo.GetBrowserName(http),
+			//	City = Convert.ToString(location.city),
+			//	CompanyGroupId = null,
+			//	CountryCode = Convert.ToString(location.country_code),
+			//	CountryName = Convert.ToString(location.country_name),
+			//	DaylightName = null,
+			//	DeviceType = null,
+			//	Dstoffset = http.Request.Browser.Platform,
+			//	Gmtoffset = null,
+			//	IsCookieEnable = http.Request.Browser.Cookies,
+			//	IsJavascriptEnable = http.Request.Browser.VBScript,
+			//	Latitude = Convert.ToString(location.latitude),
+			//	Longitude = Convert.ToString(location.longitude),
+			//	OS = AccessInfo.GetOS(http),
+			//	Panel = PanelEnum.Portal.ToString(),
+			//	RegionCode = Convert.ToString(location.region_code),
+			//	RegionName = Convert.ToString(location.region_name),
+			//	Resistered = _result["Status"].ToString() == "Success",
+			//	ScreenSize = null,
+			//	Status = _result["Status"].ToString() == "Success",
+			//	TimeZone = Convert.ToString(location.time_zone),
+			//	UserAgent = HttpContext.Request.UserAgent,
+			//	UserId = null,
+			//	EmployeeId = employeeId,
+			//	WorkStationIP = ip,
+			//	WorkStationName = AccessInfo.GetWorkstationName(ip),
+			//	ZipCode = Convert.ToString(location.zip_code)
+			//});
 
 			Dictionary<string, object> empProfile = new Dictionary<string, object>();
 			empProfile = _sqlRepository.GetDataCollection("select * from EmployeeInformation Where EmployeeCode='" + employeeId + "'")[0];
@@ -174,7 +174,7 @@ namespace Aplos.Controllers
 			return Json(new { result = _result, profile = empProfile }, JsonRequestBehavior.AllowGet);
 		}
 
-		public Dictionary<string, object> ParentsLogin(string employeeId, string password)
+		public Dictionary<string, object> ParentsLogin(string employeeId)
 		{
 			var sql = @"Select SystemId EmployeeId,EmployeeName,GroupId CompanyGroupId,''CompanyGroupName,CompanyId,''CompanyName,PlantId,''PlantName from EmployeeInformation Where EmployeeCode='"+ employeeId + "'";
 			var result = _sqlRepository.GetData(sql);

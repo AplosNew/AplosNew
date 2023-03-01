@@ -5591,9 +5591,19 @@ namespace Library.MaterialManagement.InventoryManagements
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var _sql = @"select IRD.Id,format(IRD.AddedDate,'dd-MMM-yyyy') Date,IR.DocRefNo,NULL PO,NULL StyleNO,P.UserName VendorName,MM.UserName Material,MMA.StandardName Article
-									,NULL SKU1,IRD.lotNo,IRD.TransactionQty Qty,uom.UserName UOM,IRD.MaterialTranRate Rate,'' RollBag,'' Transporter
-                                    ,'' GRNo,IR.Id GRNNo,'' Remarks
+                var _sql = @"select IRD.Id,format(IRD.AddedDate,'dd-MMM-yyyy') Date,IR.DocRefNo,IRD.POId PONo,P.UserName VendorName,MM.UserName Material,MMA.StandardName Article
+									,NULL SKU1,IRD.lotNo,IRD.TransactionQty Qty,uom.UserName UOM,IRD.MaterialTranRate Rate
+									,ISNULL(GE.PackageQty,0) RollBag,GE.PersonName Transporter
+                                    ,GE.Remarks GRNo,IR.Id GRNNo,'' Remarks
+									
+									,BuyerReferenceNo=STUFF((select distinct ','+MO.BuyerReferenceNo from
+                                    trn.PurchaseOrderDetail POD
+                                    LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
+                                    LEFT JOIN (select PODetailsId from TRN.InventoryReceiveDetail) IRD on IRD.PODetailsId=POD.Id
+                                    LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
+                                    LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
+                                    where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
 									from trn.InventoryReceiveDetail IRD
 									left join trn.InventoryReceive IR on IR.Id=IRD.InventoryReceiveId
 									left join trn.InventoryMaterial IM on IM.Id=IRD.InventoryMaterialId
@@ -5601,6 +5611,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									left join MST.MaterialMasterArticle MMA on MMA.Id=IM.ArticleId
 									left join HKP.Party P on P.Id=IR.PartyId
 									left join [SCS].[UnitOfMeasurement] uom on uom.Id=IRD.TransactionUoMId	
+									left join TRN.[GateEntry] GE on GE.Id=IR.GateEntryNo	
                                      									 
 						where Convert(date,IR.GRNDate) between '" + fromDate + @"' AND '" + toDate + @"'";
 
