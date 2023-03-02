@@ -11,6 +11,8 @@ namespace Library.Model.Productions.ProductionBooking
         public string Id { get; set; }
         public DateTime? ProductionDate { get; set; }
         public decimal Quantity { get; set; }
+        public decimal QtyWithoutScan { get; set; }
+        public decimal ScanQty { get; set; }
         public string ProductionBookingPeriodId { get; set; }
         public string ProductionGrade { get; set; }
         public string ResponsiblePersonId { get; set; }

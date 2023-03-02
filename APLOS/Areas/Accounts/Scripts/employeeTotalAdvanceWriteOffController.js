@@ -92,6 +92,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         PartyGLGeneralInfoId: null,
         GLGeneralInfoId: null,
         CurrencyId: null,
+        CompanyCurrencyRate: 1,
         VoucherTypeId: null,
         PartyType: 'Employee',
         Type: null,
@@ -193,6 +194,23 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
             $scope.advance.DocRefNo = "EAW-" + $scope.employeeTransactionNo;
         });
     };
+
+    $scope.GetCurrencyExchangeRateList = function () {
+        $scope.currencyExchangeRate = [];
+        if (!baseService.isUndefinedOrNull($scope.advance.PostingDate) && !baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.advance.PostingDate + "&currencyId=" + $scope.advance.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.advance.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
+
 
     $('.datepicker').datepicker({
         format: 'dd-M-yyyy', autoclose: true, reset: true, todayHighlight: true, setDate: new Date()

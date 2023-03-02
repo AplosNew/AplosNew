@@ -811,7 +811,7 @@ namespace Library.Service.Productions
                         }
                     }
 
-
+                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
 
                     base.Insert(ps);
                 }
@@ -828,7 +828,9 @@ namespace Library.Service.Productions
 
                     ob_fromDB.ResponsiblePersonId = ps.ResponsiblePersonId;
                     ob_fromDB.MentorId = ps.MentorId;
-                    ob_fromDB.Quantity = ps.Quantity;
+                    ob_fromDB.ScanQty = ps.ScanQty;
+                    ob_fromDB.QtyWithoutScan = ps.QtyWithoutScan;
+                    ob_fromDB.Quantity = ps.QtyWithoutScan+ ps.ScanQty;
                     ob_fromDB.ProductionOrderId = ps.ProductionOrderId;
                     ob_fromDB.SalesOrderId = ps.SalesOrderId;
                     ob_fromDB.MasterOrderItemId = ps.MasterOrderItemId;

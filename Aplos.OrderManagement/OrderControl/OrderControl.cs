@@ -614,7 +614,7 @@ namespace Library.OrderManagement.OrderControl
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,C.Code As Currency,MMA.StandardName Article,MOI.BuyerReferenceNo
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,C.Code As Currency,MMA.StandardName Article,MOI.BuyerReferenceNo,SO.CM
 							
                     FROM [TRN].[SalesOrder] AS SO
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id

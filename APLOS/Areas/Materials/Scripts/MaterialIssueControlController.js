@@ -174,22 +174,89 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
 
-        $scope.SOItemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + obj.data.Id)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SOItemList = response.data;
-                    }
-                    $scope.GetQBOQCostingData();
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
+    $scope.SearchSOItemList = [];
+    $scope.AddSO = function () {
+        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SearchSOItemList = response.data;
+
+                        if (baseService.arrayLength($scope.SOItemList) > 0) {
+                            for (var i = 0; i < $scope.SOItemList.length; i++) {
+                                for (var j = 0; j < $scope.SearchSOItemList.length; j++) {
+                                    if ($scope.SOItemList[i].SOId == $scope.SearchSOItemList[j].SOId) {
+                                        $scope.SearchSOItemList.splice(j, 1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    angular.element(document.querySelector('#SOpopUp')).modal('show');
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+    $scope.closeSOPopUp = function () {
+        for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
+            if ($scope.SearchSOItemList[i].Flag) {
+                if (checkExists($scope.SOItemList, $scope.SearchSOItemList[i].SOId) == false) {
+                    $scope.SOItemList.push($scope.SearchSOItemList[i]);
+                }
+            }
+        }
+        $scope.GetQBOQCostingData();
+        angular.element(document.querySelector('#SOpopUp')).modal('hide');
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].SOId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#SOPOPGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SOItemList.length; i++) {
+                $scope.SearchSOItemList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+
+        }
+        var gridObj = $("#SOPOPGrid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
 
     $scope.GetSaved = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
@@ -316,87 +383,32 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
 
     $scope.Action = 'Save';
-    $scope.SaveA = function () {
-        $scope.QBOQCostingListNew = [];
-
-        try {
-            if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
-                for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
-                   
-                    $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
-                    $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
-                    $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
-                    $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
-                    $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
-                }
-            }
-
-            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-                throw "Select Production Order.";
-            }
-            if (baseService.arrayLength($scope.SOItemList) === 0) {
-                throw "Select SO Detail.";
-            }
-
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.ModelNewForm.$valid) {
-                if ($scope.Action === 'Save' || $scope.Action === 'Update') {
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveUrl,
-                        data: {
-                            'model': $scope.ModelNew
-                            , 'soList': $scope.SOItemList
-                            , 'dataList': $scope.QBOQCostingListNew
-                            , 'dataLists': $scope.QBOQCostingListNew
-                        },
-                        dataType: 'JSON'
-                        , contentType: "application/json charset=utf-8"
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.Clear();
-                            $scope.GetSavedData();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    };
-                }
-            }
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
     $scope.Save = function () {
         $scope.QBOQCostingListNew = [];
 
         try {
             if ($scope.Action === 'Save') {
-            if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
-                for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+                if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
+                    for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
 
-                    $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
-                    $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
-                    $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
-                    $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
-                    $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+                        $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+                        $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                        $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+                        $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+                        $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+                    }
                 }
-            }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-                throw "Select Production Order.";
-            }
-            if (baseService.arrayLength($scope.SOItemList) === 0) {
-                throw "Select SO Detail.";
-            }
+                if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+                    throw "Select Production Order.";
+                }
+                if (baseService.arrayLength($scope.SOItemList) === 0) {
+                    throw "Select SO Detail.";
+                }
 
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.ModelNewForm.$valid) {
-               
+                $scope.$broadcast('show-errors-check-validity');
+                if ($scope.ModelNewForm.$valid) {
+
                     $http({
                         method: 'POST',
                         url: $scope.saveUrl,

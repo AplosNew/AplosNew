@@ -524,6 +524,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/ResignationType/Aplos',
             controller: 'ResignationTypeController'
         })
-        
+        .when('/myapp-employee-ledger', {
+            templateUrl: 'Employees/EmployeeReport/MyappEmployeeLedgerReport',
+            controller: 'myappEmployeeLedgerReportController'
+        })
         ;
 } 
