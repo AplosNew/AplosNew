@@ -57,6 +57,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("DetentionLogController", DetentionLogController)
     .controller("DetentionLogoutController", DetentionLogoutController)
     .controller("DetentionLogReportController", DetentionLogReportController)
+    .controller("myappEmployeeLedgerReportController", myappEmployeeLedgerReportController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -332,6 +333,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             .when('/detention-logout', {
                 templateUrl: 'materials/DetentionLogout/Aplos',
                 controller: 'DetentionLogoutController'
+            })
+            .when('/myapp-employee-ledger', {
+                templateUrl: 'Employees/EmployeeReport/MyappEmployeeLedger',
+                controller: 'myappEmployeeLedgerReportController'
             })
             //#endregion
 

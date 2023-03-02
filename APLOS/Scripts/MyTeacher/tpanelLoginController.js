@@ -1,7 +1,7 @@
 ﻿/// <reference path="../angular-constant-path.js" />
 'use strict';
-tpanelLoginController.$inject = ['$scope', '$rootScope', '$routeParams', '$http', '$filter', '$window', '$cookies'];
-function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter, $window, $cookies) {
+tpanelLoginController.$inject = ['$scope', '$rootScope', '$routeParams', '$http', '$filter', '$window', '$cookies', '$controller'];
+function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter, $window, $cookies, $controller) {
     $rootScope.title = 'Portal::Login';
     $scope.servicepanel = 'portal';
     $scope.returnUrl = $routeParams.returnUrl;
@@ -11,6 +11,8 @@ function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
     $scope.errorText = null;
     $scope.employeeName = null;
     $scope.companyGroupLogo = 'organization-alt.png';
+   
+    
     $scope.Login = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.loginForm.$valid) {
@@ -22,7 +24,7 @@ function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
                 return $scope.errorText = 'No internet connection. Please check your internet connection.';
             $http({
                 method: 'POST',
-                url: 'MyTeacher/Login',
+                url: 'DailyAttdStatus/Login',
                 params: {
                     'timezoneoffset': $scope.timezoneoffset
                     , 'employeeId': $scope.employeeId
@@ -44,8 +46,8 @@ function tpanelLoginController($scope, $rootScope, $routeParams, $http, $filter,
                         $cookies.put("MyTeacheremployeeName", response.data.result.EmployeeName);
 
                         $cookies.put("MyAppuserImage", response.data.profile.EmpPicPath);
-                       // $window.location = 'myTeacher#!/dashboard';
-                        $window.location = 'tpanel#!/task-list';
+                        $window.location = 'tpanel#!/daily-attendance-status-report';
+                        //$window.location = 'tpanel#!/task-list';
                     }
                 }
             }, function errorCallback(response) {

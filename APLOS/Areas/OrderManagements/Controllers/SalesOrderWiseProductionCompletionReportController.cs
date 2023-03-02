@@ -322,11 +322,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colExpectedCompletionDate = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Expected Ex-Factory Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colExpectedExFactoryDate = COL;
+                //COL++;
+                //sheet[ROW, COL].Text = "Expected Ex-Factory Date";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                //int colExpectedExFactoryDate = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Available Produced Qty";
                 sheet[ROW, COL].ColumnWidth = 12;
@@ -441,7 +441,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colSalesOrderId].Text = dtOrderMaster.Rows[i]["SalesOrderId"].ToString();
                     sheet[ROW, colPONo].Text = dtOrderMaster.Rows[i]["PONumber"].ToString();
                     sheet[ROW, colPODate].Text = dtOrderMaster.Rows[i]["PODate"].ToString();
-                    sheet[ROW, colExpectedExFactoryDate].Text = dtOrderMaster.Rows[i]["ExpectedExFactoryDate"].ToString();
+                    //sheet[ROW, colExpectedExFactoryDate].Text = dtOrderMaster.Rows[i]["ExpectedExFactoryDate"].ToString();
 
                     //if (dtOrderMaster.Rows[i]["ProductionOrderId"].ToString() == "20104")
                     //{
@@ -638,7 +638,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 pivotTable.Fields[colCommitmentDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPlanExFactoryDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colExpectedCompletionDate - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colExpectedExFactoryDate - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colExpectedExFactoryDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colEarlyBy - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colEarlyBy - 1].NumberFormat = clsStaticInfo.NumberFormat();
                 pivotTable.Fields[colLateBy - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colLateBy - 1].NumberFormat = clsStaticInfo.NumberFormat();
                 //pivotTable.Fields[colDeliveryMonth - 1].Axis = PivotAxisTypes.Row; pivotTable.Fields[colDeliveryMonth - 1].NumberFormat = clsStaticInfo.NumberFormat();
@@ -650,7 +650,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     if (i == colEntity - 1|| i == colCustomer - 1 || i == colProductCode - 1 || i == colProductAttribute - 1 || i == colBuyerOrderNo - 1
                         || i == colProductionOrderId - 1 || i == colproductionStatus - 1 || i == colPRQty - 1 || i == colPRPlannedQty - 1 || i == colPOProduceQty - 1 || i == colPORemainingQty - 1 || i == colPOStartDate - 1 || i == colPOCompletionDate - 1|| i==colSOQty-1
                         || i == colDeliveryDate - 1 || i == colSalesOrderId - 1 || i == colOrderCategory - 1 || i == colOrderStatus - 1 
-                        || i == colArticle - 1 || i == colCommitmentDate - 1 || i == colPlanExFactoryDate - 1 || i == colExpectedCompletionDate - 1 || i == colExpectedExFactoryDate - 1 || i == colEarlyBy - 1 || i == colLateBy - 1||i== colAvailableProducedQty-1
+                        || i == colArticle - 1 || i == colCommitmentDate - 1 || i == colPlanExFactoryDate - 1 || i == colExpectedCompletionDate - 1  || i == colEarlyBy - 1 || i == colLateBy - 1||i== colAvailableProducedQty-1
                       )
                     {
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;

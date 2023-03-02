@@ -1,4 +1,5 @@
-﻿using Library.Core;
+﻿using bplib;
+using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
@@ -151,6 +152,80 @@ namespace Aplos.MaterialManagement.MaterialQuery
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
+        }
+        public string MakePK(string masterId, int currentId, int padLeft)
+        {
+            return masterId + currentId.ToString().PadLeft(padLeft, '0');
+        }
+        public void GenerateIDYearly(string strEntryDate, string strFieldName, out string strID)
+        {
+            ConnectionManager.DAL.ConManager objCoManager;
+
+            string strSql = "";
+            DataSet dsLocal = null;
+            DataTable dtLocal = null;
+            DataRow drLocal = null;
+            DataView dvLocal = null;
+            // System.Text.StringBuilder SB = null;
+            decimal MaxNumber = 0;
+
+            try
+            {
+                //by Monir
+                strEntryDate = clsWebLib.AppDateConvert(strEntryDate, "MM/dd/yyyy", clsWebLib.getUserDateFormat()).ToShortDateString();
+                //strEntryDate = bplib.clsWebLib.AppDateConvert(strEntryDate, bplib.clsWebLib.getUserDateFormat(), "MM/dd/yyyy").ToString("MM/dd/yyyy");
+                //strSql = "SELECT [Field], [Dates], [LastNumber], Year(Dates) as YearNo FROM Signature WHERE Field ='" + strFieldName.Trim() + "' and Year(Dates) = '" + Convert.ToDateTime(strEntryDate).Year.ToString() + "'";
+                string period = Convert.ToDateTime(strEntryDate).Year.ToString();
+                strSql = "SELECT Id, Period, FieldName, MaxNumber,UpdatedDate FROM ACS.PKGenerator WHERE FieldName ='" + strFieldName.Trim() + @"'  AND Period='" + period + "'";
+
+                objCoManager = new ConnectionManager.DAL.ConManager("1");
+                objCoManager.OpenDataSetThroughAdapter(strSql, out dsLocal, false, false, "", "1");
+
+
+                dtLocal = dsLocal.Tables[0];
+                dvLocal = new DataView(dtLocal);
+                //dvLocal.Table = dtLocal;
+                dvLocal.RowFilter = "FieldName ='" + strFieldName.Trim() + "' AND Period = '" + period + "'";
+                if (dvLocal.Count == 0)
+                {// Add data
+                    drLocal = dtLocal.NewRow();
+                    drLocal["FieldName"] = clsWebLib.RetValidLen(strFieldName, 100);
+                    drLocal["Period"] = DateTime.Now.Year;
+                    drLocal["MaxNumber"] = 1;
+                    drLocal["UpdatedDate"] = DateTime.Now;
+                    MaxNumber = 1;
+                    dtLocal.Rows.Add(drLocal);
+                }
+                else if (dvLocal.Count == 1)
+                {
+                    drLocal = dvLocal[0].Row;
+
+                    MaxNumber = Convert.ToDecimal(clsWebLib.GetNumData(("" + drLocal["MaxNumber"].ToString())));
+                    MaxNumber = MaxNumber + 1;
+
+                    drLocal.BeginEdit();
+                    drLocal["FieldName"] = clsWebLib.RetValidLen(strFieldName, 100);
+                    drLocal["Period"] = DateTime.Now.Year;
+                    drLocal["MaxNumber"] = MaxNumber;
+                    drLocal["UpdatedDate"] = DateTime.Now;
+                    drLocal.EndEdit();
+                }
+
+                objCoManager.SaveDataSetThroughAdapter(ref dsLocal, false, "1");
+                strID = /*strID + "-" +*/ (int)MaxNumber + "";
+                strID = DateTime.Now.ToString("yyyy") + strID;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                dtLocal = null;
+                dvLocal = null;
+                drLocal = null;
+            }
         }
     }
 }

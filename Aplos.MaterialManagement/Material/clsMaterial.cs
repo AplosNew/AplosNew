@@ -427,14 +427,14 @@ where pod.ProductionOrderID=Xpod.ProductionOrderId)
 													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                     group by pod.ProductionOrderId,mm.userName,ma.StandardName,PM.UserName,pc.UserName ,so.DeliveryDate,SO.PlanExFactoryDate,SO.CommitmentDate) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed' AND PO.Id NOT IN(Select POId from dbo.MaterialIssueControlMaster)) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+                            WHERE PO.entityid='" + entityid + @"' AND S.UserName<>'Closed') AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
         public IEnumerable<object> GetSOItemList(string entityid, string ProductionOrderId)
         {
-            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,PM.Id
+            string CmdText = @"SELECT  DISTINCT mo.MasterOrderNo,moi.Id LineItemId,PM.Id,Flag =Convert(bit, 'False')
 	                                ,ISNULL(so.Id,'') SOId
 	                                ,SO.CustomerPOId
 	                                ,CPO.PONumber
@@ -517,7 +517,7 @@ LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
 
-                                WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
+                                WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND SO.Id NOT IN(Select SOId from dbo.MaterialIssueControlSODetail)";
 
 
             return _sqlRepository.GetDataCollection(CmdText, null);

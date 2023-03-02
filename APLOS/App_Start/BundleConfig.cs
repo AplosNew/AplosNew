@@ -211,7 +211,9 @@ namespace Aplos
                   "~/Areas/Materials/Scripts/DetentionLogController.js",
                   "~/Areas/Materials/Scripts/DetentionLogoutController.js",
                   "~/Areas/Materials/Scripts/DetentionLogReportController.js",
-                 
+                  "~/Areas/Employees/Scripts/myappEmployeeLedgerReportController.js",
+
+
                   "~/Scripts/MyApp/epanelApp.js"
                   ));
 
@@ -271,7 +273,8 @@ namespace Aplos
 
                   "~/Scripts/DailyAttendances/ppanelLogoutController.js",
                   "~/Scripts/DailyAttendances/daPasswordChangeController.js",
-                  "~/Scripts/DailyAttendances/dapanelApp.js"
+                  "~/Scripts/DailyAttendances/dapanelApp.js",
+                  "~/Scripts/HumanResource/DailyAttendanceStatusReportController.js"
                   ));
 
             #endregion js

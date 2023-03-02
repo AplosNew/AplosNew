@@ -29,11 +29,13 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             _sqlRepository = new SqlRepository();
         }
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();
         }
 
+        [AllowAnonymous]
         public JsonResult GetShift()
         {
             try
@@ -48,6 +50,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        [AllowAnonymous]
         public JsonResult GetEmployeeCategory()
         {
             try
@@ -819,6 +822,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
         #endregion
 
         #region Save
+        [AllowAnonymous]
         public JsonResult Save(Dictionary<string, object> datas)
         {
             try

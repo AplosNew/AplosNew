@@ -11,12 +11,13 @@ function dapanelLoginController($scope, $rootScope, $routeParams, $http, $filter
     $scope.errorText = null;
     $scope.employeeName = null;
     $scope.companyGroupLogo = 'organization-alt.png';
+
     $scope.Login = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.loginForm.$valid) {
             $scope.errorText = null;
             if (!Number.isInteger(Number($scope.employeeId))) return $scope.errorText = 'Invalid employee id or pin.';
-            if (!Number.isInteger(Number($scope.password))) return $scope.errorText = 'Invalid employee id or pin.';
+           // if (!Number.isInteger(Number($scope.password))) return $scope.errorText = 'Invalid employee id or pin.';
 
             if (!navigator.onLine)
                 return $scope.errorText = 'No internet connection. Please check your internet connection.';
@@ -26,8 +27,8 @@ function dapanelLoginController($scope, $rootScope, $routeParams, $http, $filter
                 params: {
                     'timezoneoffset': $scope.timezoneoffset
                     , 'employeeId': $scope.employeeId
-                    , 'password': $scope.password
-                    , 'remember': $scope.remember
+                   // , 'password': $scope.password
+                   // , 'remember': $scope.remember
                 }
             }).then(function successCallback(response) {
                 if (response.data.result.Error === true || response.data.result.Status === 'Fail') {
@@ -35,7 +36,7 @@ function dapanelLoginController($scope, $rootScope, $routeParams, $http, $filter
                 }
                 else {
                     if (response.data.result.Status === 'Success') {
-                        $cookies.put('DailyAttendancespanel', 'ppanel');
+                        $cookies.put('DailyAttendancespanel', 'dapanel');
                         $cookies.put("employeeId", response.data.result.EmployeeId);
                         $cookies.put("groupId", response.data.result.CompanyGroupId);
                         $cookies.put("companyId", response.data.result.CompanyId);
@@ -44,7 +45,9 @@ function dapanelLoginController($scope, $rootScope, $routeParams, $http, $filter
                         $cookies.put("employeeName", response.data.result.EmployeeName);
 
                         $cookies.put("MyAppuserImage", response.data.profile.EmpPicPath);
-                        $window.location = 'ppanel#!/teacher-schedule';
+                        //$window.location = 'humanresource/DailyAttendanceStatusReport';
+                       // $window.location = 'DailyAttendances#!/daily-attendance-status-report';
+                        $window.location = 'DailyAttendances#!/task-list';
                     }
                 }
             }, function errorCallback(response) {

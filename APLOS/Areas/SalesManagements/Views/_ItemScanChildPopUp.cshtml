@@ -1,0 +1,42 @@
+﻿<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+</style>
+
+<div class="modal fade site-modal in" id="ISCpopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> Item Scan Child <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        <div style="color:black;overflow:scroll" id="itemScanChildGrid" ej-grid e-datasource="itemScanChildList" e-templaterefresh="refreshTemplate"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
+                            <div e-columns>
+                                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="LotNo" e-headertext="LotNo" e-width="70" e-filter="false"></div>
+                                <div e-column e-field="RefNo" e-headertext="RefNo" e-width="180"></div>
+                                <div e-column e-field="Cones" e-headertext="Cones" e-width="70"></div>
+                                <div e-column e-field="NetWeight" e-headertext="NetWeight" e-width="80"></div>
+                                <div e-column e-field="GWeight" e-headertext="GWeight" e-width="80"></div>
+                                <div e-column e-field="Shade" e-headertext="Shade" e-width="180"></div>
+                                <div e-column e-field="Booked" e-headertext="Booked" e-width="180"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplate">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplate">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeItemScanChildPopUp();" class="btn"> Apply</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

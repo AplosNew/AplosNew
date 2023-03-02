@@ -19,14 +19,14 @@ using System.Web.Security;
 
 namespace Aplos.Controllers
 {
-	public class MyTeacherController : BaseController
+	public class DailyAttdStatusController : BaseController
 	{
 		private readonly IEmployeeMobileAppsAuthorizationService _empAuthService;
 		private readonly IPasswordChangeService _passwordChangeService;
 		private readonly IAccessLogService _accessLogService;
 		private readonly ISqlRepository _sqlRepository;
 
-		public MyTeacherController(
+		public DailyAttdStatusController(
 			IEmployeeMobileAppsAuthorizationService empAuthService
 			, IPasswordChangeService passwordChangeService
 			, IAccessLogService accessLogService
@@ -134,38 +134,38 @@ namespace Aplos.Controllers
 			var _result = _empAuthService.Login(employeeId, password);
 			if (_result["Status"].ToString() == "Success")
 				SetAuthentication(employeeId, _result, isRemember, ip);
-			_accessLogService.Insert(new AccessLog
-			{
-				AccessTime = DateTime.UtcNow,
-				AccessTimeWithCountry = timezoneoffset,
-				Browser = AccessInfo.GetBrowserName(http),
-				City = Convert.ToString(location.city),
-				CompanyGroupId = null,
-				CountryCode = Convert.ToString(location.country_code),
-				CountryName = Convert.ToString(location.country_name),
-				DaylightName = null,
-				DeviceType = null,
-				Dstoffset = http.Request.Browser.Platform,
-				Gmtoffset = null,
-				IsCookieEnable = http.Request.Browser.Cookies,
-				IsJavascriptEnable = http.Request.Browser.VBScript,
-				Latitude = Convert.ToString(location.latitude),
-				Longitude = Convert.ToString(location.longitude),
-				OS = AccessInfo.GetOS(http),
-				Panel = PanelEnum.Portal.ToString(),
-				RegionCode = Convert.ToString(location.region_code),
-				RegionName = Convert.ToString(location.region_name),
-				Resistered = _result["Status"].ToString() == "Success",
-				ScreenSize = null,
-				Status = _result["Status"].ToString() == "Success",
-				TimeZone = Convert.ToString(location.time_zone),
-				UserAgent = HttpContext.Request.UserAgent,
-				UserId = null,
-				EmployeeId = employeeId,
-				WorkStationIP = ip,
-				WorkStationName = AccessInfo.GetWorkstationName(ip),
-				ZipCode = Convert.ToString(location.zip_code)
-			});
+			//_accessLogService.Insert(new AccessLog
+			//{
+			//	AccessTime = DateTime.UtcNow,
+			//	AccessTimeWithCountry = timezoneoffset,
+			//	Browser = AccessInfo.GetBrowserName(http),
+			//	City = Convert.ToString(location.city),
+			//	CompanyGroupId = null,
+			//	CountryCode = Convert.ToString(location.country_code),
+			//	CountryName = Convert.ToString(location.country_name),
+			//	DaylightName = null,
+			//	DeviceType = null,
+			//	Dstoffset = http.Request.Browser.Platform,
+			//	Gmtoffset = null,
+			//	IsCookieEnable = http.Request.Browser.Cookies,
+			//	IsJavascriptEnable = http.Request.Browser.VBScript,
+			//	Latitude = Convert.ToString(location.latitude),
+			//	Longitude = Convert.ToString(location.longitude),
+			//	OS = AccessInfo.GetOS(http),
+			//	Panel = PanelEnum.Portal.ToString(),
+			//	RegionCode = Convert.ToString(location.region_code),
+			//	RegionName = Convert.ToString(location.region_name),
+			//	Resistered = _result["Status"].ToString() == "Success",
+			//	ScreenSize = null,
+			//	Status = _result["Status"].ToString() == "Success",
+			//	TimeZone = Convert.ToString(location.time_zone),
+			//	UserAgent = HttpContext.Request.UserAgent,
+			//	UserId = null,
+			//	EmployeeId = employeeId,
+			//	WorkStationIP = ip,
+			//	WorkStationName = AccessInfo.GetWorkstationName(ip),
+			//	ZipCode = Convert.ToString(location.zip_code)
+			//});
 
 			Dictionary<string, object> empProfile = new Dictionary<string, object>();
 			empProfile = _sqlRepository.GetDataCollection("select * from employeeinformation where systemid='" + employeeId + "'")[0];
