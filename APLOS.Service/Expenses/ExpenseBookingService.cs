@@ -558,7 +558,7 @@ namespace Library.Service.Expenses
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=EB.EmployeeId
                                 LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=EB.ResponsiblePersonId
 							    LEFT JOIN [TRN].[ExpenseBookingApprovalHistory] AS EAH ON EAH.ExpenseBookingId=EB.Id
-                                    LEFT JOIN [dbo].[EmployeeInformation] AS EIH ON EIH.SystemId=EAH.EmployeeId
+                                LEFT JOIN [dbo].[EmployeeInformation] AS EIH ON EIH.SystemId=EAH.EmployeeId
                                 LEFT JOIN [SCS].[Currency] C ON EB.CurrencyId=C.Id
                                 LEFT JOIN [HKP].[Party] AS P ON P.Id=EB.PartyId
 								LEFT JOIN [TRN].[Voucher] AS V ON V.Id=EB.VoucherId
