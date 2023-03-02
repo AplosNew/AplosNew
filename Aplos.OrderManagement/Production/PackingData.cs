@@ -1349,6 +1349,7 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
                             DataRow dr = dsProductionSummary.Tables[0].DefaultView[0].Row;
 
                             dr.BeginEdit();
+                            dr["ScanQty"] = data.Rows[i]["Quantity"].ToString();
                             dr["Quantity"] = data.Rows[i]["Quantity"].ToString();
                             dr["UpdatedBy"] = identity.UpdatedBy;
                             dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -1367,6 +1368,7 @@ Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId
                             drProductionSummary["EntityId"] = data.Rows[i]["EntityId"].ToString();
                             drProductionSummary["ProcessId"] = data.Rows[i]["ProcessId"].ToString();
                             drProductionSummary["ProductionDate"] = data.Rows[i]["ProductionDate"].ToString();
+                            drProductionSummary["ScanQty"] = data.Rows[i]["Quantity"].ToString();
                             drProductionSummary["Quantity"] = data.Rows[i]["Quantity"].ToString();
                             drProductionSummary["ProductionOrderId"] = data.Rows[i]["ProductionOrderId"].ToString();
                             drProductionSummary["ProductionShiftId"] = data.Rows[i]["ShiftId"].ToString();
