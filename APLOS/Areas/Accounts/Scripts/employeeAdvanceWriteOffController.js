@@ -85,6 +85,7 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         PartyGLGeneralInfoId: null,
         GLGeneralInfoId: null,
         CurrencyId: null,
+        CompanyCurrencyRate: 1,
         VoucherTypeId: null,
         PartyType: 'Employee',
         Type: null,
@@ -172,6 +173,22 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
     bankService.getBankMasterHouseBankCboList(function (result) {
         $scope.bankMasterList = result;
     });
+
+    $scope.GetCurrencyExchangeRateList = function () {
+        $scope.currencyExchangeRate = [];
+        if (!baseService.isUndefinedOrNull($scope.advance.PostingDate) && !baseService.isUndefinedOrNull($scope.advance.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.advance.PostingDate + "&currencyId=" + $scope.advance.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.advance.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = [];
+        }
+    };
 
     bankService.getCashMasterCboList(function (result) {
         $scope.cashMasterList = result;

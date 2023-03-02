@@ -207,6 +207,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 CompanyId = identity.CompanyId,
                 PlantId = identity.PlantId,
                 VoucherTypeId = voucherTypeId,
+                CompanyCurrencyRate = 1,
                 PostingDate = DateTime.Now
             };
 
