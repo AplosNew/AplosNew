@@ -351,8 +351,20 @@
                 <div e-column e-field="DocRefNo" e-headertext="DocRefNo" e-width="40"></div>
                 <div e-column e-field="SalesReturnDate" e-headertext="SalesReturnDate" e-width="20"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
+                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="10"></div>
             </div>
         </div>
+        <script id="ReportTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.LocalTaxInvoiceReport(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                        <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
     </div>
 
 </div>

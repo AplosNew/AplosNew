@@ -4287,7 +4287,7 @@ namespace Library.MaterialManagement.Reports
             {
                
 
-                strSQL = @"SELECT IR.Id CustomerNo, IRD.Id SalesMaterialId
+                strSQL = @"SELECT IR.Id CustomerNo,SR.Id SalesReturnNo, IRD.Id SalesMaterialId
                                  , IR.CompanyGroupId
                                 ,IR.CompanyId,CRNC.Code
 								,p.UserName Customer
@@ -4408,7 +4408,8 @@ namespace Library.MaterialManagement.Reports
 						WHERE SP.SalesId=IR.Id
 						for XML PATH('')
 						) , 1, 2, '')) as ProdDetails,IR.AddedBy CreatedBy
-                        FROM TRN.Sales IR
+                        FROM TRN.SalesReturn SR
+                        Left JOIN TRN.Sales IR ON IR.Id=SR.SalesId
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
                          LEFT JOIN ORG.Plant Plant ON Plant.Id = IR.PlantId
@@ -4424,7 +4425,7 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = IR.DeliveryPartyPlantId
                          LEFT JOIN HKP.Party P ON P.Id = IR.PartyId
                          LEFT JOIN[MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
-                         LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
+                         LEFT JOIN trn.SalesReturnDetail AS IRD ON IRD.SalesReturnId = SR.Id
                          LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
                          LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
                          LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
@@ -4455,7 +4456,7 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
                          LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId						
 						 ) LC on LC.SalesId = IR.Id
-                         WHERE IR.Id ='" + SalesId + "'";
+                         WHERE SR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }

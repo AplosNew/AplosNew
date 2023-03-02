@@ -563,5 +563,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         });
     };
 
-
+    $scope.LocalTaxInvoiceReport = function (data) {
+        location.href = "Sales/LocalTaxInvoice?salesId=" + data.Id;
+    };
 }
