@@ -1369,6 +1369,30 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
     }
 
+    $scope.deleteMasterWC = function (master) {
+        if (!baseService.isUndefinedOrNull(master.data.Id)) {
+            $http({
+                method: 'POST',
+                url: 'Productions/productionSummary/DeleteMasterWC?id=' + master.data.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.loadWC();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+        else {
+            ShowResult("Production Summary not found...", 'Info');
+        }
+    }
+
     $scope.closePopup = function (popupName) {
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
         try {
@@ -1441,29 +1465,29 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.Calculate = function () {
         try {
-            $scope.NewObject.Quantity = 0 ;
-            $http({
-                method: 'POST',
-                url: 'Productions/ProductionSummary/Calculate',
-                data: { 'OpenHeadNew': $scope.ProcessParaList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                for (var i = 0; i < response.data.NewData.length; i++) {
-                    for (var j = 0; j < $scope.ProcessParaList.length; j++) {
-                        if (response.data.NewData[i].UserName == $scope.ProcessParaList[j].UserName) {
-                            $scope.ProcessParaList[j].Value = response.data.NewData[i].Value;
+                $scope.NewObject.Quantity = 0;
+                $http({
+                    method: 'POST',
+                    url: 'Productions/ProductionSummary/Calculate',
+                    data: { 'OpenHeadNew': $scope.ProcessParaList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    for (var i = 0; i < response.data.NewData.length; i++) {
+                        for (var j = 0; j < $scope.ProcessParaList.length; j++) {
+                            if (response.data.NewData[i].UserName == $scope.ProcessParaList[j].UserName) {
+                                $scope.ProcessParaList[j].Value = response.data.NewData[i].Value;
+                            }
+                        }
+                        if (response.data.NewData[i].IsProduction == true) {
+                            $scope.NewObject.Quantity += response.data.NewData[i].Value;
                         }
                     }
-                    if (response.data.NewData[i].IsProduction == true) {
-                        $scope.NewObject.Quantity += response.data.NewData[i].Value;
-                    }
-                }
                     $scope.SaveMaster();
-                var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            }, function errorCallback(response) {
-                $scope.ShowResultCustom(response.status.Message, "failure");
-            });
-        }
+                    var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+                }, function errorCallback(response) {
+                    $scope.ShowResultCustom(response.status.Message, "failure");
+                });
+            }
         catch (e) {
             ShowResult(e, 'failure');
         }

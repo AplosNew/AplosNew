@@ -655,6 +655,26 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             _ProductionSummaryService.DeleteDetail(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
+
+        [HttpPost]
+        public ActionResult DeleteMasterWC(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+
+                conC.BeginTransaction();
+                conC.executeQuery("delete from ProductionSummaryParameterValue where ProductionSummaryId ='" + id + @"'");
+                conC.executeQuery("delete from [TRN].[ProductionSummary] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         [HttpPost]
         public ActionResult DeleteInOut(string id)
         {
