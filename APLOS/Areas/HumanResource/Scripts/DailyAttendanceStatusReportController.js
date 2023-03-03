@@ -434,7 +434,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
 
                 }
             }, function errorCallback(response) {
