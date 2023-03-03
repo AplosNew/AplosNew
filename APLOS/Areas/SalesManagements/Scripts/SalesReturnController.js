@@ -397,60 +397,63 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
     $scope.Save = function () {
         // $scope.SavePOPUpConfirm();
-        if ($scope.detailList.length === 0) {
-            ShowResult('Please select Atlest one material');
-            return false;
-        }
-
-        if ($scope.Action === "Save") {
-            $http({
-                method: 'POST'
-                , url: $scope.saveUrl
-                , data: {
-                    'data': $scope.productNew
-                    , 'detaildataList': $scope.detailList
-                    , 'taxList': $scope.taxlist
-                    , 'itemScanCildList': $scope.tempitemScanList
-                }
-                , dataType: 'JSON'
-            }).then(function (response) {
-                if (response.data.Error === true)
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.productNewForm.$valid) {
+            if ($scope.detailList.length === 0) {
+                ShowResult('Please select Atlest one material');
+                return false;
+            }
+            if ($scope.Action === "Save") {
+                $http({
+                    method: 'POST'
+                    , url: $scope.saveUrl
+                    , data: {
+                        'data': $scope.productNew
+                        , 'detaildataList': $scope.detailList
+                        , 'taxList': $scope.taxlist
+                        , 'itemScanCildList': $scope.tempitemScanList
+                    }
+                    , dataType: 'JSON'
+                }).then(function (response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.getData();
+                        $scope.Clear();
+                        $scope.productNew.Id = response.data.inventoryIssue.Id;
+                    }
+                }), function (response) {
                     ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.productNew.Id = response.data.inventoryIssue.Id;
-                    $scope.getData();
-                    $scope.Clear();
-                }
-            }), function (response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        }
-        else if ($scope.Action === "Update") {
-            $http({
-                method: 'POST'
-                , url: $scope.updateUrl
-                , data: {
-                    inventoryIssue: $scope.productNew
-                    , entities: $scope.detailList
-                    , 'salesReturnTaxList': $scope.taxlist
-                    , 'salesServiceVMList': $scope.chargesList
-                }
-                , dataType: 'JSON'
-            }).then(function (response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.productNew.Id = response.data.inventoryIssue.Id;
+                };
+            }
+            else if ($scope.Action === "Update") {
+                $http({
+                    method: 'POST'
+                    , url: $scope.updateUrl
+                    , data: {
+                        inventoryIssue: $scope.productNew
+                        , entities: $scope.detailList
+                        , 'salesReturnTaxList': $scope.taxlist
+                        , 'salesServiceVMList': $scope.chargesList
+                    }
+                    , dataType: 'JSON'
+                }).then(function (response) {
+                    if (response.data.Error === true)
+                        ShowResult(response.data.Message, 'failure');
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.productNew.Id = response.data.inventoryIssue.Id;
 
-                    $scope.getData();
-                    $scope.Clear();
-                }
-            }), function (response) {
-                ShowResult(response.data.Message, 'failure');
-            };
+                        $scope.getData();
+                        $scope.Clear();
+                    }
+                }), function (response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
         }
+        
     };
 
 
@@ -463,10 +466,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     function ClearFields() {
         $scope.Action = "Save";
         $scope.product = {};
-        $scope.productNew = { FixedAssetOrInventory: 'Inventory', PODepended: false, AlongwithInvoice: false, IssueType: 'Revenue', InvoicingPartyPlantId: $scope.productNew.InvoicingPartyPlantId };
-        //$scope.productNew.InvoicingPartyPlantId=$scope.productNew.InvoicingPartyPlantId;
-        $scope.detailModel = {};
-        $scope.clearCharNames();
+        $scope.productNew = { };
         $scope.detailList = [];
         $scope.tempitemScanList = [];
         $scope.taxlist = [];
@@ -504,6 +504,9 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.getItemScanChildPopUp = function (data) {
         $scope.tempData = {};
         $scope.tempData = data;
+        $scope.tempData.ReturnQty = 0;
+        $scope.tempData.Amount = 0;
+        $scope.tempData.TaxAmount = 0;
         $scope.ItemScanChildurl = 'SalesManagements/Sales/GetItemScanChildData?salesId=' + $scope.tempData.SalesId + '&packingId=' + $scope.tempData.PackingId + '&soId=' + $scope.tempData.SalesOrderId
         $http({
             method: "GET",
@@ -560,5 +563,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         });
     };
 
-
+    $scope.LocalTaxInvoiceReport = function (data) {
+        location.href = "Sales/LocalTaxInvoice?salesId=" + data.Id;
+    };
 }

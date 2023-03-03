@@ -118,16 +118,13 @@ namespace Library.Accounting.Accounts
                     ) AS CC ON CC.VoucherDetailId=VD.Id
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Vendor') 
 					GROUP BY VD.PartyId),0) LedgerBalanceAmount
-                ,CASE WHEN (SELECT COUNT(iwd.InvoiceDetailId)NoOfPendingPostWriteOff
-							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
-							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
-							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
-							LEFT JOIN TRN.Invoice IV ON IV.Id=iwd.InvoiceId
-							JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-							WHERE WV.IsPark=1 AND IV.IsPark=0 AND VD.PartyType='Vendor' AND  convert(Date,WV.PostingDate) <= '" + toDate + @"' 
-							AND WV.PlantId='" + plantId + @"' AND VD.PartyId=X.PartyId
-							AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-							GROUP BY iw.PartyId)>0 THEN 'Yes' ELSE '' END WriteOffPendingPost
+                ,CASE WHEN (SELECT COUNT(V.Id)NoOfPendingPostWriteOff
+                    FROM [TRN].[VoucherDetail] AS VD
+		            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+		            WHERE  V.IsPark=1  AND VD.PartyType='Vendor'  AND V.PlantId='" + plantId + @"' AND VD.PartyId=X.PartyId
+		            AND V.SourceType in ('CreditNoteSetOff','CustomerAdvanceWriteOff','CustomerBanksReceipt','CustomerReceipt','DebitNoteSetOff','ReceiptByBank','VendorAdvanceWriteOff','VendorPayment')
+		            AND  convert(Date,V.PostingDate) <= '" + toDate + @"' 
+		            GROUP BY VD.PartyId)>0 THEN 'Yes' ELSE '' END WriteOffPendingPost
                 ,SUM(X.BooksGross) BooksGross
 				,SUM(X.BooksSetOff) BooksSetOff
 				,SUM(X.BooksBalance) BooksBalance
@@ -169,7 +166,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
 						LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
-						LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId
+						LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId
 						,SUM(VDC.DrAmount) SetOffBooksAmount
 							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
@@ -177,7 +174,7 @@ namespace Library.Accounting.Accounts
 							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
 							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
-							GROUP BY iwd.InvoiceDetailId,iw.PartyId
+							GROUP BY iwd.InvoiceDetailId,VD.PartyId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 and VD.PartyType='Vendor' --AND VD.PartyId='202017395'
 						GROUP BY IDE.InvoiceId,VD.PartyId
@@ -253,7 +250,7 @@ namespace Library.Accounting.Accounts
                 , ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGross
 				,ISNULL(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate,0) AS BooksSetOff
 				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS BooksBalance
-				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.ActualWrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                 , ISNULL(OM30.ODueMoreThan30*IV.CompanyCurrencyRate,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*IV.CompanyCurrencyRate,0) ODueMoreThan15
                 , ISNULL(OV.OverDdueBalance*IV.CompanyCurrencyRate,0) ODueLessThan15
@@ -277,6 +274,7 @@ namespace Library.Accounting.Accounts
 
                 FROM [TRN].[Invoice] AS IV 
                  JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+                ,SUM(isnull(IDE.WrittenOffAmount,0))ActualWrittenOffAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -292,7 +290,7 @@ namespace Library.Accounting.Accounts
 							GROUP BY iwd.InvoiceDetailId,iw.PartyId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
-						GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+						GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount,isnull(IDE.WrittenOffAmount,0)
 				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                LEFT JOIN (SELECT wd.InvoiceId,sum(wd.Amount) TaxAmount FROM TRN.InvoiceWriteOffDetail wd
                         LEFT JOIN TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
@@ -351,13 +349,13 @@ namespace Library.Accounting.Accounts
 
                 union all
 				 SELECT IV.PartyId NoOfInvoice,IV.PartyId,P.Code PartyCode,P.UserName PartyName,c.Code CurrencyCode
-                , ISNULL(IVD.Amount,0) AS Gross
-				, ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
-				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+                 ,ISNULL(IVD.Amount,0) AS Gross
+				, ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)  AS SetOff
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)  AS Balance
                 , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
 				,ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksSetOff
 				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS BooksBalance
-				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0) AS ActualBalance
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0)-ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
                 , ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate,0) ODueMoreThan15
                 , ISNULL(OV.OverDdueBalance*CC.CompanyCurrencyRate,0) ODueLessThan15
@@ -2816,16 +2814,13 @@ namespace Library.Accounting.Accounts
                     ) AS CC ON CC.VoucherDetailId=VD.Id
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Customer') 
 					GROUP BY VD.PartyId),0) LedgerBalanceAmount
-                ,CASE WHEN (SELECT COUNT(iwd.InvoiceDetailId)NoOfPendingPostWriteOff
-							FROM  [TRN].[InvoiceWriteOffDetail] iwd 
-							JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
-							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
-							LEFT JOIN TRN.Invoice IV ON IV.Id=iwd.InvoiceId
-							JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-							WHERE WV.IsPark=1 AND IV.IsPark=0 AND VD.PartyType='Customer' AND  convert(Date,WV.PostingDate) <= '" + toDate + @"' 
-							AND WV.PlantId='" + plantId + @"' AND VD.PartyId=X.PartyId 
-							AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-							GROUP BY iw.PartyId)>0 THEN 'Yes' ELSE '' END WriteOffPendingPost
+                ,CASE WHEN (SELECT COUNT(V.Id)NoOfPendingPostWriteOff
+                    FROM [TRN].[VoucherDetail] AS VD
+		            LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+		            WHERE  V.IsPark=1  AND VD.PartyType='Customer'  AND V.PlantId='" + plantId + @"' AND VD.PartyId=X.PartyId
+		            AND V.SourceType in ('CreditNoteSetOff','CustomerAdvanceWriteOff','CustomerBanksReceipt','CustomerReceipt','DebitNoteSetOff','ReceiptByBank','VendorAdvanceWriteOff','VendorPayment')
+		            AND  convert(Date,V.PostingDate) <= '" + toDate + @"' 
+		            GROUP BY VD.PartyId)>0 THEN 'Yes' ELSE '' END WriteOffPendingPost
                 ,ISNULL( SUM(X.BooksGrossSales) ,0)BooksGrossSales
 				,ISNULL( SUM(X.BooksReceipts) ,0)BooksReceipts
 				,SUM(X.BooksBalance) BooksBalance

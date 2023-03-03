@@ -4598,12 +4598,6 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colActualQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Scan Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colScanQty = COL;
 
                 COL++;
                 sheet[ROW, COL].Text = "CM";
@@ -4691,7 +4685,6 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
 
 
                                 sheet[ROW, colActualQty].Number = clsStaticInfo.dbl(dr[k]["ActualQty"].ToString());
-                                sheet[ROW, colScanQty].Number = clsStaticInfo.dbl(dr[k]["ScanQty"].ToString());
                                 sheet[ROW, colActualCM].Number = clsStaticInfo.dbl(dr[k]["ActualCM"].ToString());
                                 sheet[ROW, colActualMinutes].Formula = CellAddr(colActualQty, ROW) + "*" + CellAddr(colSAM, ROW);
                                 sheet[ROW, colActualEff].Formula = "IF(" + CellAddr(colWorkStation, ROW) + "*" + CellAddr(colActualWorkHours, ROW) + ">0,(" + CellAddr(colActualMinutes, ROW) + ")/(" + CellAddr(colWorkStation, ROW) + "*" + CellAddr(colActualWorkHours, ROW) + "*60),0)";
@@ -6498,7 +6491,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
             try
             {
 
-                string sql = @"SELECT A.* from (SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ISNULL(SC.Quantity,0) ScanQty
+                string sql = @"SELECT A.* from (SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty
 							,(select SUM(xp.Qty*xp.CM)/sum(xp.Qty) 
 							from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
 							where PO.Id=PoD.ProductionOrderId)*pp.Quantity AS ActualCM
@@ -6654,35 +6647,6 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
       		                      WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + entityid + @") 
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId,ps.Quantity,ps.LotNumber
                             ) AS pp
-
-LEFT JOIN(
-							Select SUM(A.NetWeight)Quantity,A.POId ProductionOrderId,A.LotNo LotNumber,A.EntityId,A.WorkDate ProductionDate,A.ShiftId,A.Grade,A.ProcessId,A.PlantId from(
-select distinct MP.UserName AS 'PROD_TYPE',
-S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
-S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId,ISM.Id,ISM.ShiftId,ISM.Grade,MP.ProcessId,E.PlantId  
-FROM ItemScanChild S 
-LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
-LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
-LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
-LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
-left join ORG.Entity E ON E.Id=R.EntityId
-LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
-WHERE R.PurposeId IN(SELECT Id FROM HKP.MaterialMovementPurpose Where ProcessId=(Select Id from HKP.Process Where UserName='Packing')) AND ISM.WorkDate between '01-Feb-2023' AND '01-Feb-2023'
-union all
-select distinct MP.UserName AS 'PROD_TYPE',
-S.ProductCode, S.POId, S.LotNo, S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy, 
-S.Shade, S.AddedBy, FORMAT (ISM.WorkDate, 'MM/dd/yyyy ') as WorkDate, S.AddedDate, M.StandardName Article, R.FromLocation, R.ToLocation,R.EntityId,ISM.Id,ISM.ShiftId,ISM.Grade,MP.ProcessId,E.PlantId
-FROM ItemScanChildHistory S 
-LEFT JOIN ItemScan ISM ON ISM.Id = S.MasterId
-LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
-LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
-LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId
-left join ORG.Entity E ON E.Id=R.EntityId
-LEFT JOIN HKP.MaterialMovementPurpose MP ON MP.Id=R.PurposeId
-WHERE R.PurposeId IN(SELECT Id FROM HKP.MaterialMovementPurpose Where ProcessId=(Select Id from HKP.Process Where UserName='Packing')) AND ISM.WorkDate between '01-Feb-2023' AND '01-Feb-2023'
-)A
-Group By A.POId,A.LotNo,A.EntityId,A.WorkDate,A.ShiftId,A.Grade,A.ProcessId,A.PlantId
-							) SC ON SC.EntityId=PP.EntityId AND SC.ProductionOrderId=PP.ProductionOrderId AND SC.LotNumber=PP.LotNo AND SC.ProductionDate=PP.ProductionDate
 
 							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
