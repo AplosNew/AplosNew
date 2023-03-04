@@ -181,6 +181,8 @@
                 <div e-column e-template="#CheckedBy" e-headertext="CheckedBy" e-visible="false" e-width="200"></div>
                 <div e-column e-template="#ProductionGrade" e-headertext="Grade" e-width="80"></div>
                 <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
+                <div e-column e-field="OrderQty" e-headertext="OrderQty" e-width="200"></div>
+                <div e-column e-field="BookedQty" e-headertext="BookedQty" e-width="200"></div>
                 <div e-column e-template="#BalanceQty" e-headertext="Balance Qty" e-width="100"></div>
                 <div e-column e-template="#Quantity" e-headertext="Quantity" e-width="120"></div>
                 <div e-column e-template="#Detention" e-headertext="Detention" e-width="200"></div>
@@ -245,7 +247,7 @@
                 <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                     <div class="common-btn">
                         <ul class="list-inline text-left">
-                            <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-disabled="$parent.IsParameterBased===false" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                            <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-disabled="$parent.IsParameterBased===false;data.RemainingQty<=0;" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                         </ul>
                     </div>
                 </div>
