@@ -48,6 +48,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         ProductionShiftId: null,
         ProductionGrade: 'A',
         Quantity: 0,
+        ScanQty: 0,
+        QtyWithoutScan: 0,
         UOM: 0,
         MOQty: 0,
         ExtraP: 0,
@@ -100,22 +102,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
     $scope.getAllEntities();
 
-    //$scope.tab = 1;
-    //$scope.setTabMLedger = function (newTab) {
-    //    $scope.tab = newTab;
-    //};
-    //$scope.isSetMLedger = function (tabNum) {
-    //    return $scope.tab === tabNum;
-    //};
-    //$scope.setTabMLedger1 = function (newTab) {
-    //    $scope.tab = newTab;
-    //};
-    //$scope.isSetMLedger1 = function (tabNum) {
-    //    return $scope.tab === tabNum;
-    //};
-
-  
-
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -123,9 +109,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
-   
-
 
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
@@ -278,11 +261,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             ShowResult(e, 'failure');
         }
     }
-
-    //$scope.productTimeList = [];
-    //cboService.getProductionBookingPeriodCbo(function (result) {
-    //    $scope.productTimeList = result;
-    //});
 
     $scope.ProdQtyCount = 0;
     $scope.getProdQty = function () {
@@ -616,7 +594,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.MasterOrderNo = null;
         $scope.productionSummaryNew.CharCount = null;
 
-        $scope.productionSummaryNew.Quantity = null;
+        $scope.productionSummaryNew.Quantity = 0;
+        $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.Customer = null;
         $scope.productionSummaryNew.ResponsiblePersonId = null;
         $scope.productionSummaryNew.ResponsiblePersonName = null;
@@ -887,7 +867,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     function clearMaster() {
         $scope.productionSummaryNew.Id = null;
         $scope.productionSummaryNew.ProductionGrade = null;
-        $scope.productionSummaryNew.Quantity = null;
+        $scope.productionSummaryNew.Quantity = 0;
+        $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.UOM = null;
         //$scope.productionSummaryNew.ProductionHour = null;
         $scope.productionSummaryNew.MOQty = null;
@@ -1129,6 +1111,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
                 throw "Future Date not allowed for Production Booking.";
             }
+            $scope.productionSummaryNew.Quantity = $scope.productionSummaryNew.QtyWithoutScan;
             CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             ValidationMaster();
             if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
@@ -1147,6 +1130,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                     }
                 }
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
+                $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
@@ -1359,6 +1343,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     $scope.Calculate = function () {
         try {
+            $scope.productionSummaryNew.QtyWithoutScan = 0;
             $scope.productionSummaryNew.Quantity = 0;
             $http({
                 method: 'POST',
@@ -1375,6 +1360,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                     }
                     if (response.data.NewData[i].IsProduction == true) {
                         $scope.productionSummaryNew.Quantity = response.data.NewData[i].Value;
+                        $scope.productionSummaryNew.QtyWithoutScan = response.data.NewData[i].Value;
                     }
                 }
             }, function errorCallback(response) {

@@ -50,6 +50,8 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         ProductionShiftId: null,
         ProductionGrade: null,
         Quantity: 0,
+        QtyWithoutScan: 0,
+        ScanQty: 0,
         UOM: 0,
         MOQty: 0,
         ExtraP: 0,
@@ -787,7 +789,9 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.productionSummaryNew.CharCount = null;
         $scope.productionSummaryNew.ProductionGrade = null;
 
-        $scope.productionSummaryNew.Quantity = null;
+        $scope.productionSummaryNew.Quantity = 0;
+        $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.Customer = null;
         $scope.productionSummaryNew.ResponsiblePersonId = null;
         $scope.productionSummaryNew.ResponsiblePersonName = null;
@@ -811,9 +815,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         $scope.productionSummaryNew.NewLotNumber = true;
         $scope.ShowLotNum = false;
         $scope.ShowNew = false;
-        //$scope.productionSummaryNew.WorkCenterMasterId = null;
-        //$scope.productionSummaryNew.ToWorkCenterMasterId = null;
-        //$scope.productionSummaryNew.ToProcessId = null;
+       
 
     };
 
@@ -1118,9 +1120,10 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     function clearMaster() {
         $scope.productionSummaryNew.Id = null;
         $scope.productionSummaryNew.ProductionGrade = null;
-        $scope.productionSummaryNew.Quantity = null;
+        $scope.productionSummaryNew.Quantity = 0;
+        $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.UOM = null;
-        //$scope.productionSummaryNew.ProductionHour = null;
         $scope.productionSummaryNew.MOQty = null;
         $scope.productionSummaryNew.ExtraP = null;
         $scope.productionSummaryNew.WastageP = null;
@@ -1543,6 +1546,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
                         $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
                     }
                 }
+                $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
