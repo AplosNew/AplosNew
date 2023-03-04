@@ -170,7 +170,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
                 }
                 if (responsibleperson != "null" && teamleaderid == "null" && shift == "null" && employeecategory == "null" && instatus == "null" && daystatus == "null" && employeestatus == "null")
                 {
-                    sqlCondition = "EI2.EmployeeName = '" + responsibleperson + "'";
+                    sqlCondition = "EI2.SystemId = '" + responsibleperson + "'";
                 }
 
                 if (daystatus != "null" && responsibleperson == "null" && teamleaderid == "null" && shift == "null" && employeecategory == "null" && instatus == "null" && employeestatus == "null")
@@ -217,6 +217,59 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
                 {
                     sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "'";
                 }
+
+                // Filter with ResponsiblePerson
+                #region ResponsiblePerson
+                if (instatus != "null" &&  responsibleperson != "null" && teamleaderid == "null" && daystatus == "null" && employeestatus == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+                if (shift != "null" && responsibleperson != "null" && teamleaderid == "null" && daystatus == "null" && employeestatus == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+                if (instatus != "null" && shift != "null" && responsibleperson != "null" && teamleaderid == "null" && daystatus == "null" && employeestatus == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+                if (employeestatus != "null" && responsibleperson != "null" && instatus == "null" && employeecategory == "null" && shift == "null" && teamleaderid == "null" && daystatus == "null")
+                {
+                    sqlCondition = "EMP.EmployeeCurrentStatus = '" + employeestatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
+
+                if (instatus != "null" && shift != "null" && daystatus != "null" && responsibleperson != "null" && teamleaderid == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
+                if (instatus != "null" && shift != "null" && daystatus != "null" && daystatus != "undefined" && employeecategory != "null" && responsibleperson != "null" && teamleaderid == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
+                if (instatus != "null" && shift != "null" && daystatus != "null" && employeecategory != "null" && employeestatus != "null" && responsibleperson != "null" && teamleaderid == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EMP.EmployeeCurrentStatus = '" + employeestatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
+                if (instatus != "null" && daystatus != "null" && responsibleperson != "null" && teamleaderid == "null" && shift == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
+                if (instatus != "null" && employeecategory != "null" && responsibleperson != "null" && teamleaderid == "null" && shift == "null" && daystatus == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
+                if (instatus != "null" && employeecategory != "null" && shift != "null" && responsibleperson != "null" && teamleaderid == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
+
+                #endregion ResponsiblePerson
 
                 if (sqlCondition == "")
                 {
@@ -700,7 +753,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
             }
             if (daystatus != null && teamleaderid == null && shift == null && employeecategory == null && instatus == null && employeestatus != null)
             {
-                sqlCondition = "EI2.EmployeeName = '" + responsibleperson + "'";
+                sqlCondition = "EI2.SystemId = '" + responsibleperson + "'";
             }
             if (employeecategory != null && instatus == null && shift == null && teamleaderid == null && responsibleperson == null && daystatus == null && employeestatus == null)
             {
@@ -716,7 +769,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
             }
             if (responsibleperson != null && teamleaderid == null && shift == null && employeecategory == null && instatus == null && daystatus == null && employeestatus == null)
             {
-                sqlCondition = "EI2.EmployeeName = '" + responsibleperson + "'";
+                sqlCondition = "EI2.SystemId = '" + responsibleperson + "'";
             }
             if (employeestatus != null && instatus == null && employeecategory == null && shift == null && teamleaderid == null && responsibleperson == null && daystatus == null && employeestatus == null)
             {
@@ -755,6 +808,59 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
             {
                 sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "'";
             }
+
+            // Filter with ResponsiblePerson
+            #region ResponsiblePerson
+            if (instatus != null && responsibleperson != null && teamleaderid == null && daystatus == null && employeestatus == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+            if (shift != null && responsibleperson != null && teamleaderid == null && daystatus == null && employeestatus == null && employeestatus == null)
+            {
+                sqlCondition = "MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+            if (instatus != null && shift != null && responsibleperson != null && teamleaderid == null && daystatus == null && employeestatus == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+            if (employeestatus != null && responsibleperson != null && instatus == null && employeecategory == null && shift == null && teamleaderid == null && daystatus == null)
+            {
+                sqlCondition = "EMP.EmployeeCurrentStatus = '" + employeestatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+
+            if (instatus != null && shift != null && daystatus != null && responsibleperson != null && teamleaderid == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+            if (instatus != null && shift != null && daystatus != null && daystatus != "undefined" && employeecategory != null && responsibleperson != null && teamleaderid == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+            if (instatus != null && shift != null && daystatus != null && employeecategory != null && employeestatus != null && responsibleperson != null && teamleaderid == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EMP.EmployeeCurrentStatus = '" + employeestatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+            if (instatus != null && daystatus != null && responsibleperson != null && teamleaderid == null && shift == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+            if (instatus != null && employeecategory != null && responsibleperson != null && teamleaderid == null && shift == null && daystatus == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+            if (instatus != null && employeecategory != null && shift != null && responsibleperson != null && teamleaderid == null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+
+            #endregion ResponsiblePerson
 
             if (sqlCondition == "")
             {
