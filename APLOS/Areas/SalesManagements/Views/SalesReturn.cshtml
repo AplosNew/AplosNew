@@ -188,7 +188,7 @@
                                     <th>Other Qty</th>
                                     <th>Balance Qty</th>
                                     <th style="width:100px">Return_Qty</th>
-                                    <th style="width:100px" ng-show="productNew.SourceType == 'Packing'">Verified Qty</th>
+                                    <th style="width:100px" ng-show="productNew.SourceType == 'Packing'">Verified_Qty</th>
                                     <th>Current Balance Qty</th>
                                     <th>Return Amount</th>
                                     <th>Return Tax</th>
@@ -243,6 +243,7 @@
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'SalesTaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'BalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnQty'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right" ng-show="productNew.SourceType == 'Packing'"><strong>{{detailList | sumByKey : 'VerifiedQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'CurrentBalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>

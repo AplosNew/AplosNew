@@ -2305,8 +2305,7 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
                     WHERE IVS.PlantId='" + plantId + @"'  AND IVS.VoucherId IS NOT NULL
-					) AS TEMP WHERE 1=1 
-					order by SalesDate DESC";
+					) AS TEMP WHERE " + strkey + " order by SalesDate DESC ";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -2344,7 +2343,7 @@ namespace Library.Accounting.Accounts
 		                        ,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.TransactionRate, IID.TransactionAmount
                                 ,II.ToCurrencyRate, II.DocRefNo, II.InvoiceDate , II.Narration
                                 ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,ISD.SalesRate, IID.TransactionQty,0 OtherQty,(IID.TransactionQty) BalanceQty
-								,ISD.TotalAmount,0 SalesTaxAmount,0 ReturnAmount,0 TaxAmount,IID.BaseRate,IID.BaseUoMFactor,NULL TaxList
+								,ISD.TotalAmount,0 SalesTaxAmount,0 VerifiedQty,0 ReturnAmount,0 TaxAmount,IID.BaseRate,IID.BaseUoMFactor,NULL TaxList
                         FROM  [TRN].[SalesMaterial] AS IID
                         LEFT JOIN [TRN].[Sales] AS II ON IID.SalesId=II.Id
                         LEFT JOIN [MST].[MaterialMaster] AS MM ON IID.MaterialMasterId=MM.Id
@@ -2394,7 +2393,7 @@ namespace Library.Accounting.Accounts
 			,TC.Id ThirdCharacteristicsId
 			,TC.CharacteristicsValueId ThirdCharacteristicsValueId
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
-			, SO.SOType,SO.Rate,0 ReturnQty,0 Amount,0 TaxAmount
+			, SO.SOType,SO.Rate,0 ReturnQty,0 Amount,0 TaxAmount,0 VerifiedQty
            ,SM.TransactionQty SalesQty
                 ,SM.TransactionQty 
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
