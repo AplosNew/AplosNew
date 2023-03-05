@@ -128,8 +128,8 @@ namespace Aplos.Areas.Leave.Controllers
 
         #endregion
 
-        [Authorize, HttpGet]
-        public ActionResult GetEmployeeCategory(string CompanyId, string GRNPendingStatus)
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeCategory()
         {
             string Sql = @"select Id,UserName from [HKP].[EmployeeCategory]";
             return Json(_sqlRepository.GetDataCollection(Sql),JsonRequestBehavior.AllowGet);
