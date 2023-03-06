@@ -2118,6 +2118,80 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
         }
 
 
+        // production service
+
+        public string PostProductionService(IEnumerable<ProcessService> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.ProductionService";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                int i = 0;
+                foreach (ProcessService item in DataToSave)
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.ProductionService where Id='" + item.Id + "'", out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+                        dr["Id"] = "PS" + _Id;
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ShiftId"] = item.ShiftId;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+                       
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EntityId"] = item.EntityId;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["ShiftId"] = item.ShiftId;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                        dr.EndEdit();
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    }
+                    i++;
+                }
+                return i.ToString();
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
 
 
         // Detention Log Out
@@ -3453,6 +3527,22 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
         public DateTime LogoutTime { get; set; } = System.DateTime.Now;
         public bool isClose { get; set; }
         public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedFromIP { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+    }
+
+    public class ProcessService
+    {
+        public string Id { get; set; }
+        public string EntityId { get; set; }
+        public string ProcessId { get; set; }
+        public string ShiftId { get; set; }
+        public string ResponsiblePerson { get; set; }
+        public DateTime? ProductionDate { get; set; } 
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
         public string UpdatedFromIP { get; set; }
