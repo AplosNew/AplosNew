@@ -301,6 +301,16 @@ namespace Aplos.Controllers.ApopAPIHR
             return Processlist;
         }
 
+
+        // responsible person
+        public List<Process> GetResponsible()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetResponsible(out List<Process> Processlist);
+            return Processlist;
+        }
+
+
         #region written by Aman
         #region AllTaskList
         public List<Tasks> GetMyCreationActive(string UserId)

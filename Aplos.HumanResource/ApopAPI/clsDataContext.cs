@@ -1890,6 +1890,42 @@ left join dbo.TaskAudit As ta on tm.Id = ta.TaskManagerMasterId  where tm.Closin
             }
         }
 
+        public void GetResponsible(out List<Process> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Process>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+
+                strSQL = @"select EmployeeCode as Value, EmployeeName As Text  from EmployeeInformation ";
+
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Process
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Text = dsRef.Tables[0].Rows[i]["Text"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetActiveTask(out List<ActiveTask> DataList, string UserId, string Date)
         {
             clsConnectionManager objCon = null;
