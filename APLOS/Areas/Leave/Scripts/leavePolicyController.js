@@ -958,5 +958,5 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
                 $scope.EmployeeCategoryList = response.data;
             });
     };
-
+    $scope.getEmpCat();
 }
