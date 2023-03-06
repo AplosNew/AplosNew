@@ -180,6 +180,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     };
     $scope.SearchSOItemList = [];
     $scope.AddSO = function () {
+        $scope.itemList = [];
         $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
             .then(
                 function successCallback(response) {
@@ -189,11 +190,18 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                         if (baseService.arrayLength($scope.SOItemList) > 0) {
                             for (var i = 0; i < $scope.SOItemList.length; i++) {
                                 for (var j = 0; j < $scope.SearchSOItemList.length; j++) {
-                                    if ($scope.SOItemList[i].SOId == $scope.SearchSOItemList[j].SOId) {
+                                    if ($scope.SOItemList[i].LineItemId == $scope.SearchSOItemList[j].LineItemId) {
                                         $scope.SearchSOItemList.splice(j, 1);
                                     }
                                 }
                             }
+                        }
+                        var ob = { Value: null, Text: null };
+                        for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
+                            ob.Value = $scope.SearchSOItemList[i].LineItemId;
+                            ob.Text = $scope.SearchSOItemList[i].LineItemId;
+                            $scope.itemList.push(ob);
+                            ob = {};
                         }
                     }
 
@@ -205,21 +213,41 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 });
     };
 
+    $scope.itemList = [];
     $scope.closeSOPopUp = function () {
-        for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
-            if ($scope.SearchSOItemList[i].Flag) {
-                if (checkExists($scope.SOItemList, $scope.SearchSOItemList[i].SOId) == false) {
-                    $scope.SOItemList.push($scope.SearchSOItemList[i]);
+        try {
+            for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
+
+                if ($scope.SearchSOItemList[i].Flag) {
+                    if (checkExists($scope.SOItemList, $scope.SearchSOItemList[i].SOId) == false) {
+                        if (checkExistsItem($scope.SOItemList, $scope.SearchSOItemList[i].LineItemId)) {
+                            $scope.SOItemList.push($scope.SearchSOItemList[i]);
+                        }
+                        else {
+                            throw "Select same Line Item";
+                        }
+                    }
                 }
             }
+            $scope.GetQBOQCostingData();
+            angular.element(document.querySelector('#SOpopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        $scope.GetQBOQCostingData();
-        angular.element(document.querySelector('#SOpopUp')).modal('hide');
     }
 
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].SOId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function checkExistsItem(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].LineItemId === id) {
                 return true;
             }
         }
@@ -264,8 +292,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         $scope.Action = 'Update';
         $scope.GetSavedSODetailData();
         $scope.GetSavedDetailData();
-        // $scope.IssueSlipGriddata('ForChecked', 'InventorySlip', $scope.ModelNew.POId);
-        /*$scope.getdataInventoryIssue($scope.ModelNew.POId);*/
+
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -279,6 +306,14 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.SOItemList = response.data;
+                        var ob = { Value: null, Text: null };
+                        for (var i = 0; i < $scope.SOItemList.length; i++) {
+                            ob.Value = $scope.SOItemList[i].LineItemId;
+                            ob.Text = $scope.SOItemList[i].LineItemId;
+                            $scope.itemList.push(ob);
+                            ob = {};
+                        }
+
                     }
                 },
                 function errorCallback(response) {
@@ -388,6 +423,21 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
         try {
             if ($scope.Action === 'Save') {
+                if (baseService.arrayLength($scope.SOItemList) === 0) {
+                    throw "Select SO Detail.";
+                }
+                else {
+                    if (baseService.arrayLength($scope.SOItemList) > 1) {
+                        for (var i = 0; i < $scope.SOItemList.length; i++) {
+                            var firstLineId = $scope.SOItemList[0].LineItemId;
+                            if ($scope.SOItemList[i].LineItemId != firstLineId) {
+                                throw "Please select same Line Item.";
+                            }
+                        }
+                    }
+                }
+
+
                 if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
                     for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
 
@@ -402,12 +452,12 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
                     throw "Select Production Order.";
                 }
-                if (baseService.arrayLength($scope.SOItemList) === 0) {
-                    throw "Select SO Detail.";
-                }
 
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.ModelNewForm.$valid) {
+                    if (baseService.isUndefinedOrNull($scope.ModelNew.ByWhom)) {
+                        throw "Select By Whom Employee.";
+                    }
 
                     $http({
                         method: 'POST',
@@ -509,7 +559,6 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
     };
 
-
     $scope.Clear = function () {
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
@@ -518,6 +567,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         $scope.modelList = [];
         $rootScope.toggle();
         $scope.CostCenterLoad();
+        $scope.Action = 'Save';
     }
 
     $scope.tab = 1;
@@ -543,23 +593,23 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     }
 
     $scope.QBOQCostingList = [];
+
     $scope.GetQBOQCostingData = function () {
         if ($scope.SOItemList.length > 0) {
-            var uniqueMasterOrderId = removeDuplicates($scope.SOItemList, 'SOId');
+            var uniqueMasterOrderId = removeDuplicates($scope.SOItemList, 'LineItemId');
             var wcEmpCode = "";
             if (uniqueMasterOrderId.length > 0) {
                 wcEmpCode = "IN(";
-                wcEmpCode += Array.prototype.map.call(uniqueMasterOrderId, function (item) { return "'" + item.SOId + "'"; }).join(",") + ")";
+                wcEmpCode += Array.prototype.map.call(uniqueMasterOrderId, function (item) { return "'" + item.LineItemId + "'"; }).join(",") + ")";
             }
             $scope.sqlInStatement = wcEmpCode;
         }
-
 
         $scope.QBOQCostingList = [];
         if ($scope.ModelNew.Level == "Costing") {
             $http({
                 method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetCostingDataList?soId=' + $scope.sqlInStatement
+                url: 'Materials/MaterialIssueControl/GetCostingDataList?LineItemId=' + $scope.sqlInStatement
 
             }).then(function successCallback(response) {
                 $scope.QBOQCostingList = response.data;
@@ -568,7 +618,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         else {
             $http({
                 method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetQBOQDataList?soId=' + $scope.sqlInStatement
+                url: 'Materials/MaterialIssueControl/GetQBOQDataList?LineItemId=' + $scope.sqlInStatement
 
             }).then(function successCallback(response) {
                 $scope.QBOQCostingList = response.data;
