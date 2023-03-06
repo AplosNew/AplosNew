@@ -982,7 +982,7 @@ namespace Aplos.Areas.Materials.Controllers
                 COL++;
 
                 sheet[ROW, COL].Text = "Style NO";
-                sheet[ROW, COL].ColumnWidth = 50;
+                sheet[ROW, COL].ColumnWidth = 25;
                 int colStyleNO = COL;
                 COL++;
 

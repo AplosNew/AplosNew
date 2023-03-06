@@ -953,12 +953,10 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
 
     $scope.EmployeeCategoryList = [];
     $scope.getEmpCat = function () {
-        $http({
-            method: "GET",
-            dataType: "Json",
-            url: 'Leave/LeavePolicy/GetEmployeeCategory'
-        }).then(function sucessCallback(response) {
-            $scope.EmployeeCategoryList = data;
-        });
+        $http.get('Leave/LeavePolicy/GetEmployeeCategory')
+            .then(function (response) {
+                $scope.EmployeeCategoryList = response.data;
+            });
     };
+    $scope.getEmpCat();
 }

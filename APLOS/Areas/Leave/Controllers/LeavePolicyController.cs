@@ -96,6 +96,7 @@ namespace Aplos.Areas.Leave.Controllers
                         ,LPD.LvCanAvailAfter,LPD.CanAvailUOM,LPD.EncashEarnLeaveQty,LPD.EncashWorkingDaysQty
                         ,LPD.IsCarryForward,LPD.IsMaxEncashment,lpd.EncashmentSpecificDay,lpd.EncashmentSpecificMonth,lpd.LeaveCalculationRoundOption
                         ,LPD.LvAvailedOnFixedOrPercentage,LPD.LvCanAvailQuantity, LPD.IsAsperEntryOnW,LPD.IsNoLeaveOnW,LPD.IsAsperEntryOnH,LPD.IsNoLeaveOnH
+                        ,LPD.IsBackDatePosting,LPD.EmpCatId
                      FROM dbo.LeavePolicyDetail LPD
                         LEFT JOIN  dbo.LeaveType LT ON LPD.LTSystemID = LT.ID                       
 						where
@@ -128,8 +129,8 @@ namespace Aplos.Areas.Leave.Controllers
 
         #endregion
 
-        [Authorize, HttpGet]
-        public ActionResult GetEmployeeCategory(string CompanyId, string GRNPendingStatus)
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeCategory()
         {
             string Sql = @"select Id,UserName from [HKP].[EmployeeCategory]";
             return Json(_sqlRepository.GetDataCollection(Sql),JsonRequestBehavior.AllowGet);

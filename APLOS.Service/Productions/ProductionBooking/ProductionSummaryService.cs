@@ -465,6 +465,8 @@ namespace Library.Service.Productions
             var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,
                         isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as ProductionOrderId,isnull(pw.LotNumber,(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as LotNumber,M.EmployeeName as Mentor,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId ='" + HeaderResponsiblePersonId + @"')) as ResponsiblePerson,
                         isnull(C.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 CheckedBy from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))) as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty,
+                        isnull(CEILING(PQ.Qty),PO.PlannedQty) OrderQty,
+						ISNULL(CEILING(PRS.TotalProductionQty), 0) as BookedQty,
                                        Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
                                                             left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
@@ -503,7 +505,7 @@ namespace Library.Service.Productions
                         FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId=wc.Id AND pw.ProcessId = '" + ProcessId + @"' 
                         AND  pw.EntityId='" + entityId + @"' AND PW.ProductionDate='" + productionDate + @"'  AND PW.ProductionShiftId='" + shiftId + @"' 
-                        LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=pw.ProductionOrderId
+                        LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))
 						LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + ProcessId + @"'
                         LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
 						 LEFT JOIN

@@ -1148,6 +1148,7 @@ upanelApp.controller("SalesOrderWiseProductionCompletionReportController", Sales
 upanelApp.controller("InWardMaterialController", InWardMaterialController)
 upanelApp.controller("ProductivityRecoveryMasterController", ProductivityRecoveryMasterController)
 upanelApp.controller("SalesReturnController", SalesReturnController)
+upanelApp.controller("QualityManagementMasterController", QualityManagementMasterController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

@@ -188,6 +188,7 @@
                                     <th>Other Qty</th>
                                     <th>Balance Qty</th>
                                     <th style="width:100px">Return_Qty</th>
+                                    <th style="width:100px" ng-show="productNew.SourceType == 'Packing'">Verified_Qty</th>
                                     <th>Current Balance Qty</th>
                                     <th>Return Amount</th>
                                     <th>Return Tax</th>
@@ -210,8 +211,11 @@
                                     <td class="text-right">{{x.OtherQty}}</td>
                                     <td class="text-right">{{x.BalanceQty}}</td>
                                     <td class="text-right">
+                                        <input type="text" n-decimals="2" ng-model=" x.ReturnQty"  ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                    </td>
+                                    <td class="text-right" ng-show="productNew.SourceType == 'Packing'">
                                         <div class="input-group">
-                                            <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-disabled="productNew.SourceType == 'Packing'" ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                            <input type="text" n-decimals="2" ng-model=" x.VerifiedQty" ng-disabled="productNew.SourceType == 'Packing'" ng-change="returnAmountCalculation(x);" class="form-control text-right">
                                             <span class="input-group-btn">
                                                 <button ng-click="getItemScanChildPopUp(x)" ng-show="productNew.SourceType == 'Packing'" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                                             </span>
@@ -239,6 +243,7 @@
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'SalesTaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'BalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnQty'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right" ng-show="productNew.SourceType == 'Packing'"><strong>{{detailList | sumByKey : 'VerifiedQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'CurrentBalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>

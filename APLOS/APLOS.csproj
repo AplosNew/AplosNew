@@ -616,6 +616,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
+    <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
@@ -2191,6 +2192,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
+    <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SurveyandFeedbackController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeUnderstandingHeadController.js" />
@@ -4553,6 +4555,7 @@
     <Content Include="Areas\OrderManagements\Views\ProductivityRecoveryMaster\Aplos.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\Home\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\MyappEmployeeLedger.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityManagementMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -54,6 +54,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         ProductionShiftId: null,
         ProductionGrade: $scope.gradeList[0].Value,
         Quantity: 0,
+        ScanQty: 0,
+        QtyWithoutScan: 0,
         UOM: 0,
         MOQty: 0,
         ExtraP: 0,
@@ -559,7 +561,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             return ShowResult('Please Work Center.', 'failure');
         }
         $scope.ProductionOrderList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderDataList?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + data.data.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+        $http.get('Productions/ProductionSummary/GetProductionOrderDataListWC?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + data.data.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
             .then(
                 function successCallback(response) {
                     $scope.ProductionOrderList = response.data;
@@ -619,6 +621,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.ProductionGrade = null;
 
         $scope.productionSummaryNew.Quantity = null;
+        $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.Customer = null;
         $scope.productionSummaryNew.ResponsiblePersonId = null;
         $scope.productionSummaryNew.ResponsiblePersonName = null;
@@ -887,7 +891,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     function clearMaster() {
         $scope.productionSummaryNew.Id = null;
         $scope.productionSummaryNew.ProductionGrade = null;
-        $scope.productionSummaryNew.Quantity = null;
+        $scope.productionSummaryNew.Quantity = 0;
+        $scope.productionSummaryNew.QtyWithoutScan = 0;
+        $scope.productionSummaryNew.ScanQty = 0;
         $scope.productionSummaryNew.UOM = null;
         //$scope.productionSummaryNew.ProductionHour = null;
         $scope.productionSummaryNew.MOQty = null;
@@ -1133,6 +1139,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
                 throw "Future Date not allowed for Production Booking.";
             }
+            $scope.productionSummaryNew.Quantity = $scope.productionSummaryNew.QtyWithoutScan;
             CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             ValidationMaster();
             if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
@@ -1151,6 +1158,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     }
                 }
                 $scope.productionSummaryNew.Quantity = $scope.ProdQty;
+                $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
             }
             if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
                 if ($scope.ProdQty === 0) {
@@ -1165,7 +1173,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             }
 
             //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
+            //    if (parseFloat($scope.TotalSalesOrderQty) <= parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
             //        throw "Produced Quantity should less than Order Quantity.";
             //    }
             //}
@@ -1174,6 +1182,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 if (parseFloat($scope.NewObject.RemainingQty) < 0) {
                     throw "Produced Quantity should less than Order Quantity.";
                 }
+            }
+
+            if ($scope.NewObject.Quantity > parseFloat($scope.NewObject.RemainingQty)) {
+                throw "Produced Quantity should not be greater than Balance Quantity.";
             }
 
             $http({
@@ -1465,6 +1477,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.Calculate = function () {
         try {
+                $scope.productionSummaryNew.QtyWithoutScan = 0;
                 $scope.NewObject.Quantity = 0;
                 $http({
                     method: 'POST',
@@ -1480,6 +1493,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                         }
                         if (response.data.NewData[i].IsProduction == true) {
                             $scope.NewObject.Quantity += response.data.NewData[i].Value;
+                            $scope.productionSummaryNew.QtyWithoutScan = response.data.NewData[i].Value;
                         }
                     }
                     $scope.SaveMaster();
