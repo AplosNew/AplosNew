@@ -916,7 +916,7 @@ namespace Library.MaterialManagement.Inventory
                                                         Id = GetIssueDetailAndIssueRequestMapPK(),
                                                         InventoryIssueDetailId = issueDetail.Id,
                                                         IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                        Qty = itemall.TransactionQty,
+                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
                                                         //AutoAllocate = true
 
                                                     };
@@ -7067,51 +7067,19 @@ namespace Library.MaterialManagement.Inventory
                 {
 
                     sql = @"SELECT MGM.UserName MaterialMasterGroupName
-                                	,IR.MaterialMasterId
-                                	,mm.UserName Material
-                                	,IR.ArticleId
-                                	,ART.StandardName ArticleName
-                                	,MT.UserName MaterialType
-                                	,IR.FirstCharacteristicsId
-                                	,FC.UserName AS FirstCharacteristics
-                                	,IR.FirstCharacteristicsValueId
-                                	,FCV.UserName AS Sku1
-                                	,IR.SecondCharacteristicsId
-                                	,SC.UserName AS SecondCharacteristics
-                                	,IR.SecondCharacteristicsValueId
-                                	,SCV.UserName AS Sku2
-                                	,IR.ThirdCharacteristicsId
-                                	,TC.UserName AS ThirdCharacteristics
-                                	,IR.ThirdCharacteristicsValueId
-                                	,TCV.UserName AS Sku3
-                                	,C.UserName CountryName
-                                	,C.Id CountryId
-                                	,TUoM.Id BaseUOMId
-                                	,TUoM.Id TransactionUoMId
-                                	,TUoM.UserName UOM
-                                	,TUoM.UserName TransactionUoM
-                                	,IR.CostCenterId
-                                	,CC.UserName AS CostCenterName
-                                	,IR.GLGeneralInfoId
-                                	,IGL1.UserName GLName
-                                	,IR.BudgetMasterId
-                                	,B1.UserName BudgetName
-                                	,IR.ExpenseActivityId
-                                	,IA1.UserName ActivityName
-                                	,IRM.Id IssueRequestMasterId
-                                	,IR.Id IssueRequest,MM.IsAsset
-                                	--,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)							
-                                	--,PostingQty.MaterialStorageId
-                                	,Convert(BIT, 0) 'check'
-                                	,IR.RequestedQty RequestedQty
-                                	,sum(IDRM.Qty) IssuedQty
+                                	,IR.MaterialMasterId ,mm.UserName Material ,IR.ArticleId ,ART.StandardName ArticleName
+                                	,MT.UserName MaterialType ,IR.FirstCharacteristicsId ,FC.UserName AS FirstCharacteristics ,IR.FirstCharacteristicsValueId
+                                	,FCV.UserName AS Sku1 ,IR.SecondCharacteristicsId ,SC.UserName AS SecondCharacteristics ,IR.SecondCharacteristicsValueId
+                                	,SCV.UserName AS Sku2 ,IR.ThirdCharacteristicsId ,TC.UserName AS ThirdCharacteristics ,IR.ThirdCharacteristicsValueId
+                                	,TCV.UserName AS Sku3 ,C.UserName CountryName ,C.Id CountryId ,TUoM.Id BaseUOMId ,TUoM.Id TransactionUoMId ,TUoM.UserName UOM
+                                	,TUoM.UserName TransactionUoM ,IR.CostCenterId ,CC.UserName AS CostCenterName ,IR.GLGeneralInfoId ,IGL1.UserName GLName
+                                	,IR.BudgetMasterId ,B1.UserName BudgetName ,IR.ExpenseActivityId ,IA1.UserName ActivityName
+                                	,IRM.Id IssueRequestMasterId ,IR.Id IssueRequest,MM.IsAsset
+                                	,Convert(BIT, 0) 'check' ,IR.RequestedQty RequestedQty ,sum(IDRM.Qty) IssuedQty
                                 	,Sum(Isnull(PostingQty.PostingQty, 0)) PostingQty
                                 	,BalanceQty = Isnull(IR.RequestedQty, 0) - SUM(ISNULL(IDRM.Qty, 0))
-                                	,BaseUOMFactor = CASE 
-                                		WHEN AlternativeUOM.BaseUOMFactor IS NULL
-                                			THEN 1
-                                		ELSE AlternativeUOM.BaseUOMFactor
-                                		END
+                                    ,TempBalanceQty = Isnull(IR.RequestedQty, 0) - SUM(ISNULL(IDRM.Qty, 0))
+                                	,BaseUOMFactor = CASE  WHEN AlternativeUOM.BaseUOMFactor IS NULL THEN 1 ELSE AlternativeUOM.BaseUOMFactor END
                                 FROM trn.IssueRequest IR
                                 LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id = IR.IssueRequestMasterId
                                 LEFT JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
@@ -7208,43 +7176,11 @@ namespace Library.MaterialManagement.Inventory
                                 	GROUP BY aa.Id
                                 	) IDRM ON IDRM.Id = IR.id
                                 WHERE IRM.Id = '" + Id + @"'
-                                GROUP BY MGM.UserName
-                                	,IR.MaterialMasterId
-                                	,IR.RequestedQty
-                                	,mm.UserName
-                                	,IR.ArticleId
-                                	,ART.StandardName
-                                	,MT.UserName
-                                	,IR.FirstCharacteristicsId
-                                	,FC.UserName
-                                	,IR.FirstCharacteristicsValueId
-                                	,FCV.UserName
-                                	,IR.SecondCharacteristicsId
-                                	,SC.UserName
-                                	,IR.SecondCharacteristicsValueId
-                                	,SCV.UserName
-                                	,IR.ThirdCharacteristicsId
-                                	,TC.UserName
-                                	,IR.ThirdCharacteristicsValueId
-                                	,TCV.UserName
-                                	,C.UserName
-                                	,C.Id
-                                	,TUoM.Id
-                                	,TUoM.Id
-                                	--,TUoM.UserName UOM
-                                	--, PostingQty.UoM
-                                	,TUoM.UserName
-                                	,IR.CostCenterId
-                                	,CC.UserName
-                                	,IR.GLGeneralInfoId
-                                	,IGL1.UserName
-                                	,IR.BudgetMasterId
-                                	,B1.UserName
-                                	,IR.ExpenseActivityId
-                                	,IA1.UserName
-                                	,IRM.Id
-                                	,IR.Id,MM.IsAsset
-                                	--,PostingQty.MaterialStorageId
+                                GROUP BY MGM.UserName ,IR.MaterialMasterId ,IR.RequestedQty ,mm.UserName ,IR.ArticleId ,ART.StandardName
+                                	,MT.UserName ,IR.FirstCharacteristicsId ,FC.UserName ,IR.FirstCharacteristicsValueId ,FCV.UserName ,IR.SecondCharacteristicsId
+                                	,SC.UserName ,IR.SecondCharacteristicsValueId ,SCV.UserName ,IR.ThirdCharacteristicsId ,TC.UserName ,IR.ThirdCharacteristicsValueId
+                                	,TCV.UserName ,C.UserName ,C.Id ,TUoM.Id ,TUoM.Id ,TUoM.UserName ,IR.CostCenterId ,CC.UserName ,IR.GLGeneralInfoId
+                                	,IGL1.UserName ,IR.BudgetMasterId ,B1.UserName ,IR.ExpenseActivityId ,IA1.UserName ,IRM.Id ,IR.Id,MM.IsAsset
                                 	,AlternativeUOM.BaseUOMFactor";
                 }
                 return _sqlRepository.GetDataCollection(sql);

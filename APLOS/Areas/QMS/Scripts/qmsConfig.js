@@ -120,6 +120,11 @@
             templateUrl: 'QMS/QualityProcess/aplos',
             controller: 'QualityProcessController'
         })
+
+        .when('/quality-management-master', {
+            templateUrl: 'QMS/QualityManagementMaster/aplos',
+            controller: 'QualityManagementMasterController'
+        })
         
 
 }

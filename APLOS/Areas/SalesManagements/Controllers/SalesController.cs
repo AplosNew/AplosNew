@@ -545,10 +545,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                     if (dvsc.Count > 0)
                                     {
                                         DataRow drmo = dvsc[0].Row;
-
                                         drmo.BeginEdit();
-                                        drmo["IsDespatch"] = 0;
-                                        drmo["Booked"] = 0;
                                         drmo["SalesReturnId"] = _Id;
                                         drmo["UpdatedBy"] = identity.Name;
                                         drmo["UpdatedDate"] = DateTime.Now.ToString();

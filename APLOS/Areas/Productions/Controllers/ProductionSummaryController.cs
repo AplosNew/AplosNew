@@ -370,6 +370,12 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetProductionOrderDataListWC(string entityid, string workCenterMasterId, string productionLevel, string processId)
+        {
+            return Json(_productionSummaryData.GetProductionOrderDataListWC(entityid, workCenterMasterId, productionLevel, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetSFGSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string status, bool IsFirst, string ProductionOrderId)
         {
             return Json(_productionSummaryData.GetSFGSOItem(entityid, workCenterMasterId, productionLevel, processId, status, IsFirst, ProductionOrderId), JsonRequestBehavior.AllowGet);

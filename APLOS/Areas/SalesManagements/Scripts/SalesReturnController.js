@@ -48,6 +48,12 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     };
     $scope.getData();
 
+    $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
+    $scope.searchByPostedGRNList = [{ value: 'Id', name: "Sales No" }, { value: 'SalesDate', name: "Sales Date" }
+        , { value: 'Tracenent', name: "Tracenent" }
+        , { value: 'PartyName', name: "Party" }
+        , { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'DocDate', name: "Doc Date" }];
     $scope.approvedSalesList = [];
     $scope.getPopUpData = function () {
         $http({
@@ -399,6 +405,14 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         // $scope.SavePOPUpConfirm();
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.productNewForm.$valid) {
+            if ($scope.productNew.SourceType == 'Packing') {
+                for (var i = 0; i < $scope.detailList.length; i++) {
+                    if ($scope.detailList[i].VerifiedQty > 0 && $scope.detailList[i].VerifiedQty != $scope.detailList[i].ReturnQty) {
+                        ShowResult('Return Qty and VerifiedQty Qty is not equal !!!');
+                        return false;
+                    }
+                }
+            }
             if ($scope.detailList.length === 0) {
                 ShowResult('Please select Atlest one material');
                 return false;
@@ -504,9 +518,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.getItemScanChildPopUp = function (data) {
         $scope.tempData = {};
         $scope.tempData = data;
-        $scope.tempData.ReturnQty = 0;
-        $scope.tempData.Amount = 0;
-        $scope.tempData.TaxAmount = 0;
+        $scope.tempData.VerifiedQty = 0;
         $scope.ItemScanChildurl = 'SalesManagements/Sales/GetItemScanChildData?salesId=' + $scope.tempData.SalesId + '&packingId=' + $scope.tempData.PackingId + '&soId=' + $scope.tempData.SalesOrderId
         $http({
             method: "GET",
@@ -522,23 +534,23 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         for (var i = 0; i < $scope.itemScanChildList.length; i++) {
             if ($scope.itemScanChildList[i].Active) {
                 $scope.tempitemScanList.push($scope.itemScanChildList[i])
-                $scope.tempData.ReturnQty += Math.round(($scope.itemScanChildList[i].NetWeight) * 100 + Number.EPSILON) / 100
-                $scope.tempData.Amount += Math.round(($scope.itemScanChildList[i].NetWeight * $scope.tempData.TransactionRate) * 100 + Number.EPSILON) / 100
+                $scope.tempData.VerifiedQty += Math.round(($scope.itemScanChildList[i].NetWeight) * 100 + Number.EPSILON) / 100
+                //$scope.tempData.Amount += Math.round(($scope.itemScanChildList[i].NetWeight * $scope.tempData.TransactionRate) * 100 + Number.EPSILON) / 100
             }
         }
 
-        for (var j = 0; j < $scope.taxlist.length; j++) {
-            if ($scope.taxlist[j].SalesMaterialId == $scope.tempData.SalesMaterialId) {
-                $scope.taxlist[j].Amount = Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
-                $scope.tempData.TaxAmount += Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
-            }
-        }
+        //for (var j = 0; j < $scope.taxlist.length; j++) {
+        //    if ($scope.taxlist[j].SalesMaterialId == $scope.tempData.SalesMaterialId) {
+        //        $scope.taxlist[j].Amount = Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
+        //        $scope.tempData.TaxAmount += Math.round(($scope.tempData.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100
+        //    }
+        //}
         angular.element(document.querySelector('#ISCpopUp')).modal('hide');
     }
 
     $scope.returnAmountCalculation = function (data) {
         data.Amount = Math.round((data.ReturnQty * data.TransactionRate) * 100 + Number.EPSILON) / 100
-
+        data.TaxAmount = 0;
         for (var j = 0; j < $scope.taxlist.length; j++) {
             if ($scope.taxlist[j].SalesMaterialId == data.SalesMaterialId) {
                 $scope.taxlist[j].Amount = Math.round((data.Amount * ($scope.taxlist[j].Percentage / 100)) * 100 + Number.EPSILON) / 100

@@ -2719,9 +2719,9 @@ namespace Library.MaterialManagement.Inventory
                             ,BuyerReferenceNo=STUFF((select distinct ','+MO.BuyerReferenceNo from
                                     trn.PurchaseOrderDetail POD
                                     LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
-                                    LEFT JOIN (select PODetailsId from TRN.InventoryReceiveDetail) IRD on IRD.PODetailsId=POD.Id
+                                     LEFT JOIN (select PODetailsId,InventoryReceiveId from TRN.InventoryReceiveDetail) IRD on IRD.PODetailsId=POD.Id and IRD.InventoryReceiveId=IR.Id
                                     LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
-                                    LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
+                                    LEFT JOIN trn.MasterOrderItem MO on MO.ContractId=C.Id
                                     where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                             ,Status =case when ir.Status ='Posting' then 'Posted' else 'To be Posted' end
 
