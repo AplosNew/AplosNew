@@ -279,12 +279,37 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        [HttpPost]
+        public string PostProductionService([FromBody] IEnumerable<ProcessService> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionService(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         public List<Process> GetProcess()
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetProcess(out List<Process> Processlist);
             return Processlist;
         }
+
+
+        // responsible person
+        public List<Process> GetResponsible()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetResponsible(out List<Process> Processlist);
+            return Processlist;
+        }
+
 
         #region written by Aman
         #region AllTaskList
