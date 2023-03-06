@@ -1,0 +1,245 @@
+﻿<ej-dialog id="dialogEmployeeReplace" title="Employee Assignment" e-maxheight="600" e-target="#dialogLineDesign" e-enablemodal="false" e-showoninit="false" e-width="1000">
+    <div class="row">
+        <div id="gridEmployeeReplace" ng-init="chkinit()" ej-grid e-datasource="ReplaceEmployeeList"
+             e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-headertext="" e-template="#empimageReplace" e-textalign="center" e-width="20"></div>
+
+                <div e-column e-field="OperationDesc" e-headertext="Operation" e-width="30"></div>
+                <div e-column e-field="OperationVariationDesc" e-headertext="Opn. Var" e-width="30"></div>
+                <div e-column e-field="MachineOrHand" e-headertext="M/H" e-width="30"></div>
+                <div e-column e-field="ArticleDesc" e-headertext="Machine" e-width="30"></div>
+                <div e-column e-field="MaterialMasterDesc" e-headertext="Material" e-width="30"></div>
+
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="30"></div>
+                <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="30"></div>
+                <div e-column e-headertext="" e-template="#templateselectEmployee" e-textalign="center" e-width="20"></div>
+
+            </div>
+        </div>
+        </div>
+        <script type="text/x-jsrender" id="empimageReplace">
+            <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+                 src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:40px;width:40px;border:2px solid #efefef; border-radius:50%;" />
+        </script>
+        <script type="text/x-template" id="templateselectEmployee">
+            <div class="common-btn">
+                <ul class="list-inline text-right small">
+
+                    <li>
+                        <button ng-click="$parent.employeeButtonClick(null,'replace',data.name);" class="btn small" style="height: 32px;width: 32px; padding: 0px; margin: 0px;">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </li>
+
+                </ul>
+            </div>
+        </script>
+
+</ej-dialog>
+<ej-dialog id="dialogProductionEntry" title="Employee Production Entry" e-maxheight="600"    e-target="#dialogLineDesign"   e-enablemodal="false"  e-showoninit="false" e-width="1000" >
+    <div class="row">
+        <div class="common-btn">
+            <button ng-click="SaveProductionQuantity();" style="color: #f3f3ec;" class="btn">
+                <i class="glyphicon glyphicon-list">Save</i>
+            </button>
+        </div>
+        <div id="gridProductionEntry" ng-init="chkinit()" ej-grid e-datasource="ProductionEntryList"
+             e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-headertext="" e-template="#empimageProduction" e-textalign="center" e-width="20"></div>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="30"></div>
+                <div e-column e-field="OperationDesc" e-headertext="Operation" e-width="30"></div>
+                <div e-column e-field="OperationVariationDesc" e-headertext="Opn. Var" e-width="30"></div>
+                <div e-column e-headertext="Current Prod" e-template="#templateproductionEntry" e-textalign="center" e-width="30"></div>
+                <div e-column e-field="ProductionQuantity" e-headertext="Quantity" e-width="30"></div>
+                
+                <div e-column e-field="MachineOrHand" e-headertext="M/H" e-width="10"></div>
+                <div e-column e-field="ArticleShortName" e-headertext="MC Code" e-width="20"></div>
+                <div e-column e-field="ArticleDesc" e-headertext="Machine" e-width="30"></div>
+                <div e-column e-field="MaterialMasterDesc" e-headertext="Material" e-width="30"></div>
+
+
+                <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="30"></div>
+
+            </div>
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimageProduction">
+        <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+             src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:40px;width:40px;border:2px solid #efefef; border-radius:50%;" />
+    </script>
+    <script type="text/x-template" id="templateproductionEntry">
+        <input type="text" ej-numerictextbox  e-decimalplaces="0" e-enablertl="false" e-value="data.CurrentQuantity" e-width="75" />
+
+    </script>
+    <div class="common-btn">
+        <button  ng-click="SaveProductionQuantity();" style="color: #f3f3ec;" class="btn">
+            <i class="glyphicon glyphicon-list">Save</i>
+        </button>
+    </div>
+</ej-dialog>
+<ej-dialog id="dialogSearchEmployee" title="Employees" e-enablemodal="false"  e-maxheight="600"   e-target="#dialogLineDesign"   e-showoninit="false" e-width="900" >
+    <div class="row">
+        <div class="col-xs-12" style="border:1px solid #dfdfdf">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="EmployeeSearchCol">
+                                        <option ng-repeat="option in EmployeemodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="EmployeeSearchVal" ng-enter="getEmployeeData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="SearchEmployee" ng-init="chkinit()" ej-grid e-datasource="EmployeeList" e-gridlines="horizontal"
+                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                 e-recorddoubleclick="ViewEmployeeStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true" e-visible="false"></div>
+                    <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                    <div e-column e-headertext="" e-template="#empdetail" e-textalign="left" e-width="400"></div>
+                    @*<div e-column e-field="EmployeeCode" e-headertext="Code" e-width="30"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>*@
+                </div>
+            </div>
+            </div>
+            <script type="text/x-jsrender" id="empimage">
+                <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')"
+                     src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;border:2px solid #efefef; border-radius:50%;" />
+            </script>
+            <script type="text/template" id="empdetail">
+                <div style="font-size:1.2em">
+                    <span style="color:blue;font-weight:bold;">{{data.EmployeeCode}}  </span><span style="color:black;font-weight:bold;">{{data.EmployeeName}}</span>
+                    <span style="color:black;font-style:italic;"> ({{data.AssignmentStatus}})</span>
+                    <span style="color:black;font-style:italic;color:{{data.DayColor}};"> ({{data.DayStatus}})</span><br />
+                </div>
+                <div style="font-size:1em;font-style:italic">
+                    {{data.Designation}}, {{data.Department}}
+                </div>
+                <div style="font-size:1em;">
+                    Section: {{data.Section}}, Sub-section: {{data.SubSection}}
+                </div>
+                <div style="font-size:1em;">
+                    Other Skills: {{data.OtherSkills}}
+                </div>
+
+            </script>
+        </div>
+</ej-dialog>
+<ej-dialog id="dialogSearchFixedAsset" title="FixedAssets"  e-maxheight="600"   e-target="#dialogLineDesign"  e-enablemodal="false"  e-showoninit="false"  e-width="900" >
+    <div class="row">
+        <div class="col-xs-12" style="border:1px solid #dfdfdf">
+            <div class="row text-right">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="FixedAssetSearchCol">
+                                        <option ng-repeat="option in FixedAssetmodelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="FixedAssetSearchVal" ng-enter="getFixedAssetData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getFixedAssetData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="SearchFixedAsset" ng-init="chkinit()" ej-grid e-datasource="FixedAssetList" e-gridlines="both"
+                 e-allowtextwrap="true" e-textwrapsettings.wrapmode="content"
+                 e-recorddoubleclick="ViewFixedAssetStatus" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                 e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel">
+                <div e-columns>
+
+                    <div e-column e-field="Id" e-headertext="Id" e-width="30" e-primarykey="true"></div>
+                    <div e-column e-field="SerialNo" e-headertext="SerialNo" e-width="30"></div>
+                    <div e-column e-field="Model" e-headertext="Model" e-width="30"></div>
+                    <div e-column e-field="Brand" e-headertext="Brand" e-width="30"></div>
+                    <div e-column e-field="YearOfManufacture" e-headertext="Year" e-width="30"></div>
+                    <div e-column e-field="Description" e-headertext="Description" e-width="30"></div>
+                    <div e-column e-field="AssetNo" e-headertext="AssetNo" e-width="30"></div>
+                    <div e-column e-field="Vendor" e-headertext="Vendor" e-width="30"></div>
+                    <div e-column e-field="CountryOfOrigin" e-headertext="Country Of Origin" e-width="30"></div>
+                    <div e-column e-field="FixedAssetActivity" e-headertext="Activity" e-width="30"></div>
+                    <div e-column e-field="Status" e-headertext="Status" e-width="30"></div>
+                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="30"></div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</ej-dialog>
+<div class="modal site-modal" id="modalOperationList" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" style="width: 80%;">
+        <div class="modal-content">
+            <div class="modal-header">Operations<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div id="GridOperation" ej-grid e-datasource="operationList" e-gridlines="vertical" e-templaterefresh="refreshTemplateOperation"
+                             e-allowfiltering="true" e-toolbarsettings-showtoolbar="true" e-toolbarsettings-toolbaritems="[ej.Grid.ToolBarItems.Search]"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-allowTextWrap="true"
+                             e-allowResizing="true" e-allowscrolling="true"
+                             e-filtersettings-filterType="excel"
+                             e-enabletouch="true" e-responsive="true"
+                             e-recorddoubleclick="recordoperationdoubleclick">
+                            <div e-columns>
+                                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="65"></div>
+                                <div e-column e-type="string" e-field="OperationVariationDesc" e-headertext="Variation Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="OperationDesc" e-headertext="Operation Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ArticleShortName" e-headertext="Machine Name" e-width="120"></div>
+                                <div e-column e-type="string" e-field="IsMachineRequired" e-headertext="M / H" e-width="120"></div>
+                                <div e-column e-type="string" e-field="ProductionSystem" e-headertext="Pdn. System" e-width="80"></div>
+                                <div e-column e-type="string" e-field="Frequency" e-headertext="Frequency" e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="SPI" e-headertext="SPI" e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="PersonalAllowance" e-headertext="Personal" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="MachineAllowance" e-headertext="Machine" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="AdditionalAllowances" e-headertext="Additional" textAlign='center' e-width="80" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="RPM" e-headertext="RPM" textAlign='center' e-width="50" e-allowfiltering="true" e-visible="false"></div>
+                                <div e-column e-type="string" e-field="TotalSAM" e-headertext="Total SPT" textAlign='center' e-width="50" e-allowfiltering="true"></div>
+                                <div e-column e-type="string" e-field="TotalVersion" e-headertext="Total Version" textAlign='center' e-width="50" e-allowfiltering="true"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

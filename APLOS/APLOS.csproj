@@ -616,6 +616,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
@@ -2192,6 +2193,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SurveyandFeedbackController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
@@ -4556,6 +4558,13 @@
     <Content Include="Areas\DailyAttendance\Views\Home\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\MyappEmployeeLedger.cshtml" />
     <Content Include="Areas\QMS\Views\QualityManagementMaster\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionControl\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionControl\DailyTargetGrid.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionControl\EmployeeCardView.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionControl\Graphs.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionControl\LineDesignCanvas.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionControl\LineDesignReport.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionControl\LineLayoutSearchViews.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
