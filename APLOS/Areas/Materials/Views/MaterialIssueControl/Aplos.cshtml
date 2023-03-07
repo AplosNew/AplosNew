@@ -493,7 +493,7 @@
                     </script>
                     <script type="text/template" id="LineItemId">
                         <div class="select-style">
-                            <select class="form-control" ng-model="data.LineItemId" name="LineItemId" ng-change="$parent.GetQBOQCostingData();">
+                            <select class="form-control" ng-model="data.LineItemId" name="LineItemId">
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in $parent.itemList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
