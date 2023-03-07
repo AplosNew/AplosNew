@@ -155,6 +155,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/DailyTarget/Aplos',
             controller: 'DailyTargetController'
         })
+        .when('/production-control', {
+            templateUrl: 'Productions/ProductionControl/Aplos',
+            controller: 'ProductionControlController'
+        })
         .when('/production-relay', {
             templateUrl: 'Productions/ProductionRelay/Aplos',
             controller: 'ProductionRelayController'

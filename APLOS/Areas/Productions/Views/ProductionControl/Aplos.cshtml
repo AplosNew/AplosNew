@@ -1,0 +1,136 @@
+﻿<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Production Control</a></li>
+        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Control Period</a></li>
+    </ul>
+</div>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+        <h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Production Control</h3>
+        <div class="form-elements form-horizontal" ng-form name="DailyTargetForm" id="MainDivId">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-disabled="DailyTargetList.length>0" id="ddlEntity" ng-model="DailyProductionTargetNew.EntityId" ng-change="loadProcessList(DailyProductionTargetNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" id="ProcessId" ng-change="GetShiftList();" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.TargetDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" style="margin-bottom: 25px;">
+                        <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="select-style">
+                                <select class="form-control" id="ShiftId" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ShiftId" name="ShiftId" ng-options="item.Value as item.Text for item in shiftList" required>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="col-sm-2" style="padding-right:0;">
+                        <button ng-click="getDailytarget();" ng-hide="DailyTargetList.length>0" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive aplos-grid-toggle">
+            @Html.Partial("~/Areas/Productions/Views/ProductionControl/DailyTargetGrid.cshtml")
+        </div>
+    </div>
+</div>
+<div class="modal site-modal" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+
+
+                        <div e-column e-type="string" e-field="Id" e-headertext="ID" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Order#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SODesc" e-headertext="So.Description" e-width="150"></div>
+                        <div e-column e-type="number" e-field="Qty" e-headertext="Qty" e-width="60"></div>
+                        <div e-column e-type="string" e-field="DeliveryDate" e-headertext="So.Delivery Date" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="150"></div>
+                        <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="90"></div>
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="150"></div>
+                        <div e-column e-type="string" e-field="buyer" e-headertext="Buyer" e-width="100"></div>
+
+                        <div e-column e-type="string" e-field="OwnRefNo" e-headertext="Own Ord#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="StyleNo" e-headertext="Customer Item#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="OwnStyleNo" e-headertext="Own Item#" e-width="80"></div>
+
+                        <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Buyer Item No#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="CustomerPONo" e-headertext="PO No#" e-width="80"></div>
+
+                        <div e-column e-type="string" e-field="EntityName" e-headertext="Entity" e-width="90"></div>
+                        <div e-column e-type="string" e-field="ProductionRemarks" e-headertext="Remarks" e-width="150"></div>
+                        <div e-column e-type="number" e-field="SPT" e-headertext="SPT" e-width="150"></div>
+
+                        <div e-column e-type="string" e-field="AddedBy" e-headertext="Created By" e-width="80"></div>
+                        <div e-column e-field="CreationDate" e-headertext="Creation Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                        <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Cat." e-width="130"></div>
+
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Productions/Views/ProductionControl/LineDesignCanvas.cshtml")
+@Html.Partial("~/Areas/Productions/Views/ProductionControl/EmployeeCardView.cshtml")
+@Html.Partial("~/Areas/Productions/Views/ProductionControl/LineLayoutSearchViews.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+@Html.Partial("~/Areas/Productions/Views/ProductionControl/LineDesignReport.cshtml")
+@Html.Partial("~/Areas/Productions/Views/ProductionControl/Graphs.cshtml")
+
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
