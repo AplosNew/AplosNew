@@ -135,6 +135,16 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     }
     $scope.getAllEntities();
 
+    $scope.ArticleList = [];
+    $scope.getArticle = function (POId) {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetArticle?POID=" + POId + ""
+        }).then(function successCallback(response) {
+            $scope.ArticleList = response.data;
+        });
+    }
+
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;
@@ -227,7 +237,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             ShowResult(e, 'failure');
         }
     }
-
+     
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
@@ -581,6 +591,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.NewObject.ResponsiblePerson = $scope.productionSummaryNew.HeaderResponsiblePerson;
         $scope.NewObject.RemainingQty = $event.data.RemainingQty;
         $scope.GetTotalProductionBookingQty();
+        $scope.getArticle($scope.NewObject.ProductionOrderId);
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         
@@ -1207,6 +1218,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     $scope.loadWC();
                     $scope.Action = 'Save';
                 }
+                angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             };
@@ -1496,7 +1508,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.productionSummaryNew.QtyWithoutScan = response.data.NewData[i].Value;
                         }
                     }
-                    $scope.SaveMaster();
+                    //$scope.SaveMaster();
                     var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
                 }, function errorCallback(response) {
                     $scope.ShowResultCustom(response.status.Message, "failure");

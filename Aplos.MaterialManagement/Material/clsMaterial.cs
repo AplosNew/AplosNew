@@ -165,39 +165,17 @@ LEFT JOIN TRN.IssueRequestMaster M ON M.Id=IR.IssueRequestMasterId
         {
             try
             {
-                string sql = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,MIS.Id
-	                                ,ISNULL(so.Id,'') SOId
-	                                ,SO.CustomerPOId
-	                                ,CPO.PONumber
-	                                ,mm.Id MaterialMasterId
-	                                ,mm.UserName MaterialMaster
-									,mma.Id ArticleId
-	                                ,ISNULL(mma.StandardName, '') SOArticle
-									,b.Id CustomerId
-	                                ,b.UserName Customer
-	                                ,mo.TotalQty MOQty
-	                                ,ISNULL(u.UserName, '') UOM
-	                                ,moi.ExtraOrderPercentage [ExtraP]
-	                                ,moi.OrderWastagePercentage [WastageP]
-	                                ,ISNULL(mma.Id, '') ArticleId
-	                                ,mmc.CharCount
-	                                ,ISNULL(POD.ProductionOrderId, '') POId
-                                    ,CBI.CostingBOQMasterId
-                                    ,moi.OrderCostingMasterTemplateId
-	                                ,B.UserName Buyer
-	                                ,PM.UserName AS ProductMasterName
-									,PC.UserName AS ProductCategory
-	                                ,CEILING(SO.PlannedQty) PlannedQty
+                string sql = @"SELECT DISTINCT mo.MasterOrderNo,MIS.LineItemId,MIS.Id,ISNULL(so.Id,'') SOId,SO.CustomerPOId,CPO.PONumber
+	                                ,mm.Id MaterialMasterId,mm.UserName MaterialMaster,mma.Id ArticleId,ISNULL(mma.StandardName, '') SOArticle
+									,b.Id CustomerId,b.UserName Customer,mo.TotalQty MOQty,ISNULL(u.UserName, '') UOM,moi.ExtraOrderPercentage [ExtraP]
+	                                ,moi.OrderWastagePercentage [WastageP],ISNULL(mma.Id, '') ArticleId,mmc.CharCount,ISNULL(POD.ProductionOrderId, '') POId
+                                    ,CBI.CostingBOQMasterId,moi.OrderCostingMasterTemplateId,B.UserName Buyer,PM.UserName AS ProductMasterName
+									,PC.UserName AS ProductCategory,CEILING(SO.PlannedQty) PlannedQty
                                     ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
-
 									,DMC.[Value] ItemMaterialCost,SDMC.[SOValue] SOMaterialCost,CMC.TotalGrossAmount CostingMaterialCost
-
 									,ISNULL(QBOQ.BOQMaterialCost,0) BOQMaterialCost,SOTotalMaterailCost=CEILING(SO.PlannedQty)*SDMC.[SOValue]
-
 									,CostingTotalMaterialCost=CMC.TotalGrossAmount*CEILING(SO.PlannedQty),BOQTotalCost=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)
-
 									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
-
 									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
                                     ,MIS.PlanRate,MIS.PlantCost,MIS.TotalSOCostVsTotalPlanCost
                                 FROM [dbo].[MaterialIssueControlSODetail] MIS 
@@ -434,39 +412,17 @@ where pod.ProductionOrderID=Xpod.ProductionOrderId)
 
         public IEnumerable<object> GetSOItemList(string entityid, string ProductionOrderId)
         {
-            string CmdText = @"SELECT  DISTINCT mo.MasterOrderNo,moi.Id LineItemId,PM.Id,Flag =Convert(bit, 'False')
-	                                ,ISNULL(so.Id,'') SOId
-	                                ,SO.CustomerPOId
-	                                ,CPO.PONumber
-	                                ,mm.Id MaterialMasterId
-	                                ,mm.UserName MaterialMaster
-									,mma.Id ArticleId
-	                                ,ISNULL(mma.StandardName, '') SOArticle
-									,b.Id CustomerId
-	                                ,b.UserName Customer
-	                                ,mo.TotalQty MOQty
-	                                ,ISNULL(u.UserName, '') UOM
-	                                ,moi.ExtraOrderPercentage [ExtraP]
-	                                ,moi.OrderWastagePercentage [WastageP]
-	                                ,ISNULL(mma.Id, '') ArticleId
-	                                ,mmc.CharCount
-	                                ,ISNULL(POD.ProductionOrderId, '') POId
-                                    ,CBI.CostingBOQMasterId
-                                    ,moi.OrderCostingMasterTemplateId
-	                                ,B.UserName Buyer
-	                                ,PM.UserName AS ProductMasterName
-									,PC.UserName AS ProductCategory
-	                                ,CEILING(SO.PlannedQty) PlannedQty
+            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,PM.Id,Flag =Convert(bit, 'False')
+	                                ,ISNULL(so.Id,'') SOId,SO.CustomerPOId,CPO.PONumber,mm.Id MaterialMasterId,mm.UserName MaterialMaster,mma.Id ArticleId
+	                                ,ISNULL(mma.StandardName, '') SOArticle,b.Id CustomerId,b.UserName Customer,mo.TotalQty MOQty,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP],moi.OrderWastagePercentage [WastageP],ISNULL(mma.Id, '') ArticleId,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId,CBI.CostingBOQMasterId,moi.OrderCostingMasterTemplateId,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName,PC.UserName AS ProductCategory,CEILING(SO.PlannedQty) PlannedQty
                                     ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
-
 									,(DMC.[Value]*R.ExchangeRate) ItemMaterialCost,(SDMC.[SOValue]*R.ExchangeRate) SOMaterialCost,CMC.TotalGrossAmount CostingMaterialCost
-
 									,ISNULL(QBOQ.BOQMaterialCost,0) BOQMaterialCost,SOTotalMaterailCost=CEILING(SO.PlannedQty)*SDMC.[SOValue]
-
 									,CostingTotalMaterialCost=CMC.TotalGrossAmount*CEILING(SO.PlannedQty),BOQTotalCost=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)
-
 									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
-
 									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
                                     ,0 PlanRate,0 PlantCost,0 TotalSOCostVsTotalPlanCost
                                 FROM TRN.ProductionOrderDetail POD
@@ -517,7 +473,7 @@ LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
 
-                                WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND SO.Id NOT IN(Select SOId from dbo.MaterialIssueControlSODetail)";
+   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND moi.Id NOT IN(Select ISNULL(LineItemId,'') from dbo.MaterialIssueControlSODetail)";
 
 
             return _sqlRepository.GetDataCollection(CmdText, null);
@@ -578,7 +534,7 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
 
-        public IEnumerable<object> GetCostingDataList(string soId)
+        public IEnumerable<object> GetCostingDataList(string LineItemId)
         {
             string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,um.Code as UoM, um.Id as UoMId,Q.Consumption NetConsumptionPerUnit,Q.ValueLoss,Q.GrossConsumption,
  TotalConsumption=Q.GrossConsumption*SO.Qty,SO.Qty, 0 AdditionReduction,0 PlanConsumption
@@ -598,11 +554,11 @@ from TRN.InventoryReceiveDetail IRD
 JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
  AND (IRD.BaseQty-IRD.BaseIssueQty)>0
 GROUP BY IM.MaterialMasterId,IM.ArticleId )SR ON SR.MaterialMasterId=M.Id AND SR.ArticleId=A.Id
-Where SO.Id " + soId + "";
+Where MOI.Id " + LineItemId + "";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
 
-        public IEnumerable<object> GetQBOQDataList(string soId)
+        public IEnumerable<object> GetQBOQDataList(string LineItemId)
         {
             string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.UoMId,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption,SO.Qty
 ,TotalConsumption=Q.GrossConsumption*SO.Qty, 0 AdditionReduction,(Q.GrossConsumption*SO.Qty) PlanConsumption,Q.MaterialCostPerUnit Rate,((Q.GrossConsumption*SO.Qty)*Q.MaterialCostPerUnit) TotaPlanlAmount,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
@@ -621,7 +577,7 @@ from TRN.InventoryReceiveDetail IRD
 JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
  AND (IRD.BaseQty-IRD.BaseIssueQty)>0
 GROUP BY IM.MaterialMasterId,IM.ArticleId ) SR ON SR.MaterialMasterId=M.Id AND SR.ArticleId=A.Id
-Where SO.Id " + soId + "";
+Where Q.MasterOrderItemId " + LineItemId + "";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
 

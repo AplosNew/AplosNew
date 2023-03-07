@@ -850,6 +850,34 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             return _sqlRepository.GetGridData(parameters).Source;
         }
 
+        public DataSet GetEmpLTData(string LTId, string LeavePolicyMasterId)
+        {
+            GridParameter parameters = null;
+            parameters = new GridParameter
+            {
+                ExportType = "DATASET",
+                CmdText = @"select IsBackDatePosting,EmpCatId FROM [dbo].[LeavePolicyDetail] where LTSystemID = '" + LTId + @"' and  LPMSystemID = '" + LeavePolicyMasterId + @"'"
+            };
+
+            return _sqlRepository.GetGridData(parameters).Source;
+        }
+
+        public DataSet GetEmpCatDataList(string EmpId)
+        {
+            GridParameter parameters = null;
+            parameters = new GridParameter
+            {
+                ExportType = "DATASET",
+                CmdText = @"select DM.EmployeeCategoryId,DMC.LeavePolicyMasterId 
+                    FROM EmployeeInformation ei
+                    left join [MST].[DesignationMaster] DM on DM.DesignationId=ei.GivenDesignationId
+                    left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id
+                    where ei.SystemId = '" + EmpId + @"'"
+            };
+
+            return _sqlRepository.GetGridData(parameters).Source;
+        }
+
         public DataSet GetEmpWeekendData(string empSystemId, string fromDate, string toDate)
         {
             GridParameter parameters = null;
@@ -1398,6 +1426,23 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                         throw new CustomException("This employee is on duty.");
                     }
                 }
+
+                var GetEmpCatData = GetEmpCatDataList(leaveTransaction.EmpSystemID);
+                var GetLeaveTypeData = GetEmpLTData(leaveTransaction.LTSystemID, GetEmpCatData.Tables[0].Rows[0]["LeavePolicyMasterId"].ToString());
+
+                if (GetLeaveTypeData.Tables[0].Rows.Count>0)
+                {
+                    if (GetEmpCatData.Tables[0].Rows[0]["EmployeeCategoryId"].ToString() == GetLeaveTypeData.Tables[0].Rows[0]["EmpCatId"].ToString())
+                    {
+                        var today = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
+
+                        if (leaveTransaction.FromDate< Convert.ToDateTime(today))
+                        {
+                        throw new CustomException("Back Date Leave Posting Does not Allowed");
+                        }
+                    }
+                }
+
                 #endregion
 
 

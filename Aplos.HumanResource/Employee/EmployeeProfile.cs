@@ -1773,7 +1773,7 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation,isnull( L.UserName,'') Line,EMP.CompanyId,EMP.GroupID,EMP.PlantId,FORMAT(emp.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy')DOC,
                                         EMP.EmployeeCodeNumeric, EMP.FatherName,FORMAT( EMP.DOB,'dd-MMM-yyyy')DOB,DeM.UserName DesignationGroup,
                                         EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric,EJ.JobLcSystemID,FORMAT(EJ.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
-                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo
+                                        ,C.UserName Company,AM.Address1,EMP.PresentAddress1,EMP.CellPhnNo,EC.UserName EmployeeCategory,LPM.PolicyName
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN ORG.Company C ON C.Id=EMP.CompanyId
                                         LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
@@ -1789,6 +1789,10 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
                                         LEFT JOIN MST.DesignationMasterLegalDesignation DML ON DML.LegalDesignationId = EMP.LegalDesignationId
 										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
 										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
+                                        left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id                    
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId
+                                        left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
 										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)
                                         WHERE emp.PlantID='" + plantId + @"'  and EMP.CompanyId='" + companyId + @"' and EMP.EmployeeStatus='Active' ORDER BY EmployeeCodePreFix,EMP.EmployeeCodeNumeric";

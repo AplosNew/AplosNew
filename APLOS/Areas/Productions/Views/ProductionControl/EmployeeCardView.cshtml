@@ -1,0 +1,91 @@
+﻿<ej-dialog id="dialogEmployeeCard" title="Card Info" e-maxheight="600" e-target="#dialogLineDesign" e-enablemodal="false" e-showoninit="false" e-width="900">
+    <div class="row">
+        <div class="row">
+            <div class="col-xs-12">
+                <h6 class="site-heading">Operation Detail</h6>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Operation </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].Operation}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Opn Var. </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].OperationVariation}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Code </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].Code}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Category </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].OperationCategory}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">RPM </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].RPM}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">StitchCode </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].StitchCode}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Machine Req. </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].IsMachineRequired}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Skill </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].Skill}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Sub Opn.SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].SubOperationSAM}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Add. SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].AdditionalSAM}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Freq </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].Frequency}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Mac.Alw </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].MachineAllowance}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">SPI </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].SPI}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Total SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].TotalSAM}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Add.Alw </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].AdditionalAllowance}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">VAS SPT </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[1][0].VASFINALSAM}} </div>
+            </div>
+        </div>
+
+        <div class="row" style="padding-top:40px;">
+            <div class="col-xs-12">
+                <h6 class="site-heading">Machine Detail</h6>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Asset(Mat.) </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Material}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Machine(Art.) </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Article}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Art. Srt Name </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{OperationVariationCard[0][0].ArticleShortName}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Model </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Model}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Serial </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].SerialNo}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Manu. Year </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].YearOfManufacture}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Inst. Year </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].YearOfInstallation}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Pur Date </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].InvoiceDate}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Cap Date </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].CapitalizationDate}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Description </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Description}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">AssetNo </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].AssetNo}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Status </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Status}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Remarks </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Remarks}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Vendor </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Vendor}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Brand </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].Brand}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">COO </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].CountryOfOrigin}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Asset Master </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].FixedAssetMaster}} </div>
+                <div class="col-xs-12 col-sm-2 col-sm-2 text-nowrap">Activity </div><div class="col-xs-12 col-sm-4 col-sm-4 text-nowrap">: {{EmployeeCard[2][0].FixedAssetActivity}} </div>
+            </div>
+        </div>
+
+        <div class="row" style="padding-top:40px;">
+            <div class="col-xs-12">
+                <h6 class="site-heading">Employee Detail</h6>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-12 col-sm-2 col-sm-2">
+                    <img onerror="$(arguments[0].currentTarget).attr('src','images/blankuser.png')" src="POPResources/EmployeeProfiles/EmpPic/{{EmployeeCard[0][0].EmpPicPath}}"
+                         style="height: 160px; width: 160px; border: 2px solid #efefef;" />
+
+                </div>
+                <div class="col-xs-12 col-sm-5 col-sm-5">
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Code </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].EmployeeCode}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Name </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].EmployeeName}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Designation </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].Designation}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Department </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].Department}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Section </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].Section}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Sub Sec. </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].SubSection}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Sub Sec. </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].SubSection}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Day Status </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].DayStatus}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">In Time </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].InTime}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Out Time</div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].OutTime}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Shift </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].ShiftName}} </div>
+                    <div class="col-xs-12 col-sm-4 col-sm-4">Plant </div><div class="col-xs-12 col-sm-8 col-sm-8">: {{EmployeeCard[0][0].Plant}} </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-sm-4">
+                    <div id="GridEmployeeCardSkillList" ej-grid e-datasource="EmployeeCardSkills"
+                         e-allowfiltering="true" e-allowpaging="false" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Sequence" e-headertext="Seq" e-width="20"></div>
+                            <div e-column e-field="SkillName" e-headertext="Skill Name" e-width="100"></div>
+                            <div e-column e-type="number" e-format="{0:N2}" e-field="CycleTime" e-headertext="Cycle Time" e-width="30"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ej-dialog>

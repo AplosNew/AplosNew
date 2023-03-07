@@ -99,6 +99,20 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpPost]
+        public JsonResult GetArticle(string POID)
+        {
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select  MA.StandardName as Text,MA.Id as Value from trn.ProductionOrderDetail Pod 
+                                                            left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
+                                                            left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                            left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+                                                            where Pod.ProductionOrderId='" + POID + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
         [Authorize]
         public ActionResult GetList(string baseprocessid, string entityid, string column, string value)
         {

@@ -916,7 +916,7 @@ namespace Library.MaterialManagement.Inventory
                                                         Id = GetIssueDetailAndIssueRequestMapPK(),
                                                         InventoryIssueDetailId = issueDetail.Id,
                                                         IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                        Qty = itemall.TransactionQty,
+                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
                                                         //AutoAllocate = true
 
                                                     };
@@ -2511,6 +2511,7 @@ namespace Library.MaterialManagement.Inventory
 							,CLevel4=case when v.Id <>'' then CC4.UserName else ISNULL(IIH.CRLevel4,'') end
                             
                             ,Status =case when II.VoucherId<>'' then 'Posted' else 'NonPosted' end
+                           ,PO.Id PONo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2549,6 +2550,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
                         LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IID.BaseUOMId = BUoM.Id
+                        left join [TRN].[ProductionOrder] PO on PO.Id=II.ProductionOrderId
 						--NotPosted---
 						LEFT JOIN MST.BudgetMaster IBMNP ON IBMNP.Id=IID.BudgetMasterId
 						LEFT JOIN HKP.GLGeneralInfo IGLNP ON IGLNP.Id=IBMNP.GLGeneralInfoId 
@@ -2872,7 +2874,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBMNP ON IBMNP.Id=IID.BudgetMasterId
 						LEFT JOIN HKP.GLGeneralInfo IGLNP ON IGLNP.Id=IBMNP.GLGeneralInfoId 
 						LEFT JOIN HKP.Activity IANP ON IANP.Id=IID.ActivityId
-						Left JOIN hkp.Budget BNP On BNP.Id=IBMNP.BudgetId
+						Left JOIN hkp.Budget BNP On BNP.Id=IBMNP.BudgetProductionOrderId
 						--cr
 						LEFT JOIN HKP.GLGeneralInfo IGLCNP ON IGLCNP.Id=IRD.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBMCNP ON IBMCNP.Id=IRD.PostDrBudgetMasterId
@@ -4063,27 +4065,27 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            sheet1[_row, 33].Text = "Posted (Dr.)";
-            sheet1[_row, 33].CellStyle.Font.Size = 10;
-            sheet1[_row, 33].CellStyle.Font.Bold = true;
-            sheet1[_row, 33].WrapText = true;
-            sheet1[_row, 33].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 33].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 33, _row, 37].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 33, _row, 37].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 33, _row, 37].Merge();
-            sheet1.Range[_row, 33, _row, 37].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 34].Text = "Posted (Dr.)";
+            sheet1[_row, 34].CellStyle.Font.Size = 10;
+            sheet1[_row, 34].CellStyle.Font.Bold = true;
+            sheet1[_row, 34].WrapText = true;
+            sheet1[_row, 34].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 34].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 34, _row, 38].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 34, _row, 38].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 34, _row, 38].Merge();
+            sheet1.Range[_row, 34, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 38].Text = "Posted (Cr.)";
-            sheet1[_row, 38].CellStyle.Font.Size = 10;
-            sheet1[_row, 38].CellStyle.Font.Bold = true;
-            sheet1[_row, 38].WrapText = true;
-            sheet1[_row, 38].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 38].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 38, _row, 42].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 38, _row, 42].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 38, _row, 42].Merge();
-            sheet1.Range[_row, 38, _row, 42].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 39].Text = "Posted (Cr.)";
+            sheet1[_row, 39].CellStyle.Font.Size = 10;
+            sheet1[_row, 39].CellStyle.Font.Bold = true;
+            sheet1[_row, 39].WrapText = true;
+            sheet1[_row, 39].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 39].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 39, _row, 43].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 39, _row, 43].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 39, _row, 43].Merge();
+            sheet1.Range[_row, 39, _row, 43].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
 
 
@@ -4411,6 +4413,13 @@ namespace Library.MaterialManagement.Inventory
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GLCode";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -4535,16 +4544,17 @@ namespace Library.MaterialManagement.Inventory
                 report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
                 report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
                 report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["Remarks"].ToString());
-                report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["GLCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["GL"].ToString());
-                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["Budget"].ToString());
-                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["Activity"].ToString());
-                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
-                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CGL"].ToString());
-                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["CActivity"].ToString());
-                report.SetText(ref sheet1, _rowL, 42, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["PONo"].ToString());
+                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 42, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+                report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
                 
             }
 
@@ -7067,51 +7077,19 @@ namespace Library.MaterialManagement.Inventory
                 {
 
                     sql = @"SELECT MGM.UserName MaterialMasterGroupName
-                                	,IR.MaterialMasterId
-                                	,mm.UserName Material
-                                	,IR.ArticleId
-                                	,ART.StandardName ArticleName
-                                	,MT.UserName MaterialType
-                                	,IR.FirstCharacteristicsId
-                                	,FC.UserName AS FirstCharacteristics
-                                	,IR.FirstCharacteristicsValueId
-                                	,FCV.UserName AS Sku1
-                                	,IR.SecondCharacteristicsId
-                                	,SC.UserName AS SecondCharacteristics
-                                	,IR.SecondCharacteristicsValueId
-                                	,SCV.UserName AS Sku2
-                                	,IR.ThirdCharacteristicsId
-                                	,TC.UserName AS ThirdCharacteristics
-                                	,IR.ThirdCharacteristicsValueId
-                                	,TCV.UserName AS Sku3
-                                	,C.UserName CountryName
-                                	,C.Id CountryId
-                                	,TUoM.Id BaseUOMId
-                                	,TUoM.Id TransactionUoMId
-                                	,TUoM.UserName UOM
-                                	,TUoM.UserName TransactionUoM
-                                	,IR.CostCenterId
-                                	,CC.UserName AS CostCenterName
-                                	,IR.GLGeneralInfoId
-                                	,IGL1.UserName GLName
-                                	,IR.BudgetMasterId
-                                	,B1.UserName BudgetName
-                                	,IR.ExpenseActivityId
-                                	,IA1.UserName ActivityName
-                                	,IRM.Id IssueRequestMasterId
-                                	,IR.Id IssueRequest,MM.IsAsset
-                                	--,RequestedQty=Isnull(IR.RequestedQty,0)-ISNULL(ABC.Qty,0)							
-                                	--,PostingQty.MaterialStorageId
-                                	,Convert(BIT, 0) 'check'
-                                	,IR.RequestedQty RequestedQty
-                                	,sum(IDRM.Qty) IssuedQty
+                                	,IR.MaterialMasterId ,mm.UserName Material ,IR.ArticleId ,ART.StandardName ArticleName
+                                	,MT.UserName MaterialType ,IR.FirstCharacteristicsId ,FC.UserName AS FirstCharacteristics ,IR.FirstCharacteristicsValueId
+                                	,FCV.UserName AS Sku1 ,IR.SecondCharacteristicsId ,SC.UserName AS SecondCharacteristics ,IR.SecondCharacteristicsValueId
+                                	,SCV.UserName AS Sku2 ,IR.ThirdCharacteristicsId ,TC.UserName AS ThirdCharacteristics ,IR.ThirdCharacteristicsValueId
+                                	,TCV.UserName AS Sku3 ,C.UserName CountryName ,C.Id CountryId ,TUoM.Id BaseUOMId ,TUoM.Id TransactionUoMId ,TUoM.UserName UOM
+                                	,TUoM.UserName TransactionUoM ,IR.CostCenterId ,CC.UserName AS CostCenterName ,IR.GLGeneralInfoId ,IGL1.UserName GLName
+                                	,IR.BudgetMasterId ,B1.UserName BudgetName ,IR.ExpenseActivityId ,IA1.UserName ActivityName
+                                	,IRM.Id IssueRequestMasterId ,IR.Id IssueRequest,MM.IsAsset
+                                	,Convert(BIT, 0) 'check' ,IR.RequestedQty RequestedQty ,sum(IDRM.Qty) IssuedQty
                                 	,Sum(Isnull(PostingQty.PostingQty, 0)) PostingQty
                                 	,BalanceQty = Isnull(IR.RequestedQty, 0) - SUM(ISNULL(IDRM.Qty, 0))
-                                	,BaseUOMFactor = CASE 
-                                		WHEN AlternativeUOM.BaseUOMFactor IS NULL
-                                			THEN 1
-                                		ELSE AlternativeUOM.BaseUOMFactor
-                                		END
+                                    ,TempBalanceQty = Isnull(IR.RequestedQty, 0) - SUM(ISNULL(IDRM.Qty, 0))
+                                	,BaseUOMFactor = CASE  WHEN AlternativeUOM.BaseUOMFactor IS NULL THEN 1 ELSE AlternativeUOM.BaseUOMFactor END
                                 FROM trn.IssueRequest IR
                                 LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id = IR.IssueRequestMasterId
                                 LEFT JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
@@ -7208,43 +7186,11 @@ namespace Library.MaterialManagement.Inventory
                                 	GROUP BY aa.Id
                                 	) IDRM ON IDRM.Id = IR.id
                                 WHERE IRM.Id = '" + Id + @"'
-                                GROUP BY MGM.UserName
-                                	,IR.MaterialMasterId
-                                	,IR.RequestedQty
-                                	,mm.UserName
-                                	,IR.ArticleId
-                                	,ART.StandardName
-                                	,MT.UserName
-                                	,IR.FirstCharacteristicsId
-                                	,FC.UserName
-                                	,IR.FirstCharacteristicsValueId
-                                	,FCV.UserName
-                                	,IR.SecondCharacteristicsId
-                                	,SC.UserName
-                                	,IR.SecondCharacteristicsValueId
-                                	,SCV.UserName
-                                	,IR.ThirdCharacteristicsId
-                                	,TC.UserName
-                                	,IR.ThirdCharacteristicsValueId
-                                	,TCV.UserName
-                                	,C.UserName
-                                	,C.Id
-                                	,TUoM.Id
-                                	,TUoM.Id
-                                	--,TUoM.UserName UOM
-                                	--, PostingQty.UoM
-                                	,TUoM.UserName
-                                	,IR.CostCenterId
-                                	,CC.UserName
-                                	,IR.GLGeneralInfoId
-                                	,IGL1.UserName
-                                	,IR.BudgetMasterId
-                                	,B1.UserName
-                                	,IR.ExpenseActivityId
-                                	,IA1.UserName
-                                	,IRM.Id
-                                	,IR.Id,MM.IsAsset
-                                	--,PostingQty.MaterialStorageId
+                                GROUP BY MGM.UserName ,IR.MaterialMasterId ,IR.RequestedQty ,mm.UserName ,IR.ArticleId ,ART.StandardName
+                                	,MT.UserName ,IR.FirstCharacteristicsId ,FC.UserName ,IR.FirstCharacteristicsValueId ,FCV.UserName ,IR.SecondCharacteristicsId
+                                	,SC.UserName ,IR.SecondCharacteristicsValueId ,SCV.UserName ,IR.ThirdCharacteristicsId ,TC.UserName ,IR.ThirdCharacteristicsValueId
+                                	,TCV.UserName ,C.UserName ,C.Id ,TUoM.Id ,TUoM.Id ,TUoM.UserName ,IR.CostCenterId ,CC.UserName ,IR.GLGeneralInfoId
+                                	,IGL1.UserName ,IR.BudgetMasterId ,B1.UserName ,IR.ExpenseActivityId ,IA1.UserName ,IRM.Id ,IR.Id,MM.IsAsset
                                 	,AlternativeUOM.BaseUOMFactor";
                 }
                 return _sqlRepository.GetDataCollection(sql);
