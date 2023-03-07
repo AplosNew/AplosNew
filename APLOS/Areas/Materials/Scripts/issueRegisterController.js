@@ -98,7 +98,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
-
 			$scope.IssueRegisterList = response.data.NewData;
 			//$scope.setTabGRNGRNIssueList();
 		});
