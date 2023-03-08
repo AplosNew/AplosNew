@@ -427,5 +427,9 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/OutPassRegister/Report',
             controller: 'OutPassRegisterController'
         })
+        .when('/po-wise-material-issue', {
+            templateUrl: 'Products/inventoryIssue/POWiseMaterialIssue',
+            controller: 'POWiseMaterialIssueController'
+        })
         ;
 }

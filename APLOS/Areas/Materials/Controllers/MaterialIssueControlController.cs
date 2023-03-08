@@ -544,7 +544,7 @@ namespace Aplos.Areas.Materials.Controllers
                 inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
                 inventoryIssue.CompanyId = identity.CompanyId;
                 inventoryIssue.PlantId = identity.PlantId;
-                inventoryIssue.Orderspecific = "No";
+                inventoryIssue.Orderspecific = "Yes";
                 inventoryIssue.IssueSlipType = "InventorySlip";
                 inventoryIssue.CheckedByStatus = "ForChecked";
                 inventoryIssue.Preparedby = model["ByWhomId"].ToString();
@@ -784,7 +784,7 @@ namespace Aplos.Areas.Materials.Controllers
         }//End of function
 
         [HttpGet, Authorize]
-        public ActionResult GetCostingDataList(string LineItemId)
+        public ActionResult GetCostingDataList(string LineItemId, string soId)
         {
 
             return Json(clsM.GetCostingDataList(LineItemId), JsonRequestBehavior.AllowGet);
@@ -792,9 +792,9 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetQBOQDataList(string LineItemId)
+        public ActionResult GetQBOQDataList(string LineItemId, string soId)
         {
-            return Json(clsM.GetQBOQDataList(LineItemId), JsonRequestBehavior.AllowGet);
+            return Json(clsM.GetQBOQDataList(LineItemId, soId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
