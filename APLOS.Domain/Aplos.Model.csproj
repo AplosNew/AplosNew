@@ -382,6 +382,7 @@
     <Compile Include="Configurations\OrderManagements\ProductionOrderEntityConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\SecondCharacteristicsConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\ProductionResourcesConfiguration.cs" />
+    <Compile Include="Configurations\OrderManagements\MasterOrderItemCostingRateConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\SOCostingConfirmationConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\ThirdCharacteristicsConfiguration.cs" />
     <Compile Include="Configurations\OrderManagements\MasterOrderItem.cs" />
@@ -780,6 +781,7 @@
     <Compile Include="OrderManagements\PackingListMaster.cs" />
     <Compile Include="OrderManagements\ProductionOrderEntity.cs" />
     <Compile Include="OrderManagements\ProductionResources.cs" />
+    <Compile Include="OrderManagements\MasterOrderItemCostingRate.cs" />
     <Compile Include="OrderManagements\SOCostingConfirmation.cs" />
     <Compile Include="OrderManagements\ThirdCharacteristics.cs" />
     <Compile Include="OrderManagements\MasterOrderAttributeValue.cs" />

@@ -467,7 +467,7 @@
                         <div e-columns>
                             <div e-column e-headertext="Select" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
-                            <div e-column e-template="#LineItemId" e-headertext="LineItemId" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#LineItemId" e-headertext="LineItemId" e-width="100" style="height: 20px;"></div>
                             <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                             <div e-column e-type="string" e-field="BuyerItem" e-headertext="Customer Ref#" e-width="80"></div>
                             <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>
@@ -493,7 +493,7 @@
                     </script>
                     <script type="text/template" id="LineItemId">
                         <div class="select-style">
-                            <select class="form-control" ng-model="data.LineItemId" name="LineItemId" ng-change="$parent.GetQBOQCostingData();">
+                            <select class="form-control" ng-model="data.LineItemId" name="LineItemId">
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in $parent.itemList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>

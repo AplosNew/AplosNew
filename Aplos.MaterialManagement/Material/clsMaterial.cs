@@ -473,7 +473,7 @@ LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
 
-   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND moi.Id NOT IN(Select ISNULL(LineItemId,'') from dbo.MaterialIssueControlSODetail)";
+   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND SO.Id NOT IN(Select SOId from dbo.MaterialIssueControlSODetail)";
 
 
             return _sqlRepository.GetDataCollection(CmdText, null);

@@ -219,14 +219,15 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
 
                 if ($scope.SearchSOItemList[i].Flag) {
-                    if (checkExists($scope.SOItemList, $scope.SearchSOItemList[i].SOId) == false) {
-                        if (checkExistsItem($scope.SOItemList, $scope.SearchSOItemList[i].LineItemId)) {
-                            $scope.SOItemList.push($scope.SearchSOItemList[i]);
-                        }
-                        else {
-                            throw "Select same Line Item";
-                        }
+                    // if (checkExists($scope.SOItemList, $scope.SearchSOItemList[i].SOId) == false) {
+                    if (checkExistsItem($scope.SOItemList, $scope.SearchSOItemList[i].LineItemId)) {
+                        $scope.SOItemList.push($scope.SearchSOItemList[i]);
                     }
+                    else {
+                        $scope.SOItemList = [];
+                        throw "Select same Line Item";
+                    }
+                    // }
                 }
             }
             $scope.GetQBOQCostingData();
@@ -247,11 +248,11 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     function checkExistsItem(list, id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].LineItemId === id) {
-                return true;
+            if (list[i].LineItemId !== id) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
 

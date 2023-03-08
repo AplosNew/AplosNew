@@ -544,7 +544,7 @@ namespace Aplos.Areas.Materials.Controllers
                 inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
                 inventoryIssue.CompanyId = identity.CompanyId;
                 inventoryIssue.PlantId = identity.PlantId;
-                inventoryIssue.Orderspecific = "No";
+                inventoryIssue.Orderspecific = "Yes";
                 inventoryIssue.IssueSlipType = "InventorySlip";
                 inventoryIssue.CheckedByStatus = "ForChecked";
                 inventoryIssue.Preparedby = model["ByWhomId"].ToString();

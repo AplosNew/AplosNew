@@ -3578,7 +3578,7 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
         public string ProcessId { get; set; }
         public string ShiftId { get; set; }
         public string ResponsiblePerson { get; set; }
-        public DateTime? ProductionDate { get; set; } 
+        public string ProductionDate { get; set; } 
         public string AddedBy { get; set; }
         public string AddedFromIP { get; set; }
         public string UpdatedFromIP { get; set; }
