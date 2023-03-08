@@ -165,6 +165,10 @@ namespace Aplos.Areas.Products.Controllers
         {
             return View();
         }
+        public ActionResult POWiseMaterialIssue()
+        {
+            return View();
+        }
         #endregion Aplos
 
         #region Operations
