@@ -2194,6 +2194,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
+    <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SurveyandFeedbackController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
@@ -4566,6 +4567,7 @@
     <Content Include="Areas\Productions\Views\ProductionControl\LineDesignCanvas.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionControl\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionControl\LineLayoutSearchViews.cshtml" />
+    <Content Include="Areas\Products\Views\InventoryIssue\POWiseMaterialIssue.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
