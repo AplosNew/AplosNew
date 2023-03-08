@@ -578,8 +578,10 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
         try {
             $scope.btndisable = true;
 
-            if (baseService.isUndefinedOrNull($scope.recipeMaterialListSelected) || $scope.recipeMaterialListSelected.length <= 0)
+            if (baseService.isUndefinedOrNull($scope.recipeMaterialListSelected) || $scope.recipeMaterialListSelected.length <= 0) {
+                $scope.btndisable = false;
                 throw 'Please select at least one material';
+            }
 
 
             daysSortValidation($scope.prdProcessSetList);
@@ -593,8 +595,11 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                 }
                 isBaseProcess = false;
             }
-            if (!isBaseProcess) throw 'Please select base process';
-
+            if (!isBaseProcess)
+            {
+                $scope.btndisable = false;
+                throw 'Please select base process';
+            }
 
             $scope.$broadcast('show-errors-check-validity');
             if ($scope.modelNewForm.$valid) {
@@ -635,8 +640,8 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
                         //ClearFields();
                     }
                 }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
                     $scope.btndisable = false;
+                    ShowResult(response.data.Message, 'failure');
                 };
             }
         } catch (e) {

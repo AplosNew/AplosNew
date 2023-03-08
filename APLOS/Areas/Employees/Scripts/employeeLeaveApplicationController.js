@@ -43,7 +43,8 @@ function employeeLeaveApplicationController(commonMessage, $scope, $rootScope, b
         ApprovalPerson: null,
         FirstApprovingStatus: 1,
         FirstApprovingAuthority: null,
-        FirstApprovingDate:null        
+        FirstApprovingDate: null,
+        PolicyName:null
     };
     $scope.leaveApplicationNew = Object.assign({}, $scope.leaveApplication);
 
@@ -250,6 +251,7 @@ function employeeLeaveApplicationController(commonMessage, $scope, $rootScope, b
         $scope.leaveApplicationNew.SectionId = data.SectionId;
         $scope.leaveApplicationNew.DOJ = data.DOJ;
         $scope.leaveApplicationNew.DOC = data.DOC;
+        $scope.leaveApplicationNew.PolicyName = data.PolicyName;
         $scope.leaveApplicationNew.DesignationGroup = data.DesignationGroup;
         $scope.leaveApplicationNew.LegalDesignation = data.LegalDesignation;
         $scope.imageSrc = virtualPath.EmployeePic + data.EmpPicPath;
@@ -258,7 +260,7 @@ function employeeLeaveApplicationController(commonMessage, $scope, $rootScope, b
         $scope.getData();
         $scope.leavetypecbo();
         $scope.getLeaveBalance();
-        $scope.LeavePolicyName();
+        //$scope.LeavePolicyName();
     };
 
 

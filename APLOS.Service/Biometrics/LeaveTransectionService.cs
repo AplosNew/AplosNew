@@ -1434,7 +1434,12 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 {
                     if (GetEmpCatData.Tables[0].Rows[0]["EmployeeCategoryId"].ToString() == GetLeaveTypeData.Tables[0].Rows[0]["EmpCatId"].ToString())
                     {
+                        var today = Convert.ToDateTime(DateTime.Now).ToString("dd-MMM-yyyy");
+
+                        if (leaveTransaction.FromDate< Convert.ToDateTime(today))
+                        {
                         throw new CustomException("Back Date Leave Posting Does not Allowed");
+                        }
                     }
                 }
 

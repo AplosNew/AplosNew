@@ -1,0 +1,59 @@
+﻿<div class="common-btn" ng-show="DailyTargetList.length>0">
+    <ul class="list-inline text-right">
+        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+    </ul>
+</div>
+
+<div id="GridDailyTargetList" ej-grid e-datasource="DailyTargetList" e-templaterefresh="DailyTargetAllCheck"
+     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBound">
+    <div e-columns>
+        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="5"></div>
+        <div e-column e-field="Line" e-headertext="Work Center" e-width="15"></div>
+        <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="10"></div>
+        <div e-column e-template="#templateSearchPR" e-headertext="" e-width="8"></div>
+        <div e-column e-field="Article" e-headertext="Article" e-width="15"></div>
+        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="12"></div>
+
+
+
+    </div>
+</div>
+<script type="text/x-jsrender" id="headerTemplate">
+    <input type="checkbox" id="headchk" />
+</script>
+<script type="text/template" id="checkboxTemplate">
+    <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+</script>
+<script type="text/ng-template" id="ShowButtons">
+    <div class="common-btn">
+        <button ng-click="$parent.AddLineItemG(this);" ng-show="data.CanCopy||data.HasLayout" style="color: #f3f3ec; height: 28px; width: 28px; padding: 0px; margin: 0px; background-color:{{data.HasLayout?'#00ff00':'#ffd800'}}; " title="Actions" class="btn">
+            <i class="glyphicon glyphicon-list"></i>
+        </button>
+        <button ng-click="$parent.PopupItem(data);" ng-show="data.HasLayout" style="height: 28px; width: 28px; padding: 0px; margin: 0px; " title="Report" class="btn">
+            <i class="glyphicon glyphicon-download"></i>
+        </button>
+        <button ng-click="$parent.GetBottleneck(data);" ng-show="data.HasLayout" style="color:darkorange; height: 28px; width: 28px; padding: 0px; margin: 0px; " title="Report" class="btn">
+            <i class="glyphicon glyphicon-signal"></i>
+        </button>
+    </div>
+</script>
+
+<script type="text/template" id="templateSearchPR">
+    <div class="common-btn">
+        <ul class="list-inline text-right small">
+            <li>
+                <button ng-click="$parent.SearchPRPopup(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
+                    <i class="glyphicon glyphicon-search"></i>
+                </button>
+            </li>
+        </ul>
+    </div>
+</script>
+<div class="common-btn" ng-show="DailyTargetList.length>0">
+    <ul class="list-inline text-right">
+        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+    </ul>
+</div>

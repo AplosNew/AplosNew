@@ -2079,8 +2079,7 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
         {
             try
             {
-                
-                
+               
                 string sql = @"select MM.UserName Medicine, [Opening Quantity] = case when IsOpeningQty = 1 then MRC.Quantity else 0 end 
 ,[Received Quantity] = case when IsOpeningQty = 0 then MRC.Quantity else 0 end
 , ESM.IssueQty, FORMAT(MRC.ExpiryDate,'dd-MMM-yyyy')[Expiry Date], ClosingStock =  case when IsOpeningQty = 1 then MRC.Quantity else 0 end + case when IsOpeningQty = 0 then MRC.Quantity

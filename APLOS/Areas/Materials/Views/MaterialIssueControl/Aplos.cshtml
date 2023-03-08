@@ -86,10 +86,10 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{labelCheckAndApproved}}</label>
+                    <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{labelCheckAndApproved}}<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style" ng-show="checkedByList.length">
-                            <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedBy" tabindex="8">
+                            <select id="CheckedBy" class="form-control" name="Checked By" ng-model="ModelNew.CheckedBy" tabindex="8" required>
                                 <option ng-repeat="option in checkedByList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
@@ -126,7 +126,9 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                      e-allowselection="false" e-filtersettings-filterType="excel">
                     <div e-columns>
-                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+                        <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="85"></div>
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                         <div e-column e-type="string" e-field="BuyerItem" e-headertext="Customer Ref#" e-width="80"></div>
                         <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>
                         <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
@@ -134,8 +136,7 @@
                         <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="100"></div>
                         <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
                         <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                        <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="75"></div>
-                        <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="ItemMaterialCost" e-headertext="ItemMaterialCost" e-textalign="right" e-width="80"></div>
                         <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOMaterialCost" e-headertext="SOMaterialCost" e-textalign="right" e-width="80"></div>
@@ -151,6 +152,7 @@
                         <div e-column e-type="number" e-template="#TotalSOCostVsTotalPlanCostTemplate" e-field="TotalSOCostVsTotalPlanCost" e-headertext="TotalSOCostVsTotalPlanCost" e-textalign="right" e-width="80"></div>
                     </div>
                 </div>
+
                 <script type="text/template" id="TotalVarianceCostingVsSOTemplate">
                     <div class="col-sm-10" style="padding:0px; width:70px;height:20px;">
                         <input type="text" ng-model="data.TotalVarianceCostingVsSO" disabled style="color:black; background-color:{{data.TotalVarianceCostingVsSO<0?'Red':'#d8d7d7'}}" class="form-control" />
@@ -455,17 +457,18 @@
 <div class="modal fade site-modal in" id="SOpopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="row">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
+
+            <div class="modal-header">Line Item List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
                     <div style="color:black;" id="SOPOPGrid" ej-grid e-datasource="SearchSOItemList" e-allowscrolling="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-allowselection="false" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
                         <div e-columns>
                             <div e-column e-headertext="Select" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                            <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+                            <div e-column e-template="#LineItemId" e-headertext="LineItemId" e-width="100" style="height: 20px;"></div>
+                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                             <div e-column e-type="string" e-field="BuyerItem" e-headertext="Customer Ref#" e-width="80"></div>
                             <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>
                             <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
@@ -473,8 +476,7 @@
                             <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="100"></div>
                             <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
                             <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                            <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="75"></div>
-                            <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="ItemMaterialCost" e-headertext="ItemMaterialCost" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOMaterialCost" e-headertext="SOMaterialCost" e-textalign="right" e-width="80"></div>
@@ -483,35 +485,21 @@
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOTotalMaterailCost" e-headertext="SOTotalMaterailCost" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="CostingTotalMaterialCost" e-headertext="CostingTotalMaterialCost" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="BOQTotalCost" e-headertext="BOQTotalCost" e-textalign="right" e-width="80"></div>
-                            @*<div e-column e-type="number" e-template="#TotalVarianceCostingVsSOTemplate" e-field="TotalVarianceCostingVsSO" e-headertext="TotalVarianceCostingVsSO" e-textalign="right" e-width="80"></div>
-                    <div e-column e-type="number" e-template="#TotalVarianceCostingVsBOQTemplate" e-field="TotalVarianceCostingVsBOQ" e-headertext="TotalVarianceCostingVsBOQ" e-textalign="right" e-width="80"></div>
-                    <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlanRate" e-headertext="PlanRate" e-textalign="right" e-width="80"></div>
-                    <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlantCost" e-headertext="PlantCost" e-textalign="right" e-width="80"></div>
-                    <div e-column e-type="number" e-template="#TotalSOCostVsTotalPlanCostTemplate" e-field="TotalSOCostVsTotalPlanCost" e-headertext="TotalSOCostVsTotalPlanCost" e-textalign="right" e-width="80"></div>*@
+
                         </div>
                     </div>
                     <script type="text/template" id="checkboxTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                     </script>
-                    @*<script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>*@
+                    <script type="text/template" id="LineItemId">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="data.LineItemId" name="LineItemId">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in $parent.itemList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </script>
 
-                    @*<script type="text/template" id="TotalVarianceCostingVsSOTemplate">
-                <div class="col-sm-10" style="padding:0px; width:70px;height:20px;">
-                    <input type="text" ng-model="data.TotalVarianceCostingVsSO" disabled style="color:black; background-color:{{data.TotalVarianceCostingVsSO<0?'Red':'#d8d7d7'}}" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="TotalSOCostVsTotalPlanCostTemplate">
-                <div class="col-sm-10" style="padding:0px; width:70px;height:20px;">
-                    <input type="text" ng-model="data.TotalSOCostVsTotalPlanCost" disabled style="color:black; background-color:{{data.TotalSOCostVsTotalPlanCost<0?'Red':'#d8d7d7'}}" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="TotalVarianceCostingVsBOQTemplate">
-                <div class="col-sm-10" style="padding:0px; width:70px;height:20px;">
-                    <input type="text" ng-model="data.TotalVarianceCostingVsBOQ" disabled style="color:black; background-color:{{data.TotalVarianceCostingVsBOQ<0?'Red':'#d8d7d7'}}" class="form-control" />
-                </div>
-            </script>*@
                 </div>
                 <div class="modal-footer">
                     <div class="common-btn" style="padding-right: 15px;">
