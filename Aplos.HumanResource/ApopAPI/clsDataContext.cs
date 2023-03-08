@@ -2161,7 +2161,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             try
             {
                 DataSet dsMaster;
-                string TableName = "TRN.ProductionService";
+                string TableName = "dbo.ProductionService";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
@@ -2169,7 +2169,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                 int i = 0;
                 foreach (ProcessService item in DataToSave)
                 {
-                    con.OpenDataSetThroughAdapter("select * from TRN.ProductionService where Id='" + item.Id + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from dbo.ProductionService where Id='" + item.Id + "'", out dsMaster, false, "1");
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
@@ -2180,11 +2180,16 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
 
 
                         dr["Id"] = "PS" + _Id;
-                        dr["EntityId"] = item.EntityId;
-                        dr["ProcessId"] = item.ProcessId;
-                        dr["ShiftId"] = item.ShiftId;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["EntityId"] = item.EntityID;
+                        dr["ProcessId"] = item.ProcessID;
+                        dr["ShiftId"] = item.ShiftID;
                         dr["ResponsiblePerson"] = item.ResponsiblePerson;
-                       
+                        dr["Entity"] = item.Entity;
+                        dr["Process"] = item.Process;
+                        dr["Shift"] = item.shift;
+                        dr["ResponsiblePersonID"] = item.ResponsiblePersonID;
+
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -2201,10 +2206,15 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["EntityId"] = item.EntityId;
-                        dr["ProcessId"] = item.ProcessId;
-                        dr["ShiftId"] = item.ShiftId;
+                        dr["EntityId"] = item.EntityID;
+                        dr["ProcessId"] = item.ProcessID;
+                        dr["ShiftId"] = item.ShiftID;
                         dr["ResponsiblePerson"] = item.ResponsiblePerson;
+                        dr["Entity"] = item.Entity;
+                        dr["Process"] = item.Process;
+                        dr["Shift"] = item.shift;
+                        dr["ResponsiblePersonID"] = item.ResponsiblePersonID;
+
 
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -2227,7 +2237,97 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             }
         }
 
+        public string PostProductionServiceChild(IEnumerable<ProcessServiceChild> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.ProductionServiceChild";
 
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                int i = 0;
+                foreach (ProcessServiceChild item in DataToSave)
+                {
+                    con.OpenDataSetThroughAdapter("select * from dbo.ProductionServiceChild where Id='" + item.Id + "'", out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+                        dr["Id"] = "PS" + _Id;
+                        dr["ProductionServiceId"] = item.ProductionServiceId;
+                        dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
+                        dr["PO"] = item.PO;
+                        dr["Value"] = item.Value;
+                        dr["Effeciency"] = item.Effeciency;
+                        dr["Remarks"] = item.Remarks;
+                        dr["Region1"] = item.Region1;
+                        dr["Region1Time"] = item.Region1Time;
+                        dr["Region2"] = item.Region2;
+                        dr["Region2Time"] = item.Region2Time;
+                        dr["Region3"] = item.Region3;
+                        dr["Region3Time"] = item.Region3Time;
+                        dr["Region4"] = item.Region4;
+                        dr["Region4Time"] = item.Region4Time;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["ProductionServiceId"] = item.ProductionServiceId;
+                        dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
+                        dr["PO"] = item.PO;
+                        dr["Value"] = item.Value;
+                        dr["Effeciency"] = item.Effeciency;
+                        dr["Remarks"] = item.Remarks;
+                        dr["Region1"] = item.Region1;
+                        dr["Region1Time"] = item.Region1Time;
+                        dr["Region2"] = item.Region2;
+                        dr["Region2Time"] = item.Region2Time;
+                        dr["Region3"] = item.Region3;
+                        dr["Region3Time"] = item.Region3Time;
+                        dr["Region4"] = item.Region4;
+                        dr["Region4Time"] = item.Region4Time;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                        dr.EndEdit();
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    }
+                    i++;
+                }
+                return i.ToString();
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
 
 
         // Detention Log Out
@@ -3574,17 +3674,46 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
     public class ProcessService
     {
         public string Id { get; set; }
-        public string EntityId { get; set; }
-        public string ProcessId { get; set; }
-        public string ShiftId { get; set; }
+        public string ProductionDate { get; set; }
+        public string Entity { get; set; }
+        public string EntityID { get; set; }
+        public string Process { get; set; }
+        public string ProcessID { get; set; }
+        public string shift { get; set; }
+        public string ShiftID { get; set; }
         public string ResponsiblePerson { get; set; }
-        public string ProductionDate { get; set; } 
+        public string ResponsiblePersonID { get; set; }
         public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }
-        public string UpdatedFromIP { get; set; }
-        public DateTime? AddedDate { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
+    public class ProcessServiceChild
+    {
+        public string Id { get; set; }
+        public string ProductionServiceId { get; set; }
+        public string WorkcenterMasterId { get; set; }
+        public int PO { get; set; }
+        public int Value { get; set; }
+        public decimal Effeciency { get; set; }
+        public string Remarks { get; set; }
+        public string Region1 { get; set; }
+        public string Region1Time { get; set; }
+        public string Region2 { get; set; }
+        public string Region2Time { get; set; }
+        public string Region3 { get; set; }
+        public string Region3Time { get; set; }
+        public string Region4 { get; set; }
+        public string Region4Time { get; set; }
+        public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
     }
     #endregion Written by Nitesh
 
