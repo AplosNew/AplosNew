@@ -707,9 +707,9 @@ namespace Library.Service.Invoices
                             DocDate = voucherVM.DocDate,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = voucherVM.Narration,
-                            PartyId = voucherVM.PartyId,
-                            PartyPlantId = voucherVM.PartyPlantId,
-                            PartyType = voucherVM.PartyType,
+                            //PartyId = voucherVM.PartyId,
+                            //PartyPlantId = voucherVM.PartyPlantId,
+                            //PartyType = voucherVM.PartyType,
                         };
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
@@ -785,9 +785,9 @@ namespace Library.Service.Invoices
                             DocDate = voucherVM.DocDate,
                             DocRefNo = voucherVM.DocRefNo,
                             Narration = voucherVM.Narration,
-                            PartyId = voucherVM.PartyId,
-                            PartyPlantId = voucherVM.PartyPlantId,
-                            PartyType = voucherVM.PartyType,
+                            //PartyId = voucherVM.PartyId,
+                            //PartyPlantId = voucherVM.PartyPlantId,
+                            //PartyType = voucherVM.PartyType,
                         };
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);

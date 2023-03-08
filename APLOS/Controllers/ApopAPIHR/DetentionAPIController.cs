@@ -294,6 +294,21 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        [HttpPost]
+        public string PostProductionServiceChild([FromBody] IEnumerable<ProcessServiceChild> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionServiceChild(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         public List<Process> GetProcess()
         {
             clsDataContext clsData = new clsDataContext();
