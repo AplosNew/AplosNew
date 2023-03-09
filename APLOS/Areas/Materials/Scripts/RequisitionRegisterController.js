@@ -14,8 +14,10 @@ function RequisitionRegisterController(fileReader, commonMessage, $scope, $rootS
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.RowColor = "";
     $scope.isAlternative = -1;
+
     $scope.report.FromDate = null;
     $scope.report.ToDate = null;
+
     $scope.productNew = {
          Type: null
         ,EmployeeId:null
@@ -96,7 +98,7 @@ function RequisitionRegisterController(fileReader, commonMessage, $scope, $rootS
             //debugger
             $http({
                 method: 'GET',
-                url: "Products/Requisition/RequisitionByEmpInFixsal?startDate=" + $scope.report.FromDate + '&endDate=' + $scope.report.ToDate,
+                url: "Products/Requisition/RequisitionByEmpInFixsal?startDate=" + $filter('dateFiltering')($scope.report.FromDate, 'dd-M-yyyy') + '&endDate=' + $filter('dateFiltering')($scope.report.ToDate, 'dd-M-yyyy'),
             }).then(function successCallback(response) {
                 $scope.EmployeeList = response.data;
 
