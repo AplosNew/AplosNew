@@ -2162,21 +2162,25 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             {
                 DataSet dsMaster;
                 string TableName = "dbo.ProductionService";
-
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
-                int i = 0;
+                List<ProcessService> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.ProductionService where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
                 foreach (ProcessService item in DataToSave)
                 {
-                    con.OpenDataSetThroughAdapter("select * from dbo.ProductionService where Id='" + item.Id + "'", out dsMaster, false, "1");
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
+
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
+
+
 
 
                         dr["Id"] = "PS" + _Id;
@@ -2196,9 +2200,6 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
 
 
                         dsMaster.Tables[0].Rows.Add(dr);
-
-                        clsStaticInfo _info = new clsStaticInfo();
-                        _info.SaveDataSets(dsMaster);
 
                     }
                     else
@@ -2222,19 +2223,22 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
 
 
                         dr.EndEdit();
-                        clsStaticInfo _info = new clsStaticInfo();
-                        _info.SaveDataSets(dsMaster);
                     }
-                    i++;
-                }
-                return i.ToString();
 
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
 
             }
             catch (Exception ex)
             {
                 return ex.ToString();
             }
+
+
         }
 
         public string PostProductionServiceChild(IEnumerable<ProcessServiceChild> DataToSave)
@@ -2260,7 +2264,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         genid.GenID(TableName, out string _Id);
 
 
-                        dr["Id"] = "PS" + _Id;
+                        dr["Id"] = _Id;
                         dr["ProductionServiceId"] = item.ProductionServiceId;
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
