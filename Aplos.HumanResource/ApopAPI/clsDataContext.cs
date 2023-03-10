@@ -2237,7 +2237,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             {
                 return ex.ToString();
             }
-
+           
 
         }
 
@@ -2264,7 +2264,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         genid.GenID(TableName, out string _Id);
 
 
-                        dr["Id"] = _Id;
+                        dr["Id"] =  _Id;
                         dr["ProductionServiceId"] = item.ProductionServiceId;
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
@@ -3395,6 +3395,76 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
             }
         }
         #endregion Deshboard
+
+        public void GetEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select EmployeeCode As Value,EmployeeName As Name from EmployeeInformation Where EmployeeStatus = 'Active'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetReason(out List<Default2> DataList, string ProcessId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select dm.Id as Value, dm.DetentionUserName As Name from DetentionMasterProcess DMP
+left join DetentionMaster  As dm on dm.Id = DMP.DetentionMasterId
+where ProcessId = '"+ ProcessId +"'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion Written By Aman
 
     }

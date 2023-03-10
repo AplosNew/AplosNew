@@ -407,6 +407,18 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Deshboard
+        public List<Default2> GetEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+        public List<Default2> GetReason(string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetReason(out List<Default2> activelists, ProcessId);
+            return activelists;
+        }
         #endregion written by Aman
 
     }
