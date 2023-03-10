@@ -1416,11 +1416,11 @@ WHERE MOI.MasterOrderId='" + id + "'";
             var flag = false;
             try
             {
-                var useddata = GetUsedData(entity.Id);
-                if (useddata.Rows.Count>0)
-                {
-                    throw new Exception("Update is not allowed after creation of Invoice.");
-                }
+                //var useddata = GetUsedData(entity.Id);
+                //if (useddata.Rows.Count>0)
+                //{
+                //    throw new Exception("Update is not allowed after creation of Invoice.");
+                //}
 
                 var personDbDataList = _personRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
                 var itemDbDataList = _itemRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
