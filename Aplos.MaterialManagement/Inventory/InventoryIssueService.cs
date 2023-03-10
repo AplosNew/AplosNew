@@ -916,7 +916,7 @@ namespace Library.MaterialManagement.Inventory
                                                         Id = GetIssueDetailAndIssueRequestMapPK(),
                                                         InventoryIssueDetailId = issueDetail.Id,
                                                         IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
+                                                        Qty = Convert.ToDecimal(issueDetail.BaseQty),
                                                         //AutoAllocate = true
 
                                                     };
