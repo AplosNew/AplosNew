@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.Http;
 using Library.MaterialManagement.Material;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
+using static HRService.clsDataContext;
 
 namespace Aplos.Controllers.ApopAPIHR
 {
@@ -308,6 +309,23 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        #region Production service Test
+        [HttpPost]
+        public string PostProductionServiceTest([FromBody] IEnumerable<ProcessServiceTest> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionServiceTest(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Production service Test
 
         public List<Process> GetProcess()
         {

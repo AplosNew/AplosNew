@@ -3467,6 +3467,105 @@ where ProcessId = '"+ ProcessId +"'";
         }
         #endregion Written By Aman
 
+        #region Test For production service
+        public string PostProductionServiceTest(IEnumerable<ProcessServiceTest> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.ProductionService";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<ProcessServiceTest> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.ProductionService where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (ProcessServiceTest item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+
+                        dr["Id"] = "PS" + _Id;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["EntityId"] = item.EntityID;
+                        dr["ProcessId"] = item.ProcessID;
+                        dr["ShiftId"] = item.ShiftID;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EntityId"] = item.EntityID;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["ProcessId"] = item.ProcessID;
+                        dr["ShiftId"] = item.ShiftID;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                        dr.EndEdit();
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
+
+
+
+
+        public class ProcessServiceTest
+        {
+            public string Id { get; set; }
+            public string ProductionDate { get; set; }
+            public string EntityID { get; set; }
+            public string ProcessID { get; set; }
+            public string ShiftID { get; set; }
+            public string ResponsiblePerson { get; set; }
+            public string AddedBy { get; set; }
+            public DateTime AddedDate { get; set; }
+            public string AddedFromIP { get; set; }
+            public string UpdatedBy { get; set; }
+            public DateTime? UpdatedDate { get; set; }
+            public string UpdatedFromIP { get; set; }
+        }
+        #endregion Test For production service
+
     }
 
 
