@@ -916,7 +916,7 @@ namespace Library.MaterialManagement.Inventory
                                                         Id = GetIssueDetailAndIssueRequestMapPK(),
                                                         InventoryIssueDetailId = issueDetail.Id,
                                                         IssueRequestBOQMapId = receiveDetailListNew.Id,
-                                                        Qty = receiveDetailListNew.IssueRequestBOQMapQty,
+                                                        Qty = Convert.ToDecimal(issueDetail.BaseQty),
                                                         //AutoAllocate = true
 
                                                     };
@@ -6645,7 +6645,7 @@ namespace Library.MaterialManagement.Inventory
                             ,RejectedQty,IRM.Orderspecific
 							,p.UserName ProcessName
 							,IRMSO.SalesOrderId
-							,POD.ProductionOrderId
+							,ISNULL(IRM.ProductionOrderId,'') ProductionOrderId
 							,concatData1.BuyerItemReferenceNo
 							,concatData1.OwnItemReferenceNo
 							,concatData1.BuyerOrderReferenceNo
@@ -6660,7 +6660,6 @@ namespace Library.MaterialManagement.Inventory
                             left JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId=IRM.Id
 							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
 							left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
-							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
 							LEFT JOIN  (select IssueRequestDetailId,SUM(Qty) IssueQty from TRN.InventoryIssueHistory	group by IssueRequestDetailId)	IIH ON IIH.IssueRequestDetailId=IR.Id
 							
 							LEFT JOIN(
@@ -6760,7 +6759,7 @@ namespace Library.MaterialManagement.Inventory
 								,IRM.Orderspecific
 								,p.UserName ProcessName
 								,concatData.SalesOrderId
-								,POD.ProductionOrderId
+								,ISNULL(IRM.ProductionOrderId,'') ProductionOrderId
 								,concatData1.BuyerItemReferenceNo
 								,concatData1.OwnItemReferenceNo
 								,concatData1.BuyerOrderReferenceNo
@@ -6775,7 +6774,6 @@ namespace Library.MaterialManagement.Inventory
 							left JOIN [TRN].[IssueRequestMasterProcessMap] IRMPM ON IRMPM.IssueRequestMasterId=IRM.Id
 							left JOIN HKP.Process p ON p.Id=IRMPM.ProcessId
                             left join [TRN].[IssueRequestMasterSalesOrderMap] IRMSO ON IRMSO.IssueRequestMasterId=IRM.Id
-							left join [TRN].[ProductionOrderDetail] POD ON POD.SalesOrderId=IRMSO.SalesOrderId 
 							LEFT JOIN  (select IssueRequestDetailId,SUM(Qty) IssueQty from TRN.InventoryIssueHistory	group by IssueRequestDetailId)	IIH ON IIH.IssueRequestDetailId=IR.Id					
 
 							LEFT JOIN(

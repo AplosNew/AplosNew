@@ -21605,13 +21605,13 @@ group by Id) O60 ON O60.Id=IV.Id
 	                    FROM [TRN].[VoucherDetailCurrency] AS VDC) AS CC ON CC.VoucherDetailId=VD.Id
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Customer') 
 					GROUP BY VD.PartyId),0) CustomerLedgerBalanceAmount
+                ,round(sum(x.RemainingPOPayable),4) RemainingPOPayable
         from (
         SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
-                , 0 VendorAdvance
-				, 0 VendorDebitNote
+                , 0 VendorAdvance, 0 VendorDebitNote
 				, ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Payable
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualPayable
-				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable
+				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				 FROM [TRN].[Invoice] AS IV 
                  JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
@@ -21639,10 +21639,9 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 UNION ALL
 				SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
-                , 0 VendorAdvance
-				, 0 VendorDebitNote
+                , 0 VendorAdvance, 0 VendorDebitNote
 				, ISNULL(VDC.CrAmount-ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0),0) AS Payable
-				, 0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable
+				, 0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
                 FROM [TRN].[AdjustmentNoteDetail] AS IVD
                 LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -21663,10 +21662,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 UNION ALL
 				 SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
                 , ISNULL(VDCA.DrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) VendorAdvance
-				, 0 VendorDebitNote
-				, 0 Payable
-				, 0 ActualPayable
-				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable 
+				, 0 VendorDebitNote, 0 Payable, 0 ActualPayable
+				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM TRN.Advance A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
 				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
@@ -21683,9 +21680,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
 				 ,0 VendorAdvance
                 , ( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) VendorDebitNote
-				, 0 Payable
-				, 0 ActualPayable
-				,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable 
+				, 0 Payable, 0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM [TRN].[AdjustmentNote] A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
@@ -21702,14 +21697,10 @@ group by Id) O60 ON O60.Id=IV.Id
 
 				UNION ALL
 				SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
-                ,0 VendorAdvance
-				,0 DebitNote
-				,0 Payable
-				,0 ActualPayable
-				,0 CustomerAdvance
-                ,0 CustomerCreditNote
+                ,0 VendorAdvance,0 DebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote
 				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS Receivable
 				,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS  ActualReceivable
+                ,0 RemainingPOPayable
 				 FROM [TRN].[Invoice] AS IV 
                  JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
@@ -21736,14 +21727,9 @@ group by Id) O60 ON O60.Id=IV.Id
 				
                 UNION ALL
 				SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
-				,0 VendorAdvance
-                ,0 VendorDebitNote
-				,0 Payable
-				,0 ActualPayable
-				,0 CustomerAdvance
-                ,0 CustomerCreditNote
+				,0 VendorAdvance ,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote
 				,( ISNULL(VDC.DrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) Receivable
-				,0 ActualReceivable 
+				,0 ActualReceivable ,0 RemainingPOPayable
 				FROM [TRN].[AdjustmentNote] A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
@@ -21760,13 +21746,9 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 UNION ALL
 				 SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
-                ,0 VendorAdvance
-				,0 DebitNote
-				,0 Payable
-				,0 ActualPayable
+                ,0 VendorAdvance,0 DebitNote,0 Payable,0 ActualPayable
 				,ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) CustomerAdvance
-                ,0 CustomerCreditNote
-				,0 Receivable,0 ActualReceivable 
+                ,0 CustomerCreditNote,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM TRN.Advance A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
 				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
@@ -21782,13 +21764,9 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 UNION ALL
 				SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
-				,0 VendorAdvance
-                ,0 VendorDebitNote
-				,0 Payable
-				,0 ActualPayable
-				,0 CustomerAdvance
+				,0 VendorAdvance ,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance
                 ,( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) CustomerCreditNote
-                ,0 Receivable,0 ActualReceivable 
+                ,0 Receivable,0 ActualReceivable ,0 RemainingPOPayable
 				FROM [TRN].[AdjustmentNote] A
 				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
 				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
@@ -21802,6 +21780,20 @@ group by Id) O60 ON O60.Id=IV.Id
 								GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
                 where A.PlantId='" + plantId + @"' and VDA.PartyType='Customer' and A.SourceType in('CreditNote')  AND A.IsPark=0
 				AND ( convert(Date,A.PostingDate) <= '" + toDate + @"' ) AND ( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
+                
+                UNION ALL
+                SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
+                ,0 VendorAdvance,0 VendorDebitNote,0 Payable,0 ActualPayable,0 CustomerAdvance,0 CustomerCreditNote,0 Receivable,0 ActualReceivable 
+                ,ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0) RemainingPOPayable
+                from trn.PurchaseOrderdetail pod 
+                join trn.PurchaseOrder po ON po.Id=pod.InventoryReceiveId
+                left join(select sum(ISNULL(TotalMaterialBooksCurrencyAmount,0)) GRNAmount,PodetailsId from trn.InventoryReceiveDetail IRD 
+                left join trn.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+                group by IRD.PODetailsId
+                )IRD ON IRD.PodetailsId=pod.id
+                left join hkp.Party P ON P.Id=po.PartyId
+                 where (ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0))>0
+                
                 ) x
 				group by x.PartyId,x.PartyCode,x.PartyName order by x.partyName";
                 return _sqlRepository.GetDataCollection(sql);

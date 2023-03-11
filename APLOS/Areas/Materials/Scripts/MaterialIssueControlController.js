@@ -369,10 +369,10 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
     $scope.selectarticle = function (ob) {
         try {
 
-            $scope.SelectedMaterial.MaterialMasterId = ob.MaterialMasterId;
-            $scope.SelectedMaterial.Material = ob.MaterialMasterName;
+            //$scope.SelectedMaterial.MaterialMasterId = ob.MaterialMasterId;
+            //$scope.SelectedMaterial.Material = ob.MaterialMasterName;
             $scope.SelectedMaterial.ArticleId = ob.Id;
-            $scope.SelectedMaterial.Article = ob.StandardName;
+            $scope.SelectedMaterial.QBOQArticle = ob.StandardName;
 
             angular.element(document.querySelector('#articleSearchPop')).modal('hide');
             if ($scope.ModelNew.Level == "Costing") {
@@ -595,6 +595,8 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.QBOQCostingList = [];
 
+    $scope.sqlInStatementSO = null;
+    $scope.sqlInStatement = null;
     $scope.GetQBOQCostingData = function () {
         if ($scope.SOItemList.length > 0) {
             var uniqueMasterOrderId = removeDuplicates($scope.SOItemList, 'LineItemId');
@@ -604,13 +606,21 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                 wcEmpCode += Array.prototype.map.call(uniqueMasterOrderId, function (item) { return "'" + item.LineItemId + "'"; }).join(",") + ")";
             }
             $scope.sqlInStatement = wcEmpCode;
+
+            var uniquesoId = removeDuplicates($scope.SOItemList, 'SOId');
+            var wcsoId = "";
+            if (uniquesoId.length > 0) {
+                wcsoId = "IN(";
+                wcsoId += Array.prototype.map.call(uniquesoId, function (item) { return "'" + item.SOId + "'"; }).join(",") + ")";
+            }
+            $scope.sqlInStatementSO = wcsoId;
         }
 
         $scope.QBOQCostingList = [];
         if ($scope.ModelNew.Level == "Costing") {
             $http({
                 method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetCostingDataList?LineItemId=' + $scope.sqlInStatement
+                url: 'Materials/MaterialIssueControl/GetCostingDataList?LineItemId=' + $scope.sqlInStatement + '&soId=' + $scope.sqlInStatementSO
 
             }).then(function successCallback(response) {
                 $scope.QBOQCostingList = response.data;
@@ -619,7 +629,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         else {
             $http({
                 method: 'GET',
-                url: 'Materials/MaterialIssueControl/GetQBOQDataList?LineItemId=' + $scope.sqlInStatement
+                url: 'Materials/MaterialIssueControl/GetQBOQDataList?LineItemId=' + $scope.sqlInStatement + '&soId=' + $scope.sqlInStatementSO
 
             }).then(function successCallback(response) {
                 $scope.QBOQCostingList = response.data;

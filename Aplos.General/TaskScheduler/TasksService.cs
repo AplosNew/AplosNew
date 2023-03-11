@@ -643,6 +643,23 @@ namespace Library.General.TaskScheduler
             }
         }
 
+        #region Aman
+        public IEnumerable<object> GetEmployee()
+        {
+
+            try
+            {
+                var sql = @"select EmployeeCode,EmployeeName,IsApproved from EmployeeInformation Where EmployeeStatus = 'Active'";
+
+                    return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        #endregion Aman
+
         public IEnumerable<object> GetPlayStoreAppVersion()
         {
             try

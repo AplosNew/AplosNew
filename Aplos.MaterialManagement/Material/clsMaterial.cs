@@ -473,7 +473,7 @@ LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
 
-   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND moi.Id NOT IN(Select ISNULL(LineItemId,'') from dbo.MaterialIssueControlSODetail)";
+   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND SO.Id NOT IN(Select SOId from dbo.MaterialIssueControlSODetail)";
 
 
             return _sqlRepository.GetDataCollection(CmdText, null);
@@ -558,16 +558,19 @@ Where MOI.Id " + LineItemId + "";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
 
-        public IEnumerable<object> GetQBOQDataList(string LineItemId)
+        public IEnumerable<object> GetQBOQDataList(string LineItemId,string soId)
         {
-            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.UoMId,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption,SO.Qty
-,TotalConsumption=Q.GrossConsumption*SO.Qty, 0 AdditionReduction,(Q.GrossConsumption*SO.Qty) PlanConsumption,Q.MaterialCostPerUnit Rate,((Q.GrossConsumption*SO.Qty)*Q.MaterialCostPerUnit) TotaPlanlAmount,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
-,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks,IM.Id InventoryMaterialId
+            string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.UoMId,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption
+,Qty=(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@")
+,TotalConsumption=Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@"),
+0 AdditionReduction,(Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@")) PlanConsumption
+,Q.MaterialCostPerUnit Rate,((Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@"))*Q.MaterialCostPerUnit) TotaPlanlAmount
+,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
+,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks,IM.Id InventoryMaterialId,Q.Id BOMId
 FROM [dbo].[QuickBOQ] Q
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial'
 left join SCS.UnitOfMeasurement U on U.Id=Q.UoMId
-left join TRN.SalesOrder SO ON SO.MasterOrderItemId=Q.MasterOrderItemId
 left join MST.MaterialMasterArticle A ON A.Id=Q.ArticleId
 left join MST.MaterialMaster M ON M.Id=Q.MaterialMasterId
 LEFT JOIN [TRN].[InventoryMaterial] IM ON IM.MaterialMasterId=Q.MaterialMasterId AND IM.ArticleId=Q.ArticleId
@@ -576,7 +579,7 @@ Select StockRate= SUM(IRD.MaterialTranRate)/COUNT(IRD.Id),IM.MaterialMasterId,IM
 from TRN.InventoryReceiveDetail IRD 
 JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
  AND (IRD.BaseQty-IRD.BaseIssueQty)>0
-GROUP BY IM.MaterialMasterId,IM.ArticleId ) SR ON SR.MaterialMasterId=M.Id AND SR.ArticleId=A.Id
+GROUP BY IM.MaterialMasterId,IM.ArticleId) SR ON SR.MaterialMasterId=M.Id AND SR.ArticleId=A.Id
 Where Q.MasterOrderItemId " + LineItemId + "";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }

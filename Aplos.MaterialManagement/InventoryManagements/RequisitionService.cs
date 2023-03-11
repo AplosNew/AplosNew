@@ -105,7 +105,14 @@ namespace Library.MaterialManagement.InventoryManagements
 
 		public IEnumerable<object> RequisitionByEmpInFixsal(string startDate, string endDate)
 		{
-
+            if (startDate== "Invalid Date")
+            {
+				startDate = "";
+			}
+			if (endDate == "Invalid Date")
+            {
+				endDate = "";
+			}
 			string strSQL;
 			//clsConnection objCon;
 			try

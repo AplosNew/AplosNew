@@ -226,7 +226,7 @@
 
         <script type="text/template" id="Remarks">
             <div class="text-left" style="width:100%">
-                <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" maxlength="250" tabindex="3">
+                <input type="text" name="Remarks" ng-model="data.Remarks" class="form-control" maxlength="250">
             </div>
         </script>
         <script type="text/template" id="SearchArticleTemplate">
@@ -467,7 +467,7 @@
                         <div e-columns>
                             <div e-column e-headertext="Select" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
-                            <div e-column e-template="#LineItemId" e-headertext="LineItemId" e-width="80" style="height: 20px;"></div>
+                            <div e-column e-template="#LineItemId" e-headertext="LineItemId" e-width="100" style="height: 20px;"></div>
                             <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
                             <div e-column e-type="string" e-field="BuyerItem" e-headertext="Customer Ref#" e-width="80"></div>
                             <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>

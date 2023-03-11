@@ -46,6 +46,7 @@ namespace Library.Model.Inventory
         public string IssueType { get; set; }
         public string OrderRefNo { get; set; }
         public string ProductionOrderId { get; set; }
+        public string SlipWisePRNo { get; set; }
         public string ContractId { get; set; }
         public string RefferenceNo { get; set; }
         public string Types { get; set; }
