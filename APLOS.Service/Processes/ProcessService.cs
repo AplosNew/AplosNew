@@ -155,7 +155,7 @@ namespace Library.Service.Processes
 			}
 		}
 
-		public GridModel GetProductionProcessList(GridParameter parameters, string companyGroupId, string CompanyId, string productionOrderId)
+		public GridModel GetProductionProcessList(GridParameter parameters, string companyGroupId, string CompanyId, string productionOrderId, string EntityId)
 		{
 			try
 			{
@@ -164,11 +164,12 @@ namespace Library.Service.Processes
 								, P.IsProductionProcess, P.IsProcessRouting, P.IsLocked
 								, P.IsAppApplicable, IsChecked, P.IsValueAdded
 								, P.MaterialTypeId, MT.[Description] AS MaterialType
-								, P.Remarks
+								, P.Remarks,TG.ProductionBookingLevel
 								, P.Active, P.Archive, Convert(bit,0) AS Flag
 							FROM [HKP].[Process] AS P
 							LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
-							WHERE P.CompanyGroupId='"+ companyGroupId + @"' AND P.IsProductionProcess=1 AND P.Archive=0
+							LEFT JOIN [HKP].[EntityProcessTag] TG ON TG.ProcessId=P.Id AND TG.EntityId='"+ EntityId + @"' 
+							WHERE P.CompanyGroupId='" + companyGroupId + @"' AND P.IsProductionProcess=1 AND P.Archive=0
 							AND P.Id NOT IN(Select ProcessId from TRN.ProductionOrderProcessSet Where  ProductionOrderId='"+ productionOrderId + "')";
 				return _sqlRepository.GetGridData(parameters);
 			}
