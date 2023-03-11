@@ -1052,7 +1052,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             return ShowResult('Please at first select required time unit.', 'failure');
 
 
-        $scope.popUpProcessUrl = 'Processes/Process/GetProductionProcessList?productionOrderId=' + $scope.model.Id;
+        $scope.popUpProcessUrl = 'Processes/Process/GetProductionProcessList?productionOrderId=' + $scope.model.Id + '&EntityId=' + $scope.model.EntityId;
         $scope.getProcessData = function (pageno) {
             baseService.paginationBase($scope.popUpProcessUrl, pageno, $scope.processPopUpParameters)
                 .then(function (result) {
@@ -1108,7 +1108,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , ArticleName: null
             , Qty: 100
             , UOMId: null
-            , ProductionBookingLevel:null
+            , ProductionBookingLevel: data.ProductionBookingLevel
         });
         UomCboByFGMaterialMaster(data.MaterialMasterId);
     };
