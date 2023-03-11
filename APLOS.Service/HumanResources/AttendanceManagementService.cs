@@ -27742,7 +27742,7 @@ namespace Library.Service.HumanResources
                                     ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
                                     ,ISNULL(e.EmployeeStatus,'') EmployeeStatus 
                                     ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
-
+                                    ,jl.JobLocation
                                     ,E.PlantId
                                     FROM EmployeeInformation e
                                     LEFT OUTER JOIN HKP.Designation edsg on edsg.id=e.DesignationSystemID
@@ -27772,7 +27772,7 @@ namespace Library.Service.HumanResources
 
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-			                                       
+			                         left join JobLocation jl on jl.SystemID=e.JobLocationID              
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                                     --LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
                                   WHERE DOJ<='" + toDate + @"' AND (DOS is null OR DOS>= '" + fromDate + "') and e.plantId='" + plantId + @"' and e.GroupID='" + companyGroupId + @"' " + wcManual + @"
