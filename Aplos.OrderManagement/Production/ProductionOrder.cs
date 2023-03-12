@@ -37,10 +37,7 @@ FORMAT(PO.AddedDate,'dd-MMM-yyyy') CreationDate,
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
                             LEFT JOIN [HKP].[ProductionStatus] AS PS ON PO.EntityId = PS.Id
                             LEFT OUTER  JOIN (select
-                                                    pod.ProductionOrderId,
-                                                    mm.userName AS Material,PM.UserName AS Product,pc.UserName AS ProductCategory,PM.Id ProductMasterId,mma.StandardName Article,
-                                                    -- Min(LSD) AS LSD,max(CommitmentDate) AS CommitmentDate ,
-                                                    sum(so.Qty) AS SOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,
+                                                    pod.ProductionOrderId, sum(so.Qty) AS SOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,
                                                     MasterOrderId=STUFF((select distinct ','+XMOI.MasterOrderId from 
 								                            trn.MasterOrderItem XMOI 	 
 								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
@@ -101,20 +98,37 @@ FORMAT(PO.AddedDate,'dd-MMM-yyyy') CreationDate,
 		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                                     
-from 
- 
- 
-                                                     trn.SalesOrder SO 
-                                                      JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
-                                                    left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
-                                                    left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
-                                                    left outer join mst.MaterialMasterarticle mma on mma.id=MOI.ArticleId
-                                                    left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+													,Material=STUFF((select distinct ', '+mm.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                                     ,Article=STUFF((select distinct ', '+mm.StandardName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMasterarticle mm on mm.id=XMOI.ArticleId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													,Product=STUFF((select distinct ', '+Pm.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+															left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                    left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+													,ProductCategory=STUFF((select distinct ', '+pc.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join mst.MaterialMaster mm on mm.id=XMOI.MaterialMasterId
+															left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                                     left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                                     left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-
-                                                    group by pod.ProductionOrderId,mm.userName,PM.UserName,pc.UserName,PM.Id,mma.StandardName) AS SO ON so.ProductionOrderId=po.Id
+			                                                    where pod.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId
+) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
                             LEFT OUTER JOIN [TRN].[ProductionBulletinTemplate] AS PB ON PB.ProductionOrderId=po.Id";
 
