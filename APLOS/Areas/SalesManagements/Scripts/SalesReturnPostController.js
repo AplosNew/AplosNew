@@ -1,7 +1,7 @@
 ﻿'use strict';
 SalesReturnPostController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
 function SalesReturnPostController(accountService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
-    $rootScope.title = "Inventory Sales Return";
+    $rootScope.title = "Sales Return Post";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.products = [];
@@ -52,7 +52,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $scope.getPopUpData = function () {
         $http({
             method: 'POST',
-            url: 'Products/InventorySalesReturn/GetPostedSalesListForReturn',
+            url: 'SalesManagements/Sales/GetSalesReturnPopUpData',
             data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
         }).then(function successCallback(response) {
             $scope.approvedSalesList = response.data;
@@ -1768,11 +1768,8 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     };
 
     function getIssueDetailList() {
-        if ($scope.productNew.Id == null) {
-            $scope.returnDetailurl = 'Products/InventorySalesReturn/GetSalesDetailDataBySales?inventorySalesId=' + $scope.productNew.InventorySalesId
-        } else {
-            $scope.returnDetailurl = 'Products/InventorySalesReturn/GetSalesDetailDataForUpdateReturn?salesReturnId=' + $scope.productNew.Id + '&inventorySalesId=' + $scope.productNew.InventorySalesId
-        }
+        $scope.returnDetailurl = 'SalesManagements/Sales/GetSalesReturnDetailDataBySalesReturn?salesReturnId=' + $scope.productNew.InventorySalesId
+       
         $http.get($scope.returnDetailurl)
             .then(function (response) {
                 $scope.detailList = response.data;
