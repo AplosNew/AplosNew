@@ -69,7 +69,25 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
-
+        #region Aman
+        [HttpGet]
+        public IHttpActionResult GetEmployee()
+        {
+            try
+            {
+                var result = _task.GetEmployee();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+        #endregion Aman
         [HttpGet]
         public IHttpActionResult GetEmpName(string EmpId)
         {

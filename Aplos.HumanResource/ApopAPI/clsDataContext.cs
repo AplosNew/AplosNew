@@ -2237,7 +2237,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             {
                 return ex.ToString();
             }
-
+           
 
         }
 
@@ -2264,7 +2264,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         genid.GenID(TableName, out string _Id);
 
 
-                        dr["Id"] = _Id;
+                        dr["Id"] =  _Id;
                         dr["ProductionServiceId"] = item.ProductionServiceId;
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
@@ -3395,7 +3395,176 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
             }
         }
         #endregion Deshboard
+
+        public void GetEmployee(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select EmployeeCode As Value,EmployeeName As Name from EmployeeInformation Where EmployeeStatus = 'Active'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetReason(out List<Default2> DataList, string ProcessId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select dm.Id as Value, dm.DetentionUserName As Name from DetentionMasterProcess DMP
+left join DetentionMaster  As dm on dm.Id = DMP.DetentionMasterId
+where ProcessId = '"+ ProcessId +"'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion Written By Aman
+
+        #region Test For production service
+        public string PostProductionServiceTest(IEnumerable<ProcessServiceTest> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.ProductionService";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<ProcessServiceTest> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.ProductionService where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (ProcessServiceTest item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+
+                        dr["Id"] = "PS" + _Id;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["EntityId"] = item.EntityID;
+                        dr["ProcessId"] = item.ProcessID;
+                        dr["ShiftId"] = item.ShiftID;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EntityId"] = item.EntityID;
+                        dr["ProductionDate"] = item.ProductionDate;
+                        dr["ProcessId"] = item.ProcessID;
+                        dr["ShiftId"] = item.ShiftID;
+                        dr["ResponsiblePerson"] = item.ResponsiblePerson;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                        dr.EndEdit();
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
+
+
+
+
+        public class ProcessServiceTest
+        {
+            public string Id { get; set; }
+            public string ProductionDate { get; set; }
+            public string EntityID { get; set; }
+            public string ProcessID { get; set; }
+            public string ShiftID { get; set; }
+            public string ResponsiblePerson { get; set; }
+            public string AddedBy { get; set; }
+            public DateTime AddedDate { get; set; }
+            public string AddedFromIP { get; set; }
+            public string UpdatedBy { get; set; }
+            public DateTime? UpdatedDate { get; set; }
+            public string UpdatedFromIP { get; set; }
+        }
+        #endregion Test For production service
 
     }
 

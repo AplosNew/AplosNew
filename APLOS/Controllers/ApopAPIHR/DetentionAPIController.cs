@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.Http;
 using Library.MaterialManagement.Material;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
+using static HRService.clsDataContext;
 
 namespace Aplos.Controllers.ApopAPIHR
 {
@@ -309,6 +310,23 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        #region Production service Test
+        [HttpPost]
+        public string PostProductionServiceTest([FromBody] IEnumerable<ProcessServiceTest> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionServiceTest(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Production service Test
+
         public List<Process> GetProcess()
         {
             clsDataContext clsData = new clsDataContext();
@@ -407,6 +425,18 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Deshboard
+        public List<Default2> GetEmployee()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployee(out List<Default2> activelists);
+            return activelists;
+        }
+        public List<Default2> GetReason(string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetReason(out List<Default2> activelists, ProcessId);
+            return activelists;
+        }
         #endregion written by Aman
 
     }
