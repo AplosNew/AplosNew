@@ -38,5 +38,9 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/Sales/SalesReturn",
             controller: "SalesReturnController"
         })
+        .when("/sales-return-post", {
+            templateUrl: "SalesManagements/Sales/SalesReturnPost",
+            controller: "SalesReturnPostController"
+        })
         ;
 }

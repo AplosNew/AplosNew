@@ -577,6 +577,36 @@ namespace Aplos.Areas.SalesManagements.Controllers
             materialCommonService.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesReturn", out sID);
             return sID;
         }
+
+
+        public ActionResult SalesReturnPost()
+        {
+            return View("~/Areas/SalesManagements/Views/SalesReturnPost.cshtml");
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetSalesReturnPopUpData(string column, string value)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsSalesService.GetSalesReturnPopUpData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnDetailDataBySalesReturn(string salesReturnId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetSalesReturnDetailBySalesReturn(salesReturnId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnTaxDetail(string salesId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetMaterialSalesTaxDetail(salesId), JsonRequestBehavior.AllowGet);
+
+        }
         #endregion
 
 
