@@ -616,6 +616,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
+    <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -2193,6 +2194,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
+    <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
@@ -4568,6 +4570,7 @@
     <Content Include="Areas\Productions\Views\ProductionControl\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionControl\LineLayoutSearchViews.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\POWiseMaterialIssue.cshtml" />
+    <Content Include="Areas\Materials\Views\InputConfirmation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
