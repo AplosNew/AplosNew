@@ -4743,7 +4743,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
             try
             {
                 var str = @"DECLARE @POCreationDate varchar(100)=DATEADD(day,-180,GETDate())
-                            SELECT x.ProcessIndex,X.Entity,X.POId,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,X.[ActualPlan/ScheduleQty],X.ShouldBeBaseProcessPlannedQty
+                            SELECT x.ProcessIndex,X.Entity,X.POId PONo,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,X.ActualPlanScheduleQty,X.ShouldBeBaseProcessPlannedQty
                             ,X.BaseProcessProduceQty,X.BaseProcessRemainingQty,X.Sequence,X.Process,X.PercentQty,X.ProcessPlannedQty,X.ProcProdQty,X.PreProcProdQty,X.WIP,X.ProcBalanceToProduce,X.RelayProcess,X.IsBaseProcess
                             ,X.ProcessLegDays,X.POFirstDelivery,X.POLastDelivery,X.BaseProcProdStartDate,X.BaseProcLatestProdDate,X.BaseProcPlanStartDate,X.BaseProcPlanCompletionDate
                             ,X.POStartDate,X.POCompletionDate,X.FirstProcessActualBookDate,X.POFirstProdBookDate,X.POLatestProdBookDate,X.ShouldBeProcessStartDate,X.ShouldBeProcessEndDate
@@ -4762,7 +4762,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             from (select E.UserName Entity,P.Id POId,PRS.UserName POStatus,P.AddedBy,Format(P.AddedDate,'dd-MMM-yyyy')AddedDate,P.UpdatedBy,Format(P.UpdatedDate,'dd-MMM-yyyy')UpdatedDate
                             ,SOQty=P.Qty*PSQ.Qty/100
                             ,BaseProcPlanPercentage=(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)
-                            ,[ActualPlan/ScheduleQty]=PQ.Qty
+                            ,ActualPlanScheduleQty=PQ.Qty
                             ,(PQ.Qty*(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)/100) ShouldBeBaseProcessPlannedQty
                             ,ISNULL(PS.Quantity,0) BaseProcessProduceQty
                             ,PQ.Qty-ISNULL(PS.Quantity,0) BaseProcessRemainingQty

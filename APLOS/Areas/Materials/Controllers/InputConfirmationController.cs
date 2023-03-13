@@ -172,7 +172,7 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetList(string entityid, string column, string value)
         {
 
-            return Json(clsM.GetList(entityid, column, value), JsonRequestBehavior.AllowGet);
+            return Json(clsM.GetRunningPOList(entityid, column, value), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

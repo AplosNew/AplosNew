@@ -741,7 +741,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.POWiseList = [];
     $scope.GetPOWiseView = function () {
         $http({
-            method: 'GET',
+            method: 'POST',
             url: $scope.path +'POWiseData',
             //data: {employeeId: $scope.EmployeeId},
             dataType: 'JSON'

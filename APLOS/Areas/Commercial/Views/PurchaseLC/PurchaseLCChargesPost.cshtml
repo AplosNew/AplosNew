@@ -87,7 +87,7 @@
                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="PDF" class="btn"><i class="fa fa-file-word-o" ng-click="$parent.onClickReportDownloadWord($event);"></i></button>
                             <button style="color: #f3f3ec;background-color: #1c1f32;" title="XL" class="btn"><i class="fa fa-file-excel-o" ng-click="$parent.onClickReportDownloadExcel($event);"></i></button>
                         </div>
-                        <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+                        <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="40"></div>
 
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                     <div class="common-btn">
                         <ul class="common-btn list-inline text-center">
                             <li>
-                                <button ng-disabled="data.IsPark=='Parked'" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
+                                <button ng-disabled="data.IsPark=='Posted'" ng-click="$parent.onClickDeletePopUp(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Delete">
                                     <i class="glyphicon glyphicon-trash" style="color:orangered;"></i>
                                 </button>
 
@@ -111,4 +111,4 @@
 
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteCharges();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(purchaseLCId,VoucherId)"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="Postdelete(purchaseLCId,VoucherId)"></confirm-archive-generic>
