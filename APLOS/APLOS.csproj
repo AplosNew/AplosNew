@@ -4694,6 +4694,7 @@
     <Content Include="Areas\DailyAttendance\Views\web.config" />
     <Content Include="Areas\SalesManagements\Views\_ItemScanChildPopUp.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesReturnPost.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\_SalesReturnPopUp.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
