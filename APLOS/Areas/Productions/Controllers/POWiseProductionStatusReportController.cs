@@ -1933,7 +1933,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         //New PO Wise
 
-        [HttpGet, Authorize]
+        [HttpPost, Authorize]
         public ActionResult POWiseData()
         {
             try
