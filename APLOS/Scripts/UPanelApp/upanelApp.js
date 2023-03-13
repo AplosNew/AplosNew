@@ -1151,7 +1151,7 @@ upanelApp.controller("SalesReturnController", SalesReturnController)
 upanelApp.controller("QualityManagementMasterController", QualityManagementMasterController)
 upanelApp.controller("ProductionControlController", ProductionControlController)
 upanelApp.controller("POWiseMaterialIssueController", POWiseMaterialIssueController)
-upanelApp.controller("InputConfirmationController", InputConfirmationController)
+//upanelApp.controller("InputConfirmationController", InputConfirmationController)
 upanelApp.controller("SalesReturnPostController", SalesReturnPostController)
 
 upanelApp.config(AccessControllerConfig);

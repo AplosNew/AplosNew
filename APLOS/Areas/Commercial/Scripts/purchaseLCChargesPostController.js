@@ -429,6 +429,48 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
             click: $scope.onClickTax
         }
     }];
+
+    $scope.delete = function (gRNId, voucherId, invoiceId, type, tDSTaxVoucherId, tDSVoucherNo) {
+        $http({
+            method: "POST",
+            url: 'accounts/Invoice/DeleteInventoryPayable',
+            data: {
+                "grnId": gRNId, "voucherId": voucherId, "invoiceId": invoiceId, "type": type, "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+                $scope.GRNId = null;
+                $scope.VoucherId = null;
+                $scope.Type = null;
+                $scope.TDSTaxVoucherId = null;
+                $scope.TDSVoucherNo = null;
+                $scope.InvoiceId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.onClickDeletePopUp = function (x) {
+        var data = x;
+        $scope.GRNId = data.Id;
+        $scope.VoucherId = data.VoucherId;
+        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
+        $scope.TDSVoucherNo = data.TDSVoucherNo;
+        $scope.InvoiceId = data.InvoiceId;
+        $scope.Type = data.GRNType;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    };
+
 }
 
 

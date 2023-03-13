@@ -13,6 +13,12 @@ using Library.Crosscutting.Security;
 using System.Threading;
 using System.Collections.Generic;
 using Library.Planning.LineDesign;
+using Syncfusion.XlsIO;
+using Syncfusion.Pdf;
+using Library.Service.HumanResources;
+using Library.HumanResource.NewAttendanceProcess;
+using Library.Data;
+using Syncfusion.ExcelToPdfConverter;
 
 #endregion
 
@@ -23,9 +29,12 @@ namespace Aplos.Areas.Productions.Controllers
         #region Constructor
         /// <summary>   The CostingTypesService service. </summary>
         private readonly ISqlRepository _sqlRepository;
+        private readonly IAttendanceManagementService _AttendanceManagementService;
+
         clsDailyTergatLineDesign DT = new clsDailyTergatLineDesign();
-        public ProductionControlController(ISqlRepository R)
+        public ProductionControlController(IAttendanceManagementService AttendanceManagementService, ISqlRepository R)
         {
+            _AttendanceManagementService = AttendanceManagementService;
             _sqlRepository = R;
         }
         #endregion
@@ -60,173 +69,60 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
+        public JsonResult Create(List<Dictionary<string, object>> DailyTargetData, string TargetDate, string ProductionDate, string EntityId, string ProcessId, string ProductionShiftId)
         {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "TRN.ProductionControl";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
             try
             {
-
-                for (int i = 0; i < DailyTargetData.Count; i++)
-                {
-                    if (bplib.clsWebLib.GetBoolData(DailyTargetData[i]["Active"]) == false)
-                        continue;
-
-                    string LineNo = " For Workcenter:" + DailyTargetData[i]["Line"];
-
-                    if (clsStaticInfo.nullrecorder(DailyTargetData[i]["PRNo"]) == "")
-                        throw new Exception("Select production order" + LineNo);
-
-
-                    if (clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithMachine"]) < 0)
-                        throw new Exception("Man Power With Machine cannot be negative" + LineNo);
-
-                    if (clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithHand"]) < 0)
-                        throw new Exception("Man Power Without Machine cannot be negative" + LineNo);
-
-                    double totalManpower = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithMachine"]) + clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithHand"]);
-                    if (totalManpower <= 0)
-                        throw new Exception("Man Power is required" + LineNo);
-
-
-                    if (clsStaticInfo.dbl(DailyTargetData[i]["SMV"]) <= 0)
-                        throw new Exception("SPT is required" + LineNo);
-
-                    if (clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]) <= 0)
-                        throw new Exception("Target Hour is required" + LineNo);
-
-                    if (clsStaticInfo.dbl(DailyTargetData[i]["Quantity"]) <= 0)
-                        throw new Exception("Daily Target Quantity is required" + LineNo);
-
-                }
-
-
-                DataSet dsDailyTarget;
+                objCon = new ConnectionManager.DAL.ConManager("1");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
 
-                ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-                conBin.OpenDataSetThroughAdapter(@"select * from TRN.DailyProductionTarget where TargetDate='" + TargetDate + @"' and 
-                        WorkCenterMasterID in (select Id from SCS.WorkCenterMaster WCM where WCM.EntityId='" + EntityId + @"' AND WCM.ProcessId='" + ProcessId + @"' )", out dsDailyTarget, false, "1");
-
-                string DailyTargetId = "";
-                for (int i = 0; i < DailyTargetData.Count; i++)
+                if (DailyTargetData != null)
                 {
-                    if (bplib.clsWebLib.GetBoolData(DailyTargetData[i]["Active"]) == false)
-                        continue;
-
-                    double totalManpower = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithMachine"]) + clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithHand"]);
-
-                    dsDailyTarget.Tables[0].DefaultView.RowFilter = "ID='" + DailyTargetData[i]["DailyProductionTargetID"] + "'";
-                    if (dsDailyTarget.Tables[0].DefaultView.Count > 0)
+                    foreach (var item in DailyTargetData)
                     {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
 
-                        //edit
-                        DataRow dr = dsDailyTarget.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["PlantId"] = identity.PlantId;
-                        dr["ManPowerWithMachine"] = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithMachine"]);
-                        dr["ManPowerWithHand"] = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithHand"]);
-                        dr["Manpower"] = totalManpower;
-                        dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
-                        dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
-                        dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
-                        dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
-                        dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
-                        dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
-
-                        dr["PlantID"] = identity.PlantId;
-                        dr["ProductionOrderId"] = DailyTargetData[i]["PRNo"];
-                        dr["isBuildUp"] = false;
-                        dr["WorkCenterMasterID"] = DailyTargetData[i]["WorkCenterMasterId"];
-                        dr["TargetDate"] = TargetDate;
-                        dr["IsManual"] = true;
-
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr.EndEdit();
-
-                    }
-                    else
-                    {
-
-
-                        dsDailyTarget.Tables[0].DefaultView.RowFilter = "ProductionOrderId='" + DailyTargetData[i]["PRNo"] + "' and   WorkCenterMasterID = '" + DailyTargetData[i]["WorkCenterMasterId"] + "'";
-                        if (dsDailyTarget.Tables[0].DefaultView.Count > 0)
+                        if (dv.Count == 0)
                         {
-                            //edit
-                            DataRow dr = dsDailyTarget.Tables[0].DefaultView[0].Row;
-                            dr.BeginEdit();
-                            dr["PlantId"] = identity.PlantId;
-                            dr["ManPowerWithMachine"] = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithMachine"]);
-                            dr["ManPowerWithHand"] = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithHand"]);
-                            dr["Manpower"] = totalManpower;
-                            dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
-                            dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
-                            dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
-                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
-                            dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
-                            dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
-
-                            dr["PlantID"] = identity.PlantId;
-                            dr["ProductionOrderId"] = DailyTargetData[i]["PRNo"];
-                            dr["isBuildUp"] = false;
-                            dr["WorkCenterMasterID"] = DailyTargetData[i]["WorkCenterMasterId"];
-                            dr["TargetDate"] = TargetDate;
-                            dr["IsManual"] = true;
-
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                            dr.EndEdit();
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "PCD" + _Id;
+                            item["PlantId"] = identity.PlantId;
+                            item["ProcessId"] = ProcessId;
+                            item["EntityId"] = EntityId;
+                            item["ProductionShiftId"] = ProductionShiftId;
+                            item["ProductionDate"] = ProductionDate;
+                            item["TargetDate"] = TargetDate;
+                            AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
                         {
-                            //addnew
-                            if (DailyTargetId == "")
-                            {
-                                bplib.clsGenID genid = new bplib.clsGenID();
-                                genid.GenID("TRN.DailyProductionTarget", out DailyTargetId);
-                            }
-                            DataRow dr = dsDailyTarget.Tables[0].NewRow();
-
-                            dr["ID"] = DailyTargetId + "-" + (i + 1).ToString();
-                            dr["PlantId"] = identity.PlantId;
-
-                            dr["ManPowerWithMachine"] = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithMachine"]);
-                            dr["ManPowerWithHand"] = clsStaticInfo.dbl(DailyTargetData[i]["ManPowerWithHand"]);
-                            dr["Manpower"] = totalManpower;
-                            dr["SMV"] = clsStaticInfo.dbl(DailyTargetData[i]["SMV"]);
-                            dr["TotalHour"] = clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]);
-                            dr["QuantityPerHour"] = clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]);
-                            dr["Quantity"] = (int)(clsStaticInfo.dbl(DailyTargetData[i]["QuantityPerHour"]) * clsStaticInfo.dbl(DailyTargetData[i]["TotalHour"]));
-                            dr["MaterialMasterId"] = DailyTargetData[i]["MaterialMasterId"];
-                            dr["MaterialMasterArticleId"] = DailyTargetData[i]["MaterialMasterArticleId"];
-
-                            dr["PlantID"] = identity.PlantId;
-                            dr["ProductionOrderId"] = DailyTargetData[i]["PRNo"];
-                            dr["isBuildUp"] = false;
-                            dr["WorkCenterMasterID"] = DailyTargetData[i]["WorkCenterMasterId"];
-                            dr["TargetDate"] = TargetDate;
-                            dr["IsManual"] = true;
-
-
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = System.DateTime.Now.ToString();
-                            dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                            dsDailyTarget.Tables[0].Rows.Add(dr);
-
+                            DataRow drpb = dv[0].Row;
+                            item["PlantId"] = identity.PlantId;
+                            item["ProcessId"] = ProcessId;
+                            item["EntityId"] = EntityId;
+                            item["ProductionShiftId"] = ProductionShiftId;
+                            item["ProductionDate"] = ProductionDate;
+                            item["TargetDate"] = TargetDate;
+                            EditRow(drpb, item);
                         }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
                     }
                 }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsDailyTarget);
-
-                return Json(new { Error = false, Data = DailyTargetData,/* Sequence = GetSequence(),*/ Message = AplosMessage.Insert });
+                return Json(new { Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
             {
-
-                return Json(new { Error = true, Message = ex.Message });
-
+                throw (ex);
             }
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -269,34 +165,215 @@ namespace Aplos.Areas.Productions.Controllers
             dr.EndEdit();
         }
         [Authorize, HttpGet]
-        public ActionResult GetDailyTarget(string EntityId, string ProcessId, string TargetDate, string ShiftId, string ProductionDate)
+        public ActionResult GetProductionControl(string EntityId, string ProcessId, string TargetDate, string ShiftId, string ProductionDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT distinct wc.Id as WorkCenterMasterId,convert(bit,1) AS Active,pw.Id,wc.UserName as Line,
-                        isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + EntityId + "' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as ProductionOrderId,
+            string sql = @"select B.Id,B.ProcessId,B.EntityId,B.ProductionShiftId,B.TargetDate,B.ProductionDate,B.WorkCenterMasterId,B.Active,B.Line,B.Production,B.ProductionOrderId,B.Article,B.ControlPeriodName,B.FieldValue
+into #tempPC from 
+(select A.Id,A.ProcessId,A.EntityId,A.ProductionShiftId,A.TargetDate,A.ProductionDate,A.WorkCenterMasterId,A.Active,A.Line,A.Production,A.ProductionOrderId,A.Article,A.ControlPeriodName,A.FieldValue from
+(SELECT distinct pc.Id,pc.ProcessId,pc.EntityId,pc.ProductionShiftId,pc.TargetDate,pc.ProductionDate,wc.Id as WorkCenterMasterId,CAST (CASE WHEN pc.Id IS NULL THEN 0 ELSE 1 END AS bit) AS Active,wc.UserName as Line,'' Production,
+                        isnull(pc.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionControl where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as ProductionOrderId,
 						  Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
                                                             left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                            where Pod.ProductionOrderId=isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + "' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-						              
-                        FROM  SCS.WorkCenterMaster wc 
-                        LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId=wc.Id AND pw.ProcessId = '" + ProcessId + @"' 
-                        AND  pw.EntityId='" + EntityId + "' AND PW.ProductionDate='" + ProductionDate + "'  AND PW.ProductionShiftId='" + ShiftId + @"' 
-                        LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + "' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))
-						LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + ProcessId + @"'
-                        LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
-						 LEFT JOIN
-                            (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId
-                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + ProcessId + @"'  GROUP BY PS.ProductionOrderId
-                            ) AS PRS ON PRS.ProductionOrderId = PO.Id     
-                        LEFT JOIN EmployeeInformation R ON PW.ResponsiblePersonId=R.SystemId
-                        LEFT JOIN EmployeeInformation M ON PW.MentorId=M.SystemId
-                        LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId
-						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + EntityId + "' AND MT.Date='" + ProductionDate + "'  AND MT.ShiftId='" + ShiftId + @"' 
-						group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
-                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + EntityId + "' order by wc.UserName";
+                                                            where Pod.ProductionOrderId=isnull(pc.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+															CP.ControlPeriodName,CP.FieldValue
+	                    FROM  SCS.WorkCenterMaster wc 
+                        LEFT JOIN TRN.ProductionControl pc ON pc.WorkCenterMasterId=wc.Id AND pc.ProcessId = '" + ProcessId + @"' 
+                        AND  pc.EntityId='" + EntityId + @"' AND pc.ProductionDate='" + ProductionDate + @"'  AND pc.ProductionShiftId='" + ShiftId + @"' 
+                        LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=isnull(pc.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))
+                        LEFT OUTER JOIN [HKP].[ControlPeriod] CP ON 1=1
+where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + EntityId + @"')A 
+)B order by B.Line
+DECLARE @sql nvarchar(max), @col nvarchar(max)
+
+ SELECT @col = (
+ SELECT DISTINCT ',' + QUOTENAME(REPLACE(CONVERT(VARCHAR(40), ControlPeriodName, 113), ' ', '-'))
+
+ FROM #tempPC 
+                                FOR XML PATH('')
+                            )                             SELECT @sql = N'
+ (SELECT *
+ FROM #tempPC
+                            PIVOT(
+ MAX([FieldValue]) FOR[ControlPeriodName] IN('+STUFF(@col,1,1,'')+')
+ ) as pvt)' 
+
+ EXEC sp_executesql @sql
+ drop table #tempPC";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadControlPeriodDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select Id,ControlPeriodName,Format(FromDate,'dd-MMM-yyyy') as FromDate,Format(ToDate,'dd-MMM-yyyy') as ToDate,format(FromTime,'hh:mm tt') as FromTime,format(ToTime,'hh:mm tt') as ToTime,Minute,Remarks,Active from [HKP].[ControlPeriod] order by SequenceNo";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult createControlPeriod(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[HKP].[ControlPeriod]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "CP" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            
+                            DataRow drpb = dv[0].Row;
+                            if(item["Active"] is true)
+                            { 
+                            DateTime FromDt = Convert.ToDateTime(item["FromDate"]);
+                            DateTime ToDt = Convert.ToDateTime(item["ToDate"]);
+                            TimeSpan t = ToDt.Subtract(FromDt);
+                            int N = t.Days;
+                            TimeSpan ts;
+                            DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                            DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                            DateTime NextDayDate = date2.AddDays(N);
+                            if (FromDt == ToDt)
+                            {
+                                ts = date2 - date1;
+                            }
+                            else
+                            {
+                                DateTime NextDayDate2 = date2.AddDays(N);
+                                ts = NextDayDate2 - date1;
+                            }
+                            TimeSpan Nd = NextDayDate - date1;
+                            int minutes = (int)Nd.TotalMinutes;
+
+                            if (minutes >= 720 || minutes < 0)
+                            {
+                                item["ToTime"] = NextDayDate;
+                                item["Minute"] = Nd.TotalMinutes;
+                            }
+                            else
+                            {
+                                item["ToTime"] = date2;
+                                item["Minute"] = ts.TotalMinutes;
+                            }
+                                item["FieldValue"] = 0;
+                            EditRow(drpb, item);
+                            }
+                            else
+                            {
+                                DateTime FromDt = DateTime.Now;
+                                DateTime ToDt = DateTime.Now; ;
+                                TimeSpan t = ToDt.Subtract(FromDt);
+                                int N = t.Days;
+                                TimeSpan ts;
+                                DateTime date1 = DateTime.Now;
+                                DateTime date2 = DateTime.Now;
+                                DateTime NextDayDate = date2.AddDays(N);
+                                if (FromDt == ToDt)
+                                {
+                                    ts = date2 - date1;
+                                }
+                                else
+                                {
+                                    DateTime NextDayDate2 = date2.AddDays(N);
+                                    ts = NextDayDate2 - date1;
+                                }
+                                TimeSpan Nd = NextDayDate - date1;
+                                int minutes = (int)Nd.TotalMinutes;
+
+                                if (minutes >= 720 || minutes < 0)
+                                {
+                                    item["ToTime"] = NextDayDate;
+                                    item["Minute"] = Nd.TotalMinutes;
+                                    
+                                }
+                                else
+                                {
+                                    item["ToTime"] = date2;
+                                    item["Minute"] = ts.TotalMinutes;
+                                    
+                                }
+                                item["Remarks"] = "";
+                                item["FieldValue"] = "NULL";
+                                EditRow(drpb, item);
+                            }
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetProductionJobCardReportView(string ProductionControlId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = _AttendanceManagementService.GetProductionJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, ProductionControlId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                return RenderReportAsPdf(workbook, reportFileName);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                //throw new Exception(ex.Message);
+            }
+        }
+
+        public new ActionResult RenderReportAsPdf(IWorkbook workbook, string fileName, bool isOpen = true)
+        {
+            try
+            {
+                using (var converter = new ExcelToPdfConverter(workbook))
+                {
+                    var pdfDocument = new PdfDocument();
+                    ExcelToPdfConverterSettings _settings = new ExcelToPdfConverterSettings();
+                    _settings.AutoDetectComplexScript = true;
+                    _settings.EmbedFonts = true;
+                    _settings.LayoutOptions = LayoutOptions.FitAllColumnsOnOnePage;
+
+                    pdfDocument = converter.Convert(_settings);
+
+                    if (isOpen == true)
+                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                    else
+                        pdfDocument.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         [Authorize, HttpGet]
