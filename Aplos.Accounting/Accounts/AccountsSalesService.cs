@@ -2467,11 +2467,11 @@ namespace Library.Accounting.Accounts
 				string strkey = "1=1";
 				if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
 					strkey = column + " like '%" + value + "%'";
-				var sql = @"select top 300 * from (SELECT  IVS.Id, REPLACE(CONVERT(CHAR(11), IVS.InvoiceDate, 106),' ','-') AS SalesDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.PartyId CustomerId , IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
-								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IVS.InvoiceDate, 106),' ','-') AS SalesDateNew , CP.UserName AS PartyAccountGroupName
+				var sql = @"select top 300 * from (SELECT  SR.Id ,SR.SalesId, REPLACE(CONVERT(CHAR(11), SR.SalesReturnDate, 106),' ','-') AS SalesReturnDate, IVS.CompanyGroupId, IVS.CompanyId, IVS.PlantId, IVS.PartyId CustomerId , IVS.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode, P.Code AS Tracenent
+								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), SR.SalesReturnDate, 106),' ','-') AS SalesReturnDateNew , CP.UserName AS PartyAccountGroupName
 	                            , IVS.EntityId,E.UserName Entity,FORMAT(IVS.InvoiceDate,'dd-MMM-yyyy')DocDate , REPLACE(CONVERT(CHAR(11), IVS.AddedDate, 106),' ','-') AS EntryDate,IVS.Narration,IVS.DocRefNo
 								, IVS.CurrencyId, CU.Code AS CurrencyCode , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId , DPP.UserName AS DeliveryBy
-	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
+	                            , IRD.TransactionQty, IRD.TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
 								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId,PT.UserName PaymentTerm
 								, REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
 								, 'Customer' [Type] , CO.BaseCurrencyId,IVS.ToCurrencyRate , '' NoteForAccounts,IVS.SourceType
@@ -2489,19 +2489,16 @@ namespace Library.Accounting.Accounts
                     LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                     LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
                     LEFT JOIN ORG.Company AS CO ON CO.Id=IVS.CompanyId
-                     LEFT JOIN (SELECT A.SalesId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TransactionAmount,4)) AS TransactionAmount, SUM(ROUND(A.BooksCurrencyTransactionAmount,0)) AS BaseAmount 
+                     LEFT JOIN (SELECT A.SalesReturnId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TransactionAmount,4)) AS TransactionAmount
+					 , SUM(ROUND(A.BooksCurrencyTransactionAmount,0)) AS BaseAmount, UoM.UserName AS TransactionUoM
 					 FROM [TRN].[SalesReturnDetail] AS A
-		                        JOIN [TRN].[SalesReturn] AS B ON A.SalesId=B.Id JOIN TRN.Sales S ON S.Id=B.SalesId
-								WHERE S.PlantId='" + plantId + @"' GROUP BY A.SalesId) AS IRD ON IRD.SalesId=IVS.Id
-                    LEFT JOIN (SELECT A.SalesId, A.TransactionUoMId 
-								FROM [TRN].[SalesReturnDetail] AS A 
-								JOIN [TRN].[SalesReturn] AS SR ON sr.Id=A.SalesReturnId
-								JOIN [TRN].[Sales] AS B ON A.SalesId=B.Id
-		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.SalesId, A.TransactionUoMId HAVING COUNT(A.SalesId)> COUNT(A.TransactionUoMId)) AS TU ON TU.SalesId=IVS.Id
-                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
+		                        JOIN [TRN].[SalesReturn] AS B ON A.SalesReturnId=B.Id 
+								JOIN TRN.Sales S ON S.Id=B.SalesId
+								LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON A.TransactionUoMId=UoM.Id
+								WHERE S.PlantId='" + plantId + @"' GROUP BY A.SalesReturnId,UoM.UserName) AS IRD ON IRD.SalesReturnId=SR.Id
 					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
-                    WHERE IVS.PlantId='" + plantId + @"'  AND IVS.VoucherId IS NOT NULL AND SR.VoucherId IS NULL) AS TEMP WHERE " + strkey + " order by SalesDate DESC ";
+                    WHERE IVS.PlantId='" + plantId + @"'  AND IVS.VoucherId IS NOT NULL AND SR.VoucherId IS NULL) AS TEMP WHERE " + strkey + " order by SalesReturnDate DESC ";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
@@ -2516,17 +2513,17 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				string sql = @"SELECT ''Id,IID.Id SalesMaterialId, IID.SalesId 
+				string sql = @"SELECT ''Id,IID.Id SalesReturnDetailId, IID.SalesId 
 		                        , IID.MaterialMasterId, MM.UserName AS MaterialMasterName, IID.ArticleId, AR.StandardName AS ArticleName
 		                        , IID.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IID.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
 		                        , IID.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IID.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
 		                        , IID.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IID.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
 		                        ,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.TransactionRate, IID.TransactionAmount
-                                ,II.ToCurrencyRate, II.DocRefNo, II.InvoiceDate , II.Narration
+                                , II.DocRefNo , II.Narration
                                 ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,ISD.SalesRate, IID.TransactionQty,0 OtherQty,(IID.TransactionQty) BalanceQty
 								,ISD.TotalAmount,0 SalesTaxAmount,0 VerifiedQty,0 ReturnAmount,0 TaxAmount,IID.BaseRate,IID.BaseUoMFactor,NULL TaxList
-                        FROM  [TRN].[SalesMaterial] AS IID
-                        LEFT JOIN [TRN].[Sales] AS II ON IID.SalesId=II.Id
+                        FROM  [TRN].[SalesReturnDetail] AS IID
+                        LEFT JOIN [TRN].[SalesReturn] AS II ON IID.SalesReturnId=II.Id
                         LEFT JOIN [MST].[MaterialMaster] AS MM ON IID.MaterialMasterId=MM.Id
                         LEFT JOIN [MST].[MaterialMasterArticle] AS AR ON IID.ArticleId=AR.Id
                         LEFT JOIN [HKP].[Characteristics] AS CH1 ON IID.FirstCharacteristicsId=CH1.Id
@@ -2540,9 +2537,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [TRN].[InventoryReceiveDetail] IRD ON IRD.Id=ISH.InventoryReceiveDetailId
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS IRDUM ON IRD.BaseUOMId=IRDUM.Id
                         LEFT JOIN (select distinct Id,ROUND(sum(TransactionQty), 2) Qty,ROUND(sum(SalesRate), 2) SalesRate,(ROUND(sum(TransactionQty), 2) * ROUND(sum(SalesRate), 2)) TotalAmount from  TRN.InventorySalesDetail group by Id) ISD ON ISD.Id=IID.Id
-						--LEFT JOIN (SELECT SR.InventorySalesId,SRD.InventoryMaterialId,sum(SRD.TransactionQty) OtherQty FROM TRN.InventorySalesReturnDetail SRD 
-						--			JOIN TRN.InventorySalesReturn SR ON SR.Id=SRD.InventorySalesReturnId WHERE SR.InventorySalesId='MS2022451' group by SR.InventorySalesId,SRD.InventoryMaterialId) ISR ON ISR.InventorySalesId=II.Id and ISR.InventoryMaterialId=IID.InventoryMaterialId
-						WHERE IID.SalesId='" + salesReturnId + @"'";
+						WHERE IID.SalesReturnId='" + salesReturnId + @"'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
 			catch (Exception ex)
