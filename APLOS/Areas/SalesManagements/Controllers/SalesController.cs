@@ -499,6 +499,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             string detailid = materialCommonService.MakePK(_Id, ccount, 2);
                             item["Id"] = detailid;
                             item["SalesReturnId"] = _Id;
+                            item["SalesMaterialId"] = item["SalesMaterialId"];
                             item["TransactionQty"] = item["ReturnQty"];
                             item["BaseQty"] = item["ReturnQty"];
                             item["BaseAmount"] = item["Amount"];

@@ -149,7 +149,7 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Journal</a></li>
         </ul>
     </div>
 
@@ -193,23 +193,12 @@
                             <thead>
                                 <tr>
 
-                                    @*<th>Cost Center</th>*@
+                                    <th>MaterialGroup</th>
                                     <th>Material</th>
                                     <th>Article</th>
                                     <th>SKU1</th>
                                     <th>SKU2</th>
-                                    <th>SKU3</th>
-                                    <th>Country Name</th>
-                                    @*<th>GRN Qty</th>*@
-                                    <th>Inventory Amount</th>
-                                    <th>Sales Rate</th>
-                                    <th>Sales Qty</th>
-                                    <th>Other Qty</th>
-                                    <th>Total Sales Amount</th>
-                                    <th>Sales Tax </th>
-                                    <th>Balance Qty</th>
                                     <th>Return Qty</th>
-                                    <th>Current Balance Qty</th>
                                     <th>Return Amount</th>
                                     <th>Return Tax</th>
                                     <th></th>
@@ -221,42 +210,15 @@
                                     <td>{{x.ArticleName}}</td>
                                     <td>{{x.FirstCharacteristicText}}</td>
                                     <td>{{x.SecondCharacteristicText}}</td>
-                                    <td>{{x.ThirdCharacteristicText}}</td>
-                                    <td>{{x.CountryName}}</td>
-                                    @*<td class="text-right">{{x.GRNQty}} {{x.GRNUoM}}</td>*@
-                                    <td class="text-right">{{x.InventoryAmount}}</td>
-                                    <td class="text-right">{{x.SalesRate}} </td>
-                                    <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-                                    <td class="text-right">{{x.OtherQty}}</td>
-                                    <td class="text-right">{{x.TotalAmount}}</td>
-                                    <td class="text-right">{{x.SalesTaxAmount}}</td>
-                                    <td class="text-right">{{x.BalanceQty}}</td>
-                                    <td class="text-right">
-                                        <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-change="returnAmountCalculation(x);" class="form-control text-right">
-                                    </td>
-                                    <td class="text-right">{{x.CurrentBalanceQty}}</td>
+                                    <td class="text-right">{{x.ReturnQty}}{{x.TransactionUoM}}</td>
                                     <td class="text-right">{{x.ReturnAmount}}</td>
                                     <td class="text-right">{{x.TaxAmount}}</td>
-                                    <td class="text-right table-td">
-                                        <ul class="list-inline">
-                                            <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                            @*<li><button ng-click="getSpecificMaterialStock(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select GRN"><i class="glyphicon glyphicon-list"></i></button></li>*@
-                                            @*<li><button ng-click="removeRowModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
-                                        </ul>
-                                    </td>
                                 </tr>
                                 <tr>
                                     <td colspan="6" class="text-right"><strong>Total : </strong></td>
-                                    @*<td class="text-right"><strong>{{detailList | sumByKey : 'GRNQty'| setDecimal:2| number }}</strong></td>*@
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'InventoryAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'OtherQty'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'SalesTaxAmount'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'BalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnQty'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'CurrentBalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
@@ -283,45 +245,25 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Service</th>
-                                <th>Description</th>
-                                <th>Sale Amount (TRN)</th>
-                                <th> Tax </th>
-                                <th> Other Sales </th>
-                                <th> Balance  </th>
-                                <th>Return Amount</th>
-                                <th>Return Tax </th>
-                                <th class="col-sm-1"></th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in chargesList">
-                                <td>{{x.ServiceMasterName}}</td>
-                                <td> {{x.Description}}</td>
-                                <td ng-hide="true">{{x.Id}}</td>
-                                <td class="text-right"> {{x.Amount}}</td>
-                                <td class="text-right">{{x.SalesServiceTaxAmount}}</td>
-                                <td class="text-right">{{x.OtherServiceAmount}}</td>
-                                <td class="text-right">{{x.BalanceAmount}}</td>
-                                <td class="text-right">
-                                    <input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ReturnAmount" ng-keyup="calculateServiceAmount(x);">
-                                </td>
-                                <td class="text-right">{{x.TotalTaxAmount}}</td>
-                                <td class="text-right">
-                                    <ul class="list-inline action-list">
-                                        <li><button ng-click="getServiceTaxList(x, false,x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                    </ul>
-                                </td>
+                            <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
                             </tr>
                             <tr>
-                                <td colspan="2" class="text-right"><strong>Total : </strong></td>
-                                <td class="text-right"><strong>{{chargesList | sumByKey : 'Amount'| setDecimal:2| number }}</strong></td>
-                                <td class="text-right"><strong>{{chargesList | sumByKey : 'SalesServiceTaxAmount'| setDecimal:2| number }}</strong></td>
-                                <td class="text-right"><strong>{{chargesList | sumByKey : 'OtherServiceAmount'| setDecimal:2| number }}</strong></td>
-                                <td class="text-right"><strong>{{chargesList | sumByKey : 'BalanceAmount'| setDecimal:2| number }}</strong></td>
-                                <td class="text-right"><strong>{{chargesList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
-                                <td class="text-right"><strong>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:2| number }}</strong></td>
-                                <td class="text-right"></td>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
                             </tr>
                         </tbody>
                     </table>
