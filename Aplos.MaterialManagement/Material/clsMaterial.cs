@@ -956,11 +956,34 @@ Where Q.MasterOrderItemId " + LineItemId + "";
         }
 
 
+        #region InputConfirmation
 
+        public IEnumerable<object> GetIssueSlipDataByPOIdList(string ProductionOrderId)
+        {
+            string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
+,ART.StandardName Article,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty
+FROM TRN.IssueRequest IR 
+LEFT JOIN TRN.IssueRequestMaster IRM ON IR.IssueRequestMasterId=IRM.Id
+LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
+Left JOIN MST.MaterialMaster AS MM ON IR.MaterialMasterId = MM.Id
+LEFT JOIN MST.MaterialMasterArticle AS ART ON IR.ArticleId = ART.Id
+LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IR.TransactionUoMId = TUoM.Id
+LEFT JOIN (
+SELECT SUM(Qty)ActualIssueQty, H.IssueRequestDetailId
+FROM TRN.InventoryIssueHistory H
+LEFT JOIN TRN.InventoryIssueDetail ISD ON ISD.Id=H.InventoryIssueDetailId
+WHERE H.IssueRequestDetailId<>''
+GROUP BY H.IssueRequestDetailId,ISD.InventoryIssueId
+) IRH ON IRH.IssueRequestDetailId=IR.Id
+Where IRM.ProductionOrderId='"+ ProductionOrderId + "'";
+            return _sqlRepository.GetDataCollection(CmdText, null);
+        }
+
+        #endregion
 
 
 
 
     }
-    
+
 }
