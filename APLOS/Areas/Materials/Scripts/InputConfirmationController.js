@@ -299,6 +299,34 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         return $scope.tab2 === tabNum;
     };
 
+    $scope.popUpDataList = [];
+    $scope.showEmployeeListPopUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+
+            angular.element(document.querySelector('#popUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        $scope.ModelNew.ByWhomId = arg.data.SystemId;
+        $scope.ModelNew.ByWhom = arg.data.EmployeeName;
+        $scope.closePopUp();
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
   
 
 }
