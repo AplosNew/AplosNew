@@ -79,6 +79,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
             $scope.AutoLoanPostableDetailDataList = response.data;
         });
     };
+    var invoiceAmount = 0;
     $scope.selectAutoLoan = function (x) {
         var autoLoandata = x.data;
         $scope.voucher.BankMasterId = autoLoandata.BankMasterId;
@@ -99,7 +100,9 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         $scope.voucher.BudgetMasterId = autoLoandata.BudgetMasterId;
         $scope.voucher.ActivityId = autoLoandata.ActivityId;
         $scope.voucher.CompanyCurrencyRate = autoLoandata.CompanyCurrencyRate;
-        $scope.voucher.BankBookAmount = Math.round((autoLoandata.Amount * autoLoandata.CompanyCurrencyRate) * 100 + Number.EPSILON) / 100;
+        //$scope.voucher.BankBookAmount = Math.round((autoLoandata.Amount * autoLoandata.CompanyCurrencyRate) * 100 + Number.EPSILON) / 100;
+        $scope.voucher.BankBookAmount = autoLoandata.BankBookAmount;
+        invoiceAmount = autoLoandata.BankBookAmount;
         $scope.voucher.InvoiceId = autoLoandata.InvoiceId;
         $scope.voucher.InvoiceDetailId = autoLoandata.InvoiceDetailId;
         $scope.voucher.LoanAgainstAcceptanceId = autoLoandata.LoanAgainstAcceptanceId;
@@ -778,33 +781,20 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     };
 
     $scope.exchangeGainLossAmount = function (amount) {
-        var balance = parseFloat($scope.voucher.Balance), dramount = parseFloat(amount);
-        if (dramount > balance) {
-            amount = $scope.voucher.LoanAmount;
-            $scope.voucher.Amount = $scope.voucher.LoanAmount;
-            ShowResult("Payment Amount should not exceed Loan Amount.", "failure");
-        }
-        else {
-            CloseShowResult();
-        }
+        var  loanAmount = parseFloat(amount);
+       
         if ($scope.voucher.TransactionType == 'LoanTaken') {
-            if ($scope.voucher.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.CompanyCurrencyRate - $scope.voucher.ToCurrencyRate)).toFixed(2);
-                $scope.voucher.ExchangeType = "ExchangeLoss";
-            }
-            else if ($scope.voucher.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+            if (loanAmount < invoiceAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs(invoiceAmount - loanAmount).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeGain";
             }
-        }
-        else if ($scope.voucher.TransactionType == 'LoanGiven') {
-            if ($scope.voucher.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.CompanyCurrencyRate - $scope.voucher.ToCurrencyRate)).toFixed(2);
+            else if (loanAmount > invoiceAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs(loanAmount - invoiceAmount).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeLoss";
             }
-            else if ($scope.voucher.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
-                $scope.voucher.ExchangeType = "ExchangeGain";
+            else {
+                $scope.voucher.ExchangeAmount = 0;
+                $scope.voucher.ExchangeType = null;
             }
         }
         else {
