@@ -6,6 +6,8 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    //$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $scope.ProductionDataSumReportList = [];
     $scope.ProductionDataReportList = [];
     $scope.tab = 1;
@@ -734,5 +736,51 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         }
     }
 
+    //Start PO Wise
 
+    $scope.POWiseList = [];
+    $scope.GetPOWiseView = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path +'POWiseData',
+            //data: {employeeId: $scope.EmployeeId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.POWiseList = response.data.NewData;
+        });
+    };
+
+    $scope.POWiseReportExcel = function () {
+        var dataList = [];
+        var g = $("#GridPoWise").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.POWiseList;
+        }
+        $scope.fileName = 'Po Wise';
+
+        $http({
+            method: 'POST',
+            //url: $scope.path + "StockRegisterReport",
+            url: $scope.exportgriddataUrlUpd,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    //End PO Wise
 }
