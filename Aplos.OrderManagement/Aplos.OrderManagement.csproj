@@ -109,6 +109,7 @@
     <Compile Include="Production\ProductionGeneralReportService.cs" />
     <Compile Include="Production\ProductiveAllowanceRateSetupServices.cs" />
     <Compile Include="Production\StocksReportService.cs" />
+    <Compile Include="Production\clsProductLibrary.cs" />
     <Compile Include="ProformaInvoice\ProformaInvoice.cs" />
     <Compile Include="OrderControl\clsBOQUpload.cs" />
     <Compile Include="OrderControl\OrderControlReport.cs" />

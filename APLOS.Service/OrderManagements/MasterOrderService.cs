@@ -58,6 +58,7 @@ namespace Library.Service.OrderManagements
         private readonly IRepositoryAsync<SecondCharacteristics> _secondCharacteristicsRepository;
         private readonly IRepositoryAsync<ThirdCharacteristics> _thirdCharacteristicsRepository;
         private readonly IRepositoryAsync<SOCostingConfirmation> _SOCostingConfirmationRepository;
+        private readonly IRepositoryAsync<MasterOrderItemCostingRate> _MasterOrderItemCostingRateRepository;
 
 
         private readonly ISqlRepository _sqlRepository;
@@ -78,6 +79,7 @@ namespace Library.Service.OrderManagements
             , IRepositoryAsync<SecondCharacteristics> secondCharacteristicsRepository
             , IRepositoryAsync<ThirdCharacteristics> thirdCharacteristicsRepository
             , IRepositoryAsync<SOCostingConfirmation> SOCostingConfirmationRepository
+            , IRepositoryAsync<MasterOrderItemCostingRate> MasterOrderItemCostingRateRepository
 
             , IUnitOfWork unitOfWork) :
             base(baseRepository, unitOfWork, pkGeneratorService)
@@ -98,6 +100,7 @@ namespace Library.Service.OrderManagements
             _secondCharacteristicsRepository = secondCharacteristicsRepository;
             _thirdCharacteristicsRepository = thirdCharacteristicsRepository;
             _SOCostingConfirmationRepository = SOCostingConfirmationRepository;
+            _MasterOrderItemCostingRateRepository = MasterOrderItemCostingRateRepository;
         }
 
         #endregion Constructor
@@ -321,7 +324,7 @@ namespace Library.Service.OrderManagements
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
-       
+
         //public IEnumerable<object> GetDepartmentPersonList(string plantId, string partyAccountGroupId, string partyId, bool flag)
         //{
         //    try
@@ -534,7 +537,7 @@ namespace Library.Service.OrderManagements
         {
             try
             {
-                
+
                 var sql = @"SELECT  mo.MasterOrderNo,moi.Id MasterOrderItemId
 	                                ,ISNULL(so.Id,'') SOId
 	                                ,SO.CustomerPOId
@@ -702,7 +705,7 @@ namespace Library.Service.OrderManagements
             }
         }
 
-        public IEnumerable<object> GetpackingTypeList(string SOId,string PackingType)
+        public IEnumerable<object> GetpackingTypeList(string SOId, string PackingType)
         {
             try
             {
@@ -715,10 +718,10 @@ namespace Library.Service.OrderManagements
                                                 left join [HKP].[CharacteristicsValue] CV1 on CV1.Id=sku1.CharacteristicsValueId
                                                 left join TRN.SecondCharacteristics sku2 on sku2.SalesOrderId=SO.Id
                                                 left join [HKP].[CharacteristicsValue] CV2 on CV2.Id=sku2.CharacteristicsValueId
-                                                where SO.Id " + SOId +@" and CV1.UserName is not null
+                                                where SO.Id " + SOId + @" and CV1.UserName is not null
                                                 group by CV1.Id,CV1.UserName ,CV2.Id ,CV2.UserName";
                 }
-                else if(PackingType == "AssortedSolid")
+                else if (PackingType == "AssortedSolid")
                 {
                     sql = @"select NULL Id,CV1.Id FGFirstCharacteristicsId,CV1.UserName Color,sum(sku1.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
                                                 from TRN.SalesOrder SO
@@ -734,7 +737,7 @@ namespace Library.Service.OrderManagements
                                                 from TRN.SalesOrder SO
                                                 where SO.Id " + SOId + @"";
                 }
-                else 
+                else
                 {
                     sql = @"select NULL Id,CV2.Id FGSecondCharacteristicsId,CV2.UserName Size,sum(sku2.Qty) Quantity,0 ToPlanQuantity,0 [Plan]
                                                 from TRN.SalesOrder SO
@@ -744,7 +747,7 @@ namespace Library.Service.OrderManagements
                                                 group by CV2.Id,CV2.UserName";
                 }
                 return _sqlRepository.GetDataCollection(sql);
-                
+
             }
             catch (Exception ex)
             {
@@ -907,17 +910,17 @@ namespace Library.Service.OrderManagements
                 throw ex;
             }
         }
-               
+
         public IEnumerable<object> GetChValueCboByMaterialId(string materialId)
         {
             string assignmentLevel = string.Empty;
             try
             {
-                
+
                 DataTable valueAssignmentLevel = GetValueAssignmentLevel(materialId);
-                if (valueAssignmentLevel.Rows.Count>0)
+                if (valueAssignmentLevel.Rows.Count > 0)
                 {
-                    assignmentLevel= valueAssignmentLevel.Rows[0]["ValueAssignmentLevel"].ToString();
+                    assignmentLevel = valueAssignmentLevel.Rows[0]["ValueAssignmentLevel"].ToString();
                 }
                 string _sql = string.Empty;
                 if (assignmentLevel == ValueAssignmentEnum.Specific.ToString())
@@ -925,7 +928,7 @@ namespace Library.Service.OrderManagements
                     _sql = @"SELECT CV.Id AS [Value], CV.UserName AS [Text], CV.CharacteristicsId FROM [HKP].[Characteristics] C
                              LEFT JOIN hkp.CharacteristicsValue CV ON CV.CharacteristicsId=C.Id
                              Where CV.MaterialMasterId='" + materialId + @"' AND CV.CharacteristicsId IN (SELECT MMC.CharacteristicsId  FROM [MST].[MaterialMasterCharacteristics] MMC  Where MaterialMasterId='" + materialId + @"') 
-                             AND  C.ValueAssignmentLevel='"+ assignmentLevel + @"' Order by CV.UserName";
+                             AND  C.ValueAssignmentLevel='" + assignmentLevel + @"' Order by CV.UserName";
                 else
                     _sql = @"SELECT CV.Id AS [Value], CV.UserName AS [Text], CV.CharacteristicsId
                     FROM [MST].[MaterialMasterCharacteristics] AS MMC
@@ -1094,7 +1097,7 @@ namespace Library.Service.OrderManagements
 							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             WHERE EI.SystemId<>'" + employeeId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
-                
+
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -1392,11 +1395,33 @@ namespace Library.Service.OrderManagements
             return newStr;
         }
 
+        public DataTable GetUsedData(string id)
+        {
+            try
+            {
+                string sql = @"SELECT SM.Id FROM  TRN.SalesMaterial SM 
+JOIN TRN.SalesOrder SO ON SO.Id=SM.SalesOrderId
+JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+WHERE MOI.MasterOrderId='" + id + "'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList)
         {
             var flag = false;
             try
             {
+                //var useddata = GetUsedData(entity.Id);
+                //if (useddata.Rows.Count>0)
+                //{
+                //    throw new Exception("Update is not allowed after creation of Invoice.");
+                //}
+
                 var personDbDataList = _personRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
                 var itemDbDataList = _itemRepository.Query(t => t.MasterOrderId == masterId).Select().ToList();
 
@@ -1546,6 +1571,11 @@ namespace Library.Service.OrderManagements
                                 _itemAttributeValueRepository.Delete(attr);
                             }
 
+                            var MOICostingRateDbDataList = _MasterOrderItemCostingRateRepository.Query(t => t.MasterOrderItemId == item.Id).Select().ToList();
+                            foreach (var itemrate in MOICostingRateDbDataList)
+                            {
+                                _MasterOrderItemCostingRateRepository.Delete(itemrate);
+                            }
                             _itemRepository.Delete(item);
                             DeleteMOIDocumntFromFolder(item.Id);
                         }
@@ -1597,6 +1627,13 @@ namespace Library.Service.OrderManagements
                                 {
                                     _itemAttributeValueRepository.Delete(attr);
                                 }
+
+                                var MOICostingRateDbDataList = _MasterOrderItemCostingRateRepository.Query(t => t.MasterOrderItemId == item.Id).Select().ToList();
+                                foreach (var itemrate in MOICostingRateDbDataList)
+                                {
+                                    _MasterOrderItemCostingRateRepository.Delete(itemrate);
+                                }
+
                                 _itemRepository.Delete(item);
                                 DeleteMOIDocumntFromFolder(item.Id);
                             }
@@ -1625,6 +1662,22 @@ namespace Library.Service.OrderManagements
             {
                 if (flag)
                     _unitOfWork.Rollback();
+            }
+        }
+
+        public void DeleteCostingRate(string itemId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(@"DELETE FROM dbo.MasterOrderItemCostingRate WHERE MasterOrderItemId='"+itemId+"'", true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
@@ -1738,6 +1791,11 @@ namespace Library.Service.OrderManagements
             var flag = false;
             try
             {
+                var useddata = GetUsedData(id);
+                if (useddata.Rows.Count > 0)
+                {
+                    throw new Exception("Delete is not allowed after creation of Invoice.");
+                }
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -1969,9 +2027,9 @@ namespace Library.Service.OrderManagements
         {
             try
             {
-                if (salesOrderMaster.ParentId==null || string.IsNullOrEmpty(salesOrderMaster.ParentId))
+                if (salesOrderMaster.ParentId == null || string.IsNullOrEmpty(salesOrderMaster.ParentId))
                 {
-                    CheckUnique(salesOrderMaster); 
+                    CheckUnique(salesOrderMaster);
                 }
                 var itemQty = _itemRepository.Query(t => t.Id == salesOrderMaster.MasterOrderItemId).Select(t => t.TotalQty).FirstOrDefault();
                 var soTotalQty = _salesOrderRepository.Query(t => t.Id != salesOrderMaster.Id && t.MasterOrderItemId == salesOrderMaster.MasterOrderItemId).Select(t => t.Qty).Sum() + salesOrderMaster.Qty;
@@ -4234,7 +4292,7 @@ namespace Library.Service.OrderManagements
                     _salesOrderRepository.Update(sodata);
 
                 }
-               
+
                 _unitOfWork.SaveChanges();
 
 
@@ -4293,11 +4351,11 @@ namespace Library.Service.OrderManagements
                 {
                     var sodata = _salesOrderRepository.Find(salesOrderMaster.Id);
                     AuditService.UpdatedLog(salesOrderMaster);
-                    sodata.Rate = salesOrderMaster.Rate;                   
-                    sodata.CM = salesOrderMaster.CM;                   
-                    sodata.UpCharge = salesOrderMaster.UpCharge;                   
-                    sodata.Discount = salesOrderMaster.Discount;                   
-                    sodata.SalesExpense = salesOrderMaster.SalesExpense;                   
+                    sodata.Rate = salesOrderMaster.Rate;
+                    sodata.CM = salesOrderMaster.CM;
+                    sodata.UpCharge = salesOrderMaster.UpCharge;
+                    sodata.Discount = salesOrderMaster.Discount;
+                    sodata.SalesExpense = salesOrderMaster.SalesExpense;
                     _salesOrderRepository.Update(sodata);
 
                 }
@@ -4365,7 +4423,7 @@ namespace Library.Service.OrderManagements
                         sodata.OrderStatusChangedDate = salesOrderMaster.UpdatedDate;
                         sodata.OrderStatusChangedFromIP = salesOrderMaster.UpdatedFromIP;
                         sodata.ProductionBookedQty = salesOrderMaster.ProductionBookedQty;
-                        
+
                     }
 
                     _salesOrderRepository.Update(sodata);
@@ -4391,5 +4449,7 @@ namespace Library.Service.OrderManagements
 
 
     }
+
+  
 
 }

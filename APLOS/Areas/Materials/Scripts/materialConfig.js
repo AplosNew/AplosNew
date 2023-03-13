@@ -342,6 +342,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/MaterialLedger/InWardMaterial',
             controller: 'InWardMaterialController'
         })
-
+        .when('/input-confirmation', {
+            templateUrl: 'materials/InputConfirmation/Aplos',
+            controller: 'InputConfirmationController'
+        })
 
 };

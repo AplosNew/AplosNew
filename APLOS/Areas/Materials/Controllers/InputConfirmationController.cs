@@ -36,14 +36,14 @@ using Library.MaterialManagement.Material;
 
 namespace Aplos.Areas.Materials.Controllers
 {
-    public class MaterialIssueControlController : BaseController
+    public class InputConfirmationController : BaseController
     {
         #region -- Constructor
         private readonly ISqlRepository _sqlRepository;
         private readonly IIssueRequestService _issueRequestService;
         private readonly IPKGeneratorService _pkGeneratorService;
         clsMaterial clsM = new clsMaterial();
-        public MaterialIssueControlController(ISqlRepository R, IIssueRequestService issueRequestService, IPKGeneratorService pkGeneratorService)
+        public InputConfirmationController(ISqlRepository R, IIssueRequestService issueRequestService, IPKGeneratorService pkGeneratorService)
         {
             _sqlRepository = R;
             _issueRequestService = issueRequestService;

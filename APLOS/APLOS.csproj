@@ -616,6 +616,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
+    <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -2193,7 +2194,9 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
+    <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
+    <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SurveyandFeedbackController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
@@ -2785,6 +2788,7 @@
     <Content Include="Areas\DailyAttendance\Scripts\dailyAttendanceInOutLoginController.js" />
     <Content Include="Areas\DailyAttendance\Scripts\dailyattendanceApp.js" />
     <Content Include="Areas\SalesManagements\Scripts\EInvoiceController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\SalesReturnPostController.js" />
     <Content Include="Areas\SalesManagements\Scripts\SalesReturnController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesAdditionalController.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesPackingPostController.js" />
@@ -4565,6 +4569,8 @@
     <Content Include="Areas\Productions\Views\ProductionControl\LineDesignCanvas.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionControl\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionControl\LineLayoutSearchViews.cshtml" />
+    <Content Include="Areas\Products\Views\InventoryIssue\POWiseMaterialIssue.cshtml" />
+    <Content Include="Areas\Materials\Views\InputConfirmation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4687,6 +4693,7 @@
     <Content Include="Areas\DailyAttendance\Views\PreRecruitment\Aplos.cshtml" />
     <Content Include="Areas\DailyAttendance\Views\web.config" />
     <Content Include="Areas\SalesManagements\Views\_ItemScanChildPopUp.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\SalesReturnPost.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

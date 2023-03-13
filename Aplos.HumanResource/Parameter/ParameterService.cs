@@ -630,7 +630,7 @@ LEFT JOIN HKP.WorkCenterCategory WC on WC.Id = WM.WorkCenterCategoryId
 LEFT JOIN HKP.WorkCenterSubCategory WCS on WCS.Id = WM.WorkCenterSubcategoryId
 left join HKP.Process P on P.Id = WM.ProcessId
 LEFT JOIN SCS.UnitOfMeasurement UOM on UOM.Id = WM.UoMId 
-where WM.EntityId = '"+ paramEntityId + "' and WM.Active = 1";
+where WM.Active = 1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
