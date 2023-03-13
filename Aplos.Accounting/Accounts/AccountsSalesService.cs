@@ -2513,7 +2513,7 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				string sql = @"SELECT ''Id,IID.Id SalesReturnDetailId, IID.SalesId 
+				string sql = @"SELECT ''Id,IID.Id SalesReturnDetailId, IID.SalesId ,MG.UserName MaterialGroupName
 		                        , IID.MaterialMasterId, MM.UserName AS MaterialMasterName, IID.ArticleId, AR.StandardName AS ArticleName
 		                        , IID.FirstCharacteristicsId, CH1.UserName AS FirstCharacteristics, IID.FirstCharacteristicsValueId, CHV1.UserName AS FirstCharacteristicText--FirstCharacteristicsValue
 		                        , IID.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IID.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
@@ -2526,6 +2526,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [TRN].[SalesReturn] AS II ON IID.SalesReturnId=II.Id
                         LEFT JOIN [MST].[MaterialMaster] AS MM ON IID.MaterialMasterId=MM.Id
                         LEFT JOIN [MST].[MaterialMasterArticle] AS AR ON IID.ArticleId=AR.Id
+						LEFT JOIN MST.MaterialGroupMaster MG ON MG.Id=MM.MaterialGroupMasterId
                         LEFT JOIN [HKP].[Characteristics] AS CH1 ON IID.FirstCharacteristicsId=CH1.Id
                         LEFT JOIN [HKP].[CharacteristicsValue] AS CHV1 ON IID.FirstCharacteristicsValueId=CHV1.Id
                         LEFT JOIN [HKP].[Characteristics] AS CH2 ON IID.SecondCharacteristicsId=CH2.Id

@@ -74,17 +74,14 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.product.SalesReturnDate = data.data.SalesDateNew;
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
         $scope.productNew = Object.assign({}, $scope.product);
-        getIssueDetailList();
-        getInvTaxList();
+        getSalesReturnDetailList();
         $scope.productNew.TaxOption = 'Yes';
         $scope.productNew.TaxOptionMat = 'Yes';
         $scope.productNew.TaxOptionService = 'Yes';
         $scope.productNew.TaxOptionServiceModify = 'Yes';
         $scope.productNew.TaxOptionAddiTax = 'Yes';
-        //$scope.getTaxCodeByTaxYearWithhold($scope.productNew.SalesDate);
-
         $scope.Action = 'Save';
-        $scope.closeGRNPopUp();
+        $scope.closeSalesReturnPopUp();
     };
 
 
@@ -1129,7 +1126,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         angular.element(document.querySelector('#confirmProcessPopUp')).modal('hide');
     };
 
-    function getIssueDetailList() {
+    function getSalesReturnDetailList() {
         $scope.returnDetailurl = 'SalesManagements/Sales/GetSalesReturnDetailDataBySalesReturn?salesReturnId=' + $scope.productNew.SalesReturnId
        
         $http.get($scope.returnDetailurl)
