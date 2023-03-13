@@ -430,12 +430,12 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
         }
     }];
 
-    $scope.delete = function (gRNId, voucherId, invoiceId, type, tDSTaxVoucherId, tDSVoucherNo) {
+    $scope.delete = function (purchaseLCId, voucherId) {
         $http({
             method: "POST",
-            url: 'accounts/Invoice/DeleteInventoryPayable',
+            url: 'commercial/PurchaseLC/DeletePostedPurchaseLCCharges',
             data: {
-                "grnId": gRNId, "voucherId": voucherId, "invoiceId": invoiceId, "type": type, "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo
+                "purchaseLCId": purchaseLCId, "voucherId": voucherId
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -444,14 +444,10 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
             }
             else {
                 ShowResult(response.data.Message, "success");
-                $scope.getData();
-                $scope.Clear();
-                $scope.GRNId = null;
+                //$scope.getData();
+                //$scope.Clear();
+                $scope.purchaseLCId = null;
                 $scope.VoucherId = null;
-                $scope.Type = null;
-                $scope.TDSTaxVoucherId = null;
-                $scope.TDSVoucherNo = null;
-                $scope.InvoiceId = null;
             }
         }, function errorCallback(response) {
             ShowResult(response.status.Message, "failure");
@@ -461,12 +457,8 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
 
     $scope.onClickDeletePopUp = function (x) {
         var data = x;
-        $scope.GRNId = data.Id;
+        $scope.purchaseLCId = data.PurchaseLCId;
         $scope.VoucherId = data.VoucherId;
-        $scope.TDSTaxVoucherId = data.TDSTaxVoucherId;
-        $scope.TDSVoucherNo = data.TDSVoucherNo;
-        $scope.InvoiceId = data.InvoiceId;
-        $scope.Type = data.GRNType;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
     };
