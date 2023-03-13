@@ -268,12 +268,13 @@ WHERE EP.EntityId='"+ entityId + "' AND P.Active=1";
             }
             else
             {
-                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],ISNULL(PS.ProductionBookingLevel,EPT.ProductionBookingLevel)ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased FROM HKP.EntityProcessTag EPT
-						        INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
-LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId from TRN.ProductionOrderProcessSet S
-LEFT JOIN TRN.ProductionOrder P ON P.Id=ProductionOrderId
-) PS ON PS.ProcessId=EPT.ProcessId AND PS.EntityId=EPT.EntityId
-						        INNER JOIN [SEC].[UserProcess] UP ON UP.ProcessId=P.Id
+                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture
+,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased FROM HKP.EntityProcessTag EPT
+INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
+--LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId from TRN.ProductionOrderProcessSet S
+--LEFT JOIN TRN.ProductionOrder P ON P.Id=ProductionOrderId
+--) PS ON PS.ProcessId=EPT.ProcessId AND PS.EntityId=EPT.EntityId
+INNER JOIN [SEC].[UserProcess] UP ON UP.ProcessId=P.Id
 						        WHERE EPT.EntityId='" + entityId + @"' AND UP.UserId='"+ userId + "' AND P.Active=1";
                 return _sqlRepository.GetGridData(new GridParameter { CmdText = _sql });
             }
