@@ -94,7 +94,8 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
 
         $scope.purchaseLC = obj.data;
         $scope.purchaseLC.LCDate = $filter('dateFiltering')($scope.purchaseLC.LCDate, 'dd-M-yyyy');
-        $scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
+        //$scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
+        $scope.purchaseLC.AmendmentDate = null;
         $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
 
        // $scope.ChangeBankMaster();

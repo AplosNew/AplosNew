@@ -430,7 +430,7 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
         }
     }];
 
-    $scope.delete = function (purchaseLCId, voucherId) {
+    $scope.Postdelete = function (purchaseLCId, voucherId) {
         $http({
             method: "POST",
             url: 'commercial/PurchaseLC/DeletePostedPurchaseLCCharges',
