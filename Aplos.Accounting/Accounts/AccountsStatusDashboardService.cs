@@ -143,9 +143,9 @@ namespace Library.Accounting.Accounts
                  , ISNULL(IVD.InvoiceBooksAmount,0) AS Gross
 				, ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
 				, ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
-                , ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGross
-				, ISNULL(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate,0) AS BooksSetOff
-				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS BooksBalance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS BooksGross
+				, ISNULL(IVD.SetOffBooksAmount,0) AS BooksSetOff
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS BooksBalance
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                 , ISNULL(OM30.ODueMoreThan30*IV.CompanyCurrencyRate ,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*IV.CompanyCurrencyRate,0) ODueMoreThan15
@@ -247,9 +247,9 @@ namespace Library.Accounting.Accounts
                   ISNULL(IVD.SetOffBooksAmount ,0) AS SetOff
 				 , ISNULL(IVD.InvoiceBooksAmount-IVD.SetOffBooksAmount,0) AS Balance
 
-                , ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGross
-				,ISNULL(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate,0) AS BooksSetOff
-				, ISNULL((IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate)-(IVD.SetOffBooksAmount*IV.CompanyCurrencyRate),0) AS BooksBalance
+                , ISNULL(IVD.InvoiceBooksAmount,0) AS BooksGross
+				, ISNULL(IVD.SetOffBooksAmount,0) AS BooksSetOff
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS BooksBalance
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.ActualWrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                 , ISNULL(OM30.ODueMoreThan30*IV.CompanyCurrencyRate,0) ODueMoreThan30
                 , ISNULL(OM15.ODueMoreThan15*IV.CompanyCurrencyRate,0) ODueMoreThan15
@@ -259,19 +259,10 @@ namespace Library.Accounting.Accounts
 				, ISNULL(ETT.EightToThirtyBalance*IV.CompanyCurrencyRate,0) EightToThirtyBalance
 				, ISNULL(TTS.ThirtyToSixtyBalance*IV.CompanyCurrencyRate,0) ThirtyToSixtyBalance
 				, ISNULL(O60.Onword60*IV.CompanyCurrencyRate,0) Onword60
-
 				, ISNULL(IVD.InvoiceBooksAmount,0) AS GrossTranAmount
-				--,0 DebitNoteTranAmount
-				--,isnull( IWD.TaxAmount,0)as TranTaxAmount
-				--,isnull( DIWD.DiscountAmount,0)as TranDiscountAmount
-
 				, ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS BooksGrossAmount
                 ,isnull( DIWD.DiscountAmount*IV.CompanyCurrencyRate,0)as BooksDiscountAmount
                 ,isnull( IWD.TaxAmount*IV.CompanyCurrencyRate,0)as TaxAmount
-				--,0 BooksDebitNoteAmount
-				--,isnull( IWD.TaxAmount*CC.CompanyCurrencyRate,0)as TaxAmount
-				--,isnull( DIWD.DiscountAmount*CC.CompanyCurrencyRate,0)as BooksDiscountAmount
-
                 FROM [TRN].[Invoice] AS IV 
                  JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
                 ,SUM(isnull(IDE.WrittenOffAmount,0))ActualWrittenOffAmount
@@ -735,6 +726,10 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colCreditNote].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colCreditNote].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
                 worksheet[ROW, colActualBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colActualBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colActualBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1020,7 +1015,7 @@ namespace Library.Accounting.Accounts
 
                 xlsCol++;
                 int iDebitNote = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Debit Note";
+                sheet1.Range[xlsRow, xlsCol].Text = "Debit Note SetOff";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
@@ -1124,7 +1119,7 @@ namespace Library.Accounting.Accounts
                         sheet1[xlsRow, iGross].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["Gross"].ToString());
                         sheet1[xlsRow, iGross].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                        sheet1[xlsRow, iDebitNote].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["DebitNoteAmount"].ToString());
+                        sheet1[xlsRow, iDebitNote].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["DebitNoteSetOff"].ToString());
                         sheet1[xlsRow, iDebitNote].NumberFormat = "#,##0.00;(#,##0.00)";
 
                         sheet1[xlsRow, iTax].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TaxAmount"].ToString());
@@ -1458,52 +1453,52 @@ namespace Library.Accounting.Accounts
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onward'
 															end
-										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,ISNULL(IWD.TaxAmount,0) TaxAmount, SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
-                                        , ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance								
+										, ISNULL(VDC.CrAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount, SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
+                                        , ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance								
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId 
+										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId
                                                     ,SUM(VDC.DrAmount) SetOffBooksAmount
 										FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 										JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
-										 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-										WHERE  ( convert(Date,WV.PostingDate) <= '" + toDate + @"' ) and  isnull(iw.PaymentSource,'') not in('Tax') and  isnull(iw.SourceType,'') not in('DebitNoteSetOff')
-										GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
+										JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+								        WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' ) and  isnull(iw.PaymentSource,'') not in('Tax') and  isnull(iw.SourceType,'') not in('DebitNoteSetOff')
+										GROUP BY iwd.InvoiceDetailId,iw.PartyId
 										)AS IwV ON IwV.InvoiceDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
                                         
-										LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+										LEFT JOIN (SELECT wd.InvoiceDetailId,sum(VDC.DrAmount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
 											LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
-								            where w.PaymentSource='Tax' AND ( convert(Date,W.PostingDate) <= '" + toDate + @"' )
+											LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=wd.Id
+										    LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+                                            JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+								            WHERE WV.IsPark=0 AND  w.PaymentSource='Tax' AND ( convert(Date,W.PostingDate) <= '" + toDate + @"' )
 								            group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
 
-                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(VDC.DrAmount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>'' and DNW.SourceType='DebitNoteSetOff'
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=wd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+                                                JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+								                WHERE WV.IsPark=0 AND WD.InvoiceDetailId<>'' and DNW.SourceType='DebitNoteSetOff'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
 										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
-										LEFT JOIN (
-										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-										FROM [TRN].[VoucherDetailCurrency] AS VDC
-										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
-									) AS CC ON CC.VoucherDetailId=VD.Id
-									
+
                                         WHERE IV.Archive=0  AND V.IsPark=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @" --AND IV.PlantId='20171'
-                                        AND ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
+                                        AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @" 
+                                        AND ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
                                         and IV.PartyId in(" + vendorIdLoop + @") 
-										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
+										--GROUP BY IV.PartyId, PP.UserName,P.UserName
 
 								   UNION ALL
                                     SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
@@ -1539,18 +1534,19 @@ namespace Library.Accounting.Accounts
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>60 then '8.60 Onword'
 															end
-										, ISNULL(IVD.NetAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteAmount,ISNULL(IWD.TaxAmount,0) TaxAmount,SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
-                                        , ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance
+										, ISNULL(VDC.CrAmount,0) AS Gross,ISNULL(IDND.DNAmount,0) DebitNoteSetOff,ISNULL(IWD.TaxAmount,0) TaxAmount,SetOff=ISNULL(IwV.SetOffBooksAmount, 0)
+                                        , ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0) AS Balance
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 										LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                                        LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId 
+										LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId
                                         ,SUM(VDC.DrAmount) SetOffBooksAmount
 										FROM  [TRN].[InvoiceWriteOffDetail] iwd 
 										JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
@@ -1560,30 +1556,28 @@ namespace Library.Accounting.Accounts
 										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate+ @"' ) and  isnull(iw.PaymentSource,'') not in('Tax') and  isnull(iw.SourceType,'') not in('DebitNoteSetOff')
 										GROUP BY iwd.InvoiceDetailId,iw.PartyId--,iw.PartyPlantId
 										)AS IwV ON IwV.InvoiceDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
-                                                LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+                                                 LEFT JOIN (SELECT wd.InvoiceDetailId,sum(VDC.DrAmount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
 								                LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
-								                where w.PaymentSource='Tax'
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=wd.Id
+										        LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+                                                JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+								                WHERE WV.IsPark=0 AND   w.PaymentSource='Tax'
 								                group by wd.InvoiceDetailId
 								                ) IWD ON IWD.InvoiceDetailId=IVD.Id
-                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
+                                        LEFT JOIN (SELECT wd.InvoiceDetailId,sum(VDC.DrAmount) DNAmount  FROM TRN.InvoiceWriteOffDetail WD 
 								                LEFT JOIN  TRN.InvoiceWriteOff DNW on wd.InvoiceWriteOffId =DNW.id
-								                where WD.InvoiceDetailId<>'' and DNW.SourceType='DebitNoteSetOff'
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=wd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+                                                JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+								                WHERE WV.IsPark=0 AND   WD.InvoiceDetailId<>'' and DNW.SourceType='DebitNoteSetOff'
 								                group by wd.InvoiceDetailId
 								                ) IDND ON IDND.InvoiceDetailId=IVD.Id
                                         LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
 										LEFT JOIN MST.PaymentTerm PT ON PT.Id=IV.PaymentTermId
-										LEFT JOIN (
-										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-										FROM [TRN].[VoucherDetailCurrency] AS VDC
-										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + CompanyId + @"'
-									) AS CC ON CC.VoucherDetailId=VD.Id
-									
                                         WHERE IV.Archive=0 AND   V.IsPark=0  AND IV.SourceType in ('InventoryPayable','ServicePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
 										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + vendorIdLoop + @")
-                                        AND ISNULL(ISNULL(IVD.NetAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
+                                        AND ISNULL(ISNULL(VDC.CrAmount,0)-(ISNULL(IwV.SetOffBooksAmount,0)+ISNULL(IWD.TaxAmount,0)+ISNULL(IDND.DNAmount,0)),0)>0
 
                                         UNION ALL
 				                        SELECT   IV.PartyType,IV.PartyId, IV.PartyPlantId,p.code PartyCode, P.UserName PartyName, PP.UserName AS PartyPlantName
@@ -1614,13 +1608,14 @@ namespace Library.Accounting.Accounts
 															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),IV.PostingDate)<=60 then '7.31-60'
 															when DATEDIFF(DAY, GETDATE(),IV.PostingDate)>60 then '8.60 Onword'
 															end
-										                        , ISNULL(IVD.Amount,0) AS Gross,0  DebitNoteAmount,0 TaxAmount,
-                                                                SetOff=ISNULL(IwV.SetOffBooksAmount, 0) , ISNULL(IVD.Amount-isnull(IwV.SetOffBooksAmount,0),0) AS Balance
+										                         , ISNULL(VDC.CrAmount,0) AS Gross,0  DebitNoteSetOff,0 TaxAmount,
+                                                                SetOff=ISNULL(IwV.SetOffBooksAmount, 0) , ISNULL(VDC.CrAmount-isnull(IwV.SetOffBooksAmount,0),0) AS Balance
                                         FROM [TRN].[AdjustmentNoteDetail] AS IVD
                                         LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
                                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
                                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
                                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                                         LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
@@ -1630,14 +1625,14 @@ namespace Library.Accounting.Accounts
 										JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
 										LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 										LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
-										    JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+										JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
 										WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"'  )
 										GROUP BY iwd.AdjustmentNoteDetailId,iw.PartyId
 										)AS IwV ON IwV.AdjustmentNoteDetailId=IVD.Id AND VD.PartyId=IwV.PartyId
-                                        WHERE IV.Archive=0 AND   V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
+                                        WHERE IV.Archive=0 AND   V.IsPark=0 AND IV.PartyType='Vendor' AND IV.SourceType in ('VendorPayment','CreditNote')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' " + searchDate + @"
 										AND IV.PartyId in(" + vendorIdLoop + @")
-                                        AND (IVD.Amount-ISNULL(IwV.SetOffBooksAmount,0))>0
+                                        AND (VDC.CrAmount-ISNULL(IwV.SetOffBooksAmount,0))>0
 										) x
 										order by x.SortDocDate asc";
 
