@@ -3465,6 +3465,80 @@ where ProcessId = '"+ ProcessId +"'";
                 objCon = null;
             }
         }
+
+        public void GetPODetail(out List<PODetail> DataList, string POId,string ProcessId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<PODetail>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select po.Id As POId , pos.StandardName As StandardName , ps.ProductionBookingLevel As BookingLevel  from TRN.ProductionOrder As po
+left join HKP.ProductionStatus As pos   on po.ProductionStatusId = pos.Id 
+left join trn.ProductionOrderProcessSet As ps on ps.ProductionOrderId = po.Id
+where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new PODetail
+                    {
+                        POId = dsRef.Tables[0].Rows[i]["POId"].ToString(),
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+                        BookingLevel = dsRef.Tables[0].Rows[i]["BookingLevel"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetWorkCenterId(out List<Default2> DataList, string WorkCenter)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select id As Value, UserName As Name from Scs.WorkCenterMaster where UserName = '" + WorkCenter + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+       
         #endregion Written By Aman
 
         #region Test For production service
@@ -3677,6 +3751,13 @@ where ProcessId = '"+ ProcessId +"'";
         public string Id { get; set; }
         public string MenuName { get; set; }
         public string IconName { get; set; }
+    }
+
+    public class PODetail
+    {
+        public string POId { get; set; }
+        public string StandardName { get; set; }
+        public string BookingLevel { get; set; }
     }
     #region Written by Nitesh
 

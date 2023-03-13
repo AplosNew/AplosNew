@@ -437,6 +437,19 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetReason(out List<Default2> activelists, ProcessId);
             return activelists;
         }
+        public List<Default2> GetWorkCenterId(string WorkCenter)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetWorkCenterId(out List<Default2> activelists, WorkCenter);
+            return activelists;
+        }
+        public List<PODetail> GetPODetail(string POId, string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPODetail(out List<PODetail> activelists, POId, ProcessId);
+            return activelists;
+        }
+
         #endregion written by Aman
 
     }
