@@ -7,17 +7,29 @@
 
 <div id="GridDailyTargetList" ej-grid e-datasource="DailyTargetList" e-templaterefresh="DailyTargetAllCheck"
      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBound">
+     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBoundCP">
     <div e-columns>
-        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="5"></div>
-        <div e-column e-field="Line" e-headertext="Work Center" e-width="15"></div>
-        <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="10"></div>
-        <div e-column e-template="#templateSearchPR" e-headertext="" e-width="8"></div>
-        <div e-column e-field="Article" e-headertext="Article" e-width="15"></div>
-        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="12"></div>
-
-
-
+        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="50"></div>
+        <div e-column e-template="#ProductionJobCart" e-headertext="Print" e-width="50"></div>
+        <div e-column e-field="Line" e-headertext="Work Center" e-width="150"></div>
+        <div e-column e-field="Production" e-headertext="Production" e-width="150"></div>
+        <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="100"></div>
+        <div e-column e-template="#templateSearchPR" e-headertext="" e-width="50"></div>
+        <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+        <div e-column e-headertext="Actions" e-template="#ShowButtons" e-width="100"></div>
+        <div e-column e-template="#P1" e-headertext="P1" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P2" e-headertext="P2" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P3" e-headertext="P3" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P4" e-headertext="P4" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P5" e-headertext="P5" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P6" e-headertext="P6" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P7" e-headertext="P7" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P8" e-headertext="P8" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P9" e-headertext="P9" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P10" e-headertext="P10" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P11" e-headertext="P11" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P12" e-headertext="P12" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#P13" e-headertext="P13" e-visible="false" e-width="120"></div>
     </div>
 </div>
 <script type="text/x-jsrender" id="headerTemplate">
@@ -25,6 +37,15 @@
 </script>
 <script type="text/template" id="checkboxTemplate">
     <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+</script>
+<script type="text/template" id="ProductionJobCart">
+    <div class="form-group">
+        <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
+            <div class="common-btn">
+                <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionJobCardReportView?ProductionControlId={{data.Id}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
+            </div>
+        </div>
+    </div>
 </script>
 <script type="text/ng-template" id="ShowButtons">
     <div class="common-btn">
@@ -51,9 +72,74 @@
         </ul>
     </div>
 </script>
-<div class="common-btn" ng-show="DailyTargetList.length>0">
+<script type="text/template" id="P1">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P1" ng-model="data.P1" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P2">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P2" ng-model="data.P2" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P3">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P3" ng-model="data.P3" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P4">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P4" ng-model="data.P4" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P5">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P5" ng-model="data.P5" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P6">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P6" ng-model="data.P6" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P7">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P7" ng-model="data.P7" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P8">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P8" ng-model="data.P8" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P9">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P9" ng-model="data.P9" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P10">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P10" ng-model="data.P10" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P11">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P11" ng-model="data.P11" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P12">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P12" ng-model="data.P12" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+<script type="text/template" id="P13">
+    <div class="col-sm-6" style="padding:0px;">
+        <input type="text" name="P13" ng-model="data.P13" class="form-control" tabindex="4" maxlength="50">
+    </div>
+</script>
+@*<div class="common-btn" ng-show="DailyTargetList.length>0">
     <ul class="list-inline text-right">
         <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
         <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
     </ul>
-</div>
+</div>*@
