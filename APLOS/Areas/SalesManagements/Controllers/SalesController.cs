@@ -608,6 +608,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return Json(accountsSalesService.GetMaterialSalesTaxDetail(salesId), JsonRequestBehavior.AllowGet);
 
         }
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+                return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
 
