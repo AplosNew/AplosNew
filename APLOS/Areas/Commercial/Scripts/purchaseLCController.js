@@ -545,7 +545,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
 
     $scope.summaryRows = [{
         title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalQty", dataMember: "TotalQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amtount", dataMember: "Amtount", format: "{0:N0}" }],
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N0}" }],
         showCaptionSummary: true
 
     }];

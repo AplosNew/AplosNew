@@ -106,9 +106,9 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     };
     //$scope.GetSavedData();
 
-   
 
-   
+
+
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
         $scope.GetIssueSlipDataByPOIdList();
@@ -299,6 +299,66 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         return $scope.tab2 === tabNum;
     };
 
-  
+    $scope.popUpDataList = [];
+
+    $scope.name = null;
+    $scope.showEmployeeListPopUp = function (name) {
+        try {
+            $scope.name = name;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+
+            angular.element(document.querySelector('#popUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        if ($scope.name == 'RP') {
+            $scope.ModelNew.ResponsiblePersonId = arg.data.SystemId;
+            $scope.ModelNew.ResponsiblePersonEmployeeCode = arg.data.EmployeeCode;
+            $scope.ModelNew.ResponsiblePerson = arg.data.EmployeeName;
+        } else {
+            $scope.ModelNew.CheckedById = arg.data.SystemId;
+            $scope.ModelNew.CheckedByEmployeeCode = arg.data.EmployeeCode;
+            $scope.ModelNew.CheckedBy = arg.data.EmployeeName;
+        }
+        $scope.closePopUp();
+    }
+
+    $scope.clearEmp = function (name) {
+        $scope.name = name;
+        if ($scope.name == 'RP') {
+            $scope.ModelNew.ResponsiblePersonId = null;
+            $scope.ModelNew.ResponsiblePersonEmployeeCode = null;
+            $scope.ModelNew.ResponsiblePerson = null;
+        } else {
+            $scope.ModelNew.CheckedById = null;
+            $scope.ModelNew.CheckedByEmployeeCode = null;
+            $scope.ModelNew.CheckedBy = null;
+        }
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
+
+    $scope.summaryRows = [{
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "RequestedQty", dataMember: "RequestedQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "OtherQty", dataMember: "OtherQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N0}" }]
+        ,showCaptionSummary: true
+
+    }];
 
 }

@@ -21600,7 +21600,7 @@ group by Id) O60 ON O60.Id=IV.Id
 	                    FROM [TRN].[VoucherDetailCurrency] AS VDC) AS CC ON CC.VoucherDetailId=VD.Id
                     WHERE V.Archive=0 AND V.IsPark=0 AND V.PlantId='" + plantId + @"' AND convert(Date,V.PostingDate) <= '" + toDate + @"' AND VD.PartyId=X.PartyId AND VD.PartyType IN ('Customer') 
 					GROUP BY VD.PartyId),0) CustomerLedgerBalanceAmount
-                ,round(sum(x.RemainingPOPayable),4) RemainingPOPayable
+                ,round(sum(x.RemainingPOPayable),4) RemainingPOAmount
         from (
         SELECT P.Id PartyId,P.Code PartyCode,P.UserName PartyName
                 , 0 VendorAdvance, 0 VendorDebitNote

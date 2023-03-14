@@ -227,7 +227,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         [HttpGet, Authorize]
         public ActionResult GetUserEditControlList()
         {
-            string sql = @"select *,U.FullName
+            string sql = @"select UEC.*,U.FullName,U.EmployeeId
                             from UserEditControl UEC
                             left join sec.[User] U on U.Id=UEC.UserId";
 
