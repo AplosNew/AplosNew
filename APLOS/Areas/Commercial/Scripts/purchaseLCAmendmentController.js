@@ -87,7 +87,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         cboService.getCboTransactionCurrencyByCompany('', function (result) {
             $scope.currencyList = [];
             $scope.currencyList = result;
-            $scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+            //$scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
             $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
 
         });

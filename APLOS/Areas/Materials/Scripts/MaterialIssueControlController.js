@@ -410,8 +410,16 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.SelectEmployee = function (arg) {
         $scope.ModelNew.ByWhomId = arg.data.SystemId;
-        $scope.ModelNew.ByWhom = arg.data.EmployeeName;
+        $scope.ModelNew.ByWhomName = arg.data.EmployeeName;
+        $scope.ModelNew.ByWhomEmployeeCode = arg.data.EmployeeCode;
         $scope.closePopUp();
+    }
+
+
+    $scope.clearEmp = function () {
+        $scope.ModelNew.ByWhomId = null;
+        $scope.ModelNew.ByWhomName = null;
+        $scope.ModelNew.ByWhomEmployeeCode = null;
     }
 
     $scope.closePopUp = function () {
