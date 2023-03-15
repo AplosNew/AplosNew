@@ -545,7 +545,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
 
     $scope.summaryRows = [{
         title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalQty", dataMember: "TotalQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amtount", dataMember: "Amtount", format: "{0:N0}" }],
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N0}" }],
         showCaptionSummary: true
 
     }];
@@ -608,15 +608,15 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
                     function successCallback(response) {
                         if (baseService.arrayLength(response.data) > 0) {
                             $scope.LCChargesList = response.data;
-                            if (baseService.arrayLength($scope.purchaseLCChargesList) > 0) {
-                                for (var i = 0; i < $scope.purchaseLCChargesList.length; i++) {
-                                    for (var j = 0; j < $scope.LCChargesList.length; j++) {
-                                        if ($scope.LCChargesList[j].Id === $scope.purchaseLCChargesList[i].OverHeadTypeGLId) {
-                                            $scope.LCChargesList[j].Active = true;
-                                        }
-                                    }
-                                }
-                            }
+                            //if (baseService.arrayLength($scope.purchaseLCChargesList) > 0) {
+                            //    for (var i = 0; i < $scope.purchaseLCChargesList.length; i++) {
+                            //        for (var j = 0; j < $scope.LCChargesList.length; j++) {
+                            //            if ($scope.LCChargesList[j].Id === $scope.purchaseLCChargesList[i].OverHeadTypeGLId) {
+                            //                $scope.LCChargesList[j].Active = true;
+                            //            }
+                            //        }
+                            //    }
+                            //}
                             GetCompanyCurrencyExchangeRateCharges();
                         }
                     },
@@ -650,6 +650,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
                             , Budget: a.Budget
                             , Activity: a.Activity
                             , Remarks: null
+                            , VoucherId:null
                             , ChargesValue: null
                             , Rate: $scope.Rate
                             , BankAmount: null
@@ -731,7 +732,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
 
     function checkLCExist(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].OverHeadTypeGLId === Id) {
+            if (list[i].OverHeadTypeGLId === Id && list[i].VoucherId!==null) {
                 return true;
             }
         }

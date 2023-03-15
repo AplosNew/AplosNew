@@ -116,14 +116,14 @@ where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
                 throw;
             }
         }
-
+        [AllowAnonymous]
         public JsonResult GetFavoriteFilterByUser()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select DAF.Id Value, DAF.FavoriteName Text from [TRN].[DailyAttendanceFavoriteFilter] DAF where DAF.FavoriteFilteruserId = '2022051'";
+            var sql = @"select DAF.Id Value, DAF.FavoriteName Text from [TRN].[DailyAttendanceFavoriteFilter] DAF";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
+        [AllowAnonymous]
         public JsonResult GetFavouriteFilter(string filterId)
         {
             var sql = @"select DAF.Id, FORMAT(DAF.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(DAF.FromDate, 'dd-MMM-yyyy')FromDate, DAF.InStatus, DAF.TeamLeaderId, DAF.EmployeecategoryId, DAF.ShiftDefinationId, DAF.ResponsiblePersonId, DAF.FavoriteFilteruserId, DAF.FavoriteName, EI.EmployeeName, DAF.DayStatus, DAF.EmployeeStatus
@@ -132,7 +132,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, AllowAnonymous]
         public JsonResult RemoveFavoriteFilter(string id)
         {
             var sql = @"delete from [TRN].[DailyAttendanceFavoriteFilter] where Id = '"+id+"'";
@@ -928,22 +928,25 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
         #endregion
 
         #region Save
-        [AllowAnonymous]
-        public JsonResult Save(Dictionary<string, object> datas)
+        [HttpPost ,AllowAnonymous]
+        public JsonResult Save(Dictionary<string, object> datas, string employeeId)
         {
             try
             {
                 string TableNameHead = "[TRN].[DailyAttendanceFavoriteFilter]";
 
-                DataSet dsMaster;
+                DataSet dsMaster, dsEmpId;
+
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where FavoriteName='" + datas["FavoriteName"] + "' AND  Id<>'" + datas["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where FavoriteName='" + datas["FavoriteName"] + "' AND  Id='" + datas["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Favorite Name already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableNameHead + " where Id='" + datas["Id"] + "'", out dsMaster, false, "1");
+
+
                 string _Id = "";
 
                 #region  HEAD
@@ -953,11 +956,16 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
-
                     datas["Id"] = _Id;
-                    datas["FavoriteFilteruserId"] = identity.UserId;
-                    
-
+                    if (!string.IsNullOrEmpty(identity.EmployeeId))
+                    {                        
+                        datas["FavoriteFilterEmployeeId"] = employeeId;
+                    }
+                    else
+                    {
+                        datas["FavoriteFilterUserId"] = identity.UserId; // Upanel
+                    }
+                   
                     AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else

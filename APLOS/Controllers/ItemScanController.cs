@@ -287,6 +287,22 @@ namespace Aplos.Controllers
 
             }
         }
-             
+
+        [HttpPost]
+        public string CreateSalesReturn([FromBody] IEnumerable<ItemScanChildSalesReturn> DataToSave)
+        {
+            try
+            {
+                string Id = _scan.CreateSalesReturn(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+
     }
 }

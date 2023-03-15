@@ -444,7 +444,7 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
             }
             else {
                 ShowResult(response.data.Message, "success");
-                //$scope.getData();
+                $scope.getData();
                 //$scope.Clear();
                 $scope.purchaseLCId = null;
                 $scope.VoucherId = null;
