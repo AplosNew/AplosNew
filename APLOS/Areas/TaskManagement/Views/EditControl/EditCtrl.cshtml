@@ -16,7 +16,7 @@
     @Scripts.Render("~/bundles/epanellogin")
 </head>
 <body aplos-focus class="login-bg">
-    <div ng-controller="EditControlController" class="login-content" ng-form name="loginForm">
+    <div ng-controller="EditControlController" @*class="login-content"*@ ng-form name="loginForm">
         @*<div class="company-name company-name-login">
             <img class="logo center-block" src="{{companyGroupLogo}}" alt="">
             <p>{{companyGroupName}}</p>
@@ -30,7 +30,7 @@
             <div class="form-group" show-errors>
                 <div class="input-group show-message">
                     <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                    <input tabindex="1" ng-keypress="clearMsg();" type="text" class="form-control" ng-model="employeeId" placeholder="Username" name="UserId" id="UserId" required autofocus />
+                    <input tabindex="1" ng-keypress="clearMsg();" type="text" class="form-control" ng-model="userId" placeholder="Username" name="userId" id="userId" required autofocus />
                 </div>
             </div>
             <div class="form-group" show-errors>
