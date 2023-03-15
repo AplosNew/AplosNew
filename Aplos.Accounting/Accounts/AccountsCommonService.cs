@@ -7,9 +7,11 @@ using Library.Model.Accounts;
 using Library.Model.Banks;
 using Library.Model.Currencies;
 using Library.Model.Employees;
+using Library.Model.Enums;
 using Library.Model.FixedAssets;
 using Library.Model.Invoices;
 using Library.Model.Organizations;
+using Library.Model.Parties;
 using Library.Model.Vouchers;
 using Library.Service.Core;
 using Library.Service.Enums;
@@ -750,6 +752,80 @@ namespace Library.Accounting.Accounts
 
         #endregion
 
+        #region AdjustmentNote
+        private AdjustmentNote InsertAdjustmentNote(AdjustmentNote adjustmentNote)
+        {
+            adjustmentNote.Id = GetAutoNumber(nameof(AdjustmentNote), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            //_adjustmentNoteService.InsertGraph(adjustmentNote);
+            return adjustmentNote;
+        }
+        private void Check(AdjustmentNote entity)
+        {
+        }
+        private AdjustmentNote InsertAdjustmentNote(VoucherViewModel voucherVM)
+        {
+            var adjustmentNote = new AdjustmentNote
+            {
+                CompanyGroupId = voucherVM.CompanyGroupId,
+                CompanyId = voucherVM.CompanyId,
+                PlantId = voucherVM.PlantId,
+                EntityId = voucherVM.EntityId,
+                FiscalYearId = voucherVM.FiscalYearId,
+                FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                TaxYearId = voucherVM.TaxYearId,
+                TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                VoucherTypeId = voucherVM.VoucherTypeId,
+                CurrencyId = voucherVM.CurrencyId,
+                Amount = voucherVM.Amount,
+                VoucherDate = voucherVM.VoucherDate,
+                PostingDate = voucherVM.PostingDate,
+                DocDate = voucherVM.DocDate,
+                DocRefNo = voucherVM.DocRefNo,
+                Narration = voucherVM.Narration,
+                PartyType = voucherVM.PartyType,
+                PartyId = voucherVM.PartyId,
+                PartyPlantId = voucherVM.PartyPlantId,
+                SourceType = voucherVM.SourceType,
+                IsPark = voucherVM.IsPark,
+                NoteType = voucherVM.NoteType,
+                InvoiceId = voucherVM.InvoiceId,
+                Archive = false,
+                SettlementType = voucherVM.SettlementType
+            };
+            if (adjustmentNote.SourceType == SourceType.CreditNote.ToString())
+            {
+                if (adjustmentNote.NoteType == NoteType.CustomerCreditNote.ToString())
+                    adjustmentNote.PartyType = PartyType.Customer.ToString();
+                else if (adjustmentNote.NoteType == NoteType.VendorCreditNote.ToString())
+                    adjustmentNote.PartyType = PartyType.Vendor.ToString();
+                else throw new CustomException("Party type is null.");
+            }
+            else if (adjustmentNote.SourceType == SourceType.DebitNote.ToString())
+            {
+                if (adjustmentNote.NoteType == NoteType.CustomerDebitNote.ToString())
+                    adjustmentNote.PartyType = PartyType.Customer.ToString();
+                else if (adjustmentNote.NoteType == NoteType.VendorDebitNote.ToString())
+                    adjustmentNote.PartyType = PartyType.Vendor.ToString();
+                else throw new CustomException("Party type is null.");
+            }
+            Check(adjustmentNote);
+            return InsertAdjustmentNote(adjustmentNote);
+        }
+
+        private AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId)
+        {
+            adjustmentNoteDetail.Id = MakePK(adjustmentNote.Id, currentId, 1);
+            adjustmentNoteDetail.AdjustmentNoteId = adjustmentNote.Id;
+            adjustmentNoteDetail.InvoiceId = adjustmentNote.InvoiceId;
+            adjustmentNoteDetail.AddedBy = adjustmentNote.AddedBy;
+            adjustmentNoteDetail.AddedDate = adjustmentNote.AddedDate;
+            adjustmentNoteDetail.AddedFromIP = adjustmentNote.AddedFromIP;
+            adjustmentNoteDetail.Archive = adjustmentNote.Archive;
+            //_AdjustmentNoteDetailRepository.Insert(adjustmentNoteDetail);
+            return adjustmentNoteDetail;
+        }
+
+        #endregion
         #region VoucherGLUpdate
         public void UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {

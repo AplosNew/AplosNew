@@ -23,19 +23,13 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-                    <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
-                        <input type="hidden" name="CheckedBy" ng-model="ModelNew.ResponsiblePersonId" class="form-control">
-                        <span class="input-group-addon">{{ModelNew.ResponsiblePersonEmployeeCode}}</span>
-                        <input type="text" name="CheckedBy" ng-model="ModelNew.ResponsiblePerson" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button ng-click="showEmployeeListPopUp('RP');" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
-                            <button ng-click="clearEmp('RP')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                        </span>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Confirmation Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Confirmation Date" ng-model="ModelNew.ConfirmationDate" datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="9">
                     </div>
                 </div>
+                
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
@@ -58,6 +52,18 @@
                                 <option value=""></option>
                             </select>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                    <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                        <input type="hidden" name="CheckedBy" ng-model="ModelNew.ResponsiblePersonId" class="form-control">
+                        <span class="input-group-addon">{{ModelNew.ResponsiblePersonEmployeeCode}}</span>
+                        <input type="text" name="CheckedBy" ng-model="ModelNew.ResponsiblePerson" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="showEmployeeListPopUp('RP');" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
+                            <button ng-click="clearEmp('RP')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                        </span>
                     </div>
                 </div>
                 <div class="form-group">
