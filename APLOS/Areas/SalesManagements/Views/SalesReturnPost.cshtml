@@ -2,24 +2,24 @@
 <div class="form-elements form-horizontal row" ng-form="productNewForm">
     <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group">
-            <label class="col-sm-3 control-label">Sales No</label>
+            <label class="col-sm-3 control-label">Sales Return No</label>
             <div class="col-sm-9">
                 <div class="input-group">
-                    <input type="text" ng-model="productNew.InventorySalesId" class="form-control" readonly>
+                    <input type="text" ng-model="productNew.SalesReturnId" class="form-control" readonly>
                     <span class="input-group-btn">
                         <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
         </div>
-
         <div class="form-group">
-            <label class="col-sm-4 col-md-4 control-label">Storage Location</label>
+            <label class="col-sm-4 control-label">Sales No</label>
             <div class="col-sm-8">
-                <label style="padding:7px">{{productNew.MaterialStorage}}</label>
+                <div class="input-group">
+                    <label style="padding:7px">{{productNew.SalesId}}</label>
+                </div>
             </div>
         </div>
-
         <div class="form-group">
             <label class="col-sm-4 control-label">Customer</label>
             <div class="col-sm-8">
@@ -109,7 +109,7 @@
         </div>
     </div>
     <div class="clearfix"></div>
-    <div class="col-md-12">
+    @*<div class="col-md-12">
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Payment Term</legend>
             <div class="col-xs-12 col-sm-4 col-md-4">
@@ -141,7 +141,7 @@
                 </div>
             </div>
         </fieldset>
-    </div>
+    </div>*@
     <div class="clearfix"></div>
 
 
@@ -206,19 +206,19 @@
                             </thead>
                             <tbody>
                                 <tr ng-repeat="x in detailList">
+                                    <td>{{x.MaterialGroupName}}</td>
                                     <td>{{x.MaterialMasterName}}</td>
                                     <td>{{x.ArticleName}}</td>
                                     <td>{{x.FirstCharacteristicText}}</td>
                                     <td>{{x.SecondCharacteristicText}}</td>
-                                    <td class="text-right">{{x.ReturnQty}}{{x.TransactionUoM}}</td>
+                                    <td class="text-right">{{x.TransactionQty}}{{x.TransactionUoM}}</td>
                                     <td class="text-right">{{x.ReturnAmount}}</td>
                                     <td class="text-right">{{x.TaxAmount}}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="6" class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'InventoryAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnQty'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
