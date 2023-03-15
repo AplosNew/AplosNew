@@ -837,7 +837,7 @@ namespace Aplos.Areas.Commercial.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strCSQL = "Update  [dbo].[PurchaseLCCharges] set VoucherId=NULL,UpdatedBy='"+ identity.Name+ "',UpdatedDate='"+DateTime.Now.ToString()+ "',UpdatedFromIP='"+identity.IPAddress+"' WHERE PurchaseLCId='" + purchaseLCId + "'";
+                strCSQL = "Update  [dbo].[PurchaseLCCharges] set VoucherId=NULL,UpdatedBy='"+ identity.Name+ "',UpdatedDate='"+DateTime.Now.ToString()+ "',UpdatedFromIP='"+identity.IPAddress+"' WHERE PurchaseLCId='" + purchaseLCId + "' AND VoucherId='"+ voucherId + "'";
                 strSQLVDCGLT = "DELETE FROM TRN.GLTransactionDetail WHERE VoucherDetailId in (select Id from trn.VoucherDetail where VoucherId= '" + voucherId + "' )";
                 strSQLVDC = "DELETE FROM TRN.VoucherDetailCurrency WHERE VoucherId = '" + voucherId + "'";
                 strSQLVD = "DELETE FROM TRN.VoucherDetail WHERE VoucherId = '" + voucherId + "'";
