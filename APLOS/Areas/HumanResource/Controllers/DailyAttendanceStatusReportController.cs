@@ -956,21 +956,16 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
-
                     datas["Id"] = _Id;
                     if (!string.IsNullOrEmpty(identity.EmployeeId))
-                    {
-                        //con.OpenDataSetThroughAdapter("select * from EmployeeInformation where Employeecode ='"++"'", out dsEmpId, false, "1");
+                    {                        
                         datas["FavoriteFilterEmployeeId"] = employeeId;
                     }
                     else
                     {
                         datas["FavoriteFilterUserId"] = identity.UserId; // Upanel
                     }
-                   //datas["FavoriteFilterEmployeeId"] = identity.UserId;    // tpanel
-
                    
-
                     AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else
