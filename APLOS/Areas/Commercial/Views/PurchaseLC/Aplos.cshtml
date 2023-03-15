@@ -312,22 +312,22 @@
                             <td>{{x.Type}}</td>
                             <td>{{x.OverHeadType}}</td>
                             <td>{{x.VoucherId}}</td>
-                            <td class="text-right"><input type="text" n-decimals="2" class="form-control" ng-disabled="voucherId!==null" ng-model="x.ChargesValue" ng-change="ChangeChargesBank(x.CurrencyId,$index);"></td>
+                            <td class="text-right"><input type="text" style="text-align:right" n-decimals="2" class="form-control" ng-disabled="x.VoucherId!==null" ng-model="x.ChargesValue" ng-change="ChangeChargesBank(x.CurrencyId,$index);"></td>
                             <td>
                                 <div class="select-style">
-                                    <select name="Currency" class="form-control" ng-disabled="voucherId!==null" ng-model="x.CurrencyId" ng-options="item.Value as item.Text for item in currencyList" ng-change="ChangeChargesBank(x.CurrencyId,$index);GetCurrencyExchangeChargesRateList(x.CurrencyId,$index)" style="height: 30px;">
+                                    <select name="Currency" class="form-control" ng-disabled="x.VoucherId!==null" ng-model="x.CurrencyId" ng-options="item.Value as item.Text for item in currencyList" ng-change="ChangeChargesBank(x.CurrencyId,$index);GetCurrencyExchangeChargesRateList(x.CurrencyId,$index)" style="height: 30px;">
                                         <option value=""></option>
                                     </select>
                                 </div>
                             </td>
-                            <td class="text-right"><input type="text" n-decimals="4" class="form-control" ng-disabled="voucherId!==null || x.CurrencyId==companyCurrencyId" ng-model="x.Rate"></td>
-                            <td class="text-right"><input type="text" n-decimals="2" class="form-control " ng-model="x.BankAmount" ng-disabled="x.CurrencyId===x.BankCurrencyId || voucherId!==null"></td>
+                            <td class="text-right"><input type="text" n-decimals="4" class="form-control" ng-disabled="x.VoucherId!==null || x.CurrencyId==companyCurrencyId" ng-model="x.Rate"></td>
+                            <td class="text-right"><input type="text" style="text-align:right" n-decimals="2" class="form-control " ng-model="x.BankAmount" ng-disabled="x.CurrencyId===x.BankCurrencyId || x.VoucherId!==null"></td>
                             <td>{{x.OpeningBankMaster}}</td>
                             <td><textarea class="form-control" rows="1" ng-model="x.Remarks" maxlength="250"></textarea></td>
                             <td class="text-right table-td">
                                 <ul class="list-inline action-list">
                                     <li><button ng-click="changeAcceptanceCharges(x)" @*ng-disabled="voucherId!==null"*@ class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                    <li><button ng-click="removeRowModal($index,x)" ng-disabled="voucherId!==null" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    <li><button ng-click="removeRowModal($index,x)" ng-disabled="x.VoucherId!==null" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                 </ul>
                             </td>
 
@@ -353,9 +353,9 @@
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
-                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="20"></div>
+                <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="40"></div>
                 <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
-                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="60"></div>
+                <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="100"></div>
                 <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="80"></div>
                 <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
                 <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
