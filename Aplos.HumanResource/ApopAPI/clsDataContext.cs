@@ -3538,7 +3538,108 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             }
         }
 
-       
+        public void GetSalesReturnId(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id As Name, SalesId As Value from TRN.SalesReturn";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetTransactionQty(out List<Default2> DataList, string SalesReturnId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select SalesId As Value, TransactionQty As Name from TRN.SalesReturnDetail where SalesReturnId = '" + SalesReturnId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetCartonBookedQty(out List<Weight> DataList, string SalesId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Weight>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Count(refno)CartonQty,
+                isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild where SalesId = '" + SalesId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Weight
+                    {
+                        CartonQty = dsRef.Tables[0].Rows[i]["CartonQty"].ToString(),
+                        BookedQty = dsRef.Tables[0].Rows[i]["BookedQty"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion Written By Aman
 
         #region Test For production service
@@ -4038,6 +4139,12 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
     {
         public string Name { get; set; } = "";
         public string Value { get; set; } = "";
+    }
+
+    public class Weight
+    {
+        public string CartonQty { get; set; } = "";
+        public string BookedQty { get; set; } = "";
     }
 
 

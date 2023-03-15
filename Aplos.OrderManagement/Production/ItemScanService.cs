@@ -772,6 +772,95 @@ namespace Library.Service.EmployeeServices
             }
         }
 
+        #region Aman SalesReturn
+        public string CreateSalesReturn(IEnumerable<ItemScanChildSalesReturn> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string ErrorList = "";
+
+                if (DataToSave.Count() == 0)
+                {
+                    return "No Data Found";
+                }
+
+                string RefNo = "''";
+                string PckId = "";
+                foreach (ItemScanChildSalesReturn item in DataToSave)
+                {
+                    RefNo += ",'" + item.RefNo + "'";
+                    PckId = item.PackingId;
+                }
+
+                var items = DataToSave.ToList();
+
+                var sqlx = @"select * from dbo.ItemScanChild where RefNo IN(" + RefNo + @")";
+                con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
+
+                double BkQty = 0.0;
+
+                foreach (ItemScanChildSalesReturn item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["BookedDate"] = DateTime.Now;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["PackingId"] = item.PackingId;
+                        dr["SalesReturnId"] = item.SalesReturnId;
+                        dr["Booked"] = false;
+                        dr["IsDespatch"] = false;
+                        dr.EndEdit();
+                        PckId = item.PackingId;
+                        BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
+
+                    }
+                    else
+                    {
+                        ErrorList += item.RefNo + "...";
+                    }
+
+
+                }
+
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                DataSet dsPo;
+
+                var sql = @"select * from trn.POLotReference where Id ='" + PckId + "'";
+                conn.OpenDataSetThroughAdapter(sql, out dsPo, false, "1");
+                if (dsPo.Tables[0].Rows.Count > 0)
+                {
+                    double poBkQty = clsStaticInfo.dbl(dsPo.Tables[0].Rows[0]["BookQty"].ToString());
+                    BkQty += poBkQty;
+                    dsPo.Tables[0].Rows[0].BeginEdit();
+                    dsPo.Tables[0].Rows[0]["BookQty"] = BkQty;
+                    dsPo.Tables[0].Rows[0].EndEdit();
+                }
+                SaveDataSets(dsMaster);
+                SaveDataSets(dsPo);
+
+                if (ErrorList != "")
+                {
+                    return "Their are issues with these Cartons:- " + ErrorList;
+                }
+
+                return "true";
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion Aman SalesReturn
+
         public static void SaveLog(string Message, string Cartons, string User)
         {
 
@@ -866,6 +955,29 @@ namespace Library.Service.EmployeeServices
         public string Booked { get; set; }
         public string IsDespatch { get; set; }
         public string PackingId { get; set; }
+    }
+
+    public class ItemScanChildSalesReturn
+    {
+        public string AddedBy { get; set; }
+        public string Id { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string ProductCode { get; set; }
+        public string POId { get; set; }
+        public string NetWeight { get; set; }
+        public string GWeight { get; set; }
+        public string LotNo { get; set; }
+        public string LocMasterId { get; set; }
+        public string Cones { get; set; }
+        public string Shade { get; set; }
+        public string RefNo { get; set; }
+        public string PackedBy { get; set; }
+        public string Booked { get; set; }
+        public string IsDespatch { get; set; }
+        public string PackingId { get; set; }
+        public string SalesReturnId { get; set; }
     }
 
 }

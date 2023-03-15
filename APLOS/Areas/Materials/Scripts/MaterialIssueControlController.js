@@ -464,7 +464,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.ModelNewForm.$valid) {
-                    if (baseService.isUndefinedOrNull($scope.ModelNew.ByWhom)) {
+                    if (baseService.isUndefinedOrNull($scope.ModelNew.ByWhomId)) {
                         throw "Select By Whom Employee.";
                     }
 
