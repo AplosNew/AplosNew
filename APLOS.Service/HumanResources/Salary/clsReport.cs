@@ -2052,6 +2052,85 @@ FROM [TRN].[SpecialIssueItem] SII where SII.SpecialIssueControlId='" + IssueId +
             }
         }
 
+        public void GetProductionControlHeader(string ProductionControlId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select PC.Id as ProductionControlId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(PC.ProductionDate,'dd-MMM-yyyy') as ProdcutionDate,format(PC.TargetDate,'dd-MMM-yyyy') as TargetDate from TRN.ProductionControl PC 
+left join Org.Entity E On E.Id=PC.EntityId
+left join hkp.process P On P.Id=PC.ProcessId
+left join ShiftDefination S On S.SystemID=PC.ProductionShiftId
+where PC.Id='" + ProductionControlId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetProductionControlDetails(string ProductionControlId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT E.UserName as Entity,P.UserName Process,WC.UserName as WorkCenter,PCD.Production,PCD.ProductionOrderId as PONo,PCD.Article,PCD.P1,PCD.P2,PCD.P3,PCD.P4,PCD.P5,PCD.P6,PCD.P7,PCD.P8,PCD.P9,PCD.P10,PCD.P11,PCD.P12,PCD.P13 
+FROM TRN.ProductionControl PCD
+left join Org.Entity E On E.Id=PCD.EntityId
+left join hkp.process P On P.Id=PCD.ProcessId
+left join scs.WorkCenterMaster WC ON WC.Id=PCD.WorkCenterMasterId
+where PCD.Id='" + ProductionControlId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetProductionControlPeriodDetails(string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT ControlPeriodName FROM [HKP].[ControlPeriod] where Active = 1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetExtraAbsentCount(string fromDate, string toDate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;

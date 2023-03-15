@@ -755,8 +755,8 @@ namespace Aplos.Areas.Commercial.Controllers
 
             string sql = @"
                            SELECT PLC.PurchaseLCId,LC.LCRef, V.VoucherNo,PLC.VoucherId,V.DocRefNo,V.SourceType,C.Code CurrencyCode,V.DocRefNo, OB.AccountTitle OpeningBankMaster, P.UserName VendorName
-						  ,SUM(PLC.ChargesValue) Amount,
-						  [Type]=CASE WHEN PL.[Version]=1 THEN 'Open' ELSE 'Amendment' END
+						  ,SUM(PLC.ChargesValue) Amount,IsPark=case when V.IsPark=1 then 'Parked' else 'Posted' end
+						  ,[Type]=CASE WHEN PL.[Version]=1 THEN 'Open' ELSE 'Amendment' END
 						  FROM [dbo].[PurchaseLCCharges] PLC
 						  join [dbo].[PurchaseLC] LC ON LC.Id=PLC.PurchaseLCId
                           INNER JOIN [HKP].[OverHeadTypeGL] LCGL ON LCGL.Id=PLC.OverHeadTypeGLId
@@ -772,7 +772,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						  LEFT JOIN HKP.Party P ON P.Id=PL.VendorId
 						  where V.Archive=0 AND PLC.VoucherId <>''AND V.SourceType='" + SourceType.PurchaseLCOpeningCharges.ToString() + @"'
 						  group by V.VoucherNo,LC.LCRef,OB.AccountTitle ,PLC.PurchaseLCId, PL.[Version], V.VoucherNo,V.SourceType,c.Code,P.UserName
-						  ,PLC.VoucherId,V.DocRefNo";
+						  ,PLC.VoucherId,V.DocRefNo,V.IsPark";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -812,6 +812,63 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 default:
                     return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeletePostedPurchaseLCCharges(string purchaseLCId, string voucherId)
+        {
+            try
+            {
+                DeleteLCChargesPosting(purchaseLCId, voucherId);
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void DeleteLCChargesPosting(string purchaseLCId, string voucherId)
+        {
+            string  strCSQL, strSQLVDC, strSQLVD, strSQLV, strSQLVDCGLT;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strCSQL = "Update  [dbo].[PurchaseLCCharges] set VoucherId=NULL,UpdatedBy='"+ identity.Name+ "',UpdatedDate='"+DateTime.Now.ToString()+ "',UpdatedFromIP='"+identity.IPAddress+"' WHERE PurchaseLCId='" + purchaseLCId + "'";
+                strSQLVDCGLT = "DELETE FROM TRN.GLTransactionDetail WHERE VoucherDetailId in (select Id from trn.VoucherDetail where VoucherId= '" + voucherId + "' )";
+                strSQLVDC = "DELETE FROM TRN.VoucherDetailCurrency WHERE VoucherId = '" + voucherId + "'";
+                strSQLVD = "DELETE FROM TRN.VoucherDetail WHERE VoucherId = '" + voucherId + "'";
+                strSQLV = "DELETE FROM TRN.Voucher WHERE Id = '" + voucherId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strCSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLVDCGLT, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLVDC, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLVD, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLV, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
             }
         }
 

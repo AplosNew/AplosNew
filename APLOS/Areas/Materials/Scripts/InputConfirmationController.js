@@ -1,0 +1,364 @@
+﻿'use strict';
+InputConfirmationController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$filter", "$window", "$http", "$controller"];
+function InputConfirmationController(cboService, commonMessage, $scope, $rootScope, baseService, $filter, $window, $http, $controller) {
+    $rootScope.title = "Input Confirmation";
+    $scope.Action = 'Save';
+    $scope.index = -1;
+
+    $scope.path = 'Materials/InputConfirmation/';
+    $scope.getListUrl = $scope.path + 'getlist';
+    $scope.saveUrl = $scope.path + 'CreateIssue';
+    $scope.updateUrl = $scope.path + 'Update';
+    $scope.deleteUrl = $scope.path + 'delete/';
+
+    $scope.modelFilterByList = [
+        { 'name': 'Prod. Order#', 'value': 'Id' },
+        { 'name': 'Prod. Status', 'value': 'ProductionStatus' },
+        { 'name': 'Material', 'value': 'Material' },
+        { 'name': 'Product', 'value': 'Product' },
+        { 'name': 'Product Category', 'value': 'ProductCategory' },
+        { 'name': 'Master Order No', 'value': 'MasterOrderId' },
+        { 'name': 'Buyer Order#', 'value': 'BuyerRefNo' },
+        { 'name': 'Own Order#', 'value': 'OwnRefNo' },
+        { 'name': 'Buyer Item#', 'value': 'StyleNo' },
+        { 'name': 'Own Item#', 'value': 'OwnStyleNo' },
+        { 'name': 'SO No', 'value': 'SONo' },
+        { 'name': 'SO Desc', 'value': 'SODesc' },
+        { 'name': 'Buyer', 'value': 'buyer' },
+        { 'name': 'Customer', 'value': 'Customer' },
+    ];
+
+    $scope.ModelNew = { Id: null, POId: null, IssueId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.entityList = [];
+    $scope.getAllEntities = function () {
+        $http({
+            method: 'Get',
+            url: "Materials/MaterialIssueControl/EntityList"
+        }).then(function successCallback(response) {
+            $scope.entityList = response.data;
+        });
+    }
+    $scope.getAllEntities();
+
+    $scope.loadProcessList = function (entityid) {
+        cboService.GetEntityProcessCbo(entityid, function (result) {
+            $scope.processList = result;
+            if (baseService.arrayLength(result) === 1) {
+                $scope.ModelNew.ProcessId = $scope.processList[0].Value;
+                $scope.loadWC($scope.ModelNew.ProcessId, $scope.ModelNew.EntityId);
+            }
+        });
+    };
+
+    $scope.wcList = [];
+    $scope.loadWC = function (processid, entityId) {
+        cboService.GetToWCProcessCbo(processid, entityId, function (result) {
+            $scope.wcList = result;
+        });
+    };
+
+    $scope.GetEntityName = function () {
+        for (var i = 0; i < $scope.entityList.length; i++) {
+            if ($scope.entityList[i].Value == $scope.ModelNew.EntityId) {
+                $scope.ModelNew.Entity = $scope.entityList[i].Text;
+                break;
+            }
+        }
+    }
+
+    $scope.PRSearchColumn = 'Id';
+    $scope.PRSearchValue = null;
+    $scope.modelList = [];
+    $scope.getData = function () {
+        $scope.modelList = [];
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.EntityId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'entityid': $scope.ModelNew.EntityId, 'column': $scope.PRSearchColumn, 'value': $scope.PRSearchValue
+                },
+                url: $scope.getListUrl
+            }).then(function successCallback(response) {
+                $scope.modelList = response.data;
+            });
+        }
+    };
+
+    $scope.MCFilterByList = [
+        { 'name': 'Prod. Order#', 'value': 'POId' },
+        { 'name': 'IssueId', 'value': 'IssueId' },
+    ];
+
+    $scope.MCSearchColumn = 'POId';
+    $scope.MCSearchValue = null;
+    $scope.savedList = [];
+    $scope.GetSavedData = function () {
+        $scope.savedList = [];
+        $http({
+            method: 'POST',
+            data: {
+                'column': $scope.MCSearchColumn, 'value': $scope.MCSearchValue
+            },
+            url: 'Materials/MaterialIssueControl/GetApprovedData'
+        }).then(function successCallback(response) {
+            $scope.savedList = response.data;
+        });
+    };
+    //$scope.GetSavedData();
+
+
+
+
+    $scope.Get = function (obj) {
+        $scope.ModelNew.POId = obj.data.Id;
+        $scope.GetIssueSlipDataByPOIdList();
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.IssueSlipDataList = [];
+    $scope.GetIssueSlipDataByPOIdList = function () {
+        try {
+            $http.get('Materials/InputConfirmation/GetIssueSlipDataByPOIdList?ProductionOrderId=' + $scope.ModelNew.POId)
+                .then(function (response) {
+                    $scope.IssueSlipDataList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+
+    $scope.Action = 'Save';
+    $scope.Save = function () {
+        $scope.QBOQCostingListNew = [];
+
+        try {
+            if ($scope.Action === 'Save') {
+                if (baseService.arrayLength($scope.SOItemList) === 0) {
+                    throw "Select SO Detail.";
+                }
+                else {
+                    if (baseService.arrayLength($scope.SOItemList) > 1) {
+                        for (var i = 0; i < $scope.SOItemList.length; i++) {
+                            var firstLineId = $scope.SOItemList[0].LineItemId;
+                            if ($scope.SOItemList[i].LineItemId != firstLineId) {
+                                throw "Please select same Line Item.";
+                            }
+                        }
+                    }
+                }
+
+
+                if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
+                    for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+
+                        $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+                        $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                        $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+                        $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+                        $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+                    }
+                }
+
+                if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+                    throw "Select Production Order.";
+                }
+
+                $scope.$broadcast('show-errors-check-validity');
+                if ($scope.ModelNewForm.$valid) {
+                    if (baseService.isUndefinedOrNull($scope.ModelNew.ByWhom)) {
+                        throw "Select By Whom Employee.";
+                    }
+
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: {
+                            'model': $scope.ModelNew
+                            , 'soList': $scope.SOItemList
+                            , 'dataList': $scope.QBOQCostingListNew
+                            , 'dataLists': $scope.QBOQCostingListNew
+                        },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Clear();
+                            $scope.GetSavedData();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
+            }
+            else {
+
+                for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                    for (var j = 0; j < $scope.IssueRequestList.length; j++) {
+                        if ($scope.QBOQCostingList[i].Id == $scope.IssueRequestList[j].MaterialIssueControlDetailId) {
+                            $scope.IssueRequestList[j].RequestedQty = $scope.QBOQCostingList[i].PlanConsumption;
+                        }
+                    }
+                }
+
+                for (var i = 0; i < $scope.IssueRequestList.length; i++) {
+                    for (var j = 0; j < $scope.IssueRequestBOQMapList.length; j++) {
+                        if ($scope.IssueRequestList[i].Id == $scope.IssueRequestBOQMapList[j].IssueRequestDetailId) {
+                            $scope.IssueRequestBOQMapList[j].Qty = $scope.IssueRequestList[i].RequestedQty;
+                        }
+                    }
+                }
+
+
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl,
+                    data: {
+                        'model': $scope.ModelNew
+                        , 'soList': $scope.SOItemList
+                        , 'dataList': $scope.QBOQCostingList
+                        , 'IssueRequestList': $scope.IssueRequestList
+                        , 'BOQMapList': $scope.IssueRequestBOQMapList
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.Clear();
+                        $scope.GetSavedData();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl,
+                data: {
+                    'id': $scope.ModelNew.Id
+                    , 'issueId': $scope.ModelNew.IssueId
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Clear();
+                    $scope.GetSavedData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.Clear = function () {
+        $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+        $scope.SOItemList = [];
+        $scope.QBOQCostingList = [];
+        $scope.ModelNew.Level = "QBOQ";
+        $scope.modelList = [];
+        $rootScope.toggle();
+        $scope.CostCenterLoad();
+        $scope.Action = 'Save';
+    }
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
+    };
+
+    $scope.popUpDataList = [];
+
+    $scope.name = null;
+    $scope.showEmployeeListPopUp = function (name) {
+        try {
+            $scope.name = name;
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+
+            angular.element(document.querySelector('#popUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        if ($scope.name == 'RP') {
+            $scope.ModelNew.ResponsiblePersonId = arg.data.SystemId;
+            $scope.ModelNew.ResponsiblePersonEmployeeCode = arg.data.EmployeeCode;
+            $scope.ModelNew.ResponsiblePerson = arg.data.EmployeeName;
+        } else {
+            $scope.ModelNew.CheckedById = arg.data.SystemId;
+            $scope.ModelNew.CheckedByEmployeeCode = arg.data.EmployeeCode;
+            $scope.ModelNew.CheckedBy = arg.data.EmployeeName;
+        }
+        $scope.closePopUp();
+    }
+
+    $scope.clearEmp = function (name) {
+        $scope.name = name;
+        if ($scope.name == 'RP') {
+            $scope.ModelNew.ResponsiblePersonId = null;
+            $scope.ModelNew.ResponsiblePersonEmployeeCode = null;
+            $scope.ModelNew.ResponsiblePerson = null;
+        } else {
+            $scope.ModelNew.CheckedById = null;
+            $scope.ModelNew.CheckedByEmployeeCode = null;
+            $scope.ModelNew.CheckedBy = null;
+        }
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
+
+    $scope.summaryRows = [{
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "RequestedQty", dataMember: "RequestedQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "OtherQty", dataMember: "OtherQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N0}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N0}" }]
+        ,showCaptionSummary: true
+
+    }];
+
+}

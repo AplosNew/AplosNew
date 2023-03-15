@@ -429,6 +429,40 @@ function purchaseLCChargesPostController(commonMessage, $scope, $rootScope, base
             click: $scope.onClickTax
         }
     }];
+
+    $scope.Postdelete = function (purchaseLCId, voucherId) {
+        $http({
+            method: "POST",
+            url: 'commercial/PurchaseLC/DeletePostedPurchaseLCCharges',
+            data: {
+                "purchaseLCId": purchaseLCId, "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                //$scope.getData();
+                //$scope.Clear();
+                $scope.purchaseLCId = null;
+                $scope.VoucherId = null;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.onClickDeletePopUp = function (x) {
+        var data = x;
+        $scope.purchaseLCId = data.PurchaseLCId;
+        $scope.VoucherId = data.VoucherId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    };
+
 }
 
 

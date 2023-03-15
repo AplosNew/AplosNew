@@ -10,6 +10,7 @@ function ProductionControlController(cboService, commonMessage, $scope, $rootSco
     $scope.Copy = $scope.path + 'CopyFromTable';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveControlPeriodUrl = $scope.path + 'createControlPeriod';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.WithEmployee = false;
@@ -72,7 +73,7 @@ function ProductionControlController(cboService, commonMessage, $scope, $rootSco
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.shiftList = response.data;
                     if (baseService.arrayLength(response.data) === 1) {
-                        $scope.DailyProductionTargetNew.ShiftId = $scope.shiftList[0].Value;
+                        $scope.DailyProductionTargetNew.ProductionShiftId = $scope.shiftList[0].Value;
                     }
                 }
             });
@@ -88,6 +89,261 @@ function ProductionControlController(cboService, commonMessage, $scope, $rootSco
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
+    $scope.refreshTemplateControlPeriod = function (args) {
+        $("#CPheadchk").ejCheckBox({ "change": CheckBoxSelectAllControlPeriod });
+    };
+    function CheckBoxSelectAllControlPeriod(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridControlPeriod").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ControlPeriodList.length; i++) {
+                $scope.ControlPeriodList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Active = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridControlPeriod").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.ControlPeriodList = [];
+    $scope.LoadControlPeriodDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProductionControl/LoadControlPeriodDetails'
+        }).then(function successCallback(response) {
+            $scope.ControlPeriodList = response.data;
+        }
+        )
+    }
+    $scope.LoadControlPeriodDetails();
+
+    $scope.ControlPeriodSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ControlPeriodList.length; i++) {
+                /*if ($scope.ControlPeriodList[i].Active == true) {*/
+                    $scope.SaveList.push($scope.ControlPeriodList[i]);
+               /* }*/
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveControlPeriodUrl,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadControlPeriodDetails();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.rowDataBoundCP = function rowDataBoundCP(e) {
+        if (e.data.P1 == 0) {
+            e.model.columns[8].visible = true;
+        }
+        else
+        {
+            e.model.columns[8].visible = false;
+        }
+        if (e.data.P2 == 0) {
+            e.model.columns[9].visible = true;
+        }
+        else {
+            e.model.columns[9].visible = false;
+        }
+        if (e.data.P3 == 0) {
+            e.model.columns[10].visible = true;
+        }
+        else {
+            e.model.columns[10].visible = false;
+        }
+        if (e.data.P4 == 0) {
+            e.model.columns[11].visible = true;
+        }
+        else {
+            e.model.columns[11].visible = false;
+        }
+        if (e.data.P5 == 0) {
+            e.model.columns[12].visible = true;
+        }
+        else {
+            e.model.columns[12].visible = false;
+        }
+        if (e.data.P6 == 0) {
+            e.model.columns[13].visible = true;
+        }
+        else {
+            e.model.columns[13].visible = false;
+        }
+        if (e.data.P7 == 0) {
+            e.model.columns[14].visible = true;
+        }
+        else {
+            e.model.columns[14].visible = false;
+        }
+        if (e.data.P8 == 0) {
+            e.model.columns[15].visible = true;
+        }
+        else {
+            e.model.columns[15].visible = false;
+        }
+        if (e.data.P9 == 0) {
+            e.model.columns[16].visible = true;
+        }
+        else {
+            e.model.columns[16].visible = false;
+        }
+        if (e.data.P10 == 0) {
+            e.model.columns[17].visible = true;
+        }
+        else {
+            e.model.columns[17].visible = false;
+        }
+        if (e.data.P11 == 0) {
+            e.model.columns[18].visible = true;
+        }
+        else {
+            e.model.columns[18].visible = false;
+        }
+        if (e.data.P12 == 0) {
+            e.model.columns[19].visible = true;
+        }
+        else {
+            e.model.columns[19].visible = false;
+        }
+        if (e.data.P13 == 0) {
+            e.model.columns[20].visible = true;
+        }
+        else {
+            e.model.columns[20].visible = false;
+        }
+    }
+  
+    $scope.DailyTargetList = [];
+    $scope.getDailytarget = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.EntityId))
+                throw 'Please select entity';
+
+            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.ProcessId))
+                throw 'Please select process';
+
+            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.TargetDate))
+                throw 'Please select target date';
+
+            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.ProductionShiftId))
+                throw 'Please select Shift';
+
+            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.ProductionDate))
+                throw 'Please select Production date';
+
+            $http({
+
+                method: 'GET',
+                url: 'Productions/ProductionControl/GetProductionControl?EntityId=' + $scope.DailyProductionTargetNew.EntityId + '&ProcessId=' + $scope.DailyProductionTargetNew.ProcessId + '&TargetDate=' + $scope.DailyProductionTargetNew.TargetDate + '&ShiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId + '&ProductionDate=' + $scope.DailyProductionTargetNew.ProductionDate,
+            }).then(function successCallback(response) {
+                $scope.DailyTargetList = response.data;
+            } 
+            )
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+
+    $scope.DailyTargetAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+            $scope.DailyTargetList[i].Active = ChkOrUnchk;
+        }
+
+        var gridObj = $("#GridDailyTargetList").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+
+    $scope.Save = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+                if ($scope.DailyTargetList[i].Active == true) {
+                    if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].ProductionOrderId) == true) {
+                        throw "Please select Production Order No. for '" + $scope.DailyTargetList[i].Line + "'";
+                    }
+                    $scope.SaveList.push($scope.DailyTargetList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'DailyTargetData': $scope.SaveList, 'TargetDate': $scope.DailyProductionTargetNew.TargetDate, 'ProductionDate': $scope.DailyProductionTargetNew.ProductionDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId, 'ProductionShiftId': $scope.DailyProductionTargetNew.ProductionShiftId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    /*ClearFields(response.data.Sequence);*/
+                    $scope.getDailytarget();
+                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    }
+    function ClearFields() {
+        $scope.Action = "Save";
+        $scope.DailyProductionTarget = {}
+        $scope.DailyTargetList = [];
+        $scope.SOItemList = [];
+    }
 
     $scope.listFromProcessOrSFGInventory = [];
     $scope.GetSFGMovementFromCbo = function (entity) {
@@ -129,113 +385,7 @@ function ProductionControlController(cboService, commonMessage, $scope, $rootSco
         }
     };
 
-    $scope.DailyTargetList = [];
-    $scope.getDailytarget = function () {
-
-        try {
-
-            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.EntityId))
-                throw 'Plase select entity';
-
-            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.ProcessId))
-                throw 'Plase select process';
-
-            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.TargetDate))
-                throw 'Plase select target date';
-
-            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.ShiftId))
-                throw 'Plase select Shift';
-
-            if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.ProductionDate))
-                throw 'Plase select Production date';
-
-            $http({
-
-                method: 'GET',
-                url: 'Productions/ProductionControl/GetDailyTarget?EntityId=' + $scope.DailyProductionTargetNew.EntityId + '&ProcessId=' + $scope.DailyProductionTargetNew.ProcessId + '&TargetDate=' + $scope.DailyProductionTargetNew.TargetDate + '&ShiftId=' + $scope.DailyProductionTargetNew.ShiftId + '&ProductionDate=' + $scope.DailyProductionTargetNew.ProductionDate,
-            }).then(function successCallback(response) {
-                $scope.DailyTargetList = response.data;
-            }
-            )
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-
-    }
-
-
-    $scope.DailyTargetAllCheck = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
-    };
-
-    function CheckBoxSelectAll(e) {
-
-
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-
-        }
-
-        for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-            $scope.DailyTargetList[i].Active = ChkOrUnchk;
-        }
-
-        var gridObj = $("#GridDailyTargetList").data("ejGrid");
-        gridObj.refreshContent();
-    };
-
-
-
-    $scope.Save = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
-
-            for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-                if ($scope.DailyTargetList[i].Active) {
-                    if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].PRNo) == true) {
-                        throw "Please select Production Order No. for '" + $scope.DailyTargetList[i].Line + "'";
-                        if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].Manpower) == true) {
-                            throw "Manpower is Empty.";
-                        }
-                    }
-                }
-            }
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'DailyTargetData': $scope.DailyTargetList, 'TargetDate': $scope.DailyProductionTargetNew.ProductionDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    /*ClearFields(response.data.Sequence);*/
-                    $scope.getDailytarget();
-                    /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-
-        }
-    };
-
-    $scope.Clear = function () {
-        ClearFields();
-        return true;
-    }
-    function ClearFields() {
-        $scope.Action = "Save";
-        $scope.DailyProductionTarget = {}
-        $scope.DailyTargetList = [];
-        $scope.SOItemList = [];
-    }
+    
 
 
     //search PR
@@ -262,14 +412,14 @@ function ProductionControlController(cboService, commonMessage, $scope, $rootSco
     $scope.selectSOItem = function (args) {
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
             if ($scope.SelectedLineForPR.WorkCenterMasterId == $scope.DailyTargetList[i].WorkCenterMasterId) {
-                $scope.DailyTargetList[i].PRNo = args.data.Id;
-                $scope.DailyTargetList[i].Material = args.data.Material;
-                $scope.DailyTargetList[i].Article = args.data.Article;
-                $scope.DailyTargetList[i].MaterialMasterId = args.data.MaterialMasterId;
-                $scope.DailyTargetList[i].MaterialMasterArticleId = args.data.ArticleId;
-                $scope.DailyTargetList[i].CustomerPONo = args.data.CustomerPONo;
-                $scope.DailyTargetList[i].BuyerItemNo = args.data.BuyerItemNo;
-                $scope.DailyTargetList[i].SMV = args.data.SPT;
+                $scope.DailyTargetList[i].ProductionOrderId = args.data.Id;
+                //$scope.DailyTargetList[i].Material = args.data.Material;
+                //$scope.DailyTargetList[i].Article = args.data.Article;
+                //$scope.DailyTargetList[i].MaterialMasterId = args.data.MaterialMasterId;
+                //$scope.DailyTargetList[i].MaterialMasterArticleId = args.data.ArticleId;
+                //$scope.DailyTargetList[i].CustomerPONo = args.data.CustomerPONo;
+                //$scope.DailyTargetList[i].BuyerItemNo = args.data.BuyerItemNo;
+                //$scope.DailyTargetList[i].SMV = args.data.SPT;
                 angular.element(document.querySelector('#POItemPopup')).modal('hide');
                 break;
             }

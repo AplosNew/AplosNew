@@ -499,6 +499,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             string detailid = materialCommonService.MakePK(_Id, ccount, 2);
                             item["Id"] = detailid;
                             item["SalesReturnId"] = _Id;
+                            item["SalesMaterialId"] = item["SalesMaterialId"];
                             item["TransactionQty"] = item["ReturnQty"];
                             item["BaseQty"] = item["ReturnQty"];
                             item["BaseAmount"] = item["Amount"];
@@ -576,6 +577,43 @@ namespace Aplos.Areas.SalesManagements.Controllers
             MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
             materialCommonService.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesReturn", out sID);
             return sID;
+        }
+
+
+        public ActionResult SalesReturnPost()
+        {
+            return View("~/Areas/SalesManagements/Views/SalesReturnPost.cshtml");
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetSalesReturnPopUpData(string column, string value)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsSalesService.GetSalesReturnPopUpData(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnDetailDataBySalesReturn(string salesReturnId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetSalesReturnDetailBySalesReturn(salesReturnId), JsonRequestBehavior.AllowGet);
+
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnTaxDetail(string salesId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetMaterialSalesTaxDetail(salesId), JsonRequestBehavior.AllowGet);
+
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnJournal(string salesReturnId, string customerId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+                return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId), JsonRequestBehavior.AllowGet);
         }
         #endregion
 

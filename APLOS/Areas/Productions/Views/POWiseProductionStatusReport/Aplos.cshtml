@@ -26,6 +26,7 @@
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="WithWC" role="tab" data-toggle="tab">WithWC</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="summary" role="tab" data-toggle="tab">Summary</a></li>
                     <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="prosummaryallprocess" role="tab" data-toggle="tab">PrO Summary All Process</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="POWise" role="tab" data-toggle="tab">PO Wise</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -350,15 +351,105 @@
                                     <div e-column e-type="number" e-format="{0:0.00}" e-field="UptoDateProPercentage" e-textalign="right" e-headertext="UptoDateProPercentage" e-width="100"></div>
                                     <div e-column e-type="date" e-field="FirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="FirstBookDate" e-width="100"></div>
                                     <div e-column e-type="date" e-field="LastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="LastBookDate" e-width="100"></div>
-                                                                        <div e-column e-type="date" e-field="POFirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="POFirstBookDate" e-width="100"></div>
-                                        <div e-column e-type="date" e-field="POLastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="POLastBookDate" e-width="100"></div>
-                                        <div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
-                                        <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>
+                                    <div e-column e-type="date" e-field="POFirstBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="POFirstBookDate" e-width="100"></div>
+                                    <div e-column e-type="date" e-field="POLastBookDate" e-format="{0:dd-MMM-yyyy}" e-headertext="POLastBookDate" e-width="100"></div>
+                                    <div e-column e-field="FirstShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="FirstShipmentDate" e-width="100"></div>
+                                    <div e-column e-field="LastShipmentDate" e-format="{0:dd-MMM-yyyy}" e-type="date" e-headertext="LastShipmentDate" e-width="100"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                    <div class="row">
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="GetPOWiseView();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                            </ul>
+                        </div>
+
+                        <fieldset class="scheduler-border">
+                            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">PO Wise Data</span></legend>
+                            <div id="PR">
+                                <div class="content-container-fluid" style="color:black;">
+
+                                    <div style="color:black;" id="GridPoWise" ej-grid e-datasource="POWiseList"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                                         e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
+
+                                        <div e-columns>
+                                            <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                            <div e-column e-field="PONo" e-headertext="PO No" e-width="120"></div>
+                                            <div e-column e-field="POStatus" e-headertext="PO Status" e-width="150"></div>
+                                            <div e-column e-field="AddedBy" e-headertext="Added By" e-width="80" textAlign='Left'></div>
+                                            <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                            <div e-column e-field="UpdatedBy" e-headertext="Updated By" e-width="90"></div>
+                                            <div e-column e-field="UpdatedDate" e-headertext="Updated Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                            <div e-column e-field="SOQty" e-headertext="SO Qty" e-width="150"></div>
+                                            <div e-column e-field="BaseProcPlanPercentage" e-headertext="Base Proc Plan Percentage" e-width="150"></div>
+                                            <div e-column e-field="ActualPlanScheduleQty" e-headertext="ActualPlan/ScheduleQty" e-width="80"></div>
+                                            <div e-column e-field="ShouldBeBaseProcessPlannedQty" e-headertext="ShouldBe Base Process Planned Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcessProduceQty" e-headertext="Base Process Produce Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcessRemainingQty" e-headertext="Base Process Remaining Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="Process" e-headertext="Process" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="PercentQty" e-headertext="Percent Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessPlannedQty" e-headertext="Process Planned Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="ProcProdQty" e-headertext="Proc Prod Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="PreProcProdQty" e-headertext="Pre Proc Prod Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="WIP" e-headertext="WIP" e-width="120" textAlign='Right'></div>
+                                            <div e-column e-field="ProcBalanceToProduce" e-headertext="Proc Balance To Produce" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="RelayProcess" e-headertext="Relay Process" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="IsBaseProcess" e-headertext="Base Process" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessLegDays" e-headertext="Process Leg Days" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="POFirstDelivery" e-headertext="PO First Delivery" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="POLastDelivery" e-headertext="PO Last Delivery" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcProdStartDate" e-headertext="Base Proc Prod Start Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcLatestProdDate" e-headertext="Base Proc Latest Prod Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcPlanStartDate" e-headertext="Base Proc Plan Start Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcPlanCompletionDate" e-headertext="Base Proc Plan Completion Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="POStartDate" e-headertext="PO Start Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="POCompletionDate" e-headertext="PO Completion Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="FirstProcessActualBookDate" e-headertext="First Process Actual Book Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="POFirstProdBookDate" e-headertext="PO First Prod Book Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="POLatestProdBookDate" e-headertext="PO Latest Prod Book Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ShouldBeProcessStartDate" e-headertext="ShouldBe Process Start Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ShouldBeProcessEndDate" e-headertext="ShouldBe Process End Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessFirstBookDate" e-headertext="Process First Book Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessLatestBookDate" e-headertext="Process Latest Book Date" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessStartDays" e-headertext="Process Start Days" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessEndDays" e-headertext="Process End Days" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessPlanPercent" e-headertext="Process Plan Percent" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessStatus" e-headertext="Process Status" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="FirstProcessWC" e-headertext="First Process WC" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcLossPercent" e-headertext="Proc Loss Percent" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcProdPerenct" e-headertext="Base Proc Prod Perenct" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcProdPercent" e-headertext="Proc Prod Percent" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="EntryCheck" e-headertext="Entry Check" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProceessProdQtyVsSOQty" e-headertext="ProceessProdQty Vs SOQty" e-width="110" textAlign='Right'></div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="POWiseReportExcel();" e-width="width">
+                                        <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

@@ -616,6 +616,7 @@
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
+    <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -1229,6 +1230,7 @@
     <Compile Include="Areas\Setups\Controllers\SpecialTaxController.cs" />
     <Compile Include="Areas\Setups\Controllers\TnaSettingMasterController.cs" />
     <Compile Include="Areas\Setups\Controllers\ShiftGroupController.cs" />
+    <Compile Include="Areas\TaskManagement\Controllers\EditControlController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\TaskManagementReportController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\EntityTaskController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\TaskManagerDashboardController.cs" />
@@ -2193,6 +2195,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
+    <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
@@ -2923,6 +2926,7 @@
     <Content Include="Areas\Setups\Scripts\shiftGroupController.js" />
     <Content Include="Areas\Setups\Scripts\plantSettingController.js" />
     <Content Include="Areas\Setups\Views\HSNTaxPercentageNew\Aplos.cshtml" />
+    <Content Include="Areas\TaskManagement\Scripts\EditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\UserEditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskManagementReportController.js" />
     <Content Include="Areas\TaskManagement\Scripts\taskDetailController.js" />
@@ -4568,6 +4572,7 @@
     <Content Include="Areas\Productions\Views\ProductionControl\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionControl\LineLayoutSearchViews.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\POWiseMaterialIssue.cshtml" />
+    <Content Include="Areas\Materials\Views\InputConfirmation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4691,6 +4696,8 @@
     <Content Include="Areas\DailyAttendance\Views\web.config" />
     <Content Include="Areas\SalesManagements\Views\_ItemScanChildPopUp.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesReturnPost.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\_SalesReturnPopUp.cshtml" />
+    <Content Include="Areas\TaskManagement\Views\EditControl\EditCtrl.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

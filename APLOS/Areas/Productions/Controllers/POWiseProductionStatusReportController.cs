@@ -1931,5 +1931,25 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+        //New PO Wise
+
+        [HttpPost, Authorize]
+        public ActionResult POWiseData()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_productionSummaryData.GetPOWiseSql());
+                var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //End PO Wise
     }
 }

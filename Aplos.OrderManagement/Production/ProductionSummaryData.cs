@@ -4737,6 +4737,131 @@ Order by PV.ProductionSummaryId,PB.Sequence";
 
         }
 
+
+        public DataTable GetPOWiseSql()
+        {
+            try
+            {
+                var str = @"DECLARE @POCreationDate varchar(100)=DATEADD(day,-180,GETDate())
+                            SELECT x.ProcessIndex,X.Entity,X.POId PONo,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,X.ActualPlanScheduleQty,X.ShouldBeBaseProcessPlannedQty
+                            ,X.BaseProcessProduceQty,X.BaseProcessRemainingQty,X.Sequence,X.Process,X.PercentQty,X.ProcessPlannedQty,X.ProcProdQty,X.PreProcProdQty,X.WIP,X.ProcBalanceToProduce,X.RelayProcess,X.IsBaseProcess
+                            ,X.ProcessLegDays,X.POFirstDelivery,X.POLastDelivery,X.BaseProcProdStartDate,X.BaseProcLatestProdDate,X.BaseProcPlanStartDate,X.BaseProcPlanCompletionDate
+                            ,X.POStartDate,X.POCompletionDate,X.FirstProcessActualBookDate,X.POFirstProdBookDate,X.POLatestProdBookDate,X.ShouldBeProcessStartDate,X.ShouldBeProcessEndDate
+                            ,X.ProcessFirstBookDate,X.ProcessLatestBookDate,X.ProcessStartDays,X.ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
+                            ,X.ProcProdPercent,X.EntryCheck,X.ProceessProdQtyVsSOQty
+
+                            FROM(
+                            SELECT 
+                            T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
+                            ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/t2.BaseProcessPlannedQty,0)
+                            ,ProcProdPercent=ISNULL(T2.ProcProdQty/t2.ProcessPlannedQty,0)
+                            ,EntryCheck=CASE WHEN T2.ProcProdQty-T1.ProcProdQty<0 THEN 'ToCheck' ELSE '' END
+                            ,ProceessProdQtyVsSOQty=COALESCE(T1.ProcProdQty / NULLIF(T1.SOQty ,0), 0)
+                            FROM
+                            (Select ROW_NUMBER() OVER(partition by A.POId ORDER BY A.Sequence) ProcessIndex,A.*
+                            from (select E.UserName Entity,P.Id POId,PRS.UserName POStatus,P.AddedBy,Format(P.AddedDate,'dd-MMM-yyyy')AddedDate,P.UpdatedBy,Format(P.UpdatedDate,'dd-MMM-yyyy')UpdatedDate
+                            ,SOQty=P.Qty*PSQ.Qty/100
+                            ,BaseProcPlanPercentage=(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)
+                            ,ActualPlanScheduleQty=PQ.Qty
+                            ,(PQ.Qty*(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)/100) ShouldBeBaseProcessPlannedQty
+                            ,ISNULL(PS.Quantity,0) BaseProcessProduceQty
+                            ,PQ.Qty-ISNULL(PS.Quantity,0) BaseProcessRemainingQty
+                            ,PSQ.Sequence,PRO.UserName Process
+                            ,PSQ.Qty PercentQty
+                            ,ProcessPlannedQty=(CASE WHEN PSQ.IsBaseProcess=1 THEN PQ.Qty ELSE PQ.Qty*PSQ.Qty/100 END)
+                            ,ISNULL(PBQ.ProcProdQty,0) ProcProdQty
+                            ,ProcBalanceToProduce=ISNULL((CASE WHEN PSQ.IsBaseProcess=1 THEN PQ.Qty ELSE PQ.Qty*PSQ.Qty/100 END)-PBQ.ProcProdQty,0)
+                            ,RelayProcess=CASE WHEN PSQ.IsCompleted=1 THEN 'Yes' ELSE 'No' End
+                            ,PSQ.IsBaseProcess
+                            ,ProcessLegDays= CASE WHEN PSQ.Symbol='+' THEN CONVERT(varchar(100),PSQ.Days) ELSE ISNULL((PSQ.Symbol+''+CONVERT(varchar(100),PSQ.Days)),0) END
+                            ,FORMAT(POD.POFirstDelivery,'dd-MMM-yyyy')POFirstDelivery,FORMAT(POD.POLastDelivery,'dd-MMM-yyyy')POLastDelivery
+                            ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProcLatestProdDate,'dd-MMM-yyyy')BaseProcLatestProdDate,FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')BaseProcPlanStartDate,FORMAT(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy')BaseProcPlanCompletionDate
+
+                            ,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  < Type1.BaseProcPlanStartDate  then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
+
+                            ,POCompletionDate=FORMAT((case when Type1.BaseProcPlanCompletionDate is null or BASEP.BaseProcLatestProdDate  > Type1.BaseProcPlanCompletionDate  then BASEP.BaseProcLatestProdDate else Type1.BaseProcPlanCompletionDate end),'dd-MMM-yyyy')
+
+                            ,FirstProcessActualBookDate=FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')
+
+                            ,FORMAT(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy')POFirstProdBookDate
+                            ,FORMAT(FBPPD.POLatestProdBookDate,'dd-MMM-yyyy')POLatestProdBookDate
+
+                            ,ShouldBeProcessStartDate=FORMAT(DATEADD(DAY,PSQ.Days
+                            ,(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  < Type1.BaseProcPlanStartDate  then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end)),'dd-MMM-yyyy')
+
+                            ,ShouldBeProcessEndDate=FORMAT(DATEADD(DAY,PSQ.Days
+                            ,(case when Type1.BaseProcPlanCompletionDate is null or BASEP.BaseProcLatestProdDate  > Type1.BaseProcPlanCompletionDate  then BASEP.BaseProcLatestProdDate else Type1.BaseProcPlanCompletionDate end)),'dd-MMM-yyyy')
+
+                            ,FORMAT(PBQ.ProcessFirstBookDate,'dd-MMM-yyyy')ProcessFirstBookDate,FORMAT(PBQ.ProcessLatestBookDate,'dd-MMM-yyyy')ProcessLatestBookDate
+                            ,ProcessStartDays=DateDiff(Day,PBQ.ProcessFirstBookDate,GETDate())
+                            ,ProcessEndDays=DateDiff(Day,PBQ.ProcessLatestBookDate,GETDate())
+
+                            ,ProcessPlanPercent=PSQ.Qty
+
+                            ,ProcessStatus= CASE WHEN PBQ.ProcProdQty>=ISNULL(CASE WHEN ISNULL(PSQ.Qty,0)=0 THEN ISNULL(PQ.Qty,P.PlannedQty) ELSE P.PlannedQty*PSQ.Qty/100 END,0) THEN 'Complete'
+					                            WHEN PBQ.ProcProdQty=0 THEN 'To Start' WHEN PBQ.ProcProdQty>0 THEN 'Running' ELSE 'To Check' END
+                            ,FirstProcessWC=STUFF((select distinct ','+xw.UserName from
+                            ProductionOrderFirstProcessWorkCenter AS xp
+                            INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
+                            where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, '')
+                            from TRN.ProductionOrder P
+                            Left JOIN ORG.Entity E ON E.Id=P.EntityId
+                            LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id
+                            LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = P.Id
+                            LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+                            LEFT JOIN HKP.Process PRO ON PRO.Id=PSQ.ProcessId
+
+                            LEFT JOIN (Select MIN(SO.DeliveryDate) POFirstDelivery,MAX(SO.DeliveryDate) POLastDelivery,PD.ProductionOrderId FROM TRN.SalesOrder SO
+                            LEFT JOIN TRN.ProductionOrderDetail PD ON PD.SalesOrderId=SO.Id GROUP BY PD.ProductionOrderId)POD ON POD.ProductionOrderId=P.Id
+                            LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProcLatestProdDate,A.ProductionOrderId From TRN.ProductionSummary A
+                            LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
+                            Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=P.Id
+                            LEFT JOIN(Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=P.Id
+                            LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=P.Id
+
+                            LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
+                            left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY B.ProductionOrderId) PS ON P.Id=PS.ProductionOrderId
+                            LEFT JOIN (Select SUM(Quantity)ProcProdQty, MIN(ProductionDate)ProcessFirstBookDate,MAX(ProductionDate)ProcessLatestBookDate ,ProductionOrderId,ProcessId from TRN.ProductionSummary Group BY ProductionOrderId,ProcessId) PBQ ON P.Id=PBQ.ProductionOrderId AND PBQ.ProcessId=PRO.Id
+
+                            Where P.AddedDate>= @POCreationDate 
+                            GROUP BY E.UserName,P.Id,PSQ.Sequence,PRO.UserName,P.PlannedQty,P.Qty,PSQ.Qty,PRS.UserName,P.AddedBy,P.AddedDate,P.UpdatedBy,P.UpdatedDate,PQ.Qty,PBQ.ProcProdQty,PSQ.IsCompleted,PSQ.IsBaseProcess
+                            ,PSQ.Days,PSQ.Symbol,POD.POFirstDelivery,POD.POLastDelivery,BASEP.BaseProcProdStartDate,BASEP.BaseProcLatestProdDate,BASEP.BaseProcLatestProdDate,Type1.BaseProcPlanStartDate
+                            ,Type1.BaseProcPlanCompletionDate,Type1.BaseProcPlanStartDate,FBPPD.POFirstProdBookDate,FBPPD.POLatestProdBookDate,PBQ.ProcessFirstBookDate,PBQ.ProcessLatestBookDate,PS.Quantity--,BPP.ProcessPlannedQty 
+                            ) A )T1
+                            LEFT JOIN (Select ROW_NUMBER() OVER(partition by A.POId ORDER BY A.Sequence)+1 ProcessIndex,A.*
+                            from (select 
+
+                            (PQ.Qty*(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)/100) BaseProcessPlannedQty
+                            ,PS.Quantity BaseProcessProduceQty
+
+                            ,PSQ.Qty PercentQty
+                            ,ProcessPlannedQty=(CASE WHEN PSQ.IsBaseProcess=1 THEN PQ.Qty ELSE PQ.Qty*PSQ.Qty/100 END)
+                            ,P.Id POId,PSQ.Sequence,PBQ.ProcProdQty
+
+                            from TRN.ProductionOrder P
+                            Left JOIN ORG.Entity E ON E.Id=P.EntityId
+                            LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id
+                            LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = P.Id
+                            LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+                            LEFT JOIN HKP.Process PRO ON PRO.Id=PSQ.ProcessId
+                            LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
+                            left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId  AND B.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY B.ProductionOrderId ) PS ON P.Id=PS.ProductionOrderId
+                            LEFT JOIN (Select SUM(Quantity)ProcProdQty,ProductionOrderId,ProcessId from TRN.ProductionSummary Group BY ProductionOrderId,ProcessId) PBQ ON P.Id=PBQ.ProductionOrderId AND PBQ.ProcessId=PRO.Id
+                            Where P.AddedDate>= @POCreationDate 
+                            GROUP BY P.Id,PSQ.Sequence,P.Qty,PSQ.Qty,PSQ.IsBaseProcess,PQ.Qty,PBQ.ProcProdQty,PS.Quantity 
+                            ) A )T2 ON T1.ProcessIndex=T2.ProcessIndex AND  T1.POId=T2.POId
+
+                            )X
+                            --where x.poid=23468
+                            Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
     }
 
 
