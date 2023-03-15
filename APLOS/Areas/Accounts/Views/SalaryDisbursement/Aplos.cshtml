@@ -97,6 +97,7 @@
                                 <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
                                 <div e-column e-field="DOS" e-headertext="DOS" e-allowediting="false" e-width="80"></div>
                                 <div e-column e-field="SalaryProcFlag" e-headertext="EmployeeStatus" e-allowediting="false" e-width="80"></div>
+                                <div e-column e-field="NetPayment" e-headertext="Net Payment" e-allowediting="false" e-width="80"></div>
                             </div>
                         </div>
 
@@ -126,8 +127,9 @@
 
                         <div class="col-sm-4">
                             <div class="common-btn">
-                                <ul>
+                                <ul style="display:flex; justify-content:space-between">
                                     <li> <button ng-click="SalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i> {{Action}}</button></li>
+                                    <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
                                 </ul>
                             </div>
                         </div>
@@ -198,7 +200,7 @@
                             <div class="common-btn">
                                 <ul style="display:flex; justify-content:space-between">
                                     <li> <button ng-click="SalaryUnDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i>Salary UnDisbursement</button></li>
-                                    <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i>Salary UnDisbursement</button></li>
+                                    <li> <button ng-click="XlsSalaryUnDisburseReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export into Excel</button></li>
                                 </ul>
                             </div>
                         </div>

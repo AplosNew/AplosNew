@@ -143,6 +143,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     $scope.EmployeeList = [];
     $scope.EmployeeListDefault = [];
     $scope.EmployeeListTemp = [];
+    $scope.EmpNetPayment = [];
 
     $scope.GetEmployeeInformation = function () {
         var monthName = $scope.monthList.filter(function (mnth) {
@@ -169,12 +170,24 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                 url: 'Accounts/SalaryDisbursement/GetEmpInfo',
                 data: parameters
             }).then(function successCallback(response) {
-                if (response.data.length > 0) {
+                if (response.data.empdata.length > 0) {
+                    for (var i = 0; i < response.data.empdata.length; i++) {
+                        for (var j = 0; j < response.data.empNetPay.length; j++) {
+                            if (response.data.empdata[i].EmpSystemId == response.data.empNetPay[j].EmpInfoSystemID) {
+                                response.data.empdata[i].NetPayment = response.data.empNetPay[j].NetPayment;
+                               
+                            }
+                        }
+                       
+                    }
                     $scope.empGrid = true;
-                    $scope.EmployeeListDefault = response.data.filter(d => d.isSelect == true);
+                    $scope.EmployeeListDefault = response.data.empdata.filter(d => d.isSelect == true);
                     $scope.EmployeeList = $scope.EmployeeListDefault;
                     $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+
                     $scope.GetSalaryUnDisbursed();
+                    $scope.EmployeeListTemp = response.data.empdata
+                    
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
@@ -431,6 +444,42 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         } catch (e) {
             ShowResult(e, "failure");
         }
+    };
+
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    
+    $scope.XlsSalaryDisbursement = function () {
+        var dataList = [];
+        var g = $("#empInfoGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+
+            dataList = $scope.EmployeeListTemp;
+        }
+        $scope.fileName = 'SalaryDisbursement.xlsx';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {              
+                'data': dataList,
+                'reportFileName': $scope.fileName,
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
     };
 }
 

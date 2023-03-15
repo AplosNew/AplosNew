@@ -740,6 +740,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
                                   ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
+                                    ,0 NetPayment 
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -772,8 +773,18 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1  " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+            var empdata = _sqlRepository.GetDataCollection(sql);
 
-            JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            var sql2 = @"select SPC.DisbusmentAmount NetPayment, SPC.EmpInfoSystemID from SalaryProcChild SPC
+left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
+JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+Where HeadCategory='Net Payable' ";
+
+           var empNetPay = _sqlRepository.GetDataCollection(sql2);
+            // new { empdata, empNetPay }
+            // _sqlRepository.GetDataCollection(sql)
+
+            JsonResult json = Json(new { empdata, empNetPay }, JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
