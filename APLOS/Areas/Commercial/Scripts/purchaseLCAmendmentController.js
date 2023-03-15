@@ -1,6 +1,6 @@
 ﻿'use strict';
-purchaseLCAmendmentController.$inject = ['accountService','commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
-function purchaseLCAmendmentController(accountService,commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
+purchaseLCAmendmentController.$inject = ['accountService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window', 'cboService', 'bankService', '$controller'];
+function purchaseLCAmendmentController(accountService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window, cboService, bankService, $controller) {
     $rootScope.title = "Amendment";
     $scope.Action = 'Update';
     $scope.path = 'Commercial/PurchaseLCAmendment/';
@@ -83,39 +83,48 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
 
     $scope.flag = null;
     $scope.Get = function (obj, flag) {
-        $scope.flag = flag;
-        cboService.getCboTransactionCurrencyByCompany('', function (result) {
-            $scope.currencyList = [];
-            $scope.currencyList = result;
-            //$scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
-            $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+       // if (obj.data.Version != 1) {
+            $scope.flag = flag;
+            cboService.getCboTransactionCurrencyByCompany('', function (result) {
+                $scope.currencyList = [];
+                $scope.currencyList = result;
+                //$scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+                $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
 
-        });
+            });
 
-        $scope.purchaseLC = obj.data;
-        $scope.purchaseLC.LCDate = $filter('dateFiltering')($scope.purchaseLC.LCDate, 'dd-M-yyyy');
-        //$scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
-        $scope.purchaseLC.AmendmentDate = null;
-        $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
+            $scope.purchaseLC = obj.data;
+            $scope.purchaseLC.LCDate = $filter('dateFiltering')($scope.purchaseLC.LCDate, 'dd-M-yyyy');
 
-       // $scope.ChangeBankMaster();
-        $scope.GetPurchaseLCChargesDataByVersion();
-        GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
+            if ($scope.flag == 'Update') {
+                $scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
 
-        if ($scope.purchaseLCNew.Version > 1) {
-            getVersionCbo($scope.purchaseLCNew.Id);
-        }
-        $scope.version = $scope.purchaseLCNew.Version;
+            } else {
+                $scope.purchaseLC.AmendmentDate = null;
+            }
+            $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
 
-        if ($scope.purchaseLCNew.IsAccepptanceFirst) {
-            $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
-        } else {
-            $scope.purchaseLCNew.IsAccepptanceFirst = 'false';
-        }
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+            // $scope.ChangeBankMaster();
+            if ($scope.flag == 'Update') {
+                $scope.GetPurchaseLCChargesDataByVersion();
+            }
+            GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
+
+            if ($scope.purchaseLCNew.Version > 1) {
+                getVersionCbo($scope.purchaseLCNew.Id);
+            }
+            $scope.version = $scope.purchaseLCNew.Version;
+
+            if ($scope.purchaseLCNew.IsAccepptanceFirst) {
+                $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
+            } else {
+                $scope.purchaseLCNew.IsAccepptanceFirst = 'false';
+            }
+            $scope.Action = 'Update';
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        //}
     }
 
     function GetAlldataPOWithLCMap(purchaseLCId) {
@@ -314,7 +323,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         var td = $filter('dateFiltering')($scope.purchaseLCNew.AmendmentDate, 'dd-MM-yyyy');
 
         if (new Date(fd) > new Date(td)) {
-            ShowResult('Amendment Date cann\'t be less than LC Opening Date.','failure');
+            ShowResult('Amendment Date cann\'t be less than LC Opening Date.', 'failure');
         }
     };
 
@@ -322,7 +331,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
         if ($scope.purchaseLCNew.Flag === 0) {
             throw "Previous Version data update is not possible.";
         }
-        if ($scope.purchaseLCNew.Status ==='Close') {
+        if ($scope.purchaseLCNew.Status === 'Close') {
             throw "This LC is closed.";
         }
 
@@ -561,7 +570,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                 }
             }
 
-            
+
 
             if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
                 throw $scope.filedata.name + ' File size must be below 2 mb';
@@ -606,7 +615,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
                         formData.append("JWPOList", angular.toJson(data.JWPOList));
                         return formData;
                     },
-                    data: { 'model': $scope.purchaseLCNew, 'file': $scope.filedata, 'Charges': $scope.purchaseLCChargesList, 'POList': $scope.materialPoList, 'SPOList': $scope.servcePoList, 'JWPOList': $scope.jwOutSourcePoList}
+                    data: { 'model': $scope.purchaseLCNew, 'file': $scope.filedata, 'Charges': $scope.purchaseLCChargesList, 'POList': $scope.materialPoList, 'SPOList': $scope.servcePoList, 'JWPOList': $scope.jwOutSourcePoList }
 
 
                 }).then(function successCallback(response) {
@@ -656,7 +665,7 @@ function purchaseLCAmendmentController(accountService,commonMessage, $scope, $ro
     }
     function ClearFields() {
         $scope.purchaseLC = {};
-        $scope.purchaseLCNew = { OrderSpecific: 'Yes', Id: null, Tenure: 0, Version: 0, IsAccepptanceFirst: 'true' ,Status: 'Active'};
+        $scope.purchaseLCNew = { OrderSpecific: 'Yes', Id: null, Tenure: 0, Version: 0, IsAccepptanceFirst: 'true', Status: 'Active' };
         $scope.purchaseLCChargesList = [];
         $scope.VersionList = [];
         $scope.Action = 'Update';
