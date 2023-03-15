@@ -450,6 +450,28 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        #region Aman
+        public List<Default2> GetSalesReturnId()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSalesReturnId(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetTransactionQty(string SalesReturnId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTransactionQty(out List<Default2> activelists, SalesReturnId);
+            return activelists;
+        }
+
+        public List<Weight> GetCartonBookedQty(string SalesId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCartonBookedQty(out List<Weight> activelists, SalesId);
+            return activelists;
+        }
+        #endregion Aman
         #endregion written by Aman
 
     }
