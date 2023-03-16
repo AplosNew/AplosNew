@@ -59,24 +59,31 @@ function CompanyParallelCurrencyController(commonMessage, $scope, $rootScope, ba
         });
     };
     function getparallelcurrency(list) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].ParallelCurrencyType === 'CompanyCurrency') {
-                $scope.curcomPara.comparaId = list[i].Id;
-                $scope.curcomPara.comcurId = list[i].CurrencyId;
-                $scope.curcomPara.comcurType = list[i].ParallelCurrencyType;
-            }
-            else if (list[i].ParallelCurrencyType === 'CompanyGroupCurrency') {
-                $scope.curcomPara.groupparaId = list[i].Id;
-                $scope.curcomPara.groupcurId = list[i].CurrencyId;
-                $scope.curcomPara.GroCurType = list[i].ParallelCurrencyType;
-            }
-            else if (list[i].ParallelCurrencyType === 'HardCurrency') {
-                $scope.curcomPara.hardparaId = list[i].Id;
-                $scope.curcomPara.hardcurId = list[i].CurrencyId;
-                $scope.curcomPara.hardcurType = list[i].ParallelCurrencyType;
-                $scope.hardCurrencyChange($scope.curcomPara.comcurId, $scope.curcomPara.groupcurId);
+        if (list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].ParallelCurrencyType === 'CompanyCurrency') {
+                    $scope.curcomPara.comparaId = list[i].Id;
+                    $scope.curcomPara.comcurId = list[i].CurrencyId;
+                    $scope.curcomPara.comcurType = list[i].ParallelCurrencyType;
+                }
+                else if (list[i].ParallelCurrencyType === 'CompanyGroupCurrency') {
+                    $scope.curcomPara.groupparaId = list[i].Id;
+                    $scope.curcomPara.groupcurId = list[i].CurrencyId;
+                    $scope.curcomPara.GroCurType = list[i].ParallelCurrencyType;
+                }
+                else if (list[i].ParallelCurrencyType === 'HardCurrency') {
+                    $scope.curcomPara.hardparaId = list[i].Id;
+                    $scope.curcomPara.hardcurId = list[i].CurrencyId;
+                    $scope.curcomPara.hardcurType = list[i].ParallelCurrencyType;
+                    $scope.hardCurrencyChange($scope.curcomPara.comcurId, $scope.curcomPara.groupcurId);
+                }
             }
         }
+        else {
+            $scope.curcomPara.comparaId = '';
+            $scope.curcomPara.comcurType = 'CompanyCurrency';
+        }
+       
     }
 
     $http({
