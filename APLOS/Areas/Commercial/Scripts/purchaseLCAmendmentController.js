@@ -83,47 +83,47 @@ function purchaseLCAmendmentController(accountService, commonMessage, $scope, $r
 
     $scope.flag = null;
     $scope.Get = function (obj, flag) {
-       // if (obj.data.Version != 1) {
-            $scope.flag = flag;
-            cboService.getCboTransactionCurrencyByCompany('', function (result) {
-                $scope.currencyList = [];
-                $scope.currencyList = result;
-                //$scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
-                $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+        // if (obj.data.Version != 1) {
+        $scope.flag = flag;
+        cboService.getCboTransactionCurrencyByCompany('', function (result) {
+            $scope.currencyList = [];
+            $scope.currencyList = result;
+            //$scope.purchaseLCNew.CurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
+            $scope.companyCurrencyId = $filter("filter")($scope.currencyList, { IsBaseCurrency: 1 })[0].CurrencyId;
 
-            });
+        });
 
-            $scope.purchaseLC = obj.data;
-            $scope.purchaseLC.LCDate = $filter('dateFiltering')($scope.purchaseLC.LCDate, 'dd-M-yyyy');
+        $scope.purchaseLC = obj.data;
+        $scope.purchaseLC.LCDate = $filter('dateFiltering')($scope.purchaseLC.LCDate, 'dd-M-yyyy');
 
-            if ($scope.flag == 'Update') {
-                $scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
+        if ($scope.flag == 'Update') {
+            $scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
 
-            } else {
-                $scope.purchaseLC.AmendmentDate = null;
-            }
-            $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
+        } else {
+            $scope.purchaseLC.AmendmentDate = null;
+        }
+        $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
 
-            // $scope.ChangeBankMaster();
-            if ($scope.flag == 'Update') {
-                $scope.GetPurchaseLCChargesDataByVersion();
-            }
-            GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
+        // $scope.ChangeBankMaster();
+        if ($scope.flag == 'Update') {
+            $scope.GetPurchaseLCChargesDataByVersion();
+        }
+        GetAlldataPOWithLCMap($scope.purchaseLCNew.Id);
 
-            if ($scope.purchaseLCNew.Version > 1) {
-                getVersionCbo($scope.purchaseLCNew.Id);
-            }
-            $scope.version = $scope.purchaseLCNew.Version;
+        if ($scope.purchaseLCNew.Version > 1) {
+            getVersionCbo($scope.purchaseLCNew.Id);
+        }
+        $scope.version = $scope.purchaseLCNew.Version;
 
-            if ($scope.purchaseLCNew.IsAccepptanceFirst) {
-                $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
-            } else {
-                $scope.purchaseLCNew.IsAccepptanceFirst = 'false';
-            }
-            $scope.Action = 'Update';
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
+        if ($scope.purchaseLCNew.IsAccepptanceFirst) {
+            $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
+        } else {
+            $scope.purchaseLCNew.IsAccepptanceFirst = 'false';
+        }
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
         //}
     }
 
@@ -777,8 +777,8 @@ function purchaseLCAmendmentController(accountService, commonMessage, $scope, $r
     $scope.SelectedLC = function () {
         if (baseService.arrayLength($scope.LCChargesList) > 0) {
             angular.forEach($scope.LCChargesList, function (a) {
-                if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
-                    if (a.Active) {
+                if (a.Active) {
+                    if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
                         $scope.purchaseLCChargesList.push({
                             Id: null
                             , OverHeadTypeGLId: a.Id

@@ -129,6 +129,23 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         }
     };
 
+    $scope.SearchSOItemList = [];
+    $scope.AddMaterial = function () {
+        $scope.itemList = [];
+        $http.get('Materials/InputConfirmation/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SearchSOItemList = response.data;
+                    }
+
+                    angular.element(document.querySelector('#SOpopUp')).modal('show');
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
 
     $scope.Action = 'Save';
     $scope.Save = function () {
