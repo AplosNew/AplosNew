@@ -471,6 +471,13 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetCartonBookedQty(out List<Weight> activelists, SalesId);
             return activelists;
         }
+
+        public List<Default2> GetWrongCarten(string Refno)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetWrongCarten(out List<Default2> activelists, Refno);
+            return activelists;
+        }
         #endregion Aman
         #endregion written by Aman
 

@@ -3616,7 +3616,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             try
             {
                 strSQL = @"select Count(refno)CartonQty,
-                isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild where SalesId = '" + SalesId + "'";
+                isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild where Booked = 0 and IsDespatch = 0 and SalesId = '" + SalesId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -3627,6 +3627,40 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
                     {
                         CartonQty = dsRef.Tables[0].Rows[i]["CartonQty"].ToString(),
                         BookedQty = dsRef.Tables[0].Rows[i]["BookedQty"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetWrongCarten(out List<Default2> DataList, string Refno)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select POId as Value, RefNo As Name from dbo.ItemScanChild where RefNo = '" + Refno + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
 
                     });
                 }
