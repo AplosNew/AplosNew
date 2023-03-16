@@ -472,10 +472,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetWrongCarten(string Refno)
+        public List<Default2> GetWrongCarten(string Refno, string SalesId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetWrongCarten(out List<Default2> activelists, Refno);
+            clsData.GetWrongCarten(out List<Default2> activelists, Refno, SalesId);
             return activelists;
         }
         #endregion Aman

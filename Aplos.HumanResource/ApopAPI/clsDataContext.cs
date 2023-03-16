@@ -3641,7 +3641,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             }
         }
 
-        public void GetWrongCarten(out List<Default2> DataList, string Refno)
+        public void GetWrongCarten(out List<Default2> DataList, string Refno, string SalesId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -3650,7 +3650,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select POId as Value, RefNo As Name from dbo.ItemScanChild where RefNo = '" + Refno + "'";
+                strSQL = @"select POId as Value, RefNo As Name from dbo.ItemScanChild where RefNo = '" + Refno + "' and SalesId = '" + SalesId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
