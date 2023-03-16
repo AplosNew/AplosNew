@@ -847,8 +847,8 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
     $scope.SelectedLC = function () {
         if (baseService.arrayLength($scope.LCChargesList) > 0) {
             angular.forEach($scope.LCChargesList, function (a) {
-                if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
-                    if (a.Active) {
+                if (a.Active) {
+                    if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
                         $scope.purchaseLCChargesList.push({
                             Id: null
                             , OverHeadTypeGLId: a.Id
@@ -941,7 +941,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
 
     function checkLCExist(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].OverHeadTypeGLId === Id && list[i].VoucherId !== null) {
+            if (list[i].OverHeadTypeGLId === Id && list[i].VoucherId == null) {
                 return true;
             }
         }
