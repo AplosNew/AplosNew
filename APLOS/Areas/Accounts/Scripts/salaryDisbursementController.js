@@ -451,23 +451,60 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
     
     $scope.XlsSalaryDisbursement = function () {
         var dataList = [];
+        var newDataList = [];
         var g = $("#empInfoGrid").data("ejGrid");
         dataList = g.getFilteredRecords();
-        if (dataList.length == 0) {
+        var obj = {};
 
+        if (dataList.length == 0) {
+            
             dataList = $scope.EmployeeListTemp;
+        }
+
+        for (let i = 0; i < dataList.length; i++) {
+            obj.EmployeeCode = dataList[i].EmployeeCode;
+            obj.EmployeeName = dataList[i].EmployeeName;
+            obj.Designation = dataList[i].Designation;
+            obj.Department = dataList[i].Department;
+            obj.Division = dataList[i].Division;
+            obj.EmployeeCategory = dataList[i].EmployeeCategory;
+            obj.Plant = dataList[i].Plant;
+            obj.Section = dataList[i].Section;
+            obj.SubSection = dataList[i].SubSection;
+            obj.Unit = dataList[i].Unit;
+            obj.DOJ = dataList[i].DOJ;
+            obj.DOS = dataList[i].DOS;
+            obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
+            obj.EmployeeStatus = dataList[i].EmployeeStatus;
+            obj.SalaryProcFlag = dataList[i].SalaryProcFlag;
+            obj.PayRollGroup = dataList[i].PayRollGroup;
+            obj.JobLocation = dataList[i].JobLocation;
+            obj.PaymentMode = dataList[i].PaymentMode;
+            obj.BankName = dataList[i].BankName;
+            obj.VoucherNo = dataList[i].VoucherNo;
+            obj.PayableVoucherNo = dataList[i].PayableVoucherNo;
+            obj.DisbursementVoucherNo = dataList[i].DisbursementVoucherNo;
+            obj.IsLock = dataList[i].IsLock;
+            obj.IsDisburse = dataList[i].IsDisburse;
+            obj.NetPayment = dataList[i].NetPayment;
+            newDataList.push(obj);
+            obj = {};
         }
         $scope.fileName = 'SalaryDisbursement.xlsx';
         $http({
             method: "POST",
             url: $scope.exportgriddataUrl,
             data: {              
-                'data': dataList,
+                'data': newDataList,
                 'reportFileName': $scope.fileName,
+
             },
-            dataType: 'JSON'
+            
+            dataType: 'JSON',
+
         })
             .then(function successCallback(response) {
+                
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }

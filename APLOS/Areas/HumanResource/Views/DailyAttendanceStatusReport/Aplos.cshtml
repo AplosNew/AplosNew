@@ -9,13 +9,16 @@
                         <label class="col-sm-4 control-label">Filters</label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
+                                <input e-change="GetFavouriteFilter" ng-model="ModelNew.Id"  ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="FavoriteFilterList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>
+                            @*<div class="select-style">
                                 <select class="form-control" ng-model="ModelNew.Id" ng-change="GetFavouriteFilter()" name="Process"
                                         tabindex="2">
                                     <option value="">--Select--</option>
                                     <option ng-repeat="option in FavoriteFilterList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
 
-                            </div>
+                            </div>*@
 
                         </div>
                     </div>
