@@ -80,6 +80,13 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(clsM.GetIssueSlipDataByPOIdList(ProductionOrderId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetInventoryMaterialData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(clsM.GetInventoryMaterialData(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult Update(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList, List<Dictionary<string, object>> IssueRequestList, List<Dictionary<string, object>> BOQMapList)
         {
