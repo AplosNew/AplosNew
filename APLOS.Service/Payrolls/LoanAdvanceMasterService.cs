@@ -178,7 +178,7 @@ namespace Library.Service.Payrolls
         {
             try
             {
-                var sql = @"SELECT SH.SalaryHeadID , SH.SalaryHead FROM SalaryHead SH
+                var sql = @"SELECT DISTINCT SH.SalaryHeadID , SH.SalaryHead FROM SalaryHead SH
                             INNER JOIN CurrencyRuleChild CRC ON SH.SalaryHeadID = CRC.SalaryHeadID
                             AND CRC.MstSystemID = '" + currencyRuleSystemID + "' ORDER BY SH.SalaryHead";
                 return _sqlRepository.GetCombo(sql, "SalaryHeadID", "SalaryHead");
