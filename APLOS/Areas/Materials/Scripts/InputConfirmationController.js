@@ -132,7 +132,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.SearchSOItemList = [];
     $scope.AddMaterial = function () {
         $scope.itemList = [];
-        $http.get('Materials/MaterialIssueControl/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
+        $http.get('Materials/InputConfirmation/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
