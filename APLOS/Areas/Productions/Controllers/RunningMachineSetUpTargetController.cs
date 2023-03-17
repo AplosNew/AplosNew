@@ -250,7 +250,7 @@ where ProcessId='" + ProcessId +"'";
             }
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateItemValue(List<Dictionary<string, object>> RMSTargetItemData)
         {
             ConnectionManager.DAL.ConManager objCon;
