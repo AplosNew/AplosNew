@@ -1153,6 +1153,7 @@ upanelApp.controller("ProductionControlController", ProductionControlController)
 upanelApp.controller("POWiseMaterialIssueController", POWiseMaterialIssueController)
 //upanelApp.controller("InputConfirmationController", InputConfirmationController)
 upanelApp.controller("SalesReturnPostController", SalesReturnPostController)
+upanelApp.controller("RunningMachineSetUpTargetController", RunningMachineSetUpTargetController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
