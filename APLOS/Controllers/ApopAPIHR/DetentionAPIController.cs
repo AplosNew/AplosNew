@@ -437,6 +437,48 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetReason(out List<Default2> activelists, ProcessId);
             return activelists;
         }
+        public List<Default2> GetWorkCenterId(string WorkCenter)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetWorkCenterId(out List<Default2> activelists, WorkCenter);
+            return activelists;
+        }
+        public List<PODetail> GetPODetail(string POId, string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPODetail(out List<PODetail> activelists, POId, ProcessId);
+            return activelists;
+        }
+
+        #region Aman
+        public List<Default2> GetSalesReturnId()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSalesReturnId(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetTransactionQty(string SalesReturnId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetTransactionQty(out List<Default2> activelists, SalesReturnId);
+            return activelists;
+        }
+
+        public List<Weight> GetCartonBookedQty(string SalesId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCartonBookedQty(out List<Weight> activelists, SalesId);
+            return activelists;
+        }
+
+        public List<Default2> GetWrongCarten(string Refno, string SalesId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetWrongCarten(out List<Default2> activelists, Refno, SalesId);
+            return activelists;
+        }
+        #endregion Aman
         #endregion written by Aman
 
     }

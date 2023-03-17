@@ -1,6 +1,6 @@
 ﻿'use strict';
-MedicalLogReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$interval'];
-function MedicalLogReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $interval) {
+MedicalLogReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$interval', '$window'];
+function MedicalLogReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $interval, $window) {
     $rootScope.title = 'Medical Log Report';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/MedicalLogReport/';
@@ -34,6 +34,7 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     $scope.ModelTempT = {
         MedicineMasterId: null,
         UserName: null,
+        From:null,
         To:null
     };
     $scope.ModalNewT = Object.assign({}, $scope.ModelTempT);
@@ -63,7 +64,7 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
     }
     $scope.MedicineStockList = [];
     $scope.GetMedinceStockGrid = function () {
-        $http.get('HumanResource/MedicalLogReport/GetMedinceStockGrid?medicineId=' + $scope.ModalNewT.MedicineMasterId + '&to=' + $scope.ModalNewT.To)
+        $http.get('HumanResource/MedicalLogReport/GetMedinceStockGrid?fromDate=' + $scope.ModalNewT.From + '&toDate=' + $scope.ModalNewT.To)
             .then(
                 function successCallback(response) {
 
@@ -160,20 +161,45 @@ function MedicalLogReportController(cboService, commonMessage, $scope, $rootScop
 
     };
 
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     $scope.XlsGetMedinceStockReport = function () {
+        var dataList = [];      
+        var g = $("#Grid").data("ejGrid");
+        dataList = g.getFilteredRecords();
         
-        $http.get('HumanResource/MedicalLogReport/XlsGetMedinceStockReport?medicineId=' + $scope.ModalNewT.Id + '&to=' + $scope.ModalNewT.To)
-        .then(function successCallback(response) {
-            if (response.data.Error === true) {
+        if (dataList.length == 0) {
+
+            dataList = $scope.MedicineStockList;
+        }
+        $scope.fileName = 'MedicineTransactionStock.xlsx';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': dataList,
+                'reportFileName': $scope.fileName,
+
+            },
+
+            dataType: 'JSON',
+
+        })
+        
+            .then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-
+            });
     };
+
+    
 }

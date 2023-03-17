@@ -1934,12 +1934,21 @@ namespace Aplos.Areas.Productions.Controllers
         //New PO Wise
 
         [HttpGet, Authorize]
-        public ActionResult POWiseData()
+        public ActionResult getPOWiseFilters()
+        {
+            JsonResult json = Json(_productionSummaryData.POWisefiltersData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult POWiseData(Dictionary<string, string> parameters)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_productionSummaryData.GetPOWiseSql());
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_productionSummaryData.GetPOWiseSql(parameters));
                 var jsondata = Json(new { NewData, Message = AplosMessage.Success });
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -1949,7 +1958,6 @@ namespace Aplos.Areas.Productions.Controllers
                 throw ex;
             }
         }
-
         //End PO Wise
     }
 }

@@ -756,7 +756,7 @@ namespace Aplos.Areas.Commercial.Controllers
             string sql = @"
                            SELECT PLC.PurchaseLCId,LC.LCRef, V.VoucherNo,PLC.VoucherId,V.DocRefNo,V.SourceType,C.Code CurrencyCode,V.DocRefNo, OB.AccountTitle OpeningBankMaster, P.UserName VendorName
 						  ,SUM(PLC.ChargesValue) Amount,IsPark=case when V.IsPark=1 then 'Parked' else 'Posted' end
-						  [Type]=CASE WHEN PL.[Version]=1 THEN 'Open' ELSE 'Amendment' END
+						  ,[Type]=CASE WHEN PL.[Version]=1 THEN 'Open' ELSE 'Amendment' END
 						  FROM [dbo].[PurchaseLCCharges] PLC
 						  join [dbo].[PurchaseLC] LC ON LC.Id=PLC.PurchaseLCId
                           INNER JOIN [HKP].[OverHeadTypeGL] LCGL ON LCGL.Id=PLC.OverHeadTypeGLId
@@ -820,7 +820,7 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             try
             {
-                DeletePostedPurchaseLCCharges(purchaseLCId, voucherId);
+                DeleteLCChargesPosting(purchaseLCId, voucherId);
                 return Json(new { Message = AplosMessage.Deleted });
             }
             catch (Exception ex)
@@ -829,129 +829,48 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        //private void DeleteLCChargesPosting(string purchaseLCId, s, List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList)
-        //{
-        //    ConnectionManager.DAL.ConManager objCon;
-        //    DataSet dsMaster;
-        //    DataSet dsDetail;
-        //    DataSet dstax;
-        //    DataSet dsitemscanChild;
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        private void DeleteLCChargesPosting(string purchaseLCId, string voucherId)
+        {
+            string  strCSQL, strSQLVDC, strSQLVD, strSQLV, strSQLVDCGLT;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-        //    try
-        //    {
-        //        MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
-        //        string sqlmaster = "SELECT * FROM [TRN].[SalesReturn] WHERE Id='" + data["SalesId"].ToString() + "'";
-        //        string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE SalesId='" + data["SalesId"].ToString() + "'";
-        //        string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE SalesId='" + data["SalesId"].ToString() + "'";
-        //        string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
-        //        //string poUpdateLogsql = "SELECT Top(1) * FROM [TRN].[PurchaseOrderUpdateLog] WHERE 1=2";
-        //        objCon = new ConnectionManager.DAL.ConManager("1");
-        //        objCon.OpenDataSetThroughAdapter(sqlmaster, out dsMaster, false, "1");
-        //        objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
-        //        objCon.OpenDataSetThroughAdapter(taxsql, out dstax, false, "1");
-        //        objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strCSQL = "Update  [dbo].[PurchaseLCCharges] set VoucherId=NULL,UpdatedBy='"+ identity.Name+ "',UpdatedDate='"+DateTime.Now.ToString()+ "',UpdatedFromIP='"+identity.IPAddress+"' WHERE PurchaseLCId='" + purchaseLCId + "' AND VoucherId='"+ voucherId + "'";
+                strSQLVDCGLT = "DELETE FROM TRN.GLTransactionDetail WHERE VoucherDetailId in (select Id from trn.VoucherDetail where VoucherId= '" + voucherId + "' )";
+                strSQLVDC = "DELETE FROM TRN.VoucherDetailCurrency WHERE VoucherId = '" + voucherId + "'";
+                strSQLVD = "DELETE FROM TRN.VoucherDetail WHERE VoucherId = '" + voucherId + "'";
+                strSQLV = "DELETE FROM TRN.Voucher WHERE Id = '" + voucherId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strCSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLVDCGLT, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLVDC, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLVD, true, "1");
+                objCon.ExecuteNonQueryWrapper(strSQLV, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
 
-        //        if (dsMaster.Tables[0].Rows.Count == 0)
-        //        {
-        //            DataRow dr = dsMaster.Tables[0].NewRow();
-
-        //            dr["SalesId"] = data["SalesId"].ToString();
-        //            dr["DocRefNo"] = data["DocRefNo"].ToString();
-        //            dr["SalesReturnDate"] = data["SalesReturnDate"].ToString();
-        //            dr["Narration"] = data["Narration"].ToString();
-        //            dr["EntryDate"] = DateTime.Now;
-
-        //            dr["AddedBy"] = identity.Name;
-        //            dr["AddedDate"] = DateTime.Now;
-        //            dr["AddedFromIP"] = identity.IPAddress;
-
-        //            dsMaster.Tables[0].Rows.Add(dr);
-        //        }
-        //        string _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-        //        int ccount = 0;
-        //        int taxcount = 0;
-        //        if (detaildataList != null)
-        //        {
-        //            foreach (var item in detaildataList)
-        //            {
-        //                DataView dv = new DataView(dsDetail.Tables[0]);
-        //                dv.RowFilter = "Id='" + item["Id"] + "'";
-        //                if (dv.Count == 0)
-        //                {
-        //                    ccount++;
-        //                    string detailid = materialCommonService.MakePK(_Id, ccount, 2);
-        //                    item["Id"] = detailid;
-        //                    item["SalesReturnId"] = _Id;
-        //                    item["TransactionQty"] = item["ReturnQty"];
-        //                    item["BaseQty"] = item["ReturnQty"];
-        //                    item["BaseAmount"] = item["Amount"];
-        //                    item["TransactionAmount"] = item["Amount"];
-        //                    item["BooksCurrencyTransactionAmount"] = item["Amount"];
-        //                    item["BooksCurrencyTaxAmount"] = item["TaxAmount"];
-        //                    item["BooksCurrencyBaseRate"] = item["BaseRate"];
-        //                    item["AddedBy"] = identity.Name;
-        //                    item["AddedDate"] = DateTime.Now;
-        //                    item["AddedFromIP"] = identity.IPAddress;
-        //                    materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
-
-        //                    if (taxList != null)
-        //                    {
-        //                        foreach (var tx in taxList.Where(r => r["SalesMaterialId"].ToString() == item["SalesMaterialId"].ToString()))
-        //                        {
-        //                            DataView dvtx = new DataView(dstax.Tables[0]);
-        //                            dvtx.RowFilter = "Id='" + tx["Id"] + "'";
-
-        //                            if (dvtx.Count == 0)
-        //                            {
-        //                                taxcount++;
-        //                                string taxid = materialCommonService.MakePK(detailid, taxcount, 2);
-        //                                tx["Id"] = taxid;
-        //                                tx["SalesReturnId"] = _Id;
-        //                                tx["SalesReturnDetailId"] = detailid;
-        //                                tx["AddedBy"] = identity.Name;
-        //                                tx["AddedDate"] = DateTime.Now;
-        //                                tx["AddedFromIP"] = identity.IPAddress;
-        //                                materialCommonService.AddNewRowD(dstax.Tables[0], tx);
-        //                            }
-
-        //                        }
-        //                    }
-        //                    if (itemScanCildList != null)
-        //                    {
-        //                        foreach (var scitem in itemScanCildList.Where(r => r["SalesId"].ToString() == item["SalesId"].ToString()
-        //                            && r["ActualPackingId"].ToString() == item["PackingId"].ToString()
-        //                            && r["SalesOrderId"].ToString() == item["SalesOrderId"].ToString()))
-        //                        {
-        //                            DataView dvsc = new DataView(dsitemscanChild.Tables[0]);
-        //                            dvsc.RowFilter = "Id='" + scitem["Id"] + "'";
-
-        //                            if (dvsc.Count > 0)
-        //                            {
-        //                                DataRow drmo = dvsc[0].Row;
-        //                                drmo.BeginEdit();
-        //                                drmo["SalesReturnId"] = _Id;
-        //                                drmo["UpdatedBy"] = identity.Name;
-        //                                drmo["UpdatedDate"] = DateTime.Now.ToString();
-        //                                drmo.EndEdit();
-
-        //                            }
-
-        //                        }
-        //                    }
-        //                }
-
-        //            }
-        //        }
-
-        //        clsStaticInfo obj = new clsStaticInfo();
-        //        obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw (ex);
-        //    }
-        //}
+                objCon = null;
+            }
+        }
 
         #endregion
 

@@ -737,13 +737,86 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
     }
 
     //Start PO Wise
+    //---Filters Start---
+
+    $scope.POWIsesummaryfilters = [];
+
+    $scope.POWisefilters = function () {
+        try {
+            $scope.POWIsesummaryfilters = [];
+            //$scope.ProductionDataSumReportList = [];
+            $http({
+                method: 'GET',
+                url: 'Productions/POWiseProductionStatusReport/getPOWiseFilters',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                } else {
+                    $scope.POWIsesummaryfilters = response.data;
+                    var columnList = [
+                        { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                        { field: 'ProductionOrderNo', width: 20, headerText: "Production Order No", type: "string" },
+                        { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
+                        { field: 'Process', width: 20, headerText: "Process", type: "string" },
+                        //{ field: 'Customer', width: 20, headerText: "Customer", type: "string" }
+                    ];
+
+
+                    $("#POWIsesummaryfilters").ejGrid({
+                        dataSource: $scope.POWIsesummaryfilters,
+                        minWidth: 450, minHeight: 400,
+                        allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                        filterSettings: { filterType: "excel" },
+                        columns: columnList
+                    });
+
+                    var gridSumObj = $("#POWIsesummaryfilters").data("ejGrid");
+                    gridSumObj.refreshContent(true);
+                    gridSumObj.refreshTemplate();
+                    $("#POWIsesummaryfilters").children('.e-pager.e-js.e-pager').hide();
+                    $("#POWIsesummaryfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+                    $("#POWIsesummaryfilters").children('.e-gridcontent').hide();
+                }
+
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    $scope.POWisefilters();
+
+    $scope.powisemeters = [];
+    $scope.SumfilterComplete = function () {
+
+        var g = $("#POWIsesummaryfilters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.POWIsesummaryfilters;
+        }
+
+
+        var powisemeters = [];
+        powisemeters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        powisemeters.push({ "Key": "ProductionOrderNo", "Value": getString(fl, "ProductionOrderNo") });
+        powisemeters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
+        powisemeters.push({ "Key": "ProcessId", "Value": getString(fl, "ProcessId") });
+        //powisemeters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+
+        $scope.powisemeters = powisemeters;
+
+    }
+
+    //--Filters End---
 
     $scope.POWiseList = [];
     $scope.GetPOWiseView = function () {
+        $scope.SumfilterComplete();
         $http({
-            method: 'GET',
+            method: 'POST',
             url: $scope.path +'POWiseData',
-            //data: {employeeId: $scope.EmployeeId},
+            data: { 'parameters': $scope.powisemeters },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.POWiseList = response.data.NewData;

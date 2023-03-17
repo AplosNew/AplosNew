@@ -72,11 +72,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
         [Authorize, HttpGet]
-        public ActionResult GetMedinceStockGrid(string medicineId, string to)
+        public ActionResult GetMedinceStockGrid(string fromDate, string toDate)
         {
             try
             {
-                return Json(ml.GetMedinceStockGrid(medicineId, to), JsonRequestBehavior.AllowGet);
+                return Json(ml.GetMedinceStockGrid(fromDate, toDate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -321,7 +321,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        private IWorkbook medicineStockExcelView(string medicineId, string to)
+        private IWorkbook medicineStockExcelView(string fromDate, string toDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -329,7 +329,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = ml.medicineStockExcelView(medicineId, to);
+            var data = ml.medicineStockExcelView(fromDate, toDate);
 
 
             var sheet = workbook.Worksheets[0];

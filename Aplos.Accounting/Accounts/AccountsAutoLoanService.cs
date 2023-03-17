@@ -255,6 +255,12 @@ UNION ALL
 													where	LAAD.LoanAgainstAcceptanceMasterId=LAA.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 						,(select TOP 1 I.CompanyCurrencyRate from  [dbo].[LoanAgainstAcceptanceDetail] ITWLD
 						INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId WHERE ITWLD.LoanAgainstAcceptanceMasterId=LAA.Id)CompanyCurrencyRate
+						,(select TOP 1 VDC.CrAmount  from  [dbo].[LoanAgainstAcceptanceDetail] ITWLD
+							INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId 
+							INNER JOIN TRN.InvoiceDetail ID ON ID.InvoiceId=I.Id 
+							INNER JOIN TRN.VoucherDetail VD ON VD.InvoiceDetailId=ID.Id
+							INNER JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							WHERE ITWLD.LoanAgainstAcceptanceMasterId=LAA.Id)BankBookAmount
 						FROM LoanAgainstAcceptanceMaster LAA 
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
@@ -266,6 +272,11 @@ UNION ALL
 						,LAA.BankMasterId, BM.AccountTitle, XVD.LCRef  PurchaseLCNo,XVD.PINo
 						,(select TOP 1 I.CompanyCurrencyRate from  [dbo].[InvoiceTaggingWithLCDetail] ITWLD
 						INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId WHERE ITWLD.InvoiceTaggingWithLCMasterId=LAA.Id)CompanyCurrencyRate
+						,(select TOP 1 VDC.CrAmount from  [dbo].[InvoiceTaggingWithLCDetail] ITWLD
+							INNER JOIN TRN.Invoice I ON I.Id=ITWLD.InvoiceId 
+							INNER JOIN TRN.VoucherDetail VD ON VD.InvoiceDetailId=ITWLD.InvoiceDetailId
+							INNER JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+							WHERE ITWLD.InvoiceTaggingWithLCMasterId=LAA.Id)BankBookAmount
 						FROM InvoiceTaggingWithLCMaster LAA 
 						LEFT JOIN HKP.Party P ON P.Id=LAA.PartyId 
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId

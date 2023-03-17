@@ -177,7 +177,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
            /* $scope.GetEmployeeCategory();*/
-            $rootScope.toggle(); 
+            //$rootScope.toggle(); 
             $scope.GetDailyAttendanceStatus();
         }
     };
@@ -285,14 +285,16 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ModelNew = Object.assign({}, resp.data[0]);
+            
         });
     }
+    //$scope.GetFavouriteFilter();
 
     $scope.DailyAttendanceStatusList = [];
     $scope.GetDailyAttendanceStatus = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetDailyAttendanceStatus?instatus=' + $scope.ModelNew.InStatus + '&fromdate=' + $scope.ModelNew.FromDate + '&todate=' + $scope.ModelNew.ToDate + '&employeecategory=' + $scope.ModelNew.EmployeecategoryId + '&teamleaderid=' + $scope.ModelNew.TeamLeaderId + '&responsibleperson=' + $scope.ModelNew.EmpSystemId + '&shift=' + $scope.ModelNew.ShiftDefinationId + '&employeestatus=' + $scope.ModelNew.EmployeeStatus + '&daystatus=' + $scope.ModelNew.DayStatus,           
+            url: $scope.path + 'GetDailyAttendanceStatus?instatus=' + $scope.ModelNew.InStatus + '&fromdate=' + $scope.ModelNew.FromDate + '&todate=' + $scope.ModelNew.ToDate + '&employeecategory=' + $scope.ModelNew.EmployeecategoryId + '&responsibleperson=' + $scope.ModelNew.ResponsiblePersonId + '&shift=' + $scope.ModelNew.ShiftDefinationId + '&employeestatus=' + $scope.ModelNew.EmployeeStatus + '&daystatus=' + $scope.ModelNew.DayStatus,           
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.DailyAttendanceStatusList = resp.data;
@@ -328,14 +330,16 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
     }
 
     // #region Save
-    $scope.Save = function () {  
+    $scope.Save = function () {
+        debugger;
         $scope.$broadcast('show-errors-check-validity');
        /* if ($scope.ModelNewForm.$valid) {*/
             $http({
                 method: 'POST',
                 url: $scope.path + $scope.Action,
                 data: {
-                    'datas': $scope.ModelNew
+                    'datas': $scope.ModelNew,
+                    'employeeId': $window.employeeId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -421,7 +425,7 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
                 'todate': $scope.ModelNew.ToDate,
                 'employeecategory': $scope.ModelNew.EmployeecategoryId,
                 'teamleaderid': $scope.ModelNew.TeamLeaderId,
-                'responsibleperson': $scope.ModelNew.EmpSystemId,
+                'responsibleperson': $scope.ModelNew.ResponsiblePersonId,
                 'shift': $scope.ModelNew.ShiftDefinationId,
                 'employeestatus': $scope.ModelNew.EmployeeStatus,
                 'daystatus': $scope.ModelNew.DayStatus,
@@ -462,7 +466,8 @@ function DailyAttendanceStatusReportController(commonMessage, $scope, $rootScope
             ShiftDefinationId: null,
             EmployeeStatus: null,
             FavoriteFilteruserId: null,
-            DayStatus:null
+            DayStatus: null,
+            ResponsiblePersonId: null
         };
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 

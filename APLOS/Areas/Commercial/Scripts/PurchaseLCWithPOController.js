@@ -817,15 +817,15 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                     function successCallback(response) {
                         if (baseService.arrayLength(response.data) > 0) {
                             $scope.LCChargesList = response.data;
-                            if (baseService.arrayLength($scope.purchaseLCChargesList) > 0) {
-                                for (var i = 0; i < $scope.purchaseLCChargesList.length; i++) {
-                                    for (var j = 0; j < $scope.LCChargesList.length; j++) {
-                                        if ($scope.LCChargesList[j].Id === $scope.purchaseLCChargesList[i].OverHeadTypeGLId) {
-                                            $scope.LCChargesList[j].Active = true;
-                                        }
-                                    }
-                                }
-                            }
+                            //if (baseService.arrayLength($scope.purchaseLCChargesList) > 0) {
+                            //    for (var i = 0; i < $scope.purchaseLCChargesList.length; i++) {
+                            //        for (var j = 0; j < $scope.LCChargesList.length; j++) {
+                            //            if ($scope.LCChargesList[j].Id === $scope.purchaseLCChargesList[i].OverHeadTypeGLId) {
+                            //                $scope.LCChargesList[j].Active = true;
+                            //            }
+                            //        }
+                            //    }
+                            //}
                             GetCompanyCurrencyExchangeRateCharges();
                         }
                     },
@@ -847,8 +847,8 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
     $scope.SelectedLC = function () {
         if (baseService.arrayLength($scope.LCChargesList) > 0) {
             angular.forEach($scope.LCChargesList, function (a) {
-                if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
-                    if (a.Active) {
+                if (a.Active) {
+                    if (checkLCExist($scope.purchaseLCChargesList, a.Id) === false) {
                         $scope.purchaseLCChargesList.push({
                             Id: null
                             , OverHeadTypeGLId: a.Id
@@ -859,6 +859,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
                             , Budget: a.Budget
                             , Activity: a.Activity
                             , Remarks: null
+                            , VoucherId: null
                             , ChargesValue: null
                             , Rate: $scope.Rate
                             , BankAmount: null
@@ -940,7 +941,7 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
 
     function checkLCExist(list, Id) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].OverHeadTypeGLId === Id) {
+            if (list[i].OverHeadTypeGLId === Id && list[i].VoucherId == null) {
                 return true;
             }
         }

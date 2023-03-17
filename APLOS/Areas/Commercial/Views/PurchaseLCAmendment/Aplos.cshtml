@@ -174,12 +174,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="purchaseLCNew.Remarks" maxlength="250" tabindex="6"></textarea>
-            </div>
-        </div>
+       
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">
         <div class="form-group">
@@ -222,12 +217,13 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Amendment Date<sup>*</sup></label>
-            <div class="col-sm-8">
-                <input type="text" name="Amendment Date" ng-model="purchaseLCNew.AmendmentDate" datepicker class="form-control" tabindex="13" ng-change="ValidateDate();">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label" title="Amendment Date">Amendment Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Amendment Date" ng-model="purchaseLCNew.AmendmentDate" datepicker class="form-control" tabindex="13" required ng-change="ValidateDate();">
             </div>
         </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Port <span style="text-transform:lowercase">Of</span> Discharge<sup>*</sup></label>
             <div class="col-sm-8">
@@ -241,7 +237,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label" title="Insurance Value">Insurance Value<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="InsuranceValue" n-decimals="2" ng-model="purchaseLCNew.InsuranceValue" maxlength="50" class="form-control" required tabindex="18">
+                <input type="text" name="Insurance Value" n-decimals="2" ng-model="purchaseLCNew.InsuranceValue" maxlength="50" class="form-control" required tabindex="18">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -413,7 +409,7 @@
          e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
          e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
         <div e-columns>
-            <div e-column e-type="string" e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="50"></div>
+            <div e-column e-type="string" e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="80"></div>
             <div e-column e-type="string" e-field="Id" e-headertext="LC No" e-width="20" e-visible="false"></div>
             <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="120"></div>
             <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="150"></div>
@@ -430,18 +426,20 @@
             <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
             <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
             <div e-column e-type="string" e-field="ContractRemarks" e-headertext="Contract Remarks" e-width="100"></div>
-            @*<div e-column e-headertext="Actions" e-width="20">
-            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Edit" ng-disabled="data.Version===1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this,'Edit');" style="margin: -6px;"></i></button>
-            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Amendment" class="btn"><i class="glyphicon glyphicon-edit" ng-click="$parent.Get(this,'Amendment');" style="margin: -6px;"></i></button>
-        </div>*@
+           
         </div>
     </div>
-    @*<div class="content-container-fluid" style="color:black;overflow:scroll">
-        </div>*@
-    <script type="text/template" id="ShowActionButtonsBOM">
-        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Update" ng-disabled="data.Version===1" class="btn"><i class="glyphicon glyphicon-pencil" ng-click="$parent.Get(this,'Update');" style="margin: -6px;"></i></button>
-        <button style="color: #f3f3ec;background-color: #1c1f32;" title="Amendment" class="btn"><i class="glyphicon glyphicon-edit" ng-click="$parent.Get(this,'Amendment');" style="margin: -6px;"></i></button>
-    </script>
+   
+<script type="text/template" id="ShowActionButtonsBOM">
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+
+            <li> <button ng-click="$parent.Get(this,'Update');" ng-disabled="data.Version===1" class="btn"><i class="glyphicon glyphicon-pencil"></i></button></li>
+            <li> <button ng-click="$parent.Get(this,'Amendment');" class="btn"><i class="glyphicon glyphicon-edit"></i></button></li>
+        </ul>
+    </div>
+
+</script>
 </div>
 <confirm-modal></confirm-modal>
 

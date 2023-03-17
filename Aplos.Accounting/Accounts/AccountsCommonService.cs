@@ -4,12 +4,16 @@ using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
 using Library.Model.Accounts;
+using Library.Model.Advances;
 using Library.Model.Banks;
 using Library.Model.Currencies;
 using Library.Model.Employees;
+using Library.Model.Enums;
 using Library.Model.FixedAssets;
 using Library.Model.Invoices;
 using Library.Model.Organizations;
+using Library.Model.Parties;
+using Library.Model.Systems;
 using Library.Model.Vouchers;
 using Library.Service.Core;
 using Library.Service.Enums;
@@ -434,6 +438,7 @@ namespace Library.Accounting.Accounts
             dr["UpdatedDate"] = DateTime.Now.ToString();
             dr.EndEdit();
         }
+       
         public Voucher InsertVoucher(VoucherViewModel voucherVM)
         {
             return InsertVoucher(new Voucher
@@ -750,6 +755,216 @@ namespace Library.Accounting.Accounts
 
         #endregion
 
+        #region AdjustmentNote
+        public AdjustmentNote InsertAdjustmentNote(AdjustmentNote adjustmentNote, out DataSet dsData)
+        {
+            return InsertAdjustmentNote(adjustmentNote, true, out dsData);
+        }
+
+        public AdjustmentNote InsertAdjustmentNote(AdjustmentNote adjustmentNote, bool flag, out DataSet dsData)
+        {
+            adjustmentNote.Id = GetAutoNumber(nameof(AdjustmentNote), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            adjustmentNote.Narration = adjustmentNote.Narration?.ToUpper();
+            if (string.IsNullOrEmpty(adjustmentNote.AddedBy))
+                AuditService.AddedLog(adjustmentNote);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.AdjustmentNote where 1=2", out dsData);
+
+            AddNewRow<AdjustmentNote>(dsData.Tables[0], adjustmentNote);
+
+            return adjustmentNote;
+        }
+      
+
+        private AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId)
+        {
+            adjustmentNoteDetail.Id = MakePK(adjustmentNote.Id, currentId, 1);
+            adjustmentNoteDetail.AdjustmentNoteId = adjustmentNote.Id;
+            adjustmentNoteDetail.InvoiceId = adjustmentNote.InvoiceId;
+            adjustmentNoteDetail.AddedBy = adjustmentNote.AddedBy;
+            adjustmentNoteDetail.AddedDate = adjustmentNote.AddedDate;
+            adjustmentNoteDetail.AddedFromIP = adjustmentNote.AddedFromIP;
+            adjustmentNoteDetail.Archive = adjustmentNote.Archive;
+            //_AdjustmentNoteDetailRepository.Insert(adjustmentNoteDetail);
+            return adjustmentNoteDetail;
+        }
+
+        public AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId, ref DataSet ajNDetailData)
+        {
+            adjustmentNoteDetail.Id = MakePK(adjustmentNote.Id, currentId, 1);
+            adjustmentNoteDetail.AdjustmentNoteId = adjustmentNote.Id;
+            adjustmentNoteDetail.Archive = adjustmentNote.Archive;
+            adjustmentNoteDetail.AddedBy = adjustmentNote.AddedBy;
+            adjustmentNoteDetail.AddedDate = adjustmentNote.AddedDate;
+            adjustmentNoteDetail.AddedFromIP = adjustmentNote.AddedFromIP;
+            if (ajNDetailData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.AdjustmentNoteDetail where 1=2", out ajNDetailData);
+            }
+
+            AddNewRow<AdjustmentNoteDetail>(ajNDetailData.Tables[0], adjustmentNoteDetail);
+            return adjustmentNoteDetail;
+        }
+
+
+        public InvoiceTax InsertInvoiceTax(InvoiceTax invoiceTax, out DataSet dsData)
+        {
+            return InsertInvoiceTax(invoiceTax, true, out dsData);
+        }
+
+        public InvoiceTax InsertInvoiceTax(InvoiceTax invoiceTax, bool flag, out DataSet dsData)
+        {
+            invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            if (string.IsNullOrEmpty(invoiceTax.AddedBy))
+                AuditService.AddedLog(invoiceTax);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+
+            AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
+
+            return invoiceTax;
+        }
+
+     
+
+        public InvoiceTax InsertInvoiceTax(Invoice invoice, InvoiceTax invoiceTax, out DataSet dsData)
+        {
+            invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoiceTax.InvoiceId = invoice.Id;
+            invoiceTax.TaxYearId = invoice.TaxYearId;
+            invoiceTax.TaxYearPeriodId = invoice.TaxYearPeriodId;
+            invoiceTax.VoucherId = invoice.VoucherId;
+            invoiceTax.PartyId = invoice.PartyId;
+            invoiceTax.PartyPlantId = invoice.PartyPlantId;
+            invoiceTax.SourceType = invoice.SourceType;
+            invoiceTax.Archive = invoice.Archive;
+            invoiceTax.AddedBy = invoice.AddedBy;
+            invoiceTax.AddedDate = invoice.AddedDate;
+            invoiceTax.AddedFromIP = invoice.AddedFromIP;
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
+            return invoiceTax;
+        }
+        public InvoiceTax InsertInvoiceTax(EmployeePayable employeePayable, InvoiceTax invoiceTax, out DataSet dsData)
+        {
+            invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoiceTax.EmployeePayableId = employeePayable.Id;
+            invoiceTax.TaxYearId = employeePayable.TaxYearId;
+            invoiceTax.TaxYearPeriodId = employeePayable.TaxYearPeriodId;
+            invoiceTax.VoucherId = employeePayable.VoucherId;
+            invoiceTax.PartyId = employeePayable.PartyId;
+            invoiceTax.PartyPlantId = employeePayable.PartyPlantId;
+            invoiceTax.SourceType = employeePayable.SourceType;
+            invoiceTax.Archive = employeePayable.Archive;
+            invoiceTax.AddedBy = employeePayable.AddedBy;
+            invoiceTax.AddedDate = employeePayable.AddedDate;
+            invoiceTax.AddedFromIP = employeePayable.AddedFromIP;
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
+            return invoiceTax;
+        }
+        public InvoiceTax InsertInvoiceTax(InvoiceWriteOff invoicewriteoff, InvoiceTax invoiceTax, out DataSet dsData)
+        {
+            invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoiceTax.InvoiceWriteOffId = invoicewriteoff.Id;
+            invoiceTax.TaxYearId = invoicewriteoff.TaxYearId;
+            invoiceTax.TaxYearPeriodId = invoicewriteoff.TaxYearPeriodId;
+            invoiceTax.VoucherId = invoicewriteoff.VoucherId;
+            invoiceTax.PartyId = invoicewriteoff.PartyId;
+            invoiceTax.PartyPlantId = invoicewriteoff.PartyPlantId;
+            invoiceTax.SourceType = invoicewriteoff.SourceType;
+            invoiceTax.Archive = invoicewriteoff.Archive;
+            invoiceTax.AddedBy = invoicewriteoff.AddedBy;
+            invoiceTax.AddedDate = invoicewriteoff.AddedDate;
+            invoiceTax.AddedFromIP = invoicewriteoff.AddedFromIP;
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
+            return invoiceTax;
+        }
+
+        public InvoiceTax InsertInvoiceTax(Advance advance, InvoiceTax invoiceTax, out DataSet dsData)
+        {
+            invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoiceTax.AdvanceId = advance.Id;
+            invoiceTax.TaxYearId = advance.TaxYearId;
+            invoiceTax.TaxYearPeriodId = advance.TaxYearPeriodId;
+            invoiceTax.VoucherId = advance.VoucherId;
+            invoiceTax.PartyId = advance.PartyId;
+            invoiceTax.PartyPlantId = advance.PartyPlantId;
+            invoiceTax.SourceType = advance.SourceType;
+            invoiceTax.Archive = advance.Archive;
+            invoiceTax.AddedBy = advance.AddedBy;
+            invoiceTax.AddedDate = advance.AddedDate;
+            invoiceTax.AddedFromIP = advance.AddedFromIP;
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
+            return invoiceTax;
+        }
+
+        public InvoiceTax InsertInvoiceTax(AdjustmentNote adjustmentNote, InvoiceTax invoiceTax, out DataSet dsData)
+        {
+            invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoiceTax.InvoiceId = adjustmentNote.InvoiceId;
+            invoiceTax.TaxYearId = adjustmentNote.TaxYearId;
+            invoiceTax.TaxYearPeriodId = adjustmentNote.TaxYearPeriodId;
+            invoiceTax.VoucherId = adjustmentNote.VoucherId;
+            invoiceTax.PartyId = adjustmentNote.PartyId;
+            invoiceTax.PartyPlantId = adjustmentNote.PartyPlantId;
+            invoiceTax.SourceType = adjustmentNote.SourceType;
+            invoiceTax.Archive = adjustmentNote.Archive;
+            invoiceTax.AddedBy = adjustmentNote.AddedBy;
+            invoiceTax.AddedDate = adjustmentNote.AddedDate;
+            invoiceTax.AddedFromIP = adjustmentNote.AddedFromIP;
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
+            return invoiceTax;
+        }
+
+        public InvoiceTax InsertInvoiceTax(VoucherViewModel voucherVM, InvoiceTax invoiceTax, out DataSet dsData)
+        {
+            invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
+            invoiceTax.TaxYearId = voucherVM.TaxYearId;
+            invoiceTax.TaxYearPeriodId = voucherVM.TaxYearPeriodId;
+            invoiceTax.VoucherId = voucherVM.VoucherId;
+            invoiceTax.PartyId = voucherVM.PartyId;
+            invoiceTax.PartyPlantId = voucherVM.PartyPlantId;
+            invoiceTax.SourceType = voucherVM.SourceType;
+            invoiceTax.Archive = false;
+            invoiceTax.AddedBy = voucherVM.AddedBy;
+            invoiceTax.AddedDate = voucherVM.AddedDate;
+            invoiceTax.AddedFromIP = voucherVM.AddedFromIP;
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
+            return invoiceTax;
+        }
+
+        public InvoiceTaxDetail InsertInvoiceTaxDetail(InvoiceTax invoiceTax, InvoiceTaxDetail invoiceTaxDetail, ref DataSet ivTaxDetailData)
+        {
+            invoiceTaxDetail.Archive = invoiceTax.Archive;
+            invoiceTaxDetail.AddedBy = invoiceTax.AddedBy;
+            invoiceTaxDetail.AddedDate = invoiceTax.AddedDate;
+            invoiceTaxDetail.AddedFromIP = invoiceTax.AddedFromIP;
+            if (ivTaxDetailData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceTaxDetail where 1=2", out ivTaxDetailData);
+            }
+
+            AddNewRow<InvoiceTaxDetail>(ivTaxDetailData.Tables[0], invoiceTaxDetail);
+            return invoiceTaxDetail;
+        }
+
+      
+        #endregion
         #region VoucherGLUpdate
         public void UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {

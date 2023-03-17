@@ -110,6 +110,8 @@ namespace Aplos.Areas.Employees.Controllers
             objRpt = new clsReport();
             oRU = new ReportUtility();
 
+            var plantWiseData = GetPlantWiseHRMSSetting();
+
             GetEmployeesData(identity.CompanyId, radioValue.ToString(), IsCheck, LA, TBS, out dsEmpInfo);
             objRpt.GetEntityPositionInfo(identity.CompanyId, out dsEntityPosition);
             objRpt.GetEmployeesTodaysShift(out dsTodayShift);
@@ -359,7 +361,14 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Employee Location"); cEL = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Grade"); cG = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Minimum Wage"); cMW = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Amount"); ColGS = xlsCol; xlsCol++;
+
+                if (plantWiseData.Rows.Count > 0)
+                {
+                    if (Convert.ToBoolean(plantWiseData.Rows[0]["IsSalaryStructureShowInEIReport"]) == true)
+                    {
+                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Amount"); ColGS = xlsCol; xlsCol++;
+                    }
+                }
                 //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CTC Amount"); cCTC = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Individual OT Entitlement"); cOT = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation OT Entitlement"); cDOT = xlsCol; xlsCol++;
@@ -541,11 +550,17 @@ namespace Aplos.Areas.Employees.Controllers
                         oRU.SetText(ref sheet1, xlsRow, cBonus, drTemp["BONUS"].ToString());
                     }
 
-                    if (dsGross.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
+                    if (plantWiseData.Rows.Count>0)
+                    {
+                        if (Convert.ToBoolean(plantWiseData.Rows[0]["IsSalaryStructureShowInEIReport"]) == true)
+                        {
+                            if (dsGross.ContainsKey(dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()))
                     {
                         DataRow drTemp = dsGross[dsEmpInfo.Tables[0].Rows[i]["SystemID"].ToString()];
 
                         oRU.SetText(ref sheet1, xlsRow, ColGS, drTemp["DefineAmount"].ToString());
+                    }
+                        }
                     }
 
 
@@ -700,6 +715,23 @@ namespace Aplos.Areas.Employees.Controllers
             report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
+
+
+        public DataTable GetPlantWiseHRMSSetting()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"select IsSalaryStructureShowInEIReport from PlantWiseHRMSSetting 
+                            where PlantID = '"+identity.PlantId+"'";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
 
         public void GetEmployeesData(string CompanyId, string radioValue, bool IsCheck, bool LA, bool TBS, out DataSet dsRef)
         {

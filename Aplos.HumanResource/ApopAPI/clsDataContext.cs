@@ -3465,6 +3465,215 @@ where ProcessId = '"+ ProcessId +"'";
                 objCon = null;
             }
         }
+
+        public void GetPODetail(out List<PODetail> DataList, string POId,string ProcessId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<PODetail>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select po.Id As POId , pos.StandardName As StandardName , ps.ProductionBookingLevel As BookingLevel  from TRN.ProductionOrder As po
+left join HKP.ProductionStatus As pos   on po.ProductionStatusId = pos.Id 
+left join trn.ProductionOrderProcessSet As ps on ps.ProductionOrderId = po.Id
+where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new PODetail
+                    {
+                        POId = dsRef.Tables[0].Rows[i]["POId"].ToString(),
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+                        BookingLevel = dsRef.Tables[0].Rows[i]["BookingLevel"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetWorkCenterId(out List<Default2> DataList, string WorkCenter)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select id As Value, UserName As Name from Scs.WorkCenterMaster where UserName = '" + WorkCenter + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetSalesReturnId(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id As Name, SalesId As Value from TRN.SalesReturn";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetTransactionQty(out List<Default2> DataList, string SalesReturnId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select SalesId As Value, TransactionQty As Name from TRN.SalesReturnDetail where SalesReturnId = '" + SalesReturnId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetCartonBookedQty(out List<Weight> DataList, string SalesId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Weight>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Count(refno)CartonQty,
+                isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild where Booked = 0 and IsDespatch = 0 and SalesId = '" + SalesId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Weight
+                    {
+                        CartonQty = dsRef.Tables[0].Rows[i]["CartonQty"].ToString(),
+                        BookedQty = dsRef.Tables[0].Rows[i]["BookedQty"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetWrongCarten(out List<Default2> DataList, string Refno, string SalesId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select POId as Value, RefNo As Name from dbo.ItemScanChild where RefNo = '" + Refno + "' and SalesId = '" + SalesId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         #endregion Written By Aman
 
         #region Test For production service
@@ -3677,6 +3886,13 @@ where ProcessId = '"+ ProcessId +"'";
         public string Id { get; set; }
         public string MenuName { get; set; }
         public string IconName { get; set; }
+    }
+
+    public class PODetail
+    {
+        public string POId { get; set; }
+        public string StandardName { get; set; }
+        public string BookingLevel { get; set; }
     }
     #region Written by Nitesh
 
@@ -3957,6 +4173,12 @@ where ProcessId = '"+ ProcessId +"'";
     {
         public string Name { get; set; } = "";
         public string Value { get; set; } = "";
+    }
+
+    public class Weight
+    {
+        public string CartonQty { get; set; } = "";
+        public string BookedQty { get; set; } = "";
     }
 
 

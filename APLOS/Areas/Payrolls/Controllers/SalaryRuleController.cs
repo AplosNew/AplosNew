@@ -464,7 +464,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 
             try
             {
-                string sql = @"SELECT (MAX(SequenceNo)+1 )SequenceNo FROM [dbo].[SalaryRuleGeneral] Where SalaryRuleMasterSystemID='" + SalaryRuleMasterSystemID + "'";
+                string sql = @"SELECT (ISNULL(MAX(SequenceNo),0)+1 )SequenceNo FROM [dbo].[SalaryRuleGeneral] Where SalaryRuleMasterSystemID='" + SalaryRuleMasterSystemID + "'";
                 Obj = new ConnectionManager.DAL.ConManager("1");
                 Obj.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
             }
