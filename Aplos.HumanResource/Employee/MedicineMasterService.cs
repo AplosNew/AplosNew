@@ -1929,17 +1929,39 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
             }
         }
         
-        public IEnumerable<object> GetMedinceStockGrid(string medicineId, string to)
+        public IEnumerable<object> GetMedinceStockGrid(string fromDate, string toDate)
         {
             try
             {
-                string sql = @"select MRC.MedicineMasterId, MM.UserName Medicine, FORMAT(MRC.ExpiryDate, 'dd-MMM-yyyy')ExpiryDate, 
-                                FORMAT(MR.InvoiceDate, 'dd-MMM-yyyy')InvoiceDate, 
-                                MRC.Quantity from TRN.MedicineReceipt MR
-                                left join TRN.MedicineReceiptChild MRC on MRC.MedicineReceiptId = MR.Id
-                                left join HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
-                                left join TRN.EmployeeSicknessMedicines ESM on ESM.MedicineReceiptChildId = MRC.Id
-                                where MM.Id = '"+ medicineId + "' and MR.InvoiceDate = '" + to + "'order by MRC.ExpiryDate";
+                string sql = @"DECLARE @MedicineMasterId VARCHAR(20)='MM17';
+
+SELECT X.Medicine,SUM(ISNULL(X.[Opening Quantity],0)) OpeningQuantity,SUM(ISNULL(X.TrnsReceivedQty,0)) TrnsReceivedQty,SUM(ISNULL(X.TrnsIssueQty,0)) TrnsIssueQty
+,ClosingQty=SUM(ISNULL(X.[Opening Quantity],0)) + SUM(ISNULL(X.TrnsReceivedQty,0)) - SUM(ISNULL(X.TrnsIssueQty,0)) 
+,(SELECT MAX(CONVERT(Date,ExpiryDate)) FROM TRN.MedicineReceiptChild WHERE MedicineMasterId=X.MedicineMasterId  )ExpiryDate
+FROM (select MRC.MedicineMasterId,MM.UserName Medicine, [Opening Quantity] =SUM(isnull(MRC.Quantity,0)) - SUM(isnull(ESM.IssueQty,0)),0 TrnsReceivedQty,0 TrnsIssueQty
+from TRN.MedicineReceipt MR
+LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+left join (select ISnull(SUM(Quantity),0)IssueQty, MedicineMasterId 
+from TRN.EmployeeSicknessMedicines WHERE CONVERT(date,AddedDate)<='19-NOV-2022' GROUP BY MedicineMasterId) ESM on ESM.MedicineMasterId = MRC.MedicineMasterId
+WHERE CONVERT(date,MRC.AddedDate)<'" + fromDate + @"'
+GROUP BY MRC.MedicineMasterId,MM.UserName
+
+UNION ALL
+select MRC.MedicineMasterId,MM.UserName Medicine, 0 [Opening Quantity] ,SUM(isnull(MRC.Quantity,0)) TrnsReceivedQty,0 TrnsIssueQty
+from TRN.MedicineReceipt MR
+LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+WHERE CONVERT(date,MRC.AddedDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+GROUP BY MRC.MedicineMasterId,MM.UserName
+
+UNION ALL
+select ESM.MedicineMasterId,MM.UserName Medicine, 0 [Opening Quantity] ,0 TrnsReceivedQty,SUM(isnull(ESM.Quantity,0)) TrnsIssueQty
+from TRN.EmployeeSicknessMedicines  ESM
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+WHERE CONVERT(date,ESM.AddedDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+GROUP BY ESM.MedicineMasterId,MM.UserName)X
+GROUP BY X.Medicine,X.MedicineMasterId";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -2075,21 +2097,44 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
             }
         }
 
-        public DataTable medicineStockExcelView(string medicineId, string to)
+        public DataTable medicineStockExcelView(string fromDate ,string toDate)
         {
             try
             {
-               
-                string sql = @"select MM.UserName Medicine, [Opening Quantity] = case when IsOpeningQty = 1 then MRC.Quantity else 0 end 
-,[Received Quantity] = case when IsOpeningQty = 0 then MRC.Quantity else 0 end
-, ESM.IssueQty, FORMAT(MRC.ExpiryDate,'dd-MMM-yyyy')[Expiry Date], ClosingStock =  case when IsOpeningQty = 1 then MRC.Quantity else 0 end + case when IsOpeningQty = 0 then MRC.Quantity
-else 0 end - ESM.IssueQty
+                //string mdid = "";
+                //if (!string.IsNullOrEmpty(medicineId)|| medicineId !="null")
+                //{
+                //    mdid = "and ";
+                //}
+                string sql = @"DECLARE @MedicineMasterId VARCHAR(20)='MM17';
+
+SELECT X.Medicine,SUM(ISNULL(X.[Opening Quantity],0)) OpeningQuantity,SUM(ISNULL(X.TrnsReceivedQty,0)) TrnsReceivedQty,SUM(ISNULL(X.TrnsIssueQty,0)) TrnsIssueQty
+,ClosingQty=SUM(ISNULL(X.[Opening Quantity],0)) + SUM(ISNULL(X.TrnsReceivedQty,0)) - SUM(ISNULL(X.TrnsIssueQty,0)) 
+,(SELECT MAX(ExpiryDate) FROM TRN.MedicineReceiptChild WHERE MedicineMasterId=X.MedicineMasterId  )ExpiryDate
+FROM (select MRC.MedicineMasterId,MM.UserName Medicine, [Opening Quantity] =SUM(isnull(MRC.Quantity,0)) - SUM(isnull(ESM.IssueQty,0)),0 TrnsReceivedQty,0 TrnsIssueQty
 from TRN.MedicineReceipt MR
 LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = MR.Id
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
-left join (select ISnull(SUM(Quantity),0)IssueQty, MedicineReceiptChildId 
-from TRN.EmployeeSicknessMedicines GROUP BY MedicineReceiptChildId) ESM on ESM.MedicineReceiptChildId = MRC.Id
-order by MRC.ExpiryDate";
+left join (select ISnull(SUM(Quantity),0)IssueQty, MedicineMasterId 
+from TRN.EmployeeSicknessMedicines WHERE CONVERT(date,AddedDate)<='19-NOV-2022' GROUP BY MedicineMasterId) ESM on ESM.MedicineMasterId = MRC.MedicineMasterId
+WHERE CONVERT(date,MRC.AddedDate)<'"+ fromDate + @"'
+GROUP BY MRC.MedicineMasterId,MM.UserName
+
+UNION ALL
+select MRC.MedicineMasterId,MM.UserName Medicine, 0 [Opening Quantity] ,SUM(isnull(MRC.Quantity,0)) TrnsReceivedQty,0 TrnsIssueQty
+from TRN.MedicineReceipt MR
+LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = MR.Id
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
+WHERE CONVERT(date,MRC.AddedDate) BETWEEN '"+ fromDate + "' AND '"+ toDate + @"'
+GROUP BY MRC.MedicineMasterId,MM.UserName
+
+UNION ALL
+select ESM.MedicineMasterId,MM.UserName Medicine, 0 [Opening Quantity] ,0 TrnsReceivedQty,SUM(isnull(ESM.Quantity,0)) TrnsIssueQty
+from TRN.EmployeeSicknessMedicines  ESM
+LEFT JOIN HKP.MedicineMaster MM on MM.Id = ESM.MedicineMasterId
+WHERE CONVERT(date,ESM.AddedDate) BETWEEN '" + fromDate + "' AND '" + toDate + @"'
+GROUP BY ESM.MedicineMasterId,MM.UserName)X
+GROUP BY X.Medicine,X.MedicineMasterId";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch(Exception ex)
