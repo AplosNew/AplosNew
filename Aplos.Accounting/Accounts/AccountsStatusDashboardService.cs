@@ -21471,7 +21471,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 group by IRD.PODetailsId
                 )IRD ON IRD.PodetailsId=pod.id
                 left join hkp.Party P ON P.Id=po.PartyId
-                 where (ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0))>0
+                 where (ISNULL(pod.BaseAmount,0)-ISNULL(IRD.GRNAmount,0))>0 AND ISNULL(po.IsClosed,0)=0
                 
                 ) x
 				group by x.PartyId,x.PartyCode,x.PartyName order by x.partyName";

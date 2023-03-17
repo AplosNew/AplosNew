@@ -243,6 +243,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboVoucherTypeDebitNoteList: getCboVoucherTypeDebitNoteList
         , getCboVoucherTypeTaxPaymentList: getCboVoucherTypeTaxPaymentList
         , getCboVoucherTypeInventoryReturnPayableList: getCboVoucherTypeInventoryReturnPayableList
+        , getCboVoucherTypeSalesReturnList: getCboVoucherTypeSalesReturnList
         , getCboDocumnetCategoryList: getCboDocumnetCategoryList
         , getCboCascadingComplianceDocumentSubCategory: getCboCascadingComplianceDocumentSubCategory
         , getCboComplianceDocumnetList: getCboComplianceDocumnetList
@@ -1557,6 +1558,10 @@ function cboService($http, $window, $rootScope, baseService) {
 
     function getCboVoucherTypeInventoryReturnPayableList(callback) {
         base('accounts/VoucherTypeMatrix/GetCboVoucherTypeInventoryReturnPayableList', callback);
+    }
+
+    function getCboVoucherTypeSalesReturnList(callback) {
+        base('accounts/VoucherTypeMatrix/GetCboVoucherTypeSalesReturnList', callback);
     }
 
     function getCboVoucherTypeDebitNoteList(callback) {

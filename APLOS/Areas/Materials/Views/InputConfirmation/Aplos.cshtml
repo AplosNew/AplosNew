@@ -29,7 +29,7 @@
                         <input type="text" name="Confirmation Date" ng-model="ModelNew.ConfirmationDate" datepicker class="form-control" placeholder="dd-mmm-yyyy" required tabindex="9">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
@@ -80,14 +80,18 @@
                 </div>
             </div>
             <div class="clearfix"></div>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button style="margin-left: 5px;" ng-click="AddMaterial();" ng-disabled="ModelNew.POId===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add Material</button></li>
+                </ul>
+            </div>
             <div style="color:black;" id="SOGrid" ej-grid e-datasource="IssueSlipDataList" e-allowscrolling="true"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                  e-allowselection="false" e-filtersettings-filterType="excel" e-showsummary="true" e-summaryrows="summaryRows">
                 <div e-columns>
-                    <div e-column e-type="string" e-field="IssueSlipId" e-headertext="IssueSlipId" e-width="30"></div>
-                    <div e-column e-type="string" e-field="IssueSlipRowId" e-headertext="IssueSlipRowId" e-width="30"></div>
+                    <div e-column e-type="string" e-field="IssueSlipId" e-headertext="IssueSlipId" e-width="40"></div>
+                    <div e-column e-type="string" e-field="IssueSlipRowId" e-headertext="IssueSlipRowId" e-width="40"></div>
                     <div e-column e-type="string" e-field="CostCenter" e-headertext="CostCenter" e-width="60"></div>
-                    <div e-column e-type="string" e-field="MaterialMaster" e-headertext="MaterialMaster" e-width="80"></div>
                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
                     <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="40"></div>
                     <div e-column e-type="number" e-field="RequestedQty" e-headertext="RequestedQty" e-textalign="right" e-width="50"></div>
