@@ -274,6 +274,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
 
     $scope.closeInchargeGridPopup = function () {
         angular.element(document.querySelector('#InchargeGridPopup')).modal('hide');
+
     }
 
     $scope.RMSTargetId = null;
