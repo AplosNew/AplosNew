@@ -1,0 +1,31 @@
+﻿<ej-dialog id="dialogBottleneckGraph" title="Production Bottleneck" e-enablemodal="true" e-showoninit="false" e-target="#MainDivId" e-width="1020" e-minheight="500">
+    <div class="row" style="width:1000px;overflow:scroll;">
+
+        <div id="ChartBottleneck" ej-chart e-load="loadTheme" e-size-height="600px" e-chartArea-border-color="#686868"
+             e-chartArea-border-width="4" e-primaryXAxis-title-text="Operation" style="width:{{graphmaxwidth(BottleneckData)}};"
+             e-primaryYAxis-title-text="Quantity in %" e-size-width="graphmaxwidth(BottleneckData,60)"
+             e-primaryXAxis-majorGridLines-visible="false" e-primaryXAxis-labelFormat="dd,MMM"
+             e-primaryYAxis-range-min="0" e-primaryxaxis-labelIntersectAction="rotate90" e-prerender="chartBottleneckPreRender"
+             e-primaryYAxis-axisLine-color="#808080" e-primaryYAxis-labelFormat="{value} %"
+             e-primaryYAxis-stripLine="StripLineSetting" e-primaryYAxis-rangePadding="none"
+             e-primaryYAxis-range-max="100" e-primaryYAxis-range-interval="5"
+             e-isResponsive="true" e-legend-visible="false" @*e-title-text="Bottleneck Report"*@>
+            <e-series>
+                <e-series e-marker-dataLabel-visible="true"
+                          e-marker-datalabel-horizontaltextalignment="Center"
+                          e-marker-datalabel-showedgelabels="true"
+                          e-marker-dataLabel-angle="0"
+                          e-marker-dataLabel-font-color="yellow"
+                          e-marker-dataLabel-font-fontweight="bold"
+                          e-marker-dataLabel-enablecontrastcolor="true"
+                          e-name="Production" e-datasource="BottleneckData" e-xname="Operationvariation" e-yname="AverageProduction" e-fill="#06B200">
+                </e-series>
+
+            </e-series>
+        </div>
+       
+
+    </div>
+</ej-dialog>
+
+
