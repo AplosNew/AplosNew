@@ -3616,7 +3616,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             try
             {
                 strSQL = @"select Count(refno)CartonQty,
-                isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild where Booked = 0 and IsDespatch = 0 and SalesId = '" + SalesId + "'";
+                isnull(Floor(Sum(netweight)),0)BookedQty from itemscanchild where Booked = 0  and SalesId = '" + SalesId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);

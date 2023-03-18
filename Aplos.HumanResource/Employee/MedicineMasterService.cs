@@ -1935,17 +1935,17 @@ where ML.[Date] between '" + from + "' and '" + to + "' and EMP.EmployeeStatus =
             {
                 string sql = @"DECLARE @MedicineMasterId VARCHAR(20)='MM17';
 
-SELECT X.Medicine,SUM(ISNULL(X.[Opening Quantity],0)) OpeningQuantity,SUM(ISNULL(X.TrnsReceivedQty,0)) TrnsReceivedQty,SUM(ISNULL(X.TrnsIssueQty,0)) TrnsIssueQty
+SELECT X.Medicine, (SELECT MAX(ExpiryDate) FROM TRN.MedicineReceiptChild WHERE MedicineMasterId=X.MedicineMasterId  )ExpiryDate
+,SUM(ISNULL(X.[Opening Quantity],0)) OpeningQuantity,SUM(ISNULL(X.TrnsReceivedQty,0)) TrnsReceivedQty,SUM(ISNULL(X.TrnsIssueQty,0)) TrnsIssueQty
 ,ClosingQty=SUM(ISNULL(X.[Opening Quantity],0)) + SUM(ISNULL(X.TrnsReceivedQty,0)) - SUM(ISNULL(X.TrnsIssueQty,0)) 
-,(SELECT MAX(CONVERT(Date,ExpiryDate)) FROM TRN.MedicineReceiptChild WHERE MedicineMasterId=X.MedicineMasterId  )ExpiryDate
-FROM (select MRC.MedicineMasterId,MM.UserName Medicine, [Opening Quantity] =SUM(isnull(MRC.Quantity,0)) - SUM(isnull(ESM.IssueQty,0)),0 TrnsReceivedQty,0 TrnsIssueQty
+FROM (select MRC.MedicineMasterId,MM.UserName Medicine, [Opening Quantity]  = isnull(MRC.Quantity,0),0 TrnsReceivedQty,0 TrnsIssueQty
 from TRN.MedicineReceipt MR
 LEFT JOIN TRN.MedicineReceiptChild MRC ON MRC.MedicineReceiptId = MR.Id
 LEFT JOIN HKP.MedicineMaster MM on MM.Id = MRC.MedicineMasterId
 left join (select ISnull(SUM(Quantity),0)IssueQty, MedicineMasterId 
 from TRN.EmployeeSicknessMedicines WHERE CONVERT(date,AddedDate)<='19-NOV-2022' GROUP BY MedicineMasterId) ESM on ESM.MedicineMasterId = MRC.MedicineMasterId
 WHERE CONVERT(date,MRC.AddedDate)<'" + fromDate + @"'
-GROUP BY MRC.MedicineMasterId,MM.UserName
+GROUP BY MRC.MedicineMasterId,MM.UserName, MRC.Quantity
 
 UNION ALL
 select MRC.MedicineMasterId,MM.UserName Medicine, 0 [Opening Quantity] ,SUM(isnull(MRC.Quantity,0)) TrnsReceivedQty,0 TrnsIssueQty
