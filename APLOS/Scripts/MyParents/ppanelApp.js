@@ -4,7 +4,9 @@ var ppanelApp = angular.module('ppanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller('ppanelLogoutController', ppanelLogoutController)
     .controller('parentsPasswordChangeController', parentsPasswordChangeController)
     .controller("myParentsCalendarController", myParentsCalendarController)
-    .controller("TeacherScheduleController", TeacherScheduleController)
+    //.controller("TeacherScheduleController", TeacherScheduleController)
+    .controller("POParameterChangeController", POParameterChangeController)
+    .controller("partyBaseController", partyBaseController)
 
     //#endregion
 
@@ -32,14 +34,11 @@ var ppanelApp = angular.module('ppanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'MyParents/Calendar',
                 controller: 'myParentsCalendarController'
             })
-            .when('/task-list', {
-                templateUrl: 'TaskManagement/TaskList/',
-                controller: 'taskListController'
-            })
+           
 
-            .when('/teacher-schedule', {
-                templateUrl: 'TaskManagement/TeacherSchedule/Aplos',
-                controller: 'TeacherScheduleController'
+            .when('/po-parameter', {
+                templateUrl: 'Products/POParameterChange/Aplos',
+                controller: 'POParameterChangeController'
             })
 
             .when('/logout', {
@@ -50,6 +49,8 @@ var ppanelApp = angular.module('ppanelApp', ['ngRoute', 'ngCookies', 'angularUti
             .otherwise({
                 redirectTo: 'MyParents/login'
             });
+
+
     }])
     .run(['$rootScope', '$timeout', '$cookies', '$window', "$filter", "$http", function ($rootScope, $timeout, $cookies, $window, $filter, $http) {
         $rootScope.title = 'MyParents';

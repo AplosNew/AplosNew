@@ -768,6 +768,21 @@ namespace Aplos.Areas.Parties.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             party.CompanyGroupId = identity.CompanyGroupId;
             party.PartyType = PartyType.Party.ToString();
+
+            if (party.PartyType == "Party")
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster = null;
+                string sql = "select* from trn.VoucherDetail where PartyId = '" + party.Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Currency update not allowed!! Voucher have already done against this Party.");
+                }
+            }
+
             _partyService.Update(party, addressMaster, contactmasters, companyPartyDataList, companyPartyGLDataList, vendorPartnerFunction);
             return Json(new { Party = party, Sequence = _partyService.GetAutoSequence(), Message = AplosMessage.Updated });
         }

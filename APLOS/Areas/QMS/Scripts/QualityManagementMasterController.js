@@ -4,18 +4,17 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $rootScope.title = "QualityManagementMaster";
     $scope.CriticalLevelLists = [];
     $scope.CategoryLists = [];
-    /*$scope.GroupList = [];*/
     $scope.Action = 'Save';
     $scope.path = 'QMS/QualityManagementMaster/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlEntity = $scope.path + 'createEntity';
-    $scope.saveUrlPositionCode = $scope.path + 'createPositionCode';
-    $scope.saveUrlLevel = $scope.path + 'createLevel';
-    $scope.saveUrlItem = $scope.path + 'createItem';
-    $scope.saveUrlParameter = $scope.path + 'createParameter';
-    $scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
-    $scope.saveUrlTeamDefinition = $scope.path + 'createTeamDefinition';
-    $scope.saveUrlGrading = $scope.path + 'createGrading';
+    $scope.saveUrlActivityGroup = $scope.path + 'createActivityGroup';
+    $scope.saveUrlProcess = $scope.path + 'createProcess';
+    //$scope.saveUrlItem = $scope.path + 'createItem';
+    //$scope.saveUrlParameter = $scope.path + 'createParameter';
+    //$scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
+    //$scope.saveUrlTeamDefinition = $scope.path + 'createTeamDefinition';
+    //$scope.saveUrlGrading = $scope.path + 'createGrading';
     
     $scope.CriticalLevelLists = [
         {
@@ -83,37 +82,22 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.schedule = {
         Id: null
         , ScheduleCode: null
-        , ProcessId: null
-        , SubProcessId: null
         , StandaredName: null
+        , UserName: null
         , ScheduleDays: null
-        , MinScheduleMinutes: null
         , ResponsiblePersoneBgtCodeId: null
         , ResponsiblePersoneBgtCode: null
-        , UserName:null
-        , MinScheduleDays: null
-        , MaxScheduleMinutes: null
-        , MaxScheduleDays: null
-        , StandardScheduleMinutes: null
-        , IsActive: true
-        , Department: null
-        , DepartmentId: null
-        , TrainingGroup: null
-        , AdvancePlanningDays: null
-
+        , Remarks: null
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
 
-    $scope.SkillLevel = {
+    $scope.ActivityGroup = {
         Id: null
-        , SMID: null
-        , SNO: null
-        , PerformanceGroup: null
-        , PerformanceDetails: null
-        , PerformancePoints: null
+        , QMID: null
+        , ActivityGroupName: null
         , Remarks: null
-    }
-    $scope.SkillLevelNew = Object.assign({}, $scope.SkillLevel);
+    };
+    $scope.ActivityGroupNew = Object.assign({}, $scope.ActivityGroup);
 
     $scope.Item = {
         Id: null
@@ -148,36 +132,6 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     }
     $scope.ParameterNew = Object.assign({}, $scope.Parameter);
 
-    $scope.PersonBudget = {
-        Id: null
-        , SNO: null
-        , PersonBudgetCodeId: null
-        , PersonBudgetCode: null
-        , Group: null
-        , SMID: null
-    }
-    $scope.PersonBudgetNew = Object.assign({}, $scope.PersonBudget);
-
-    $scope.TeamDefinition = {
-        Id: null
-        , SNO: null
-        , TeamDefinitionId: null
-        , TeamDefinition: null
-        , SMID: null
-    }
-    $scope.TeamDefinitionNew = Object.assign({}, $scope.TeamDefinition);
-
-    $scope.Grade = {
-        Id: null
-        , SMID: null
-        , PerformanceGroup: null
-        , Grade1: null
-        , Grade2: null
-        , Grade3: null
-        , Grade4: null
-    }
-    $scope.GradeNew = Object.assign({}, $scope.Grade);
-
     $scope.ProcessList = [];
     $scope.GetProcessList = function () {
         $http({
@@ -189,51 +143,39 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     }
     $scope.GetProcessList();
 
-    $scope.SubProcessList = [];
-    $scope.GetSubProcessList = function (id) {
-        $http({
-            method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetSubProcessList?Pid=' + id
-        }).then(function successCallback(response) {
-            $scope.SubProcessList = response.data;
-        });
-    }
-
-    $scope.SkillManagementMasterList = [];
-    $scope.LoadSkillManagementMasterList = function () {
+    $scope.QualityManagementMasterList = [];
+    $scope.LoadQualityManagementMasterList = function () {
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadSkillManagementMasterList'
+            url: 'QMS/QualityManagementMaster/LoadQualityManagementMasterList'
         }).then(function successCallback(response) {
-            $scope.SkillManagementMasterList = response.data;
-            var gridObj = $("#GridSkillManagementSchedulingMaster").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            $scope.QualityManagementMasterList = response.data;
+            var gridObj = $("#GridQualityManagementMaster").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         }
         )
     }
-    $scope.LoadSkillManagementMasterList();
+    $scope.LoadQualityManagementMasterList();
 
     $scope.GetDetails = function (args) {
         $scope.ScheduleMasterId = args.data.Id;
         $http({
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadScheduleEditData?ScheduleID=' + args.data.Id
+            url: 'QMS/QualityManagementMaster/LoadQualityManagementEditData?ScheduleID=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.scheduleNew = response.data.schedule[0];
             $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
-            $scope.GetSubProcessList($scope.scheduleNew.ProcessId);
-            $scope.GetPerformanceGroupList($scope.ScheduleMasterId);
             $scope.LoadEntityDetails($scope.ScheduleMasterId);
-            $scope.LoadPositionCodeDetails($scope.ScheduleMasterId);
-            $scope.LoadSkillLevelDetails($scope.ScheduleMasterId);
-            $scope.GeneratSkillLevelSequenceNo($scope.ScheduleMasterId);
-            $scope.LoadItemDetails($scope.ScheduleMasterId);
-            $scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
-            $scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
-            $scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
-            $scope.LoadTeamDefinitionDetails($scope.ScheduleMasterId);
-            $scope.LoadGradingDetails($scope.ScheduleMasterId);
-            $scope.GeneratTeamDefinitionSequenceNo($scope.ScheduleMasterId);
+            $scope.LoadQMActivityGroupDetails($scope.ScheduleMasterId);
+            $scope.LoadProcessDetails($scope.ScheduleMasterId);
+            //$scope.GeneratSkillLevelSequenceNo($scope.ScheduleMasterId);
+            //$scope.LoadItemDetails($scope.ScheduleMasterId);
+            //$scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
+            //$scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
+            //$scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
+            //$scope.LoadTeamDefinitionDetails($scope.ScheduleMasterId);
+            //$scope.LoadGradingDetails($scope.ScheduleMasterId);
+            /*$scope.GeneratTeamDefinitionSequenceNo($scope.ScheduleMasterId);*/
 
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
@@ -242,14 +184,58 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         )
     }
 
-    $scope.SkillManagementEntityList = [];
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.QualityManagementMasterForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'ScheduleData': $scope.scheduleNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadQualityManagementMasterList();
+                    ScheduleClearFields();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.Delete = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityManagementMaster/ScheduleDelete?id=' + $scope.scheduleNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadQualityManagementMasterList();
+                ScheduleClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.QualityManagementMasterEntityList = [];
     $scope.LoadEntityDetails = function (pid) {
         $http({
 
             method: 'Get',
             url: 'QMS/QualityManagementMaster/LoadEntityDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
-            $scope.SkillManagementEntityList = response.data;
+            $scope.QualityManagementMasterEntityList = response.data;
         }
         )
     }
@@ -265,8 +251,8 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
         var filtered = $("#GridEntity").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.SkillManagementEntityList.length; i++) {
-                $scope.SkillManagementEntityList[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.QualityManagementMasterEntityList.length; i++) {
+                $scope.QualityManagementMasterEntityList[i].Flag = ChkOrUnchk;
             }
         }
         else {
@@ -281,10 +267,10 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         try {
 
             $scope.SaveList = [];
-            for (var i = 0; i < $scope.SkillManagementEntityList.length; i++) {
-                if ($scope.SkillManagementEntityList[i].Flag == true) {
-                    $scope.SkillManagementEntityList[i].SMID = $scope.scheduleNew.Id;
-                    $scope.SaveList.push($scope.SkillManagementEntityList[i]);
+            for (var i = 0; i < $scope.QualityManagementMasterEntityList.length; i++) {
+                if ($scope.QualityManagementMasterEntityList[i].Flag == true) {
+                    $scope.QualityManagementMasterEntityList[i].QMID = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.QualityManagementMasterEntityList[i]);
                 }
             }
             $http({
@@ -302,7 +288,6 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadEntityDetails($scope.scheduleNew.Id);
-                    $scope.LoadPositionCodeDetails($scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
@@ -314,19 +299,119 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.refreshTemplatePositionCode = function (args) {
-        $("#PCheadchk").ejCheckBox({ "change": CheckBoxSelectAllPositionCode });
+
+
+    $scope.QualityManagementActivityGroupList = [];
+    $scope.LoadQMActivityGroupDetails = function () {
+        $http({
+
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadQMActivityGroupDetails?ScheduleId=' + $scope.scheduleNew.Id
+        }).then(function successCallback(response) {
+            $scope.QualityManagementActivityGroupList = response.data;
+        }
+        )
+    }
+
+    $scope.LoadQMActivityGroupDetails();
+
+
+    $scope.ActivityGroupSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.QualityManagementAGForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlActivityGroup,
+                data: {
+                    'ActivityGroupData': $scope.ActivityGroupNew,
+                    'Pid': $scope.scheduleNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadQMActivityGroupDetails($scope.scheduleNew.Id);
+                    ActivityGroupClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
     };
-    function CheckBoxSelectAllPositionCode(e) {
+
+    $scope.GetQMActivityGroupDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadActivityGroupEditData?AGId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.ActivityGroupNew = response.data.activitygroup[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.removeAGModal = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempAGId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveAG')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeLevelRow = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityManagementMaster/ActivityGroupDelete?id=' + $scope.tempAGId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadQMActivityGroupDetails($scope.scheduleNew.Id);
+                ActivityGroupClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.QualityManagementProcessList = [];
+    $scope.LoadProcessDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadProcessDetails?ScheduleId=' + pid
+        }).then(function successCallback(response) {
+            $scope.QualityManagementProcessList = response.data;
+        }
+        )
+    }
+
+    $scope.refreshTemplateProcess = function (args) {
+        $("#Pheadchk").ejCheckBox({ "change": CheckBoxSelectAllProcess });
+    };
+    function CheckBoxSelectAllProcess(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#GridPositionCode").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridProcess").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.SchedulePositionCodeList.length; i++) {
-                $scope.SchedulePositionCodeList[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.QualityManagementProcessList.length; i++) {
+                $scope.QualityManagementProcessList[i].Flag = ChkOrUnchk;
             }
         }
         else {
@@ -334,36 +419,33 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
-        var gridObj = $("#GridPositionCode").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        var gridObj = $("#GridProcess").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
-    $scope.SchedulePositionCodeList = [];
-    $scope.LoadPositionCodeDetails = function (pid) {
+    $scope.ActivityGroupList = [];
+    $scope.GetActivityGroupList = function () {
         $http({
-
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadPositionCodeDetails?ScheduleId=' + pid
+            method: 'GET',
+            url: 'QMS/QualityManagementMaster/GetActivityGroupList'
         }).then(function successCallback(response) {
-            $scope.SchedulePositionCodeList = response.data;
-        }
-        )
+            $scope.ActivityGroupList = response.data;
+        });
     }
+    $scope.GetActivityGroupList();
 
-    $scope.PositionCodeSave = function () {
+    $scope.ProcessSave = function () {
         try {
 
             $scope.SaveList = [];
-            for (var i = 0; i < $scope.SchedulePositionCodeList.length; i++) {
-                if ($scope.SchedulePositionCodeList[i].Flag == true) {
-                    $scope.SchedulePositionCodeList[i].SMID = $scope.scheduleNew.Id;
-                    $scope.SaveList.push($scope.SchedulePositionCodeList[i]);
+            for (var i = 0; i < $scope.QualityManagementProcessList.length; i++) {
+                if ($scope.QualityManagementProcessList[i].Flag == true) {
+                    $scope.QualityManagementProcessList[i].QMID = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.QualityManagementProcessList[i]);
                 }
             }
-
-
             $http({
                 method: 'POST',
-                url: $scope.saveUrlPositionCode,
+                url: $scope.saveUrlProcess,
                 data: {
                     "DataList": $scope.SaveList,
                 },
@@ -375,7 +457,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadPositionCodeDetails($scope.scheduleNew.Id);
+                    $scope.LoadProcessDetails($scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
@@ -388,17 +470,6 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     };
 
 
-    // #region For AutoSequenceNo
-    $scope.GeneratSkillLevelSequenceNo = function () {
-        $http({
-            method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetSkillLevelAutoSequence?scheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.SkillLevelNew.SNO = response.data;
-        });
-    }
-    $scope.GeneratSkillLevelSequenceNo();
-
     $scope.GeneratItemSequenceNo = function () {
         $http({
             method: 'GET',
@@ -409,39 +480,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     }
     $scope.GeneratItemSequenceNo();
 
-    $scope.GeneratPersonBudgetSequenceNo = function () {
-        $http({
-            method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetPersonBudgetAutoSequence?scheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.PersonBudgetNew.SNO = response.data;
-        });
-    }
-    $scope.GeneratPersonBudgetSequenceNo();
-
-    $scope.GeneratTeamDefinitionSequenceNo = function () {
-        $http({
-            method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetTeamDefinitionAutoSequence?scheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.TeamDefinitionNew.SNO = response.data;
-        });
-    }
-    $scope.GeneratTeamDefinitionSequenceNo();
    
-    
-    $scope.ScheduleSkillLevelList = [];
-    $scope.LoadSkillLevelDetails = function () {
-        $http({
-
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadSkillLevelDetails?ScheduleId='+$scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.ScheduleSkillLevelList = response.data;
-        }
-        )
-    }
-
     $scope.ScheduleItemList = [];
     $scope.LoadItemDetails = function () {
         $http({
@@ -455,41 +494,6 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     }
 
    
-    $scope.ScheduleBudgetCodeList = [];
-    $scope.LoadBudgetCodeDetails = function () {
-        $http({
-
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadBudgetCodeDetails?ScheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.ScheduleBudgetCodeList = response.data;
-        }
-        )
-    }
-    $scope.ScheduleTeamDefinitionList = [];
-    $scope.LoadTeamDefinitionDetails = function () {
-        $http({
-
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadTeamDefinitionDetails?ScheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.ScheduleTeamDefinitionList = response.data;
-        }
-        )
-    }
-
-    $scope.ScheduleGradingList = [];
-    $scope.LoadGradingDetails = function () {
-        $http({
-
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadGradingDetails?ScheduleId=' + $scope.scheduleNew.Id
-        }).then(function successCallback(response) {
-            $scope.ScheduleGradingList = response.data;
-        }
-        )
-    }
-    
     $scope.selectBudgetCode = function () {
         $scope.getBudgetCode();
         angular.element(document.querySelector('#BudgetCodePopUp')).modal('show');
@@ -620,56 +624,9 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         angular.element(document.querySelector('#DepartmentPopUp')).modal('hide');
     }
 
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.MaintenanceScheduleForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'ScheduleData': $scope.scheduleNew},
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadSkillManagementMasterList();
-                    ScheduleClearFields();
-                 
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        }    
-    };
+   
 
-    $scope.SkillLevelSave = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.SkillManagementLevelForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlLevel,
-                data: {
-                    'LevelData': $scope.SkillLevelNew,
-                    'Pid': $scope.scheduleNew.Id
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadSkillLevelDetails($scope.scheduleNew.Id);
-                    SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
-                    $scope.GetPerformanceGroupList($scope.ScheduleMasterId);
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        }
-    };
+   
 
     $scope.ItemSave = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -921,6 +878,11 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.Clear = function () {
         ScheduleClearFields();
     };
+
+    $scope.ActivityGroupClear = function () {
+        ActivityGroupClearFields();
+    };
+
     $scope.SkillLevelClear = function () {
         SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
     };
@@ -943,7 +905,10 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     function ScheduleClearFields() {
         $scope.Action = "Save";
         $scope.scheduleNew = Object.assign({}, $scope.schedule);
-        $scope.ScheduleMachineList = [];
+    }
+    function ActivityGroupClearFields() {
+        $scope.Action = "Save";
+        $scope.ActivityGroupNew = Object.assign({}, $scope.ActivityGroup);
     }
 
     function SkillLevelClearFields(seq) {
@@ -979,18 +944,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $scope.GradeNew = Object.assign({}, $scope.Grade);
     }
 
-    $scope.removeLevelModal = function (index, data) {
-        try {
-            $scope.popUpIndex = index;
-            $scope.tempLevelId = data;
-            $scope.message_confirmation = "Are you sure you want to delete?";
-            angular.element(document.querySelector('#confirmRemoveLevel')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-
+   
     $scope.removeRowModal = function (index,data) {
         try {
             $scope.popUpIndex = index;
@@ -1057,25 +1011,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         });
     };
 
-    $scope.removeLevelRow = function () {
-        $http({
-            method: 'POST',
-            url: 'QMS/QualityManagementMaster/LevelDelete?id=' + $scope.tempLevelId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadSkillLevelDetails($scope.scheduleNew.Id);
-                SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
+    
     
     $scope.removeBudgetCodeRow = function () {
         $http({
@@ -1134,22 +1070,5 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             }
         });
     };
-    $scope.Delete = function () {
-        $http({
-            method: 'POST',
-            url: 'QMS/QualityManagementMaster/ScheduleDelete?id=' + $scope.scheduleNew.Id,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadSkillManagementMasterList();
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
+    
 }

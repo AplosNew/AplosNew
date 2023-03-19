@@ -364,11 +364,22 @@
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                     <div class="row">
 
-                        <div class="common-btn">
+                        <div class="col-xs-12">
+                            <div id="POWIsesummaryfilters">
+                            </div>
+                            <div class="common-btn" @*ng-show="POWIsesummaryfilters.length>0"*@>
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="GetPOWiseView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                                    <li> <button ng-click="POWiseReportExcel();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        @*<div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li><button ng-click="GetPOWiseView();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
                             </ul>
-                        </div>
+                        </div>*@
 
                         <fieldset class="scheduler-border">
                             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">PO Wise Data</span></legend>
@@ -438,7 +449,7 @@
                             </div>
                         </fieldset>
 
-                        <div class="common-btn">
+                        @*<div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li>
                                     <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="POWiseReportExcel();" e-width="width">
@@ -446,7 +457,7 @@
                                     </div>
                                 </li>
                             </ul>
-                        </div>
+                        </div>*@
                     </div>
                 </div>
 

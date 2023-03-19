@@ -148,52 +148,53 @@ where P.Id='" + Pid + "'";
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagement] where ScheduleCode='" + ScheduleData["ScheduleCode"] + "'", out DataSet dsSkillManagementCodeValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagement] where StandaredName='" + ScheduleData["StandaredName"] + "'", out DataSet dsSkillManagementSNameValidation, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagement] where UserName='" + ScheduleData["UserName"] + "'", out DataSet dsSkillManagementUNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where ScheduleCode='" + ScheduleData["ScheduleCode"] + "'", out DataSet dsQualityManagmentMasterCodeValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where StandaredName='" + ScheduleData["StandaredName"] + "'", out DataSet dsQualityManagmentMasterSNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where UserName='" + ScheduleData["UserName"] + "'", out DataSet dsQualityManagmentMasterUNameValidation, false, "1");
                 
 
-                DataSet dsSkillManagement;
+                DataSet dsQualityManagmentMaster;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [Trn].[SkillManagement] where Id='" + ScheduleData["Id"] + "'", out dsSkillManagement, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMaster] where Id='" + ScheduleData["Id"] + "'", out dsQualityManagmentMaster, false, "1");
                 string _Id = "";
 
                 #region data update
-                if (dsSkillManagement.Tables[0].Rows.Count == 0)
+                if (dsQualityManagmentMaster.Tables[0].Rows.Count == 0)
                 {
-                    if (dsSkillManagementCodeValidation.Tables[0].Rows.Count > 0)
+                    
+                    if (dsQualityManagmentMasterCodeValidation.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("Schedule Code Already Exist.");
                     }
-                    else if (dsSkillManagementSNameValidation.Tables[0].Rows.Count > 0)
+                    else if (dsQualityManagmentMasterSNameValidation.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("Standared Name Already Exist.");
                     }
-                    else if (dsSkillManagementUNameValidation.Tables[0].Rows.Count > 0)
+                    else if (dsQualityManagmentMasterUNameValidation.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("User Name Already Exist.");
                     }
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("SkillManagement", out _Id);
-                        _Id = "SM" + _Id;
+                        genid.GenID("QualityManagmentMaster", out _Id);
+                        _Id = "QM" + _Id;
                         ScheduleData["Id"] = _Id;
-                        AddNewRow(dsSkillManagement.Tables[0], ScheduleData);
+                        AddNewRow(dsQualityManagmentMaster.Tables[0], ScheduleData);
                     }
                 }
                 else
                 {
                     _Id = ScheduleData["Id"].ToString();
-                    EditRow(dsSkillManagement.Tables[0].Rows[0], ScheduleData);
+                    EditRow(dsQualityManagmentMaster.Tables[0].Rows[0], ScheduleData);
                 }
                 #endregion data update
 
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsSkillManagement);
+                _info.SaveDataSets(dsQualityManagmentMaster);
 
                 return Json(new { Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
             }
@@ -244,6 +245,26 @@ where P.Id='" + Pid + "'";
             dr.EndEdit();
         }
 
+        [Authorize, HttpGet]
+        public ActionResult LoadQualityManagementMasterList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @" SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=QM.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode
+                            FROM [MST].[QualityManagementMaster] QM";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadQualityManagementEditData(string ScheduleID)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=QM.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode
+                            FROM [MST].[QualityManagementMaster] QM where QM.Id='" + ScheduleID + @"'";
+            return Json(new { schedule = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpPost]
         public ActionResult ScheduleDelete(string id)
         {
@@ -251,20 +272,20 @@ where P.Id='" + Pid + "'";
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                DataSet PositionCount, LevelCount, ItemCount, BudgetCount, TeamCount;
+                DataSet EntityCount, AGCount, ItemCount, ProcessCount;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementPositionCode] where SMID='" + id + "'", out PositionCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementItem] where SMID ='" + id + "'", out ItemCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementLevel] where SMID ='" + id + "'", out LevelCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementPersonBudgetCode] where SMID ='" + id + "'", out BudgetCount, false, "1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementTeamDefinition] where SMID ='" + id + "'", out TeamCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementEntity] where QMID='" + id + "'", out EntityCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementActivityGroup] where QMID ='" + id + "'", out AGCount, false, "1");
+                //conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementItem] where SMID ='" + id + "'", out ItemCount, false, "1");
+                //conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementPersonBudgetCode] where SMID ='" + id + "'", out BudgetCount, false, "1");
+                //conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementTeamDefinition] where SMID ='" + id + "'", out TeamCount, false, "1");
 
-                if (PositionCount.Tables[0].Rows.Count == 0 || ItemCount.Tables[0].Rows.Count == 0 || LevelCount.Tables[0].Rows.Count == 0 || BudgetCount.Tables[0].Rows.Count == 0 || TeamCount.Tables[0].Rows.Count == 0)
+                if (EntityCount.Tables[0].Rows.Count == 0 || AGCount.Tables[0].Rows.Count == 0)
                 {
 
                     conC.BeginTransaction();
-                    conC.executeQuery("delete from TRN.SkillManagement where Id ='" + id + @"'");
+                    conC.executeQuery("delete from [MST].[QualityManagementMaster] where Id ='" + id + @"'");
                     conC.CommitTransaction();
                 }
                 else
@@ -279,14 +300,166 @@ where P.Id='" + Pid + "'";
             }
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetActivityGroupList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,ActivityGroupName as Text from MST.QualityManagementActivityGroup";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadEntityDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN QME.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QME.Id,E.Id EntityId,E.EntityType,E.UserName Entity,E.Code,QME.Remarks 
+                            from ORG.Entity E
+							LEFT JOIN [MST].[QualityManagementEntity] QME ON QME.EntityId=E.Id and QME.QMID='" + ScheduleId + @"'
+                            where E.Active = 1 order by QME.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadProcessDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN QMP.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QMP.Id,P.Id ProcessId,P.UserName Process,P.Code,QAG.Id as ActivityGroupId,QAG.ActivityGroupName,QMP.Remarks
+                            from hkp.Process P
+							LEFT JOIN [MST].[QualityManagementProcess] QMP ON QMP.ProcessId=P.Id and QMP.QMID='" + ScheduleId + @"'
+							LEFT JOIN  MST.QualityManagementActivityGroup QAG ON QAG.Id=QMP.ActivityGroupId
+                            where P.Active = 1 order by QMP.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
         [Authorize, HttpPost]
-        public ActionResult LevelDelete(string id)
+        public ActionResult createEntity(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityManagementEntity]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QME" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpGet] 
+        public ActionResult LoadQMActivityGroupDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from [MST].[QualityManagementActivityGroup] where QMID ='" + ScheduleId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadActivityGroupEditData(string AGId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select * from [MST].[QualityManagementActivityGroup] AG where AG.Id='" + AGId + @"'";
+            return Json(new { activitygroup = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult createActivityGroup(Dictionary<string, object> ActivityGroupData, string Pid)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementActivityGroup] where ActivityGroupName='" + ActivityGroupData["ActivityGroupName"] + "'", out DataSet dsQualityManagementAGValidation, false, "1");
+
+                DataSet dsQualityManagementAG;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementActivityGroup] where Id='" + ActivityGroupData["Id"] + "'", out dsQualityManagementAG, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsQualityManagementAG.Tables[0].Rows.Count == 0)
+                {
+                    if (dsQualityManagementAGValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Activity Group Already Exist.");
+                    }
+                    else
+                    { 
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("QualityManagementAG", out _Id);
+                    _Id = "QAG" + _Id;
+                    ActivityGroupData["Id"] = _Id;
+                    ActivityGroupData["QMID"] = Pid;
+                    AddNewRow(dsQualityManagementAG.Tables[0], ActivityGroupData);
+                    }
+                }
+                else
+                {
+                    _Id = ActivityGroupData["Id"].ToString();
+                    ActivityGroupData["QMID"] = Pid;
+                    EditRow(dsQualityManagementAG.Tables[0].Rows[0], ActivityGroupData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsQualityManagementAG);
+
+                return Json(new { Error = false, Data = ActivityGroupData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult ActivityGroupDelete(string id)
         {
             try
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from [TRN].[SkillManagementLevel] where Id ='" + id + @"'");
+                conC.executeQuery("delete from [MST].[QualityManagementActivityGroup] where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -294,6 +467,51 @@ where P.Id='" + Pid + "'";
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult createProcess(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityManagementProcess]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QMP" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
 
@@ -439,16 +657,6 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpGet]
-        public ActionResult LoadScheduleEditData(string ScheduleID)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=SM.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-(select D.UserName Department from Org.Department D where D.Id=SM.DepartmentId) as Department
-                            FROM [TRN].[SkillManagement] SM where SM.Id='" + ScheduleID + @"'";
-            return Json(new { schedule = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
-        }
         
         [Authorize, HttpGet]
         public ActionResult LoadSkillLevelEditData(string LevelId)
@@ -517,28 +725,9 @@ left join TRN.TeamDefinition TD ON TD.Id=MTD.TeamDefinitionId
             return Json(new { Grade = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
-        public ActionResult LoadSkillManagementMasterList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * ,(select MP.Code from MST.ManpowerBudget MP where MP.Id=SM.ResponsiblePersoneBgtCodeId) as ResponsiblePersoneBgtCode,
-(select D.UserName Department from Org.Department D where D.Id=SM.DepartmentId) as Department,
-                            (select P.UserName from HKP.Process P where P.Id=SM.ProcessId) as Process,
-							(select P.UserName from HKP.Process P where P.Id=(select ProcessId from HKP.SubProcess SP where SP.Id=SM.SubProcessId)) as SubProcess
-                            FROM [TRN].[SkillManagement] SM";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+        
 
-        [Authorize, HttpGet]
-        public ActionResult LoadEntityDetails(string ScheduleId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select CAST (CASE WHEN SME.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,SME.Id,E.Id EntityId,E.EntityType,E.UserName Entity,E.Code 
-                            from ORG.Entity E
-							LEFT JOIN [TRN].[SkillManagementEntity] SME ON SME.EntityId=E.Id and SME.SMID='" + ScheduleId + @"'
-                            where E.Active = 1 order by SME.Id desc";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+        
 
         [Authorize, HttpGet]
         public ActionResult LoadPositionCodeDetails(string ScheduleId)
@@ -558,13 +747,7 @@ left join HKP.Process PRO ON PRO.Id=P.ProcessId
 where P.Active=1 and E.Id in (select EntityId from [TRN].[SkillManagementEntity] where SMID='" + ScheduleId + @"') order by SPC.Id  desc";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-        [Authorize, HttpGet]
-        public ActionResult LoadSkillLevelDetails(string ScheduleId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select * from [TRN].[SkillManagementLevel] where SMID ='" + ScheduleId + "' order by SNO";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+        
 
         [Authorize, HttpGet]
         public ActionResult LoadItemDetails(string ScheduleId)
@@ -620,144 +803,11 @@ where MTD.SMID ='" + ScheduleId + "' order by MTD.SNO";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
-        public ActionResult createEntity(List<Dictionary<string, object>> DataList)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
-            string TableName = "TRN.SkillManagementEntity";
-            string contId = string.Empty;
-            string _Id, Id = string.Empty;
-            try
-            {
-                objCon = new ConnectionManager.DAL.ConManager("1");
+       
 
+       
 
-                if (DataList != null)
-                {
-                    foreach (var item in DataList)
-                    {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and SMID='" + item["SMID"] + "'", out dsProdBooked, false, "1");
-                        DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "SME" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
-                    }
-                }
-                return Json(new { Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult CreatePositionCode(List<Dictionary<string, object>> DataList)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
-            string TableName = "[TRN].[SkillManagementPositionCode]";
-            string contId = string.Empty;
-            string _Id, Id = string.Empty;
-            try
-            {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-
-
-                if (DataList != null)
-                {
-                    foreach (var item in DataList)
-                    {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and SMID='" + item["SMID"] + "'", out dsProdBooked, false, "1");
-                        DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-                        if (dv.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "SPC" + _Id;
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
-                    }
-                }
-                return Json(new { Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        [Authorize, HttpPost]
-        public JsonResult CreateLevel(Dictionary<string, object> LevelData, string Pid)
-        {
-            try
-            {
-
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementLevel] where Id<>'" + LevelData["Id"] + "'", out DataSet dsSkillManagementLevelValidation, false, "1");
-
-                DataSet dsSkillManagementLevel;
-
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementLevel] where Id='" + LevelData["Id"] + "'", out dsSkillManagementLevel, false, "1");
-                string _Id = "";
-
-                #region data update
-                if (dsSkillManagementLevel.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("SkillManagementLevel", out _Id);
-                    _Id = "SML" + _Id;
-                    LevelData["Id"] = _Id;
-                    LevelData["SMID"] = Pid;
-                    AddNewRow(dsSkillManagementLevel.Tables[0], LevelData);
-                }
-                else
-                {
-                    _Id = LevelData["Id"].ToString();
-                    LevelData["SMID"] = Pid;
-                    EditRow(dsSkillManagementLevel.Tables[0].Rows[0], LevelData);
-                }
-                #endregion data update
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsSkillManagementLevel);
-
-                return Json(new { Error = false, Data = LevelData, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
+        
 
         [HttpPost]
         public JsonResult CreateItem(Dictionary<string, object> ItemData, string Pid)

@@ -159,6 +159,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionControl/Aplos',
             controller: 'ProductionControlController'
         })
+        .when('/running-machine-setup-target', {
+            templateUrl: 'Productions/RunningMachineSetUpTarget/Aplos',
+            controller: 'RunningMachineSetUpTargetController'
+        })
         .when('/production-relay', {
             templateUrl: 'Productions/ProductionRelay/Aplos',
             controller: 'ProductionRelayController'
