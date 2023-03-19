@@ -301,46 +301,30 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <div class="modal-header">Line Item List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">Inventory Material List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="row">
-                    <div style="color:black;" id="SOPOPGrid" ej-grid e-datasource="SearchSOItemList" e-allowscrolling="true"
+                    <div style="color:black;" id="SOPOPGrid" ej-grid e-datasource="SearchmaterialList" e-allowscrolling="true"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-allowselection="false" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
                         <div e-columns>
                             <div e-column e-headertext="Select" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
-                            <div e-column e-template="#LineItemId" e-headertext="LineItemId" e-width="100" style="height: 20px;"></div>
-                            <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
-                            <div e-column e-type="string" e-field="BuyerItem" e-headertext="Customer Ref#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
-                            <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="100"></div>
-                            <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
-                            <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="ItemMaterialCost" e-headertext="ItemMaterialCost" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOMaterialCost" e-headertext="SOMaterialCost" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="CostingMaterialCost" e-headertext="CostingMaterialCost" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="BOQMaterialCost" e-headertext="BOQMaterialCost" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOTotalMaterailCost" e-headertext="SOTotalMaterailCost" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="CostingTotalMaterialCost" e-headertext="CostingTotalMaterialCost" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="BOQTotalCost" e-headertext="BOQTotalCost" e-textalign="right" e-width="80"></div>
-
+                            <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="160px"></div>                           
+                            <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="180"></div>
+                            <div e-column e-type="string" e-field="InventoryReceiveId" e-headertext="GRNNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="InventoryReceiveDetailId" e-headertext="GRNRowNo" e-width="80"></div>
+                            <div e-column e-type="string" e-field="GRNDate" e-headertext="GRN Date" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MaterialStorage" e-headertext="Storage Location" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot No" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="TransactionQty" e-headertext="Receive Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="IssueQty" e-headertext="Issue Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="MaterialTranRate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Rate" e-textalign="BaseRate" e-width="80"></div>
                         </div>
                     </div>
                     <script type="text/template" id="checkboxTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-                    </script>
-                    <script type="text/template" id="LineItemId">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="data.LineItemId" name="LineItemId">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in $parent.itemList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
                     </script>
 
                 </div>
@@ -354,7 +338,5 @@
             </div>
         </div>
     </div>
-    <script type="text/x-jsrender" id="empimage">
-        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
-    </script>
+   
 </div>

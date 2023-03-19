@@ -219,7 +219,6 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             for (var i = 0; i < $scope.SearchSOItemList.length; i++) {
 
                 if ($scope.SearchSOItemList[i].Flag) {
-                    // if (checkExists($scope.SOItemList, $scope.SearchSOItemList[i].SOId) == false) {
                     if (checkExistsItem($scope.SOItemList, $scope.SearchSOItemList[i].LineItemId)) {
                         $scope.SOItemList.push($scope.SearchSOItemList[i]);
                     }
@@ -227,7 +226,6 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
                         $scope.SOItemList = [];
                         throw "Select same Line Item";
                     }
-                    // }
                 }
             }
             $scope.GetQBOQCostingData();
