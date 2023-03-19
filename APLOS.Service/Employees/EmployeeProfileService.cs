@@ -2567,6 +2567,13 @@ namespace Library.Service.Employees
                     var dtLangName = getLanguageName(langID);
                     langName = dtLangName.Rows[0]["UserName"].ToString();
                 }
+                if (plantId== "20201")
+                {
+                    langID = tempId;
+                    var dtLangName = getLanguageName(langID);
+                    langName = dtLangName.Rows[0]["UserName"].ToString();
+                    fileName = "IdCard" + plantId + langName + "Merchantex" + ".pptx";
+                }
                 else
                 {
                     langID = tempId;

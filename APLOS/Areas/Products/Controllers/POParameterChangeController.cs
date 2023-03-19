@@ -42,6 +42,7 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_inventoryReveiveService.GetAllPOList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
+
         [Authorize, HttpGet]
         public ActionResult GetPOUsedData(string masterId)
         {

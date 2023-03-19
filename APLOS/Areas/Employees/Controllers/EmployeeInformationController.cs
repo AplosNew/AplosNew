@@ -1479,7 +1479,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_preRecruitmentEmployeeService.CboList(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public JsonResult GetEmployeeIndex(string employeeName)
         {
             var path = ResourcesPathReader.GetVirtualFolderName() + "/EmployeeProfiles/EmpPic/";
