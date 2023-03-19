@@ -27,6 +27,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
     $scope.tab = 1;
 
+   
 
     $scope.product = {
         Id: null
@@ -84,14 +85,16 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     };
     $scope.IssueType = 'Revenue';
     $scope.productNew = Object.assign({}, $scope.product);
-    cboService.getCboVoucherTypeSalesReturnList(function (result) {
-        $scope.voucherTypeList = result;
-        if ($scope.voucherTypeList.length === 1) {
-            $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;
-            $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
-            $scope.voucher.DocDate = $scope.voucher.PostingDate;
-        }
-    });
+    $scope.voucherTypeList = [];
+    $scope.getvocherTypeSalesReturn = function () {
+        cboService.getCboVoucherTypeSalesReturnList(function (result) {
+            $scope.voucherTypeList = result;
+            if ($scope.voucherTypeList.length === 1) {
+                $scope.productNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+            }
+        });
+    }
+   
 
     $scope.SalesdataList = [];
     $scope.getData = function () {
@@ -134,11 +137,13 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.product = data.data;
         $scope.product.SalesReturnId = data.data.Id;
         $scope.product.SalesId = data.data.SalesId;
+        $scope.product.PartyId = data.data.CustomerId;
         $scope.product.Id = null;
         $scope.product.SalesReturnDate = data.data.SalesReturnDate;
         $scope.product.PostingDate = $filter("dateFiltering")(data.data.SalesReturnDate);
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
         $scope.productNew = Object.assign({}, $scope.product);
+        $scope.getvocherTypeSalesReturn();
         getSalesReturnDetailList();
         getSalesReturnJV($scope.product.SalesReturnId, data.data.CustomerId);
         $scope.Action = 'Save';
