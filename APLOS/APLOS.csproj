@@ -617,6 +617,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\RunningMachineSetUpTargetController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -2196,6 +2197,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\RunningMachineSetUpTargetController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
@@ -4573,6 +4575,13 @@
     <Content Include="Areas\Productions\Views\ProductionControl\LineLayoutSearchViews.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\POWiseMaterialIssue.cshtml" />
     <Content Include="Areas\Materials\Views\InputConfirmation\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\DailyTargetGrid.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\EmployeeCardView.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\Graphs.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignCanvas.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignReport.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineLayoutSearchViews.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

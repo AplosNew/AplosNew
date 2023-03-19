@@ -814,8 +814,8 @@ namespace Library.Service.EmployeeServices
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["PackingId"] = item.PackingId;
                         dr["SalesReturnId"] = item.SalesReturnId;
+                        dr["ReturnNetWeight"] = item.ReturnNetWeight;
                         dr["Booked"] = false;
-                        dr["IsDespatch"] = false;
                         dr.EndEdit();
                         PckId = item.PackingId;
                         BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
@@ -967,6 +967,7 @@ namespace Library.Service.EmployeeServices
         public string ProductCode { get; set; }
         public string POId { get; set; }
         public string NetWeight { get; set; }
+        public string ReturnNetWeight { get; set; }
         public string GWeight { get; set; }
         public string LotNo { get; set; }
         public string LocMasterId { get; set; }

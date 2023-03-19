@@ -5424,13 +5424,12 @@ namespace Library.Service.HumanResources
                                 sheet1.Range[xlsRow, Period].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             }
-
+                            xlsCol -= 1;
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].RowHeight = 20;
                             endXlsCol = xlsCol;
-                            endXlsCol = endXlsCol - 1; 
 
                             for (int i = 0; i < dvBioDvACitem.Count; i++)
                             {
@@ -5461,9 +5460,9 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, Article].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Article].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
-                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].WrapText = true;
+                                    //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                                    //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                                    //sheet1.Range[xlsRow, 1, xlsRow, xlsCol].WrapText = true;
 
                                     #endregion----------------------ItemData-----------------------
 
@@ -5568,7 +5567,7 @@ namespace Library.Service.HumanResources
             #endregion ******************Report Header******************
 
             #region ******************Report Footer******************
-                        xlsCol = 1;
+            xlsCol = 1;
             xlsRow = 25;
 
             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Name & Signature";
