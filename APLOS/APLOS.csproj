@@ -2328,8 +2328,8 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
-    <Content Include="Areas\Productions\Scripts\ParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ParameterMasterController.js" />
+    <Content Include="Areas\Productions\Scripts\ParameterController.js" />
     <Content Include="Areas\Productions\Scripts\PackingScanDataController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionSummaryReportController.js" />
