@@ -1647,191 +1647,426 @@ namespace Library.Accounting.Accounts
  
                     SELECT sum(X.ODueMoreThan30NoOfInvoice) ODueMoreThan30NoOfInvoice
 					,sum(ISNULL(X.ODueMoreThan30,0)) ODueMoreThan30
-
-                    ,sum(X.ODueMoreThan15NoOfInvoice) ODueMoreThan15NoOfInvoice
+					,sum(X.ODueMoreThan15NoOfInvoice) ODueMoreThan15NoOfInvoice
 					,sum( ISNULL(X.ODueMoreThan15,0)) ODueMoreThan15
-
-                    ,sum(X.ODueLessThan15NoOfInvoice) ODueLessThan15NoOfInvoice
-					  ,sum( ISNULL(X.ODueLessThan15,0)) ODueLessThan15
-
-                    ,sum(X.TodayBalanceNoOfInvoice) TodayBalanceNoOfInvoice
-					  ,sum( ISNULL(X.TodayBalance,0)) TodayBalance
-
-		        
-
-                    ,sum(X.OneToSevenBalanceNoOfInvoice) OneToSevenBalanceNoOfInvoice
-					     ,sum (ISNULL(X.OneToSevenBalance,0)) OneToSevenBalance
-
-                    ,sum(X.EightToThirtyBalanceNoOfInvoice) EightToThirtyBalanceNoOfInvoice
-					   ,sum (ISNULL(X.EightToThirtyBalance,0)) EightToThirtyBalance
-
-				   ,sum(X.ThirtyToSixtyBalanceNoOfInvoice) ThirtyToSixtyBalanceNoOfInvoice
-				       ,sum (ISNULL(X.ThirtyToSixtyBalance,0)) ThirtyToSixtyBalance
-
-				   ,sum(X.Onword60NoOfInvoice) Onword60NoOfInvoice
-					 ,sum (ISNULL(X.Onword60,0)) Onword60
+					,sum(X.ODueLessThan15NoOfInvoice) ODueLessThan15NoOfInvoice
+					,sum( ISNULL(X.ODueLessThan15,0)) ODueLessThan15
+					,sum(X.TodayBalanceNoOfInvoice) TodayBalanceNoOfInvoice
+					,sum( ISNULL(X.TodayBalance,0)) TodayBalance
+					,sum(X.OneToSevenBalanceNoOfInvoice) OneToSevenBalanceNoOfInvoice
+					,sum (ISNULL(X.OneToSevenBalance,0)) OneToSevenBalance
+					,sum(X.EightToThirtyBalanceNoOfInvoice) EightToThirtyBalanceNoOfInvoice
+					,sum (ISNULL(X.EightToThirtyBalance,0)) EightToThirtyBalance
+					,sum(X.ThirtyToSixtyBalanceNoOfInvoice) ThirtyToSixtyBalanceNoOfInvoice
+					,sum (ISNULL(X.ThirtyToSixtyBalance,0)) ThirtyToSixtyBalance
+					,sum(X.Onword60NoOfInvoice) Onword60NoOfInvoice
+					,sum (ISNULL(X.Onword60,0)) Onword60
  
                     FROM (
                     SELECT
 					sum(ISNULL(OM30.ODueMoreThan30NoOfInvoice,0)) ODueMoreThan30NoOfInvoice
-					,sum(ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate,0)) ODueMoreThan30
-
+					,sum(ISNULL(OM30.ODueMoreThan30,0)) ODueMoreThan30
                     ,sum(ISNULL(OM15.ODueMoreThan15NoOfInvoice,0)) ODueMoreThan15NoOfInvoice
-					,sum( ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate,0)) ODueMoreThan15
-
+					,sum( ISNULL(OM15.ODueMoreThan15,0)) ODueMoreThan15
 					,sum( ISNULL(OV.ODueLessThan15NoOfInvoice,0)) ODueLessThan15NoOfInvoice
-                    ,sum( ISNULL(OV.ODueLessThan15*CC.CompanyCurrencyRate,0)) ODueLessThan15
-
+                    ,sum( ISNULL(OV.ODueLessThan15,0)) ODueLessThan15
 				    ,sum( ISNULL(TB.TodayBalanceNoOfInvoice,0)) TodayBalanceNoOfInvoice
-                    ,sum (ISNULL(TB.TodayBalance*CC.CompanyCurrencyRate,0)) TodayBalance
-
+                    ,sum (ISNULL(TB.TodayBalance,0)) TodayBalance
 					,sum(ISNULL(OTS.OneToSevenBalanceNoOfInvoice,0)) OneToSevenBalanceNoOfInvoice
-                    ,sum (ISNULL(OTS.OneToSevenBalance*CC.CompanyCurrencyRate,0)) OneToSevenBalance
-
-
+                    ,sum (ISNULL(OTS.OneToSevenBalance,0)) OneToSevenBalance
                     ,sum( ISNULL(ETT.EightToThirtyBalanceNoOfInvoice,0)) EightToThirtyBalanceNoOfInvoice
-				    ,sum (ISNULL(ETT.EightToThirtyBalance*CC.CompanyCurrencyRate,0)) EightToThirtyBalance
-
+				    ,sum (ISNULL(ETT.EightToThirtyBalance,0)) EightToThirtyBalance
 					,sum( ISNULL(TTS.ThirtyToSixtyBalanceNoOfInvoice,0)) ThirtyToSixtyBalanceNoOfInvoice
-				    ,sum (ISNULL(TTS.ThirtyToSixtyBalance*CC.CompanyCurrencyRate,0)) ThirtyToSixtyBalance
-
-					
+				    ,sum (ISNULL(TTS.ThirtyToSixtyBalance,0)) ThirtyToSixtyBalance
 				    ,sum( ISNULL(O60.Onword60NoOfInvoice,0)) Onword60NoOfInvoice
-                    ,sum (ISNULL(O60.Onword60*CC.CompanyCurrencyRate,0)) Onword60
+                    ,sum (ISNULL(O60.Onword60,0)) Onword60
 
-                    FROM [TRN].[InvoiceDetail] AS IVD
-                    LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
-                    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
-                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
-                    LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
-                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
-                    LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-                   
+                    FROM [TRN].[Invoice] AS IV 
+                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 
-					 LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan30NoOfInvoice,Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I
-					 WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30
-					 and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) OM30 ON OM30.Id=IV.Id
+					LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan30NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I
+										JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+					 WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+					 and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OM30 ON OM30.Id=IV.Id
 
-                    LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan15NoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I
-                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
-                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) OM15 ON OM15.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan15NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I
+                                        JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30 AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OM15 ON OM15.Id=IV.Id
 
-                    LEFT JOIN (SELECT count(i.PartyId) ODueLessThan15NoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueLessThan15 FROM TRN.Invoice I
-                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15
-                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) OV ON OV.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) ODueLessThan15NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueLessThan15 FROM TRN.Invoice I
+                                        JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OV ON OV.Id=IV.Id
 
-                    LEFT JOIN (SELECT count(i.PartyId) TodayBalanceNoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I
-                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) TB ON TB.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) TodayBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS TodayBalance FROM TRN.Invoice I
+                                        JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0   AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) TB ON TB.Id=IV.Id
 
-                    LEFT JOIN (SELECT count(i.PartyId) OneToSevenBalanceNoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I
-                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7
-                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) OTS ON OTS.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) OneToSevenBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I
+                                        JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OTS ON OTS.Id=IV.Id
 
-                    LEFT JOIN (SELECT count(i.PartyId) EightToThirtyBalanceNoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I
-                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30
-                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) ETT ON ETT.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) EightToThirtyBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I
+                                        JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) ETT ON ETT.Id=IV.Id
 
-			        LEFT JOIN (SELECT count(i.PartyId) ThirtyToSixtyBalanceNoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
-					WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
-				    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) TTS ON TTS.Id=IV.Id
+			        LEFT JOIN (SELECT count(i.PartyId) ThirtyToSixtyBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
+                                        JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+					WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+				    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) TTS ON TTS.Id=IV.Id
 
-                    LEFT JOIN (SELECT count(i.PartyId) Onword60NoOfInvoice,  Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I
-                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 and
-                    I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable') group by Id) O60 ON O60.Id=IV.Id
-                    LEFT JOIN (
-                    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-                    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-                    FROM [TRN].[VoucherDetailCurrency] AS VDC
-                    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
-                    ) AS CC ON CC.VoucherDetailId=VD.Id
-
-                    WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
+                    LEFT JOIN (SELECT count(i.PartyId) Onword60NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS Onword60 FROM TRN.Invoice I
+                                        JOIN (select IDE.InvoiceId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,VD.PartyId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,VD.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60   AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) O60 ON O60.Id=IV.Id
+                    
+                     WHERE IV.Archive=0  AND V.IsPark=0  AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable')
                     AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
-					--GROUP BY OM30.ODueThan30NoOfInvoice
-
-					--GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode
-					--order by X.PartyName
+					
 
                     UNION ALL
-                    SELECT 
-
-                    sum(ISNULL(OM30.ODueMoreThan30NoOfInvoice,0)) ODueMoreThan30NoOfInvoice
-                    ,sum(ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate,0)) ODueMoreThan30
-
+                     SELECT
+					sum(ISNULL(OM30.ODueMoreThan30NoOfInvoice,0)) ODueMoreThan30NoOfInvoice
+					,sum(ISNULL(OM30.ODueMoreThan30,0)) ODueMoreThan30
                     ,sum(ISNULL(OM15.ODueMoreThan15NoOfInvoice,0)) ODueMoreThan15NoOfInvoice
-					,sum( ISNULL(OM15.ODueMoreThan15*CC.CompanyCurrencyRate,0)) ODueMoreThan15
-
+					,sum( ISNULL(OM15.ODueMoreThan15,0)) ODueMoreThan15
 					,sum( ISNULL(OV.ODueLessThan15NoOfInvoice,0)) ODueLessThan15NoOfInvoice
-                    ,sum( ISNULL(OV.ODueLessThan15*CC.CompanyCurrencyRate,0)) ODueLessThan15
-
+                    ,sum( ISNULL(OV.ODueLessThan15,0)) ODueLessThan15
 				    ,sum( ISNULL(TB.TodayBalanceNoOfInvoice,0)) TodayBalanceNoOfInvoice
-                    ,sum (ISNULL(TB.TodayBalance*CC.CompanyCurrencyRate,0)) TodayBalance
-
+                    ,sum (ISNULL(TB.TodayBalance,0)) TodayBalance
 					,sum(ISNULL(OTS.OneToSevenBalanceNoOfInvoice,0)) OneToSevenBalanceNoOfInvoice
-                    ,sum (ISNULL(OTS.OneToSevenBalance*CC.CompanyCurrencyRate,0)) OneToSevenBalance
-
-
+                    ,sum (ISNULL(OTS.OneToSevenBalance,0)) OneToSevenBalance
                     ,sum( ISNULL(ETT.EightToThirtyBalanceNoOfInvoice,0)) EightToThirtyBalanceNoOfInvoice
-				    ,sum (ISNULL(ETT.EightToThirtyBalance*CC.CompanyCurrencyRate,0)) EightToThirtyBalance
-
+				    ,sum (ISNULL(ETT.EightToThirtyBalance,0)) EightToThirtyBalance
 					,sum( ISNULL(TTS.ThirtyToSixtyBalanceNoOfInvoice,0)) ThirtyToSixtyBalanceNoOfInvoice
-				    ,sum (ISNULL(TTS.ThirtyToSixtyBalance*CC.CompanyCurrencyRate,0)) ThirtyToSixtyBalance
-
+				    ,sum (ISNULL(TTS.ThirtyToSixtyBalance,0)) ThirtyToSixtyBalance
 				    ,sum( ISNULL(O60.Onword60NoOfInvoice,0)) Onword60NoOfInvoice
-                    ,sum (ISNULL(O60.Onword60*CC.CompanyCurrencyRate,0)) Onword60
+                    ,sum (ISNULL(O60.Onword60,0)) Onword60
 
-                FROM [TRN].[InvoiceDetail] AS IVD
-                LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
-                LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
-                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
-                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
-                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
-                LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
-                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-                LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
+                    FROM [TRN].[AdjustmentNote] AS IV 
+                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
 
-                LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan30NoOfInvoice,Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I
-                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 AND I.SourceType in ('InventoryPayable') group by Id) OM30 ON OM30.Id=IV.Id
+					LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan30NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueMoreThan30 FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+					 WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-30  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+					 and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) OM30 ON OM30.Id=IV.Id
 
-                LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan15NoOfInvoice,  Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I
-                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30 AND I.SourceType in ('InventoryPayable') group by Id) OM15 ON OM15.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan15NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueMoreThan15 FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<-15 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-30 AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) OM15 ON OM15.Id=IV.Id
 
-                LEFT JOIN (SELECT count(i.PartyId) ODueLessThan15NoOfInvoice,  Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueLessThan15 FROM TRN.Invoice I
-                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15 AND I.SourceType in ('InventoryPayable') group by Id) OV ON OV.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) ODueLessThan15NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueLessThan15 FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)<0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)>=-15  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) OV ON OV.Id=IV.Id
 
-                LEFT JOIN (SELECT count(i.PartyId) TodayBalanceNoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS TodayBalance FROM TRN.Invoice I
-                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0 AND I.SourceType in ('InventoryPayable') group by Id) TB ON TB.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) TodayBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS TodayBalance FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)=0   AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) TB ON TB.Id=IV.Id
 
-                LEFT JOIN (SELECT count(i.PartyId) OneToSevenBalanceNoOfInvoice,  Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I
-                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7 AND I.SourceType in ('InventoryPayable') group by Id) OTS ON OTS.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) OneToSevenBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS OneToSevenBalance FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>0 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=7  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) OTS ON OTS.Id=IV.Id
 
-                LEFT JOIN (SELECT count(i.PartyId) EightToThirtyBalanceNoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I
-                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30 AND I.SourceType in ('InventoryPayable') group by Id) ETT ON ETT.Id=IV.Id
+                    LEFT JOIN (SELECT count(i.PartyId) EightToThirtyBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS EightToThirtyBalance FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>7 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=30  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) ETT ON ETT.Id=IV.Id
 
-                                  LEFT JOIN (SELECT count(i.PartyId) ThirtyToSixtyBalanceNoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
-				                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60
-			                and I.SourceType in ('InventoryPayable') group by Id) TTS ON TTS.Id=IV.Id
+			        LEFT JOIN (SELECT count(i.PartyId) ThirtyToSixtyBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ThirtyToSixtyBalance FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+					WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>30 and DATEDIFF(DAY, GETDATE(),I.PostingDate)<=60  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+				    and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) TTS ON TTS.Id=IV.Id
 
-                LEFT JOIN (SELECT count(i.PartyId) Onword60NoOfInvoice, Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS Onword60 FROM TRN.Invoice I
-                WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60 AND I.SourceType in ('InventoryPayable') group by Id) O60 ON O60.Id=IV.Id
-                LEFT JOIN (
-                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
-                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
-                FROM [TRN].[VoucherDetailCurrency] AS VDC
-                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
-                ) AS CC ON CC.VoucherDetailId=VD.Id
-
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable')
-                AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
-                AND IR.PurchaseDocumentAcceptanceId IS NULL
+                    LEFT JOIN (SELECT count(i.PartyId) Onword60NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS Onword60 FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.DrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE DATEDIFF(DAY, GETDATE(),I.PostingDate)>60   AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+                    and I.SourceType in ('VendorPayment','CreditNote') GROUP BY I.Id) O60 ON O60.Id=IV.Id
+                    
+                     WHERE IV.Archive=0  AND V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
+                    AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
 
                 )
-                X
-                --GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode
-                --order by X.PartyName";
+                X ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
