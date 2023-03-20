@@ -629,6 +629,23 @@ namespace Aplos.Areas.SalesManagements.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             voucherVM.IsPark = false;
+            if (voucherDetailVMList != null)
+            {
+                foreach (var item in voucherDetailVMList)
+                {
+                        if (item.GLGeneralInfoId == null)
+                            throw new CustomException("GL is Not Mapped !");
+                        if (item.BudgetMasterId == null)
+                            throw new CustomException("Budget is Not Mapped !");
+                        if (item.ActivityId == null)
+                            throw new CustomException("Activity is Not Mapped!");
+                }
+
+                if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+                    throw new CustomException("Dr Cr Amount not equal");
+            }
+            else
+                throw new CustomException("No Journal");
             voucherVM.SourceType = SourceType.CreditNote.ToString();
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, PostSalesReturn(voucherVM, voucherDetailVMList, invoiceTaxVMList)) });
         }
@@ -687,7 +704,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     VoucherTypeId = voucherVM.VoucherTypeId,
                     CurrencyId = voucherVM.CurrencyId,
                     Amount = voucherVM.Amount,
-                    VoucherDate = voucherVM.VoucherDate,
+                    VoucherDate = voucher.VoucherDate,
                     PostingDate = voucherVM.PostingDate,
                     DocDate = voucherVM.DocDate,
                     DocRefNo = voucherVM.DocRefNo,
@@ -723,12 +740,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                 adjustmentNote.VoucherId = voucher.Id;
                 ConnectionManager.DAL.ConManager objCon;
-                string salesReturn = "SELECT * FROM TRN.SalesReturn WHERE SalesId='" + voucherVM.Id + "'";
+                string salesReturn = "SELECT * FROM TRN.SalesReturn WHERE Id='" + voucherVM.SalesReturnId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(salesReturn, out _salesReturnData, false, "1");
 
                 DataView dvsc = new DataView(_salesReturnData.Tables[0]);
-                dvsc.RowFilter = "Id='" + voucherVM.Id + "'";
+                dvsc.RowFilter = "Id='" + voucherVM.SalesReturnId + "'";
 
                 if (dvsc.Count > 0)
                 {
@@ -827,6 +844,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                 TaxYearId = voucher.TaxYearId,
                                 TaxYearPeriodId = voucher.TaxYearPeriodId,
                                 TaxCategoryId = voucherDetailVM.TaxCategoryId,
+                                AdjustmentNoteId = adjustmentNote.Id,
                                 TaxAmount = voucherDetailVM.Amount,
                                 TaxAutoAmount = 0,
                                 PartyId = voucherVM.PartyId,
@@ -880,7 +898,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         },ref _crvDetailCurrencyData);
 
 
-
                         var invoiceTax = new InvoiceTax
                         {
                             Archive = false,
@@ -913,8 +930,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         };
                         _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, ref _invTaxDetailData);
                     }
-
-
                 }
 
                 if (totalAmountDr != totalAmountCr)
@@ -931,7 +946,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
             {
                 throw new CustomException(ex.Message, ex);
             }
-            
         }
 
         #endregion

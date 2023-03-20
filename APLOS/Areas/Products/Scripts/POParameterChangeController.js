@@ -334,6 +334,7 @@ function POParameterChangeController(  $scope, $rootScope, baseService, $http, $
            /* taxforUpdate(data);*/
             $scope.product = Object.assign({}, $scope.productNew);
             if ($scope.Action == "Update") {
+
                 $http({
                     method: 'POST',
                     url: 'Products/POParameterChange/POUpdate',

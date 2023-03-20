@@ -348,6 +348,23 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetRunningMachineJobCardReportView(string EntityId, string ProcessId, string TargetDate, string ShiftId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = _AttendanceManagementService.GetRunningMachineJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, EntityId, ProcessId, TargetDate, ShiftId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                return RenderReportAsPdf(workbook, reportFileName);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                //throw new Exception(ex.Message);
+            }
+        }
+
         public new ActionResult RenderReportAsPdf(IWorkbook workbook, string fileName, bool isOpen = true)
         {
             try

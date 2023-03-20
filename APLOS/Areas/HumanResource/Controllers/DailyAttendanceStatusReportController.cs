@@ -269,6 +269,16 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
 
                 #endregion ResponsiblePerson
 
+                // Shift & Day Status
+                if (shift != "null" && daystatus != "null" && employeecategory == "null" && responsibleperson == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+                }
+                if (shift != "null" && daystatus != "null" && employeecategory != "null" && responsibleperson != "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
                 if (sqlCondition == "")
                 {
                     condition2 = "where APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active'";
@@ -279,7 +289,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
                 }
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
-, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.OutTime, 'hh:mm tt')OutTime, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
+, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.OutTime, 'hh:mm tt')OutTime, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn,  EMP.EmployeeStatus
 ,EI2.EmployeeName ResponsiblePerson, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy, RM.ResidenceNumber, RAE.isOccupied,  R.UserName TransportRoute
 ,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
@@ -852,6 +862,16 @@ left join (select distinct WorkDate, EmpSystemID, UpdatedBy  from PhysicalVerifi
             if (instatus != null && employeecategory != null && shift != null && responsibleperson != null  && employeestatus == null)
             {
                 sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
+            // Shift & DayStatus
+            if (shift != null && daystatus != null && employeecategory == null && responsibleperson == null && employeestatus == null)
+            {
+                sqlCondition = "APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+            }
+            if (shift != null && daystatus != null && employeecategory != null && responsibleperson != null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
             }
 
 
