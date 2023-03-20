@@ -1190,6 +1190,7 @@
     <Compile Include="Areas\QMS\Controllers\QMSMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSRejectionController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSTestingMasterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\QualitySetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityStatusController.cs" />
     <Compile Include="Areas\QMS\Controllers\RepairTypeController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSBusinessProcessTypeController.cs" />
@@ -2774,6 +2775,7 @@
     <Content Include="Areas\QMS\Scripts\QMSMasterController.js" />
     <Content Include="Areas\QMS\Scripts\QMSRejectionController.js" />
     <Content Include="Areas\QMS\Scripts\QMSTestingMasterController.js" />
+    <Content Include="Areas\QMS\Scripts\QualitySetupController.js" />
     <Content Include="Areas\QMS\Scripts\QualityStatusController.js" />
     <Content Include="Areas\QMS\Scripts\RepairTypeController.js" />
     <Content Include="Areas\QMS\Scripts\qmsActivityCategoryController.js" />
@@ -4707,6 +4709,18 @@
     <Content Include="Areas\SalesManagements\Views\SalesReturnPost.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_SalesReturnPopUp.cshtml" />
     <Content Include="Areas\TaskManagement\Views\EditControl\EditCtrl.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QMSActivityCategory.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QualityActivityCheckType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_DefectType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_CheckLevel.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_DefectZone.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_RepairType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_GradeMaster.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_InspectionType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QMSInspection.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_InspectionMaster.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QualityStatus.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
