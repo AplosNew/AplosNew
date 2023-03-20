@@ -617,6 +617,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\RunningMachineSetUpTargetController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -1189,6 +1190,7 @@
     <Compile Include="Areas\QMS\Controllers\QMSMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSRejectionController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSTestingMasterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\QualitySetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityStatusController.cs" />
     <Compile Include="Areas\QMS\Controllers\RepairTypeController.cs" />
     <Compile Include="Areas\QMS\Controllers\QMSBusinessProcessTypeController.cs" />
@@ -2196,6 +2198,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\RunningMachineSetUpTargetController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
@@ -2326,8 +2329,8 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
-    <Content Include="Areas\Productions\Scripts\ParameterController.js" />
     <Content Include="Areas\Productions\Scripts\ParameterMasterController.js" />
+    <Content Include="Areas\Productions\Scripts\ParameterController.js" />
     <Content Include="Areas\Productions\Scripts\PackingScanDataController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionSummaryReportController.js" />
@@ -2772,6 +2775,7 @@
     <Content Include="Areas\QMS\Scripts\QMSMasterController.js" />
     <Content Include="Areas\QMS\Scripts\QMSRejectionController.js" />
     <Content Include="Areas\QMS\Scripts\QMSTestingMasterController.js" />
+    <Content Include="Areas\QMS\Scripts\QualitySetupController.js" />
     <Content Include="Areas\QMS\Scripts\QualityStatusController.js" />
     <Content Include="Areas\QMS\Scripts\RepairTypeController.js" />
     <Content Include="Areas\QMS\Scripts\qmsActivityCategoryController.js" />
@@ -4573,6 +4577,13 @@
     <Content Include="Areas\Productions\Views\ProductionControl\LineLayoutSearchViews.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\POWiseMaterialIssue.cshtml" />
     <Content Include="Areas\Materials\Views\InputConfirmation\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\DailyTargetGrid.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\EmployeeCardView.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\Graphs.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignCanvas.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignReport.cshtml" />
+    <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineLayoutSearchViews.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4698,6 +4709,18 @@
     <Content Include="Areas\SalesManagements\Views\SalesReturnPost.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_SalesReturnPopUp.cshtml" />
     <Content Include="Areas\TaskManagement\Views\EditControl\EditCtrl.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QMSActivityCategory.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QualityActivityCheckType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_DefectType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_CheckLevel.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_DefectZone.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_RepairType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_GradeMaster.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_InspectionType.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QMSInspection.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_InspectionMaster.cshtml" />
+    <Content Include="Areas\QMS\Views\QualitySetup\_QualityStatus.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

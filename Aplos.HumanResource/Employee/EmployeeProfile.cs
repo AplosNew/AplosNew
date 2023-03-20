@@ -1790,8 +1790,8 @@ Where A.ManpowerBudgetId='" + budgetId + @"'";
 										Left join  MST.DesignationMaster DeM on DeM.Id = DML.DesignationMasterId
 										left join HKP.Designation DeG on DeG.Id=DeM.DesignationId
                                         left join [MST].[DesignationMaster] DM on DM.DesignationId=EMP.GivenDesignationId
-										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id                    
-										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId
+										left join SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DM.Id and DMC.PlantId=emp.PlantId                
+										left join [dbo].[LeavePolicyMaster] LPM on LPM.SystemID=DMC.LeavePolicyMasterId and LPM.PlantID=emp.PlantID
                                         left join [HKP].[EmployeeCategory] EC on EC.Id=DM.EmployeeCategoryId
                                         LEFT JOIN dbo.EmpDateWiseJobLocation EJ ON EJ.EmpsystemId=EMP.SystemId
 										 AND EJ.SystemId=(Select top(1) SystemId from dbo.EmpDateWiseJobLocation JB Where JB.EmpSystemID=EMP.SystemId Order by EffectiveDate desc)

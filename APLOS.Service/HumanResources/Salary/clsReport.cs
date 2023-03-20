@@ -2131,6 +2131,71 @@ where PCD.Id='" + ProductionControlId + @"'";
                 objCon = null;
             }
         }
+
+        public void GetRunninMachineTargetHeader(string EntityId, string ProcessId, string TargetDate, string ShiftId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select RM.Id as RMTargetId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(RM.TargetDate,'dd-MMM-yyyy') as TargetDate
+from [TRN].[RunningMachineSetUpTarget] RM
+left join Org.Entity E On E.Id=RM.EntityId
+left join hkp.process P On P.Id=RM.ProcessId
+left join ShiftDefination S On S.SystemID=RM.ProductionShiftId
+where RM.EntityId='"+ EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetRunninMachineTargetDetails(string EntityId, string ProcessId, string TargetDate, string ShiftId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select RM.Id as RMTargetId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(RM.TargetDate,'dd-MMM-yyyy') as TargetDate,
+WC.UserName as WorkCenter,RM.LotNumber,RM.ProductionOrderId as PONo,RM.Article,RM.PlanHours,RM.Efficiency,RM.TargetProductionFP,I.EmployeeName as Responsible,
+R.EmployeeName as InCharge,RM.Remarks,Reverse(stuff(Reverse((select ID.ItemName + ' - ' + convert(varchar(200),IV.ItemValue) +',' from TRN.RMSTargetItemValue IV
+left join MST.ItemDetails ID on ID.Id=IV.ItemId
+where RMSTargetId=RM.Id for xml PATH(''))),1,1,'')) ItemDetails
+from [TRN].[RunningMachineSetUpTarget] RM
+left join Org.Entity E On E.Id=RM.EntityId
+left join hkp.process P On P.Id=RM.ProcessId
+left join ShiftDefination S On S.SystemID=RM.ProductionShiftId
+left join scs.WorkCenterMaster WC ON WC.Id=RM.WorkCenterMasterId
+left join employeeinformation R on R.SystemId=RM.ResponsiblePersonId
+left join employeeinformation I on I.SystemId=RM.InChargeId
+where RM.EntityId='"+ EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetExtraAbsentCount(string fromDate, string toDate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;

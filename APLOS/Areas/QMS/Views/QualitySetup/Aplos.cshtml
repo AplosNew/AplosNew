@@ -1,0 +1,80 @@
+﻿<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">QMS Activity Category</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Quality Activity Checktype</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Defect Type</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Check Level</a></li>
+            <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="Service" role="tab" data-toggle="tab">Defect Zone</a></li>
+            <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="Service" role="tab" data-toggle="tab">Repair Type</a></li>
+            <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" aria-controls="Service" role="tab" data-toggle="tab">Grade Master</a></li>
+            <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" aria-controls="Service" role="tab" data-toggle="tab">Inspection Type</a></li>
+            <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9)" href="" aria-controls="Service" role="tab" data-toggle="tab">QMS Inspection</a></li>
+            <li role="presentation" ng-class="{ active: isSet(10) }"><a ng-click="setTab(10)" href="" aria-controls="Service" role="tab" data-toggle="tab">Inspection Master</a></li>
+            <li role="presentation" ng-class="{ active: isSet(11) }"><a ng-click="setTab(11)" href="" aria-controls="Service" role="tab" data-toggle="tab">Quality Status</a></li>
+
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            @Html.Partial("~/Areas/QMS/Views/QualitySetup/_QMSActivityCategory.cshtml")
+        </div>
+
+        @*   TAB -2  *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+
+        </div>
+        @*   TAB -2 CLOSE   *@
+
+        @*   TAB -3  *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
+        </div>
+        @*   TAB -3 CLOSE   *@
+
+        @*   TAB -4   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+
+        </div>
+        @*   TAB -4 CLOSE   *@
+
+        @*  TAB - 5   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+
+        </div>
+
+
+        @*  TAB - 6   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+
+        </div>
+
+        @*  TAB - 7   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+
+        </div>
+
+        @*  TAB - 8   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
+
+        </div>
+
+        @*  TAB - 9   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(9), active: isSet(9) }">
+
+        </div>
+
+        @*  TAB - 10   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(10), active: isSet(10) }">
+
+        </div>
+
+        @*  TAB - 11   *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(11), active: isSet(11) }">
+
+        </div>
+
+    </div>
+
+</div>

@@ -177,12 +177,12 @@ into #tempPC from
                                                             left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                            where Pod.ProductionOrderId=isnull(pc.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                                            where Pod.ProductionOrderId=isnull(pc.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionControl where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 															CP.ControlPeriodName,CP.FieldValue
 	                    FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.ProductionControl pc ON pc.WorkCenterMasterId=wc.Id AND pc.ProcessId = '" + ProcessId + @"' 
                         AND  pc.EntityId='" + EntityId + @"' AND pc.ProductionDate='" + ProductionDate + @"'  AND pc.ProductionShiftId='" + ShiftId + @"' 
-                        LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=isnull(pc.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))
+                        LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=isnull(pc.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionControl where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId='" + ShiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))
                         LEFT OUTER JOIN [HKP].[ControlPeriod] CP ON 1=1
 where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + EntityId + @"')A 
 )B order by B.Line
@@ -338,6 +338,23 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = _AttendanceManagementService.GetProductionJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, ProductionControlId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                return RenderReportAsPdf(workbook, reportFileName);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                //throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetRunningMachineJobCardReportView(string EntityId, string ProcessId, string TargetDate, string ShiftId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = _AttendanceManagementService.GetRunningMachineJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, EntityId, ProcessId, TargetDate, ShiftId);
                 var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
                 return RenderReportAsPdf(workbook, reportFileName);
             }

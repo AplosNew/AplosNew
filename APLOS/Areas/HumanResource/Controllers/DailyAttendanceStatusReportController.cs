@@ -70,7 +70,8 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 var sql = @"select EMP.SystemId EmpSystemId, EMP.EmployeeCode, EMP.EmployeeName, FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, EC.UserName EmployeeCategory, DP.UserName Department
-                                ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity from TRN.TeamDefinition TD
+                                ,SC.UserName Section, SBC.UserName SubSection, LDSG.UserName Designation, LDSG.UserName LegalDesignation, UN.UserName as Entity 
+                                from TRN.TeamDefinition TD
                                 left join EmployeeInformation EMP on EMP.SystemId = TD.TeamLeaderId
                                 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
                                 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -100,12 +101,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select DAF.Id, DAF.FavoriteName, FORMAT(DAF.FromDate, 'dd-MMM-yyyy') FromDate, FORMAT(DAF.ToDate, 'dd-MMM-yyyy') ToDate, DAF.InStatus, DAF.EmployeeStatus ,U.FullName [User], DAF.FavoriteFilteruserId UserId, DAF.ShiftDefinationId
-, DAF.EmployeecategoryId, DAF.TeamLeaderId, DAF.ResponsiblePersonId
+, DAF.EmployeecategoryId,  DAF.ResponsiblePersonId
 from[TRN].[DailyAttendanceFavoriteFilter] DAF
 left join [SEC].[User] U on U.Id = DAF.FavoriteFilteruserId
 left join ShiftDefination SD ON SD.SystemID = DAF.ShiftDefinationId
 left join HKP.EmployeeCategory EC on EC.Id = DAF.EmployeecategoryId
-left join EmployeeInformation EI on EI.SystemId = DAF.TeamLeaderId
+--left join EmployeeInformation EI on EI.SystemId = DAF.TeamLeaderId
 left join EmployeeInformation EI2 on EI2.SystemId = DAF.ResponsiblePersonId
 where DAF.FavoriteFilteruserId = '" + identity .UserId+ "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -143,7 +144,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
         }
 
         [Authorize]
-        public JsonResult GetDailyAttendanceStatus(string instatus, string fromdate, string todate, string employeecategory, string responsibleperson, string shift, string employeestatus, string daystatus)
+        public JsonResult GetDailyAttendanceStatus(string instatus, string fromdate, string todate, string employeecategory,  string responsibleperson, string shift, string employeestatus, string daystatus)
         {
             try
             {
@@ -268,6 +269,16 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
 
                 #endregion ResponsiblePerson
 
+                // Shift & Day Status
+                if (shift != "null" && daystatus != "null" && employeecategory == "null" && responsibleperson == "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+                }
+                if (shift != "null" && daystatus != "null" && employeecategory != "null" && responsibleperson != "null" && employeestatus == "null")
+                {
+                    sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
+                }
+
                 if (sqlCondition == "")
                 {
                     condition2 = "where APD.WorkDate between '" + fromdate + "' and '" + todate + "' and EMP.EmployeeStatus = 'Active'";
@@ -278,7 +289,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
                 }
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
-, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.OutTime, 'hh:mm tt')OutTime, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
+, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.OutTime, 'hh:mm tt')OutTime, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn,  EMP.EmployeeStatus
 ,EI2.EmployeeName ResponsiblePerson, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy, RM.ResidenceNumber, RAE.isOccupied,  R.UserName TransportRoute
 ,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
@@ -312,7 +323,7 @@ left join MST.RouteStoppage RSG on RSG.StoppageId = SPG.Id
 left join MST.Route R on R.Id = RSG.RouteId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
 left join (select distinct WorkDate, EmpSystemID, UpdatedBy  from PhysicalVerification)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
-LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
+--LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 --LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2+ " order by APD.WorkDate DESC";
 
@@ -330,13 +341,13 @@ LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
         #region Report
 
         [HttpPost, Authorize]
-        public ActionResult GetDailyAttendanceStatusXls(string instatus, string fromdate, string todate, string employeecategory,  string responsibleperson, string shift, string employeestatus, string daystatus, string SheetName)
+        public ActionResult GetDailyAttendanceStatusXls(string instatus, string fromdate, string todate, string employeecategory, string responsibleperson, string shift, string employeestatus, string daystatus, string SheetName)
         {
             try
             {
 
                 string fileName = "";
-                fileName = DailyAttendanceStatusReport(instatus, fromdate, todate, employeecategory, responsibleperson, shift, employeestatus, daystatus, "DailyAttendanceStatusSummaryReport");
+                fileName = DailyAttendanceStatusReport(instatus, fromdate, todate, employeecategory,  responsibleperson, shift, employeestatus, daystatus, "DailyAttendanceStatusSummaryReport");
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
@@ -351,7 +362,7 @@ LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
 
 
 
-        public string DailyAttendanceStatusReport(string instatus, string fromdate, string todate ,string employeecategory,  string responsibleperson, string shift, string employeestatus, string daystatus, string SheetName)
+        public string DailyAttendanceStatusReport(string instatus, string fromdate, string todate ,string employeecategory, string responsibleperson, string shift, string employeestatus, string daystatus, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -853,6 +864,16 @@ LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
                 sqlCondition = "APD.InStatus = '" + instatus + "' and EC.Id = '" + employeecategory + "' and MBGT.ShiftDefinationId = '" + shift + "' and EI2.SystemId = '" + responsibleperson + "'";
             }
 
+            // Shift & DayStatus
+            if (shift != null && daystatus != null && employeecategory == null && responsibleperson == null && employeestatus == null)
+            {
+                sqlCondition = "APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "'";
+            }
+            if (shift != null && daystatus != null && employeecategory != null && responsibleperson != null && employeestatus == null)
+            {
+                sqlCondition = "APD.InStatus = '" + instatus + "' and APD.DayStatus = '" + daystatus + "' and MBGT.ShiftDefinationId = '" + shift + "' and EC.Id = '" + employeecategory + "' and EI2.SystemId = '" + responsibleperson + "'";
+            }
+
 
             #endregion ResponsiblePerson
 
@@ -868,15 +889,16 @@ LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
             try
             {
 
-                strSQL = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
-, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.OutTime, 'hh:mm tt')OutTime, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn, ''InActive, EMP.EmployeeStatus
-,EI2.EmployeeName ResponsiblePerson, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy, RM.ResidenceNumber, RAE.isOccupied,  R.UserName TransportRoute
-,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
+                strSQL = @"Select EMP.EmployeeCode, EMP.EmployeeName, SBC.UserName SubSection, LDSG.UserName GivenDesignation, EC.UserName EmployeeCategory, FORMAT(EMP.DOJ, 'dd-MMM-yyyy')DOJ, EMP.CellPhnNo, APD.DayStatus, APD.InStatus
+,FORMAT(APD.InTime, 'hh:mm tt')InTime, EMP.EmployeeStatus, EI2.EmployeeName ResponsiblePerson, RM.ResidenceNumber, R.UserName TransportRoute
+,APD.LateIn
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
+,MBGT2.Code ROBudgetCode --, RO.EmployeeName
 from AttdnProcessData APD
 left join EmployeeInformation EMP on EMP.SystemId = APD.EmpSystemID
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 left join  MST.ManpowerBudget MBGT2 on MBGT2.Id = MBGT.ROBudgetCode
+--left join (select distinct   EmployeeName, BudgetCode from EmployeeInformation ) RO on RO.BudgetCode = MBGT2.Id 
 LEFT JOIN EmployeeInformation EI2 on EI2.SystemId = MBGT.ResponsiblePerson
 LEFT JOIN ORG.Division D on D.Id = EMP.DivisionId
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -891,7 +913,7 @@ LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
 LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
 left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
 left join hkp.EmployeeCategory EC on EC.Id=dm.EmployeeCategoryId
-left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '" + fromdate + "' and '" + todate + @"'
+left join EmployeeFeedback EFB on EFB.EmpSystemId = EMP.SystemId and EFB.Date between '21-Feb-2023' and '22-Feb-2023'
 left join [HKP].[AbsentismReasoningMaster] ARM on ARM.Id = EFB.ReasoningId
 left join EmployeeInformation EI on EI.SystemId = EFB.EmpSystemId
 LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
@@ -904,7 +926,7 @@ left join MST.Route R on R.Id = RSG.RouteId
 left join SCS.[State] S on S.Id = EMP.ParmStateId
 left join (select distinct WorkDate, EmpSystemID, UpdatedBy  from PhysicalVerification)PV on PV.EmpSystemID = EMP.SystemId and PV.WorkDate = APD.WorkDate
 LEFT join TRN.TeamDefinition TD on TD.TeamLeaderId = EMP.SystemId
---LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
+LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
 " + condition2 + " order by APD.WorkDate DESC";
 
                 data = _sqlRepository.GetDataTable(strSQL);

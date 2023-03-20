@@ -7163,7 +7163,7 @@ namespace Library.Service.Invoices
                             PartyType = adjustmentNote.PartyType,
                             PartyId = adjustmentNote.PartyId,
                             PartyPlantId = adjustmentNote.PartyPlantId,
-                            TrnNature = TransactionNature.CreditNote.ToString(),
+                            TrnNature = "DebitNote",
                             AdjustmentNoteDetailId = adjustmentNoteDetail.Id,
                             DrAmount = voucherVM.Amount
                         };
@@ -7230,7 +7230,7 @@ namespace Library.Service.Invoices
                                 TaxAmount = voucherDetailVM.Amount,
                                 TaxAutoAmount = 0,
                                 PartyId = voucherVM.PartyId,
-                                SourceType = SourceType.InventoryPayable.ToString(),
+                                SourceType = SourceType.DebitNote.ToString(),
                                 AddedBy = voucher.AddedBy,
                                 AddedDate = voucher.AddedDate,
                                 AddedFromIP = voucher.AddedFromIP

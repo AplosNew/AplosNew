@@ -15,7 +15,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $scope.path1 = 'Products/PurchaseOrder/';
     $scope.path = 'Products/InventoryIssue/';
     $scope.getListUrl = $scope.path + 'GetDataByInventoryIssue';
-    $scope.saveUrl = 'Products/InventorySalesReturn/Create';
+    $scope.saveUrl = 'SalesManagements/Sales/InsertSalesReturnCreditNote';
     $scope.updateUrl = 'Products/InventorySalesReturn/Update';
     $scope.deleteUrl = $scope.path + 'DeleteSalesDetail/';
     $scope.sreviceSaveUrl = $scope.path + 'SalesServiceChargesCreate/';
@@ -27,6 +27,73 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
     $scope.tab = 1;
 
+   
+
+    $scope.product = {
+        Id: null
+        , ComapnyGroupId: null
+        , CompanyId: null
+        , PlantId: null
+        , PlantName: null
+        , EntityId: null
+        , EntityName: null
+        , MaterialStorageId: null
+        , SalesDate: $filter("dateFiltering")(Date.now())
+        , PostingDate: null
+        , Remarks: null
+        , EmployeeId: null
+        , EmployeeName: null
+        , IssueType: 'Revenue'
+        , IssueRequestMasterId: null
+        , SlipAssetIssueTypeStatus: 'Asset'
+        , OrderRefNo: null
+        , PartyId: null
+        , PartyName: null
+        , CheckedBy: null
+        , CheckedByStatus: null
+        , ApprovedBy: null
+        , ApprovedByStatus: null
+        , CustomerId: null
+        , ChangeInvoicingStateId: null
+        , PlantStateId: null
+        , InvoicingPartyPlantId: null
+        , DeliveryPartyPlantId: null
+        , InvoicingByAddress: null
+        , DeliveryByAddress: null
+        , InvoicingState: null
+        , InvoicingGSTIN: null
+        , DeliveryState: null
+        , DeliveryGSTIN: null
+        , InvoicingStateId: null
+        , ToCurrencyRate: null
+        , DocRefNo: null
+        , DocDate: null//$filter("dateFiltering")(Date.now())
+        , NoteForAccounts: null
+        , CurrencyId: null
+        , TaxOption: 'Yes'
+        , TaxOptionMat: 'Yes'
+        , TaxOptionService: 'Yes'
+        , TaxOptionServiceModify: 'Yes'
+        , TaxOptionAddiTax: 'Yes'
+        , PaymentTermId: null
+        , BaseOnDueDate: null
+        , BaseNoOfDays: null
+        , MatureDate: null
+        , IsPaymentTermChangeable: null
+        , Summery: null
+        , Details: null
+    };
+    $scope.IssueType = 'Revenue';
+    $scope.productNew = Object.assign({}, $scope.product);
+    $scope.voucherTypeList = [];
+    $scope.getvocherTypeSalesReturn = function () {
+        cboService.getCboVoucherTypeSalesReturnList(function (result) {
+            $scope.voucherTypeList = result;
+            if ($scope.voucherTypeList.length === 1) {
+                $scope.productNew.VoucherTypeId = $scope.voucherTypeList[0].Value;
+            }
+        });
+    }
    
 
     $scope.SalesdataList = [];
@@ -70,10 +137,13 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.product = data.data;
         $scope.product.SalesReturnId = data.data.Id;
         $scope.product.SalesId = data.data.SalesId;
+        $scope.product.PartyId = data.data.CustomerId;
         $scope.product.Id = null;
-        $scope.product.SalesReturnDate = data.data.SalesDateNew;
+        $scope.product.SalesReturnDate = data.data.SalesReturnDate;
+        $scope.product.PostingDate = $filter("dateFiltering")(data.data.SalesReturnDate);
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
         $scope.productNew = Object.assign({}, $scope.product);
+        $scope.getvocherTypeSalesReturn();
         getSalesReturnDetailList();
         getSalesReturnJV($scope.product.SalesReturnId, data.data.CustomerId);
         $scope.Action = 'Save';
@@ -266,61 +336,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
 
   
 
-    $scope.product = {
-        Id: null
-        , ComapnyGroupId: null
-        , CompanyId: null
-        , PlantId: null
-        , PlantName: null
-        , EntityId: null
-        , EntityName: null
-        , MaterialStorageId: null
-        , SalesDate: $filter("dateFiltering")(Date.now())
-        , Remarks: null
-        , EmployeeId: null
-        , EmployeeName: null
-        , IssueType: 'Revenue'
-        , IssueRequestMasterId: null
-        , SlipAssetIssueTypeStatus: 'Asset'
-        , OrderRefNo: null
-        , PartyId: null
-        , PartyName: null
-        , CheckedBy: null
-        , CheckedByStatus: null
-        , ApprovedBy: null
-        , ApprovedByStatus: null
-        , CustomerId: null
-        , ChangeInvoicingStateId: null
-        , PlantStateId: null
-        , InvoicingPartyPlantId: null
-        , DeliveryPartyPlantId: null
-        , InvoicingByAddress: null
-        , DeliveryByAddress: null
-        , InvoicingState: null
-        , InvoicingGSTIN: null
-        , DeliveryState: null
-        , DeliveryGSTIN: null
-        , InvoicingStateId: null
-        , ToCurrencyRate: null
-        , DocRefNo: null
-        , DocDate: null//$filter("dateFiltering")(Date.now())
-        , NoteForAccounts: null
-        , CurrencyId: null
-        , TaxOption: 'Yes'
-        , TaxOptionMat: 'Yes'
-        , TaxOptionService: 'Yes'
-        , TaxOptionServiceModify: 'Yes'
-        , TaxOptionAddiTax: 'Yes'
-        , PaymentTermId: null
-        , BaseOnDueDate: null
-        , BaseNoOfDays: null
-        , MatureDate: null
-        , IsPaymentTermChangeable: null
-        , Summery: null
-        , Details: null
-    };
-    $scope.IssueType = 'Revenue';
-    $scope.productNew = Object.assign({}, $scope.product);
+    
     $scope.AllTabPrint = function (z) {
         //debugger;
         var x = "#" + z;
@@ -428,23 +444,15 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                 $scope.detailList[i].TransactionQty = $scope.detailList[i].ReturnQty;
             }
         }
-        if (baseService.arrayLength($scope.chargesList) > 0) {
-            for (var i = 0; i < $scope.chargesList.length; i++) {
-                $scope.chargesList[i].Amount = $scope.chargesList[i].ReturnAmount;
-            }
-        }
-        var UIStatus = $("#SlipAssetIssueUI").val();
-        $scope.productNew.IssueRequestMasterId = $scope.issueId;
-        $scope.productNew.CustomerId = $scope.productNew.PartyId;
+        
         if ($scope.Action === "Save") {
             $http({
                 method: 'POST'
                 , url: $scope.saveUrl
                 , data: {
-                    inventoryIssue: $scope.productNew
-                    , entities: $scope.detailList
-                    , 'salesReturnTaxList': $scope.materialtaxCategoryListSavedData
-                    , 'salesServiceVMList': $scope.chargesList
+                    'voucherVM': $scope.productNew
+                    , 'voucherDetailVMList': $scope.newList
+                    , 'invoiceTaxVMList': null
                 }
                 , dataType: 'JSON'
             }).then(function (response) {

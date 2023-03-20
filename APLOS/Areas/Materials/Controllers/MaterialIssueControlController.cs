@@ -72,7 +72,9 @@ namespace Aplos.Areas.Materials.Controllers
         [HttpGet, Authorize]
         public ActionResult EntityList()
         {
-            return Json(clsM.EntityList(), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.EntityList(), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]
@@ -80,8 +82,9 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-
-                return Json(clsM.GetSavedUnApprovedData(), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(clsM.GetSavedUnApprovedData(), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -94,8 +97,9 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-
-                return Json(clsM.GetApprovedData(column, value), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(clsM.GetApprovedData(column, value), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -108,7 +112,9 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                return Json(clsM.GetSavedSODetailData(masterId), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(clsM.GetSavedSODetailData(masterId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -121,7 +127,9 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                return Json(clsM.GetIssueRequestList(masterId), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(clsM.GetIssueRequestList(masterId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -134,7 +142,9 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                return Json(clsM.GetIssueRequestBOQMapList(masterId), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(clsM.GetIssueRequestBOQMapList(masterId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -147,7 +157,9 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                return Json(clsM.GetSavedDetailDataToApprove(masterId), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(clsM.GetSavedDetailDataToApprove(masterId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -160,7 +172,9 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                return Json(clsM.GetSavedDetailData(masterId), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(clsM.GetSavedDetailData(masterId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -172,19 +186,25 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetList(string entityid, string column, string value)
         {
 
-            return Json(clsM.GetList(entityid, column, value), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetList(entityid, column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]
         public ActionResult GetSOItemList(string entityid, string ProductionOrderId)
         {
-            return Json(clsM.GetSOItemList(entityid, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetSOItemList(entityid, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]
         public ActionResult GetMOIItemList(string entityid, string ProductionOrderId)
         {
-            return Json(clsM.GetMOIItemList(entityid, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetMOIItemList(entityid, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpPost]
@@ -794,7 +814,9 @@ namespace Aplos.Areas.Materials.Controllers
         [HttpGet, Authorize]
         public ActionResult GetQBOQDataList(string LineItemId, string soId)
         {
-            return Json(clsM.GetQBOQDataList(LineItemId, soId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetQBOQDataList(LineItemId, soId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpGet]
