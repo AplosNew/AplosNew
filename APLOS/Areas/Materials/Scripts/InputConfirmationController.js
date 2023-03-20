@@ -28,7 +28,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         { 'name': 'Customer', 'value': 'Customer' },
     ];
 
-    $scope.ModelNew = { Id: null, POId: null, ConfirmationDate:null,IssueId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.ModelNew = { Id: null, POId: null, ConfirmationDate: null, IssueId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -106,9 +106,6 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     };
     //$scope.GetSavedData();
 
-
-
-
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
         $scope.GetIssueSlipDataByPOIdList();
@@ -129,27 +126,88 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         }
     };
 
-    $scope.SearchSOItemList = [];
+    $scope.SearchmaterialList = [];
     $scope.AddMaterial = function () {
-        $scope.itemList = [];
-        $http.get('Materials/InputConfirmation/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.SearchSOItemList = response.data;
-                    }
+        try {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ConfirmationDate)) {
+                throw "Confirmation Date is required.";
+            }
+            $scope.SearchmaterialList = [];
+            $http.get('Materials/InputConfirmation/GetInventoryMaterialData?confirmdate=' + $scope.ModelNew.ConfirmationDate)
+                .then(
+                    function successCallback(response) {
+                        if (baseService.arrayLength(response.data) > 0) {
+                            $scope.SearchmaterialList = response.data;
+                        }
 
-                    angular.element(document.querySelector('#SOpopUp')).modal('show');
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+                        angular.element(document.querySelector('#SOpopUp')).modal('show');
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     };
+
+    $scope.itemList = [];
+    $scope.closeSOPopUp = function () {
+        try {
+            for (var i = 0; i < $scope.SearchmaterialList.length; i++) {
+                var obj = {};
+                if ($scope.SearchmaterialList[i].Flag) {
+                    obj.IssueSlipId = null;
+                    obj.IssueSlipRowId = null;
+                    obj.CostCenter = null;
+                    obj.Article = $scope.SearchmaterialList[i].Article;
+                    obj.ArticleId = $scope.SearchmaterialList[i].ArticleId;
+                    obj.UOM = $scope.SearchmaterialList[i].BUoM;
+                    obj.UOMId = $scope.SearchmaterialList[i].TransactionUoMId;
+
+                    $scope.IssueSlipDataList.push($scope.SearchSOItemList[i]);
+                }
+            }
+            angular.element(document.querySelector('#SOpopUp')).modal('hide');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#SOPOPGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SearchmaterialList.length; i++) {
+                $scope.SearchmaterialList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+
+        }
+        var gridObj = $("#SOPOPGrid").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
 
 
     $scope.Action = 'Save';
     $scope.Save = function () {
-       // $scope.QBOQCostingListNew = [];
+        // $scope.QBOQCostingListNew = [];
 
         try {
             //var db4day = new Date().setDate(new Date().getDate() - 2);
@@ -157,7 +215,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
 
             //var db4day = new Date().setDate(new Date().getDate() - 2);
             //$scope.db4day = $filter('dateFiltering')(new Date(db4day), 'dd-MM-yyyy');
-           
+
             //if (new Date($scope.ModelNew.ConfirmationDate) < new Date($scope.DayBeforeYesterDay)) {
             //    throw "Day Before YesterDay is not allowed.";
             //}
@@ -401,7 +459,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N0}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalQty", dataMember: "TotalQty", format: "{0:N0}" }
         ]
-        ,showCaptionSummary: true
+        , showCaptionSummary: true
 
     }];
 

@@ -13994,7 +13994,7 @@ ORDER BY IR.ID DESC";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                Sql = @"SELECT * FROM(SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
+                Sql = @"SELECT top(300)* FROM(SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate1
                                     , REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
 									, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -14049,7 +14049,7 @@ ORDER BY IR.ID DESC";
 						LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId FROM [TRN].[PurchaseOrderDetail] AS A JOIN [TRN].[PurchaseOrder] AS B ON A.InventoryReceiveId=B.Id
 									WHERE B.PlantId='" + plantId + @"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id						
-						WHERE  IR.PlantId='" + plantId + @"') AS TEMP WHERE " + strkey + "";
+						WHERE  IR.PlantId='" + plantId + @"') AS TEMP WHERE " + strkey + " order by TEMP.AddedDate desc";
                 return _sqlRepository.GetDataCollection(Sql);
             }
 

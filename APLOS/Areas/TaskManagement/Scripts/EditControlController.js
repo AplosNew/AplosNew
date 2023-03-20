@@ -91,7 +91,8 @@ function EditControlController($scope, $rootScope, $routeParams, $http, $filter,
 
                         $cookies.put("CompanyFullName", response.data.CompanyFullName);
 
-                        $window.location = "applicationpanel#!/task-manag-report";
+                        //$window.location = "applicationpanel#!/task-manag-report";
+                        $window.location = 'ppanel#!/teacher-schedule';
                     }
                 }
             }, function errorCallback(response) {
