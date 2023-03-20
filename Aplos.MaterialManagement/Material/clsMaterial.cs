@@ -987,7 +987,7 @@ Where Q.MasterOrderItemId " + LineItemId + "";
         public IEnumerable<object> GetIssueSlipDataByPOIdList(string ProductionOrderId)
         {
             string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
-,ART.StandardName Article,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty
+,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty
 FROM TRN.IssueRequest IR 
 LEFT JOIN TRN.IssueRequestMaster IRM ON IR.IssueRequestMasterId=IRM.Id
 LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -1001,15 +1001,15 @@ LEFT JOIN TRN.InventoryIssueDetail ISD ON ISD.Id=H.InventoryIssueDetailId
 WHERE H.IssueRequestDetailId<>''
 GROUP BY H.IssueRequestDetailId,ISD.InventoryIssueId
 ) IRH ON IRH.IssueRequestDetailId=IR.Id
-Where IRM.ProductionOrderId='"+ ProductionOrderId + "'";
+Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
 
-        public IEnumerable<object> GetInventoryMaterialData(string plantId)
+        public IEnumerable<object> GetInventoryMaterialData(string plantId, string confirmdate)
         {
             try
             {
-                string today = DateTime.Now.ToString("dd-MMM-yyyy");
+                string today = confirmdate;
                 string sql = @"select * from(
                          SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END

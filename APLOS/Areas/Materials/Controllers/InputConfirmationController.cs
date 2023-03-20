@@ -71,20 +71,26 @@ namespace Aplos.Areas.Materials.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string entityid, string column, string value)
         {
-            return Json(clsM.GetRunningPOList(entityid, column, value), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetRunningPOList(entityid, column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
        
         [HttpGet, Authorize]
         public ActionResult GetIssueSlipDataByPOIdList(string ProductionOrderId)
         {
-            return Json(clsM.GetIssueSlipDataByPOIdList(ProductionOrderId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetIssueSlipDataByPOIdList(ProductionOrderId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetInventoryMaterialData()
+        public ActionResult GetInventoryMaterialData(string confirmdate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(clsM.GetInventoryMaterialData(identity.PlantId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetInventoryMaterialData(identity.PlantId, confirmdate), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [HttpPost]

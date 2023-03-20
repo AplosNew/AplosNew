@@ -791,7 +791,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId
 						)Res3 ON Res3.CompanyGroupId=CMPGR.Id --AND Res3.PlantId=P.Id
 						Left JOIN(
@@ -817,7 +817,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+							    AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId	
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=P.Id
 						LEFT JOIN(
@@ -843,7 +843,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId	
 						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --AND Res10.PlantId=P.Id
 						LEFT JOIN(
@@ -870,7 +870,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=P.Id
 						LEFT JOIN(
@@ -895,7 +895,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId	
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id  --AND Res20.PlantId=P.Id
 						LEFT JOIN(
@@ -920,7 +920,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=P.Id
 						LEFT JOIN(
@@ -945,7 +945,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId
 												
 						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=P.Id
@@ -971,7 +971,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId	
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=P.Id
 						LEFT JOIN(
@@ -996,7 +996,7 @@ namespace Library.Service.Expenses
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								GROUP BY PO.CompanyGroupId
 						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'
@@ -1052,7 +1052,7 @@ namespace Library.Service.Expenses
 								where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId	
 						)Res3 ON Res3.CompanyGroupId=CMPGR.Id --AND Res3.PlantId=P.Id
@@ -1078,7 +1078,7 @@ namespace Library.Service.Expenses
 								where DATEDIFF(day,PO.PODate,getdate()) Between 4 and 5
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND  ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId				
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=P.Id
@@ -1104,7 +1104,7 @@ namespace Library.Service.Expenses
 							where DATEDIFF(day,PO.PODate,getdate()) Between 6 and 10
 							AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 							AND PO.IsClosed=0 AND POD.QtyStatus=0
-							AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+							AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 							--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 							GROUP BY PO.CompanyGroupId--,PO.PlantId		
 						)Res10 ON Res10.CompanyGroupId=cmpGR.Id --AND Res10.PlantId=P.Id
@@ -1131,7 +1131,7 @@ namespace Library.Service.Expenses
 								where DATEDIFF(day,PO.PODate,getdate()) Between 11 and 15
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId	
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=P.Id
@@ -1156,7 +1156,7 @@ namespace Library.Service.Expenses
                                 where DATEDIFF(day,PO.PODate,getdate()) Between 16 and 20
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								AND PO.PurchaseLCId IS NULL AND  ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId	
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id  --AND Res20.PlantId=P.Id
@@ -1181,7 +1181,7 @@ namespace Library.Service.Expenses
 								where DATEDIFF(day,PO.PODate,getdate()) Between 21 and 25
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId	
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=P.Id
@@ -1206,7 +1206,7 @@ namespace Library.Service.Expenses
 								where DATEDIFF(day,PO.PODate,getdate()) Between 26 and 30
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId	
 												
@@ -1232,7 +1232,7 @@ namespace Library.Service.Expenses
 								where DATEDIFF(day,PO.PODate,getdate()) Between 31 and 90000
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId		
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=P.Id
@@ -1257,7 +1257,7 @@ namespace Library.Service.Expenses
 								where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 90000
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 								GROUP BY PO.CompanyGroupId--,PO.PlantId	
 						)Res32 ON Res32.CompanyGroupId=cmpGR.Id --AND Res32.PlantId=P.Id
@@ -4323,7 +4323,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId				
 								)Res3 ON Res3.CompanyId=cmp.Id AND Res3.PlantId=P.Id
 								Left JOIN(
@@ -4356,7 +4356,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										 AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res5 ON Res5.CompanyId=cmp.Id AND Res5.PlantId=P.Id
 								LEFT JOIN(
@@ -4382,7 +4382,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										 AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res10 ON Res10.CompanyId=cmp.Id AND Res10.PlantId=P.Id
 								LEFT JOIN(
@@ -4409,7 +4409,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										 AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId	
 								)Res15 ON Res15.CompanyId=cmp.Id AND Res15.PlantId=P.Id
 								LEFT JOIN(
@@ -4434,7 +4434,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										 AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res20 ON Res20.CompanyId=cmp.Id  AND Res20.PlantId=P.Id
 								LEFT JOIN(
@@ -4459,7 +4459,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										 AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res25 ON Res25.CompanyId=cmp.Id AND Res25.PlantId=P.Id
 								LEFT JOIN(
@@ -4484,7 +4484,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										 AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId	
 												
 								)Res30 ON Res30.CompanyId=cmp.Id AND Res30.PlantId=P.Id
@@ -4510,7 +4510,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId
 								)Res31 ON Res31.CompanyId=cmp.Id AND Res31.PlantId=P.Id
 								LEFT JOIN(
@@ -4535,7 +4535,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										GROUp BY PO.CompanyId,PO.PlantId
 								)Res32 ON Res32.CompanyId=cmp.Id AND Res32.PlantId=P.Id
 								where cmp.Active =1 and CMPGR.Active = 1 --AND cmp.Id='C20171'
@@ -4585,7 +4585,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 3
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId				
 								)Res3 ON Res3.CompanyId=cmp.Id AND Res3.PlantId=P.Id
@@ -4618,7 +4618,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 4 and 5
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										 AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res5 ON Res5.CompanyId=cmp.Id AND Res5.PlantId=P.Id
@@ -4644,7 +4644,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 6 and 10
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res10 ON Res10.CompanyId=cmp.Id AND Res10.PlantId=P.Id
@@ -4671,7 +4671,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 11 and 15
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										ND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId	
 								)Res15 ON Res15.CompanyId=cmp.Id AND Res15.PlantId=P.Id
@@ -4696,7 +4696,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 16 and 20
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res20 ON Res20.CompanyId=cmp.Id  AND Res20.PlantId=P.Id
@@ -4721,7 +4721,7 @@ namespace Library.Service.Expenses
 									    where DATEDIFF(day,PO.PODate,getdate()) Between 21 and 25
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId		
 								)Res25 ON Res25.CompanyId=cmp.Id AND Res25.PlantId=P.Id
@@ -4746,7 +4746,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 26 and 30
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId	
 												
@@ -4772,7 +4772,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 31 and 900000
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId
 								)Res31 ON Res31.CompanyId=cmp.Id AND Res31.PlantId=P.Id
@@ -4797,7 +4797,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 0 and 900000
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+										AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
 										--ANd PO.Id not in(Select distinct POId from trn.InventoryReceivedetail where POId is not null)	
 										GROUp BY PO.CompanyId,PO.PlantId
 								)Res32 ON Res32.CompanyId=cmp.Id AND Res32.PlantId=P.Id
@@ -11296,7 +11296,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId		
 						)Res3 ON Res3.CompanyId=cmp.Id AND Res3.PlantId=P.Id
 						Left JOIN(
@@ -11321,7 +11321,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId	
 						)Res5 ON Res5.CompanyId=cmp.Id AND Res5.PlantId=P.Id
 						LEFT JOIN(
@@ -11346,7 +11346,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId	
 						)Res10 ON Res10.CompanyId=cmp.Id AND Res10.PlantId=P.Id
 						LEFT JOIN(	
@@ -11370,7 +11370,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId	
 						)Res15 ON Res15.CompanyId=cmp.Id AND Res15.PlantId=P.Id
 						LEFT JOIN(
@@ -11394,7 +11394,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId		
 						)Res20 ON Res20.CompanyId=cmp.Id  AND Res20.PlantId=P.Id
 						LEFT JOIN(
@@ -11418,7 +11418,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId			
 						)Res25 ON Res25.CompanyId=cmp.Id AND Res25.PlantId=P.Id
 						LEFT JOIN(
@@ -11442,7 +11442,7 @@ namespace Library.Service.Expenses
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId		
 												
 						)Res30 ON Res30.CompanyId=cmp.Id AND Res30.PlantId=P.Id
@@ -11463,11 +11463,11 @@ namespace Library.Service.Expenses
 										,Sum(POD.Total31Value) Total31Value
 										FROM trn.PurchaseOrder PO
 										LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total31Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-										where DATEDIFF(day,PO.PODate,getdate()) Between 31 ANd 900000
+										where DATEDIFF(day,PO.PODate,getdate()) Between >= 31
 										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId		
 						)Res31 ON Res31.CompanyId=cmp.Id AND Res31.PlantId=P.Id
 						LEFT JOIN(
@@ -11487,8 +11487,7 @@ namespace Library.Service.Expenses
 										,Sum(POD.Total32Value) Total32Value
 										FROM trn.PurchaseOrder PO
 										LEFT JOIN (Select InventoryReceiveId,sum(TransactionQty) Qty,sum(TransactionRate) Rate,Sum(BaseAmount) Total32Value,QtyStatus from TRN.PurchaseOrderDetail GROUP BY InventoryReceiveId,QtyStatus) POD ON POD.InventoryReceiveId=PO.id 
-										where DATEDIFF(day,PO.PODate,getdate()) Between 0 ANd 9000000
-										AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
+										where (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 										AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
 										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
@@ -11540,7 +11539,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 0 ANd 3
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId		
 						)Res3 ON Res3.CompanyId=cmp.Id AND Res3.PlantId=P.Id
 						Left JOIN(
@@ -11564,7 +11563,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 4 ANd 5
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId	
 						)Res5 ON Res5.CompanyId=cmp.Id AND Res5.PlantId=P.Id
 						LEFT JOIN(
@@ -11588,7 +11587,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 6 ANd 10
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId	
 						)Res10 ON Res10.CompanyId=cmp.Id AND Res10.PlantId=P.Id
 						LEFT JOIN(
@@ -11613,7 +11612,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 11 ANd 15
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId	
 						)Res15 ON Res15.CompanyId=cmp.Id AND Res15.PlantId=P.Id
 						LEFT JOIN(
@@ -11636,7 +11635,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 16 ANd 20
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId		
 						)Res20 ON Res20.CompanyId=cmp.Id  AND Res20.PlantId=P.Id
 						LEFT JOIN(
@@ -11659,7 +11658,7 @@ namespace Library.Service.Expenses
 										where DATEDIFF(day,PO.PODate,getdate()) Between 21 ANd 25
 										AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 										AND PO.IsClosed=0 AND POD.QtyStatus=0
-										AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL
+										 AND PO.PurchaseLCId IS NULL
 										GROUp BY PO.CompanyId,PO.PlantId			
 						)Res25 ON Res25.CompanyId=cmp.Id AND Res25.PlantId=P.Id
 						LEFT JOIN(
