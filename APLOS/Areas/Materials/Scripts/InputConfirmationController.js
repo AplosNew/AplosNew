@@ -7,7 +7,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
 
     $scope.path = 'Materials/InputConfirmation/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'CreateIssue';
+    $scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'Update';
     $scope.deleteUrl = $scope.path + 'delete/';
 
@@ -163,11 +163,19 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                     obj.ArticleId = $scope.SearchmaterialList[i].ArticleId;
                     obj.UOM = $scope.SearchmaterialList[i].BUoM;
                     obj.UOMId = $scope.SearchmaterialList[i].TransactionUoMId;
+                    obj.InventoryReceiveId = $scope.SearchmaterialList[i].InventoryReceiveId;
+                    obj.InventoryReceiveDetailId = $scope.SearchmaterialList[i].InventoryReceiveDetailId;
+                    obj.RequestedQty = $scope.SearchmaterialList[i].TranQty;
+                    obj.IssueQty = $scope.SearchmaterialList[i].IssueQty;
+                    obj.OtherQty = $scope.SearchmaterialList[i].OtherQty;
+                    obj.WasteQty = $scope.SearchmaterialList[i].WasteQty;
+                    obj.TotalQty = $scope.SearchmaterialList[i].TotalQty;
 
-                    $scope.IssueSlipDataList.push($scope.SearchSOItemList[i]);
+                    $scope.IssueSlipDataList.push(obj);
+                    obj = {};
                 }
             }
-            angular.element(document.querySelector('#SOpopUp')).modal('hide');
+            angular.element(document.querySelector('#SOppUp')).modal('hide');
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -207,140 +215,122 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
 
     $scope.Action = 'Save';
     $scope.Save = function () {
-        // $scope.QBOQCostingListNew = [];
 
         try {
-            //var db4day = new Date().setDate(new Date().getDate() - 2);
-            //$scope.db4day = $filter('dateFiltering')(new Date(db4day), 'dd-MM-yyyy');
-
-            //var db4day = new Date().setDate(new Date().getDate() - 2);
-            //$scope.db4day = $filter('dateFiltering')(new Date(db4day), 'dd-MM-yyyy');
-
-            //if (new Date($scope.ModelNew.ConfirmationDate) < new Date($scope.DayBeforeYesterDay)) {
-            //    throw "Day Before YesterDay is not allowed.";
-            //}
-
-            //if (new Date($scope.ModelNew.ConfirmationDate) = new Date()) {
-            //    // ok
-            //}
-
-
-            //if (new Date($scope.ModelNew.ConfirmationDate).setDate(new Date().getDate() - 1) = new Date().setDate(new Date().getDate() -1)) {
-            //    // ok
-            //}
-
-            if (new Date($scope.ModelNew.ConfirmationDate) != new Date().setDate(new Date().getDate() - 2)) {
-                throw "Day Before YesterDay is not allowed.";
+            var db4day = new Date().setDate(new Date().getDate() - 2);
+            $scope.db4day = $filter('dateFiltering')(new Date(db4day), 'dd-MM-yyyy');
+            var today = $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
+            if (new Date($scope.ModelNew.ConfirmationDate) > new Date(today)) {
+                if (new Date($scope.ModelNew.ConfirmationDate) < new Date($scope.db4day)) {
+                    throw "Day Before YesterDay is not allowed.";
+                }
             }
+           
 
 
 
-            //if ($scope.Action === 'Save') {
-            //    if (baseService.arrayLength($scope.SOItemList) === 0) {
-            //        throw "Select SO Detail.";
-            //    }
-            //    else {
-            //        if (baseService.arrayLength($scope.SOItemList) > 1) {
-            //            for (var i = 0; i < $scope.SOItemList.length; i++) {
-            //                var firstLineId = $scope.SOItemList[0].LineItemId;
-            //                if ($scope.SOItemList[i].LineItemId != firstLineId) {
-            //                    throw "Please select same Line Item.";
-            //                }
-            //            }
-            //        }
-            //    }
+            if ($scope.Action === 'Save') {
+                //if (baseService.arrayLength($scope.SOItemList) === 0) {
+                //    throw "Select SO Detail.";
+                //}
+                //else {
+                //    if (baseService.arrayLength($scope.SOItemList) > 1) {
+                //        for (var i = 0; i < $scope.SOItemList.length; i++) {
+                //            var firstLineId = $scope.SOItemList[0].LineItemId;
+                //            if ($scope.SOItemList[i].LineItemId != firstLineId) {
+                //                throw "Please select same Line Item.";
+                //            }
+                //        }
+                //    }
+                //}
 
 
-            //    if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
-            //        for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
+                //if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
+                //    for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
 
-            //            $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
-            //            $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
-            //            $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
-            //            $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
-            //            $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
-            //        }
-            //    }
+                //        $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
+                //        $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
+                //        $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
+                //        $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
+                //        $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
+                //    }
+                //}
 
-            //    if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-            //        throw "Select Production Order.";
-            //    }
+                if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+                    throw "Select Production Order.";
+                }
 
-            //    $scope.$broadcast('show-errors-check-validity');
-            //    if ($scope.ModelNewForm.$valid) {
-            //        if (baseService.isUndefinedOrNull($scope.ModelNew.ByWhom)) {
-            //            throw "Select By Whom Employee.";
-            //        }
+                $scope.$broadcast('show-errors-check-validity');
+                if ($scope.ModelNewForm.$valid) {
+                    //if (baseService.isUndefinedOrNull($scope.ModelNew.ByWhom)) {
+                    //    throw "Select By Whom Employee.";
+                    //}
 
-            //        $http({
-            //            method: 'POST',
-            //            url: $scope.saveUrl,
-            //            data: {
-            //                'model': $scope.ModelNew
-            //                , 'soList': $scope.SOItemList
-            //                , 'dataList': $scope.QBOQCostingListNew
-            //                , 'dataLists': $scope.QBOQCostingListNew
-            //            },
-            //            dataType: 'JSON'
-            //            , contentType: "application/json charset=utf-8"
-            //        }).then(function successCallback(response) {
-            //            if (response.data.Error === true) {
-            //                ShowResult(response.data.Message, 'failure');
-            //            }
-            //            else {
-            //                ShowResult(response.data.Message, 'success');
-            //                $scope.Clear();
-            //                $scope.GetSavedData();
-            //            }
-            //        }), function errorCallBack(response) {
-            //            ShowResult(response.data.Message, 'failure');
-            //        };
-            //    }
-            //}
-            //else {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: {
+                            'model': $scope.ModelNew
+                            , 'dataList': $scope.IssueSlipDataList
+                        },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Clear();
+                            $scope.GetSavedData();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
+            }
+            else {
 
-            //    for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-            //        for (var j = 0; j < $scope.IssueRequestList.length; j++) {
-            //            if ($scope.QBOQCostingList[i].Id == $scope.IssueRequestList[j].MaterialIssueControlDetailId) {
-            //                $scope.IssueRequestList[j].RequestedQty = $scope.QBOQCostingList[i].PlanConsumption;
-            //            }
-            //        }
-            //    }
+                //for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
+                //    for (var j = 0; j < $scope.IssueRequestList.length; j++) {
+                //        if ($scope.QBOQCostingList[i].Id == $scope.IssueRequestList[j].MaterialIssueControlDetailId) {
+                //            $scope.IssueRequestList[j].RequestedQty = $scope.QBOQCostingList[i].PlanConsumption;
+                //        }
+                //    }
+                //}
 
-            //    for (var i = 0; i < $scope.IssueRequestList.length; i++) {
-            //        for (var j = 0; j < $scope.IssueRequestBOQMapList.length; j++) {
-            //            if ($scope.IssueRequestList[i].Id == $scope.IssueRequestBOQMapList[j].IssueRequestDetailId) {
-            //                $scope.IssueRequestBOQMapList[j].Qty = $scope.IssueRequestList[i].RequestedQty;
-            //            }
-            //        }
-            //    }
+                //for (var i = 0; i < $scope.IssueRequestList.length; i++) {
+                //    for (var j = 0; j < $scope.IssueRequestBOQMapList.length; j++) {
+                //        if ($scope.IssueRequestList[i].Id == $scope.IssueRequestBOQMapList[j].IssueRequestDetailId) {
+                //            $scope.IssueRequestBOQMapList[j].Qty = $scope.IssueRequestList[i].RequestedQty;
+                //        }
+                //    }
+                //}
 
 
-            //    $http({
-            //        method: 'POST',
-            //        url: $scope.updateUrl,
-            //        data: {
-            //            'model': $scope.ModelNew
-            //            , 'soList': $scope.SOItemList
-            //            , 'dataList': $scope.QBOQCostingList
-            //            , 'IssueRequestList': $scope.IssueRequestList
-            //            , 'BOQMapList': $scope.IssueRequestBOQMapList
-            //        },
-            //        dataType: 'JSON'
-            //        , contentType: "application/json charset=utf-8"
-            //    }).then(function successCallback(response) {
-            //        if (response.data.Error === true) {
-            //            ShowResult(response.data.Message, 'failure');
-            //        }
-            //        else {
-            //            ShowResult(response.data.Message, 'success');
-            //            $scope.Clear();
-            //            $scope.GetSavedData();
-            //        }
-            //    }), function errorCallBack(response) {
-            //        ShowResult(response.data.Message, 'failure');
-            //    };
-            //}
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl,
+                    data: {
+                        'model': $scope.ModelNew
+                        , 'dataList': $scope.QBOQCostingList
+                       
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.Clear();
+                        $scope.GetSavedData();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -452,12 +442,12 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     }
 
     $scope.summaryRows = [{
-        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "RequestedQty", dataMember: "RequestedQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "OtherQty", dataMember: "OtherQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N0}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalQty", dataMember: "TotalQty", format: "{0:N0}" }
+        title: "Total Qty", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "RequestedQty", dataMember: "RequestedQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "OtherQty", dataMember: "OtherQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalQty", dataMember: "TotalQty", format: "{0:N2}" }
         ]
         , showCaptionSummary: true
 

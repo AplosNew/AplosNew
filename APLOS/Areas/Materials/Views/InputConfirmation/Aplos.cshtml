@@ -310,7 +310,7 @@
                         <div e-columns>
                             <div e-column e-headertext="Select" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="100"></div>
-                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="160px"></div>                           
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="160px"></div>
                             <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="180"></div>
                             <div e-column e-type="string" e-field="InventoryReceiveId" e-headertext="GRNNo" e-width="80"></div>
                             <div e-column e-type="string" e-field="InventoryReceiveDetailId" e-headertext="GRNRowNo" e-width="80"></div>
@@ -319,6 +319,8 @@
                             <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot No" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="TransactionQty" e-headertext="Receive Qty" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="IssueQty" e-headertext="Issue Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.0000}" e-field="BalanceStock" e-headertext="BalanceStock" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="number" e-template="#TranQty" e-field="TranQty" e-headertext="TranQty" e-textalign="right" e-width="50"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="MaterialTranRate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Rate" e-textalign="BaseRate" e-width="80"></div>
                         </div>
@@ -326,7 +328,11 @@
                     <script type="text/template" id="checkboxTemplate">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
                     </script>
-
+                    <script type="text/template" id="TranQty">
+                        <div class="col-sm-10" style="text-align: right;">
+                            <input type="text" n-decimals="4" ng-model="data.TranQty" style="color: black; width: 78px; text-align: right;" class="form-control" />
+                        </div>
+                    </script>
                 </div>
                 <div class="modal-footer">
                     <div class="common-btn" style="padding-right: 15px;">
