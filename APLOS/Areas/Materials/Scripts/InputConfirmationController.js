@@ -28,7 +28,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         { 'name': 'Customer', 'value': 'Customer' },
     ];
 
-    $scope.ModelNew = { Id: null, POId: null, ConfirmationDate: null, IssueId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+    $scope.ModelNew = { Id: null, POId: null, EntityId: null, ProcessId: null, ResponsiblePersonId: null, CheckedById: null, WorkCenterMasterId: null, ConfirmationDate: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({
@@ -99,12 +99,12 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
             data: {
                 'column': $scope.MCSearchColumn, 'value': $scope.MCSearchValue
             },
-            url: 'Materials/MaterialIssueControl/GetApprovedData'
+            url: 'Materials/InputConfirmation/GetSavedData'
         }).then(function successCallback(response) {
             $scope.savedList = response.data;
         });
     };
-    //$scope.GetSavedData();
+    $scope.GetSavedData();
 
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
@@ -120,11 +120,27 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
             $http.get('Materials/InputConfirmation/GetIssueSlipDataByPOIdList?ProductionOrderId=' + $scope.ModelNew.POId)
                 .then(function (response) {
                     $scope.IssueSlipDataList = response.data;
+                    $scope.GetSOItemList();
                 });
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
     };
+
+    $scope.SOItemList = [];
+    $scope.GetSOItemList = function () {
+        $scope.SOItemList = [];
+        $http.get('Materials/InputConfirmation/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.SOItemList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
 
     $scope.SearchmaterialList = [];
     $scope.AddMaterial = function () {
@@ -150,29 +166,49 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         }
     };
 
+    function checkExistsItem(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].InventoryReceiveDetailId == id) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     $scope.itemList = [];
     $scope.closeSOPopUp = function () {
         try {
             for (var i = 0; i < $scope.SearchmaterialList.length; i++) {
                 var obj = {};
                 if ($scope.SearchmaterialList[i].Flag) {
-                    obj.IssueSlipId = null;
-                    obj.IssueSlipRowId = null;
-                    obj.CostCenter = null;
-                    obj.Article = $scope.SearchmaterialList[i].Article;
-                    obj.ArticleId = $scope.SearchmaterialList[i].ArticleId;
-                    obj.UOM = $scope.SearchmaterialList[i].BUoM;
-                    obj.UOMId = $scope.SearchmaterialList[i].TransactionUoMId;
-                    obj.InventoryReceiveId = $scope.SearchmaterialList[i].InventoryReceiveId;
-                    obj.InventoryReceiveDetailId = $scope.SearchmaterialList[i].InventoryReceiveDetailId;
-                    obj.RequestedQty = $scope.SearchmaterialList[i].TranQty;
-                    obj.IssueQty = $scope.SearchmaterialList[i].IssueQty;
-                    obj.OtherQty = $scope.SearchmaterialList[i].OtherQty;
-                    obj.WasteQty = $scope.SearchmaterialList[i].WasteQty;
-                    obj.TotalQty = $scope.SearchmaterialList[i].TotalQty;
+                    if (checkExistsItem($scope.IssueSlipDataList, $scope.SearchmaterialList[i].InventoryReceiveDetailId)) {
+                        if (baseService.isUndefinedOrNull($scope.SearchmaterialList[i].TranQty) || $scope.SearchmaterialList[i].TranQty == 0) {
+                            throw "Please input Transaction Qty.";
+                        }
+                        else if ($scope.SearchmaterialList[i].TranQty > $scope.SearchmaterialList[i].BalanceStock) {
+                            throw "Transaction Qty can not greater than Balance Qty.";
+                        }
+                        else {
+                            obj.Id = null;
+                            obj.IssueSlipId = null;
+                            obj.IssueSlipRowId = null;
+                            obj.CostCenter = null;
+                            obj.Article = $scope.SearchmaterialList[i].Article;
+                            obj.ArticleId = $scope.SearchmaterialList[i].ArticleId;
+                            obj.UOM = $scope.SearchmaterialList[i].BUoM;
+                            obj.UOMId = $scope.SearchmaterialList[i].TransactionUoMId;
+                            obj.InventoryReceiveId = $scope.SearchmaterialList[i].InventoryReceiveId;
+                            obj.InventoryReceiveDetailId = $scope.SearchmaterialList[i].InventoryReceiveDetailId;
+                            obj.RequestedQty = $scope.SearchmaterialList[i].TranQty;
+                            obj.IssueQty = $scope.SearchmaterialList[i].IssueQty;
+                            obj.OtherQty = $scope.SearchmaterialList[i].OtherQty;
+                            obj.WasteQty = $scope.SearchmaterialList[i].WasteQty;
+                            obj.TotalQty = $scope.SearchmaterialList[i].TotalQty;
 
-                    $scope.IssueSlipDataList.push(obj);
-                    obj = {};
+                            $scope.IssueSlipDataList.push(obj);
+                            obj = {};
+                        }
+                    }
                 }
             }
             angular.element(document.querySelector('#SOppUp')).modal('hide');
@@ -212,6 +248,32 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
 
     // #endregion checkbox all
 
+    $scope.GetSaved = function (obj) {
+        $scope.ModelNew = Object.assign({}, obj.data);
+        $scope.ModelNew.IssueDate = $filter('dateFiltering')($scope.ModelNew.IssueDate, 'dd-M-yyyy');
+        $scope.Action = 'Update';
+        $scope.GetSOItemList();
+        $scope.GetSavedChildDetailData();
+
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.GetSavedChildDetailData = function () {
+        $scope.IssueSlipDataList = [];
+        $http.get('Materials/InputConfirmation/GetSavedChildData?masterId=' + $scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.IssueSlipDataList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    };
 
     $scope.Action = 'Save';
     $scope.Save = function () {
@@ -220,12 +282,12 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
             var db4day = new Date().setDate(new Date().getDate() - 2);
             $scope.db4day = $filter('dateFiltering')(new Date(db4day), 'dd-MM-yyyy');
             var today = $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
-            if (new Date($scope.ModelNew.ConfirmationDate) > new Date(today)) {
+            if (new Date($scope.ModelNew.ConfirmationDate) < new Date(today)) {
                 if (new Date($scope.ModelNew.ConfirmationDate) < new Date($scope.db4day)) {
                     throw "Day Before YesterDay is not allowed.";
                 }
             }
-           
+
 
 
 
@@ -314,7 +376,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                     data: {
                         'model': $scope.ModelNew
                         , 'dataList': $scope.QBOQCostingList
-                       
+
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -343,7 +405,6 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                 url: $scope.deleteUrl,
                 data: {
                     'id': $scope.ModelNew.Id
-                    , 'issueId': $scope.ModelNew.IssueId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -363,13 +424,10 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     };
 
     $scope.Clear = function () {
-        $scope.ModelNew = { Id: null, POId: null, EntityId: null, MaterialStorageId: null, IssueDate: null, IssueType: 'Revenue', UserCode: null, UserRef: null, PlanPercentage: null, ByWhomId: null, UserName: null, Level: "QBOQ", LotNo: null, IsApproved: 0, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
+        $scope.ModelNew = { Id: null, POId: null, EntityId: null, ProcessId: null, ResponsiblePersonId: null, CheckedById: null, WorkCenterMasterId: null, ConfirmationDate: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
-        $scope.QBOQCostingList = [];
-        $scope.ModelNew.Level = "QBOQ";
         $scope.modelList = [];
         $rootScope.toggle();
-        $scope.CostCenterLoad();
         $scope.Action = 'Save';
     }
 

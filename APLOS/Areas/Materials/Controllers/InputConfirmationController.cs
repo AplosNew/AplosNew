@@ -93,7 +93,45 @@ namespace Aplos.Areas.Materials.Controllers
             return jsondata;
         }
 
-        
+        [HttpPost, Authorize]
+        public ActionResult GetSavedData(string column, string value)
+        {
+            var jsondata = Json(clsM.GetInputSavedData(column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedChildData(string masterId)
+        {
+            var jsondata = Json(clsM.GetSavedinputDetailData(masterId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetSOItemList(string entityid, string ProductionOrderId)
+        {
+            var jsondata = Json(clsM.GetSOItemList(entityid, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> model, List<Dictionary<string, object>> dataList)
+        {
+            try
+            {
+                SaveData(model, dataList);
+
+                return Json(new { Data = model, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
         private void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> dataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -161,22 +199,6 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-      
-        [HttpPost]
-        public JsonResult Create(Dictionary<string, object> model, List<Dictionary<string, object>> soList)
-        {
-            try
-            {
-                SaveData(model, soList);
-
-                return Json(new { Data = model, Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, ex.Message });
-            }
-        }
-
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -223,13 +245,13 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost]
-        public JsonResult Delete(string id, string issueId)
+        public JsonResult Delete(string id)
         {
-            DeleteData(id, issueId);
+            DeleteData(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        public void DeleteData(string Id, string issueId)
+        public void DeleteData(string Id)
         {
             DataSet dsIssue=null;
             string strSQL, strMDSQL;
