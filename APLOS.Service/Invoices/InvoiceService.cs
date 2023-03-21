@@ -162,7 +162,7 @@ namespace Library.Service.Invoices
                 DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId,
                 SourceType = voucherVM.SourceType,
                 RevisedDueDate = voucherVM.MatureDate,
-                ActualDueDate = voucherVM.MatureDate,
+                ActualDueDate = voucherVM.BaseOnDueDate,
                 SalesTypeId = voucherVM.SalesTypeId,
                 IsPark = voucherVM.IsPark,
                 PaymentSource = voucherVM.PaymentSource,

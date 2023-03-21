@@ -133,7 +133,7 @@ namespace Library.Service.Employees
             {
                 employeePayable.BaseNoOfDays = voucherVM.BaseNoOfDays;
                 employeePayable.BaseOnDueDate = voucherVM.BaseOnDueDate;
-                employeePayable.ActualDueDate = voucherVM.MatureDate;
+                employeePayable.ActualDueDate = voucherVM.BaseOnDueDate;
                 employeePayable.RevisedDueDate = voucherVM.MatureDate;
             }
             return InsertEmployeePayable(employeePayable);
