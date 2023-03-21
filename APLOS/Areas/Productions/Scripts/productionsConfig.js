@@ -323,11 +323,11 @@ function ProductionsConfig($routeProvider, $locationProvider) {
         })
 
         .when('/parameter-master', {
-            templateUrl: 'Productions/ParameterMaster/Aplos',
+            templateUrl: 'Productions/Parameter/Aplos',
             controller: 'ParameterMasterController'
         })
         .when('/parameter', {
-            templateUrl: 'Productions/Parameter/Aplos',
+            templateUrl: 'Productions/ParameterMaster/Aplos',
             controller: 'ParameterController'
         })
         .when('/productionreport', {
