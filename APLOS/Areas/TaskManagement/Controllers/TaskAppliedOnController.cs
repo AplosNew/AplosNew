@@ -261,7 +261,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         {
             try
             {
-                parameters.CmdText = @"select Id MenuMasterId,Description, Controller, Href from [MST].[MenuMaster]";
+                parameters.CmdText = @"select Id,Description, Controller, Href from [MST].[MenuMaster]";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -271,6 +271,15 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetHrefDatasList(string hrefId)
+        {
+            string sql = @"select Id,Description, Controller, Href from [MST].[MenuMaster] where Id = '"+ hrefId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion User Edit Cotrol
     }
 }
