@@ -597,7 +597,7 @@ LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
 
-   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "' AND SO.Id NOT IN(Select SOId from dbo.MaterialIssueControlSODetail)";
+   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
 
 
             return _sqlRepository.GetDataCollection(CmdText, null);
@@ -986,8 +986,8 @@ Where Q.MasterOrderItemId " + LineItemId + "";
 
         public IEnumerable<object> GetIssueSlipDataByPOIdList(string ProductionOrderId)
         {
-            string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
-,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty
+            string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,IR.CostCenterId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
+,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty
 FROM TRN.IssueRequest IR 
 LEFT JOIN TRN.IssueRequestMaster IRM ON IR.IssueRequestMasterId=IRM.Id
 LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -1280,6 +1280,47 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
             }
         }
 
+        public IEnumerable<object> GetInputSavedData(string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                string sql = @"SELECT * FROM (
+SELECT M.*,ER.EmployeeCode ResponsiblePersonEmployeeCode,ER.EmployeeName ResponsiblePerson,EC.EmployeeCode CheckedByEmployeeCode,EC.EmployeeName CheckedBy,EN.UserName Entity,WCM.UserName WorkCenterMaster,P.UserName Process 
+FROM dbo.InputConfirmationMaster M
+LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=M.ResponsiblePersonId
+LEFT JOIN dbo.EmployeeInformation EC ON EC.SystemId=M.CheckedById
+LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN SCS.WorkCenterMaster WCM ON WCM.Id=M.WorkCenterMasterId
+LEFT JOIN HKP.Process P ON P.id=M.ProcessId
+) AS TEMP WHERE " + strkey + " Order by AddedDate Desc";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSavedinputDetailData(string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT D.*,A.StandardName Article,U.Code UOM,CC.UserName CostCenter FROM dbo.InputConfirmationDetail D
+ LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
+ LEFT JOIN SCS.UnitofMeasurement U ON U.Id=D.UOMId 
+Left Join [ORG].[CostCenter] CC On CC.Id=D.CostCenterId
+                WHERE D.InputConfirmationMasterId='" + masterId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
 

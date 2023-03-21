@@ -6618,13 +6618,13 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
 			                                JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 			                                left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId                                           
 			                                where pp.ProductionOrderID=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-                            pt1.NoOfWorkStation,sn.ProductionHours  AS PlanHours,
+                            NULLIF(wcm.NoOfWorkStation,0)NoOfWorkStation,sn.ProductionHours  AS PlanHours,
                             ISNULL(ppt.ProductionHours,0) ProductionHours,
                             ISNULL(sn.Quantity,0)*isnull(pt1.SPT,0) AS PlanMinutes,
-                            ISNULL(sn.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*sn.ProductionHours*60) AS PlanEfficiency,
+                            ISNULL(sn.Quantity,0)*isnull(pt1.SPT,0)/(NULLIF(wcm.NoOfWorkStation,0)*sn.ProductionHours*60) AS PlanEfficiency,
 
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
-                            ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
+                            ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(NULLIF(wcm.NoOfWorkStation,0)*pp.ProductionHours*60) AS ActualEfficiency
 							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
 							,PartyId=STUFF((select distinct ', '+P.Id from HKP.Party P
 											left join trn.MasterOrder MO on mo.PartyId=P.Id
