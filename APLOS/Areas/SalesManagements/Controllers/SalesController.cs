@@ -553,6 +553,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         DataRow drmo = dvsc[0].Row;
                                         drmo.BeginEdit();
                                         drmo["SalesReturnId"] = _Id;
+                                        drmo["ReturnNetWeight"] = scitem["ReturnNetWeight"];
                                         drmo["UpdatedBy"] = identity.Name;
                                         drmo["UpdatedDate"] = DateTime.Now.ToString();
                                         drmo.EndEdit();
@@ -585,9 +586,21 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
 
+
+        #endregion
+
+        #region Sales Return Post
         public ActionResult SalesReturnPost()
         {
             return View("~/Areas/SalesManagements/Views/SalesReturnPost.cshtml");
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnPostedList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetSalesReturnPostedData(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -618,11 +631,19 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
-                return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetSalesReturnJournalData(identity.CompanyId, identity.PlantId, salesReturnId, customerId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetSalesReturnDetailGLUpdateData(string salesReturnId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetSalesReturnDetailGLUpdateData(identity.CompanyId, identity.PlantId, salesReturnId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
+        public JsonResult InsertSalesReturnCreditNote(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -633,12 +654,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
             {
                 foreach (var item in voucherDetailVMList)
                 {
-                        if (item.GLGeneralInfoId == null)
-                            throw new CustomException("GL is Not Mapped !");
-                        if (item.BudgetMasterId == null)
-                            throw new CustomException("Budget is Not Mapped !");
-                        if (item.ActivityId == null)
-                            throw new CustomException("Activity is Not Mapped!");
+                    if (item.GLGeneralInfoId == null)
+                        throw new CustomException("GL is Not Mapped !");
+                    if (item.BudgetMasterId == null)
+                        throw new CustomException("Budget is Not Mapped !");
+                    if (item.ActivityId == null)
+                        throw new CustomException("Activity is Not Mapped!");
                 }
 
                 if (voucherDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != voucherDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
@@ -647,9 +668,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
             else
                 throw new CustomException("No Journal");
             voucherVM.SourceType = SourceType.CreditNote.ToString();
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, PostSalesReturn(voucherVM, voucherDetailVMList, invoiceTaxVMList)) });
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, PostSalesReturn(voucherVM, voucherDetailVMList, salesReturnDetailList, invoiceTaxVMList)) });
         }
-        public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
+        public string PostSalesReturn(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, List<Dictionary<string, object>> salesReturnDetailList, IEnumerable<InvoiceTaxViewModel> invoiceTaxVMList)
         {
             var flag = false;
             try
@@ -660,13 +681,16 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                 DataSet _ajNDetailData = null;
                 DataSet _invTaxDetailData = null;
+                DataSet _invTaxDetailCrData = null;
                 DataSet _drvDetailData = null;
                 DataSet _drvDetailCurrencyData = null;
                 DataSet _crvDetailData = null;
                 DataSet _crvDetailCurrencyData = null;
-                DataSet _salesReturnData=null;
-                DataSet _iTaxDrdataset=null;
+                DataSet _salesReturnData = null;
+                DataSet _iTaxDrdataset = null;
                 DataSet _iTaxCrdataset = null;
+                DataSet dsitemscanChild;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 //_unitOfWork.BeginTransaction();
                 flag = true;
                 voucherVM.PartyType = PartyType.Vendor.ToString();
@@ -735,21 +759,28 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         adjustmentNote.PartyType = PartyType.Vendor.ToString();
                     else throw new CustomException("Party type is null.");
                 }
-                 _accountsCommonService.InsertAdjustmentNote(adjustmentNote, out DataSet _ANdataset);
+                _accountsCommonService.InsertAdjustmentNote(adjustmentNote, out DataSet _ANdataset);
 
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                 adjustmentNote.VoucherId = voucher.Id;
                 ConnectionManager.DAL.ConManager objCon;
                 string salesReturn = "SELECT * FROM TRN.SalesReturn WHERE Id='" + voucherVM.SalesReturnId + "'";
+                string itemScanChildsql = "SELECT * FROM TRN.SalesReturnDetail WHERE SalesReturnId='" + voucherVM.SalesReturnId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(salesReturn, out _salesReturnData, false, "1");
+                objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
 
                 DataView dvsc = new DataView(_salesReturnData.Tables[0]);
                 dvsc.RowFilter = "Id='" + voucherVM.SalesReturnId + "'";
 
+
                 if (dvsc.Count > 0)
                 {
                     DataRow drmo = dvsc[0].Row;
+                    if (!string.IsNullOrEmpty(drmo["VoucherId"].ToString()))
+                    {
+                        throw new CustomException("Already have posted!!");
+                    }
                     drmo.BeginEdit();
                     drmo["VoucherId"] = voucher.Id;
                     drmo["UpdatedBy"] = voucher.AddedBy;
@@ -762,7 +793,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 var currentVoucherDetailId = 0;
                 decimal totalAmountDr = 0;
                 decimal totalAmountCr = 0;
-               
+
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
                     if (voucherDetailVM.OtherName == "Return")
@@ -776,7 +807,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             WrittenOffAmount = 0,
                             IsWrittenOff = false
                         };
-                        _accountsCommonService.InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1,ref _ajNDetailData);
+                        _accountsCommonService.InsertAdjustmentNoteDetail(adjustmentNote, adjustmentNoteDetail, 1, ref _ajNDetailData);
                         var voucherDetail = new VoucherDetail
                         {
                             GLGeneralInfoId = adjustmentNoteDetail.GLGeneralInfoId,
@@ -805,9 +836,31 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             CrAmount = voucherVM.CompanyCurrencyRate * voucherDetail.CrAmount
                         }, ref _crvDetailCurrencyData);
 
+                        if (salesReturnDetailList != null)
+                        {
+                            foreach (var scitem in salesReturnDetailList.Where(r => r["GLGeneralInfoId"].ToString() == voucherDetailVM.GLGeneralInfoId
+                                && r["BudgetMasterId"].ToString() == voucherDetailVM.BudgetMasterId
+                                && r["ActivityId"].ToString() == voucherDetailVM.ActivityId && r["OtherName"].ToString() == "Return" && r["TrnType"].ToString() == "Cr"))
+                            {
+                                DataView srd = new DataView(dsitemscanChild.Tables[0]);
+                                srd.RowFilter = "Id='" + scitem["SalesReturnDetailId"] + "'";
+                                if (srd.Count > 0)
+                                {
+                                    DataRow drmo = srd[0].Row;
+                                    drmo.BeginEdit();
+                                    drmo["PostCrGLGeneralInfoId"] = scitem["GLGeneralInfoId"];
+                                    drmo["PostCrBudgetMasterId"] = scitem["BudgetMasterId"];
+                                    drmo["PostCrActivityId"] = scitem["ActivityId"];
+                                    drmo["VoucherDetailId"] = voucherDetail.Id;
+                                    drmo["UpdatedBy"] = identity.Name;
+                                    drmo["UpdatedDate"] = DateTime.Now.ToString();
+                                    drmo.EndEdit();
+                                }
+                            }
+                        }
                     }
 
-                  
+
                     if (voucherDetailVM.OtherName == "Tax" && voucherDetailVM.TrnType == "Dr" || voucherDetailVM.OtherName == "TCS" && voucherDetailVM.TrnType == "Dr" || voucherDetailVM.OtherName == "Material" && voucherDetailVM.TrnType == "Dr")
                     {
                         var voucherDetailDr = new VoucherDetail
@@ -832,7 +885,27 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             ToCurrencyConversion = _accountsCommonService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                             DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount
                         }, ref _crvDetailCurrencyData);
-
+                        if (salesReturnDetailList != null)
+                        {
+                            foreach (var scitem in salesReturnDetailList.Where(r => r["GLGeneralInfoId"].ToString() == voucherDetailVM.GLGeneralInfoId
+                                && r["BudgetMasterId"].ToString() == voucherDetailVM.BudgetMasterId
+                                && r["ActivityId"].ToString() == voucherDetailVM.ActivityId && r["OtherName"].ToString() == "Material" && r["TrnType"].ToString() == "Dr"))
+                            {
+                                DataView srd = new DataView(dsitemscanChild.Tables[0]);
+                                srd.RowFilter = "Id='" + scitem["SalesReturnDetailId"] + "'";
+                                if (srd.Count > 0)
+                                {
+                                    DataRow drmo = srd[0].Row;
+                                    drmo.BeginEdit();
+                                    drmo["PostDrGLGeneralInfoId"] = scitem["GLGeneralInfoId"];
+                                    drmo["PostDrBudgetMasterId"] = scitem["BudgetMasterId"];
+                                    drmo["PostDrActivityId"] = scitem["ActivityId"];
+                                    drmo["UpdatedBy"] = identity.Name;
+                                    drmo["UpdatedDate"] = DateTime.Now.ToString();
+                                    drmo.EndEdit();
+                                }
+                            }
+                        }
 
                         if (voucherDetailVM.OtherName == "Tax" && voucherDetailVM.TrnType == "Dr" || voucherDetailVM.OtherName == "TCS" && voucherDetailVM.TrnType == "Dr")
                         {
@@ -853,7 +926,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                 AddedDate = voucher.AddedDate,
                                 AddedFromIP = voucher.AddedFromIP
                             };
-                            _accountsCommonService.InsertInvoiceTax(adjustmentNote, invoiceTax,  out _iTaxDrdataset);
+                            _accountsCommonService.InsertInvoiceTax(adjustmentNote, invoiceTax, ref _iTaxDrdataset);
                             var invoiceTaxDetail = new InvoiceTaxDetail
                             {
                                 Id = invoiceTax.Id + 1,
@@ -867,7 +940,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                 AddedDate = invoiceTax.AddedDate,
                                 AddedFromIP = invoiceTax.AddedFromIP
                             };
-                            _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax,invoiceTaxDetail,ref _invTaxDetailData);
+                            _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, ref _invTaxDetailData);
                         }
 
                     }
@@ -884,7 +957,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         };
                         totalAmountCr += voucherDetailDrTax.CrAmount;
                         currentVoucherDetailId++;
-                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDetailDrTax, currentVoucherDetailId,ref _crvDetailData);
+                        _accountsCommonService.InsertVoucherDetail(voucher, voucherDetailDrTax, currentVoucherDetailId, ref _crvDetailData);
 
                         // INSERT INTO VoucherDetailCurrency
                         _accountsCommonService.InsertVoucherDetailCompanyCurrency(voucherDetailDrTax, new VoucherDetailCurrency
@@ -895,7 +968,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _accountsCommonService.GetCompanyCurrencyExchange(voucherDetailDrTax.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                             CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDrTax.CrAmount
-                        },ref _crvDetailCurrencyData);
+                        }, ref _crvDetailCurrencyData);
 
 
                         var invoiceTax = new InvoiceTax
@@ -909,12 +982,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             TaxAmount = voucherDetailVM.Amount,
                             TaxAutoAmount = 0,
                             PartyId = voucherVM.PartyId,
-                            SourceType = SourceType.InventoryPayable.ToString(),
+                            SourceType = SourceType.CreditNote.ToString(),
                             AddedBy = voucher.AddedBy,
                             AddedDate = voucher.AddedDate,
                             AddedFromIP = voucher.AddedFromIP
                         };
-                        _accountsCommonService.InsertInvoiceTax(adjustmentNote, invoiceTax, out _iTaxCrdataset);
+                        _accountsCommonService.InsertInvoiceTax(adjustmentNote, invoiceTax, ref _iTaxCrdataset);
                         var invoiceTaxDetail = new InvoiceTaxDetail
                         {
                             Id = invoiceTax.Id + 1,
@@ -928,14 +1001,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             AddedDate = invoiceTax.AddedDate,
                             AddedFromIP = invoiceTax.AddedFromIP
                         };
-                        _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, ref _invTaxDetailData);
+                        _accountsCommonService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, ref _invTaxDetailCrData);
                     }
                 }
+
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _salesReturnData);
+                objApp.SaveDataSets(_vdataset, _ANdataset, _ajNDetailData, _crvDetailData, _crvDetailCurrencyData, _iTaxDrdataset, _invTaxDetailData, _drvDetailData, _drvDetailCurrencyData, _iTaxCrdataset, _invTaxDetailCrData, _salesReturnData, dsitemscanChild);
                 return voucher.VoucherNo;
             }
             catch (CustomException)
@@ -949,7 +1023,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         #endregion
-
 
 
 
