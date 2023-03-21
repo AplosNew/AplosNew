@@ -1127,7 +1127,6 @@ namespace Library.Service.Expenses
                     invoice.AddedBy = voucher.AddedBy;
                     invoice.AddedDate = voucher.AddedDate;
                     invoice.AddedFromIP = voucher.AddedFromIP;
-                    invoice.ActualDueDate = null;
                     invoice.RevisedDueDate = null;
                 }
 

@@ -10,6 +10,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlWC = $scope.path + 'createWC';
+    $scope.saveUrlReason = $scope.path + 'createReason';
+    $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
     $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
     $scope.saveDetailUrl = $scope.path + 'createDetail';
     $scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
@@ -19,6 +21,17 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
     $scope.DetentionSum = 0;
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.gradeList = [
         {
@@ -40,8 +53,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         PlantId: null,
         EntityId: null,
         ProcessId: null,
-        HeaderResponsiblePersonId: null,
-        HeaderResponsiblePerson:null,
+        ProductionInChargeId: null,
+        ProductionInCharge:null,
         MasterOrderNo: null,
         SalesOrderId: null,
         ProductionOrderId: null,
@@ -66,6 +79,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         MentorName: null,
         ResponsiblePersonId: null,
         ResponsiblePersonName: null,
+        InCharge: null,
+        InChargeId: null,
         InTime: null,
         OutTime: null,
         ConsumeHour: 0,
@@ -77,6 +92,135 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         DetentionSum:0
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
+
+    $scope.Reason = {
+        Id: null,
+        ProcessId: null,
+        ReasonName: null,
+    };
+    $scope.ReasonNew = Object.assign({}, $scope.Reason);
+
+    $scope.ProcessReasonList = [];
+    $scope.GetProcessReasonList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/productionSummary/GetProcessReasonList'
+        }).then(function successCallback(response) {
+            $scope.ProcessReasonList = response.data;
+        });
+    }
+    $scope.GetProcessReasonList();
+
+    $scope.ReasonList = [];
+    $scope.LoadReasonDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/productionSummary/LoadReasonDetails'
+        }).then(function successCallback(response) {
+            $scope.ReasonList = response.data;
+        }
+        )
+    }
+    $scope.LoadReasonDetails();
+
+    $scope.GetReasonDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Productions/productionSummary/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.ReasonNew = response.data.Reason[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.ReasonSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ReasoningDetailsForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlReason,
+                data: {
+                    'ReasonData': $scope.ReasonNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadReasonDetails();
+                    ReasonClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.ReasonClear = function () {
+        ReasonClearFields();
+    };
+
+    function ReasonClearFields() {
+        $scope.Action = "Save";
+        $scope.ReasonNew = Object.assign({}, $scope.Reason);
+    }
+
+    $scope.ProductionId = null;
+    $scope.ProductionReasonList = [];
+    $scope.getReasonValuePopup = function (data) {
+        $scope.NewObject = data.data;
+        $scope.ProductionId = $scope.NewObject.Id;
+        $http({
+
+            method: 'Get',
+            url: 'Productions/productionSummary/LoadProcessReasonList?ProcessId=' + $scope.productionSummaryNew.ProcessId + '&ProductionId=' + $scope.ProductionId
+        }).then(function successCallback(response) {
+            $scope.ProductionReasonList = response.data;
+            var gridObj = $("#GridReasonValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ReasonValuePopup')).modal('show');
+        }
+        )
+    }
+
+    $scope.closeReasonValuePopup = function () {
+        angular.element(document.querySelector('#ReasonValuePopup')).modal('hide');
+    }
+
+    $scope.SaveReasonValue = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ProductionReasonList.length; i++) {
+                if ($scope.ProductionReasonList[i].ReasonValue > 0) {
+                    $scope.ProductionReasonList[i].ProductionId = $scope.ProductionId;
+                    $scope.SaveList.push($scope.ProductionReasonList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlReasonValue,
+                data: { 'ProductionReasonData': $scope.SaveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
 
     $scope.ProductionSummaryDetail = {
         Id: null,
@@ -93,30 +237,30 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         Qty: 0
     };
 
-    $scope.selectResponsiblePerson = function () {
-        $scope.getEmployee();
-        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
+    $scope.selectProductionInCharge = function () {
+        $scope.getProductionInCharge();
+        angular.element(document.querySelector('#ProductionInChargePopup')).modal('show');
     }
 
-    $scope.EmployeeList = [];
-    $scope.getEmployee = function () {
+    $scope.ProductionInChargeList = [];
+    $scope.getProductionInCharge = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'GetEmployee',
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.EmployeeList = resp.data;
+            $scope.ProductionInChargeList = resp.data;
         });
     }
 
-    $scope.doubleEmployee = function (e) {
-        $scope.productionSummaryNew.HeaderResponsiblePersonId = e.data.SystemId;
-        $scope.productionSummaryNew.HeaderResponsiblePerson = e.data.EmployeeName;
-        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    $scope.doubleProductionInCharge = function (e) {
+        $scope.productionSummaryNew.ProductionInChargeId = e.data.SystemId;
+        $scope.productionSummaryNew.ProductionInCharge = e.data.EmployeeName;
+        angular.element(document.querySelector('#ProductionInChargePopup')).modal('hide');
     }
 
-    $scope.closeResponsiblePersonPopUp = function () {
-        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    $scope.closeProductionInChargePopUp = function () {
+        angular.element(document.querySelector('#ProductionInChargePopup')).modal('hide');
     }
 
     $scope.entityList = [];
@@ -241,7 +385,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
-            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&HeaderResponsiblePersonId=' + $scope.productionSummaryNew.HeaderResponsiblePersonId)
+            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId)
                 .then(function (response) {
                     $scope.wcList = response.data;
                 });
@@ -616,6 +760,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         var workdate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         var wcid = $scope.productionSummaryNew.WorkCenterMasterId;
+        var piid = $scope.productionSummaryNew.ProductionInChargeId;
         $scope.productionSummaryNew.Id = null;
         $scope.productionSummaryNew.SalesOrderId = null;
         $scope.productionSummaryNew.ProductionOrderId = null;
@@ -637,6 +782,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.Customer = null;
         $scope.productionSummaryNew.ResponsiblePersonId = null;
         $scope.productionSummaryNew.ResponsiblePersonName = null;
+        $scope.productionSummaryNew.InChargeId = null;
+        $scope.productionSummaryNew.InCharge = null;
         $scope.productionSummaryNew.MentorId = null;
         $scope.productionSummaryNew.MentorName = null;
         $scope.productionSummaryNew.PONumber = null;
@@ -946,6 +1093,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         var workdate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         var wcid = $scope.productionSummaryNew.WorkCenterMasterId;
+        var piid = $scope.productionSummaryNew.ProductionInChargeId;
         var ProductionBookingLevel = $scope.productionSummaryNew.ProductionBookingLevel;
 
         $scope.index = index;
@@ -957,6 +1105,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.ProductionDate = workdate;
         $scope.productionSummaryNew.ProductionShiftId = shiftid;
         $scope.productionSummaryNew.WorkCenterMasterId = wcid;
+        $scope.productionSummaryNew.ProductionInChargeId = piid;
         $scope.productionSummaryNew.ProductionBookingLevel = ProductionBookingLevel;
         $scope.Action = 'Update';
         if ($scope.IsSKU1 == true && $scope.IsSKU2 == false && $scope.IsSKU3 == false) {
@@ -1284,6 +1433,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     $scope.wcList[i].ProcessId = $scope.productionSummaryNew.ProcessId;
                     $scope.wcList[i].ProductionDate = $scope.productionSummaryNew.ProductionDate;
                     $scope.wcList[i].ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                    $scope.wcList[i].ProductionInChargeId = $scope.productionSummaryNew.ProductionInChargeId;
                     $scope.SaveList.push($scope.wcList[i]);
                 }
             }
@@ -1301,7 +1451,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-
                     ShowResult(response.data.Message, 'success');
                     $scope.loadWC();
                     $scope.Action = 'Save';
@@ -1459,15 +1608,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
-        var ResponsibleId = $scope.productionSummaryNew.HeaderResponsiblePersonId;
-        var Responsible = $scope.productionSummaryNew.HeaderResponsiblePerson;
+        var PInChargId = $scope.productionSummaryNew.ProductionInChargeId;
+        var PInCharg = $scope.productionSummaryNew.ProductionInCharge;
         $scope.productionSummaryNew = data.data;
         $scope.productionSummaryNew.ProcessId = processid;
         $scope.productionSummaryNew.EntityId = entityid;
         $scope.productionSummaryNew.ProductionDate = productiondate;
         $scope.productionSummaryNew.ProductionShiftId = shiftid;
-        $scope.productionSummaryNew.HeaderResponsiblePersonId = ResponsibleId;
-        $scope.productionSummaryNew.HeaderResponsiblePerson = Responsible;
+        $scope.productionSummaryNew.ProductionInChargeId = PInChargId;
+        $scope.productionSummaryNew.ProductionInCharge = PInCharg;
         try {
             $scope.ProcessParaList = [];
             $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
@@ -1542,6 +1691,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.ProcessDetention = {
         Id: null,
+        ProductionSummaryId: null,
         EntityId: null,
         ProcessId: null,
         ShiftId: null,
@@ -1566,11 +1716,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.ProcessDetentionLists = [];
     $scope.getProcessDetentionPopupPoPUp = function (data) {
         $scope.NewObject = data.data;
+        var ProductionSummaryid = $scope.productionSummaryNew.Id;
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         $scope.productionSummaryNew = data.data;
+        $scope.productionSummaryNew.Id = ProductionSummaryid;
         $scope.productionSummaryNew.ProcessId = processid;
         $scope.productionSummaryNew.EntityId = entityid;
         $scope.productionSummaryNew.ProductionDate = productiondate;
@@ -1583,6 +1735,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             for (var i = 1; i < 6; i++) {
                 var obj = angular.copy($scope.ProcessDetention);
                 obj.Id = null;
+                obj.ProductionSummaryId = $scope.productionSummaryNew.Id;
                 obj.ProcessId = $scope.productionSummaryNew.ProcessId;
                 obj.EntityId = $scope.productionSummaryNew.EntityId;
                 obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
@@ -1615,8 +1768,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                         $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
                                         $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
                                         $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
-                                        $scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
-                                        $scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
+                                        //$scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
+                                        //$scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
                                         $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
                                         $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
                                         $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
@@ -1646,6 +1799,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             for (var i = 1; i < 6; i++) {
                 var obj = angular.copy($scope.ProcessDetention);
                 obj.Id = null;
+                obj.ProductionSummaryId = $scope.productionSummaryNew.Id;
                 obj.ProcessId = $scope.productionSummaryNew.ProcessId;
                 obj.EntityId = $scope.productionSummaryNew.EntityId;
                 obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
@@ -1677,7 +1831,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                         $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
                                         $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
                                         $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
-                                        $scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
+                                        //$scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
                                         $scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
                                         $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
                                         $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
@@ -1871,6 +2025,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
                 if ($scope.ProcessDetentionLists[i].Flag == true)
                 {
+                    $scope.ProcessDetentionLists[i].ProductionSummaryId = $scope.productionSummaryNew.Id;
                     $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
                     $scope.ProcessDetentionLists[i].ProcessId = $scope.productionSummaryNew.ProcessId;
                     $scope.ProcessDetentionLists[i].Date = $scope.productionSummaryNew.ProductionDate;
@@ -1940,5 +2095,59 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     }
                 }
             });
+    }
+
+    $scope.selectGridIncharge = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getsI();
+        angular.element(document.querySelector('#InchargeGridPopup')).modal('show');
+    }
+
+    $scope.InchargeGridList = [];
+    $scope.getsI = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.InchargeGridList = resp.data;
+        });
+    }
+
+    $scope.doubleInchargeGrid = function (e) {
+        $scope.Newobject.InChargeId = e.data.SystemId;
+        $scope.Newobject.InCharge = e.data.EmployeeName;
+        angular.element(document.querySelector('#InchargeGridPopup')).modal('hide');
+    }
+
+    $scope.closeInchargeGridPopup = function () {
+        angular.element(document.querySelector('#InchargeGridPopup')).modal('hide');
+
+    }
+
+    $scope.selectGridResponsible = function () {
+        $scope.getEmployee();
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
+    }
+
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+    }
+
+    $scope.doubleEmployee = function (e) {
+        $scope.Newobject.ResponsiblePersonId = e.data.SystemId;
+        $scope.Newobject.ResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.closeResponsiblePersonPopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
 }

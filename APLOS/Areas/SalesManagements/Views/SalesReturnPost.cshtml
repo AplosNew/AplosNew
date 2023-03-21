@@ -110,38 +110,38 @@
     </div>
     <div class="clearfix"></div>
     @*<div class="col-md-12">
-        <fieldset class="scheduler-border">
-            <legend class="scheduler-border">Payment Term</legend>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Payment Term</label>
-                    <div class="col-sm-8">
-                        <label style="padding:7px">{{productNew.PaymentTerm}}</label>
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Payment Term</legend>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Payment Term</label>
+                        <div class="col-sm-8">
+                            <label style="padding:7px">{{productNew.PaymentTerm}}</label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-5 control-label">Due Date BaseOn</label>
-                    <div class="col-sm-7">
-                        <label style="padding:7px">{{productNew.BaseOnDueDate}}</label>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Due Date BaseOn</label>
+                        <div class="col-sm-7">
+                            <label style="padding:7px">{{productNew.BaseOnDueDate}}</label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">No Of Days</label>
-                    <div class="col-sm-2 pdr3">
-                        <label style="padding:7px">{{productNew.BaseNoOfDays}}</label>
-                    </div>
-                    <label class="col-sm-3 control-label">Mature Date</label>
-                    <div class="col-sm-4">
-                        <label style="padding:7px">{{productNew.MatureDate}}</label>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">No Of Days</label>
+                        <div class="col-sm-2 pdr3">
+                            <label style="padding:7px">{{productNew.BaseNoOfDays}}</label>
+                        </div>
+                        <label class="col-sm-3 control-label">Mature Date</label>
+                        <div class="col-sm-4">
+                            <label style="padding:7px">{{productNew.MatureDate}}</label>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </fieldset>
-    </div>*@
+            </fieldset>
+        </div>*@
     <div class="clearfix"></div>
 
 
@@ -152,39 +152,41 @@
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Journal</a></li>
         </ul>
     </div>
+    <table class="col-md-6 text-right" ng-show="detailList.length>0">
+        <tbody>
+            <tr>
+                <td></td>
+                <td>Amount</td>
+                <td>Tax</td>
+                <td>Total</td>
+            </tr>
+            <tr>
+                <td>Materials</td>
+                <td>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</td>
+                <td>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2 | number}}</td>
+                <td>{{(detailList | sumByKey : 'ReturnAmount'| setDecimal:2)+(detailList | sumByKey : 'TaxAmount' | setDecimal:2)|number}}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid;">
+                <td>Service</td>
+                <td>{{chargesList | sumByKey : 'Amount'| setDecimal:2 | number}}</td>
+                <td>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:2 | number}}</td>
+                <td>{{(chargesList | sumByKey : 'Amount'| setDecimal:2)+(chargesList | sumByKey : 'TotalTaxAmount' | setDecimal:2)| number}}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td>Net Amount</td>
+                <td>{{(detailList | sumByKey : 'ReturnAmount'| setDecimal:2) + (detailList | sumByKey : 'TaxAmount'| setDecimal:2) + (chargesList | sumByKey : 'Amount'| setDecimal:2) + (chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:2)| number}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="clearfix"></div>
 
     <div class="tab-content">
+
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
             <div ng-form="tabForm1">
-                <table class="col-md-6 text-right" ng-show="detailList.length>0">
-                    <tbody>
-                        <tr>
-                            <td></td>
-                            <td>Amount</td>
-                            <td>Tax</td>
-                            <td>Total</td>
-                        </tr>
-                        <tr>
-                            <td>Materials</td>
-                            <td>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</td>
-                            <td>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2 | number}}</td>
-                            <td>{{(detailList | sumByKey : 'TotalAmount'| setDecimal:2)+(detailList | sumByKey : 'TaxAmount' | setDecimal:2)|number}}</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid;">
-                            <td>Service</td>
-                            <td>{{chargesList | sumByKey : 'Amount'| setDecimal:2 | number}}</td>
-                            <td>{{chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:2 | number}}</td>
-                            <td>{{(chargesList | sumByKey : 'Amount'| setDecimal:2)+(chargesList | sumByKey : 'TotalTaxAmount' | setDecimal:2)| number}}</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td>Net Amount</td>
-                            <td>{{(detailList | sumByKey : 'TotalAmount'| setDecimal:2) + (detailList | sumByKey : 'TaxAmount'| setDecimal:2) + (chargesList | sumByKey : 'Amount'| setDecimal:2) + (chargesList | sumByKey : 'TotalTaxAmount'| setDecimal:2)| number}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="clearfix"></div>
+
 
 
                 <div class="row">
@@ -201,7 +203,6 @@
                                     <th>Return Qty</th>
                                     <th>Return Amount</th>
                                     <th>Return Tax</th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -216,12 +217,10 @@
                                     <td class="text-right">{{x.TaxAmount}}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="6" class="text-right"><strong>Total : </strong></td>
-                                    <td class="text-right"></td>
+                                    <td colspan="5" class="text-right"><strong>Total : </strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -286,14 +285,15 @@
 
 <div class="aplos-grid-toggle">
     <div class="content-container-fluid" style="color:black;overflow:scroll">
-        <div style="color:black;" id="GridMaster" ej-grid e-datasource="SalesdataList" e-recorddoubleclick="getUpdateData"
+        <div style="color:black;" id="GridMaster" ej-grid e-datasource="SalesReturnPostedList"
              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
             <div e-columns>
-                <div e-column e-field="Id" e-headertext="Sales Return" e-width="20"></div>
-                <div e-column e-field="InventorySalesId" e-headertext="Sales No" e-width="30"></div>
-                <div e-column e-field="Entity" e-headertext="Entity" e-width="40"></div>
-                <div e-column e-field="MaterialStorage" e-headertext="Material Storage" e-width="20"></div>
+                <div e-column e-field="Id" e-headertext="Sales Return No" e-width="20"></div>
+                <div e-column e-field="SalesId" e-headertext="Sales No" e-width="30"></div>
+                <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-width="40"></div>
+                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="20"></div>
+                <div e-column e-field="PartyName" e-headertext="PartyName" e-width="20"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
             </div>
         </div>

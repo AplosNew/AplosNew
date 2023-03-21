@@ -534,7 +534,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         for (var i = 0; i < $scope.itemScanChildList.length; i++) {
             if ($scope.itemScanChildList[i].Active) {
                 $scope.tempitemScanList.push($scope.itemScanChildList[i])
-                $scope.tempData.VerifiedQty += Math.round(($scope.itemScanChildList[i].NetWeight) * 100 + Number.EPSILON) / 100
+                $scope.tempData.VerifiedQty += Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100
                 //$scope.tempData.Amount += Math.round(($scope.itemScanChildList[i].NetWeight * $scope.tempData.TransactionRate) * 100 + Number.EPSILON) / 100
             }
         }

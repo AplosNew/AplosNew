@@ -80,43 +80,85 @@
                 </div>
             </div>
             <div class="clearfix"></div>
-            <div class="common-btn">
-                <ul class="list-inline text-left">
-                    <li><button style="margin-left: 5px;" ng-click="AddMaterial();" ng-disabled="ModelNew.POId===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add Material</button></li>
-                </ul>
+           
+        </div>
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">SODetail</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);" href="" data-toggle="tab">Material Detail</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(1), active: isSet2(1) }">
+                <div style="color:black;" id="SGrid" ej-grid e-datasource="SOItemList" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
+                        <div e-column e-type="string" e-field="LineItemId" e-headertext="LineItemId" e-width="85"></div>
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>
+                        <div e-column e-type="string" e-field="BuyerItem" e-headertext="Customer Ref#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Ref#" e-width="80"></div>
+                        <div e-column e-type="string" e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
+                        <div e-column e-type="string" e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
+                        <div e-column e-type="string" e-field="MaterialMaster" e-headertext="Material" e-width="100"></div>
+                        <div e-column e-type="string" e-field="SOArticle" e-headertext="Article" e-width="160px"></div>
+                        <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
+
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="ItemMaterialCost" e-headertext="ItemMaterialCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOMaterialCost" e-headertext="SOMaterialCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="CostingMaterialCost" e-headertext="CostingMaterialCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="BOQMaterialCost" e-headertext="BOQMaterialCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="SOTotalMaterailCost" e-headertext="SOTotalMaterailCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="CostingTotalMaterialCost" e-headertext="CostingTotalMaterialCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="BOQTotalCost" e-headertext="BOQTotalCost" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlanRate" e-headertext="PlanRate" e-textalign="right" e-width="80"></div>
+                        <div e-column e-type="number" e-format="{0:0.0000}" e-field="PlantCost" e-headertext="PlantCost" e-textalign="right" e-width="80"></div>
+                    </div>
+                </div>
+
+               
             </div>
-            <div style="color:black;" id="SOGrid" ej-grid e-datasource="IssueSlipDataList" e-allowscrolling="true"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                 e-allowselection="false" e-filtersettings-filterType="excel" e-showsummary="true" e-summaryrows="summaryRows">
-                <div e-columns>
-                    <div e-column e-type="string" e-field="IssueSlipId" e-headertext="IssueSlipId" e-width="40"></div>
-                    <div e-column e-type="string" e-field="IssueSlipRowId" e-headertext="IssueSlipRowId" e-width="40"></div>
-                    <div e-column e-type="string" e-field="CostCenter" e-headertext="CostCenter" e-width="60"></div>
-                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
-                    <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="40"></div>
-                    <div e-column e-type="number" e-field="RequestedQty" e-headertext="RequestedQty" e-textalign="right" e-width="50"></div>
-                    <div e-column e-type="number" e-field="IssueQty" e-headertext="IssueQty" e-textalign="right" e-width="50"></div>
-                    <div e-column e-type="number" e-template="#OtherQty" e-field="OtherQty" e-headertext="OtherQty" e-textalign="right" e-width="50"></div>
-                    <div e-column e-type="number" e-template="#WasteQty" e-field="WasteQty" e-headertext="WasteQty" e-textalign="right" e-width="50"></div>
-                    <div e-column e-type="number" e-field="TotalQty" e-headertext="TotalQty" e-textalign="right" e-width="50"></div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(2), active: isSet2(2) }">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button style="margin-left: 5px;" ng-click="AddMaterial();" ng-disabled="ModelNew.POId===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add Material</button></li>
+                    </ul>
                 </div>
+                <div style="color:black;" id="SOGrid" ej-grid e-datasource="IssueSlipDataList" e-allowscrolling="true"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                     e-allowselection="false" e-filtersettings-filterType="excel" e-showsummary="true" e-summaryrows="summaryRows">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="IssueSlipId" e-headertext="IssueSlipId" e-width="40"></div>
+                        <div e-column e-type="string" e-field="IssueSlipRowId" e-headertext="IssueSlipRowId" e-width="40"></div>
+                        <div e-column e-type="string" e-field="CostCenter" e-headertext="CostCenter" e-width="60"></div>
+                        <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="40"></div>
+                        <div e-column e-type="number" e-field="RequestedQty" e-headertext="RequestedQty" e-textalign="right" e-width="50"></div>
+                        <div e-column e-type="number" e-field="IssueQty" e-headertext="IssueQty" e-textalign="right" e-width="50"></div>
+                        <div e-column e-type="number" e-template="#OtherQty" e-field="OtherQty" e-headertext="OtherQty" e-textalign="right" e-width="50"></div>
+                        <div e-column e-type="number" e-template="#WasteQty" e-field="WasteQty" e-headertext="WasteQty" e-textalign="right" e-width="50"></div>
+                        <div e-column e-type="number" e-field="TotalQty" e-headertext="TotalQty" e-textalign="right" e-width="50"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="OtherQty">
+                    <div class="col-sm-10" style="text-align:right;">
+                        <input type="text" n-decimals="4" ng-model="data.OtherQty" style="color: black; width: 78px; text-align: right;" class="form-control" />
+                    </div>
+                </script>
+                <script type="text/template" id="WasteQty">
+                    <div class="col-sm-10" style="text-align: right;">
+                        <input type="text" n-decimals="4" ng-model="data.WasteQty" style="color: black; width: 78px; text-align: right;" class="form-control" />
+                    </div>
+                </script>
             </div>
-            <script type="text/template" id="OtherQty">
-                <div class="col-sm-10" style="text-align:right;">
-                    <input type="text" n-decimals="4" ng-model="data.OtherQty" style="color: black; width: 78px; text-align: right;" class="form-control" />
-                </div>
-            </script>
-            <script type="text/template" id="WasteQty">
-                <div class="col-sm-10" style="text-align: right;">
-                    <input type="text" n-decimals="4" ng-model="data.WasteQty" style="color: black; width: 78px; text-align: right;" class="form-control" />
-                </div>
-            </script>
         </div>
         <div class="clearfix"></div>
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
@@ -232,21 +274,16 @@
                              e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-headertext="Print" e-width="20">
+                                @*<div e-column e-headertext="Print" e-width="20">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
-                                </div>
+                                </div>*@
                                 <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
-                                <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                                <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>
-                                <div e-column e-type="string" e-field="UserRef" e-headertext="User Ref" e-width="80"></div>
-                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="100"></div>
-                                <div e-column e-type="text" e-field="PlanPercentage" e-headertext="Plan  Percentage" e-width="80" style="height: 20px;"></div>
-                                <div e-column e-type="text" e-field="ByWhom" e-headertext="ByWhom" e-width="80" style="height: 20px;"></div>
-                                <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
-                                <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
-                                @*<div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="80"></div>*@
+                                <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="50"></div>
+                                <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
+                                <div e-column e-type="string" e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+                                <div e-column e-type="string" e-field="CheckedBy" e-headertext="CheckedBy" e-width="80"></div>
                             </div>
                         </div>
                     </div>
@@ -320,7 +357,7 @@
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="TransactionQty" e-headertext="Receive Qty" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="IssueQty" e-headertext="Issue Qty" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="BalanceStock" e-headertext="BalanceStock" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="number" e-template="#TranQty" e-field="TranQty" e-headertext="TranQty" e-textalign="right" e-width="50"></div>
+                            <div e-column e-type="number" e-template="#TranQty" e-field="TranQty" e-headertext="TranQty" e-textalign="right" e-width="100"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="MaterialTranRate" e-headertext="Rate" e-textalign="right" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.0000}" e-field="BaseRate" e-headertext="Rate" e-textalign="BaseRate" e-width="80"></div>
                         </div>
