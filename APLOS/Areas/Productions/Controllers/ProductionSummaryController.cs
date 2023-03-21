@@ -78,6 +78,145 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region -- Operations
 
+        [Authorize, HttpGet]
+        public JsonResult GetProcessReasonList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from HKP.Process where Active=1";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadReasonDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=RD.ProcessId) as Process from [MST].[ReasonDetails] RD";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadReasonDetailsEditData(string ReasonId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=RD.ProcessId) as Process from [MST].[ReasonDetails] RD where RD.Id='" + ReasonId + @"'";
+            return Json(new { Reason = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult createReason(Dictionary<string, object> ReasonData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ReasonDetails] where ReasonName='" + ReasonData["ReasonName"] + "' and ProcessId='" + ReasonData["ProcessId"] + "'", out DataSet dsItemDetailsReasonNameValidation, false, "1");
+
+                DataSet dsReasonDetails;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ReasonDetails] where Id='" + ReasonData["Id"] + "'", out dsReasonDetails, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsReasonDetails.Tables[0].Rows.Count == 0)
+                {
+                    if (dsItemDetailsReasonNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Item Name Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("ReasonDetails", out _Id);
+                        _Id = "QAG" + _Id;
+                        ReasonData["Id"] = _Id;
+                        AddNewRow(dsReasonDetails.Tables[0], ReasonData);
+                    }
+                }
+                else
+                {
+                    _Id = ReasonData["Id"].ToString();
+                    EditRow(dsReasonDetails.Tables[0].Rows[0], ReasonData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsReasonDetails);
+
+                return Json(new { Error = false, Data = ReasonData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadProcessReasonList(string ProcessId, string ProductionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select RV.Id,RV.ReasonValue,RV.Remarks,RD.Id as ReasonId,RD.ReasonName
+from MST.ReasonDetails RD
+left join [TRN].[ProductionReasonValue] RV ON RV.ReasonId=RD.Id and ProductionId='" + ProductionId + @"'
+where RD.ProcessId='" + ProcessId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult createReasonValue(List<Dictionary<string, object>> ProductionReasonData)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[ProductionReasonValue]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                if (ProductionReasonData != null)
+                {
+                    foreach (var item in ProductionReasonData)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "PRV" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetEmployee()
         {
@@ -154,10 +293,10 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetWCProcessCboNew(string processid, string entityId, string productionDate, string shiftId, string HeaderResponsiblePersonId)
+        public JsonResult GetWCProcessCboNew(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCboWC(identity.PlantId, processid, entityId, productionDate, shiftId, HeaderResponsiblePersonId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCboWC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)

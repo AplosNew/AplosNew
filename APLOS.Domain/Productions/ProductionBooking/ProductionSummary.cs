@@ -25,6 +25,9 @@ namespace Library.Model.Productions.ProductionBooking
         public decimal ManPower { get; set; }
         public string LotNumber { get; set; }
         public string PackingConfirmationId { get; set; }
+        public string InChargeId { get; set; }
+        public string ProductionInChargeId { get; set; }
+
         #endregion Scalar Properties
 
         #region Audit Properties
