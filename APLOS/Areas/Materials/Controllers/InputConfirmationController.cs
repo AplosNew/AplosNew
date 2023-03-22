@@ -67,7 +67,13 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return Json(clsM.EntityList(), JsonRequestBehavior.AllowGet);
         }
-     
+
+        [HttpGet, Authorize]
+        public ActionResult GetFirstProcessCbo(string ProductionOrderId)
+        {
+            return Json(clsM.GetFirstProcessCbo(ProductionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetList(string entityid, string column, string value)
         {
