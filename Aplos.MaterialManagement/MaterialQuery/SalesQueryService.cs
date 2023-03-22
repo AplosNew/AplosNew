@@ -866,6 +866,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 
 									,sum(round(isnull(ServiceData.ServiceAmount,0),2))+Sum(SMD.TransactionAmount ) TotalTaxableAmt
+									,SalesReturnData.ReturnAmount ,SalesReturnData.ReturnTax
 									,sum(ServiceData.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
 
 									,IV.WrittenOffAmount*IV.CompanyCurrencyRate Receipt
@@ -956,12 +957,18 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
+									LEFT JOIN(Select SR.SalesId, Sum(SRD.TransactionAmount) ReturnAmount,Sum(SRD.TaxAmount) ReturnTax,sum(SRD.BooksCurrencyTransactionAmount) BooksReturnAmount
+											from trn.SalesReturn AS SR
+											LEFT JOIN [trn].[SalesReturnDetail] SRD ON SRD.SalesReturnId=SR.Id
+											left jOIN [TRN].[Sales] AS IR ON IR.Id=SR.SalesId
+											group by SR.SalesId
+											) SalesReturnData on SalesReturnData.SalesId=SA.Id
 									LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
 									LEFT JOIN trn.Invoice IV On IV.VoucherId=SA.VoucherId
 									LEFT JOIN (select PartyId,sum(Amount-WrittenOffAmount) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=SA.PartyId
 									WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) " + temp + @"
 									Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,IV.ActualDueDate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate
-								,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName
+								,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,salesreturndata.ReturnAmount,salesreturndata.ReturnTax
 								UNION ALL
 								SELECT 
 								II.Id SalesId
@@ -1005,7 +1012,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
 								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
 								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
-								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
+								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt,0 ReturnAmount ,0 ReturnTax
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
 									,IV.WrittenOffAmount*IV.CompanyCurrencyRate Receipt
 									,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
@@ -1144,7 +1151,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
 								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
 								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
-								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
+								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt,0 ReturnAmount ,0 ReturnTax
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
 									,(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Receipt
 									,(Sum(SCr.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
