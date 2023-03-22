@@ -165,6 +165,10 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         $scope.getCboVoucherTypeAccountReceivableList();
     }
     $scope.Post = function () {
+        if (baseService.isUndefinedOrNull($scope.modelNew.BaseOnDueDate)) {
+            ShowResult('Please select Due Date BaseOn!', 'failure');
+            return true;
+        }
         if ($scope.modelNew.SourceType !== 'Packing') {
             $http({
                 method: "POST",

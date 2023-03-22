@@ -400,30 +400,39 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     }
 
     //#endregion
-
-    $scope.Save = function () {
-        // $scope.SavePOPUpConfirm();
-        $scope.$broadcast("show-errors-check-validity");
-        if ($scope.productNewForm.$valid) {
-            if ($scope.productNew.SourceType == 'Packing') {
-                for (var i = 0; i < $scope.detailList.length; i++) {
-                    if ($scope.detailList[i].VerifiedQty > 0 && $scope.detailList[i].VerifiedQty != $scope.detailList[i].ReturnQty) {
-                        ShowResult('Return Qty and VerifiedQty Qty is not equal !!!');
-                        return false;
-                    }
+    $scope.newList = [];
+    $scope.Validation = function () {
+        if ($scope.detailList.length === 0) {
+            ShowResult('Please select Atlest one material');
+            return true;
+        }
+        $scope.newList = [];
+        for (var i = 0; i < $scope.detailList.length; i++) {
+            if ($scope.detailList[i].ReturnQty > 0) {
+                $scope.newList.push($scope.detailList[i])
+            }
+        }
+        if ($scope.productNew.SourceType == 'Packing') {
+            for (var i = 0; i < $scope.newList.length; i++) {
+                if ($scope.newList[i].VerifiedQty > 0 && $scope.newList[i].VerifiedQty != $scope.newList[i].ReturnQty) {
+                    ShowResult('Return Qty and VerifiedQty Qty is not equal !!!');
+                    return true;
                 }
             }
-            if ($scope.detailList.length === 0) {
-                ShowResult('Please select Atlest one material');
-                return false;
-            }
+        }
+        return false;
+    }
+    $scope.Save = function () {
+        $scope.Validation();
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.productNewForm.$valid && !$scope.Validation()) {
             if ($scope.Action === "Save") {
                 $http({
                     method: 'POST'
                     , url: $scope.saveUrl
                     , data: {
                         'data': $scope.productNew
-                        , 'detaildataList': $scope.detailList
+                        , 'detaildataList': $scope.newList
                         , 'taxList': $scope.taxlist
                         , 'itemScanCildList': $scope.tempitemScanList
                     }
@@ -435,39 +444,14 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                         ShowResult(response.data.Message, 'success');
                         $scope.getData();
                         $scope.Clear();
-                        $scope.productNew.Id = response.data.inventoryIssue.Id;
-                    }
-                }), function (response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
-            else if ($scope.Action === "Update") {
-                $http({
-                    method: 'POST'
-                    , url: $scope.updateUrl
-                    , data: {
-                        inventoryIssue: $scope.productNew
-                        , entities: $scope.detailList
-                        , 'salesReturnTaxList': $scope.taxlist
-                        , 'salesServiceVMList': $scope.chargesList
-                    }
-                    , dataType: 'JSON'
-                }).then(function (response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure');
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.productNew.Id = response.data.inventoryIssue.Id;
-
-                        $scope.getData();
-                        $scope.Clear();
+                        $scope.newList = [];
+                        $scope.productNew.Id = response.data.Id;
                     }
                 }), function (response) {
                     ShowResult(response.data.Message, 'failure');
                 };
             }
         }
-        
     };
 
 
@@ -534,7 +518,9 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         for (var i = 0; i < $scope.itemScanChildList.length; i++) {
             if ($scope.itemScanChildList[i].Active) {
                 $scope.tempitemScanList.push($scope.itemScanChildList[i])
-                $scope.tempData.VerifiedQty += Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100
+                $scope.tempData.VerifiedQty = parseFloat($scope.tempData.VerifiedQty.toFixed(4))
+                $scope.tempData.VerifiedQty = parseFloat(($scope.tempData.VerifiedQty+Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
+                //$scope.tempData.VerifiedQty += parseFloat((Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
                 //$scope.tempData.Amount += Math.round(($scope.itemScanChildList[i].NetWeight * $scope.tempData.TransactionRate) * 100 + Number.EPSILON) / 100
             }
         }

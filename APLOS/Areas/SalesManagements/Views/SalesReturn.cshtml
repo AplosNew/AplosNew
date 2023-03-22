@@ -2,8 +2,8 @@
 <div class="form-elements form-horizontal row" ng-form="productNewForm">
     <div class="col-xs-4 col-sm-4-md-4">
         <div class="form-group">
-            <label class="col-sm-3 control-label">Sales No</label>
-            <div class="col-sm-9">
+            <label class="col-sm-2 control-label">Sales No</label>
+            <div class="col-sm-4">
                 <div class="input-group">
                     <input type="text" ng-model="productNew.SalesId" class="form-control" readonly>
                     <span class="input-group-btn">
@@ -11,35 +11,39 @@
                     </span>
                 </div>
             </div>
+                <label class="col-sm-3 control-label">Sales Return No</label>
+            <div class="col-sm-3">
+                <input type="text" ng-model="productNew.Id" class="form-control" readonly>
+            </div>
         </div>
 
 
 
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Customer</label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <label style="padding:7px">{{productNew.PartyName}}</label>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Customer</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <label style="padding:7px">{{productNew.PartyName}}</label>
+                    </div>
                 </div>
             </div>
-        </div>
 
 
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <label style="padding:7px">{{productNew.Remarks}}</label>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <label style="padding:7px">{{productNew.Remarks}}</label>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
-            <div class="col-sm-8">
-                <label style="padding:7px">{{productNew.CheckedBy}}</label>
+            <div class="form-group">
+                <label class="col-sm-4 control-label" ng-show="checkedByList.length">{{productNew.labelCheckAndApproved}}</label>
+                <div class="col-sm-8">
+                    <label style="padding:7px">{{productNew.CheckedBy}}</label>
 
+                </div>
             </div>
-        </div>
 
-    </div>
+        </div>
     <div class="col-xs-4 col-sm-4-md-4">
         <div class="form-group">
             <label class="col-sm-4 control-label">Sales Date</label>
@@ -145,9 +149,9 @@
                         </tr>
                         <tr>
                             <td>Materials</td>
-                            <td>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</td>
+                            <td>{{detailList | sumByKey : 'Amount'| setDecimal:2| number }}</td>
                             <td>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2 | number}}</td>
-                            <td>{{(detailList | sumByKey : 'TotalAmount'| setDecimal:2)+(detailList | sumByKey : 'TaxAmount' | setDecimal:2)|number}}</td>
+                            <td>{{(detailList | sumByKey : 'Amount'| setDecimal:2)+(detailList | sumByKey : 'TaxAmount' | setDecimal:2)|number}}</td>
                         </tr>
                         <tr style="border-bottom: 1px solid;">
                             <td>Service</td>

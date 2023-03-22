@@ -84,7 +84,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							--,efs.SalaryRate 
                             ,SalRate = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End
                             ,LeaveEncash = CONVERT(NUMERIC(10,0),case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo]))
-							,NetPayAmount = CONVERT(NUMERIC(10,0),(case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(varchar(100),(efs.SeparationTypeAmount)) end + 
+							,NetPayAmount = CONVERT(NUMERIC(10,0),(case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(numeric,ROUND(efs.SeparationTypeAmount,0)) end + 
 							(case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo])) +
 							convert(int,ROUND(efs.LastMonthNetPayAmount,0))))
 							,efs.OTRate
@@ -117,7 +117,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             ,CONVERT(INT, ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0)) PolicyDayNo
                             ,SY.UserName AS SeprationName
                             ,convert(int,ROUND(efs.TenureDayNo,0)) TenureDayNo
-							,case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(varchar(100),(efs.SeparationTypeAmount)) end  SeparationTypeAmount
+							,case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(int,ROUND(efs.SeparationTypeAmount,0)) end  SeparationTypeAmount
 							,convert(int,ROUND(efs.GrossAmount,0)) GrossAmount
 							,convert(int,ROUND(efs.BasicAmount,0)) BasicAmount
 							,convert(int,efs.[TenureYearNo]) TenureYearNo
@@ -133,7 +133,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             From [dbo].[EmployeeFinalSettlement] efs 
 	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
                             LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
-                            Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID= '" + SystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
+                            Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID= '2002159' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
                             LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
                             left join (select top 1 * from SalaryProceAttdnData where empsystemId='" + SystemId + @"' order by FromDate Desc) SPAD on SPAD.EmpSystemID=efs.EmpSystemID
                             where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";

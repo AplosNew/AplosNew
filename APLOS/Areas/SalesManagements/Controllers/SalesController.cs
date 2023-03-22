@@ -441,15 +441,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                InsertSalesReturn(data, detaildataList, taxList, itemScanCildList);
-                return Json(new { data, Message = AplosMessage.Updated });
+                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList);
+                return Json(new {Id= _id, Message = string.Format(AplosMessage.Success +" Sales Return No <b>" + _id + "</b>"  ) });
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        private void InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList,  List<Dictionary<string, object>> itemScanCildList)
+        private string InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList,  List<Dictionary<string, object>> itemScanCildList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
@@ -569,6 +569,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild);
+                return _Id;
             }
             catch (Exception ex)
             {
