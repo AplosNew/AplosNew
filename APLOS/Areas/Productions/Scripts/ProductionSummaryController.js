@@ -132,6 +132,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.IsSKU3 = false;
     $scope.IsFirst = false;
     $scope.IsParameterBased = false;
+    $scope.ToCloseAllowed = false;
 
     $scope.getProdLevel = function () {
         try {
@@ -168,6 +169,10 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             $scope.IsParameterBased = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsParameterBased;
+
+            $scope.ToCloseAllowed = $.grep($scope.processList, function (item) {
+                return item.Value === $scope.productionSummaryNew.ProcessId;
+            })[0].ToCloseAllowed;
 
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.ProductionLevel = 'Production Order';
@@ -531,7 +536,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             return ShowResult('Please Work Center.', 'failure');
         }
         $scope.ProductionOrderList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderDataList?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+        $http.get('Productions/ProductionSummary/GetProductionOrderDataList?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ToCloseAllowed=' + $scope.ToCloseAllowed)
             .then(
                 function successCallback(response) {
                     $scope.ProductionOrderList = response.data;
