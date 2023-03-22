@@ -2447,7 +2447,7 @@ namespace Aplos.Areas.Productions.Controllers
                 fieldPP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 fieldPPQ.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
-                pivotTable.DataFields.Add(field, "SOQty", PivotSubtotalTypes.Count);
+                pivotTable.DataFields.Add(field, "SOQty", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldNW, "ProcessPlannedQty", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldGW, "ProcProdQty", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldPRE, "PreProcProdQty", PivotSubtotalTypes.Sum);

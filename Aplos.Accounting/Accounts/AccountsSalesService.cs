@@ -2749,7 +2749,7 @@ namespace Library.Accounting.Accounts
 								JOIN TRN.Sales S ON S.Id=II.SalesId
 								LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
 								LEFT JOIN HKP.Party P ON P.Id=S.PartyId
-								WHERE S.PlantId='"+ plantId + @"'
+								WHERE S.PlantId='"+ plantId + @"' AND II.VoucherId<>''
                                 GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate
 								,II.Addeddate,II.VoucherId,V.VoucherNo,V.PostingDate, P.UserName, v.IsPark
 								Order By II.AddedDate desc";

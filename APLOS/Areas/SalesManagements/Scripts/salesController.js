@@ -1236,6 +1236,10 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     };
 
     $scope.post = function (salesdb) {
+        if (baseService.isUndefinedOrNull($scope.salesdb.BaseOnDueDate)) {
+            ShowResult('Please select Due Date BaseOn!', 'failure');
+            return true;
+        }
         if(!baseService.isUndefinedOrNull(salesdb.PaymentTermId)){
             $http({
                 method: "POST",
