@@ -97,6 +97,7 @@
                 <th>Lot No. Capture</th>
                 <th>Lot No. Mandatory</th>
                 <th>Is Parameter Based</th>
+                <th>ToClose Allowed</th>
                 <th>Remove</th>
             </tr>
         </thead>
@@ -170,6 +171,14 @@
                     <div class="checkbox-site">
                         <label>
                             <input type="checkbox" ng-model="x.IsParameterBased">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </td>
+                 <td>
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="x.ToCloseAllowed">
                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                         </label>
                     </div>

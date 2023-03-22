@@ -96,17 +96,29 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     }
    
 
-    $scope.SalesdataList = [];
+    $scope.searchBy = "Id"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Sales Return No" }
+        , { value: 'SalesId', name: "Sales No" }
+        , { value: 'VoucherNo', name: "VoucherNo" }
+        , { value: 'PartyName', name: "Party" }
+        , { value: 'DocRefNo', name: "DocRef No" }
+        , { value: '[Park/Post]', name: "[Park/Post]" }
+        , { value: 'PostingDate', name: "Posting Date" }];
+
+    $scope.SalesReturnPostedList = [];
     $scope.getData = function () {
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/InventorySalesReturn/GetList',
+            url: 'SalesManagements/Sales/GetSalesReturnPostedList',
+            data: { column: $scope.searchBy, value: $scope.search},
+
         }).then(function successCallback(response) {
-            $scope.SalesdataList = response.data;
+            $scope.SalesReturnPostedList = response.data;
         });
     };
     $scope.getData();
+
     $scope.searchBySalesReturn = "Id"; $scope.searchSalesReturn = "";
     $scope.searchBySalesReturnList = [{ value: 'Id', name: "Sales Return No" }
         , { value: 'SalesId', name: "Sales No" }
@@ -146,6 +158,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.getvocherTypeSalesReturn();
         getSalesReturnDetailList();
         getSalesReturnJV($scope.product.SalesReturnId, data.data.CustomerId);
+        getSalesReturnDetailGLData($scope.product.SalesReturnId);
         $scope.Action = 'Save';
         $scope.closeSalesReturnPopUp();
     };
@@ -207,6 +220,15 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                 reArrangeReturnJournalList($scope.salesReturnJVList, $scope.newList, $scope.salesReceiveDetailList);
             });
     }
+    $scope.salesReturnDetailGLList = [];
+    function getSalesReturnDetailGLData(salesReturnId, customerId) {
+        $http.get('SalesManagements/Sales/GetSalesReturnDetailGLUpdateData?salesReturnId=' + salesReturnId )
+            .then(function (response) {
+                $scope.salesReturnDetailGLList = [];
+                $scope.salesReturnDetailGLList = response.data;
+            });
+    }
+
     function reArrangeReturnJournalList(list, newList, newInvRecDetailList) {
         //var svcList = ($filter('filter')(list, { OtherName: 'Svc' }, true));
         //for (var t = 0; t < baseService.arrayLength(svcList); t++) {
@@ -452,6 +474,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                 , data: {
                     'voucherVM': $scope.productNew
                     , 'voucherDetailVMList': $scope.newList
+                    , 'salesReturnDetailList': $scope.salesReturnDetailGLList
                     , 'invoiceTaxVMList': null
                 }
                 , dataType: 'JSON'
@@ -460,8 +483,6 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-
-                    $scope.Action = 'Update';
                     $scope.productNew.Id = response.data.inventoryIssue.Id;
                     $scope.getdataInventorySales();
                     $scope.SalesDetails();
@@ -472,34 +493,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
                 ShowResult(response.data.Message, 'failure');
             };
         }
-        else if ($scope.Action === "Update") {
-            $http({
-                method: 'POST'
-                , url: $scope.updateUrl
-                , data: {
-                    inventoryIssue: $scope.productNew
-                    , entities: $scope.detailList
-                    , 'salesReturnTaxList': $scope.materialtaxCategoryListSavedData
-                    , 'salesServiceVMList': $scope.chargesList
-                }
-                , dataType: 'JSON'
-            }).then(function (response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-
-                    $scope.Action = 'Update';
-                    $scope.productNew.Id = response.data.inventoryIssue.Id;
-                    $scope.getdataInventorySales();
-                    $scope.SalesDetails();
-                    $scope.getData();
-                    $scope.Clear();
-                }
-            }), function (response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        }
+        
     };
 
 

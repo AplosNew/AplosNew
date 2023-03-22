@@ -104,7 +104,87 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#popUpId')).modal('hide');
     };
     //***********************************User ********************************************************//
-    
+    $scope.removeRow = function (index) {
+        $scope.popUpHrefDataList.splice(index, 1);
+    };
+
+    $scope.HrefDataList=[];
+    $scope.getHrefList = function (id) {
+        $http({
+            method: "get",
+            url: "TaskManagement/TaskAppliedOn/GetHrefDatasList?hrefId=" + id
+        }).then(function successCallback(response) {
+            $scope.HrefDataList = response.data;
+        });
+    };
+
+    //***********************************Href ********************************************************//
+    $scope.hrefvalueData = '';
+    $scope.popUpHrefParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Id',
+        searchBy: "Id",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.popUpHref = function () {
+        $scope.popUpHrefDataList = [];
+        $scope.popUpUrl = 'TaskManagement/TaskAppliedOn/GetHreflist';
+        $scope.getPopUpHrefData = function (data) {
+            baseService.paginationBase($scope.popUpUrl, data, $scope.popUpHrefParameters)
+                .then(function (result) {
+                    $scope.popUpHrefDataList = result.Rows;
+                    $scope.popUpHrefParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'popUphrefId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#popUphrefId')).modal('show');
+        $scope.getPopUpHrefData();
+    };
+
+
+    $scope.setSelected = function (data) {
+        $scope.selectHrefDoubleClick(data);
+    };
+  
+    $scope.selectHrefDoubleClick = function (data) {
+        //if (data.SysAdmin)
+        //    return ShowResult("User [" + data.UserId + "] is [" + data.UserType + "], so role is not required.", 'failure', 'popUpId')
+        $scope.ModelNew.HrefId = data.Id;
+        $scope.ModelNew.Href = data.Href;
+        $scope.ModelNew.Controller = data.Controller;
+        $scope.ModelNew.Description = data.Description;
+        $scope.hrefvalueData = data;
+        $scope.getHrefList($scope.ModelNew.HrefId);
+        $scope.closeHrefPopUp();
+    };
+    $scope.selectHrefSingleClick = function (data) {
+        $scope.hrefrowSelected = data.Id;
+        $scope.ModelNew.Href = data.Href;
+        $scope.hrefvalueData = data;
+    };
+
+    $scope.selectByButtonHref = function () {
+        if (baseService.isUndefinedOrNull($scope.hrefvalueData)) {
+            return ShowResult('Please at first select row', 'failure', 'popUphrefId');
+        }
+        $scope.selectHrefDoubleClick($scope.hrefvalueData)
+        $scope.closeHrefPopUp();
+    };
+    $scope.closeHrefPopUp = function () {
+        $scope.hrefvalueData = '';
+        angular.element(document.querySelector('#popUphrefId')).modal('hide');
+    };
+     //***********************************Href ********************************************************//
+
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
