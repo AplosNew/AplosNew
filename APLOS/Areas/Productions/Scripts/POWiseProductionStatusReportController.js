@@ -831,7 +831,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         if (dataList.length == 0) {
             dataList = $scope.POWiseList;
         }
-        $scope.fileName = 'Po Wise.xlsx';
+        $scope.fileName = 'Po Wise Report.xlsx';
 
         $http({
             method: 'POST',

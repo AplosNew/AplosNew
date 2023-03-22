@@ -503,9 +503,9 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetProductionOrderDataList(string entityid, string workCenterMasterId, string productionLevel, string processId)
+        public ActionResult GetProductionOrderDataList(string entityid, string workCenterMasterId, string productionLevel, string processId, bool ToCloseAllowed)
         {
-            return Json(_productionSummaryData.GetProductionOrderDataList(entityid, workCenterMasterId, productionLevel, processId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetProductionOrderDataList(entityid, workCenterMasterId, productionLevel, processId, ToCloseAllowed), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

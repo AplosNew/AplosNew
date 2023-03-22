@@ -179,7 +179,7 @@ namespace Library.Service.Processes
 								--, PP.UserName ProductionProcessGroup
                                 --, EPT.ProductionProcessGroupId
                                 , EPT.ProductionBookingLevel
-								, CAST(0 as BIT) AS Archive,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3
+								, CAST(0 as BIT) AS Archive,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,EPT.ToCloseAllowed
 					FROM [HKP].[EntityProcessTag] AS EPT
 					LEFT JOIN HKP.Process AS P ON EPT.ProcessId=P.Id
 					LEFT JOIN HKP.MaterialType AS MT ON P.MaterialTypeId=MT.Id
@@ -257,19 +257,19 @@ namespace Library.Service.Processes
         {
             if (cadmin || sadmin)
             {
-                string _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],ISNULL(PS.ProductionBookingLevel,EP.ProductionBookingLevel)ProductionBookingLevel,EP.LotNumberMandatory,EP.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3,P.IsFirst,EP.IsParameterBased 
+                string _sql = @"SELECT DISTINCT P.Id AS [Value], P.UserName AS [Text],ISNULL(PS.ProductionBookingLevel,EP.ProductionBookingLevel)ProductionBookingLevel,EP.LotNumberMandatory,EP.LotNumberCapture,EP.IsSKU1,EP.IsSKU2,EP.IsSKU3,P.IsFirst,EP.IsParameterBased,EP.ToCloseAllowed 
 FROM HKP.EntityProcessTag AS EP
 JOIN HKP.Process AS P ON EP.ProcessId=P.Id 
 LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId from TRN.ProductionOrderProcessSet S
 LEFT JOIN TRN.ProductionOrder P ON P.Id=ProductionOrderId
 ) PS ON PS.ProcessId=EP.ProcessId AND PS.EntityId=EP.EntityId
-WHERE EP.EntityId='"+ entityId + "' AND P.Active=1";
+WHERE EP.EntityId='" + entityId + "' AND P.Active=1";
                 return _sqlRepository.GetGridData(new GridParameter { CmdText = _sql });
             }
             else
             {
                 string _sql = @"SELECT distinct P.Id AS [Value], P.UserName AS [Text],ISNULL(PS.ProductionBookingLevel,EPT.ProductionBookingLevel)ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture
-,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased FROM HKP.EntityProcessTag EPT
+,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased,EPT.ToCloseAllowed FROM HKP.EntityProcessTag EPT
 INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
 LEFT JOIN (Select S.ProductionBookingLevel,P.EntityId,S.ProcessId from TRN.ProductionOrderProcessSet S
 LEFT JOIN TRN.ProductionOrder P ON P.Id=ProductionOrderId

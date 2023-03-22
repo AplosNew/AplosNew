@@ -2412,7 +2412,7 @@ namespace Aplos.Areas.Productions.Controllers
                 workbook = application.Workbooks.Open(fPath);
                 try { System.IO.File.Delete(fPath); } catch (Exception) { }
 
-                workbook.Worksheets[0].Name = "POWiseReport";
+                workbook.Worksheets[0].Name = "PO Wise Report";
 
                 IWorksheet pivotSheet = workbook.Worksheets[0];
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
@@ -2422,7 +2422,6 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.Fields[colPOLatestProdBookDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPONo - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOStartDate - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOCompletionDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSequence - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
@@ -2448,7 +2447,7 @@ namespace Aplos.Areas.Productions.Controllers
                 fieldPP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 fieldPPQ.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
-                pivotTable.DataFields.Add(field, "SOQty", PivotSubtotalTypes.Count);
+                pivotTable.DataFields.Add(field, "SOQty", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldNW, "ProcessPlannedQty", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldGW, "ProcProdQty", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldPRE, "PreProcProdQty", PivotSubtotalTypes.Sum);
@@ -2456,6 +2455,17 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.DataFields.Add(fieldPP, "ProcProdPercent", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldPPQ, "ProceessProdQtyVsSOQty", PivotSubtotalTypes.Sum);
 
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colPOStatus || i == colPOLatestProdBookDate || i == colPONo || i == colPOStartDate || i == colPOCompletionDate || i == colSequence || i == colProcess || i == colIsBaseProcess || i == colProcessLegDays || i == colRelayProcess || i == colProcessStatus || i == colProcessPlanPercent)
+                    {
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
+                    else
+                    {
+                        pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                    }
+                }
 
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;

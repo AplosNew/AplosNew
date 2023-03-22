@@ -523,8 +523,17 @@ namespace Library.OrderManagement.Production
             return _sqlRepository.GetDataCollection(CmdText);
         }
 
-        public IEnumerable<object> GetProductionOrderDataList(string entityid, string workCenterMasterId, string productionLevel, string processId)
+        public IEnumerable<object> GetProductionOrderDataList(string entityid, string workCenterMasterId, string productionLevel, string processId,bool ToCloseAllowed)
         {
+            string wcpr;
+            if (ToCloseAllowed)
+            {
+                wcpr = @"PS.UserName IN('Running','To Close')";
+            }
+            else
+            {
+                wcpr = @"PS.UserName = 'Running'";
+            }
             string CmdText = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, PD.Product, PD.ProductCategory,PD.Buyer,PD.Customer 
                                    ,PD.BuyerOrder,PD.OwnOrder,PD.BuyerItem,PD.OwnItem,PD.Description,PD.PONumber,PO.EntityId,E.UserName Entity
 								  ,PlannedQty=CASE WHEN PQ.Qty=0 THEN PO.PlannedQty ELSE PO.PlannedQty END
@@ -635,7 +644,7 @@ namespace Library.OrderManagement.Production
 								   LEFT JOIN [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                    LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
 								   ) PD ON PD.ProductionOrderId=PO.Id
-								   WHERE PS.UserName = 'Running' Order by PD.Description,PD.BuyerOrder";
+								   WHERE "+wcpr+" Order by PD.Description,PD.BuyerOrder";
 
             return _sqlRepository.GetDataCollection(CmdText);
         }
