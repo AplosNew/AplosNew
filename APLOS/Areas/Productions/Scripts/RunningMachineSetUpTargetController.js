@@ -12,6 +12,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlItemValue = $scope.path + 'createItemValue';
+    $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.WithEmployee = false;
@@ -298,28 +299,81 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         angular.element(document.querySelector('#ItemValuePopup')).modal('hide');
     }
 
-    $scope.refreshTemplateItemValue = function (args) {
-        $("#IVheadchk").ejCheckBox({ "change": CheckBoxSelectAllItemValue });
-    };
-    function CheckBoxSelectAllItemValue(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
+    $scope.ProductionId = null;
+    $scope.ProductionReasonList = [];
+    $scope.getReasonValuePopup = function (data) {
+        $scope.NewObject = data.data;
+        $scope.ProductionId = $scope.NewObject.Id;
+        $http({
 
-        var filtered = $("#GridItemValuePopup").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
-                $scope.RMSTargetItemList[i].IsActive = ChkOrUnchk;
-            }
+            method: 'Get',
+            url: 'Productions/RunningMachineSetUpTarget/LoadProcessReasonList?ProcessId=' + data.data.ProcessId + '&ProductionId=' + $scope.ProductionId
+        }).then(function successCallback(response) {
+            $scope.ProductionReasonList = response.data;
+            var gridObj = $("#GridReasonValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ReasonValuePopup')).modal('show');
         }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].IsActive = ChkOrUnchk;
+        )
+    }
+
+    $scope.closeReasonValuePopup = function () {
+        angular.element(document.querySelector('#ReasonValuePopup')).modal('hide');
+    }
+
+    $scope.SaveReasonValue = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ProductionReasonList.length; i++) {
+                if ($scope.ProductionReasonList[i].ReasonValue > 0) {
+                    $scope.ProductionReasonList[i].ProductionId = $scope.ProductionId;
+                    $scope.SaveList.push($scope.ProductionReasonList[i]);
+                }
             }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlReasonValue,
+                data: { 'ProductionReasonData': $scope.SaveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
         }
-        var gridObj = $("#GridItemValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
+
+
+    //$scope.refreshTemplateItemValue = function (args) {
+    //    $("#IVheadchk").ejCheckBox({ "change": CheckBoxSelectAllItemValue });
+    //};
+    //function CheckBoxSelectAllItemValue(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
+
+    //    var filtered = $("#GridItemValuePopup").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
+    //            $scope.RMSTargetItemList[i].IsActive = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+    //        for (var j = 0; j < filtered.length; j++) {
+    //            filtered[j].IsActive = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#GridItemValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    //};
 
 
     $scope.listFromProcessOrSFGInventory = [];
@@ -460,7 +514,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
-                if ($scope.RMSTargetItemList[i].IsActive == true) {
+                if ($scope.RMSTargetItemList[i].ItemValue > 0) {
                     $scope.RMSTargetItemList[i].RMSTargetId = $scope.RMSTargetId;
                     $scope.SaveList.push($scope.RMSTargetItemList[i]);
                 }
@@ -552,7 +606,8 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
 
     $scope.CalculateTargetProductioin = function (args) {
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-            $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency)).toFixed(0);
+            $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours)).toFixed(0);
+            $scope.DailyTargetList[i].TargetFD = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency)).toFixed(0);
 
         }
         var gridObj = $("#GridDailyTargetList").data("ejGrid");
