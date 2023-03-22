@@ -831,15 +831,14 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         if (dataList.length == 0) {
             dataList = $scope.POWiseList;
         }
-        $scope.fileName = 'Po Wise';
+        $scope.fileName = 'Po Wise Report.xlsx';
 
         $http({
             method: 'POST',
-            //url: $scope.path + "StockRegisterReport",
-            url: $scope.exportgriddataUrlUpd,
+            url: $scope.path + "GetPOWiseReportDataXls",
             data: {
-                'reportFileName': $scope.fileName,
-                'data': dataList
+                'data': dataList,
+                'reportFileName': $scope.fileName
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -847,8 +846,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');

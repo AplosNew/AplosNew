@@ -21717,7 +21717,7 @@ UNION ALL
 								AND (PO.CheckedByStatus ='Checked' OR PO.CheckedByStatus ='Hold')
 								AND (PO.AuthorizedByStatus='For Approval' OR PO.AuthorizedByStatus IS NULL)
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+							    AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								AND PO.CompanyId='" + companyId + @"' AND PO.PlantId='" + PlantId + @"'  
 								GROUp BY PO.CompanyId,PO.Id	,PO.AddedBy,EI.EmployeeName,EI1.EmployeeName,p.UserName,DATEDIFF(day,PO.PODate,getdate())
 								,PO.DocRefNo,PO.DocDate,PO.CheckedByStatus,PO.AuthorizedByStatus,CG.UserName,C.UserName,P1.UserName,po.PODate";
@@ -21775,7 +21775,7 @@ UNION ALL
 								where DATEDIFF(day,PO.PODate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'
 								AND PO.CheckedByStatus ='Checked' AND PO.AuthorizedByStatus ='Approved' 
 								AND PO.IsClosed=0 AND POD.QtyStatus=0
-								AND PO.ContractId is NUll AND PO.PurchaseLCId IS NULL AND PT.PaymentMode <> 'LC'
+								 AND PO.PurchaseLCId IS NULL AND ISNULL(PT.PaymentMode,'') <> 'LC'
 								AND PO.CompanyId='" + companyId + @"' AND PO.PlantId='" + PlantId + @"'  
 								GROUp BY PO.CompanyId,PO.Id	,PO.AddedBy,EI.EmployeeName,EI1.EmployeeName,p.UserName,DATEDIFF(day,PO.PODate,getdate())
 								,PO.DocRefNo,PO.DocDate,PO.CheckedByStatus,PO.AuthorizedByStatus,CG.UserName,C.UserName,P1.UserName,po.PODate";
