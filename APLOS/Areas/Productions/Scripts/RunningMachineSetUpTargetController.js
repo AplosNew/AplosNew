@@ -286,7 +286,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         $http({
 
             method: 'Get',
-            url: 'Productions/RunningMachineSetUpTarget/LoadProcessItemList?ProcessId=' + data.data.ProcessId + '&RMSTargetId=' + $scope.RMSTargetId
+            url: 'Productions/RunningMachineSetUpTarget/LoadProcessItemList?ProcessId=' + data.data.ProcessId + '&RMSTargetId=' + $scope.RMSId
         }).then(function successCallback(response) {
             $scope.RMSTargetItemList = response.data;
             var gridObj = $("#GridItemValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -324,7 +324,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.ProductionReasonList.length; i++) {
-                if ($scope.ProductionReasonList[i].ReasonValue > 0) {
+                if (!baseService.isUndefinedOrNull($scope.ProductionReasonList[i].ReasonValue)) {
                     $scope.ProductionReasonList[i].ProductionId = $scope.ProductionId;
                     $scope.SaveList.push($scope.ProductionReasonList[i]);
                 }
@@ -467,7 +467,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     };
 
 
-
+    $scope.RMSId = null;
     $scope.Save = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
@@ -498,6 +498,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.RMSId = response.data.Id;
                     $scope.getDailytarget();
                 }
             }), function errorCallBack(response) {
@@ -514,7 +515,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
-                if ($scope.RMSTargetItemList[i].ItemValue > 0) {
+                if (!baseService.isUndefinedOrNull($scope.RMSTargetItemList[i].ItemValue)) {
                     $scope.RMSTargetItemList[i].RMSTargetId = $scope.RMSTargetId;
                     $scope.SaveList.push($scope.RMSTargetItemList[i]);
                 }
@@ -604,15 +605,15 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         //gridObj.refreshTemplate();
     }
 
+    $scope.DifferenceFP = null;
     $scope.CalculateTargetProductioin = function (args) {
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
             $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours)).toFixed(0);
             $scope.DailyTargetList[i].TargetFD = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency)).toFixed(0);
-
+            $scope.DifferenceFP = $scope.DailyTargetList[i].TargetProductionFP - $scope.DailyTargetList[i].TargetFD;
         }
         var gridObj = $("#GridDailyTargetList").data("ejGrid");
         gridObj.refreshContent();
-        //gridObj.refreshTemplate();
     }
 
 

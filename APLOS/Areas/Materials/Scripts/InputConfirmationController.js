@@ -40,15 +40,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     }
     $scope.getAllEntities();
 
-    $scope.loadProcessList = function (entityid) {
-        cboService.GetEntityProcessCbo(entityid, function (result) {
-            $scope.processList = result;
-            if (baseService.arrayLength(result) === 1) {
-                $scope.ModelNew.ProcessId = $scope.processList[0].Value;
-                $scope.loadWC($scope.ModelNew.ProcessId, $scope.ModelNew.EntityId);
-            }
-        });
-    };
+
 
     $scope.wcList = [];
     $scope.loadWC = function (processid, entityId) {
@@ -109,6 +101,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
         $scope.GetIssueSlipDataByPOIdList();
+       
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -121,10 +114,24 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                 .then(function (response) {
                     $scope.IssueSlipDataList = response.data;
                     $scope.GetSOItemList();
+                    $scope.loadProcessList();
                 });
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
+    };
+
+    $scope.loadProcessList = function () {
+        $http({
+            method: 'Get',
+            url: "Materials/InputConfirmation/GetFirstProcessCbo?ProductionOrderId=" + $scope.ModelNew.POId
+        }).then(function successCallback(result) {
+            $scope.processList = result.data;
+            if (baseService.arrayLength(result.data) === 1) {
+                $scope.ModelNew.ProcessId = $scope.processList[0].Value;
+                $scope.loadWC($scope.ModelNew.ProcessId, $scope.ModelNew.EntityId);
+            }
+        });
     };
 
     $scope.SOItemList = [];
@@ -201,9 +208,9 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                             obj.InventoryReceiveDetailId = $scope.SearchmaterialList[i].InventoryReceiveDetailId;
                             obj.RequestedQty = $scope.SearchmaterialList[i].TranQty;
                             obj.IssueQty = $scope.SearchmaterialList[i].IssueQty;
-                            obj.OtherQty = $scope.SearchmaterialList[i].OtherQty;
-                            obj.WasteQty = $scope.SearchmaterialList[i].WasteQty;
-                            obj.TotalQty = $scope.SearchmaterialList[i].TotalQty;
+                            obj.OtherQty = 0;
+                            obj.WasteQty = 0;
+                            obj.TotalQty = $scope.SearchmaterialList[i].TranQty;
 
                             $scope.IssueSlipDataList.push(obj);
                             obj = {};
@@ -215,6 +222,14 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         } catch (e) {
             ShowResult(e, 'failure');
         }
+    }
+
+    $scope.GetTotalQty = function (obj) {
+
+        obj.data.TotalQty = obj.data.RequestedQty + obj.data.OtherQty + obj.data.WasteQty;
+        var gridObj = $("#SOGrid").data("ejGrid");
+        gridObj.refreshContent(true);
+        gridObj.refreshTemplate();
     }
 
     // #region checkbox all
@@ -247,6 +262,8 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     };
 
     // #endregion checkbox all
+
+   
 
     $scope.GetSaved = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
@@ -288,35 +305,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                 }
             }
 
-
-
-
             if ($scope.Action === 'Save') {
-                //if (baseService.arrayLength($scope.SOItemList) === 0) {
-                //    throw "Select SO Detail.";
-                //}
-                //else {
-                //    if (baseService.arrayLength($scope.SOItemList) > 1) {
-                //        for (var i = 0; i < $scope.SOItemList.length; i++) {
-                //            var firstLineId = $scope.SOItemList[0].LineItemId;
-                //            if ($scope.SOItemList[i].LineItemId != firstLineId) {
-                //                throw "Please select same Line Item.";
-                //            }
-                //        }
-                //    }
-                //}
-
-
-                //if (baseService.arrayLength($scope.QBOQCostingList) > 0) {
-                //    for (var p = 0; p < $scope.QBOQCostingList.length; p++) {
-
-                //        $scope.QBOQCostingList[p].TransactionUoMId = $scope.QBOQCostingList[p].UoMId;
-                //        $scope.QBOQCostingList[p].BaseUoMId = $scope.QBOQCostingList[p].UoMId;
-                //        $scope.QBOQCostingList[p].CostCenterId = $scope.ModelNew.CostCenterId;
-                //        $scope.QBOQCostingList[p].RequestedQty = $scope.QBOQCostingList[p].PlanConsumption;
-                //        $scope.QBOQCostingListNew.push($scope.QBOQCostingList[p]);
-                //    }
-                //}
 
                 if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
                     throw "Select Production Order.";
@@ -351,48 +340,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                     };
                 }
             }
-            else {
-
-                //for (var i = 0; i < $scope.QBOQCostingList.length; i++) {
-                //    for (var j = 0; j < $scope.IssueRequestList.length; j++) {
-                //        if ($scope.QBOQCostingList[i].Id == $scope.IssueRequestList[j].MaterialIssueControlDetailId) {
-                //            $scope.IssueRequestList[j].RequestedQty = $scope.QBOQCostingList[i].PlanConsumption;
-                //        }
-                //    }
-                //}
-
-                //for (var i = 0; i < $scope.IssueRequestList.length; i++) {
-                //    for (var j = 0; j < $scope.IssueRequestBOQMapList.length; j++) {
-                //        if ($scope.IssueRequestList[i].Id == $scope.IssueRequestBOQMapList[j].IssueRequestDetailId) {
-                //            $scope.IssueRequestBOQMapList[j].Qty = $scope.IssueRequestList[i].RequestedQty;
-                //        }
-                //    }
-                //}
-
-
-                $http({
-                    method: 'POST',
-                    url: $scope.updateUrl,
-                    data: {
-                        'model': $scope.ModelNew
-                        , 'dataList': $scope.QBOQCostingList
-
-                    },
-                    dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.Clear();
-                        $scope.GetSavedData();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
+           
         } catch (e) {
             ShowResult(e, "failure");
         }
