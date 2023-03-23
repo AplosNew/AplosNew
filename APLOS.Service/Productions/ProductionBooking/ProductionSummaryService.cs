@@ -460,13 +460,18 @@ namespace Library.Service.Productions
             var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
-        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string HeaderResponsiblePersonId)
+        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId)
         {
             var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,
-                        isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as ProductionOrderId,isnull(pw.LotNumber,(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as LotNumber,M.EmployeeName as Mentor,isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId ='" + HeaderResponsiblePersonId + @"')) as ResponsiblePerson,
-                        isnull(C.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 CheckedBy from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))) as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty,
+                        isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as ProductionOrderId,isnull(pw.LotNumber,(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"'and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as LotNumber,M.EmployeeName as Mentor,
+                        PI.EmployeeName as ProductionInCharge,PI.SystemId as ProductionInChargeId,
+                        isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId ='" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as Responsible,
+                        isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
+                        isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId ='" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
+                        isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
+                        isnull(C.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 CheckedBy from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))) as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty,
                         isnull(CEILING(PQ.Qty),PO.PlannedQty) OrderQty,
-						ISNULL(CEILING(PRS.TotalProductionQty), 0) as BookedQty,
+						ISNULL(CEILING(PRS.TotalProductionQty), 0) as BookedQty,RM.TargetProductionFP,
                                        Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
                                                             left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
@@ -515,8 +520,11 @@ namespace Library.Service.Productions
                         LEFT JOIN EmployeeInformation R ON PW.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation M ON PW.MentorId=M.SystemId
                         LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId
-						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + entityId + @"' AND MT.Date='" + productionDate + @"'  AND MT.ShiftId='" + shiftId + @"' 
-						group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
+                        LEFT JOIN EmployeeInformation I ON PW.InChargeId=I.SystemId
+                        LEFT JOIN EmployeeInformation PI ON PW.ProductionInChargeId=PI.SystemId
+                        LEFT JOIN TRN.RunningMachineSetUpTarget RM ON RM.EntityId='" + entityId + @"' and RM.ProcessId='" + ProcessId + @"' and RM.TargetDate='" + productionDate + @"' and RM.ProductionShiftId='" + shiftId + @"' and RM.WorkCenterMasterId=wc.Id and RM.ProductionOrderId=pw.ProductionOrderId
+						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + entityId + @"' AND MT.Date='" + productionDate + @"'  AND MT.ShiftId='" + shiftId + @"'
+                        group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
                         where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' order by wc.UserName";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -829,6 +837,8 @@ namespace Library.Service.Productions
                     ob_fromDB.UpdatedDate = DateTime.Now;
 
                     ob_fromDB.ResponsiblePersonId = ps.ResponsiblePersonId;
+                    ob_fromDB.InChargeId = ps.InChargeId;
+                    ob_fromDB.ProductionInChargeId = ps.ProductionInChargeId;
                     ob_fromDB.MentorId = ps.MentorId;
                     ob_fromDB.ScanQty = ps.ScanQty;
                     ob_fromDB.QtyWithoutScan = ps.QtyWithoutScan;
@@ -945,38 +955,38 @@ namespace Library.Service.Productions
                         }
                         else
                         {
-                            if (item["FromTime"] == null)
-                            {
-                                throw new CustomException("From time is required!");
+                            //if (item["FromTime"] == null)
+                            //{
+                            //    throw new CustomException("From time is required!");
 
-                            }
-                            else
-                            {
-                                if (item["ToTime"] == null)
-                                {
-                                    throw new CustomException("To Time is required!");
-                                }
-                                else
-                                {
+                            //}
+                            //else
+                            //{
+                            //    if (item["ToTime"] == null)
+                            //    {
+                            //        throw new CustomException("To Time is required!");
+                            //    }
+                            //    else
+                            //    {
                                     if (dv.Count == 0)
                                     {
-                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        DateTime NextDayDate = date2.AddDays(1);
-                                        TimeSpan ts = date2 - date1;
-                                        TimeSpan Nd = NextDayDate - date1;
-                                        int minutes = (int)ts.TotalMinutes;
+                                        //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                        //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                        //DateTime NextDayDate = date2.AddDays(1);
+                                        //TimeSpan ts = date2 - date1;
+                                        //TimeSpan Nd = NextDayDate - date1;
+                                        //int minutes = (int)ts.TotalMinutes;
 
-                                        if (minutes >= 720 || minutes < 0)
-                                        {
-                                            item["ToTime"] = NextDayDate;
-                                            item["Minute"] = Nd.TotalMinutes;
-                                        }
-                                        else
-                                        {
-                                            item["ToTime"] = date2;
-                                            item["Minute"] = ts.TotalMinutes;
-                                        }
+                                        //if (minutes >= 720 || minutes < 0)
+                                        //{
+                                        //    item["ToTime"] = NextDayDate;
+                                        //    item["Minute"] = Nd.TotalMinutes;
+                                        //}
+                                        //else
+                                        //{
+                                        //    item["ToTime"] = date2;
+                                        //    item["Minute"] = ts.TotalMinutes;
+                                        //}
 
                                         item["Id"] = GetPK();
                                         AddNewRow(dsProdBooked.Tables[0], item);
@@ -985,32 +995,31 @@ namespace Library.Service.Productions
                                     {
 
                                         DataRow drpb = dv[0].Row;
-                                        DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                        DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                        DateTime NextDayDate = date2.AddDays(1);
-                                        TimeSpan ts = date2 - date1;
-                                        TimeSpan Nd = NextDayDate - date1;
-                                        int minutes = (int)ts.TotalMinutes;
+                                        //DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                        //DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                        //DateTime NextDayDate = date2.AddDays(1);
+                                        //TimeSpan ts = date2 - date1;
+                                        //TimeSpan Nd = NextDayDate - date1;
+                                        //int minutes = (int)ts.TotalMinutes;
 
-                                        if (minutes >= 720 || minutes < 0)
-                                        {
-                                            item["ToTime"] = NextDayDate;
-                                            item["Minute"] = Nd.TotalMinutes;
-                                        }
-                                        else
-                                        {
-                                            item["ToTime"] = date2;
-                                            item["Minute"] = ts.TotalMinutes;
-                                        }
+                                        //if (minutes >= 720 || minutes < 0)
+                                        //{
+                                        //    item["ToTime"] = NextDayDate;
+                                        //    item["Minute"] = Nd.TotalMinutes;
+                                        //}
+                                        //else
+                                        //{
+                                        //    item["ToTime"] = date2;
+                                        //    item["Minute"] = ts.TotalMinutes;
+                                        //}
                                         EditRow(drpb, item);
                                     }
                                     clsStaticInfo obj = new clsStaticInfo();
                                     obj.SaveDataSets(dsProdBooked);
                                 }
-                            }
-                        }
+                        //    }
+                        //}
                     }
-
                 }
             }
             catch (Exception ex)

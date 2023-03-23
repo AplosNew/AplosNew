@@ -809,12 +809,12 @@ namespace Library.Accounting.Accounts
         }
 
 
-        public InvoiceTax InsertInvoiceTax(InvoiceTax invoiceTax, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(InvoiceTax invoiceTax, ref DataSet dsData)
         {
-            return InsertInvoiceTax(invoiceTax, true, out dsData);
+            return InsertInvoiceTax(invoiceTax, true, ref dsData);
         }
 
-        public InvoiceTax InsertInvoiceTax(InvoiceTax invoiceTax, bool flag, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(InvoiceTax invoiceTax, bool flag, ref DataSet dsData)
         {
             invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
             if (string.IsNullOrEmpty(invoiceTax.AddedBy))
@@ -830,7 +830,7 @@ namespace Library.Accounting.Accounts
 
      
 
-        public InvoiceTax InsertInvoiceTax(Invoice invoice, InvoiceTax invoiceTax, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(Invoice invoice, InvoiceTax invoiceTax, ref DataSet dsData)
         {
             invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
             invoiceTax.InvoiceId = invoice.Id;
@@ -844,12 +844,15 @@ namespace Library.Accounting.Accounts
             invoiceTax.AddedBy = invoice.AddedBy;
             invoiceTax.AddedDate = invoice.AddedDate;
             invoiceTax.AddedFromIP = invoice.AddedFromIP;
-            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            if (dsData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            }
             AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
             return invoiceTax;
         }
-        public InvoiceTax InsertInvoiceTax(EmployeePayable employeePayable, InvoiceTax invoiceTax, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(EmployeePayable employeePayable, InvoiceTax invoiceTax, ref DataSet dsData)
         {
             invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
             invoiceTax.EmployeePayableId = employeePayable.Id;
@@ -863,12 +866,15 @@ namespace Library.Accounting.Accounts
             invoiceTax.AddedBy = employeePayable.AddedBy;
             invoiceTax.AddedDate = employeePayable.AddedDate;
             invoiceTax.AddedFromIP = employeePayable.AddedFromIP;
-            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            if (dsData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            }
             AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
             return invoiceTax;
         }
-        public InvoiceTax InsertInvoiceTax(InvoiceWriteOff invoicewriteoff, InvoiceTax invoiceTax, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(InvoiceWriteOff invoicewriteoff, InvoiceTax invoiceTax, ref DataSet dsData)
         {
             invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
             invoiceTax.InvoiceWriteOffId = invoicewriteoff.Id;
@@ -882,13 +888,16 @@ namespace Library.Accounting.Accounts
             invoiceTax.AddedBy = invoicewriteoff.AddedBy;
             invoiceTax.AddedDate = invoicewriteoff.AddedDate;
             invoiceTax.AddedFromIP = invoicewriteoff.AddedFromIP;
-            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            if (dsData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            }
             AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
             return invoiceTax;
         }
 
-        public InvoiceTax InsertInvoiceTax(Advance advance, InvoiceTax invoiceTax, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(Advance advance, InvoiceTax invoiceTax, ref DataSet dsData)
         {
             invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
             invoiceTax.AdvanceId = advance.Id;
@@ -902,13 +911,16 @@ namespace Library.Accounting.Accounts
             invoiceTax.AddedBy = advance.AddedBy;
             invoiceTax.AddedDate = advance.AddedDate;
             invoiceTax.AddedFromIP = advance.AddedFromIP;
-            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            if (dsData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            }
             AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
             return invoiceTax;
         }
 
-        public InvoiceTax InsertInvoiceTax(AdjustmentNote adjustmentNote, InvoiceTax invoiceTax, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(AdjustmentNote adjustmentNote, InvoiceTax invoiceTax, ref DataSet dsData)
         {
             invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
             invoiceTax.InvoiceId = adjustmentNote.InvoiceId;
@@ -922,13 +934,16 @@ namespace Library.Accounting.Accounts
             invoiceTax.AddedBy = adjustmentNote.AddedBy;
             invoiceTax.AddedDate = adjustmentNote.AddedDate;
             invoiceTax.AddedFromIP = adjustmentNote.AddedFromIP;
-            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            if (dsData == null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+            }
             AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
             return invoiceTax;
         }
 
-        public InvoiceTax InsertInvoiceTax(VoucherViewModel voucherVM, InvoiceTax invoiceTax, out DataSet dsData)
+        public InvoiceTax InsertInvoiceTax(VoucherViewModel voucherVM, InvoiceTax invoiceTax, ref DataSet dsData)
         {
             invoiceTax.Id = GetAutoNumber(nameof(InvoiceTax), PKGeneratorEnum.Yearly, null, DateTime.Now);
             invoiceTax.TaxYearId = voucherVM.TaxYearId;
@@ -941,8 +956,12 @@ namespace Library.Accounting.Accounts
             invoiceTax.AddedBy = voucherVM.AddedBy;
             invoiceTax.AddedDate = voucherVM.AddedDate;
             invoiceTax.AddedFromIP = voucherVM.AddedFromIP;
-            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-            con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
+
+            if (dsData==null)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData); 
+            }
             AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
             return invoiceTax;
         }

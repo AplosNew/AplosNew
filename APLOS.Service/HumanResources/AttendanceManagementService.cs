@@ -5756,13 +5756,16 @@ finally
                             int Article = 0;
                             int PlanHours = 0;
                             int Efficiency = 0;
+                            int PlanProductionFP = 0;
                             int TargetProductionFP = 0;
                             int Responsible = 0;
                             int InCharge = 0;
                             int Remarks = 0;
                             int ItemDetails = 0;
+                            int ReasonDetails = 0;
                             int Production = 0;
                             int TotalTarget = 0;
+                            int TotalPlan = 0;
 
 
                             #region ------------------Column Header------------------
@@ -5856,6 +5859,13 @@ finally
                             sheet1.Range[xlsRow, Efficiency].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, Efficiency].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                            PlanProductionFP = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, PlanProductionFP].Text = "Plan Production FP";
+                            sheet1.Range[xlsRow, PlanProductionFP].ColumnWidth = 22;
+                            sheet1.Range[xlsRow, PlanProductionFP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, PlanProductionFP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                             TargetProductionFP = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, TargetProductionFP].Text = "Target Production FP";
@@ -5890,6 +5900,13 @@ finally
                             sheet1.Range[xlsRow, ItemDetails].ColumnWidth = 45;
                             sheet1.Range[xlsRow, ItemDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            ReasonDetails = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, ReasonDetails].Text = "Reason Details";
+                            sheet1.Range[xlsRow, ReasonDetails].ColumnWidth = 45;
+                            sheet1.Range[xlsRow, ReasonDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ReasonDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             Production = xlsCol;
                             sheet1.Range[xlsRow, Production].Text = "Production";
@@ -5942,6 +5959,11 @@ finally
                                     sheet1.Range[xlsRow, Efficiency].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Efficiency].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                                    sheet1.Range[xlsRow, PlanProductionFP].Text = dvBioDvACitem[i]["TargetFD"].ToString();
+                                    sheet1.Range[xlsRow, PlanProductionFP].RowHeight = 25;
+                                    sheet1.Range[xlsRow, PlanProductionFP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, PlanProductionFP].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                                     sheet1.Range[xlsRow, TargetProductionFP].Text = dvBioDvACitem[i]["TargetProductionFP"].ToString();
                                     sheet1.Range[xlsRow, TargetProductionFP].RowHeight = 25;
                                     sheet1.Range[xlsRow, TargetProductionFP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -5967,7 +5989,12 @@ finally
                                     sheet1.Range[xlsRow, ItemDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, ItemDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                   
+                                    sheet1.Range[xlsRow, ReasonDetails].Text = dvBioDvACitem[i]["ReasonDetails"].ToString();
+                                    sheet1.Range[xlsRow, ReasonDetails].RowHeight = 25;
+                                    sheet1.Range[xlsRow, ReasonDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ReasonDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
 
                                     #endregion----------------------ItemData-----------------------
 
@@ -5981,19 +6008,27 @@ finally
 
 
                                 }
-
+                                TotalPlan = TotalPlan + Convert.ToInt32(dvBioDvACitem[i]["TargetFD"]);
                                 TotalTarget = TotalTarget + Convert.ToInt32(dvBioDvACitem[i]["TargetProductionFP"]);
                             }
 
                             xlsCol = 6;
                             xlsRow += 1;
                             sheet1.Range[xlsRow, xlsCol].Text = "Total :";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = TotalPlan.ToString();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignBottom;
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+
+                            xlsCol += 1;
                             sheet1.Range[xlsRow, xlsCol + 1].Text = TotalTarget.ToString();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignBottom;
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
-                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                            
+                           
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol+1].CellStyle.Font.Bold = true;
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol+1].RowHeight = 25;
+
                         }
 
 
@@ -6093,21 +6128,21 @@ finally
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                        //xlsCol = 2;
-                        //xlsRow = 27;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Maintenance By";
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                        xlsCol = 1;
+                        xlsRow = 57;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Prepared By";
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                        //xlsCol = 3;
-                        //xlsRow = 27;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Maintenance incharge";
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                        xlsCol = 3;
+                        xlsRow = 57;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Checked By";
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
                         //xlsCol = 6;
                         //xlsRow = 27;
@@ -6117,13 +6152,13 @@ finally
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                        //xlsCol = 7;
-                        //xlsRow = 27;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Authorized Signatory";
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
-                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                        xlsCol = 7;
+                        xlsRow = 57;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Authorized By";
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
                         #endregion ******************Report Footer******************
 
@@ -24915,46 +24950,7 @@ private void CreateFinalSettlement(string companyGroupId, string companyId, stri
 
         WSection section = document.Sections[0];
         WTable table1 = (WTable)section.Body.Tables[1];
-        //for (int ROW = 0; ROW < dtFinalSettlementData.Rows.Count; ROW++)
-        //{
-        //    int isReplaced = 0;
-
-        //    #region Retirement
-
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["RetirementDayT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["PolicyDayNo"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["RetirementRateT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SalaryRate"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["RetirementAmountT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SeparationTypeAmount"].ToString(), UserName), false, true);
-
-        //    #endregion Retirement
-
-        //    #region Resignation
-
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["ResignationDayT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["PolicyDayNo"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["ResignationRateT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SalaryRate"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["ResignationAmountT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SeparationTypeAmount"].ToString(), UserName), false, true);
-
-        //    #endregion Resignation
-
-
-
-        //    #region Total In Word
-        //    //strnumberToString(string numberToConvert)
-        //    numberToString.numberToStringBuilder bangla = new numberToString.numberToStringBuilder();
-        //    document.Replace("{TotalInWords}", bangla.strnumberToString(dtFinalSettlementData.Rows[ROW]["NetPayAmount"].ToString()), true, true);
-
-        //    // document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
-
-        //    #endregion Total In Word
-        //}
-
-        //deduction part
-        //if (dtFinalSettlementDedutionData.Rows.Count > 0)
-        //{
-        //    for (int ROW = 0; ROW < dtFinalSettlementDedutionData.Rows.Count; ROW++)
-        //    {
-        //        table1.Replace("{" + dtFinalSettlementDedutionData.Rows[ROW]["DeductionAmount"].ToString() + "}", cnDgt(dtFinalSettlementDedutionData.Rows[ROW]["Amount"].ToString(), UserName), false, true);
-        //    }
-        //}
+       
 
         DataTable dtFinalSettlementDedutionData = null;
         DataTable dtFinalSettlementEarningData = null;

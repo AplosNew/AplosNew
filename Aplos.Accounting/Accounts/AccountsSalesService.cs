@@ -2323,7 +2323,8 @@ namespace Library.Accounting.Accounts
                                 SUM(IID.TransactionQty) Qty,II.Narration,II.SalesId
                                 FROM [TRN].[SalesReturn] AS II
                                 JOIN TRN.SalesReturnDetail AS IID ON IID.SalesReturnId=II.Id
-                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate";
+                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate,II.Addeddate 
+								Order By II.AddedDate desc";
 				return _sqlRepository.GetDataCollection(CmdText);
 			}
 			catch (Exception ex)
@@ -2452,7 +2453,8 @@ namespace Library.Accounting.Accounts
 		public List<Dictionary<string, object>> GetItemScanChildData(string salesId, string packingId, string soId)
 		{
 
-			var cmdText = @"SELECT isc.*,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
+			var cmdText = @"SELECT isc.Id,isc.SalesId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight,isc.NetWeight ReturnNetWeight,isc.Shade,isc.Booked,isc.IsDespatch
+								,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
                                 left join trn.POLotReference pol on pol.Id = isc.PackingId
                                 left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
                                 where  pli.PackingId = '" + packingId + "' AND pli.SOId IN ('"+ soId + "') and isc.SalesId='"+ salesId + @"'";
@@ -2659,6 +2661,104 @@ namespace Library.Accounting.Accounts
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+		public IEnumerable<object> GetSalesReturnDetailGLUpdateData(string companyId, string plantId, string salesReturnId)
+		{
+			try
+			{
+				var sql = @"DECLARE @receiveId varchar(10)='" + salesReturnId + "', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"'
+					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
+						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
+						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
+						, T.ActivityId, T.ActivityCode, T.ActivityName
+						, T.Dr, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnDetailId
+					FROM (
+						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
+							,  IRD.PostDrGLGeneralInfoId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
+							,IRD.PostDrBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,IRD.PostDrActivityId ActivityId,A.Code ActivityCode 
+							,A.UserName ActivityName  , SUM(PRD.BooksCurrencyTransactionAmount) AS Dr , NULL Cr
+							, SUM(PRD.BooksCurrencyTransactionAmount) AS Amount
+                            ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId,PRD.Id SalesReturnDetailId
+						FROM TRN.SalesReturnDetail PRD
+						JOIN [TRN].[SalesMaterial] AS IRD ON IRD.Id=PRD.SalesMaterialId
+						LEFT JOIN [TRN].[SalesReturn] AS SR ON PRD.SalesReturnId=SR.Id
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON PRD.MaterialMasterId=MM.Id
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON IRD.PostCrGLGeneralInfoId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON IRD.PostCrBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON IRD.PostCrActivityId= A.Id
+						WHERE PRD.SalesReturnId=@receiveId
+						GROUP BY MM.MaterialGroupMasterId, IRD.PostDrGLGeneralInfoId, GL.AccountCode, GL.UserName, IRD.PostDrBudgetMasterId, B.Code, B.UserName, IRD.PostDrActivityId, A.Code, A.UserName
+					    ,MM.IsAsset,MM.FixedAssetMasterId,IRD.Id,PRD.Id
+                    ) AS T
+					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
+                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.SalesReturnDetailId
+					UNION ALL
+					SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
+						, R.GLGeneralInfoId, R.GLGeneralInfoCode, R.GLGeneralInfoName , R.BudgetMasterId, R.BudgetCode, R.BudgetName
+						, R.ActivityId, R.ActivityCode,R.ActivityName , R.Dr , R.Cr, R.Amount, R.IsAsset,R.InventoryReceiveDetailId,R.SalesReturnDetailId 
+					FROM (
+					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
+						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
+						, T.BudgetMasterId, T.BudgetCode, T.BudgetName , T.ActivityId, T.ActivityCode, T.ActivityName
+						, T.Dr Dr , T.Cr, T.Amount Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnId,T.SalesReturnDetailId
+					FROM (
+						SELECT  'Return' AS OtherName, 'Cr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,NULL FixedAssetMasterId
+							,  MGGL.CreditNoteGLId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
+							,MGGL.CreditNoteBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,MGGL.CreditNoteActivityId ActivityId,A.Code ActivityCode 
+							,A.UserName ActivityName , NULL Dr , SUM(SRD.BooksCurrencyTransactionAmount+ISNULL(SRD.TaxAmount,0)) AS Cr
+							, SUM(SRD.BooksCurrencyTransactionAmount+ISNULL(SRD.TaxAmount,0) ) AS Amount ,MM.IsAsset , NULL InventoryReceiveDetailId,SRD.SalesReturnId,SRD.Id SalesReturnDetailId
+						FROM TRN.SalesReturnDetail SRD
+						LEFT JOIN [MST].[MaterialMaster] AS MM ON SRD.MaterialMasterId=MM.Id
+						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[MaterialGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
+								AS MGGL ON MM.MaterialGroupMasterId = MGGL.MaterialGroupMasterId
+						LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON MGGL.CreditNoteGLId=GL.Id
+						LEFT JOIN[MST].[BudgetMaster] AS BM ON MGGL.CreditNoteBudgetMasterId= BM.Id
+						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+						LEFT JOIN [HKP].[Activity] AS A ON MGGL.CreditNoteActivityId= A.Id
+						WHERE SRD.SalesReturnId=@receiveId
+						GROUP BY MM.MaterialGroupMasterId, MGGL.CreditNoteGLId, GL.AccountCode, GL.UserName, MGGL.CreditNoteBudgetMasterId, B.Code, B.UserName
+						, MGGL.CreditNoteActivityId, A.Code, A.UserName
+					    ,MM.IsAsset,MM.FixedAssetMasterId ,SRD.SalesReturnId,SRD.Id 
+                    ) AS T
+					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId
+                    , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount,T.SalesReturnId, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId,T.SalesReturnDetailId
+					)
+					R 
+					GROUP BY R.MaterialGroupMasterId, R.GLGeneralInfoId, R.GLGeneralInfoCode, R.GLGeneralInfoName, R.BudgetMasterId, R.BudgetCode, R.BudgetName, R.ActivityId
+                    , R.ActivityCode, R.ActivityName, R.Dr, R.Cr, R.Amount, R.OtherName, R.TrnType,R.TaxCategoryId,R.IsAsset, R.InventoryReceiveDetailId,R.SalesReturnDetailId
+					";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+			}
+		}
 
+		public IEnumerable<object> GetSalesReturnPostedData(string plantId)
+		{
+			try
+			{
+				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate,II.VoucherId,V.VoucherNo,V.PostingDate, P.UserName PartyName,
+								[Park/Post]=CASE WHEN V.IsPark=0 THEN 'Posted' ELSE 'Parked' END,
+                                SUM(IID.TransactionQty) Qty,II.Narration,II.SalesId
+                                FROM [TRN].[SalesReturn] AS II
+                                JOIN TRN.SalesReturnDetail AS IID ON IID.SalesReturnId=II.Id
+								JOIN TRN.Sales S ON S.Id=II.SalesId
+								LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
+								LEFT JOIN HKP.Party P ON P.Id=S.PartyId
+								WHERE S.PlantId='"+ plantId + @"' AND II.VoucherId<>''
+                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate
+								,II.Addeddate,II.VoucherId,V.VoucherNo,V.PostingDate, P.UserName, v.IsPark
+								Order By II.AddedDate desc";
+				return _sqlRepository.GetDataCollection(CmdText);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
 	}
 }

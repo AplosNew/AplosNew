@@ -20,9 +20,10 @@
         <div e-column e-template="#templateSMV" e-headertext="SPT" e-visible="false" e-width="100"></div>
         <div e-column e-template="#templatePlanHour" e-headertext="Plan Hours" e-width="100"></div>
         <div e-column e-template="#templateEfficiency" e-headertext="Efficiency" e-width="100"></div>
-        <div e-column e-template="#templateTargetFD" e-headertext="Target Production FP" e-visible="false" e-width="100"></div>
+        <div e-column e-template="#templateTargetFD" e-headertext="Plan Production FP" e-width="100"></div>
         <div e-column e-template="#templateTargetProductionFP" e-headertext="Target Production FP" e-width="100"></div>
         <div e-column e-template="#ItemValue" e-headertext="Item Value" e-width="50"></div>
+        <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="100"></div>
         <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="120"></div>
         <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="200"></div>
         <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="200"></div>
@@ -93,12 +94,24 @@
         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
             <div class="common-btn">
                 <ul class="list-inline text-left">
-                    <li><button ng-click="$parent.getItemValuePopup(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    <li><button ng-click="$parent.Save();$parent.getItemValuePopup(this);"  class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                 </ul>
             </div>
         </div>
     </div>
 </script>
+<script type="text/template" id="ReasonValue">
+    <div class="form-group">
+        <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="$parent.getReasonValuePopup(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+
 <div class="modal fade site-modal in" id="ItemValuePopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
@@ -112,11 +125,11 @@
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
                              e-recorddoubleclick="" e-templaterefresh="refreshTemplateItemValue">
                             <div e-columns>
-                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateItemValue" e-template="#checkboxTemplateItemValue" e-textalign="center" e-width="50"></div>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateItemValue" e-visible="false" e-template="#checkboxTemplateItemValue" e-textalign="center" e-width="50"></div>
                                 <div e-column e-field="ItemId" e-headertext="Id" e-visible="false" e-width="120"></div>
-                                <div e-column e-field="Process" e-headertext="Process" e-width="120"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-visible="false" e-width="120"></div>
                                 <div e-column e-field="ItemName" e-headertext="ItemName" e-width="120"></div>
-                                <div e-column e-template="#SNo" e-headertext="Serial No" e-width="50"></div>
+                                <div e-column e-template="#SNo" e-headertext="Serial No" e-visible="false" e-width="50"></div>
                                 <div e-column e-template="#Value" e-headertext="Item Value" e-width="50"></div>
                                 <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="50"></div>
                             </div>
@@ -133,7 +146,7 @@
                             </script>
                             <script type="text/template" id="Value">
                                 <div class="col-sm-12" style="padding:0px;">
-                                    <input type="number" name="ItemValue" ng-model="data.ItemValue" ng-click="" class="form-control">
+                                    <input type="text" name="ItemValue" ng-model="data.ItemValue" ng-click="" class="form-control">
                                 </div>
                             </script>
                             <script type="text/template" id="Remarks">
@@ -149,6 +162,53 @@
                         <li>
                             <button ng-click="closeItemValuePopup();" class="btn"><i class=""></i> Close</button>
                             <button ng-click="SaveItemValue();" class="btn"><i class=""></i> Save</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="ReasonValuePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Reason Value List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                @*<div class="col-sm-2">
+                    <input type="text" ng-model="DifferenceFP" ng-disabled="true" class="form-control" maxlength="200">
+                </div>*@
+                <div class="col-xs-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please Enter Reason Value</p>
+                        <div style="color:black;" id="GridReasonValuePopup" ej-grid e-datasource="ProductionReasonList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="" e-templaterefresh="refreshTemplateReasonValue">
+                            <div e-columns>
+                                <div e-column e-field="ReasonId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="ReasonName" e-headertext="Reason Name" e-width="120"></div>
+                                <div e-column e-template="#ResValue" e-headertext="Reason Value" e-width="50"></div>
+                                <div e-column e-template="#ResRemarks" e-headertext="Remarks" e-width="50"></div>
+                            </div>
+
+                            <script type="text/template" id="ResValue">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="text" name="Res Value" ng-model="data.ReasonValue" ng-click="" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="ResRemarks">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="text" name="Res Remarks" ng-model="data.Remarks" ng-click="" class="form-control">
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <button ng-click="closeReasonValuePopup();" class="btn"><i class=""></i> Close</button>
+                            <button ng-click="SaveReasonValue();" class="btn"><i class=""></i> Save</button>
                         </li>
                     </ul>
                 </div>

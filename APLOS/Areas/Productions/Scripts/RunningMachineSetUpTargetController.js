@@ -12,6 +12,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlItemValue = $scope.path + 'createItemValue';
+    $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.WithEmployee = false;
@@ -285,7 +286,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         $http({
 
             method: 'Get',
-            url: 'Productions/RunningMachineSetUpTarget/LoadProcessItemList?ProcessId=' + data.data.ProcessId + '&RMSTargetId=' + $scope.RMSTargetId
+            url: 'Productions/RunningMachineSetUpTarget/LoadProcessItemList?ProcessId=' + data.data.ProcessId + '&RMSTargetId=' + $scope.RMSId
         }).then(function successCallback(response) {
             $scope.RMSTargetItemList = response.data;
             var gridObj = $("#GridItemValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -298,28 +299,81 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         angular.element(document.querySelector('#ItemValuePopup')).modal('hide');
     }
 
-    $scope.refreshTemplateItemValue = function (args) {
-        $("#IVheadchk").ejCheckBox({ "change": CheckBoxSelectAllItemValue });
-    };
-    function CheckBoxSelectAllItemValue(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
+    $scope.ProductionId = null;
+    $scope.ProductionReasonList = [];
+    $scope.getReasonValuePopup = function (data) {
+        $scope.NewObject = data.data;
+        $scope.ProductionId = $scope.NewObject.Id;
+        $http({
 
-        var filtered = $("#GridItemValuePopup").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
-                $scope.RMSTargetItemList[i].IsActive = ChkOrUnchk;
-            }
+            method: 'Get',
+            url: 'Productions/RunningMachineSetUpTarget/LoadProcessReasonList?ProcessId=' + data.data.ProcessId + '&ProductionId=' + $scope.ProductionId
+        }).then(function successCallback(response) {
+            $scope.ProductionReasonList = response.data;
+            var gridObj = $("#GridReasonValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#ReasonValuePopup')).modal('show');
         }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].IsActive = ChkOrUnchk;
+        )
+    }
+
+    $scope.closeReasonValuePopup = function () {
+        angular.element(document.querySelector('#ReasonValuePopup')).modal('hide');
+    }
+
+    $scope.SaveReasonValue = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ProductionReasonList.length; i++) {
+                if (!baseService.isUndefinedOrNull($scope.ProductionReasonList[i].ReasonValue)) {
+                    $scope.ProductionReasonList[i].ProductionId = $scope.ProductionId;
+                    $scope.SaveList.push($scope.ProductionReasonList[i]);
+                }
             }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlReasonValue,
+                data: { 'ProductionReasonData': $scope.SaveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
         }
-        var gridObj = $("#GridItemValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
+
+
+    //$scope.refreshTemplateItemValue = function (args) {
+    //    $("#IVheadchk").ejCheckBox({ "change": CheckBoxSelectAllItemValue });
+    //};
+    //function CheckBoxSelectAllItemValue(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
+
+    //    var filtered = $("#GridItemValuePopup").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
+    //            $scope.RMSTargetItemList[i].IsActive = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+    //        for (var j = 0; j < filtered.length; j++) {
+    //            filtered[j].IsActive = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#GridItemValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    //};
 
 
     $scope.listFromProcessOrSFGInventory = [];
@@ -413,7 +467,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     };
 
 
-
+    $scope.RMSId = null;
     $scope.Save = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
@@ -444,6 +498,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.RMSId = response.data.Id;
                     $scope.getDailytarget();
                 }
             }), function errorCallBack(response) {
@@ -460,7 +515,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
-                if ($scope.RMSTargetItemList[i].IsActive == true) {
+                if (!baseService.isUndefinedOrNull($scope.RMSTargetItemList[i].ItemValue)) {
                     $scope.RMSTargetItemList[i].RMSTargetId = $scope.RMSTargetId;
                     $scope.SaveList.push($scope.RMSTargetItemList[i]);
                 }
@@ -550,14 +605,15 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         //gridObj.refreshTemplate();
     }
 
+    $scope.DifferenceFP = null;
     $scope.CalculateTargetProductioin = function (args) {
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-            $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency)).toFixed(0);
-
+            $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours)).toFixed(0);
+            $scope.DailyTargetList[i].TargetFD = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency)).toFixed(0);
+            $scope.DifferenceFP = $scope.DailyTargetList[i].TargetProductionFP - $scope.DailyTargetList[i].TargetFD;
         }
         var gridObj = $("#GridDailyTargetList").data("ejGrid");
         gridObj.refreshContent();
-        //gridObj.refreshTemplate();
     }
 
 
