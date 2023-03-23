@@ -86,7 +86,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             ,LeaveEncash = CONVERT(NUMERIC(10,0),case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo]))
 							,NetPayAmount = CONVERT(NUMERIC(10,0),(case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(numeric,ROUND(efs.SeparationTypeAmount,0)) end + 
 							(case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo])) +
-							convert(int,ROUND(efs.LastMonthNetPayAmount,0))))
+							convert(int,ROUND(efs.LastMonthNetPayAmount,0))))-convert(int,ROUND(efs.[TotalDeductionAmount],0))
 							,efs.OTRate
                             ,convert(int,ROUND(efs.[TotalDeductionAmount],0)) TotalDeductionAmount
                             ,convert(int,ROUND(efs.LvEncashmentAmount,0)) LvEncashmentAmount
