@@ -10,6 +10,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.Copy = $scope.path + 'CopyFromTable';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveSingleRowUrl = $scope.path + 'createSingleRow';
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlItemValue = $scope.path + 'createItemValue';
     $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
@@ -466,8 +467,6 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         gridObj.refreshContent();
     };
 
-
-    $scope.RMSId = null;
     $scope.Save = function () {
         try {
             $scope.$broadcast('show-errors-check-validity');
@@ -498,6 +497,49 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getDailytarget();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
+    $scope.RMSId = null;
+    $scope.SaveSingleRow = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+                if ($scope.DailyTargetList[i].Active == true && baseService.isUndefinedOrNull($scope.DailyTargetList[i].Id) == true) {
+                    if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].ProductionOrderId) == true) {
+                        throw "Please select Production Order No. for '" + $scope.DailyTargetList[i].Line + "'";
+                    }
+                    if ($scope.DailyTargetList[i].Efficiency > 100) {
+                        throw "Efficiency should not be greater than 100";
+                    }
+                    $scope.DailyTargetList[i].EntityId = $scope.DailyProductionTargetNew.EntityId;
+                    $scope.DailyTargetList[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
+                    $scope.DailyTargetList[i].TargetDate = $scope.DailyProductionTargetNew.TargetDate;
+                    $scope.DailyTargetList[i].ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
+                    $scope.SaveList.push($scope.DailyTargetList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveSingleRowUrl,
+                data: { 'DailyTargetData': $scope.SaveList, 'TargetDate': $scope.DailyProductionTargetNew.TargetDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
                     $scope.RMSId = response.data.Id;
                     $scope.getDailytarget();
                 }
@@ -516,7 +558,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
             $scope.SaveList = [];
             for (var i = 0; i < $scope.RMSTargetItemList.length; i++) {
                 if (!baseService.isUndefinedOrNull($scope.RMSTargetItemList[i].ItemValue)) {
-                    $scope.RMSTargetItemList[i].RMSTargetId = $scope.RMSTargetId;
+                    $scope.RMSTargetItemList[i].RMSTargetId = $scope.RMSId;
                     $scope.SaveList.push($scope.RMSTargetItemList[i]);
                 }
             }
@@ -605,18 +647,27 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         //gridObj.refreshTemplate();
     }
 
-    $scope.DifferenceFP = null;
+   
     $scope.CalculateTargetProductioin = function (args) {
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
             $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours)).toFixed(0);
             $scope.DailyTargetList[i].TargetFD = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency)).toFixed(0);
-            $scope.DifferenceFP = $scope.DailyTargetList[i].TargetProductionFP - $scope.DailyTargetList[i].TargetFD;
-        }
+            }
         var gridObj = $("#GridDailyTargetList").data("ejGrid");
         gridObj.refreshContent();
     }
 
-
+    $scope.DifferenceFP = null;
+    $scope.CalculateTargetProductioinDiff = function (data) {
+        $scope.NewObject = data.data;
+        $scope.RMSDiffId = $scope.NewObject.Id;
+        $http({
+            method: 'GET',
+            url: 'Productions/RunningMachineSetUpTarget/GetTargetProductioinDiff?RMSTargetId=' + $scope.RMSDiffId
+        }).then(function successCallback(response) {
+            $scope.DifferenceFP = response.data[0].DifferenceFP;
+        });
+    }
     $scope.rowDataBound = function rowDataBound(e) {
 
         if (e.data.IsManual == true)

@@ -205,6 +205,16 @@ where RD.ProcessId='" + ProcessId + "'";
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetTargetProductioinDiff(string RMSTargetId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select (TargetFD-TargetProductionFP) as  DifferenceFP from TRN.RunningMachineSetUpTarget where Id='"+ RMSTargetId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
             return Json(_sqlRepository.GetDataCollection("SELECT CostingType AS [Value], UserName AS [Text] FROM [dbo].[CostingTypes]"), JsonRequestBehavior.AllowGet);
@@ -218,6 +228,54 @@ where RD.ProcessId='" + ProcessId + "'";
 
         [HttpPost]
         public JsonResult Create(List<Dictionary<string, object>> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[RunningMachineSetUpTarget]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                if (DailyTargetData != null)
+                {
+                    foreach (var item in DailyTargetData)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "PCD" + _Id;
+                            item["PlantId"] = identity.PlantId;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            item["PlantId"] = identity.PlantId;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new {Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult createSingleRow(List<Dictionary<string, object>> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -257,7 +315,7 @@ where RD.ProcessId='" + ProcessId + "'";
                         obj.SaveDataSets(dsProdBooked);
                     }
                 }
-                return Json(new { Id = Id , Message = AplosMessage.Insert });
+                return Json(new { Id = Id, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)

@@ -34,10 +34,10 @@
     <input type="text" class="form-control" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.SMV" e-width="100%" />
 </script>
 <script type="text/template" id="templatePlanHour">
-    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculateTargetProductioin" e-minValue="0" e-enablertl="false" e-value="data.PlanHours"  e-width="100%" />
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculateTargetProductioin" e-minValue="0" e-enablertl="false" e-value="data.PlanHours" e-width="100%" />
 </script>
 <script type="text/template" id="templateEfficiency">
-    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculateTargetProductioin" e-minValue="0" e-enablertl="false" e-value="data.Efficiency"  e-width="100%" />
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculateTargetProductioin" e-minValue="0" e-enablertl="false" e-value="data.Efficiency" e-width="100%" />
 </script>
 <script type="text/template" id="templateTargetFD">
     <input type="text" class="form-control" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.TargetFD" e-width="100%" />
@@ -94,7 +94,7 @@
         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
             <div class="common-btn">
                 <ul class="list-inline text-left">
-                    <li><button ng-click="$parent.Save();$parent.getItemValuePopup(this);"  class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    <li><button ng-click="$parent.SaveSingleRow();$parent.getItemValuePopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                 </ul>
             </div>
         </div>
@@ -105,7 +105,7 @@
         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
             <div class="common-btn">
                 <ul class="list-inline text-left">
-                    <li><button ng-click="$parent.getReasonValuePopup(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    <li><button ng-click="$parent.CalculateTargetProductioinDiff(this);$parent.getReasonValuePopup(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                 </ul>
             </div>
         </div>
@@ -174,9 +174,14 @@
         <div class="modal-content">
             <div class="modal-header">Reason Value List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-                @*<div class="col-sm-2">
-                    <input type="text" ng-model="DifferenceFP" ng-disabled="true" class="form-control" maxlength="200">
-                </div>*@
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Difference FP: </label>
+                        <div class="col-sm-8">
+                            <input type="text" ng-model="DifferenceFP" ng-disabled="true" class="form-control" maxlength="200">
+                        </div>
+                    </div>
+                </div>
                 <div class="col-xs-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <p>Please Enter Reason Value</p>
