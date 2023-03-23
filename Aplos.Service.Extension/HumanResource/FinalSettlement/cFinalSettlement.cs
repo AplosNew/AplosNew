@@ -79,14 +79,29 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
         {
             try
             {
+                string round = "";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT RoundDayINFinalSettlement FROM [dbo].[PlantWiseHRMSSetting] Where Plantid='" + plantId + "'", out DataSet dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    if (Convert.ToBoolean(dsMaster.Tables[0].Rows[0]["RoundDayINFinalSettlement"]))
+                    {
+                        round = "CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo])";
+                    }
+                    else
+                    {
+                        round = "CONVERT(NUMERIC(10,2),efs.[LvEncashmentDayNo])";
+                    }
+                }
+
 
                 string sql = @"Select efs.Id, FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate
 							--,efs.SalaryRate 
                             ,SalRate = case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End
-                            ,LeaveEncash = CONVERT(NUMERIC(10,0),case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo]))
+                            ,LeaveEncash = CONVERT(NUMERIC(10,0),case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * "+ round + @")
 							,NetPayAmount = CONVERT(NUMERIC(10,0),(case when convert(int,ROUND(efs.SeparationTypeAmount,0)) = 0 then 0 else convert(numeric,ROUND(efs.SeparationTypeAmount,0)) end + 
-							(case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo])) +
-							convert(int,ROUND(efs.LastMonthNetPayAmount,0))))
+							(case when  efs.GratuityAmount = 0 then (efs.GrossAmount/26) else (efs.GrossAmount/30) End * " + round + @") +
+							convert(int,ROUND(efs.LastMonthNetPayAmount,0))))-convert(int,ROUND(efs.[TotalDeductionAmount],0))
 							,efs.OTRate
                             ,convert(int,ROUND(efs.[TotalDeductionAmount],0)) TotalDeductionAmount
                             ,convert(int,ROUND(efs.LvEncashmentAmount,0)) LvEncashmentAmount
@@ -101,7 +116,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,efs.[LastMonthOTAmount]
                             ---,efs.[StampAmount]
 							,efs.[LastMonthAbsenteeismAmount]
-                            ,CONVERT(NUMERIC(10,0),efs.[LvEncashmentDayNo]) LvEncashmentDayNo
+                            ," + round + @" LvEncashmentDayNo
 							,convert(int,ROUND(efs.[LastMonthProcDay],0)) LastMonthProcDay
 							,convert(int,ROUND(efs.[LastMonthGrossAmount],0)) LastMonthGrossAmount
 
@@ -133,7 +148,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             From [dbo].[EmployeeFinalSettlement] efs 
 	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
                             LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
-                            Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID= '2002159' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
+                            Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID=  '" + SystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
                             LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
                             left join (select top 1 * from SalaryProceAttdnData where empsystemId='" + SystemId + @"' order by FromDate Desc) SPAD on SPAD.EmpSystemID=efs.EmpSystemID
                             where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";

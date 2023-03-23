@@ -295,8 +295,27 @@
                 <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="20"></div>
                 <div e-column e-field="PartyName" e-headertext="PartyName" e-width="20"></div>
                 <div e-column e-field="Qty" e-headertext="Qty" e-width="30"></div>
+                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+
             </div>
         </div>
+        <script id="ReportTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickGRNID(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="GRN">
+                            <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
     </div>
 
 </div>

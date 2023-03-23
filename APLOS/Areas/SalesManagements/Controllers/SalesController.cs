@@ -713,7 +713,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
-                    SourceType = NoteType.CustomerCreditNote.ToString(),
+                    SourceType = SourceType.CreditNote.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
                 var adjustmentNote = new AdjustmentNote
@@ -760,10 +760,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         adjustmentNote.PartyType = PartyType.Vendor.ToString();
                     else throw new CustomException("Party type is null.");
                 }
-                _accountsCommonService.InsertAdjustmentNote(adjustmentNote, out DataSet _ANdataset);
 
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                 adjustmentNote.VoucherId = voucher.Id;
+                _accountsCommonService.InsertAdjustmentNote(adjustmentNote, out DataSet _ANdataset);
                 ConnectionManager.DAL.ConManager objCon;
                 string salesReturn = "SELECT * FROM TRN.SalesReturn WHERE Id='" + voucherVM.SalesReturnId + "'";
                 string itemScanChildsql = "SELECT * FROM TRN.SalesReturnDetail WHERE SalesReturnId='" + voucherVM.SalesReturnId + "'";
@@ -1020,6 +1020,26 @@ namespace Aplos.Areas.SalesManagements.Controllers
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalesReturnCreditNoteReport(ReportFormat reportFormat, string voucherId, SourceType sourceType)
+        {
+            AccountsSalesReportService _accountsSalesReportService = new AccountsSalesReportService(_sqlRepository, _companyParallelCurrencyService, _plantService);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accountsSalesReportService.GetSalesReturnCreditNoteReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
             }
         }
 

@@ -24935,7 +24935,7 @@ private void CreateFinalSettlement(string companyGroupId, string companyId, stri
                     }
                     else
                     {
-                        replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString("N0"), UserName), false, true);
+                        replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString("N2"), UserName), false, true);
 
                     }
                 }
@@ -24950,46 +24950,7 @@ private void CreateFinalSettlement(string companyGroupId, string companyId, stri
 
         WSection section = document.Sections[0];
         WTable table1 = (WTable)section.Body.Tables[1];
-        //for (int ROW = 0; ROW < dtFinalSettlementData.Rows.Count; ROW++)
-        //{
-        //    int isReplaced = 0;
-
-        //    #region Retirement
-
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["RetirementDayT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["PolicyDayNo"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["RetirementRateT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SalaryRate"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["RetirementAmountT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SeparationTypeAmount"].ToString(), UserName), false, true);
-
-        //    #endregion Retirement
-
-        //    #region Resignation
-
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["ResignationDayT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["PolicyDayNo"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["ResignationRateT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SalaryRate"].ToString(), UserName), false, true);
-        //    isReplaced = table1.Replace("{" + dtFinalSettlementData.Rows[ROW]["ResignationAmountT"].ToString() + "}", cnDgt(dtFinalSettlementData.Rows[ROW]["SeparationTypeAmount"].ToString(), UserName), false, true);
-
-        //    #endregion Resignation
-
-
-
-        //    #region Total In Word
-        //    //strnumberToString(string numberToConvert)
-        //    numberToString.numberToStringBuilder bangla = new numberToString.numberToStringBuilder();
-        //    document.Replace("{TotalInWords}", bangla.strnumberToString(dtFinalSettlementData.Rows[ROW]["NetPayAmount"].ToString()), true, true);
-
-        //    // document.Replace("{TotalInWords}", ru.InWord((materialTotal + serviceTotal), dtOrderMaster.Rows[0]["CurrencyId"].ToString()), true, true);
-
-        //    #endregion Total In Word
-        //}
-
-        //deduction part
-        //if (dtFinalSettlementDedutionData.Rows.Count > 0)
-        //{
-        //    for (int ROW = 0; ROW < dtFinalSettlementDedutionData.Rows.Count; ROW++)
-        //    {
-        //        table1.Replace("{" + dtFinalSettlementDedutionData.Rows[ROW]["DeductionAmount"].ToString() + "}", cnDgt(dtFinalSettlementDedutionData.Rows[ROW]["Amount"].ToString(), UserName), false, true);
-        //    }
-        //}
+       
 
         DataTable dtFinalSettlementDedutionData = null;
         DataTable dtFinalSettlementEarningData = null;
