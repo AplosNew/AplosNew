@@ -142,8 +142,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         public ActionResult Delete(string id)
         {
-            string sql = @"select * from TableName where CostingGroupId = '" + id + "'";
-
+            string sql = @"select * from '"+TableName+"' where Id = '" + id + "'";
 
             try
             {
@@ -153,7 +152,7 @@ namespace Aplos.Areas.QMS.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
