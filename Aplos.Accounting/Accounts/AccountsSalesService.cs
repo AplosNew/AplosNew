@@ -2741,7 +2741,7 @@ namespace Library.Accounting.Accounts
 		{
 			try
 			{
-				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate,II.VoucherId,V.VoucherNo,V.PostingDate, P.UserName PartyName,
+				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate,II.VoucherId,V.VoucherNo,V.PostingDate,V.SourceType, P.UserName PartyName,
 								[Park/Post]=CASE WHEN V.IsPark=0 THEN 'Posted' ELSE 'Parked' END,
                                 SUM(IID.TransactionQty) Qty,II.Narration,II.SalesId
                                 FROM [TRN].[SalesReturn] AS II
@@ -2751,7 +2751,7 @@ namespace Library.Accounting.Accounts
 								LEFT JOIN HKP.Party P ON P.Id=S.PartyId
 								WHERE S.PlantId='"+ plantId + @"' AND II.VoucherId<>''
                                 GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate
-								,II.Addeddate,II.VoucherId,V.VoucherNo,V.PostingDate, P.UserName, v.IsPark
+								,II.Addeddate,II.VoucherId,V.VoucherNo,V.PostingDate, P.UserName, v.IsPark,V.SourceType
 								Order By II.AddedDate desc";
 				return _sqlRepository.GetDataCollection(CmdText);
 			}

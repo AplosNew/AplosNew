@@ -24935,7 +24935,7 @@ private void CreateFinalSettlement(string companyGroupId, string companyId, stri
                     }
                     else
                     {
-                        replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString("N0"), UserName), false, true);
+                        replaced[foundText] = document.Replace(foundText, cnDgt(Convert.ToDecimal(value).ToString("N2"), UserName), false, true);
 
                     }
                 }

@@ -55,7 +55,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN SCS.Currency C ON C.Id = CPC.CurrencyId where cpc.ParallelCurrencyType = '" + ParallelCurrencyType.CompanyCurrency.ToString() + "'";
             return _sqlRepository.GetData(cmdText);
         }
-        private bool GetPlantIsShowFCInWord(string plantId)
+        public bool GetPlantIsShowFCInWord(string plantId)
         {
             return bplib.clsWebLib.GetBoolData(_sqlRepository.GetDataCollection(@"SELECT IsShowFCInWord FROM ORG.Plant WHERE Id='" + plantId + "'")[0]["IsShowFCInWord"].ToString());
         }
