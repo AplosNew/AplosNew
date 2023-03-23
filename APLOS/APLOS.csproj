@@ -4718,7 +4718,6 @@
     <Content Include="Areas\QMS\Views\QualitySetup\_RepairType.cshtml" />
     <Content Include="Areas\QMS\Views\QualitySetup\_GradeMaster.cshtml" />
     <Content Include="Areas\QMS\Views\QualitySetup\_InspectionType.cshtml" />
-    <Content Include="Areas\QMS\Views\QualitySetup\_QMSInspection.cshtml" />
     <Content Include="Areas\QMS\Views\QualitySetup\_InspectionMaster.cshtml" />
     <Content Include="Areas\QMS\Views\QualitySetup\_QualityStatus.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />

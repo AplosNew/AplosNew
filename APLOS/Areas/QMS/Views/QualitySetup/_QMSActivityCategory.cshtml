@@ -1,29 +1,29 @@
-﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-    <input type="hidden" ng-model="ModelNew.Id">
+﻿<togglable name="{{titleAC}}"></togglable>
+<div class="form-elements form-horizontal" ng-form name="ACModelNewForm">
+    <input type="hidden" ng-model="ACModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
+                <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ACModelNew.Sequence" e-width="100" required />
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                <input type="text" name="Short Name" ng-model="ACModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                <input type="text" name="User Name" ng-model="ACModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Description</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ACModelNew.Description" tabindex="7" maxlength="250"></textarea>
             </div>
         </div>
     </div>
@@ -31,19 +31,19 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Code<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                <input type="text" name="Code" ng-model="ACModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                <input type="text" name="Standard Name" ng-model="ACModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                <textarea class="form-control" rows="3" ng-model="ACModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
             </div>
         </div>
         <div class="form-group">
@@ -51,7 +51,7 @@
             <div class="col-sm-8">
                 <div class="checkbox-site">
                     <label>
-                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                        <input type="checkbox" ng-model="ACModelNew.Active" tabindex="8">
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
@@ -60,9 +60,10 @@
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="SaveAC();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionAC}}</button></li>
+            <li> <button ng-click="RemoveDetailConsumptionMatrix();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            
+            <li> <button ng-click="ClearAC();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
 </div>
@@ -72,23 +73,23 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        <select ng-model="searchByAC">
+                            <option ng-repeat="option in searchByListAC" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="searchAC" ng-enter="getDataAC()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <button type="button" ng-click="getDataAC()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ACModelList" e-recorddoubleclick="GetAC" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
@@ -103,4 +104,4 @@
         </div>
     </div>
 </div>
-<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDetailPopUpAC" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteAC();"></confirm-archive-generic>
