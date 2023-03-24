@@ -7027,10 +7027,10 @@ namespace Library.MaterialManagement.Inventory
 		                group by a.Id, IRBM.IssueRequestDetailId,a.POBOQMapId,b.BOQDetailId
 		                ,UOM.UserName,UOM.Id,a.SalesOrderId,a.BaseUoMId,IRD.MaterialStorageId
 		                ,IRD.BaseUoMFactor
-	                ) GRNALLO ON GRNALLO.BOQDetailId=IRBOQMAP.BOQID 
+	                ) GRNALLO ON GRNALLO.BOQDetailId=IRBOQMAP.BOQID and IR.Id=GRNALLO.IssueRequestDetailId
                     left join [MST].[MaterialMasterAlternativeUOM] AlternativeUOM ON AlternativeUOM.AlternativeUOMId=IR.TransactionUoMId And AlternativeUOM.MaterialMasterId=mm.Id
 
-                Where IRM.Id='" + Id + @"'  and IR.Id=GRNALLO.IssueRequestDetailId
+                Where IRM.Id='" + Id + @"'  
                 Group BY
                 MGM.UserName 
                 ,IR.MaterialMasterId
