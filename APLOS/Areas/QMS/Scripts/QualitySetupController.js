@@ -1039,6 +1039,7 @@ function QualitySetupController(cboService, commonMessage, $scope, $rootScope, b
         ShortName: null,
         StandardName: null,
         UserName: null,
+        Category:null,
         Description: null,
         Remarks: null,
         Active: true
@@ -1061,6 +1062,20 @@ function QualitySetupController(cboService, commonMessage, $scope, $rootScope, b
             $rootScope.toggle();
         }
     };
+
+    $scope.ActivityCategoryList = [];
+    $scope.GetQMSActivityCategory = function () {
+        $http({
+            method: 'GET',
+            url: $scope.pathIM + 'GetQMSActivityCategory',
+            data: { 'data': $scope.ModelNewIM },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ActivityCategoryList = response.data;
+        })
+    }
+
+    $scope.GetQMSActivityCategory();
 
     $scope.SaveIM = function () {
         $scope.$broadcast('show-errors-check-validity');

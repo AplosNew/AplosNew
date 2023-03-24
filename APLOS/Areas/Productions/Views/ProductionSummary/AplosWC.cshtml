@@ -199,6 +199,7 @@
                         <div e-column e-field="BookedQty" e-headertext="Bkd.Qty" e-width="100"></div>
                         <div e-column e-template="#BalanceQty" e-headertext="Balance Qty" e-width="80"></div>
                         <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
+                        <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
                         <div e-column e-field="TargetProductionFP" e-headertext="Prod.FP" e-width="100"></div>
                         <div e-column e-field="Article" e-headertext="Article" e-width="200"></div>
                         <div e-column e-field="SONo" e-headertext="SO No" e-width="200"></div>
@@ -276,6 +277,13 @@
                 <script type="text/template" id="Remarks">
                     <div class="col-sm-10" style="padding:0px;">
                         <input type="text" name="Remark" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="AddTile">
+                    <div class="common-btn">
+                        <ul class="list-inline text-center">
+                            <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+                        </ul>
                     </div>
                 </script>
                 <script type="text/template" id="BalanceQty">
