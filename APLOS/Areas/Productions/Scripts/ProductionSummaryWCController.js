@@ -1398,6 +1398,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
 
                     ShowResult(response.data.Message, 'success');
+                    $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
                     //$scope.loadWC();
                     $scope.Action = 'Save';
                 }
