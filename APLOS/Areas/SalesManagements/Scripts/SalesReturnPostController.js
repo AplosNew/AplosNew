@@ -13,7 +13,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     $scope.detailList = [];
     $scope.partyType = "Customer";
     $scope.path1 = 'Products/PurchaseOrder/';
-    $scope.path = 'Products/InventoryIssue/';
+    $scope.path = 'SalesManagements/Sales/';
     $scope.getListUrl = $scope.path + 'GetDataByInventoryIssue';
     $scope.saveUrl = 'SalesManagements/Sales/InsertSalesReturnCreditNote';
     $scope.updateUrl = 'Products/InventorySalesReturn/Update';
@@ -152,6 +152,9 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.product.PartyId = data.data.CustomerId;
         $scope.product.Id = null;
         $scope.product.SalesReturnDate = data.data.SalesReturnDate;
+        $scope.product.ToCurrencyRate = data.data.ToCurrencyRate;
+        $scope.product.CompanyCurrencyRate = data.data.ToCurrencyRate;
+        $scope.product.CurrencyId = data.data.CurrencyId;
         $scope.product.PostingDate = $filter("dateFiltering")(data.data.SalesReturnDate);
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
         $scope.productNew = Object.assign({}, $scope.product);
@@ -382,76 +385,13 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
    
 
     //#endregion
-    $scope.currencyList = [];
-    cboService.getCboTransactionCurrencyByCompany('', function (result) {
-        $scope.currencyList = result;
-    });
-    $scope.getToCurrencyRate = function () {
-        //debugger;
-        if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
-            $scope.productNew.ToCurrencyRate = 1;
-            return;
-        }
-        $http.get($scope.path1 + 'GetToCurrencyRate?currencyId=' + $scope.productNew.CurrencyId + '&baseCurrencyId=' + $scope.productNew.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.productNew.DocDate))
-            .then(function (response) {
-                if (parseFloat(response.data) === 0)
-                    $scope.productNew.ToCurrencyRate = 1;
-                else
-                    $scope.productNew.ToCurrencyRate = response.data;
-            });
-    };
+   
     cboService.getCboEntityByPlant(null, null, '', function (result) {
         $scope.EntityList = result;
     });
    
-   
-    function getTaxCategoryList(hsnCodeId) {
-       
-        $scope.materialtaxCategoryList = [];
-        $http({
-            method: 'GET',
-            url: $scope.path1 + 'GetTaxCategoryListForSalesMaterial?partyPlantId=' + $scope.productNew.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&InventorySalesDate=' + $scope.productNew.SalesDate
-        }).then(function (response) {
-
-            $scope.materialtaxCategoryList = response.data;
-            // $scope.sevtaxCategoryList = response.data;
-        });
-    }
-
-    $scope.lst = [];
-    $scope.SalesDetails = function () {
-        //debugger;
-        $http({
-            method: 'GET',
-            //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
-            url: 'Products/InventoryIssue/MaterialSalesDetails'
-        }).then(function successCallback(response) {
-            $scope.lst = response.data;
-            //$scope.detailgrid($scope.lst);
-            window.lst = response.data;
-
-        });
-    }
-    $scope.SalesDetails();
 
 
-    $scope.data1 = $scope.lst;
-    $scope.detailTemp = "#tabGridContents";
-    //$scope.detailgrid = "detailGridData(e)";
-    $scope.detailgrid = function detailGridData(e) {
-        //debugger;
-
-        var filteredData = e.data["Id"];
-        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("IssueNo", "equal", parseInt(filteredData), true).take(200));
-        e.detailsElement.find("#detailGrid").ejGrid({
-
-            dataSource: data,
-            columns: ["Materials", "Article", "SKU1", "SKU2", "SKU3", "Qty", "UOM", "SalesRate", "CurrencyName", "TotalAmount", "Comments"]
-        });
-        e.detailsElement.find(".tabcontrol").ejTab();
-    }
-
-    //#endregion
 
     $scope.Save = function () {
         //debugger;
@@ -543,5 +483,16 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         angular.element(document.querySelector('#detailPopUp')).modal('hide');
     };
 
+    $scope.onClickReportDownloadWord = function (data) {
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'GetSalesReturnCreditNoteReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType);
 
+    };
+
+    $scope.onClickReportDownloadExcel = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'GetSalesReturnCreditNoteReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType);
+    };
 }

@@ -93,6 +93,32 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
+    // Refreshing the serials
+    function refreshSerial() {
+        for (var j = 0; j < $scope.wcList.length; j++) {
+            $scope.wcList[j].Serial = j;
+        }
+    }
+    // Add Tiles
+    $scope.AddTile = function (e) {
+        console.log(e);
+        let ob = {};
+        Object.assign(ob, e);
+        ob.Flag = 0;
+        ob.Id = null;
+        ob.WorkCenterMasterId = e.WorkCenterMasterId;
+        ob.ProductionOrderId = null;
+        ob.LotNumber = null;
+        ob.ProductionGrade = $scope.gradeList[0].Value;
+        ob.Quantity = 0;
+        ob.DetentionSum = 0;
+        ob.Remarks = null;
+        ob.ResponsiblePersonId = e.ResponsiblePersonId;
+        ob.InChargeId = e.InChargeId;
+        $scope.wcList.splice(e.Serial + 1, 0, ob);
+        refreshSerial();
+    }
+
     $scope.Reason = {
         Id: null,
         ProcessId: null,
@@ -393,6 +419,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId)
                 .then(function (response) {
                     $scope.wcList = response.data;
+                    for (var i = 0; i < $scope.wcList.length; i++) {
+                        Object.assign($scope.wcList[i], { 'Serial': parseInt(i),'Remarks': null });
+                    }
                 });
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -1369,7 +1398,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.loadWC();
+                    $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
+                    //$scope.loadWC();
                     $scope.Action = 'Save';
                 }
                 angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
@@ -1559,7 +1592,16 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.loadWC();
+                   // $scope.loadWC();
+                    for (var i = 0; i < $scope.wcList.length; i++) {
+                        if ($scope.wcList[i].Id == master.data.Id) {
+                            $scope.wcList[i].Id = null;
+                            break;
+                        }
+                    }
+                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -2130,7 +2172,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     }
 
-    $scope.selectGridResponsible = function () {
+    $scope.selectGridResponsible = function (data) {
+        $scope.Newobject = data.data;
         $scope.getEmployee();
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
     }
@@ -2145,7 +2188,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.EmployeeList = resp.data;
         });
     }
-
+    
     $scope.doubleEmployee = function (e) {
         $scope.Newobject.ResponsiblePersonId = e.data.SystemId;
         $scope.Newobject.ResponsiblePerson = e.data.EmployeeName;

@@ -20,6 +20,8 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Aplos.MaterialManagement.MaterialQuery;
+using Library.Data.Sql;
 
 #endregion using
 
@@ -28,27 +30,24 @@ namespace Aplos.Areas.Outsourcing.Controllers
     public class OSissueRegisterController : BaseController
     {
         #region -- Constructor
-        //private readonly IPurchaseOrderService _inventoryReveiveService;
         private readonly IInventoryIssueService _inventoryIssueService;
-       //private readonly IInventoryReceiveService _inventoryReceiveService;
+        private readonly ISqlRepository _sqlRepository;
 
         public OSissueRegisterController(
              IInventoryIssueService inventoryIssueService
-            
+            , ISqlRepository sqlRepository
             )
         {
 
-           
                _inventoryIssueService = inventoryIssueService;
-
-
+            _sqlRepository = sqlRepository;
         }
 
         #endregion -- Constructor
 
         #region Pages
 
- 
+
         public ActionResult Aplos()
         {
             return View();
@@ -103,7 +102,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 throw new CustomException("Select To Date");
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetOSIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetOSIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
         }
 
 		[HttpPost]
@@ -118,7 +118,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
 				throw new CustomException("Select To Date");
 			}
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			return Json(_inventoryIssueService.GetOSIssueRegisterBYGRN(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetOSIssueRegisterBYGRN(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
 		}
 
 		#endregion Pages
@@ -132,7 +133,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
         {
           
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetIssueRegisterDetail(Id), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetIssueRegisterDetail(Id), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -221,7 +223,8 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 throw new CustomException("Select To Date");
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetIssueReturnRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetIssueReturnRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
         }
 
         #endregion

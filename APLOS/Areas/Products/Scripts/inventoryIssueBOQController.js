@@ -1258,7 +1258,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                 , IssueId: null
             };
             $scope.clearCharNames();
-            $http.get($scope.path + 'GetApprovedIssueSlipDetails?Id=' + $scope.issueId + '&StorageLocationId=' + $scope.productNew.MaterialStorageId + '&OrderSpecific=' + $scope.productNew.OrderSpecific)
+            $http.get($scope.path + 'GetApprovedIssueSlipBOQDetails?Id=' + $scope.issueId + '&StorageLocationId=' + $scope.productNew.MaterialStorageId + '&OrderSpecific=' + $scope.productNew.OrderSpecific)
                 .then(function (response) {
                     //$scope.slipdetailList = response.data;
                     $scope.detailList = response.data;

@@ -69,6 +69,13 @@ namespace Aplos.Areas.QMS.Controllers
 
         }
 
+        [HttpGet]
+        public ActionResult GetQMSActivityCategory()
+        {
+            string TableName = "HKP.QMSActivityCategory";
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public ActionResult GetList(string column, string value)
         {
