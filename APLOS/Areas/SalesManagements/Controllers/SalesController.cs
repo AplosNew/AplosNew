@@ -441,15 +441,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             try
             {
-                InsertSalesReturn(data, detaildataList, taxList, itemScanCildList);
-                return Json(new { data, Message = AplosMessage.Updated });
+                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList);
+                return Json(new {Id= _id, Message = string.Format(AplosMessage.Success +" Sales Return No <b>" + _id + "</b>"  ) });
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        private void InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList,  List<Dictionary<string, object>> itemScanCildList)
+        private string InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList,  List<Dictionary<string, object>> itemScanCildList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
@@ -569,6 +569,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild);
+                return _Id;
             }
             catch (Exception ex)
             {
@@ -712,7 +713,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = voucherVM.Narration,
                     PostingDate = voucherVM.PostingDate,
-                    SourceType = NoteType.CustomerCreditNote.ToString(),
+                    SourceType = SourceType.CreditNote.ToString(),
                     VoucherTypeId = voucherVM.VoucherTypeId
                 };
                 var adjustmentNote = new AdjustmentNote
@@ -759,10 +760,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         adjustmentNote.PartyType = PartyType.Vendor.ToString();
                     else throw new CustomException("Party type is null.");
                 }
-                _accountsCommonService.InsertAdjustmentNote(adjustmentNote, out DataSet _ANdataset);
 
                 _accountsCommonService.InsertVoucher(voucher, voucherVM.FiscalYearPrefix, out DataSet _vdataset);
                 adjustmentNote.VoucherId = voucher.Id;
+                _accountsCommonService.InsertAdjustmentNote(adjustmentNote, out DataSet _ANdataset);
                 ConnectionManager.DAL.ConManager objCon;
                 string salesReturn = "SELECT * FROM TRN.SalesReturn WHERE Id='" + voucherVM.SalesReturnId + "'";
                 string itemScanChildsql = "SELECT * FROM TRN.SalesReturnDetail WHERE SalesReturnId='" + voucherVM.SalesReturnId + "'";
@@ -1019,6 +1020,26 @@ namespace Aplos.Areas.SalesManagements.Controllers
             catch (Exception ex)
             {
                 throw new CustomException(ex.Message, ex);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSalesReturnCreditNoteReport(ReportFormat reportFormat, string voucherId, SourceType sourceType)
+        {
+            AccountsSalesReportService _accountsSalesReportService = new AccountsSalesReportService(_sqlRepository, _companyParallelCurrencyService, _plantService);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accountsSalesReportService.GetSalesReturnCreditNoteReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
             }
         }
 

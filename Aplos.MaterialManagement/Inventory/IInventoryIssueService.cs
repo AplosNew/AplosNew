@@ -78,7 +78,7 @@ namespace Library.MaterialManagement.Inventory
 
 
         IEnumerable<object> GetApprovedIssueSlipDetails(string Id,string StorageLocationId, string OrderSpecific);
-
+        IEnumerable<object> GetApprovedIssueSlipBOQDetails(string Id, string StorageLocationId, string OrderSpecific);
         IEnumerable<object> MaterialIssueDetailsData(string inveReveiveId, string POID);
         IEnumerable<object> MaterialIssueDetailsData1(string inveReveiveId, string POID); 
 

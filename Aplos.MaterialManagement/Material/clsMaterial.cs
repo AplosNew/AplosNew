@@ -22,7 +22,7 @@ namespace Library.MaterialManagement.Material
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetCharacteristicsValueCboByCharacteristicsIdAfterSave(string materialMasterId, string characteristicsId, string valueAssignmentLevel,string MarkerMasterId)
+        public IEnumerable<object> GetCharacteristicsValueCboByCharacteristicsIdAfterSave(string materialMasterId, string characteristicsId, string valueAssignmentLevel, string MarkerMasterId)
         {
             try
             {
@@ -239,12 +239,12 @@ inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.Costi
         {
             try
             {
-                string sql = @"SELECT * FROM TRN.IssueRequest WHERE MaterialIssueControlDetailId IN(SELECT Id FROM MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(SELECT Id from MaterialIssueControlMaster Where Id IN('"+ masterId + "')))";
+                string sql = @"SELECT * FROM TRN.IssueRequest WHERE MaterialIssueControlDetailId IN(SELECT Id FROM MaterialIssueControlDetail Where MaterialIssueControlMasterId IN(SELECT Id from MaterialIssueControlMaster Where Id IN('" + masterId + "')))";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
             {
-                throw  ex;
+                throw ex;
             }
         }
 
@@ -682,13 +682,13 @@ Where MOI.Id " + LineItemId + "";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
 
-        public IEnumerable<object> GetQBOQDataList(string LineItemId,string soId)
+        public IEnumerable<object> GetQBOQDataList(string LineItemId, string soId)
         {
             string CmdText = @"SELECT ROW_NUMBER() OVER(ORDER BY Q.Sequence) SrNo,NULL Id,I.Id CostingItemId,I.UserName Item,U.Code UoM,Q.UoMId,Q.NetConsumptionPerUnit,Q.ValueLossPercentage ValueLoss,Q.GrossConsumption
-,Qty=(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@")
-,TotalConsumption=Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@"),
-0 AdditionReduction,(Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@")) PlanConsumption
-,Q.MaterialCostPerUnit Rate,((Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id "+soId+@"))*Q.MaterialCostPerUnit) TotaPlanlAmount
+,Qty=(select SUM(Qty) from TRN.SalesOrder Where Id " + soId + @")
+,TotalConsumption=Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id " + soId + @"),
+0 AdditionReduction,(Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id " + soId + @")) PlanConsumption
+,Q.MaterialCostPerUnit Rate,((Q.GrossConsumption*(select SUM(Qty) from TRN.SalesOrder Where Id " + soId + @"))*Q.MaterialCostPerUnit) TotaPlanlAmount
 ,A.StandardName QBOQArticle,A.Id ArticleId,M.Id MaterialMasterId
 ,M.UserName MaterialMaster,ISNULL(SR.StockRate,0)StockRate,0 ActualIssueAmount, NULL Remarks,IM.Id InventoryMaterialId,Q.Id BOMId
 FROM [dbo].[QuickBOQ] Q
@@ -937,7 +937,7 @@ Where Q.MasterOrderItemId " + LineItemId + "";
             return _sqlRepository.GetDataCollection(str);
         }
 
-        public void GetTransactionReportSQL(string POId,string POStatus, out DataTable data)
+        public void GetTransactionReportSQL(string POId, string POStatus, out DataTable data)
         {
             try
             {
@@ -987,7 +987,7 @@ Where Q.MasterOrderItemId " + LineItemId + "";
         public IEnumerable<object> GetIssueSlipDataByPOIdList(string ProductionOrderId)
         {
             string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,IR.CostCenterId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
-,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty
+,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty,TotalQty=IR.RequestedQty
 FROM TRN.IssueRequest IR 
 LEFT JOIN TRN.IssueRequestMaster IRM ON IR.IssueRequestMasterId=IRM.Id
 LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -1037,6 +1037,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
 						,0 TotalAmount
                         ,IM.MaterialMasterId
 						,MM.UserName Material
+						,MT.UserName MaterialType
 						,IM.ArticleId
 						,MMA.StandardName Article
 						,IM.FirstCharacteristicsValueId
@@ -1054,6 +1055,8 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
 					left join mst.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+                    LEFT JOIN mst.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+					LEFT JOIN HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
@@ -1066,12 +1069,12 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-									    WHERE II.PlantId='"+plantId+@"'   
+									    WHERE II.PlantId='" + plantId + @"'   
 									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, IH.MaterialStorageId
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-                    WHERE  IM.PlantId = '"+plantId+@"' 
+                    WHERE  IM.PlantId = '" + plantId + @"' 
                     
 					AND IR.[Status]='Posting' AND IR.IsFOC=0
                    
@@ -1079,7 +1082,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
                    
 					AND IRD.BaseQty !=ISNULL(II.IssueQty,0)
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('"+today+@"' AS DATE) 
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + today + @"' AS DATE) 
 
                     UNION ALL
 
@@ -1109,6 +1112,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
 						,0 TotalAmount
                         ,IM.MaterialMasterId
 						,MM.UserName Material
+						,MT.UserName MaterialType
 						,IM.ArticleId
 						,MMA.StandardName Article
 						,IM.FirstCharacteristicsValueId
@@ -1126,6 +1130,8 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
 					left join mst.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+                    LEFT JOIN mst.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+					LEFT JOIN HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
@@ -1138,12 +1144,12 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
 									    FROM TRN.InventoryIssueDetail IID  
 									    LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									    LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
-									    WHERE II.PlantId='"+plantId+@"'   
+									    WHERE II.PlantId='" + plantId + @"'   
 									    GROUP BY IID.InventoryMaterialId,IID.IsAsset,IH.InventoryReceiveDetailId, IH.MaterialStorageId
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-                    WHERE  IM.PlantId = '"+plantId+@"' 
+                    WHERE  IM.PlantId = '" + plantId + @"' 
                     
 					AND IR.IsApproved=1 AND IR.IsFOC=1
                   
@@ -1151,7 +1157,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
                    
 					AND IRD.BaseQty !=ISNULL(II.IssueQty,0)
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('"+today+@"' AS DATE) 
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + today + @"' AS DATE) 
 
 					Union ALL
 					SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -1176,10 +1182,11 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                         ,C.Id CountryId,C.UserName CountryName--,null AS [Flag] 
                         ,0 SalesRate
 						,0 TotalAmount
-                        ,IM.MaterialMasterId
+                       ,IM.MaterialMasterId
 						,MM.UserName Material
+						,MT.UserName MaterialType
 						,IM.ArticleId
-						,MMA.StandardName
+						,MMA.StandardName Article
 						,IM.FirstCharacteristicsValueId
 						,IM.SecondCharacteristicsValueId
 						,IM.ThirdCharacteristicsValueId
@@ -1195,6 +1202,8 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
 					left join mst.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+                    LEFT JOIN mst.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+					LEFT JOIN HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
@@ -1203,7 +1212,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-                    WHERE  IM.PlantId = '"+plantId+@"' 
+                    WHERE  IM.PlantId = '" + plantId + @"' 
                     
 					AND IR.[Status]='Posting' AND IR.IsApproved=1 AND IR.RequiredPosting=1 AND IR.GRNType='MaterialTransfer'
                    
@@ -1211,7 +1220,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
                    
 					AND IRD.BaseQty !=IRD.BaseIssueQty
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('"+today+@"' AS DATE)							
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + today + @"' AS DATE)							
 
 					Union ALL
 					SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -1238,8 +1247,9 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
 						,0 TotalAmount
                         ,IM.MaterialMasterId
 						,MM.UserName Material
-						,MMA.StandardName Article
+						,MT.UserName MaterialType
 						,IM.ArticleId
+						,MMA.StandardName Article
 						,IM.FirstCharacteristicsValueId
 						,IM.SecondCharacteristicsValueId
 						,IM.ThirdCharacteristicsValueId
@@ -1255,6 +1265,8 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     left JOIN [TRN].[InventoryMaterial] AS IM ON IRD.InventoryMaterialId=IM.Id
 					left join mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
 					left join mst.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+                    LEFT JOIN mst.MaterialGroupMaster MGM ON MGM.Id=MM.MaterialGroupMasterId
+					LEFT JOIN HKP.MaterialType MT ON MT.Id=MGM.MaterialTypeId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
@@ -1263,7 +1275,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
-                    WHERE  IM.PlantId = '"+plantId+@"' 
+                    WHERE  IM.PlantId = '" + plantId + @"' 
                  
 					AND IR.[Status] IS null And IR.IsApproved=1 AND IR.RequiredPosting=0 AND IR.GRNType='MaterialTransfer'
                    
@@ -1271,7 +1283,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
                    
 					AND IRD.BaseQty !=IRD.BaseIssueQty
-                    AND CAST(IR.GRNDate AS DATE)<=CAST('"+today+@"' AS DATE) )x WHERE x.BalanceStock>0 ";
+                    AND CAST(IR.GRNDate AS DATE)<=CAST('" + today + @"' AS DATE) )x WHERE x.BalanceStock>0 ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1321,6 +1333,21 @@ Left Join [ORG].[CostCenter] CC On CC.Id=D.CostCenterId
                 throw ex;
             }
         }
+        public IEnumerable<object> GetFirstProcessCbo(string ProductionOrderId)
+        {
+            try
+            {
+                string sql = @"SELECT B.Id Value, B.UserName Text FROM TRN.ProductionOrderProcessSet A
+LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
+Where A.ProductionOrderId='"+ ProductionOrderId + "' AND A.Sequence=1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
 
 

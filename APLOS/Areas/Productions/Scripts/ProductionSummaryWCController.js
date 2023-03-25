@@ -93,6 +93,32 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
+    // Refreshing the serials
+    function refreshSerial() {
+        for (var j = 0; j < $scope.wcList.length; j++) {
+            $scope.wcList[j].Serial = j;
+        }
+    }
+    // Add Tiles
+    $scope.AddTile = function (e) {
+        console.log(e);
+        let ob = {};
+        Object.assign(ob, e);
+        ob.Flag = 0;
+        ob.Id = null;
+        ob.WorkCenterMasterId = e.WorkCenterMasterId;
+        ob.ProductionOrderId = null;
+        ob.LotNumber = null;
+        ob.ProductionGrade = $scope.gradeList[0].Value;
+        ob.Quantity = 0;
+        ob.DetentionSum = 0;
+        ob.Remarks = null;
+        ob.ResponsiblePersonId = e.ResponsiblePersonId;
+        ob.InChargeId = e.InChargeId;
+        $scope.wcList.splice(e.Serial + 1, 0, ob);
+        refreshSerial();
+    }
+
     $scope.Reason = {
         Id: null,
         ProcessId: null,
@@ -312,6 +338,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.IsSKU3 = false;
     $scope.IsFirst = false;
     $scope.IsParameterBased = false;
+    $scope.ToCloseAllowed = false;
 
     $scope.getProdLevel = function () {
         try {
@@ -348,6 +375,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.IsParameterBased = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsParameterBased;
+
+            $scope.ToCloseAllowed = $.grep($scope.processList, function (item) {
+                return item.Value === $scope.productionSummaryNew.ProcessId;
+            })[0].ToCloseAllowed;
 
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.ProductionLevel = 'Production Order';
@@ -388,6 +419,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId)
                 .then(function (response) {
                     $scope.wcList = response.data;
+                    for (var i = 0; i < $scope.wcList.length; i++) {
+                        Object.assign($scope.wcList[i], { 'Serial': parseInt(i),'Remarks': null });
+                    }
                 });
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -715,7 +749,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             return ShowResult('Please Work Center.', 'failure');
         }
         $scope.ProductionOrderList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderDataListWC?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + data.data.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+        $http.get('Productions/ProductionSummary/GetProductionOrderDataListWC?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + data.data.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ToCloseAllowed=' + $scope.ToCloseAllowed)
             .then(
                 function successCallback(response) {
                     $scope.ProductionOrderList = response.data;
@@ -1364,7 +1398,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.loadWC();
+                    //$scope.loadWC();
                     $scope.Action = 'Save';
                 }
                 angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
@@ -2125,7 +2159,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     }
 
-    $scope.selectGridResponsible = function () {
+    $scope.selectGridResponsible = function (data) {
+        $scope.Newobject = data.data;
         $scope.getEmployee();
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('show');
     }
@@ -2140,7 +2175,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.EmployeeList = resp.data;
         });
     }
-
+    
     $scope.doubleEmployee = function (e) {
         $scope.Newobject.ResponsiblePersonId = e.data.SystemId;
         $scope.Newobject.ResponsiblePerson = e.data.EmployeeName;

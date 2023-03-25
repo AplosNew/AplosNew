@@ -519,6 +519,12 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetApprovedIssueSlipBOQDetails(string Id, string StorageLocationId, string OrderSpecific)
+        {
+
+            return Json(_inventoryIssueService.GetApprovedIssueSlipBOQDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
+        }
         #endregion
 
 
