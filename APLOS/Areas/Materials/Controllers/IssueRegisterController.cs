@@ -20,6 +20,8 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Aplos.MaterialManagement.MaterialQuery;
+using Library.Data.Sql;
 
 #endregion using
 
@@ -32,6 +34,7 @@ namespace Aplos.Areas.Materials.Controllers
         private readonly IMaterialMasterService _materialMasterService;
         private readonly IInventoryReceiveService _inventoryReceiveService;
         private readonly IInventoryIssueService _inventoryIssueService;
+        private readonly ISqlRepository _sqlRepository;
 
         private readonly IMaterialMasterAlternativeUOMService _materialMasterAlternativeUOMService;
         private readonly IMaterialMasterProcessRoutingService _materialMasterProcessRoutingService;
@@ -55,7 +58,7 @@ namespace Aplos.Areas.Materials.Controllers
             , IMaterialMasterProcessSetService materialMasterProcessService
             , IMaterialMasterMachineProcessService assetItemProcessService
             , IMaterialAttributeValueService materialValueService
-        
+            , ISqlRepository sqlRepository  
             )
         {
 
@@ -71,6 +74,7 @@ namespace Aplos.Areas.Materials.Controllers
             _assetItemProcessService = assetItemProcessService;
             _materialValueService = materialValueService;
             _inventoryIssueService = inventoryIssueService;
+            _sqlRepository = sqlRepository;
 
 
         }
@@ -79,7 +83,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Pages
 
- 
+
         public ActionResult Aplos()
         {
             return View();
@@ -104,8 +108,8 @@ namespace Aplos.Areas.Materials.Controllers
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             //return Json(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-
-            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type));
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(inventoryIssueQueryService.GetIssueRegister(fromDate, toDate, Type));
             var jsondata = Json(new { NewData, Message = AplosMessage.Success });
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
@@ -123,7 +127,8 @@ namespace Aplos.Areas.Materials.Controllers
 				throw new CustomException("Select To Date");
 			}
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//return Json(_inventoryIssueService.GetIssueRegisterBYGRN(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            //return Json(_inventoryIssueService.GetIssueRegisterBYGRN(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
             List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_inventoryIssueService.GetIssueRegisterBYGRN(fromDate, toDate, Type));
             var jsondata = Json(new { NewData, Message = AplosMessage.Success });
             jsondata.MaxJsonLength = int.MaxValue;
@@ -139,9 +144,8 @@ namespace Aplos.Areas.Materials.Controllers
 		[Authorize, HttpGet]
 		public JsonResult GetIssueRegisterDetail(string Id)
         {
-          
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetIssueRegisterDetail(Id), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetIssueRegisterDetail(Id), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -229,8 +233,8 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 throw new CustomException("Select To Date");
             }
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetIssueReturnRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetIssueReturnRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
         }
 
         #endregion
