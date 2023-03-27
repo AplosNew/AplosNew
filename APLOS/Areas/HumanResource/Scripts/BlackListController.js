@@ -1,6 +1,6 @@
 ﻿'use strict';
-BlackListController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function BlackListController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+BlackListController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function BlackListController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Black List';
     $scope.Action = 'Save';
     $scope.BlkList = [];
@@ -36,7 +36,7 @@ function BlackListController(cboService, commonMessage, $scope, $rootScope, base
         OutsiderFatherName: null,
         OutsiderMotherName: null,
         Reason: null,
-        ByWhomId: null,
+        ByWhomId: $window.employeeId,
         BlacklistingDate: null,
         Remarks: null,
         DOB: null,

@@ -254,55 +254,41 @@
 	<div class="table-responsive modal-table col-md-12">
 		<table class="table table-striped">
 			<thead>
-				<tr>
-					<th>
-						<div class="checkbox-site text-center">
-							<label>
-								<input type="checkbox" ng-click="CheckAll1($event);">
-								<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-							</label>
-						</div>
-					</th>
-					<th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-					@*<th>Cost Center</th>*@
-
-
-					@*<th>Activity</th>*@
-					<th>Material</th>
-					<th>ArticleName</th>
-					<th>SKU1</th>
-					<th>SKU2</th>
-					<th>SKU3</th>
-					<th>Country</th>
-					<th>SalesOrder</th>
-					<th>Requested-UOM</th>
-					@*<th>ApprovedQty</th>
-						<th>UnApprovedQty</th>
-						<th>TotalQty</th>*@
-					<th>ReadyForIssue</th>
-
-					<th>RequestedQty</th>
-					<th ng-hide="false">IssuedQty</th>
-
-					<th>IssueQty</th>
-					<th ng-hide="false">BlanceQty</th>
-					<th ng-hide="false">BaseUoM</th>
-					<th ng-hide="false">BaseUoMStock</th>
-					<th>Budget</th>
-					<th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-					<th style="width:300px;">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-					<th>Action</th>
-					@*<th></th>*@
-					@*<th></th>*@
-					@*<th></th>*@
-					@*<th></th>*@
-
-				</tr>
+                <tr>
+                    <th>
+                        <div class="checkbox-site text-center">
+                            <label>
+                                <input type="checkbox" ng-click="CheckAll1($event);">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </th>
+                    <th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                    <th>Material</th>
+                    <th>ArticleName</th>
+                    <th>SKU1</th>
+                    <th>SKU2</th>
+                    <th>SKU3</th>
+                    <th>Country</th>
+                    <th>SalesOrder</th>
+                    <th>Requested-UOM</th>
+                    <th>ReadyForIssue</th>
+                    <th>RequestedQty</th>
+                    <th ng-hide="false">RequestIssuedQty</th>
+                    <th>IssueQty</th>
+                    <th ng-hide="false">BlanceQty</th>
+                    <th ng-hide="false">Actual Issued</th>
+                    <th ng-hide="false">BaseUoM</th>
+                    <th ng-hide="false">BaseUoMStock</th>
+                    <th>Budget</th>
+                    <th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                    <th style="width:300px;">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                    <th>Action</th>
+                </tr>
 			</thead>
 			<tbody>
 				<tr ng-repeat="x in detailList">
 					<td>
-						@*<input type="checkbox" ng-click="Change($index)" ng-model=x.chk>*@
 						<div class="checkbox-site">
 							<label>
 								<input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.RequestedQty===x.IssuedQty">
@@ -315,8 +301,6 @@
 							<select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList"></select>
 						</div>
 					</td>
-					@*<td>{{x.CostCenterName}}</td>*@
-
 					<td>{{x.Material}}</td>
 					<td>{{x.ArticleName}}</td>
 					<td>{{x.Sku1}}</td>
@@ -325,16 +309,14 @@
 					<td>{{x.CountryName}}</td>
 					<td>{{x.SalesOrderId}}</td>
 					<td>{{x.TransactionUoM}}</td>
-					@*<td>{{x.ApprovedQty}}</td>
-						<td>{{x.UnApprovedQty}}</td>
-						<td>{{x.TotalStock}}</td>*@
 					<td>{{x.PostingQty}}</td>
 
 					<td>{{x.RequestedQty}}</td>
-					<td ng-hide="false">{{x.IssuedQty}}</td>
+                    <td ng-hide="false">{{x.RequestIssuedQty}}</td>
 
 					<td class="text-right" ng-hide="false"><input type="text" n-decimals="8" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
 					<td ng-hide="false">{{x.BalanceQty}}</td>
+					<td ng-hide="false">{{x.IssuedQty}}</td>
 					<td ng-hide="false">{{x.BaseUoM}}</td>
 					<td ng-hide="false">{{x.BaseUoMStock}}</td>
 					<td>{{x.BudgetName}}</td>
@@ -346,8 +328,6 @@
 						{{x.ActivityName}}
 					</td>
 					<td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
-					@*<td>{{x.char3.FreeText}}</td>*@
-					@*<td>{{x.TransactionQty}}  {{x.UOM}}</td>*@
 					<td class="text-right table-td">
 						<ul class="list-inline">
 							<li><button ng-click="showMaterialWiseStockModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Requisition Qty"><i class="glyphicon glyphicon-info-sign"></i></button></li>
