@@ -605,6 +605,140 @@ namespace Aplos.Areas.Leave.Controllers
                 throw ex;
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetLeaveSummaryDataReportXls(string reportFileName, string plantId, string fromdate, string todate)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = GetLeaveSummaryDataReport(reportFileName, plantId, fromdate, todate);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string GetLeaveSummaryDataReport(string reportFileName, string plantId,string fromdate, string todate)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "LeaveSummaryDataReport";
+                sheet = workbook.Worksheets[0];
+                var data = alp.GetEmpYearEarnAvailSummaryData(fromdate, todate, plantId);
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "EmployeeCode"; sheet[ROW, COL].ColumnWidth = 16; int colEmployeeCode = COL; COL++; int colstart = COL;
+                sheet[ROW, COL].Text = "EmpSystemID"; sheet[ROW, COL].ColumnWidth = 16; int colEmpSystemID = COL; COL++;
+                sheet[ROW, COL].Text = "EmployeeName"; sheet[ROW, COL].ColumnWidth = 16; int colEmployeeName = COL; COL++;
+                sheet[ROW, COL].Text = "DOJ"; sheet[ROW, COL].ColumnWidth = 16; int colDOJ  = COL; COL++;
+                sheet[ROW, COL].Text = "DOS"; sheet[ROW, COL].ColumnWidth = 16; int colDOS = COL; COL++;
+                sheet[ROW, COL].Text = "LeaveType"; sheet[ROW, COL].ColumnWidth = 16; int colLeaveType = COL; COL++;
+                sheet[ROW, COL].Text = "EarnValue"; sheet[ROW, COL].ColumnWidth = 16; int colEarnValue = COL; COL++;
+                sheet[ROW, COL].Text = "AvailedValue"; sheet[ROW, COL].ColumnWidth = 16; int colAvailedValue = COL;
+
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Count - 1);
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, colEmployeeCode].Text = data[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colEmpSystemID].Text = data[i]["EmpSystemID"].ToString();
+                    sheet[ROW, colEmployeeName].Text = data[i]["EmployeeName"].ToString();
+                    sheet[ROW, colDOJ].Text = data[i]["DOJ"].ToString();
+                    sheet[ROW, colDOS].Text = data[i]["DOS"].ToString();
+                    sheet[ROW, colLeaveType].Text = data[i]["LeaveType"].ToString();
+                    sheet[ROW, colEarnValue].Number = OTSBD.clsStaticInfo.dbl(data[i]["EarnValue"].ToString());
+                    sheet[ROW, colAvailedValue].Number = OTSBD.clsStaticInfo.dbl(data[i]["AvailedValue"].ToString());
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Leave Summary Data Report", plantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpYearEarnAvailData(string fromdate, string todate, string empId)
+        {
+            var jsondata = Json(alp.GetEmpYearEarnAvailData(fromdate, todate, empId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
         #endregion
     }
 
