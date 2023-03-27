@@ -70,8 +70,6 @@ namespace Library.MaterialManagement.Inventory
         private readonly IRepositoryAsync<InventoryReceive> _InventoryReceiveRepository;
 
         private readonly IRepositoryAsync<InventoryTransferHistory> _InventoryTransferHistoryRepository;
-        private readonly IRepositoryAsync<MaterialStorage> _materialStorageRepository;
-
         private readonly IRepositoryAsync<IssueDetailAndIssueRequestMap> _IssueDetailAndIssueRequestMapRepository;
 
         private readonly IRepositoryAsync<InventorySalesReturn> _InventorySalesReturnRepository;
@@ -116,7 +114,6 @@ namespace Library.MaterialManagement.Inventory
             , IRepositoryAsync<InventoryScrapHistory> InventoryScrapHistoryRepository
             , IRepositoryAsync<InventoryReceive> InventoryReceiveRepository
             , IRepositoryAsync<InventoryTransferHistory> InventoryTransferHistoryRepository
-            , IRepositoryAsync<MaterialStorage> materialStorageRepository
             , IRepositoryAsync<IssueDetailAndIssueRequestMap> IssueDetailAndIssueRequestMapRepository
             , IRepositoryAsync<InventorySalesReturn> InventorySalesReturnRepository
             , IRepositoryAsync<InventorySalesReturnDetail> InventorySalesReturnDetailRepository
@@ -158,7 +155,6 @@ namespace Library.MaterialManagement.Inventory
             _InventoryScrapHistoryRepository = InventoryScrapHistoryRepository;
             _InventoryReceiveRepository = InventoryReceiveRepository;
             _InventoryTransferHistoryRepository = InventoryTransferHistoryRepository;
-            _materialStorageRepository = materialStorageRepository;
             _IssueDetailAndIssueRequestMapRepository = IssueDetailAndIssueRequestMapRepository;
 
             _InventorySalesReturnRepository = InventorySalesReturnRepository;

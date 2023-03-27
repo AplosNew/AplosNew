@@ -2,24 +2,13 @@
 
 using Aplos.Controllers;
 using Aplos.Properties;
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Model.Enums;
-using Library.Model.Materials;
-using Library.Service.Helpers;
 using Library.MaterialManagement.Inventory;
-using Library.Service.Materials;
-using Library.ViewModel.Materials;
-using Newtonsoft.Json;
-using Syncfusion.XlsIO;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
 using Aplos.MaterialManagement.MaterialQuery;
 using Library.Data.Sql;
 
@@ -31,48 +20,13 @@ namespace Aplos.Areas.Materials.Controllers
     {
         #region -- Constructor
         //private readonly IPurchaseOrderService _inventoryReveiveService;
-        private readonly IMaterialMasterService _materialMasterService;
-        private readonly IInventoryReceiveService _inventoryReceiveService;
         private readonly IInventoryIssueService _inventoryIssueService;
         private readonly ISqlRepository _sqlRepository;
-
-        private readonly IMaterialMasterAlternativeUOMService _materialMasterAlternativeUOMService;
-        private readonly IMaterialMasterProcessRoutingService _materialMasterProcessRoutingService;
-        private readonly IMaterialMasterUsageService _materialMasterUsageService;
-        private readonly IMaterialMasterAttributeValueService _materialMasterAttributeValueService;
-        private readonly IMaterialAttributeValueService _materialValueService;
-        private readonly IMaterialMasterCharacteristicsValueService _materialMasterCharacteristicsValueService;
-        private readonly IMaterialMasterProcessSetService _materialMasterProcessService;
-        private readonly IMaterialMasterMachineProcessService _assetItemProcessService;
-        //private readonly IInventoryReceiveService _inventoryReceiveService;
-
         public IssueRegisterController(
-              IInventoryReceiveService inventoryReceiveService
-            , IInventoryIssueService inventoryIssueService
-            , IMaterialMasterService materialMasterService
-            , IMaterialMasterAlternativeUOMService materialMasterAlternativeUOMService
-            , IMaterialMasterProcessRoutingService materialMasterProcessRoutingService
-            , IMaterialMasterUsageService materialMasterUsageService
-            , IMaterialMasterAttributeValueService materialMasterAttributeValueService
-            , IMaterialMasterCharacteristicsValueService materialMasterCharacteristicsValueService
-            , IMaterialMasterProcessSetService materialMasterProcessService
-            , IMaterialMasterMachineProcessService assetItemProcessService
-            , IMaterialAttributeValueService materialValueService
+             IInventoryIssueService inventoryIssueService
             , ISqlRepository sqlRepository  
             )
         {
-
-           
-            _inventoryReceiveService = inventoryReceiveService;
-            _materialMasterService = materialMasterService;
-            _materialMasterAlternativeUOMService = materialMasterAlternativeUOMService;
-            _materialMasterProcessRoutingService = materialMasterProcessRoutingService;
-            _materialMasterUsageService = materialMasterUsageService;
-            _materialMasterAttributeValueService = materialMasterAttributeValueService;
-            _materialMasterCharacteristicsValueService = materialMasterCharacteristicsValueService;
-            _materialMasterProcessService = materialMasterProcessService;
-            _assetItemProcessService = assetItemProcessService;
-            _materialValueService = materialValueService;
             _inventoryIssueService = inventoryIssueService;
             _sqlRepository = sqlRepository;
 

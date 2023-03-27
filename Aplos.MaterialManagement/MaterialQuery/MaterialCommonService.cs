@@ -1,13 +1,8 @@
 ﻿using bplib;
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Inventory;
-using Library.Model.Parties;
-using Library.Model.Taxations;
-using Library.Service.Enums;
-using Library.Service.Logs;
 using Library.ViewModel.Materials;
 using System;
 using System.Collections.Generic;
