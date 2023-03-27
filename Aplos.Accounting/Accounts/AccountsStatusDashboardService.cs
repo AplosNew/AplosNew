@@ -161,7 +161,7 @@ namespace Library.Accounting.Accounts
                 ,isnull( IWD.TaxAmount*IV.CompanyCurrencyRate,0)as TaxAmount
                 FROM [TRN].[Invoice] AS IV 
                  JOIN (select IDE.InvoiceId,VD.PartyId
-				 ,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+				 ,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -178,7 +178,6 @@ namespace Library.Accounting.Accounts
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 and VD.PartyType='Vendor' --AND VD.PartyId='202017395'
 						GROUP BY IDE.InvoiceId,VD.PartyId
-						,IwV.SetOffBooksAmount
 				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                     LEFT JOIN (SELECT wd.InvoiceId,sum(wd.Amount) TaxAmount FROM TRN.InvoiceWriteOffDetail wd
                         LEFT JOIN TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
@@ -264,7 +263,7 @@ namespace Library.Accounting.Accounts
                 ,isnull( DIWD.DiscountAmount*IV.CompanyCurrencyRate,0)as BooksDiscountAmount
                 ,isnull( IWD.TaxAmount*IV.CompanyCurrencyRate,0)as TaxAmount
                 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
                 ,SUM(isnull(IDE.WrittenOffAmount,0))ActualWrittenOffAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
@@ -281,7 +280,7 @@ namespace Library.Accounting.Accounts
 							GROUP BY iwd.InvoiceDetailId,iw.PartyId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
-						GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount,isnull(IDE.WrittenOffAmount,0)
+						GROUP BY IDE.InvoiceId,VD.PartyId
 				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                LEFT JOIN (SELECT wd.InvoiceId,sum(wd.Amount) TaxAmount FROM TRN.InvoiceWriteOffDetail wd
                         LEFT JOIN TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
@@ -1686,7 +1685,7 @@ namespace Library.Accounting.Accounts
 
 					LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan30NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I
 										JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1701,14 +1700,14 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
 					 WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 					 and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OM30 ON OM30.Id=IV.Id
 
                     LEFT JOIN (SELECT count(i.PartyId) ODueMoreThan15NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I
                                         JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1723,14 +1722,14 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
                     WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30 AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                     and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OM15 ON OM15.Id=IV.Id
 
                     LEFT JOIN (SELECT count(i.PartyId) ODueLessThan15NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ODueLessThan15 FROM TRN.Invoice I
                                         JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1745,14 +1744,14 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
                     WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-15  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                     and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OV ON OV.Id=IV.Id
 
                     LEFT JOIN (SELECT count(i.PartyId) TodayBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS TodayBalance FROM TRN.Invoice I
                                         JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1767,14 +1766,14 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
                     WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)=0   AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                     and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) TB ON TB.Id=IV.Id
 
                     LEFT JOIN (SELECT count(i.PartyId) OneToSevenBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS OneToSevenBalance FROM TRN.Invoice I
                                         JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1789,14 +1788,14 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
                     WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>0 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=7  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                     and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) OTS ON OTS.Id=IV.Id
 
                     LEFT JOIN (SELECT count(i.PartyId) EightToThirtyBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS EightToThirtyBalance FROM TRN.Invoice I
                                         JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1811,14 +1810,14 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
                     WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>7 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=30  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                     and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) ETT ON ETT.Id=IV.Id
 
 			        LEFT JOIN (SELECT count(i.PartyId) ThirtyToSixtyBalanceNoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ThirtyToSixtyBalance FROM TRN.Invoice I 
                                         JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1833,14 +1832,14 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
 					WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>30 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<=60  AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
 				    and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) TTS ON TTS.Id=IV.Id
 
                     LEFT JOIN (SELECT count(i.PartyId) Onword60NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS Onword60 FROM TRN.Invoice I
                                         JOIN (select IDE.InvoiceId,VD.PartyId
-										,SUM(VDC.CrAmount) InvoiceBooksAmount ,ISNULL(IwV.SetOffBooksAmount,0) SetOffBooksAmount
+										,SUM(VDC.CrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -1855,7 +1854,7 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,VD.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Vendor' 
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 									 ) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
                     WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>60   AND ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                     and I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable','InventoryPayable','ServicePayable') GROUP BY I.Id) O60 ON O60.Id=IV.Id
@@ -3086,7 +3085,7 @@ namespace Library.Accounting.Accounts
                 , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossTranAmount
 				, ISNULL(IVD.InvoiceBooksAmount*IV.CompanyCurrencyRate,0) AS GrossAmount
                 FROM [TRN].[Invoice] AS IV 
-                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+                 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
 						FROM  [TRN].[InvoiceDetail] IDE
 						LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 						LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -3102,7 +3101,7 @@ namespace Library.Accounting.Accounts
 							GROUP BY iwd.InvoiceDetailId,iw.PartyId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 and VD.PartyType='Customer' --AND VD.PartyId='202017395'
-						GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+						GROUP BY IDE.InvoiceId,VD.PartyId
 				 ) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
                  
                 LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
@@ -4023,7 +4022,7 @@ namespace Library.Accounting.Accounts
 										 ,ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS BooksBalance
 
                                         FROM  [TRN].[Invoice] AS IV 
-										 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,IwV.SetOffBooksAmount SetOffBooksAmount
+										 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
 											FROM  [TRN].[InvoiceDetail] IDE
 											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
 											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
@@ -4039,7 +4038,7 @@ namespace Library.Accounting.Accounts
 												GROUP BY iwd.InvoiceDetailId,iw.PartyId
 												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 											WHERE VI.IsPark=0 and VD.PartyType='Customer'
-											GROUP BY IDE.InvoiceId,VD.PartyId,IwV.SetOffBooksAmount
+											GROUP BY IDE.InvoiceId,VD.PartyId
 										) AS IVD ON IVD.InvoiceId=IV.Id AND IVD.PartyId=IV.PartyId
 									    LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId

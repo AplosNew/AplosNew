@@ -105,7 +105,7 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     };
     //***********************************User ********************************************************//
     $scope.removeRow = function (index) {
-        $scope.popUpHrefDataList.splice(index, 1);
+        $scope.HrefDataList.splice(index, 1);
     };
 
     $scope.HrefDataList=[];
@@ -154,17 +154,30 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         $scope.selectHrefDoubleClick(data);
     };
   
-    $scope.selectHrefDoubleClick = function (data) {
-        //if (data.SysAdmin)
-        //    return ShowResult("User [" + data.UserId + "] is [" + data.UserType + "], so role is not required.", 'failure', 'popUpId')
-        $scope.ModelNew.HrefId = data.Id;
-        $scope.ModelNew.Href = data.Href;
-        $scope.ModelNew.Controller = data.Controller;
-        $scope.ModelNew.Description = data.Description;
-        $scope.hrefvalueData = data;
-        $scope.getHrefList($scope.ModelNew.HrefId);
+    $scope.selectHrefDoubleClick = function (a) {
+       
+        var obj = {};
+        
+                    obj.HrefId = a.Id;
+                    obj.Href = a.Href;
+                    obj.Controller = a.Controller;
+                    obj.Description = a.Description;
+
+                    $scope.HrefDataList.push(obj);
+                    obj = {};
+         
         $scope.closeHrefPopUp();
     };
+
+    function checkProcessExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].HrefId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.selectHrefSingleClick = function (data) {
         $scope.hrefrowSelected = data.Id;
         $scope.ModelNew.Href = data.Href;
@@ -193,7 +206,10 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'data': $scope.ModelNew },
+                    data: {
+                        'data': $scope.ModelNew
+                        , 'userECDetail': $scope.HrefDataList
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -228,6 +244,7 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
 
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModelNew.RePassword = Object.assign({}, args.data.RePassword);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -259,6 +276,7 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     $scope.Clear = function () {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.HrefDataList = [];
         return true;
     };
 
