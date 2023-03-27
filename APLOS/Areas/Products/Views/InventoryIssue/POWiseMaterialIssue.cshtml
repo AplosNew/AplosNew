@@ -16,24 +16,6 @@
             </div>
         </div>
     </div>
-    @*<div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
-                <label class="col-sm-6 control-label"><b>Order Specific</b></label>
-                <div class="col-sm-6">
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific1" value="No" ng-click="hide();ClearList('No');" ng-disabled="false">
-                            <span class="cr"><i class="cr-icon"></i></span>No
-                        </label>
-                        <label>
-                            <input type="radio" name="OrderSpecific" ng-model="productNew.OrderSpecific1" value="Yes" ng-click="show();ClearList('Yes');" ng-disabled="false">
-                            <span class="cr"><i class="cr-icon"></i></span>Yes
-                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-                    </div>
-                </div>
-            </div>
-        </div>*@
     <div class="clearfix"></div>
     <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
@@ -49,87 +31,9 @@
             </div>
 
         </div>
-    </div>
+        
 
-
-
-    <div class="col-xs-6 col-sm-6 col-md-6">
-        @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Slip Date<sup></sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="PoDate" ng-model="isuuedate" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3" readonly>
-                </div>
-            </div>
-        </div>*@
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Slip Date<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="PoDate" ng-model="isuuedate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade site-modal in" id="POPopUp1" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">Approved Issue Slip List<button type="button" class="close" ng-click="POPopUp();">@*&times;*@</button></div>
-                <div class="modal-body form-elements form-horizontal">
-                    <div class="col-lg-12">
-                        <div class="content-container-fluid" style="color:black;">
-                            <div style="color:black;" id="GridTest" ej-grid e-datasource="GetApprovedIssueSlipList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                                 e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel"
-                                 e-enabletouch="true" e-allowselection="true"
-                                 e-scrollsettings="scroll">
-                                <div e-columns>
-                                    <div e-column e-field="Id" e-headertext="Id" e-width="150"></div>
-
-                                    <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="100"></div>
-                                    <div e-column e-field="RequestedQty" e-headertext="Valid Qty" e-width="100"></div>
-                                    <div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="100"></div>
-                                    <div e-column e-field="Orderspecific" e-headertext="Orderspecific" e-width="100"></div>
-                                    <div e-column e-field="ProcessName" e-headertext="ProcessName" e-width="150"></div>
-                                    <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="250"></div>
-                                    <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="150"></div>
-                                    <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="150"></div>
-                                    <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="150"></div>
-                                    <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="150"></div>
-                                    <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="150"></div>
-                                    <div e-column e-field="CustomerName" e-headertext="CustomerName" e-width="150"></div>
-                                    <div e-column e-field="BUyerName" e-headertext="BUyerName" e-width="150"></div>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li><button ng-click="POPopUpClose();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="col-xs-6 col-sm-6-md-6">
-        @*<div class="form-group" show-errors>
-            <label class="col-sm-4 col-md-4 control-label">Storage Location<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select name="Storage" ng-model="productNew.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList" tabindex="1"  ng-disabled="detailList.length>0">
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+        
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -159,15 +63,11 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Slip Wise PO No<sup></sup></label>
             <div class="col-sm-8 show-message">
-                    <input type="text" name="Slip Wise PO No" ng-model="productNew.SlipWisePRNo" class="form-control" readonly>
-                    @*<span class="input-group-btn">
-                        <button ng-click="getProductionOrderPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-
-                    </span>*@
+                <input type="text" name="Slip Wise PO No" ng-model="productNew.SlipWisePRNo" class="form-control" readonly>
             </div>
 
         </div>
-        <div class="form-group" show-errors @*ng-show="productNew.ConsumptionBookingName==='ProductionOrder'&& productNew.OrderSpecific==='Yes'"*@>
+        <div class="form-group" show-errors >
             <label class="col-sm-4 control-label">User PO<sup></sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
@@ -178,42 +78,43 @@
                     </span>
                 </div>
             </div>
-
-        </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea type="text" name="remarks" class="form-control" maxlength="250" rows="2" ng-model="productNew.Remarks" tabindex="4" capitalize></textarea>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea type="text" name="remarks" class="form-control" maxlength="250" rows="2" ng-model="productNew.Remarks" tabindex="4" capitalize></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Refference No</label>
+                <div class="col-sm-8">
+                    <textarea maxlength="1000" name="RefferenceNo" class="form-control" rows="2" ng-model="productNew.RefferenceNo" tabindex="7"></textarea>
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Refference No</label>
-            <div class="col-sm-8">
-                <textarea maxlength="1000" name="RefferenceNo" class="form-control" rows="2" ng-model="productNew.RefferenceNo" tabindex="7"></textarea>
-            </div>
-        </div>
-
-
+        
     </div>
-    <div class="col-xs-6 col-sm-6-md-6">
+
+
+
+    <div class="col-xs-6 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Issue Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="Issue Date" ng-model="productNew.IssueDate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
             </div>
         </div>
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Slip Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="PoDate" ng-model="isuuedate" datepicker end-date="currentDate" class="form-control" placeholder="dd-mmm-yyyy" required tabindex="2">
+            </div>
+        </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Issue Id</label>
             <div class="col-sm-8 show-message">
                 <input type="text" ng-model="productNew.Id" disabled class="form-control text-left" />
             </div>
         </div>
-
-
-    </div>
-    <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -225,16 +126,12 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 col-md-4 control-label">ConsumptionBooking<sup></sup></label>
             <div class="col-sm-8 show-message">
                 <label class="col-sm-4 col-md-4 control-label">{{productNew.ConsumptionBookingName}}</label>
             </div>
         </div>
-    </div>
-    <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -247,9 +144,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="col-xs-6 col-sm-6-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">ProcessName:<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -293,10 +187,6 @@
                         </div>
                     </th>
                     <th style="width:500px;">CostCenter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                    @*<th>Cost Center</th>*@
-
-
-                    @*<th>Activity</th>*@
                     <th>Material</th>
                     <th>ArticleName</th>
                     <th>SKU1</th>
@@ -305,9 +195,6 @@
                     <th>Country</th>
                     <th>SalesOrder</th>
                     <th>Requested-UOM</th>
-                    @*<th>ApprovedQty</th>
-                        <th>UnApprovedQty</th>
-                        <th>TotalQty</th>*@
                     <th>ReadyForIssue</th>
 
                     <th>RequestedQty</th>
@@ -315,23 +202,19 @@
 
                     <th>IssueQty</th>
                     <th ng-hide="false">BlanceQty</th>
+                    <td ng-hide="false">Actual Issued</td>
+
                     <th ng-hide="false">BaseUoM</th>
                     <th ng-hide="false">BaseUoMStock</th>
                     <th>Budget</th>
                     <th style="width:500px;">ExpenseActivityCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                     <th style="width:300px;">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                     <th>Action</th>
-                    @*<th></th>*@
-                    @*<th></th>*@
-                    @*<th></th>*@
-                    @*<th></th>*@
-
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="x in detailList">
                     <td>
-                        @*<input type="checkbox" ng-click="Change($index)" ng-model=x.chk>*@
                         <div class="checkbox-site">
                             <label>
                                 <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.RequestedQty===x.IssuedQty">
@@ -344,8 +227,6 @@
                             <select class="form-control" ng-model="x.CostCenterId" ng-options="item.Value as item.Text for item in costCenterList"></select>
                         </div>
                     </td>
-                    @*<td>{{x.CostCenterName}}</td>*@
-
                     <td>{{x.Material}}</td>
                     <td>{{x.ArticleName}}</td>
                     <td>{{x.Sku1}}</td>
@@ -354,16 +235,14 @@
                     <td>{{x.CountryName}}</td>
                     <td>{{x.SalesOrderId}}</td>
                     <td>{{x.TransactionUoM}}</td>
-                    @*<td>{{x.ApprovedQty}}</td>
-                        <td>{{x.UnApprovedQty}}</td>
-                        <td>{{x.TotalStock}}</td>*@
                     <td>{{x.PostingQty}}</td>
-
                     <td>{{x.RequestedQty}}</td>
-                    <td ng-hide="false">{{x.IssuedQty}}</td>
+                    <td ng-hide="false">{{x.RequestIssuedQty}}</td>
+
 
                     <td class="text-right" ng-hide="false"><input type="text" n-decimals="8" class="form-control text-right" width="200" ng-model="x.TransactionQty" ng-change="qtyFunc(x, $index)" ;></td>
                     <td ng-hide="false">{{x.BalanceQty}}</td>
+                    <td ng-hide="false">{{x.IssuedQty}}</td>
                     <td ng-hide="false">{{x.BaseUoM}}</td>
                     <td ng-hide="false">{{x.BaseUoMStock}}</td>
                     <td>{{x.BudgetName}}</td>
@@ -375,8 +254,6 @@
                         {{x.ActivityName}}
                     </td>
                     <td class="text-right" ng-hide="false"><input type="text" class="form-control text-right" width="400" ng-model="x.Comments"></td>
-                    @*<td>{{x.char3.FreeText}}</td>*@
-                    @*<td>{{x.TransactionQty}}  {{x.UOM}}</td>*@
                     <td class="text-right table-td">
                         <ul class="list-inline">
                             <li><button ng-click="showMaterialWiseStockModal(x, $index)" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Select Requisition Qty"><i class="glyphicon glyphicon-info-sign"></i></button></li>
@@ -494,7 +371,53 @@
         </div>
     </fieldset>
 </div>
+<div class="modal fade site-modal in" id="POPopUp1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Approved Issue Slip List<button type="button" class="close" ng-click="POPopUp();">@*&times;*@</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-lg-12">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridTest" ej-grid e-datasource="GetApprovedIssueSlipList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                             e-recorddoubleclick="recorddoubleclick" e-filtersettings-filterType="excel"
+                             e-enabletouch="true" e-allowselection="true"
+                             e-scrollsettings="scroll">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="150"></div>
 
+                                <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="100"></div>
+                                <div e-column e-field="RequestedQty" e-headertext="Valid Qty" e-width="100"></div>
+                                <div e-column e-field="PreparedBy" e-headertext="PreparedBy" e-width="100"></div>
+                                <div e-column e-field="Orderspecific" e-headertext="Orderspecific" e-width="100"></div>
+                                <div e-column e-field="ProcessName" e-headertext="ProcessName" e-width="150"></div>
+                                <div e-column e-field="SalesOrderId" e-headertext="SalesOrderId" e-width="250"></div>
+                                <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderId" e-width="150"></div>
+                                <div e-column e-field="BuyerItemReferenceNo" e-headertext="BuyerItem#" e-width="150"></div>
+                                <div e-column e-field="OwnItemReferenceNo" e-headertext="OwnItem#" e-width="150"></div>
+                                <div e-column e-field="BuyerOrderReferenceNo" e-headertext="BuyerOrder#" e-width="150"></div>
+                                <div e-column e-field="OwnOrderReferenceNo" e-headertext="OwnOrder#" e-width="150"></div>
+                                <div e-column e-field="CustomerName" e-headertext="CustomerName" e-width="150"></div>
+                                <div e-column e-field="BUyerName" e-headertext="BUyerName" e-width="150"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="POPopUpClose();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade site-modal in" id="detailPopUp" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

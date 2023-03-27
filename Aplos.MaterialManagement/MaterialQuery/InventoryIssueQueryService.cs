@@ -2750,10 +2750,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
                                 	,TUoM.UserName TransactionUoM ,IR.CostCenterId ,CC.UserName AS CostCenterName ,IR.GLGeneralInfoId ,IGL1.UserName GLName
                                 	,IR.BudgetMasterId ,B1.UserName BudgetName ,IR.ExpenseActivityId ,IA1.UserName ActivityName
                                 	,IRM.Id IssueRequestMasterId ,IR.Id IssueRequest,MM.IsAsset
-                                	,Convert(BIT, 0) 'check' ,IR.RequestedQty RequestedQty ,sum(IDRM.Qty) IssuedQty
+                                	,Convert(BIT, 0) 'check' ,IR.RequestedQty RequestedQty ,sum(ABC.Qty) RequestIssuedQty,sum(IDRM.Qty) IssuedQty
                                 	,Sum(Isnull(PostingQty.PostingQty, 0)) PostingQty
-                                	,BalanceQty = Isnull(IR.RequestedQty, 0) - SUM(ISNULL(IDRM.Qty, 0))
-                                    ,TempBalanceQty = Isnull(IR.RequestedQty, 0) - SUM(ISNULL(IDRM.Qty, 0))
+                                	,BalanceQty = Isnull(IR.RequestedQty, 0)   - SUM(ISNULL(ABC.Qty, 0))
+                                    ,TempBalanceQty = Isnull(IR.RequestedQty, 0)  - SUM(ISNULL(ABC.Qty, 0))
                                 	,BaseUOMFactor = CASE  WHEN AlternativeUOM.BaseUOMFactor IS NULL THEN 1 ELSE AlternativeUOM.BaseUOMFactor END
                                 FROM trn.IssueRequest IR
                                 LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id = IR.IssueRequestMasterId
