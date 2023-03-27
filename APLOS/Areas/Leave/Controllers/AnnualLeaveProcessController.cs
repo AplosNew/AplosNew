@@ -605,6 +605,14 @@ namespace Aplos.Areas.Leave.Controllers
                 throw ex;
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpYearEarnAvailData(string fromdate, string todate, string empId)
+        {
+            var jsondata = Json(alp.GetEmpYearEarnAvailData(fromdate, todate, empId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
         #endregion
     }
 

@@ -227,7 +227,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
                             LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
     
-                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' and emp.EmployeeStatus='Active' and emp.EmpType='Local'
+                        WHERE emp.GroupID='" + identity.CompanyGroupId + @"' --and emp.EmployeeStatus='Active' and emp.EmpType='Local'
                    AND isnull(Emp.SystemID,'') not in (select isnull(EmpSystemId,'') from dbo.BlackList where Id='" + Id + @"')
                   order by EmployeeCodePreFix,EmployeeCodeNumeric";
 
