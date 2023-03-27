@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -181,13 +182,16 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
         #region User Edit Cotrol
         [HttpPost]
-        public JsonResult CreateUserEditControl(Dictionary<string, object> data)
+        public JsonResult CreateUserEditControl(Dictionary<string, object> data, List<Dictionary<string, object>> userECDetail)
         {
             try
             {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
                 DataSet dsMaster;
+                DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from UserEditControl where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from UserEditControlDetail where UserEditControlId='" + data["Id"] + "'", out dsDetail, false, "1");
 
                 string _Id = "";
 
@@ -209,11 +213,45 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             //_Id = data["Id"].ToString();
                             EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                         }
-                
+
                 #endregion data update
 
+                #region User Edit Control Detail
+                
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                int ccount = 0;
+                if (userECDetail != null)
+                {
+                    foreach (var item in userECDetail)
+                    {
+                        //string _DetailId = "";
+                        //if (_DetailId == "")
+                        //{
+                        //    bplib.clsGenID genid = new bplib.clsGenID();
+                        //    genid.GenID("UserEditControlDetail", out _DetailId);
+                        //}
+                        
+
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["HrefId"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            item["Id"] = detailid;
+                            item["UserEditControlId"] = _MasterId;
+                            item["Href"] = item["Href"];
+                           
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+
+                        }
+
+                    }
+                }
+
+                #endregion User Edit Control Detail
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsDetail);
 
                 return Json(new { Error = false, Message = AplosMessage.Updated });
             }

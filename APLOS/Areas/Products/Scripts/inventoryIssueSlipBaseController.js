@@ -1637,13 +1637,13 @@ function inventoryIssueSlipBaseController($window, cboService, commonMessage, $s
 				if ((Math.round(($scope.detailList[index].TransactionQty) * 100 + Number.EPSILON) / 100) > Math.round(($scope.detailList[i].TempBalanceQty) * 100 + Number.EPSILON) / 100) {
 					ShowResult("Issue qty must be less than or equal Balance Qty");
 					$scope.detailList[index].TransactionQty = 0;
-					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100));
+					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].RequestIssuedQty) * 100 + Number.EPSILON) / 100));
 					return false;
 				}
 				if ((Math.round(($scope.detailList[index].TransactionQty ) * 100 + Number.EPSILON) / 100)> Math.round(($scope.detailList[i].PostingQty) * 100 + Number.EPSILON) / 100) {
 					ShowResult("Issue qty must be less than or equal Ready for Issue Qty");
 					$scope.detailList[index].TransactionQty = 0;
-					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100));
+					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].RequestIssuedQty) * 100 + Number.EPSILON) / 100));
 					return false;
 					//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				}
@@ -1651,7 +1651,7 @@ function inventoryIssueSlipBaseController($window, cboService, commonMessage, $s
 				if ($scope.detailList[index].TransactionQty > Math.round(($scope.detailList[i].RequestedQty) * 100 + Number.EPSILON) / 100) {
 					ShowResult("Transaction Qty cannot grater than Requested qty");
 					$scope.detailList[index].TransactionQty = 0;
-					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100));
+					$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].RequestIssuedQty) * 100 + Number.EPSILON) / 100));
 					return false;
 					//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				}
@@ -1660,7 +1660,7 @@ function inventoryIssueSlipBaseController($window, cboService, commonMessage, $s
 				//	return false;
 				//	//throw 'Issue qty must be less than or equal Ready for Issue Qty.';
 				//}
-				$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].IssuedQty) * 100 + Number.EPSILON) / 100));
+				$scope.detailList[i].BalanceQty = ($scope.detailList[i].RequestedQty - (Math.round(($scope.detailList[index].TransactionQty + $scope.detailList[i].RequestIssuedQty) * 100 + Number.EPSILON) / 100));
 			}
 
 		}

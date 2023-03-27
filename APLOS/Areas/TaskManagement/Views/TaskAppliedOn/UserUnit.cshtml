@@ -33,7 +33,7 @@
     <ul class="col-md-6 common-btn list-inline text-left">
         <li><button ng-click="popUpHref();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Href</button></li>
     </ul>
-
+    <div class="clearfix"></div>
     <div class="table-responsive modal-table ">
         <table class="table table-striped table-bordered">
             <thead>
@@ -41,10 +41,11 @@
                     <th>Description</th>
                     <th>Controller</th>
                     <th>Href</th>
+                    <th>Remove</th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="x in HrefDataList">
+                <tr ng-repeat="x in HrefDataList" @*ng-class="{selected : x.Id==null}"*@>
                     <td>{{x.Description}}</td>
                     <td>{{x.Controller}}</td>
                     <td>{{x.Href}}</td>
@@ -167,7 +168,7 @@
                         </thead>
                         <tbody>
                             <tr dir-paginate="x in popUpHrefDataList|itemsPerPage:popUpHrefParameters.pageSize" total-items="popUpHrefParameters.total_count"
-                                ng-click="selectHrefSingleClick(x)" ng-class="{selected : x.Id === hrefrowSelected}" ng-dblclick="setSelected(x, $index)" pagination-id="metaData.name + 'popUpList'">
+                                ng-class="{selected : x.Id === hrefrowSelected}" ng-dblclick="setSelected(x, $index)" pagination-id="metaData.name + 'popUpHrefDataList'">
 
                             @*<tr dir-paginate="x in popUpHrefDataList |itemsPerPage:popUpHrefParameters.pageSize" pagination-id="metaData.name + 'popUpList'" total-items="popUpHrefParameters.total_count"
                                 ng-dblclick="setSelected(x, $index)" ng-class="{selected : x.Id === hrefrowSelected}">*@
