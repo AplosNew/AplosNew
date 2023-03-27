@@ -185,7 +185,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetDataByInventoryIssue()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(inventoryIssueQueryService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
             //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
@@ -196,7 +197,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetDataByInventoryReturnIssue()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.GetDataByInventoryReturnIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(inventoryIssueQueryService.GetDataByInventoryReturnIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
             //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
@@ -475,7 +477,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetDeletableIssueList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetDeletableIssueList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetDeletableIssueList(parameters, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -499,31 +502,31 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetApprovedIssueSlip()
         {
-
-            return Json(_inventoryIssueService.GetApprovedIssueSlip(), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetApprovedIssueSlip(), JsonRequestBehavior.AllowGet);
         }
 
 
         [Authorize, HttpGet]
         public JsonResult GetAssetIssueSlip()
         {
-
-            return Json(_inventoryIssueService.GetAssetIssueSlip(), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetAssetIssueSlip(), JsonRequestBehavior.AllowGet);
         }
 
 
         [Authorize, HttpGet]
         public JsonResult GetApprovedIssueSlipDetails(string Id, string StorageLocationId, string OrderSpecific)
         {
-
-            return Json(_inventoryIssueService.GetApprovedIssueSlipDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetApprovedIssueSlipDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult GetApprovedIssueSlipBOQDetails(string Id, string StorageLocationId, string OrderSpecific)
         {
-
-            return Json(_inventoryIssueService.GetApprovedIssueSlipBOQDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetApprovedIssueSlipBOQDetails(Id, StorageLocationId, OrderSpecific), JsonRequestBehavior.AllowGet);
         }
         #endregion
 
@@ -563,7 +566,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetGRNFixedAssetList(string materialStorageId, string issueDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetGRNFixedAssetList(identity.PlantId, materialStorageId, issueDate), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetGRNFixedAssetList(identity.PlantId, materialStorageId, issueDate), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -571,7 +575,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetAssetIssueSlipWithGRN(string materialStorageId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetAssetIssueSlipWithGRN(identity.PlantId, materialStorageId), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            return Json(inventoryIssueQueryService.GetAssetIssueSlipWithGRN(identity.PlantId, materialStorageId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -844,11 +849,11 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetDataByPhysicalStockAdjustment()
         {
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.GetDataByPhysicalStockAdjustment(identity.PlantId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(inventoryIssueQueryService.GetDataByPhysicalStockAdjustment(identity.PlantId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
-            //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -894,9 +899,9 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult MaterialAdjustmentDetailsData(string inveReveiveId, string POID)
         {
-
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.MaterialAdjustmentDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(inventoryIssueQueryService.MaterialAdjustmentDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
 
@@ -1326,8 +1331,8 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult MaterialSalesDetails(string inveReveiveId, string POID)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.MaterialSalesDetails(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(inventoryIssueQueryService.MaterialSalesDetails(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -1787,8 +1792,8 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult MaterialScrapDetails(string inveReveiveId, string POID)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.MaterialScrapDetails(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(inventoryIssueQueryService.MaterialScrapDetails(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -2213,8 +2218,9 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialListwithoutpo(GridParameter parameters, string inveReveiveId)
         {
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.Querywithoutpo(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryIssueQueryService.Querywithoutpo(parameters, inveReveiveId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
         public JsonResult GetSpecificMaterialTransferStock(InventoryMaterialViewModel entity, string issueDate)
@@ -2336,16 +2342,16 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult MaterialIssueDetailsData1(string inveReveiveId, string POID)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.MaterialIssueDetailsData1(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(inventoryIssueQueryService.MaterialIssueDetailsData1(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
         [Authorize, HttpGet]
         public JsonResult MaterialIssueDetailsData(string inveReveiveId, string POID)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.MaterialIssueDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(inventoryIssueQueryService.MaterialIssueDetailsData(inveReveiveId, POID), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
 
@@ -2603,7 +2609,8 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetInventoryIssueBOQ()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryIssueService.GetInventoryIssueBOQ(identity.PlantId), JsonRequestBehavior.AllowGet);
+            InventoryIssueQueryService inventoryIssueQueryService = new InventoryIssueQueryService(_sqlRepository);
+            var jsondata = Json(inventoryIssueQueryService.GetInventoryIssueBOQ(identity.PlantId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
             //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
