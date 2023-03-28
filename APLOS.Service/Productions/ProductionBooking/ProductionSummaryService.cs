@@ -885,51 +885,144 @@ namespace Library.Service.Productions
             }
         }
 
-        
-        public void SaveMasterWC(List<Dictionary<string, object>> DataList)
+        public void SaveMasterWC(ProductionSummary ps,string companyGroupId)
         {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
-            string TableName = "TRN.ProductionSummary";
-            string contId = string.Empty;
-            string _Id, Id = string.Empty;
+            var flag = false;
             try
             {
-                objCon = new ConnectionManager.DAL.ConManager("1");
-
-
-                if (DataList != null)
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var ob_fromDB = Find(ps.Id);
+                if (ob_fromDB == null)
                 {
-                    foreach (var item in DataList)
-                    {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
-                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                    ps.Id = "P" + GetPK();
 
-                        if (dv.Count == 0)
+
+                    ps.ModelState = ModelState.Added;
+                    AuditService.AddedLog(ps);
+                    // ps.AddedDate = DateTime.Now;
+                    var pp = GetProductionPeriodData(ps.AddedDate);
+
+                    if (pp.Tables[0].Rows.Count > 1)
+                    {
+                        throw new CustomException("Production Booking Period can not assign in multiple time.");
+                    }
+                    else
+                    {
+                        if (pp.Tables[0].Rows.Count > 0)
                         {
-                            //bplib.clsGenID genid = new bplib.clsGenID();
-                            //genid.GenID(TableName, out _Id);
-                            //item["Id"] = "P" + _Id;
-                            item["Id"] = "P" + GetPK();
-                            AddNewRow(dsProdBooked.Tables[0], item);
+                            ps.ProductionBookingPeriodId = pp.Tables[0].Rows[0]["Id"].ToString();
                         }
                         else
                         {
-                            DataRow drpb = dv[0].Row;
-                            EditRow(drpb, item);
+                            throw new CustomException("There is no Production Booking Period.");
                         }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
                     }
+
+                    ps.Quantity = ps.QtyWithoutScan + ps.ScanQty;
+
+                    base.Insert(ps);
                 }
+                else
+                {
 
 
+                    //ps.Id = ob_fromDB.Id;
+                    ob_fromDB.ArticleId = ps.ArticleId;
+                    ob_fromDB.MaterialMasterId = ps.MaterialMasterId;
+                    ob_fromDB.ProductionGrade = ps.ProductionGrade;
+                    ob_fromDB.ProductionBookingPeriodId = ps.ProductionBookingPeriodId;
+                    ob_fromDB.UpdatedDate = DateTime.Now;
+
+                    ob_fromDB.ResponsiblePersonId = ps.ResponsiblePersonId;
+                    ob_fromDB.InChargeId = ps.InChargeId;
+                    ob_fromDB.ProductionInChargeId = ps.ProductionInChargeId;
+                    ob_fromDB.MentorId = ps.MentorId;
+                    ob_fromDB.ScanQty = ps.ScanQty;
+                    ob_fromDB.QtyWithoutScan = ps.QtyWithoutScan;
+                    ob_fromDB.Quantity = ps.QtyWithoutScan + ps.ScanQty;
+                    ob_fromDB.ProductionOrderId = ps.ProductionOrderId;
+                    ob_fromDB.SalesOrderId = ps.SalesOrderId;
+                    ob_fromDB.MasterOrderItemId = ps.MasterOrderItemId;
+                    ob_fromDB.ProductLibraryId = ps.ProductLibraryId;
+
+                    ob_fromDB.InTime = ps.InTime;
+                    ob_fromDB.OutTime = ps.OutTime;
+                    ob_fromDB.LotNumber = ps.LotNumber;
+                    ob_fromDB.Remarks = ps.Remarks;
+                    ob_fromDB.CheckedBy = ps.CheckedBy;
+
+
+                    ob_fromDB.ModelState = ModelState.Modified;
+                    AuditService.UpdatedLog(ob_fromDB);
+
+                    //if (ob_fromDB.AddedDate.AddDays(1) >)
+                    //{
+
+                    //}
+                    base.Update(ob_fromDB);
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
-                throw (ex);
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, ps.AddedBy,
+                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
             }
         }
+
+        //public void SaveMasterWC(List<Dictionary<string, object>> DataList)
+        //{
+        //    ConnectionManager.DAL.ConManager objCon;
+        //    DataSet dsProdBooked;
+        //    string TableName = "TRN.ProductionSummary";
+        //    string contId = string.Empty;
+        //    string _Id, Id = string.Empty;
+        //    try
+        //    {
+        //        objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+        //        if (DataList != null)
+        //        {
+        //            foreach (var item in DataList)
+        //            {
+        //                objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+        //                DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+        //                if (dv.Count == 0)
+        //                {
+        //                    //bplib.clsGenID genid = new bplib.clsGenID();
+        //                    //genid.GenID(TableName, out _Id);
+        //                    //item["Id"] = "P" + _Id;
+        //                    item["Id"] = "P" + GetPK();
+        //                    AddNewRow(dsProdBooked.Tables[0], item);
+        //                }
+        //                else
+        //                {
+        //                    DataRow drpb = dv[0].Row;
+        //                    EditRow(drpb, item);
+        //                }
+        //                clsStaticInfo obj = new clsStaticInfo();
+        //                obj.SaveDataSets(dsProdBooked);
+        //            }
+        //        }
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw (ex);
+        //    }
+        //}
         public void SaveDetentionWC(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -1020,6 +1113,10 @@ namespace Library.Service.Productions
                         //    }
                         //}
                     }
+                }
+                else
+                {
+                    throw new CustomException("Please enter atleast one row and proceed!");
                 }
             }
             catch (Exception ex)

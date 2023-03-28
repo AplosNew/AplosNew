@@ -152,6 +152,9 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         $scope.product.PartyId = data.data.CustomerId;
         $scope.product.Id = null;
         $scope.product.SalesReturnDate = data.data.SalesReturnDate;
+        $scope.product.ToCurrencyRate = data.data.ToCurrencyRate;
+        $scope.product.CompanyCurrencyRate = data.data.ToCurrencyRate;
+        $scope.product.CurrencyId = data.data.CurrencyId;
         $scope.product.PostingDate = $filter("dateFiltering")(data.data.SalesReturnDate);
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
         $scope.productNew = Object.assign({}, $scope.product);
@@ -382,24 +385,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
    
 
     //#endregion
-    $scope.currencyList = [];
-    cboService.getCboTransactionCurrencyByCompany('', function (result) {
-        $scope.currencyList = result;
-    });
-    $scope.getToCurrencyRate = function () {
-        //debugger;
-        if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
-            $scope.productNew.ToCurrencyRate = 1;
-            return;
-        }
-        $http.get($scope.path1 + 'GetToCurrencyRate?currencyId=' + $scope.productNew.CurrencyId + '&baseCurrencyId=' + $scope.productNew.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.productNew.DocDate))
-            .then(function (response) {
-                if (parseFloat(response.data) === 0)
-                    $scope.productNew.ToCurrencyRate = 1;
-                else
-                    $scope.productNew.ToCurrencyRate = response.data;
-            });
-    };
+   
     cboService.getCboEntityByPlant(null, null, '', function (result) {
         $scope.EntityList = result;
     });

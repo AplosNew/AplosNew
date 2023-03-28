@@ -1,10 +1,12 @@
 ﻿'use strict';
-AnnualLeaveProcessController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+AnnualLeaveProcessController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Annual Leave Process';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'Leave/AnnualLeaveProcess/';  
+    $scope.path = 'Leave/AnnualLeaveProcess/';
+    $scope.exportgriddataUrlUpdate2 = 'GridReports/ExcelExportUpdate2';
+    $scope.downloadgriddataUrl2 = 'GridReports/Download';
 
 
     // #region The Tab Switching Code    
@@ -19,7 +21,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     };
 
     // #endregion
-        
+
     // #region Other Functions
 
     $scope.SelectedYearId = null;
@@ -52,6 +54,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             params: { 'PlantId': $scope.BudgetPlantId }
         }).then(function success(response) {
             $scope.RegYearList = response.data;
+            
         })
 
         $http({
@@ -125,7 +128,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }
 
         try {
-            window.open($scope.path + 'GetSampleReport?PlantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&LvYearId=' + $scope.SelectedYearId+ '&reportFormat=' + reportFormat, '_blank');
+            window.open($scope.path + 'GetSampleReport?PlantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&LvYearId=' + $scope.SelectedYearId + '&reportFormat=' + reportFormat, '_blank');
 
         } catch (e) {
 
@@ -161,7 +164,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         $scope.fileData = this.files[0];
     });
     $scope.ExcelUploadData = [];
-    
+
     $scope.ModelNew = {
         FileName: null
     }
@@ -248,7 +251,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             data: {
                 'data': $scope.ExcelUploadData, 'PlantId': $scope.BudgetPlantId,
                 'YearId': $scope.SelectedYearId
-                }
+            }
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, "failure");
@@ -281,7 +284,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     // #endregion
 
     // #region Annual Process Functions 
-        
+
     $scope.LeaveModel = {
         CurrentLvYearId: null,
         NewLvYearId: null,
@@ -290,7 +293,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         MaxLapse: null
     };
 
-    
+
     $scope.ClearFirstTabData = function () {
         $("#EmpCategoryDropdown").data("ejDropDownList").clearText();
         $("#LeaveTypeDropdown").data("ejDropDownList").clearText();
@@ -317,12 +320,12 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             $scope.LeaveModel.CurrentLvYearId == undefined) {
             ShowResult("Please First Select Current Leave Year ...", 'failure');
             throw ("Please First Select Current Leave Year ...");
-        }      
+        }
 
         var LeaveTypeObj = $("#LeaveTypeDropdown").data("ejDropDownList");
         $scope.LeaveTypeString = LeaveTypeObj.getSelectedValue().split(",");
 
-        if ($scope.LeaveTypeString == "" ) {
+        if ($scope.LeaveTypeString == "") {
             ShowResult("Please First Select Leave Type ...", 'failure');
             throw ("Please First Select Leave Type ...");
         }
@@ -332,7 +335,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
         if ($scope.EmpCategoryString == "") {
             ShowResult("Please First Select Employee Type ...", 'failure');
-            throw ("Please First Select Employee Type ...");
+            throw ("Please First Select Employee Category ...");
         }
 
         $http({
@@ -447,40 +450,48 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     $scope.EmployeeData = [];
     $scope.getEmployeeData = function () {
+        try {
 
-        $scope.LeaveTypexString = "";
-      
-        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
-            ShowResult("Please First Select Plant ...", 'failure');
-            throw ("Please First Select Plant ...");
-        }
+            $scope.LeaveTypexString = "";
 
-        if ($scope.LeaveRegModel.CurrentLvYearId == "" ||
-            $scope.LeaveRegModel.CurrentLvYearId == undefined) {
-            ShowResult("Please First Select Leave Year ...", 'failure');
-            throw ("Please First Select Leave Year ...");
-        }
-
-        var LeaveTypexObj = $("#LeaveRegTypeDropdown").data("ejDropDownList");
-        $scope.LeaveTypexString = LeaveTypexObj.getSelectedValue().split(",");
-
-        if ($scope.LeaveTypexString == "") {
-            ShowResult("Please First Select Leave Type ...", 'failure');
-            throw ("Please First Select Leave Type ...");
-        }       
-
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetEmpInfo',
-            params: {
-                'PlantId': $scope.BudgetPlantId,
-                'From': $scope.LeaveRegModel.From,
-                'To': $scope.LeaveRegModel.To,
-                'Year': $scope.LeaveRegModel.CurrentLvYearId
+            if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+                throw ("Please First Select Plant ...");
             }
-        }).then(function success(response) {
-            $scope.EmployeeData = response.data;
-        })
+
+            if ($scope.LeaveRegModel.CurrentLvYearId == "" ||
+                $scope.LeaveRegModel.CurrentLvYearId == undefined) {
+                throw ("Please First Select Leave Year ...");
+            }
+
+            var LeaveTypexObj = $("#LeaveRegTypeDropdown").data("ejDropDownList");
+            $scope.LeaveTypexString = LeaveTypexObj.getSelectedValue().split(",");
+
+            if ($scope.LeaveTypexString == "") {
+                throw ("Please First Select Leave Type ...");
+            }
+
+            if (baseService.isUndefinedOrNull($scope.LeaveRegModel.From)) {
+                throw ("Please Select From Date ...");
+            }
+            if (baseService.isUndefinedOrNull($scope.LeaveRegModel.To)) {
+                throw ("Please Select To Date ...");
+            }
+
+            $http({
+                method: 'GET',
+                url: $scope.path + 'GetEmpInfo',
+                params: {
+                    'PlantId': $scope.BudgetPlantId,
+                    'From': $scope.LeaveRegModel.From,
+                    'To': $scope.LeaveRegModel.To,
+                    'Year': $scope.LeaveRegModel.CurrentLvYearId
+                }
+            }).then(function success(response) {
+                $scope.EmployeeData = response.data;
+            })
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
 
@@ -505,7 +516,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             throw ("Please Enter Max Encashment ...");
         }
 
-        
+
         // #endregion
 
         $scope.ProcReg = [];
@@ -526,7 +537,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
                 'Data': $scope.ProcData, 'PlantId': $scope.BudgetPlantId,
                 'CurrentLvYearId': $scope.LeaveRegModel.CurrentLvYearId,
                 'MaxEncash': $scope.LeaveRegModel.MaxEncash,
-                'LeaveTypeList': $scope.LeaveTypexString              
+                'LeaveTypeList': $scope.LeaveTypexString
             },
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
@@ -539,4 +550,185 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     }
     // #endregion
 
+
+
+
+    $scope.DownLoadEmpData = function () {
+        var dataList = [];
+        var g = $("#EmpDataGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.EmployeeData;
+        }
+        $scope.fileName = 'EmpLeaveDataReport';
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpdate2,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl2 + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+
+    $scope.DownLoadData = function () {
+        try {
+            var dataList = [];
+            var g = $("#LeaveDataGrid").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.LoadedData;
+            }
+
+            if (dataList.length == 0) {
+                throw "First click on Go button.";
+            }
+
+            $scope.fileName = "LeaveDataReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "LeaveDataReportXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList, 'plantId': $scope.BudgetPlantId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.LeaveRegModelNew = { empId: null, EmployeeCode: null, EmployeeName: null, CurrentLvYearId: null, ToDate: null, FromDate:null};
+
+    $scope.popUpDataList = [];
+
+    $scope.showEmployeeListPopUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+
+            angular.element(document.querySelector('#popUp')).modal('show');
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        $scope.LeaveRegModelNew.empId = arg.data.SystemId;
+        $scope.LeaveRegModelNew.EmployeeCode = arg.data.EmployeeCode;
+        $scope.LeaveRegModelNew.EmployeeName = arg.data.EmployeeName;
+        $scope.closePopUp();
+    }
+
+    $scope.clearEmp = function () {
+        $scope.LeaveRegModelNew.EmployeeId = null;
+        $scope.LeaveRegModelNew.EmployeeCode = null;
+        $scope.LeaveRegModelNew.EmployeeName = null;
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
+
+    $scope.EmployeeYearEarnAvailDataList = [];
+    $scope.GetEmpYearEarnAvailData = function () {
+        $http.get('Leave/AnnualLeaveProcess/GetEmpYearEarnAvailData?fromdate=' + $scope.LeaveRegModelNew.FromDate + '&todate=' + $scope.LeaveRegModelNew.ToDate + '&empId=' + $scope.LeaveRegModelNew.empId)
+            .then(function (response) {
+                $scope.EmployeeYearEarnAvailDataList = [];
+                $scope.EmployeeYearEarnAvailDataList = response.data;
+            });
+    };
+
+    $scope.GetFromToDate = function () {
+        for (var i = 0; i < $scope.RegYearList.length; i++) {
+            if ($scope.LeaveRegModelNew.CurrentLvYearId == $scope.RegYearList[i].Value) {
+                $scope.LeaveRegModelNew.FromDate = $scope.RegYearList[i].FromDate;
+                $scope.LeaveRegModelNew.ToDate = $scope.RegYearList[i].ToDate;
+            }
+        }
+    }
+
+    $scope.DownLoadEmpYearEarnAvailData = function () {
+        var dataList = [];
+        var g = $("#EmpYEADataGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.EmployeeYearEarnAvailDataList;
+        }
+        $scope.fileName = 'EmployeeYearEarnAvailDataReport';
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpdate2,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrl2 + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.DownLoadSummaryData = function () {
+        try {
+            $scope.fileName = "LeaveSummaryDataReport.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetLeaveSummaryDataReportXls",
+                data: {
+                    'reportFileName': $scope.fileName, 'plantId': $scope.BudgetPlantId, 'fromdate' : $scope.LeaveRegModelNew.FromDate,'todate' : $scope.LeaveRegModelNew.ToDate },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 }
