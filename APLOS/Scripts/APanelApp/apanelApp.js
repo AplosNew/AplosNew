@@ -521,6 +521,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("WasteTypeController", WasteTypeController)
     .controller("UserEditControlController", UserEditControlController)
     .controller("QualitySetupController", QualitySetupController)
+    .controller("DocumentSetupController", DocumentSetupController)
 
 
     .config(accountConfig)

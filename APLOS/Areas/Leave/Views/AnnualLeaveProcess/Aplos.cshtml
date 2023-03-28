@@ -4,6 +4,7 @@
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="AnnualLeaveProcessing" role="tab" data-toggle="tab">Annual Leave Processing</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="OpeningUpload" role="tab" data-toggle="tab">Opening Upload</a></li>
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="RegularEncashment" role="tab" data-toggle="tab">Regular Encashment</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="EmpYearEarnAvailData" role="tab" data-toggle="tab">Emp Year Earn Avail Data</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -443,7 +444,119 @@
             </div>
         </div>
 
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div class="row">
 
+                <div class="col-md-12" ng-form="form4">
+                    <div class="row">
+
+
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">Company<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Company"
+                                                ng-options="item.Value as item.Text for item in CompanyList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                                <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="hidden" name="Employee" ng-model="LeaveRegModelNew.empId" class="form-control">
+                                    <span class="input-group-addon">{{LeaveRegModelNew.EmployeeCode}}</span>
+                                    <input type="text" name="Employee" ng-model="LeaveRegModelNew.EmployeeName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">Plant<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="BudgetPlantId" name="Plant"
+                                                ng-change="getLeaveYear()"
+                                                ng-options="item.Value as item.Text for item in PlantList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">From Date<sup>*</sup></label>
+                                <div class="col-sm-8" style="margin-top:10px;">
+                                    <input type="text" name="FromDate" ng-model="LeaveRegModelNew.FromDate" datepicker class="form-control">
+                                </div>
+                            </div>
+                           
+                        </div>
+
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">Leave Year<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="LeaveRegModelNew.CurrentLvYearId" name="CurrentYear" ng-change="GetFromToDate();"
+                                                ng-options="item.Value as item.Text for item in RegYearList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">To Date<sup>*</sup></label>
+                                <div class="col-sm-8" style="margin-top:10px;">
+                                    <input type="text" name="ToDate" ng-model="LeaveRegModelNew.ToDate" datepicker class="form-control">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="common-btn" style="margin-top:25px;margin-right:20px;">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="GetEmpYearEarnAvailData();" class="btn"><i class="glyphicon glyphicon-download"></i> Go </button></li>
+                                <li> <button ng-click="DownLoadEmpYearEarnAvailData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> DownLoad </button></li>
+                                <li> <button ng-click="DownLoadSummaryData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Summary </button></li>
+                            </ul>
+                        </div>
+
+                        <div id="EmpYEADataGrid" ej-grid e-datasource="EmployeeYearEarnAvailDataList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                            <div e-columns>
+                                <div e-column e-field="EmployeeCode" e-type="string" e-headertext="EmployeeCode" e-width="80"></div>
+                                <div e-column e-field="EmpSystemID" e-type="string" e-headertext="EmpSystemID" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                                <div e-column e-field="DOJ" e-type="string" e-headertext="DOJ" e-width="60"></div>
+                                <div e-column e-field="DOS" e-type="string" e-headertext="DOS" e-width="60"></div>
+                                <div e-column e-field="Date" e-type="string" e-headertext="Date" e-width="60"></div>
+                                <div e-column e-field="DayStatus" e-type="string" e-headertext="DayStatus" e-width="60"></div>
+                                <div e-column e-field="LeaveId" e-type="string" e-headertext="LeaveId" e-width="60"></div>
+                                <div e-column e-field="LeaveType" e-type="string" e-headertext="LeaveType" e-width="60"></div>
+                                <div e-column e-field="EarnValue" e-type="string" e-headertext="EarnValue" e-width="60"></div>
+                                <div e-column e-field="AvailedValue" e-type="string" e-headertext="AvailedValue" e-width="60"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
 
@@ -458,3 +571,40 @@
     }
 </script>
 
+<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <disv class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
+                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+                        </div>
+                    </div>
+                </disv>
+            </div>
+            <div class="modal-footer">
+                <ul class="common-btn list-inline text-right" style="padding: 20px;">
+                    <li><button ng-click="closePopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/x-jsrender" id="empimage">
+        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
+    </script>
+</div>

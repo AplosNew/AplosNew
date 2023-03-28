@@ -45,7 +45,9 @@ namespace Library.Service.Productions
         IEnumerable<object> GetCharInfoByPrO(string masterid, string workdate, string mmid, string soid, string artid, string CharCount, string CharacteristicsValueId);
         IEnumerable<ComboModel> GetShiftGroupCbo(string plantId);
         void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
-        void SaveMasterWC(List<Dictionary<string, object>> DataList);
+        //void SaveMasterWC(List<Dictionary<string, object>> DataList);
+
+        void SaveMasterWC(ProductionSummary ps, string companyGroupId);
         void SaveDetentionWC(List<Dictionary<string, object>> DataList);
         void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
         void SaveDetail(string psid, IEnumerable<ProductionSummaryDetail> psd);
