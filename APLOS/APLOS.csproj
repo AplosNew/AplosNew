@@ -536,6 +536,7 @@
     <Compile Include="Areas\Employees\Controllers\EmployeeCodeTypeController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationApprovalMultipleNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationTypeController.cs" />
+    <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeInFoReportController.cs" />
@@ -2033,6 +2034,7 @@
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
+    <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
     <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
@@ -4584,6 +4586,7 @@
     <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignCanvas.cshtml" />
     <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineLayoutSearchViews.cshtml" />
+    <Content Include="Areas\Productions\Views\DailyPlanningAndProductionReport\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
