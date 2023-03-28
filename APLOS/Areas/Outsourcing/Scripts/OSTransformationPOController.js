@@ -488,24 +488,24 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.NotificationSettingStatus();
     $scope.checkedByList = [];
-    $scope.GetCheckedByAndApprovedBy1 = function () {
-        //debugger;
+    //$scope.GetCheckedByAndApprovedBy1 = function () {
+    //    //debugger;
 
-        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
-            $http({
-                method: 'GET',
-                url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBYForOurSource?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.checkedByList = response.data;
-            });
+    //    if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+    //        $http({
+    //            method: 'GET',
+    //            url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBYForOurSource?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            $scope.checkedByList = response.data;
+    //        });
 
-        }
-        else {
+    //    }
+    //    else {
 
-        }
+    //    }
 
-    }
+    //}
     $scope.HSNCode = null;
     $scope.HSNCodeId = null;
 
