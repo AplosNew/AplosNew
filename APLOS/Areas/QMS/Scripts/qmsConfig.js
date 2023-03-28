@@ -130,6 +130,11 @@
             templateUrl: 'QMS/QualitySetup/Aplos',
             controller: 'QualitySetupController'
         })
+
+        .when('/document-setup', {
+            templateUrl: 'QMS/DocumentSetup/Aplos',
+            controller: 'DocumentSetupController'
+        })
         
 
 }
