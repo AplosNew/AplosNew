@@ -707,5 +707,28 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     };
 
+    $scope.DownLoadSummaryData = function () {
+        try {
+            $scope.fileName = "LeaveSummaryDataReport.xlsx";
 
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetLeaveSummaryDataReportXls",
+                data: {
+                    'reportFileName': $scope.fileName, 'plantId': $scope.BudgetPlantId, 'fromdate' : $scope.LeaveRegModelNew.FromDate,'todate' : $scope.LeaveRegModelNew.ToDate },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 }
