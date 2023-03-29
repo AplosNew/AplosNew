@@ -943,7 +943,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
         #endregion
 
         #region Save
-        [HttpPost ,AllowAnonymous]
+        [HttpPost ,AllowAnonymous, Authorize]
         public JsonResult Save(Dictionary<string, object> datas, string employeeId)
         {
             try
