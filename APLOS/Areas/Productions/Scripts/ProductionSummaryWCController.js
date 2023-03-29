@@ -420,7 +420,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 .then(function (response) {
                     $scope.wcList = response.data;
                     for (var i = 0; i < $scope.wcList.length; i++) {
-                        Object.assign($scope.wcList[i], { 'Serial': parseInt(i),'Remarks': null });
+                        Object.assign($scope.wcList[i], { 'Serial': parseInt(i)});
                     }
                 });
         } catch (ex) {
@@ -1372,15 +1372,19 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             //    }
             //}
 
+            if (parseFloat($scope.productionSummaryNew.Quantity) < 0) {
+                throw "Quantity should not be less than 0.";
+            }
+
             if ($scope.IsFirst == false) {
-                if (parseFloat($scope.NewObject.RemainingQty) < 0) {
+                if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
                     throw "Produced Quantity should less than Order Quantity.";
                 }
             }
 
-            //if ($scope.NewObject.Quantity > parseFloat($scope.NewObject.RemainingQty)) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
+            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
+                throw "Produced Quantity should not be greater than Balance Quantity.";
+            }
 
             $http({
                 method: 'POST',
@@ -1580,15 +1584,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 throw "Quantity should not be less than 0.";
             }
 
+            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
+                throw "Produced Quantity should not be greater than Balance Quantity.";
+            }
+
             if ($scope.IsFirst == false) {
-                if (parseFloat($scope.NewObject.RemainingQty) < 0) {
+                if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
                     throw "Produced Quantity should less than Order Quantity.";
                 }
             }
-
-            //if ($scope.NewObject.Quantity > parseFloat($scope.NewObject.RemainingQty)) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
 
             $http({
                 method: 'POST',
