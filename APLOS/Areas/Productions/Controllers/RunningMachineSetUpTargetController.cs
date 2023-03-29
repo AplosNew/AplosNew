@@ -160,15 +160,17 @@ Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetai
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                             where Pod.ProductionOrderId=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"'  and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId+ @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-isnull(RM.SMV,PS.SPT) as SMV,isnull(RM.PlanHours,(select top 1 PlanHours from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as PlanHours,
---isnull(RM.TargetFD,ceiling((60/PS.SPT)*isnull(RM.PlanHours," + HeaderPlanHour + @")*PS.NoOfWorkStation)) as TargetFD,
-isnull(RM.TargetFD,(select top 1 RM.TargetFD from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as TargetFD,
+isnull(RM.SMV,PS.SPT) as SMV,
+RM.PlanHours,
+RM.TargetFD,
 isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
 isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
 isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId =(select top 1 InChargeId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
 isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId =(select top 1 InChargeId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
 
-RM.Remarks,isnull(RM.Efficiency,(select top 1 Efficiency from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as Efficiency,isnull(RM.TargetProductionFP,(select top 1 TargetProductionFP from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as TargetProductionFP
+RM.Remarks,
+RM.Efficiency,
+RM.TargetProductionFP
 FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.RunningMachineSetUpTarget RM ON RM.WorkCenterMasterId=wc.Id AND RM.ProcessId = '" + ProcessId + @"'  
                         AND  RM.EntityId='" + EntityId + @"' AND RM.TargetDate='"+ TargetDate + "'  AND RM.ProductionShiftId ='" + ProductionShiftId+ @"' 
@@ -484,8 +486,8 @@ where RD.ProcessId='" + ProcessId + "'";
                                 so.OwnRefNo, so.StyleNo, so.OwnStyleNo, so.SONo,
                                 so.SODesc,So.MasterOrderId,
                                 so.Customer,so.article,PRODPR.ProductionQtyAtPR,So.BuyerItemNo,SO.CustomerPONo
-                                   ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty,CEILING((60/t1.SPT)*("+ PlanHours +@")*t1.NoOfWorkStation) as TargetFD
-                                  			
+                                   ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty,CEILING((60/t1.SPT)*("+ PlanHours + @")*t1.NoOfWorkStation) as TargetFD
+                              ,PRODPR.LotNumber    			
   
                             FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
@@ -493,10 +495,10 @@ where RD.ProcessId='" + ProcessId + "'";
                             INNER JOIN ProductionOrderSchedulingParametersType1 t1 ON t1.ProductionOrderID=po.Id
 
                              LEFT OUTER JOIN (
-												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
+												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR,s.LotNumber
 											FROM  trn.ProductionSummary S 
 											--WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-											GROUP BY  s.ProductionOrderId,s.ProcessId
+											GROUP BY  s.ProductionOrderId,s.ProcessId,s.LotNumber
 							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
 							 left outer join (SELECT pod.ProductionOrderId,
                                 sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty

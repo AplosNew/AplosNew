@@ -10,23 +10,25 @@
      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-rowdatabound="rowDataBound">
     <div e-columns>
-        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="50"></div>
-        <div e-column e-field="Line" e-headertext="Work Center" e-width="100"></div>
-        <div e-column e-field="WorkStation" e-headertext="Work Stations" e-width="100"></div>
-        <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="100"></div>
+        <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-visible="false" e-template="#checkboxTemplate" e-textalign="center" e-width="50"></div>
+        <div e-column e-template="#AddTile" e-headertext="Add" e-width="50"></div>
+        <div e-column e-field="Line" e-headertext="Work Center" e-width="80"></div>
+        <div e-column e-field="WorkStation" e-headertext="Work Stations" e-width="80"></div>
+        <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="60"></div>
         <div e-column e-template="#templateSearchPR" e-headertext="" e-width="50"></div>
-        <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="100"></div>
-        <div e-column e-field="Article" e-headertext="Article" e-width="100"></div>
-        <div e-column e-template="#templateSMV" e-headertext="SPT" e-visible="false" e-width="100"></div>
-        <div e-column e-template="#templatePlanHour" e-headertext="Plan Hours" e-width="100"></div>
-        <div e-column e-template="#templateEfficiency" e-headertext="Efficiency" e-width="100"></div>
+        <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="80"></div>
+        <div e-column e-field="Article" e-headertext="Article" e-width="140"></div>
+        <div e-column e-template="#templateSMV" e-headertext="SPT" e-visible="false" e-width="80"></div>
+        <div e-column e-template="#templatePlanHour" e-headertext="Plan Hours" e-width="80"></div>
+        <div e-column e-template="#templateEfficiency" e-headertext="Efficiency" e-width="80"></div>
         <div e-column e-template="#templateTargetFD" e-headertext="Plan Production FP" e-width="100"></div>
         <div e-column e-template="#templateTargetProductionFP" e-headertext="Target Production FP" e-width="100"></div>
-        <div e-column e-template="#ItemValue" e-headertext="Item Value" e-width="50"></div>
-        <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="100"></div>
         <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="120"></div>
-        <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="200"></div>
-        <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="200"></div>
+        <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
+        <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="120"></div>
+        <div e-column e-template="#ItemValue" e-headertext="Item Value" e-width="50"></div>
+        <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="60"></div>
+        <div e-column e-template="#UpdateItemValue" e-headertext="Update Item Value" e-width="60"></div>
     </div>
 </div>
 
@@ -37,7 +39,7 @@
     <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculateTargetProductioin" e-minValue="0" e-enablertl="false" e-value="data.PlanHours" e-width="100%" />
 </script>
 <script type="text/template" id="templateEfficiency">
-    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculateTargetProductioin" e-minValue="0" e-enablertl="false" e-value="data.Efficiency" e-width="100%" />
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculatePlanProductioin" e-minValue="0" e-enablertl="false" e-value="data.Efficiency" e-width="100%" />
 </script>
 <script type="text/template" id="templateTargetFD">
     <input type="text" class="form-control" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.TargetFD" e-width="100%" />
@@ -53,12 +55,12 @@
 </script>
 <script type="text/template" id="LotNumber">
     <div class="col-sm-10" style="padding:0px;">
-        <input type="text" name="LotNumbers" ng-model="data.LotNumber" class="form-control" maxlength="200">
+        <input type="text"  name="LotNumbers" ng-model="data.LotNumber" class="form-control" maxlength="200">
     </div>
 </script>
 <script type="text/template" id="templateSearchPR">
     <div class="common-btn">
-        <ul class="list-inline text-right small">
+        <ul class="list-inline text-center small">
             <li>
                 <button ng-click="$parent.SearchPRPopup(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;">
                     <i class="glyphicon glyphicon-search"></i>
@@ -74,27 +76,27 @@
     </div>
 </script>
 <script type="text/template" id="ResponsiblePerson">
-    <div class="col-sm-8" style="padding:0px;">
-        <input type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="true" class="form-control" readonly>
+    <div class="col-sm-12" style="padding:0px;">
+        <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
     </div>
-    <div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
+    @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-    </div>
+    </div>*@
 </script>
 <script type="text/template" id="InCharge">
-    <div class="col-sm-8" style="padding:0px;">
-        <input type="text" name="InCharge" ng-model="data.InCharge" ng-disabled="true" class="form-control" readonly>
+    <div class="col-sm-12" style="padding:0px;">
+        <input type="text" ng-click="$parent.selectGridIncharge(this);" name="InCharge" ng-model="data.InCharge" ng-disabled="false" class="form-control" readonly>
     </div>
-    <div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
+    @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
         <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-    </div>
+    </div>*@
 </script>
 <script type="text/template" id="ItemValue">
     <div class="form-group">
         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
             <div class="common-btn">
                 <ul class="list-inline text-left">
-                    <li><button ng-click="$parent.SaveSingleRow();$parent.getItemValuePopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    <li><button ng-click="$parent.SaveSingleRow(this);" class="btn" ng-disabled="data.Id!=null"><i class="glyphicon glyphicon-list"></i></button></li>
                 </ul>
             </div>
         </div>
@@ -109,6 +111,24 @@
                 </ul>
             </div>
         </div>
+    </div>
+</script>
+<script type="text/template" id="UpdateItemValue">
+    <div class="form-group">
+        <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="$parent.UpdateSingleRow(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/template" id="AddTile">
+    <div class="common-btn">
+        <ul class="list-inline text-center small">
+            <li><button ng-click="$parent.AddTile(data);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
+        </ul>
     </div>
 </script>
 
