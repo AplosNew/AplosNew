@@ -816,7 +816,8 @@ namespace Library.HumanResource.Employee
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"select Id Value, StandardName Text from ORG.Plant";
+               
+                var str = @"select Id Value, StandardName Text from ORG.Plant where Id = '"+ identity.PlantId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception ex)
@@ -869,7 +870,7 @@ left join HKP.MedicineMaster M on M.Id = MRC.MedicineMasterId
 left join HKP.Party P on P.Id = mR.PartyId
 left join ORG.Plant PL on PL.Id = MR.PartyId
 where MRC.MedicineReceiptId = '" + masterId + @"'
-order by MRC.ExpiryDate";
+--order by MRC.ExpiryDate";
 
                 return _sqlRepository.GetDataCollection(str);
             }
