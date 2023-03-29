@@ -145,7 +145,13 @@
                 <input type="text" name="Blacklisting Date" ng-model="BlackList.BlacklistingDate" datepicker class="form-control" required tabindex="8">
             </div>
         </div>
-
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Attachment</label>
+            <div class="col-sm-4">
+                <div id="UploadDefault" e-dialogtext-title="Attachment" e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-multiplefilesselection=false e-extensionsallow=".jpg,.bmp,.png,.jpeg,.docx,.xlsx,.xls,.pdf" e-error="errorPicUpload"></div>
+            </div>
+            <label class="col-sm-4 control-label" style="text-decoration:underline" ng-click="FileDownload(BlackList)">{{BlackList.FileName}}</label>
+        </div>
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">

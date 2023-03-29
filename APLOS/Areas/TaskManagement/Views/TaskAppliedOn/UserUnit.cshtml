@@ -6,7 +6,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 15px;">
-                <span class="input-group-addon">{{ModelNew.EmployeeId}}</span>
+                <span class="input-group-addon">{{ModelNew.UserId}}</span>
                 <input type="text" name="User Name" ng-model="ModelNew.FullName" class="form-control" required readonly>
                 <span class="input-group-btn">
                     <button name="submit" class="btn single-small-btn" ng-click="popUp()" ng-disabled="ModelNew.Id!=null" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
@@ -51,7 +51,7 @@
                     <td>{{x.Href}}</td>
 
                     <td class="text-right">
-                        <button ng-click="removeRow($index)" data-toggle="modal" ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                        <button ng-click="$parent.removeRow(x)" data-toggle="modal" ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                             <i class="glyphicon glyphicon-remove"></i>
                         </button>
                     </td>
@@ -76,8 +76,9 @@
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="FullName" e-headertext="User Name" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Password" e-headertext="Password" e-width="3"></div>
+            <div e-column e-field="UserId" e-headertext="User Name" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="FullName" e-headertext="Full Name" e-width="3"></div>
+            <div e-column e-field="UserType" e-headertext="User Type" e-width="3"></div>
         </div>
     </div>
 </div>
