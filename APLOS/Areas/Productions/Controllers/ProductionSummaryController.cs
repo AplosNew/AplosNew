@@ -532,12 +532,20 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             }
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
+        //[HttpPost]
+        //public JsonResult CreateWC(List<Dictionary<string, object>> DataList)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    _ProductionSummaryService.SaveMasterWC(DataList);
+        //    return Json(new { Message = AplosMessage.Success });
+        //}
         [HttpPost]
-        public JsonResult CreateWC(List<Dictionary<string, object>> DataList)
+        public JsonResult CreateWC(ProductionSummary ps)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _ProductionSummaryService.SaveMasterWC(DataList);
-            return Json(new { Message = AplosMessage.Success });
+            ps.PlantId = identity.PlantId;
+            _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId);
+            return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
         [HttpPost]
         public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
@@ -809,6 +817,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
 
                 conC.BeginTransaction();
+                conC.executeQuery("delete from TRN.ProductionReasonValue where ProductionId ='" + id + @"'");
+                conC.executeQuery("delete from MachineMasterTransaction where ProductionSummaryId ='" + id + @"'");
                 conC.executeQuery("delete from ProductionSummaryParameterValue where ProductionSummaryId ='" + id + @"'");
                 conC.executeQuery("delete from [TRN].[ProductionSummary] where Id ='" + id + @"'");
                 conC.CommitTransaction();

@@ -180,26 +180,26 @@
                      e-allowselection="true"
                      e-filtersettings-filterType="excel">
                     <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryWC" e-template="#checkboxTemplateProductionSummaryWC" e-textalign="center" e-width="30"></div>
+                        @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryWC" e-template="#checkboxTemplateProductionSummaryWC" e-textalign="center" e-width="30"></div>*@
+                        <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
                         <div e-column e-field="WorkCenterMasterId" e-headertext="Id" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="WorkCenter" e-headertext="WorkCenter" e-width="120"></div>
+                        <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
                         <div e-column e-template="#ProductionOrderId" e-headertext="PO No" e-width="120"></div>
                         @*<div e-column e-template="#ProductionArticle" e-headertext="Production Article" e-width="200"></div>*@
                         <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="80"></div>
                         <div e-column e-template="#ProductionGrade" e-headertext="Grade" e-width="80"></div>
                         <div e-column e-template="#Quantity" e-headertext="Quantity" e-width="120"></div>
+                        <div e-column e-template="#SaveWP" e-headertext="Save" e-width="80"></div>
                         <div e-column e-template="#Detention" e-headertext="Detention" e-width="120"></div>
                         <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="100"></div>
-                        <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
-                        <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="180"></div>
-                        <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="180"></div>
+                        <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
+                        <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="120"></div>
                         <div e-column e-template="#Mentor" e-headertext="Mentor" e-width="200" e-visible="false"></div>
                         <div e-column e-template="#CheckedBy" e-headertext="CheckedBy" e-visible="false" e-width="200"></div>
                         <div e-column e-field="OrderQty" e-headertext="Odr.Qty" e-width="100"></div>
                         <div e-column e-field="BookedQty" e-headertext="Bkd.Qty" e-width="100"></div>
                         <div e-column e-template="#BalanceQty" e-headertext="Balance Qty" e-width="80"></div>
                         <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
-                        <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
                         <div e-column e-field="TargetProductionFP" e-headertext="Prod.FP" e-width="100"></div>
                         <div e-column e-field="Article" e-headertext="Article" e-width="200"></div>
                         <div e-column e-field="SONo" e-headertext="SO No" e-width="200"></div>
@@ -207,6 +207,7 @@
                         <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="200"></div>
                         <div e-column e-field="ProductDetails" e-headertext="Product Details" e-width="200"></div>
                         <div e-column e-field="CustomerRefNo" e-headertext="Customer Ref No" e-width="200"></div>
+                        <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                     </div>
                 </div>
                 <script type="text/template" id="checkboxTemplateProductionSummaryWC">
@@ -232,20 +233,20 @@
                     </div>
                 </script>
                 <script type="text/template" id="ResponsiblePerson">
-                    <div class="col-sm-8" style="padding:0px;">
-                        <input type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="true" class="form-control" readonly>
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
                     </div>
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                    @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                         <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>
+                    </div>*@
                 </script>
                 <script type="text/template" id="InCharge">
-                    <div class="col-sm-8" style="padding:0px;">
-                        <input type="text" name="InCharge" ng-model="data.InCharge" ng-disabled="true" class="form-control" readonly>
+                    <div class="col-sm-12" style="padding:0px;">
+                        <input type="text" ng-click="$parent.selectGridIncharge(this);" name="InCharge" ng-model="data.InCharge" ng-disabled="false" class="form-control" readonly>
                     </div>
-                    <div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
+                    @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
                         <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>
+                    </div>*@
                 </script>
                 <script type="text/template" id="CheckedBy">
                     <div class="col-sm-10" style="padding:0px;">
@@ -268,9 +269,18 @@
                         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-show="$parent.IsParameterBased==true" ng-disabled="data.RemainingQty<=0;" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                    <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-show="$parent.IsParameterBased==true"  class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                                 </ul>
                             </div>
+                        </div>
+                    </div>
+                </script>
+                <script type="text/template" id="SaveWP">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="$parent.SaveMasterWC(this);" ng-show="$parent.IsParameterBased==false"  class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                            </ul>
                         </div>
                     </div>
                 </script>
@@ -310,7 +320,7 @@
                 <script type="text/template" id="Detention">
                     <div class="form-group">
                         <div class="col-sm-7" style="padding:0px;">
-                            <input type="text" class="form-control" ng-model="data.SumMin">
+                            <input type="text" class="form-control" ng-disabled="true" ng-model="data.SumMin">
                         </div>
                         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                             <div class="common-btn">
@@ -349,7 +359,7 @@
         <div class="clearfix"></div>
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li><button ng-click="SaveMasterWC();" ng-show="IsVisible" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+               @* <li><button ng-click="SaveMasterWC();" ng-show="IsVisible" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>*@
                 <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
@@ -462,7 +472,7 @@
                              e-allowscrolling="true"
                              e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryDetentionWC" e-template="#checkboxTemplateProductionSummaryDetentionWC" e-textalign="center" e-width="30"></div>
+                                @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryDetentionWC" e-template="#checkboxTemplateProductionSummaryDetentionWC" e-textalign="center" e-width="30"></div>*@
                                 <div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="false"></div>
                                 <div e-column e-field="Sequence" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="EntityId" e-headertext="Id" e-width="50" e-visible="false"></div>
@@ -529,7 +539,7 @@
                         </script>
                         <script type="text/template" id="Minute">
                             <div class="col-sm-6" style="padding:0px;">
-                                <input type="text" name="Minute" ng-model="data.Minute" class="form-control" required  tabindex="4" maxlength="50">
+                                <input type="number" name="Minute" ng-model="data.Minute" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </script>
                     </div>
@@ -556,6 +566,8 @@
                         <div e-columns>
                             <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
                             <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
                             <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
                             <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
                             <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
@@ -933,10 +945,10 @@
                                 <div e-column e-template="#Value" e-headertext="Reason Value" e-width="50"></div>
                                 <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="50"></div>
                             </div>
-                           
+
                             <script type="text/template" id="Value">
                                 <div class="col-sm-12" style="padding:0px;">
-                                    <input type="number" name="ReasonValue" ng-model="data.ReasonValue" ng-click="" class="form-control">
+                                    <input type="text" name="ReasonValue" ng-model="data.ReasonValue" ng-click="" class="form-control">
                                 </div>
                             </script>
                             <script type="text/template" id="Remarks">

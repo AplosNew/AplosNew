@@ -1,0 +1,106 @@
+﻿<togglable name="Document Category"></togglable>
+<div class="form-elements form-horizontal" ng-form name="buyerNewForm">
+    <input type="hidden" ng-model="documentNew.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" name="Sequence" ng-model="documentNew.Sequence" class="form-control" required tabindex="1">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="ShortName" ng-model="documentNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="UserName" ng-model="documentNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="documentNew.Description" tabindex="7" maxlength="250"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Code" ng-model="documentNew.Code" class="form-control" required tabindex="2" maxlength="10">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="StandardName" ng-model="documentNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="3" ng-model="documentNew.Remarks" maxlength="250" tabindex="8"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="documentNew.Active">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="SaveDC();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> {{ActionDC}}</button></li>
+            <li> <button data-toggle="modal" data-target="#confirmDetailPopUpDC" class="btn" tabindex="21"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="ClearDC();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchByDC">
+                            <option ng-repeat="option in searchByListDC" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.searchDC" ng-enter="getDataDC()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getDataDC()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="DocumentCategoryList" e-recorddoubleclick="GetDC" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="2"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="3"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="UserName" e-headertext="Budge tCode" e-width="5"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="5"></div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmDetailPopUpDC" title="Confirmation" message="Are you sure want to Delete?" data-ng-click-right-button="DeleteDC();"></confirm-archive-generic>
