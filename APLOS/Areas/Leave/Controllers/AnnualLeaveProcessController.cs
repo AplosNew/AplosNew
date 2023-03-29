@@ -631,8 +631,6 @@ namespace Aplos.Areas.Leave.Controllers
             var filePath = "";
             try
             {
-
-
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
@@ -648,6 +646,7 @@ namespace Aplos.Areas.Leave.Controllers
                 sheet[ROW, COL].Text = "EmployeeName"; sheet[ROW, COL].ColumnWidth = 16; int colEmployeeName = COL; COL++;
                 sheet[ROW, COL].Text = "DOJ"; sheet[ROW, COL].ColumnWidth = 16; int colDOJ  = COL; COL++;
                 sheet[ROW, COL].Text = "DOS"; sheet[ROW, COL].ColumnWidth = 16; int colDOS = COL; COL++;
+                sheet[ROW, COL].Text = "DayStatus Count"; sheet[ROW, COL].ColumnWidth = 16; int colDayStatus = COL; COL++;
                 sheet[ROW, COL].Text = "LeaveType"; sheet[ROW, COL].ColumnWidth = 16; int colLeaveType = COL; COL++;
                 sheet[ROW, COL].Text = "EarnValue"; sheet[ROW, COL].ColumnWidth = 16; int colEarnValue = COL; COL++;
                 sheet[ROW, COL].Text = "AvailedValue"; sheet[ROW, COL].ColumnWidth = 16; int colAvailedValue = COL;
@@ -677,6 +676,7 @@ namespace Aplos.Areas.Leave.Controllers
                     sheet[ROW, colDOJ].Text = data[i]["DOJ"].ToString();
                     sheet[ROW, colDOS].Text = data[i]["DOS"].ToString();
                     sheet[ROW, colLeaveType].Text = data[i]["LeaveType"].ToString();
+                    sheet[ROW, colDayStatus].Number = OTSBD.clsStaticInfo.dbl(data[i]["DayStatus"].ToString());
                     sheet[ROW, colEarnValue].Number = OTSBD.clsStaticInfo.dbl(data[i]["EarnValue"].ToString());
                     sheet[ROW, colAvailedValue].Number = OTSBD.clsStaticInfo.dbl(data[i]["AvailedValue"].ToString());
 
@@ -703,14 +703,10 @@ namespace Aplos.Areas.Leave.Controllers
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
 
-                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-
-
                 //#endregion ******************Report Header******************
 
                 sheet.PageSetup.TopMargin = 0.2;
                 sheet.PageSetup.BottomMargin = 0.8;
-                //sheet.PageSetup.PrintTitleRows = "$1:$6";
                 sheet.PageSetup.LeftMargin = 0.2;
                 sheet.PageSetup.RightMargin = 0.2;
                 sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
