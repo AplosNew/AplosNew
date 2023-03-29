@@ -175,7 +175,8 @@ function DocumentSetupController(cboService, commonMessage, $scope, $rootScope, 
         UserName: null,
         Description: null,
         Remarks: null,
-        Active: true                                                                                   
+        Active: true,
+        Archive: false
     };
     $scope.sopDocumentSubCategoryNew = Object.assign({}, $scope.SOPDocumentSubCategory);
 

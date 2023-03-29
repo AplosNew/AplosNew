@@ -6129,15 +6129,15 @@ finally
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
                         xlsCol = 1;
-                        xlsRow = 57;
+                        xlsRow = 80;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Prepared By";
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                        xlsCol = 3;
-                        xlsRow = 57;
+                        xlsCol = 8;
+                        xlsRow = 80;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Checked By";
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -6152,8 +6152,8 @@ finally
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                        xlsCol = 7;
-                        xlsRow = 57;
+                        xlsCol = 13;
+                        xlsRow = 80;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Authorized By";
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
