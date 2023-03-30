@@ -79,6 +79,7 @@ function MedicineReceiptController(cboService, commonMessage, $scope, $rootScope
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.PlantList = response.data;
+            $scope.ModalNew.PlantId = response.data[0].Value
 
         });
     }

@@ -6129,15 +6129,15 @@ finally
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
                         xlsCol = 1;
-                        xlsRow = 57;
+                        xlsRow = 80;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Prepared By";
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                        xlsCol = 3;
-                        xlsRow = 57;
+                        xlsCol = 8;
+                        xlsRow = 80;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Checked By";
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -6152,8 +6152,8 @@ finally
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
                         //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
-                        xlsCol = 7;
-                        xlsRow = 57;
+                        xlsCol = 13;
+                        xlsRow = 80;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Authorized By";
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -24955,6 +24955,7 @@ private void CreateFinalSettlement(string companyGroupId, string companyId, stri
         DataTable dtFinalSettlementDedutionData = null;
         DataTable dtFinalSettlementEarningData = null;
         decimal TotalEarning = 0;
+        decimal TotalEarningAmount = 0;
         decimal SeparationTypeAmount = 0;
         decimal LvEncashmentAmount = 0;
         decimal LeaveEncash = 0;
@@ -24989,11 +24990,14 @@ private void CreateFinalSettlement(string companyGroupId, string companyId, stri
             LeaveEncash = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LeaveEncash"].ToString());
             LastMonthNetPayAmount = Convert.ToDecimal(dtFinalSettlementData.Rows[0]["LastMonthNetPayAmount"].ToString());
             FinalSettlementEarningData = dtFinalSettlementEarningData.Rows.Count > 0 ? Convert.ToDecimal(dtFinalSettlementEarningData.Compute("SUM(Amount)", string.Empty)) : 0;
+            
             TotalEarning = SeparationTypeAmount + LeaveEncash + LastMonthNetPayAmount + FinalSettlementEarningData;
+            TotalEarningAmount = SeparationTypeAmount + LvEncashmentAmount + LastMonthNetPayAmount + FinalSettlementEarningData;
 
             decimal TotalDeduction = dtFinalSettlementDedutionData.Rows.Count > 0 ? Convert.ToDecimal(dtFinalSettlementDedutionData.Compute("SUM(Amount)", string.Empty)) : 0;
             decimal Payable = TotalEarning - TotalDeduction;
             document.Replace("{TotalEarning}", cnDgt(TotalEarning.ToString("N0"), UserName), false, true);
+            document.Replace("{TotalEarningAmount}", cnDgt(TotalEarning.ToString("N0"), UserName), false, true);
             document.Replace("{TotalDeduction}", cnDgt(TotalDeduction.ToString("N0"), UserName), false, true);
             document.Replace("{Payable}", cnDgt(Payable.ToString("N0"), UserName), false, true);
 
