@@ -24875,7 +24875,7 @@ private void CreateFinalSettlement(string companyGroupId, string companyId, stri
         foreach (TextSelection item in allresult)
         {
             string foundText = item.SelectedText;
-            if (foundText == "Gratuity")
+            if (foundText == "LvEncashmentRateAmount")
             {
 
             }
