@@ -760,7 +760,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
                         { field: 'ProductionOrderNo', width: 20, headerText: "Production Order No", type: "string" },
                         { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
                         { field: 'Process', width: 20, headerText: "Process", type: "string" },
-                        //{ field: 'Customer', width: 20, headerText: "Customer", type: "string" }
+                        { field: 'Customer', width: 20, headerText: "Customer", type: "string" }
                     ];
 
 
@@ -802,7 +802,7 @@ function POWiseProductionStatusReportController(commonMessage, $scope, $rootScop
         powisemeters.push({ "Key": "ProductionOrderNo", "Value": getString(fl, "ProductionOrderNo") });
         powisemeters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
         powisemeters.push({ "Key": "ProcessId", "Value": getString(fl, "ProcessId") });
-        //powisemeters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
+        powisemeters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
 
         $scope.powisemeters = powisemeters;
 
