@@ -478,6 +478,26 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetWrongCarten(out List<Default2> activelists, Refno, SalesId);
             return activelists;
         }
+
+        public List<Default2> GetProcessTagKg(string ProcessId, string EntityId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProcessTagKg(out List<Default2> activelists, ProcessId, EntityId);
+            return activelists;
+        }
+
+        public List<Default2> GetProductionParameterId(string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionParameterId(out List<Default2> activelists, ProcessId);
+            return activelists;
+        }
+        public List<Default2> GetProductionParameter(string ParameterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionParameter(out List<Default2> activelists, ParameterId);
+            return activelists;
+        }
         #endregion Aman
         #endregion written by Aman
 

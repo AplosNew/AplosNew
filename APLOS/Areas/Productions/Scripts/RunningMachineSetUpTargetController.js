@@ -466,6 +466,9 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 url: 'Productions/RunningMachineSetUpTarget/GetDailyTarget?EntityId=' + $scope.DailyProductionTargetNew.EntityId + '&ProcessId=' + $scope.DailyProductionTargetNew.ProcessId + '&TargetDate=' + $scope.DailyProductionTargetNew.TargetDate + '&ProductionShiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId +  '&HeaderResponsiblePersonId=' + $scope.DailyProductionTargetNew.HeaderResponsiblePersonId + '&HeaderInchargeId=' + $scope.DailyProductionTargetNew.HeaderInchargeId + '&HeaderPlanHour=' + $scope.DailyProductionTargetNew.HeaderPlanHour,
             }).then(function successCallback(response) {
                 $scope.DailyTargetList = response.data;
+                for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+                    Object.assign($scope.DailyTargetList[i], { 'Serial': parseInt(i) });
+                }
             }
             )
         } catch (e) {
