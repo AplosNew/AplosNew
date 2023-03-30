@@ -117,7 +117,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                        <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" ng-change="DateValidation(productionSummaryNew.ProductionDate);" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
                     </div>
 
                 </div>
@@ -295,7 +295,7 @@
                         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li><button ng-click="$parent.SaveMasterWC(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                    <li><button ng-click="$parent.UpdateMasterWC(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                                 </ul>
                             </div>
                         </div>
