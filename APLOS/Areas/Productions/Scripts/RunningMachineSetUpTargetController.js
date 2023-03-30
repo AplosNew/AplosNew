@@ -19,6 +19,18 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.WithEmployee = false;
     $scope.WithMachine = false;
 
+    $scope.DateValidation = function (ProductionDate) {
+        try {
+            if (new Date(ProductionDate) > new Date()) {
+                throw "Target Date must be below or equal to current Date!";
+            }
+
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;

@@ -25218,7 +25218,7 @@ namespace Library.Service.HumanResources
                     document.Replace("{TotalDeduction}", cnDgt(TotalDeduction.ToString("N0"), UserName), false, true);
                     document.Replace("{Payable}", cnDgt(Payable.ToString("N0"), UserName), false, true);
                     document.Replace("{TotalPayable}", cnDgt(TotalPayable.ToString("N0"), UserName), false, true);
-                    document.Replace("{NetPayAmount}", cnDgt(NetPayAmount.ToString("N0"), UserName), false, true);
+                    document.Replace("{NetPayableAmount}", cnDgt(NetPayAmount.ToString("N0"), UserName), false, true);
                     document.Replace("{PayableNetPayAmount}", cnDgt(PayableNetPayAmount.ToString("N0"), UserName), false, true);
 
                 }
