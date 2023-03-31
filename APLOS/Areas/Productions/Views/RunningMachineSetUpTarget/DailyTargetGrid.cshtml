@@ -1,7 +1,7 @@
 ﻿<div class="common-btn" ng-show="DailyTargetList.length>0">
     <ul class="list-inline text-right">
         <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetRunningMachineJobCardReportView?EntityId={{DailyProductionTargetNew.EntityId}}&ProcessId={{DailyProductionTargetNew.ProcessId}}&TargetDate={{DailyProductionTargetNew.TargetDate}}&ShiftId={{DailyProductionTargetNew.ProductionShiftId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a></li>
-        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+        <li> <button ng-click="Save();" ng-hide="true" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
         <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
     </ul>
 </div>
@@ -28,6 +28,7 @@
         <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="120"></div>
         <div e-column e-template="#ItemValue" e-headertext="Item Value" e-width="50"></div>
         <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="60"></div>
+        <div e-column e-template="#Detention" e-headertext="Detention" e-visible="false" e-width="120"></div>
         <div e-column e-template="#UpdateItemValue" e-headertext="Update Item Value" e-width="60"></div>
     </div>
 </div>
@@ -39,7 +40,7 @@
     <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculateTargetProductioin" e-minValue="0" e-enablertl="false" e-value="data.PlanHours" e-width="100%" />
 </script>
 <script type="text/template" id="templateEfficiency">
-    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="2" e-change="$parent.CalculatePlanProductioin" e-minValue="0" e-enablertl="false" e-value="data.Efficiency" e-width="100%" />
+    <input type="text" class="form-control" ej-numerictextbox e-decimalplaces="0" e-change="$parent.CalculatePlanProductioin" e-minValue="0" e-enablertl="false" e-value="data.Efficiency" e-width="100%" />
 </script>
 <script type="text/template" id="templateTargetFD">
     <input type="text" class="form-control" e-enabled="false" ej-numerictextbox e-decimalplaces="2" e-minValue="0" e-enablertl="false" e-value="data.TargetFD" e-width="100%" />
@@ -55,7 +56,7 @@
 </script>
 <script type="text/template" id="LotNumber">
     <div class="col-sm-10" style="padding:0px;">
-        <input type="text"  name="LotNumbers" ng-model="data.LotNumber" class="form-control" maxlength="200">
+        <input type="text" name="LotNumbers" ng-model="data.LotNumber" class="form-control" maxlength="200">
     </div>
 </script>
 <script type="text/template" id="templateSearchPR">
@@ -80,16 +81,16 @@
         <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
     </div>
     @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
-        <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-    </div>*@
+            <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+        </div>*@
 </script>
 <script type="text/template" id="InCharge">
     <div class="col-sm-12" style="padding:0px;">
         <input type="text" ng-click="$parent.selectGridIncharge(this);" name="InCharge" ng-model="data.InCharge" ng-disabled="false" class="form-control" readonly>
     </div>
     @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
-        <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-    </div>*@
+            <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+        </div>*@
 </script>
 <script type="text/template" id="ItemValue">
     <div class="form-group">
@@ -108,6 +109,20 @@
             <div class="common-btn">
                 <ul class="list-inline text-left">
                     <li><button ng-click="$parent.CalculateTargetProductioinDiff(this);$parent.getReasonValuePopup(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/template" id="Detention">
+    <div class="form-group">
+        <div class="col-sm-7" style="padding:0px;">
+            <input type="text" class="form-control" ng-disabled="true" ng-model="data.SumMin">
+        </div>
+        <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="$parent.getProcessDetentionPopupPoPUp(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                 </ul>
             </div>
         </div>
@@ -241,6 +256,221 @@
         </div>
     </div>
 </div>
+<!-- #region Detention -->
+<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Detention<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl form-horizontal">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label class="col-sm-2 control-label">Entity</label>
+                            <label class="col-sm-3 control-label">Process</label>
+                            <label class="col-sm-2 control-label">Date</label>
+                            <label class="col-sm-3 control-label">Shift</label>
+                            <label class="col-sm-2 control-label">Work Center</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="form-group">
+                            <div class="col-sm-2">
+                                <div class="select-style">
+                                    <select class="form-control" ng-disabled="IsGo" ng-model="DailyProductionTargetNew.EntityId" ng-change="loadProcessList(DailyProductionTargetNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="select-style">
+                                    <select class="form-control" ng-disabled="IsGo" ng-model="DailyProductionTargetNew.ProcessId" ng-change="getProdLevel();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" ng-disabled="IsGo" ng-model="DailyProductionTargetNew.TargetDate" class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="select-style">
+                                    <select class="form-control" ng-disabled="IsGo" ng-model="DailyProductionTargetNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <input type="text" ng-model="DailyProductionTargetNew.workCenter" ng-disabled="true" class="form-control" maxlength="200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="col-xs-12">
+                        <div ng-init="chkinit()" id="ProductionSummaryDetentionWC" ej-grid style="z-index:3;"
+                             e-templaterefresh="refreshTemplateProductionSummaryDetentionWC"
+                             e-datasource="ProcessDetentionLists"
+                             e-rowdatabound="onactivedatabound"
+                             e-allowfiltering="true"
+                             e-allowpaging="true"
+                             e-allowsorting="true"
+                             e-enabletouch="false"
+                             e-responsive="true"
+                             e-allowselection="true"
+                             e-allowscrolling="true"
+                             e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryDetentionWC" e-template="#checkboxTemplateProductionSummaryDetentionWC" e-textalign="center" e-width="30"></div>*@
+                                <div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="false"></div>
+                                <div e-column e-field="Sequence" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="EntityId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="ProcessId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="Date" e-headertext="Date" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="ShiftId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="WorkCenterMasterId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="ResponsiblePersonId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="200" e-visible="false"></div>
+                                <div e-column e-template="#Department" e-headertext="Department" e-width="200"></div>
+                                <div e-column e-template="#DetentionTypeId" e-headertext="Detention Type" e-width="200"></div>
+                                <div e-column e-template="#DetentionId" e-headertext="Detention" e-width="200"></div>
+                                <div e-column e-template="#ResponsiblePersonD" e-headertext="Responsible Person" e-width="200"></div>
+                                <div e-column e-template="#Remark" e-headertext="Remarks" e-width="200"></div>
+                                <div e-column e-template="#Minute" e-headertext="Minute" e-width="200"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateProductionSummaryDetentionWC">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateProductionSummaryDetentionWC">
+                            <input type="checkbox" id="headchk" />
+                        </script>
+                        <script type="text/template" id="Department">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="DepartmentName" ng-model="data.DepartmentName" ng-disabled="true" class="form-control" readonly>
+                            </div>
+                            <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                <button ng-click="$parent.selectDepartment(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </script>
+                        <script type="text/template" id="DetentionTypeId">
+                            <div class="select-style">
+                                <input ej-dropdownlist e-datasource="data.DetentionTypeList" e-value="data.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-change="$parent.GetDetentionList" e-width="100%" />
+                            </div>
+                        </script>
+                        <script type="text/template" id="DetentionId">
+                            <div class="select-style">
+                                <input ej-dropdownlist e-datasource="data.DetentionList" e-value="data.DetentionId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                            </div>
+                        </script>
+
+                        <script type="text/template" id="ResponsiblePersonD">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="ResponsiblePersonD" ng-model="data.ResponsiblePerson" ng-disabled="true" class="form-control" readonly>
+                            </div>
+                            <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                <button ng-click="$parent.selectDetResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </script>
+                        <script type="text/template" id="Remark">
+                            <div class="col-sm-12" style="padding:0px;">
+                                <input type="text" name="Remark" ng-model="data.Remark" ng-click="" class="form-control">
+                            </div>
+                        </script>
+                        <script type="text/template" id="Minute">
+                            <div class="col-sm-6" style="padding:0px;">
+                                <input type="number" name="Minute" ng-model="data.Minute" class="form-control" required tabindex="4" maxlength="50">
+                            </div>
+                        </script>
+                    </div>
+                    <div class="clearfix common-btn" style="padding-right: 15px;">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="SaveDetentionWC();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DepartmentPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Department List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Department</p>
+                        <div style="color:black;" id="GridDepartment" ej-grid e-datasource="DepartmentList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleDepartment">
+                            <div e-columns>
+                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                <div e-column e-field="DepartmentName" e-headertext="Department" e-width="120"></div>
+                            </div>
+
+                        </div>
+                        @*
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                            </script>*@
+
+
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeDepartmentPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="DetResponiblePersonPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Responible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Responible Person</p>
+                        <div style="color:black;" id="GridDetResponsible" ej-grid e-datasource="DetResponsibleList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleDetResponsible">
+                            <div e-columns>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
+                                <div e-column e-field="ResponsiblePerson" e-headertext="Employee Name" e-width="50"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="120"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeDetResponsiblePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion -->
 @*<div class="common-btn" ng-show="DailyTargetList.length>0">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
