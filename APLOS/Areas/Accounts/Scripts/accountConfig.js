@@ -990,5 +990,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/InventorySale/InventorySalesReturnPost",
             controller: "inventorySalesReturnPost"
         })
+
+        .when("/chart-account-setup", {
+            templateUrl: "Accounts/ChartAccountSetup/Aplos",
+            controller: "ChartAccountSetupController"
+        })
         ;
 } 
