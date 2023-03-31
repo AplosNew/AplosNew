@@ -2299,7 +2299,7 @@ namespace Library.MaterialManagement.Reports
             sales = loadLocalTaxMaterialMasterWithProductDetail(salesId);
             materialTax = loadOrderMasterTax(salesId);
 
-            int LasColumnIndex = 9;
+            int LasColumnIndex = 11;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(materialTax.DefaultView.ToTable(true, "TaxCode"));
 
@@ -2327,23 +2327,23 @@ namespace Library.MaterialManagement.Reports
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 130;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 110;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 130;
+            wTable.Rows[ROW].Cells[colArticle].Width = 110;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("BuyerRef#");
             range.ApplyCharacterFormat(FontBold);
             int colBuyerRef = COL; COL++;
-            wTable.Rows[ROW].Cells[colBuyerRef].Width = 80;
+            wTable.Rows[ROW].Cells[colBuyerRef].Width = 70;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PONumber");
             range.ApplyCharacterFormat(FontBold);
             int colPONumber = COL; COL++;
-            wTable.Rows[ROW].Cells[colPONumber].Width = 50;
+            wTable.Rows[ROW].Cells[colPONumber].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
@@ -2358,12 +2358,12 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
             range.ApplyCharacterFormat(FontBold);
             int colSKU1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colSKU1].Width = 70;
+            wTable.Rows[ROW].Cells[colSKU1].Width = 65;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
             range.ApplyCharacterFormat(FontBold);
             int colSKU2 = COL; COL++;
-            wTable.Rows[ROW].Cells[colSKU2].Width = 50;
+            wTable.Rows[ROW].Cells[colSKU2].Width = 40;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
@@ -2380,7 +2380,7 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL;
-            wTable.Rows[ROW].Cells[colRate].Width = 60;
+            wTable.Rows[ROW].Cells[colRate].Width = 45;
 
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
@@ -2388,7 +2388,7 @@ namespace Library.MaterialManagement.Reports
                 COL++;
                 colTotalTaxableAmount = COL;
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount " + "(" + " " + sales.Rows[0]["BaseCurrencyName"].ToString() + " " + ")" + " ");
-                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 100;
+                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 75;
                 range.ApplyCharacterFormat(FontBold);
                 //COL++;
                 for (int i = 0; i < dv.Count; i++)
@@ -2520,7 +2520,7 @@ namespace Library.MaterialManagement.Reports
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
+                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colSKU1 || C == colSKU2 || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;
