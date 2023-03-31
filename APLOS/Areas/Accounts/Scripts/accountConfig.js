@@ -995,5 +995,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/ChartAccountSetup/Aplos",
             controller: "ChartAccountSetupController"
         })
+
+        .when("/mnc-account-setup", {
+            templateUrl: "Accounts/ManagementChartAccountSetup/Aplos",
+            controller: "ManagementChartAccountSetupController"
+        })
         ;
 } 

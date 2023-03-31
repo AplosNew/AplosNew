@@ -133,7 +133,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, AllowAnonymous]
+        [HttpPost, Authorize , AllowAnonymous]
         public JsonResult RemoveFavoriteFilter(string id)
         {
             var sql = @"delete from [TRN].[DailyAttendanceFavoriteFilter] where Id = '"+id+"'";
@@ -943,7 +943,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
         #endregion
 
         #region Save
-        [HttpPost ,AllowAnonymous, Authorize]
+        [HttpPost, Authorize, AllowAnonymous]
         public JsonResult Save(Dictionary<string, object> datas, string employeeId)
         {
             try
