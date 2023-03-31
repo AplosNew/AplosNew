@@ -2327,13 +2327,13 @@ namespace Library.MaterialManagement.Reports
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 110;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 130;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 110;
+            wTable.Rows[ROW].Cells[colArticle].Width = 130;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("BuyerRef#");
             range.ApplyCharacterFormat(FontBold);
@@ -2348,12 +2348,22 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 50;
+            wTable.Rows[ROW].Cells[colChar1].Width = 70;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
             wTable.Rows[ROW].Cells[colHSN].Width = 45;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
+            range.ApplyCharacterFormat(FontBold);
+            int colSKU1 = COL; COL++;
+            wTable.Rows[ROW].Cells[colSKU1].Width = 70;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
+            range.ApplyCharacterFormat(FontBold);
+            int colSKU2 = COL; COL++;
+            wTable.Rows[ROW].Cells[colSKU2].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
@@ -2370,7 +2380,7 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL;
-            wTable.Rows[ROW].Cells[colRate].Width = 50;
+            wTable.Rows[ROW].Cells[colRate].Width = 60;
 
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
@@ -2471,6 +2481,8 @@ namespace Library.MaterialManagement.Reports
                 //TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
                 //TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+                TROW.Cells[colSKU1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
+                TROW.Cells[colSKU2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["BooksCurrencyBaseRate"].ToString()).ToString("#,##0.0000"));
