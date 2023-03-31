@@ -117,7 +117,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                        <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" ng-change="DateValidation(productionSummaryNew.ProductionDate);" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
                     </div>
 
                 </div>
@@ -192,14 +192,15 @@
                         <div e-column e-template="#SaveWP" e-headertext="Save" e-width="80"></div>
                         <div e-column e-template="#Detention" e-headertext="Detention" e-width="120"></div>
                         <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="100"></div>
+                        <div e-column e-template="#BalanceQty" e-headertext="Balance Qty" e-width="80"></div>
                         <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
                         <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="120"></div>
+                        <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
+                        <div e-column e-template="#Update" e-headertext="Update" e-width="80"></div>
                         <div e-column e-template="#Mentor" e-headertext="Mentor" e-width="200" e-visible="false"></div>
                         <div e-column e-template="#CheckedBy" e-headertext="CheckedBy" e-visible="false" e-width="200"></div>
                         <div e-column e-field="OrderQty" e-headertext="Odr.Qty" e-width="100"></div>
                         <div e-column e-field="BookedQty" e-headertext="Bkd.Qty" e-width="100"></div>
-                        <div e-column e-template="#BalanceQty" e-headertext="Balance Qty" e-width="80"></div>
-                        <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
                         <div e-column e-field="TargetProductionFP" e-headertext="Prod.FP" e-width="100"></div>
                         <div e-column e-field="Article" e-headertext="Article" e-width="200"></div>
                         <div e-column e-field="SONo" e-headertext="SO No" e-width="200"></div>
@@ -237,16 +238,16 @@
                         <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
                     </div>
                     @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            </div>*@
                 </script>
                 <script type="text/template" id="InCharge">
                     <div class="col-sm-12" style="padding:0px;">
                         <input type="text" ng-click="$parent.selectGridIncharge(this);" name="InCharge" ng-model="data.InCharge" ng-disabled="false" class="form-control" readonly>
                     </div>
                     @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            </div>*@
                 </script>
                 <script type="text/template" id="CheckedBy">
                     <div class="col-sm-10" style="padding:0px;">
@@ -269,7 +270,7 @@
                         <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                             <div class="common-btn">
                                 <ul class="list-inline text-left">
-                                    <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-show="$parent.IsParameterBased==true"  class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                    <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-show="$parent.IsParameterBased==true" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                                 </ul>
                             </div>
                         </div>
@@ -279,14 +280,25 @@
                     <div class="form-group">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="$parent.SaveMasterWC(this);" ng-show="$parent.IsParameterBased==false"  class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                <li><button ng-click="$parent.SaveMasterWC(this);" ng-show="$parent.IsParameterBased==false" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                             </ul>
                         </div>
                     </div>
                 </script>
                 <script type="text/template" id="Remarks">
                     <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Remark" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                    </div>
+                </script>
+                <script type="text/template" id="Update">
+                    <div class="form-group">
+                        <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button ng-click="$parent.UpdateMasterWC(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </script>
                 <script type="text/template" id="AddTile">
@@ -943,7 +955,7 @@
                                 <div e-column e-field="ReasonId" e-headertext="Id" e-visible="false" e-width="120"></div>
                                 <div e-column e-field="ReasonName" e-headertext="Reason Name" e-width="120"></div>
                                 <div e-column e-template="#Value" e-headertext="Reason Value" e-width="50"></div>
-                                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="50"></div>
+                                <div e-column e-template="#ReasonRemarks" e-headertext="Remarks" e-width="50"></div>
                             </div>
 
                             <script type="text/template" id="Value">
@@ -951,9 +963,9 @@
                                     <input type="text" name="ReasonValue" ng-model="data.ReasonValue" ng-click="" class="form-control">
                                 </div>
                             </script>
-                            <script type="text/template" id="Remarks">
+                            <script type="text/template" id="ReasonRemarks">
                                 <div class="col-sm-12" style="padding:0px;">
-                                    <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control">
+                                    <input type="text" name="Reason Remarks" ng-model="data.Remarks" ng-click="" class="form-control">
                                 </div>
                             </script>
                         </div>

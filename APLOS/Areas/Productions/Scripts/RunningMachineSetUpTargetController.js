@@ -19,6 +19,18 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.WithEmployee = false;
     $scope.WithMachine = false;
 
+    $scope.DateValidation = function (ProductionDate) {
+        try {
+            if (new Date(ProductionDate) > new Date()) {
+                throw "Target Date must be below or equal to current Date!";
+            }
+
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -466,6 +478,9 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 url: 'Productions/RunningMachineSetUpTarget/GetDailyTarget?EntityId=' + $scope.DailyProductionTargetNew.EntityId + '&ProcessId=' + $scope.DailyProductionTargetNew.ProcessId + '&TargetDate=' + $scope.DailyProductionTargetNew.TargetDate + '&ProductionShiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId +  '&HeaderResponsiblePersonId=' + $scope.DailyProductionTargetNew.HeaderResponsiblePersonId + '&HeaderInchargeId=' + $scope.DailyProductionTargetNew.HeaderInchargeId + '&HeaderPlanHour=' + $scope.DailyProductionTargetNew.HeaderPlanHour,
             }).then(function successCallback(response) {
                 $scope.DailyTargetList = response.data;
+                for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+                    Object.assign($scope.DailyTargetList[i], { 'Serial': parseInt(i) });
+                }
             }
             )
         } catch (e) {

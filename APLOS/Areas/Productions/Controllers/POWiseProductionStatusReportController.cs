@@ -2028,10 +2028,25 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colPONo = COL;
                 COL++;
-                 
+
                 sheet[ROW, COL].Text = "PO Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colPOStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SO No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSONO = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Added By";
@@ -2316,6 +2331,9 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     sheet[ROW, colEntity].Text = data.Rows[i]["Entity"].ToString();
                     sheet[ROW, colPONo].Text = data.Rows[i]["PONo"].ToString();
+                    sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
+                    sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
+                    sheet[ROW, colSONO].Text = data.Rows[i]["SONO"].ToString();
                     sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
                     sheet[ROW, colAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
                     sheet[ROW, colAddedDate].Text = data.Rows[i]["AddedDate"].ToString();
@@ -2421,6 +2439,9 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.Fields[colPOStatus - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOLatestProdBookDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPONo - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSONO - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOStartDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOCompletionDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSequence - 1].Axis = PivotAxisTypes.Row;
@@ -2430,34 +2451,42 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.Fields[colRelayProcess - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProcessStatus - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProcessPlanPercent - 1].Axis = PivotAxisTypes.Row;
-              
-                IPivotField field = pivotTable.Fields[colSOQty - 1];
-                IPivotField fieldNW = pivotTable.Fields[colProcessPlannedQty - 1];
-                IPivotField fieldGW = pivotTable.Fields[colProcProdQty - 1];
-                IPivotField fieldPRE = pivotTable.Fields[colPreProcProdQty - 1];
+                pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProcessPlannedQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProcProdQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPreProcProdQty - 1].Axis = PivotAxisTypes.Row;
+
                 IPivotField fieldWIP = pivotTable.Fields[colWIP - 1];
-                IPivotField fieldPP = pivotTable.Fields[colProcProdPercent - 1];
-                IPivotField fieldPPQ = pivotTable.Fields[colProceessProdQtyVsSOQty - 1];
-
-                fieldNW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                fieldPRE.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                fieldWIP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                fieldPP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                fieldPPQ.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-
-                pivotTable.DataFields.Add(field, "SOQty", PivotSubtotalTypes.Sum);
-                pivotTable.DataFields.Add(fieldNW, "ProcessPlannedQty", PivotSubtotalTypes.Sum);
-                pivotTable.DataFields.Add(fieldGW, "ProcProdQty", PivotSubtotalTypes.Sum);
-                pivotTable.DataFields.Add(fieldPRE, "PreProcProdQty", PivotSubtotalTypes.Sum);
                 pivotTable.DataFields.Add(fieldWIP, "WIP", PivotSubtotalTypes.Sum);
-                pivotTable.DataFields.Add(fieldPP, "ProcProdPercent", PivotSubtotalTypes.Sum);
-                pivotTable.DataFields.Add(fieldPPQ, "ProceessProdQtyVsSOQty", PivotSubtotalTypes.Sum);
+                fieldWIP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+                pivotTable.Fields[colProcProdPercent - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colProceessProdQtyVsSOQty - 1].Axis = PivotAxisTypes.Row;
+              
+                //IPivotField field = pivotTable.Fields[colSOQty - 1];
+                //IPivotField fieldNW = pivotTable.Fields[colProcessPlannedQty - 1];
+                //IPivotField fieldGW = pivotTable.Fields[colProcProdQty - 1];
+                //IPivotField fieldPRE = pivotTable.Fields[colPreProcProdQty - 1];
+                //IPivotField fieldPP = pivotTable.Fields[colProcProdPercent - 1];
+                //IPivotField fieldPPQ = pivotTable.Fields[colProceessProdQtyVsSOQty - 1];
+
+                //fieldNW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //fieldPRE.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //fieldPP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //fieldPPQ.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+                //pivotTable.DataFields.Add(field, "SOQty", PivotSubtotalTypes.None);
+                //pivotTable.DataFields.Add(fieldNW, "ProcessPlannedQty", PivotSubtotalTypes.None);
+                //pivotTable.DataFields.Add(fieldGW, "ProcProdQty", PivotSubtotalTypes.None);
+                //pivotTable.DataFields.Add(fieldPRE, "PreProcProdQty", PivotSubtotalTypes.None);
+                //pivotTable.DataFields.Add(fieldPP, "ProcProdPercent", PivotSubtotalTypes.None);
+                //pivotTable.DataFields.Add(fieldPPQ, "ProceessProdQtyVsSOQty", PivotSubtotalTypes.None);
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colPOStatus || i == colPOLatestProdBookDate || i == colPONo || i == colPOStartDate || i == colPOCompletionDate || i == colSequence || i == colProcess || i == colIsBaseProcess || i == colProcessLegDays || i == colRelayProcess || i == colProcessStatus || i == colProcessPlanPercent)
+                    if (i == colPOStatus || i == colPOLatestProdBookDate || i == colPONo || i == colPOStartDate || i == colPOCompletionDate || i == colSequence || i == colProcess || i == colIsBaseProcess || i == colProcessLegDays || i == colRelayProcess || i == colProcessStatus || i == colProcessPlanPercent|| i == colSOQty || i == colProcessPlannedQty || i == colProcProdQty || i == colPreProcProdQty || i == colProcProdPercent || i == colProceessProdQtyVsSOQty)
                     {
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                     }
