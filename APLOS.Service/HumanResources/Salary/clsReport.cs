@@ -2170,14 +2170,14 @@ where RM.EntityId='"+ EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.P
             {
                 strSql = @"select RM.Id as RMTargetId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(RM.TargetDate,'dd-MMM-yyyy') as TargetDate,
 WC.UserName as WorkCenter,RM.LotNumber,RM.ProductionOrderId as PONo,RM.Article,Convert(decimal(18,2),RM.PlanHours) as PlanHours,
-Convert(decimal(18,2),RM.Efficiency) as Efficiency,
+ceiling(RM.Efficiency) as Efficiency,
 ceiling(RM.TargetFD) as TargetFD,ceiling(RM.TargetProductionFP) as TargetProductionFP,I.EmployeeName as Responsible,
-R.EmployeeName as InCharge,RM.Remarks,Reverse(stuff(Reverse((select ID.ItemName + ' - ' + convert(varchar(200),IV.ItemValue) +',' from TRN.RMSTargetItemValue IV
+R.EmployeeName as InCharge,RM.Remarks,Reverse(stuff(Reverse((select ID.ItemName + '-' + convert(varchar(200),IV.ItemValue) +', ' from TRN.RMSTargetItemValue IV
 left join MST.ItemDetails ID on ID.Id=IV.ItemId
-where RMSTargetId=RM.Id for xml PATH(''))),1,1,'')) ItemDetails,
-Reverse(stuff(Reverse((select RD.ReasonName + ' - ' + convert(varchar(200),RV.ReasonValue) +',' from TRN.RMSTargetReasonValue RV
+where RMSTargetId=RM.Id for xml PATH(''))),1,2,'')) ItemDetails,
+Reverse(stuff(Reverse((select RD.ReasonName + '-' + convert(varchar(200),RV.ReasonValue) +', ' from TRN.RMSTargetReasonValue RV
 left join MST.ReasonDetails RD on RD.Id=RV.ReasonId
-where RV.ProductionId=RM.Id for xml PATH(''))),1,1,'')) ReasonDetails
+where RV.ProductionId=RM.Id for xml PATH(''))),1,2,'')) ReasonDetails
 from [TRN].[RunningMachineSetUpTarget] RM
 left join Org.Entity E On E.Id=RM.EntityId
 left join hkp.process P On P.Id=RM.ProcessId
