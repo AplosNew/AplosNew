@@ -2201,6 +2201,119 @@ where RM.EntityId='" + EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.
                 objCon = null;
             }
         }
+
+        public void GetProducitonBookingHeader(string EntityId, string ProcessId, string ProductionDate, string ShiftId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select PS.Id as ProductionId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(PS.ProductionDate,'dd-MMM-yyyy') as ProductionDate
+from TRN.ProductionSummary PS
+left join Org.Entity E On E.Id=PS.EntityId
+left join hkp.process P On P.Id=PS.ProcessId
+left join ShiftDefination S On S.SystemID=PS.ProductionShiftId
+where PS.EntityId='" + EntityId + "' and PS.ProcessId='" + ProcessId + "' and PS.ProductionShiftId='" + ShiftId + "' and  PS.ProductionDate='" + ProductionDate + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetProducitonBookingDetails(string EntityId, string ProcessId, string ProductionDate, string ShiftId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select PS.Id as ProductionId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(PS.ProductionDate,'dd-MMM-yyyy') as ProductionDate,
+WC.UserName as WorkCenter,PS.LotNumber,PS.ProductionOrderId as PONo,PS.ProductionGrade,Convert(decimal(18,2),PS.Quantity) as Quantity,
+ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty,
+I.EmployeeName as Responsible,
+R.EmployeeName as InCharge,PS.Remarks,Reverse(stuff(Reverse((select DM.DetentionUserName + '-' + convert(varchar(200),MMT.Minute) +', ' from MachineMasterTransaction MMT
+left join DetentionMaster DM on DM.Id=MMT.DetentionId
+where MMT.EntityId=PS.EntityId and MMT.Date=PS.ProductionDate and MMT.ShiftId=PS.ProductionShiftId and MMT.ProcessId=PS.ProcessId and MMT.WorkCenterId=PS.WorkCenterMasterId for xml PATH(''))),1,2,'')) DetentionDetails,
+Reverse(stuff(Reverse((select RD.ReasonName + '-' + convert(varchar(200),RV.ReasonValue) +', ' from TRN.ProductionReasonValue RV
+left join MST.ReasonDetails RD on RD.Id=RV.ReasonId
+where RV.ProductionId=PS.Id for xml PATH(''))),1,2,'')) ReasonDetails,
+isnull(CEILING(PQ.Qty),PO.PlannedQty) OrderQty,
+						ISNULL(CEILING(PRS.TotalProductionQty), 0) as BookedQty,RM.TargetProductionFP,
+                                       Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
+                                                            left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
+                                                            left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                            left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+                                                            where Pod.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+						               SONo=STUFF((select distinct ','+sox.Id from trn.MasterOrderItem XMOI 	 
+								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PS.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                       Customer=STUFF((select distinct ','+XP.UserName from 
+		                                                    trn.SalesOrder XSO 
+		                                                    JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                                    left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                                    left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                                    left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+			                                                where Xpod.ProductionOrderId=PS.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                      ProductCode=STUFF((select distinct ','+PM.Code from trn.ProductionOrderDetail Pod
+                                                            left outer JOIN trn.SalesOrder SO ON pod.SalesOrderId=so.Id
+                                                            left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                            left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                            left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                            left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                            where Pod.ProductionOrderId=PS.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+						             ProductDetails=STUFF((select distinct ','+PM.UserName from trn.ProductionOrderDetail Pod
+                                                            left outer JOIN trn.SalesOrder SO ON pod.SalesOrderId=so.Id
+                                                            left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
+                                                            left outer join mst.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                            left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                                            left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+                                                            where Pod.ProductionOrderId=PS.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+						             CustomerRefNo =STUFF((select distinct ','+XMOI.BuyerReferenceNo from trn.MasterOrder XMOI 	 
+								                            INNER JOIN trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                            INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                            INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=PS.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '') 
+from TRN.ProductionSummary PS
+LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=PS.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + ProcessId + @"' LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+LEFT JOIN(SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + ProcessId + @"'  GROUP BY PS.ProductionOrderId
+                            ) AS PRS ON PRS.ProductionOrderId = PO.Id
+left join Org.Entity E On E.Id = PS.EntityId
+left join hkp.process P On P.Id = PS.ProcessId
+left join ShiftDefination S On S.SystemID = PS.ProductionShiftId
+left join scs.WorkCenterMaster WC ON WC.Id = PS.WorkCenterMasterId
+left join employeeinformation R on R.SystemId = PS.ResponsiblePersonId
+left join employeeinformation I on I.SystemId = PS.InChargeId
+LEFT JOIN TRN.RunningMachineSetUpTarget RM ON RM.EntityId = '" + EntityId + "' and RM.ProcessId = '" + ProcessId + "' and RM.TargetDate = '" + ProductionDate + "' and RM.ProductionShiftId = '" + ShiftId + @"' and RM.WorkCenterMasterId = wc.Id and RM.ProductionOrderId = PS.ProductionOrderId
+where PS.EntityId = '" + EntityId + "' and PS.ProcessId = '" + ProcessId + "' and PS.ProductionShiftId = '" + ShiftId + "' and PS.ProductionDate = '" + ProductionDate + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetExtraAbsentCount(string fromDate, string toDate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
