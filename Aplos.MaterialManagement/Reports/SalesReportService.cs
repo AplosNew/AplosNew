@@ -2353,7 +2353,7 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 45;
+            wTable.Rows[ROW].Cells[colHSN].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
             range.ApplyCharacterFormat(FontBold);
@@ -2388,7 +2388,7 @@ namespace Library.MaterialManagement.Reports
                 COL++;
                 colTotalTaxableAmount = COL;
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount " + "(" + " " + sales.Rows[0]["BaseCurrencyName"].ToString() + " " + ")" + " ");
-                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 75;
+                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 65;
                 range.ApplyCharacterFormat(FontBold);
                 //COL++;
                 for (int i = 0; i < dv.Count; i++)
@@ -4575,9 +4575,10 @@ namespace Library.MaterialManagement.Reports
 						,TYPE
 					).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
 	,YourOrderRefNo = REPLACE(REPLACE(STUFF((
-					SELECT DISTINCT ', ' + MO.BuyerReferenceNo
+					SELECT DISTINCT ', ' + MOI.BuyerReferenceNo
 					FROM TRN.SalesOrderItem SOI
-					JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
+					--JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
+					JOIN TRN.MasterOrderItem MOI ON MOI.Id = SOI.MasterOrderItemId
 					WHERE IR.Id = SOI.SalesId
 					FOR XML path('')
 						,TYPE
