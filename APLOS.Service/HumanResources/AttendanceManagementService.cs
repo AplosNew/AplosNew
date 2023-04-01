@@ -6219,6 +6219,558 @@ namespace Library.Service.HumanResources
 
 
         }
+
+        public IWorkbook GetProductionBookingJobCardReports(string username, string companyGroupId, string companyId, string plantId, string plantName, string EntityId, string ProcessId, string ProductionDate, string ShiftId)
+        {
+
+            clsReport objRpt = null;
+            ReportUtility oru = new ReportUtility();
+            DataSet dsBioDvAC = null;
+            DataTable dtBioDvAC = null;
+            DataView dvBioDvAC = null;
+            DataView dvSummary = null;
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            DataSet dsBioDvACitem = null;
+            DataTable dtBioDvACitem = null;
+            DataView dvBioDvACitem = null;
+
+            DataSet dsPayDays = null;
+            DataTable dtMonthlySummary = null;
+            DataView dvPayDays = null;
+
+            StringCollection sEmpCodeColl = null;
+
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            var workbook = oru.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2013;
+            IWorksheet sheet1 = null;
+
+
+            int xlsRow = 1, xlsCol = 1;
+            int endXlsCol = 1;
+            string FactoryName = "";
+            string CmpName = "";
+            string freezeRow = "";
+            try
+            {
+
+                objRpt = new clsReport();
+                dvPayDays = new DataView();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                #region DataSet
+
+                objRpt.GetProducitonBookingHeader(EntityId, ProcessId, ProductionDate, ShiftId, plantId, out dsBioDvAC);
+                dtBioDvAC = dsBioDvAC.Tables[0];
+
+                objRpt.GetProducitonBookingDetails(EntityId, ProcessId, ProductionDate, ShiftId, plantId, out dsBioDvACitem);
+                dtBioDvACitem = dsBioDvACitem.Tables[0];
+
+                objRpt.SelectedPlantWiseCompany(plantId, out dsCmp);
+                objRpt.SelectedPlant(plantId, out dsFactory);
+                #endregion DataSet
+
+                if (dsBioDvAC.Tables[0].Rows.Count > 0)
+                {
+                    sEmpCodeColl = new StringCollection();
+                    for (int i = 0; i <= dsBioDvAC.Tables[0].Rows.Count - 1; i++)
+                    {
+                        if (sEmpCodeColl.Contains(dsBioDvAC.Tables[0].Rows[i]["Process"].ToString().Trim()) == false)
+                        {
+                            sEmpCodeColl.Add(dsBioDvAC.Tables[0].Rows[i]["Process"].ToString().Trim());
+
+
+                        }
+                    }
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+                    workbook = application.Workbooks.Create(sEmpCodeColl.Count);
+                    for (int Ec = 0; Ec < sEmpCodeColl.Count; Ec++)
+                    {
+                        dvBioDvAC = new DataView();
+                        dvBioDvAC.Table = dtBioDvAC;
+
+                        dvBioDvACitem = new DataView();
+                        dvBioDvACitem.Table = dtBioDvACitem;
+
+
+                        if (dvBioDvAC.Count > 0)
+                        {
+                            sheet1 = workbook.Worksheets[Ec];
+                            sheet1.IsGridLinesVisible = true;
+                            xlsRow = 6;
+                            string strEmpCode = "";
+                            int WorkCenter = 0;
+                            int PONo = 0;
+                            int LotNumber = 0;
+                            int Grade = 0;
+                            int Quantity = 0;
+                            int Article = 0;
+                            int SONO = 0;
+                            int Customer = 0;
+                            int ProductCode = 0;    
+                            int ProductDetails = 0;
+                            int CustomerRefNo = 0;
+                            int Responsible = 0;
+                            int InCharge = 0;
+                            int Remarks = 0;
+                            int DetentionDetails = 0;
+                            int ReasonDetails = 0;
+                            int BalanceQty = 0;
+                            int OrderQty = 0;
+                            int BookedQty = 0;
+                            int TargetProductionFP = 0;
+                            //int Production = 0;
+                            //int TotalTarget = 0;
+                            //int TotalPlan = 0;
+
+
+                            #region ------------------Column Header------------------
+
+                            xlsCol = 1;
+                            xlsRow = 6;
+
+                            sheet1.Range[xlsRow, xlsCol].Text = "Entity";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["Entity"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
+
+                            xlsCol = 1;
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].Text = "Process";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["Process"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
+
+
+                            xlsCol = 4;
+                            xlsRow = 6;
+                            sheet1.Range[xlsRow, xlsCol].Text = "Shift";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["Shift"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
+
+
+                            xlsCol = 4;
+                            xlsRow += 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = "Production Date";
+                            sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["ProductionDate"].ToString().Trim();
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
+
+
+                            #endregion
+
+                            xlsRow = 10;
+                            xlsCol = 1;
+                            sheet1.Range[xlsRow, xlsCol].Text = "Details:";
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                            sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+
+                            xlsRow += 2;
+                            WorkCenter = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, WorkCenter].Text = "Work Center";
+                            sheet1.Range[xlsRow, WorkCenter].ColumnWidth = 15;
+                            sheet1.Range[xlsRow, WorkCenter].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, WorkCenter].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            PONo = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, PONo].Text = "PO No";
+                            sheet1.Range[xlsRow, PONo].ColumnWidth = 15;
+                            sheet1.Range[xlsRow, PONo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, PONo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            LotNumber = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, LotNumber].Text = "Lot Number";
+                            sheet1.Range[xlsRow, LotNumber].ColumnWidth = 15;
+                            sheet1.Range[xlsRow, LotNumber].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, LotNumber].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            Grade = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, Grade].Text = "Grade";
+                            sheet1.Range[xlsRow, Grade].ColumnWidth = 15;
+                            sheet1.Range[xlsRow, Grade].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, Grade].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            Quantity = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, Quantity].Text = "Prod.Qty";
+                            sheet1.Range[xlsRow, Quantity].ColumnWidth = 12;
+                            sheet1.Range[xlsRow, Quantity].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, Quantity].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            BalanceQty = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, BalanceQty].Text = "Bal.Qty";
+                            sheet1.Range[xlsRow, BalanceQty].ColumnWidth = 12;
+                            sheet1.Range[xlsRow, BalanceQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, BalanceQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            Responsible = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, Responsible].Text = "Responsible Person";
+                            sheet1.Range[xlsRow, Responsible].ColumnWidth = 22;
+                            sheet1.Range[xlsRow, Responsible].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, Responsible].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            InCharge = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, InCharge].Text = "InCharge";
+                            sheet1.Range[xlsRow, InCharge].ColumnWidth = 22;
+                            sheet1.Range[xlsRow, InCharge].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, InCharge].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            Remarks = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, Remarks].Text = "Remarks";
+                            sheet1.Range[xlsRow, Remarks].ColumnWidth = 25;
+                            sheet1.Range[xlsRow, Remarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, Remarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            DetentionDetails = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, DetentionDetails].Text = "Detention Details";
+                            sheet1.Range[xlsRow, DetentionDetails].ColumnWidth = 45;
+                            sheet1.Range[xlsRow, DetentionDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, DetentionDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            ReasonDetails = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, ReasonDetails].Text = "Reason Details";
+                            sheet1.Range[xlsRow, ReasonDetails].ColumnWidth = 45;
+                            sheet1.Range[xlsRow, ReasonDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, ReasonDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            //Article = xlsCol;
+                            //xlsCol += 1;
+                            //sheet1.Range[xlsRow, Article].Text = "Article";
+                            //sheet1.Range[xlsRow, Article].ColumnWidth = 45;
+                            //sheet1.Range[xlsRow, Article].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            //sheet1.Range[xlsRow, Article].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            SONO = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, SONO].Text = "SONO";
+                            sheet1.Range[xlsRow, SONO].ColumnWidth = 20;
+                            sheet1.Range[xlsRow, SONO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, SONO].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            Customer = xlsCol;
+                            sheet1.Range[xlsRow, Customer].Text = "Customer";
+                            sheet1.Range[xlsRow, Customer].ColumnWidth = 30;
+                            sheet1.Range[xlsRow, Customer].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, Customer].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol].RowHeight = 25;
+                            endXlsCol = xlsCol;
+
+                            for (int i = 0; i < dvBioDvACitem.Count; i++)
+                            {
+                                if ((string.Compare(strEmpCode.ToUpper(), dvBioDvACitem[i]["Process"].ToString().Trim().ToUpper())) != 0)
+                                {
+
+                                    #region----------------------ItemData-----------------------
+
+
+                                    xlsRow += 1;
+                                    sheet1.Range[xlsRow, WorkCenter].Text = dvBioDvACitem[i]["WorkCenter"].ToString();
+                                    sheet1.Range[xlsRow, WorkCenter].RowHeight = 25;
+                                    sheet1.Range[xlsRow, WorkCenter].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, WorkCenter].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, PONo].Text = dvBioDvACitem[i]["PONo"].ToString();
+                                    sheet1.Range[xlsRow, PONo].RowHeight = 25;
+                                    sheet1.Range[xlsRow, PONo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, PONo].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, LotNumber].Text = dvBioDvACitem[i]["LotNumber"].ToString();
+                                    sheet1.Range[xlsRow, LotNumber].RowHeight = 25;
+                                    sheet1.Range[xlsRow, LotNumber].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, LotNumber].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, Grade].Text = dvBioDvACitem[i]["ProductionGrade"].ToString();
+                                    sheet1.Range[xlsRow, Grade].RowHeight = 25;
+                                    sheet1.Range[xlsRow, Grade].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, Grade].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, Quantity].Text = dvBioDvACitem[i]["Quantity"].ToString();
+                                    sheet1.Range[xlsRow, Quantity].RowHeight = 25;
+                                    sheet1.Range[xlsRow, Quantity].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, Quantity].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, BalanceQty].Text = dvBioDvACitem[i]["RemainingQty"].ToString();
+                                    sheet1.Range[xlsRow, BalanceQty].RowHeight = 25;
+                                    sheet1.Range[xlsRow, BalanceQty].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, BalanceQty].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, Responsible].Text = dvBioDvACitem[i]["Responsible"].ToString();
+                                    sheet1.Range[xlsRow, Responsible].RowHeight = 25;
+                                    sheet1.Range[xlsRow, Responsible].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, Responsible].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, InCharge].Text = dvBioDvACitem[i]["InCharge"].ToString();
+                                    sheet1.Range[xlsRow, InCharge].RowHeight = 25;
+                                    sheet1.Range[xlsRow, InCharge].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, InCharge].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, Remarks].Text = dvBioDvACitem[i]["Remarks"].ToString();
+                                    sheet1.Range[xlsRow, Remarks].RowHeight = 25;
+                                    sheet1.Range[xlsRow, Remarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, Remarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, DetentionDetails].Text = dvBioDvACitem[i]["DetentionDetails"].ToString();
+                                    sheet1.Range[xlsRow, DetentionDetails].RowHeight = 25;
+                                    sheet1.Range[xlsRow, DetentionDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, DetentionDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, ReasonDetails].Text = dvBioDvACitem[i]["ReasonDetails"].ToString();
+                                    sheet1.Range[xlsRow, ReasonDetails].RowHeight = 25;
+                                    sheet1.Range[xlsRow, ReasonDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, ReasonDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, SONO].Text = dvBioDvACitem[i]["SONo"].ToString();
+                                    sheet1.Range[xlsRow, SONO].RowHeight = 25;
+                                    sheet1.Range[xlsRow, SONO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, SONO].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, Customer].Text = dvBioDvACitem[i]["Customer"].ToString();
+                                    sheet1.Range[xlsRow, Customer].RowHeight = 25;
+                                    sheet1.Range[xlsRow, Customer].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, Customer].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+
+                                    #endregion----------------------ItemData-----------------------
+
+                                    #region Line Setup
+
+                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
+                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+                                    sheet1.Range[xlsRow, 1, xlsRow, xlsCol].WrapText = true;
+
+                                    #endregion Line Setup
+
+
+                                }
+                                //TotalPlan = TotalPlan + Convert.ToInt32(dvBioDvACitem[i]["TargetFD"]);
+                                //TotalTarget = TotalTarget + Convert.ToInt32(dvBioDvACitem[i]["TargetProductionFP"]);
+                            }
+
+                            //xlsCol = 6;
+                            //xlsRow += 1;
+                            //sheet1.Range[xlsRow, xlsCol].Text = "Total :";
+                            //sheet1.Range[xlsRow, xlsCol + 1].Text = TotalPlan.ToString();
+                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignBottom;
+                            //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+
+                            //xlsCol += 1;
+                            //sheet1.Range[xlsRow, xlsCol + 1].Text = TotalTarget.ToString();
+                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            //sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignBottom;
+                            //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+
+                            //sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                            //sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 1].RowHeight = 25;
+
+                        }
+
+
+                        xlsRow += 3;
+
+                        xlsRow += 5;
+                        sheet1.IsDisplayZeros = false;
+
+                        #region ******************Report Header******************
+                        try
+                        {
+                            string strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
+                            Image companyLogo = Image.FromFile(strPath);
+                            if (companyLogo != null)
+                            {
+                                double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(2);
+                                int totalWidthPixel = (int)(totalWidth * 7.5);
+                                int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                                companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                                IPictureShape pic = null;
+
+                                pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+
+
+                            }
+
+
+                        }
+                        catch (Exception)
+                        {
+
+
+                        }
+                        xlsRow = 1;
+                        xlsCol = 1;
+
+
+                        FactoryName = string.Empty;
+
+                        string FactoryAddress = string.Empty;
+
+                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        {
+                            CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                        }
+                        else
+                        {
+                            CmpName = "";
+                        }
+                        sheet1.Range[xlsRow, 4].Text = CmpName;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, 4].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 20;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 20;
+                        sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+                        if (dsFactory.Tables[0].Rows.Count > 0)
+                        {
+                            FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                        }
+                        else
+                        {
+                            FactoryName = "";
+                        }
+                        sheet1.Range[xlsRow, 4].Text = FactoryName;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 14;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 25;
+                        sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                        xlsRow += 1;
+
+                        xlsRow += 1;
+                        sheet1.Range[xlsRow, 4].Text = "Running Machine Job Card: ";
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
+                        sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 16;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 20;
+                        sheet1.Range[xlsRow, 4].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                        #endregion ******************Report Header******************
+
+                        #region ******************Report Footer******************
+                        //xlsCol = 2;
+                        //xlsRow = 25;
+
+                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Name & Signature";
+                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                        //sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+
+                        xlsCol = 1;
+                        xlsRow = 65;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Prepared By";
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+
+                        xlsCol = 8;
+                        xlsRow = 65;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Checked By";
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+
+                        
+                        xlsCol = 13;
+                        xlsRow = 65;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Text = "Authorized By";
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+
+                        #endregion ******************Report Footer******************
+
+
+
+                        #region UsedRange Alignment
+
+                        sheet1.UsedRange.WrapText = true;
+                        sheet1.UsedRange.CellStyle.Font.Size = 10;
+                        sheet1.Range["A1"].CellStyle.Font.Size = 20;
+                        sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                        #endregion UsedRange Alignment
+
+                        #region Page Setup
+                        sheet1.PageSetup.TopMargin = 0.5;
+                        sheet1.PageSetup.BottomMargin = 0.7;
+                        sheet1.PageSetup.PrintTitleRows = "$1:$11";
+                        sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                        sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + username + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                        sheet1.PageSetup.LeftMargin = 0.5;
+                        sheet1.PageSetup.RightMargin = 0.2;
+                        sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                        sheet1.PageSetup.FitToPagesTall = 0;
+                        sheet1.PageSetup.FitToPagesWide = 1;
+                        sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                        sheet1.IsDisplayZeros = false;
+
+                        sheet1.Name = sEmpCodeColl[Ec].ToString().Trim();
+
+                        #endregion Page Setup
+                    }
+                }
+                else
+                {
+                    Exception ex = new Exception("No data found...");
+                    throw (ex);
+                }
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                objRpt = null;
+                dsBioDvAC = null;
+                dvBioDvACitem = null;
+                dsBioDvACitem = null;
+                dvBioDvAC = null;
+                excelEngine = null;
+                application = null;
+                workbook = null;
+                sheet1 = null;
+            }
+
+
+        }
         void _getPunchTime(DataRow dr, out string FinalOutTime)
         {
             try

@@ -4,8 +4,11 @@ using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Taxations;
 using Library.Service.Taxations;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -18,12 +21,15 @@ namespace Aplos.Areas.Setups.Controllers
         #region Constructor
 
         private readonly IHSNCodeService _hSNCodeService;
+        private readonly ISqlRepository _sqlRepository;
 
         public HSNCodeController(
-              IHSNCodeService hSNCodeService
+              IHSNCodeService hSNCodeService, ISqlRepository sqlRepository
             )
         {
             _hSNCodeService = hSNCodeService;
+            _sqlRepository = sqlRepository;
+
         }
 
         #endregion Constructor
@@ -44,9 +50,21 @@ namespace Aplos.Areas.Setups.Controllers
         public JsonResult GetCbo()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new SelectList(_hSNCodeService.GetCbo(identity.CompanyGroupId), "Value", "Text"), JsonRequestBehavior.AllowGet);
+            return Json( GetCboData(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
         }
-
+        public IEnumerable<object> GetCboData(string companyGroupId)
+        {
+            try
+            {
+                string sql = @"SELECT  Id [Value],Code [Text]
+                                FROM [HKP].[HSNCode] AS HC WHERE HC.CompanyGroupId='"+ companyGroupId + @"' ORDER BY Code";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters)
         {
