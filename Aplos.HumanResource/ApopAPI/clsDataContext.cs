@@ -2334,6 +2334,105 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
         }
 
 
+        public string PostProductionServiceParameter(IEnumerable<ProcessServiceParameter> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.ProductionServiceParameterValue";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                int i = 0;
+                foreach (ProcessServiceParameter item in DataToSave)
+                {
+                    con.OpenDataSetThroughAdapter("select * from TRN.ProductionServiceParameterValue where Id='" + item.Id + "'", out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+                        dr["Id"] = _Id;
+                        dr["ProductionServiceId"] = item.ProductionServiceId;
+                        dr["SandardName "] = item.SandardName;
+                        dr["Production100"] = item.Production100;
+                        dr["Efficiency"] = item.Efficiency;
+                        dr["Speed"] = item.Speed;
+                        dr["ProductionShouldBe"] = item.ProductionShouldBe;
+                        dr["TPI"] = item.TPI;
+                        dr["NoOfSpindle"] = item.NoOfSpindle;
+                        dr["MachineHank"] = item.MachineHank;
+                        dr["Wrapping"] = item.Wrapping;
+                        dr["ProductionActual"] = item.ProductionActual;
+                        dr["DetentionInMin"] = item.DetentionInMin;
+                        dr["ActualEfficiency"] = item.ActualEfficiency;
+                        dr["Utilization"] = item.Utilization;
+                        dr["AllottedManpower"] = item.AllottedManpower;
+                        dr["ProdCapacityPerManpower"] = item.ProdCapacityPerManpower;
+                        dr["WorkingHours"] = item.WorkingHours;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["ProductionServiceId"] = item.ProductionServiceId;
+                        dr["SandardName "] = item.SandardName;
+                        dr["Production100"] = item.Production100;
+                        dr["Efficiency"] = item.Efficiency;
+                        dr["Speed"] = item.Speed;
+                        dr["ProductionShouldBe"] = item.ProductionShouldBe;
+                        dr["TPI"] = item.TPI;
+                        dr["NoOfSpindle"] = item.NoOfSpindle;
+                        dr["MachineHank"] = item.MachineHank;
+                        dr["Wrapping"] = item.Wrapping;
+                        dr["ProductionActual"] = item.ProductionActual;
+                        dr["DetentionInMin"] = item.DetentionInMin;
+                        dr["ActualEfficiency"] = item.ActualEfficiency;
+                        dr["Utilization"] = item.Utilization;
+                        dr["AllottedManpower"] = item.AllottedManpower;
+                        dr["ProdCapacityPerManpower"] = item.ProdCapacityPerManpower;
+                        dr["WorkingHours"] = item.WorkingHours;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                        dr.EndEdit();
+                        clsStaticInfo _info = new clsStaticInfo();
+                        _info.SaveDataSets(dsMaster);
+                    }
+                    i++;
+                }
+                return i.ToString();
+
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
         // Detention Log Out
 
         #endregion Written By Nitesh
@@ -3753,7 +3852,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             try
             {
                 strSQL = @"select SandardName As Name , Sequence As Value from dbo.ProductionBookingParameter
-where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState = 'Entry'";
+where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState = 'Entry' and Active = 1";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -4200,6 +4299,35 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string Region3Time { get; set; }
         public string Region4 { get; set; }
         public string Region4Time { get; set; }
+        public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
+
+    public class ProcessServiceParameter
+    {
+        public string Id { get; set; }
+        public string ProductionServiceId { get; set; }
+        public string SandardName { get; set; }
+        public string Production100 { get; set; }
+        public string Efficiency { get; set; }
+        public string Speed { get; set; }
+        public string ProductionShouldBe { get; set; }
+        public string TPI { get; set; }
+        public string NoOfSpindle { get; set; }
+        public string MachineHank { get; set; }
+        public string Wrapping { get; set; }
+        public string ProductionActual { get; set; }
+        public string DetentionInMin { get; set; }
+        public string ActualEfficiency { get; set; }
+        public string Utilization { get; set; }
+        public string AllottedManpower { get; set; }
+        public string ProdCapacityPerManpower { get; set; }
+        public string WorkingHours { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }

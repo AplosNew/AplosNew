@@ -2299,7 +2299,7 @@ namespace Library.MaterialManagement.Reports
             sales = loadLocalTaxMaterialMasterWithProductDetail(salesId);
             materialTax = loadOrderMasterTax(salesId);
 
-            int LasColumnIndex = 9;
+            int LasColumnIndex = 11;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(materialTax.DefaultView.ToTable(true, "TaxCode"));
 
@@ -2338,22 +2338,32 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("BuyerRef#");
             range.ApplyCharacterFormat(FontBold);
             int colBuyerRef = COL; COL++;
-            wTable.Rows[ROW].Cells[colBuyerRef].Width = 80;
+            wTable.Rows[ROW].Cells[colBuyerRef].Width = 70;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PONumber");
             range.ApplyCharacterFormat(FontBold);
             int colPONumber = COL; COL++;
-            wTable.Rows[ROW].Cells[colPONumber].Width = 50;
+            wTable.Rows[ROW].Cells[colPONumber].Width = 55;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 50;
+            wTable.Rows[ROW].Cells[colChar1].Width = 70;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
             int colHSN = COL; COL++;
-            wTable.Rows[ROW].Cells[colHSN].Width = 45;
+            wTable.Rows[ROW].Cells[colHSN].Width = 55;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU1");
+            range.ApplyCharacterFormat(FontBold);
+            int colSKU1 = COL; COL++;
+            wTable.Rows[ROW].Cells[colSKU1].Width = 65;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU2");
+            range.ApplyCharacterFormat(FontBold);
+            int colSKU2 = COL; COL++;
+            wTable.Rows[ROW].Cells[colSKU2].Width = 40;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
@@ -2370,7 +2380,7 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL;
-            wTable.Rows[ROW].Cells[colRate].Width = 50;
+            wTable.Rows[ROW].Cells[colRate].Width = 45;
 
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
@@ -2378,7 +2388,7 @@ namespace Library.MaterialManagement.Reports
                 COL++;
                 colTotalTaxableAmount = COL;
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount " + "(" + " " + sales.Rows[0]["BaseCurrencyName"].ToString() + " " + ")" + " ");
-                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 100;
+                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 65;
                 range.ApplyCharacterFormat(FontBold);
                 //COL++;
                 for (int i = 0; i < dv.Count; i++)
@@ -2471,6 +2481,8 @@ namespace Library.MaterialManagement.Reports
                 //TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
                 //TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+                TROW.Cells[colSKU1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
+                TROW.Cells[colSKU2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["BooksCurrencyBaseRate"].ToString()).ToString("#,##0.0000"));
@@ -2508,7 +2520,7 @@ namespace Library.MaterialManagement.Reports
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
+                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colSKU1 || C == colSKU2 || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;
@@ -4563,9 +4575,10 @@ namespace Library.MaterialManagement.Reports
 						,TYPE
 					).value('.', 'VARCHAR(MAX)'), 1, 1, ''), '&amp;', '&'), 'amp;', '')
 	,YourOrderRefNo = REPLACE(REPLACE(STUFF((
-					SELECT DISTINCT ', ' + MO.BuyerReferenceNo
+					SELECT DISTINCT ', ' + MOI.BuyerReferenceNo
 					FROM TRN.SalesOrderItem SOI
-					JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
+					--JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
+					JOIN TRN.MasterOrderItem MOI ON MOI.Id = SOI.MasterOrderItemId
 					WHERE IR.Id = SOI.SalesId
 					FOR XML path('')
 						,TYPE

@@ -196,6 +196,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
     cboService.getUoMCbo(function (response) {
         $scope.uOMList = response;
     });
+    $scope.hsnCodeList = [];
     cboService.getHNSCbo(function (response) {
         $scope.hsnCodeList = response;
     });
