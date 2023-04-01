@@ -14,10 +14,23 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlItemValue = $scope.path + 'createItemValue';
     $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
+    $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.WithEmployee = false;
     $scope.WithMachine = false;
+
+    $scope.DateValidation = function (ProductionDate) {
+        try {
+            if (new Date(ProductionDate) > new Date()) {
+                throw "Target Date must be below or equal to current Date!";
+            }
+
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -139,10 +152,40 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         HeaderResponsiblePersonId: null,
         HeaderInchargeId: null,
         HeaderPlanHour: null,
+        PlanHours: null,
+        Efficiency: null,
+        DetentionSum: 0
 
     };
     $scope.DailyProductionTargetNew = Object.assign({}, $scope.DailyProductionTarget);
 
+    // Refreshing the serials
+    function refreshSerial() {
+        for (var j = 0; j < $scope.DailyTargetList.length; j++) {
+            $scope.DailyTargetList[j].Serial = j;
+        }
+    }
+    // Add Tiles
+    $scope.AddTile = function (e) {
+        console.log(e);
+        let ob = {};
+        Object.assign(ob, e);
+        ob.Active = 0;
+        ob.Id = null;
+        ob.Article = null;
+        ob.WorkCenterMasterId = e.WorkCenterMasterId;
+        ob.ProductionOrderId = null;
+        ob.LotNumber = null;
+        ob.PlanHours = null;
+        ob.Efficiency = null;
+        ob.TargetFD = null;
+        ob.TargetProductionFP = null;
+        ob.Remarks = null;
+        ob.ResponsiblePersonId = e.ResponsiblePersonId;
+        ob.InChargeId = e.InChargeId;
+        $scope.DailyTargetList.splice(e.Serial + 1, 0, ob);
+        refreshSerial();
+    }
 
     $scope.entityList = [];
     $scope.getAllEntities = function () {
@@ -201,7 +244,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         angular.element(document.querySelector('#InchargePopup')).modal('show');
     }
 
-   
+
 
     $scope.InchargeList = [];
     $scope.getIncharge = function () {
@@ -281,13 +324,13 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
 
     $scope.RMSTargetId = null;
     $scope.RMSTargetItemList = [];
-    $scope.getItemValuePopup = function (data) {
-        $scope.NewObject = data.data;
-        $scope.RMSTargetId = $scope.NewObject.Id;
+    $scope.getItemValuePopup = function (Id) {
+        //$scope.NewObject = data.data;
+        //$scope.RMSTargetId = $scope.NewObject.Id;
         $http({
 
             method: 'Get',
-            url: 'Productions/RunningMachineSetUpTarget/LoadProcessItemList?ProcessId=' + data.data.ProcessId + '&RMSTargetId=' + $scope.RMSId
+            url: 'Productions/RunningMachineSetUpTarget/LoadProcessItemList?ProcessId=' + $scope.DailyProductionTargetNew.ProcessId + '&RMSTargetId=' + Id
         }).then(function successCallback(response) {
             $scope.RMSTargetItemList = response.data;
             var gridObj = $("#GridItemValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -434,9 +477,12 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
             $http({
 
                 method: 'GET',
-                url: 'Productions/RunningMachineSetUpTarget/GetDailyTarget?EntityId=' + $scope.DailyProductionTargetNew.EntityId + '&ProcessId=' + $scope.DailyProductionTargetNew.ProcessId + '&TargetDate=' + $scope.DailyProductionTargetNew.TargetDate + '&ProductionShiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId +  '&HeaderResponsiblePersonId=' + $scope.DailyProductionTargetNew.HeaderResponsiblePersonId + '&HeaderInchargeId=' + $scope.DailyProductionTargetNew.HeaderInchargeId + '&HeaderPlanHour=' + $scope.DailyProductionTargetNew.HeaderPlanHour,
+                url: 'Productions/RunningMachineSetUpTarget/GetDailyTarget?EntityId=' + $scope.DailyProductionTargetNew.EntityId + '&ProcessId=' + $scope.DailyProductionTargetNew.ProcessId + '&TargetDate=' + $scope.DailyProductionTargetNew.TargetDate + '&ProductionShiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId + '&HeaderResponsiblePersonId=' + $scope.DailyProductionTargetNew.HeaderResponsiblePersonId + '&HeaderInchargeId=' + $scope.DailyProductionTargetNew.HeaderInchargeId + '&HeaderPlanHour=' + $scope.DailyProductionTargetNew.HeaderPlanHour,
             }).then(function successCallback(response) {
                 $scope.DailyTargetList = response.data;
+                for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+                    Object.assign($scope.DailyTargetList[i], { 'Serial': parseInt(i) });
+                }
             }
             )
         } catch (e) {
@@ -510,17 +556,24 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     };
 
     $scope.RMSId = null;
-    $scope.SaveSingleRow = function () {
+    $scope.SaveSingleRow = function (data) {
         try {
             $scope.$broadcast('show-errors-check-validity');
+            if (baseService.isUndefinedOrNull(data.data.PlanHours)) {
+                throw "Please enter plan hours and proceed";
+            }
+            if (baseService.isUndefinedOrNull(data.data.Efficiency)) {
+                throw "Please enter Efficiency and proceed";
+            }
+            if (parseInt(data.data.Efficiency) > 100) {
+                throw "Efficiency should not be greater than 100";
+            }
+
             $scope.SaveList = [];
             for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-                if ($scope.DailyTargetList[i].Active == true && baseService.isUndefinedOrNull($scope.DailyTargetList[i].Id) == true) {
+                if ($scope.DailyTargetList[i].TargetFD > 0 && baseService.isUndefinedOrNull($scope.DailyTargetList[i].Id) == true) {
                     if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].ProductionOrderId) == true) {
                         throw "Please select Production Order No. for '" + $scope.DailyTargetList[i].Line + "'";
-                    }
-                    if ($scope.DailyTargetList[i].Efficiency > 100) {
-                        throw "Efficiency should not be greater than 100";
                     }
                     $scope.DailyTargetList[i].EntityId = $scope.DailyProductionTargetNew.EntityId;
                     $scope.DailyTargetList[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
@@ -539,9 +592,59 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
+                    //ShowResult(response.data.Message, 'success');
                     $scope.RMSId = response.data.Id;
-                    $scope.getDailytarget();
+                    $scope.getItemValuePopup(response.data.Id);
+                    /* $scope.getDailytarget();*/
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
+    $scope.UpdateSingleRow = function (data) {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if (baseService.isUndefinedOrNull(data.data.PlanHours)) {
+                throw "Please enter plan hours and proceed";
+            }
+            if (baseService.isUndefinedOrNull(data.data.Efficiency)) {
+                throw "Please enter Efficiency and proceed";
+            }
+            if (parseInt(data.data.Efficiency) > 100) {
+                throw "Efficiency should not be greater than 100";
+            }
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+                if ($scope.DailyTargetList[i].TargetFD > 0 && parseFloat(data.data.TargetFD) > 0 && $scope.DailyTargetList[i].Id == data.data.Id) {
+                    if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].ProductionOrderId) == true) {
+                        throw "Please select Production Order No. for '" + $scope.DailyTargetList[i].Line + "'";
+                    }
+                    $scope.DailyTargetList[i].EntityId = $scope.DailyProductionTargetNew.EntityId;
+                    $scope.DailyTargetList[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
+                    $scope.DailyTargetList[i].TargetDate = $scope.DailyProductionTargetNew.TargetDate;
+                    $scope.DailyTargetList[i].ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
+                    $scope.SaveList.push($scope.DailyTargetList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveSingleRowUrl,
+                data: { 'DailyTargetData': $scope.SaveList, 'TargetDate': $scope.DailyProductionTargetNew.TargetDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.RMSId = response.data.Id;
+                    $scope.getItemValuePopup(response.data.Id);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -573,7 +676,9 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.getDailytarget();
                 }
+                angular.element(document.querySelector('#ItemValuePopup')).modal('hide');
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
@@ -581,6 +686,238 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         } catch (e) {
             ShowResult(e, 'failure');
 
+        }
+    };
+
+
+
+    $scope.DailyProductionTargetNew.DetentionSum = 0;
+    $scope.ProcessDetentionLists = [];
+    $scope.getProcessDetentionPopupPoPUp = function (data) {
+        $scope.NewObject = data.data;
+        var processid = $scope.DailyProductionTargetNew.ProcessId;
+        var entityid = $scope.DailyProductionTargetNew.EntityId;
+        var targetdate = $scope.DailyProductionTargetNew.TargetDate;
+        var shiftid = $scope.DailyProductionTargetNew.ProductionShiftId;
+        $scope.DailyProductionTargetNew = data.data;
+        $scope.DailyProductionTargetNew.ProcessId = processid;
+        $scope.DailyProductionTargetNew.EntityId = entityid;
+        $scope.DailyProductionTargetNew.TargetDate = targetdate;
+        $scope.DailyProductionTargetNew.ProductionShiftId = shiftid;
+        $scope.DailyProductionTargetNew.workCenter = data.data.WorkCenter;
+        $scope.DailyProductionTargetNew.workCenterId = data.data.WorkCenterMasterId;
+        try {
+            //ValidationMaster();
+            $scope.ProcessDetentionLists = [];
+            for (var i = 1; i < 6; i++) {
+                var obj = angular.copy($scope.ProcessDetention);
+                obj.Id = null;
+                obj.ProcessId = $scope.DailyProductionTargetNew.ProcessId;
+                obj.EntityId = $scope.DailyProductionTargetNew.EntityId;
+                obj.TargetDate = $scope.DailyProductionTargetNew.TargetDate;
+                obj.ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
+                obj.workCenter = $scope.DailyProductionTargetNew.workCenterId;
+                obj.Sequence = i;
+                $scope.ProcessDetentionLists.push(obj);
+            }
+
+            $http.get('Productions/RunningMachineSetUpTarget/GetProcessDetentionData?processId=' + $scope.DailyProductionTargetNew.ProcessId + '&entityId=' + $scope.DailyProductionTargetNew.EntityId + '&productionDate=' + $scope.DailyProductionTargetNew.TargetDate + '&shiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
+                .then(
+                    function successCallback(response) {
+                        if (response.data.length > 0) {
+
+                            for (var j = 0; j < response.data.length; j++) {
+                                for (var k = 0; k < $scope.ProcessDetentionLists.length; k++) {
+                                    if ($scope.ProcessDetentionLists[k].Sequence == response.data[j].Sequence) {
+                                        $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
+                                        $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
+                                        $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
+                                        $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
+                                        $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
+                                        $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
+                                        $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
+                                        $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
+                                        $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
+                                        $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
+                                        $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
+                                        $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
+                                        $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
+                                        $scope.ProcessDetentionLists[k].Remark = response.data[j].Remark;
+                                    }
+
+                                }
+                            }
+
+                        }
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#articlePoUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
+    var currRow = null;
+    $scope.DetentionList = [];
+    $scope.GetDetentionList = function (data) {
+        var gridObj = $("#ProductionSummaryDetentionWC").ejGrid("instance");
+        currRow = gridObj.model.currentViewData[this.element.closest("tr").index()];
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionListWC?DetentiontypeId=' + currRow.DetentionTypeId
+        }).then(function successCallback(response) {
+            currRow.DetentionList = response.data;
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+
+        });
+    };
+
+    $scope.selectDepartment = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getsD();
+        $scope.NewObject.DetentionId = null;
+        $scope.NewObject.DetentionList = null;
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        angular.element(document.querySelector('#DepartmentPop')).modal('show');
+    }
+
+    $scope.DepartmentList = [];
+    $scope.getsD = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterTransaction/GetDetentionDepartment',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DepartmentList = resp.data;
+        });
+    }
+
+    $scope.doubleDepartment = function (e) {
+        $scope.Newobject.DepartmentId = e.data.DepartmentId;
+        $scope.Newobject.DepartmentName = e.data.DepartmentName;
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+        $scope.getDetentionTypeListByDepartment($scope.Newobject.DepartmentId);
+        $scope.getDetentionListByDepartment($scope.Newobject.DepartmentId);
+    }
+
+    $scope.closeDepartmentPopUp = function () {
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+    }
+
+    $scope.getDetentionTypeListByDepartment = function (departmentid) {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/getDetentionTypeListByDepartment?departmentid=' + departmentid
+        }).then(function successCallback(response) {
+            //$scope.DetentionList = null;
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                if ($scope.ProcessDetentionLists[i].DetentionId == null) {
+                    $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
+                }
+            }
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        });
+    }
+    $scope.getDetentionListByDepartment = function (departmentid) {
+        $scope.Newobject.DetentionList = null;
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/getDetentionListByDepartment?departmentid=' + departmentid
+        }).then(function successCallback(response) {
+            //$scope.DetentionList = null;
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                if ($scope.ProcessDetentionLists[i].DetentionId == null) {
+                    $scope.ProcessDetentionLists[i].DetentionList = response.data;
+                }
+            }
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        });
+    }
+
+    $scope.selectDetResponsible = function (data) {
+        $scope.Newobject = data.data;
+        $scope.Newobject.DetentionId = data.data.DetentionId;
+        $scope.getsDetR();
+        angular.element(document.querySelector('#DetResponiblePersonPopup')).modal('show');
+    }
+
+    $scope.DetResponsibleList = [];
+    $scope.getsDetR = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterTransaction/GetDetentionResponsible?detentionId=' + $scope.Newobject.DetentionId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DetResponsibleList = resp.data;
+        });
+    }
+
+    $scope.doubleDetResponsible = function (e) {
+        $scope.Newobject.ResponsiblePersonId = e.data.ResponsiblePersonId;
+        $scope.Newobject.ResponsiblePerson = e.data.ResponsiblePerson;
+        angular.element(document.querySelector('#DetResponiblePersonPopup')).modal('hide');
+    }
+
+    $scope.closeDetResponsiblePopUp = function () {
+        angular.element(document.querySelector('#DetResponiblePersonPopup')).modal('hide');
+    }
+
+    $scope.SaveDetentionWC = function () {
+        try {
+
+            $scope.DetentionSaveList = [];
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                //if ($scope.ProcessDetentionLists[i].Flag == true)
+                if (!baseService.isUndefinedOrNull($scope.ProcessDetentionLists[i].Minute)) {
+                    $scope.ProcessDetentionLists[i].ProductionSummaryId = $scope.DailyProductionTargetNew.Id;
+                    $scope.ProcessDetentionLists[i].EntityId = $scope.DailyProductionTargetNew.EntityId;
+                    $scope.ProcessDetentionLists[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
+                    $scope.ProcessDetentionLists[i].Date = $scope.DailyProductionTargetNew.TargetDate;
+                    $scope.ProcessDetentionLists[i].shiftid = $scope.DailyProductionTargetNew.ProductionShiftId;
+                    $scope.ProcessDetentionLists[i].WorkCenterId = $scope.DailyProductionTargetNew.WorkCenterMasterId;
+                    $scope.DetentionSaveList.push($scope.ProcessDetentionLists[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlDetentionWC,
+                data: {
+                    "DataList": $scope.DetentionSaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Action = 'Save';
+                    var Sum = 0;
+                    for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                        if (!baseService.isUndefinedOrNull($scope.ProcessDetentionLists[i].Minute)) {
+                            Sum = parseInt(Sum) + parseInt($scope.ProcessDetentionLists[i].Minute);
+                        }
+
+                    }
+                    $scope.NewObject.SumMin = Sum;
+                    $scope.getProcessDetention();
+                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
+                }
+                angular.element(document.querySelector('#articlePoUp')).modal('hide');
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
         }
     };
 
@@ -619,20 +956,24 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
 
     $scope.selectSOItem = function (args) {
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-            if ($scope.SelectedLineForPR.WorkCenterMasterId == $scope.DailyTargetList[i].WorkCenterMasterId) {
-                $scope.DailyTargetList[i].ProductionOrderId = args.data.Id;
-                $scope.DailyTargetList[i].Material = args.data.Material;
-                $scope.DailyTargetList[i].Article = args.data.Article;
-                $scope.DailyTargetList[i].MaterialMasterId = args.data.MaterialMasterId;
-                $scope.DailyTargetList[i].MaterialMasterArticleId = args.data.ArticleId;
-                $scope.DailyTargetList[i].CustomerPONo = args.data.CustomerPONo;
-                $scope.DailyTargetList[i].BuyerItemNo = args.data.BuyerItemNo;
-                $scope.DailyTargetList[i].SMV = args.data.SPT;
-                $scope.DailyTargetList[i].TargetFD = args.data.TargetFD;
-                angular.element(document.querySelector('#POItemPopup')).modal('hide');
+            if ($scope.SelectedLineForPR.WorkCenterMasterId == $scope.DailyTargetList[i].WorkCenterMasterId && $scope.SelectedLineForPR.ProductionOrderId == $scope.DailyTargetList[i].ProductionOrderId) {
+                //if ($scope.SelectedLineForPR.ProductionOrderId == $scope.DailyTargetList[i].ProductionOrderId) {
+                    $scope.DailyTargetList[i].ProductionOrderId = args.data.Id;
+                    $scope.DailyTargetList[i].Material = args.data.Material;
+                    $scope.DailyTargetList[i].Article = args.data.Article;
+                    $scope.DailyTargetList[i].MaterialMasterId = args.data.MaterialMasterId;
+                    $scope.DailyTargetList[i].MaterialMasterArticleId = args.data.ArticleId;
+                    $scope.DailyTargetList[i].CustomerPONo = args.data.CustomerPONo;
+                    $scope.DailyTargetList[i].BuyerItemNo = args.data.BuyerItemNo;
+                    $scope.DailyTargetList[i].SMV = args.data.SPT;
+                    $scope.DailyTargetList[i].LotNumber = args.data.LotNumber;
+                    angular.element(document.querySelector('#POItemPopup')).modal('hide');
+                //}
                 break;
+
             }
         }
+
         var gridObj = $("#GridDailyTargetList").data("ejGrid");
         gridObj.refreshContent();
         gridObj.refreshTemplate();
@@ -647,12 +988,19 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         //gridObj.refreshTemplate();
     }
 
-   
+
     $scope.CalculateTargetProductioin = function (args) {
         for (var i = 0; i < $scope.DailyTargetList.length; i++) {
             $scope.DailyTargetList[i].TargetProductionFP = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours)).toFixed(0);
-            $scope.DailyTargetList[i].TargetFD = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency)).toFixed(0);
-            }
+        }
+        var gridObj = $("#GridDailyTargetList").data("ejGrid");
+        gridObj.refreshContent();
+    }
+
+    $scope.CalculatePlanProductioin = function (args) {
+        for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+            $scope.DailyTargetList[i].TargetFD = (dbl(60 / dbl($scope.DailyTargetList[i].SMV)) * ($scope.DailyTargetList[i].WorkStation) * ($scope.DailyTargetList[i].PlanHours) * dbl($scope.DailyTargetList[i].Efficiency) / 100).toFixed(0);
+        }
         var gridObj = $("#GridDailyTargetList").data("ejGrid");
         gridObj.refreshContent();
     }

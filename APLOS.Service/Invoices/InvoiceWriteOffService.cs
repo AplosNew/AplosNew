@@ -838,7 +838,7 @@ namespace Library.Service.Invoices
                         DocDate = voucher.DocDate,
                         DocRefNo = voucher.DocRefNo,
                         Narration = voucher.Narration,
-                        DrAmount = voucherVM.ExchangeAmount,
+                        DrAmount = (companyCurrencyId == voucherVM.CurrencyId) ? voucherVM.ExchangeAmount : 0,
                         PartyType = voucherVM.ExchangeType
                     };
                     totalAmountDr += voucherDtEx.DrAmount;

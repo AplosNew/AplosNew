@@ -13,6 +13,8 @@ using Library.Crosscutting.Security;
 using System.Threading;
 using System.Collections.Generic;
 using Library.Planning.LineDesign;
+using Library.Data;
+using System.Linq;
 
 #endregion
 
@@ -160,21 +162,25 @@ Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetai
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                             where Pod.ProductionOrderId=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"'  and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId+ @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-isnull(RM.SMV,PS.SPT) as SMV,isnull(RM.PlanHours,(select top 1 PlanHours from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as PlanHours,
---isnull(RM.TargetFD,ceiling((60/PS.SPT)*isnull(RM.PlanHours," + HeaderPlanHour + @")*PS.NoOfWorkStation)) as TargetFD,
-isnull(RM.TargetFD,(select top 1 RM.TargetFD from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as TargetFD,
+isnull(RM.SMV,PS.SPT) as SMV,
+RM.PlanHours,
+RM.TargetFD,
 isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
 isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
 isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId =(select top 1 InChargeId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
 isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId =(select top 1 InChargeId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
 
-RM.Remarks,isnull(RM.Efficiency,(select top 1 Efficiency from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as Efficiency,isnull(RM.TargetProductionFP,(select top 1 TargetProductionFP from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc)) as TargetProductionFP
+RM.Remarks,
+RM.Efficiency,
+RM.TargetProductionFP,isnull(SM.SumMinute,0) as SumMin
 FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.RunningMachineSetUpTarget RM ON RM.WorkCenterMasterId=wc.Id AND RM.ProcessId = '" + ProcessId + @"'  
                         AND  RM.EntityId='" + EntityId + @"' AND RM.TargetDate='"+ TargetDate + "'  AND RM.ProductionShiftId ='" + ProductionShiftId+ @"' 
                         LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"'  and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId+ @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))
 						LEFT JOIN EmployeeInformation R ON RM.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation I ON RM.InChargeId=I.SystemId
+                        LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + EntityId + @"' AND MT.Date='" + TargetDate + @"'  AND MT.ShiftId='" + ProductionShiftId + @"'
+                        group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
 						left join ProductionOrderSchedulingParametersType1 PS ON PS.ProductionOrderID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where WorkCenterMasterID=WC.Id order by AddedDate desc))
 						where wc.ProcessId = '" + ProcessId + @"'  and wc.EntityId = '" + EntityId + @"' ORDER BY wc.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
@@ -417,7 +423,136 @@ where RD.ProcessId='" + ProcessId + "'";
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter)
+        {
+            try
+            {
+                string sql = "";
+                string DetentionTypeListsql = "";
+                string DetentionListsql = "";
+                sql = @"
+SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Sequence,MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, 
+MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
+										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute as [Minute],SD.UserName Shift,
+										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
+			                            from MachineMasterTransaction MMT
+			                            left join ORG.Entity E on E.Id=MMT.EntityId
+										left join ORG.Department D on D.Id=MMT.DepartmentId
+										left join DetentionMaster DM on DM.Id=MMT.DetentionId
+										left join HKP.Process P on P.Id=MMT.ProcessId
+										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
+										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "'";
 
+
+                //return _sqlRepository.GetDataCollection(sql, null);
+
+                DetentionTypeListsql = @"select DT.UserName As Text, DT.Id As Value from MachineMasterTransaction MMT 
+                                         left outer join hkp.DetentionType DT ON DT.id=MMT.DetentionTypeId";
+
+                DetentionListsql = @"Select DM.DetentionUserName As Text, DM.Id As Value,DM.IsAssetApplicable,DM.IsWorkCenterApplicable from MachineMasterTransaction MMT 
+                                     left outer join  DetentionMaster DM ON DM.id=MMT.DetentionId";
+
+                List<Dictionary<string, object>> MainList = _sqlRepository.GetDataCollection(sql);
+                List<Dictionary<string, object>> detentiontypelist = _sqlRepository.GetDataCollection(DetentionTypeListsql);
+                List<Dictionary<string, object>> detentionList = _sqlRepository.GetDataCollection(DetentionListsql);
+                for (int i = 0; i < MainList.Count; i++)
+                {
+                    try
+                    {
+                        //List<Dictionary<string, object>> k = detentiontypelist.ToList();
+                        List<Dictionary<string, object>> k = detentiontypelist.Where(ee => clsStaticInfo.nullrecorder(ee["Value"]) == clsStaticInfo.nullrecorder(MainList[i]["DetentionTypeId"])).ToList();
+                        MainList[i]["DetentionTypeList"] = k;
+
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+                    try
+                    {
+                        List<Dictionary<string, object>> m = detentionList.Where(ee => clsStaticInfo.nullrecorder(ee["Value"]) == clsStaticInfo.nullrecorder(MainList[i]["DetentionId"])).ToList();
+
+
+                        MainList[i]["DetentionList"] = m;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                }
+                return Json(MainList, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            //return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "MachineMasterTransaction";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        if (item["DetentionId"] == null)
+                        {
+
+                            throw new CustomException("Detention should not be blank!");
+                        }
+                        else
+                        {
+                            if (dv.Count == 0)
+                            {
+                                bplib.clsGenID genid = new bplib.clsGenID();
+                                genid.GenID(TableName, out _Id);
+                                item["Id"] = "RRV" + _Id;
+                                AddNewRow(dsProdBooked.Tables[0], item);
+                            }
+                            else
+                            {
+                                DataRow drpb = dv[0].Row;
+                                EditRow(drpb, item);
+                            }
+                            clsStaticInfo obj = new clsStaticInfo();
+                            obj.SaveDataSets(dsProdBooked);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new CustomException("Please enter atleast one row and proceed!");
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -484,8 +619,8 @@ where RD.ProcessId='" + ProcessId + "'";
                                 so.OwnRefNo, so.StyleNo, so.OwnStyleNo, so.SONo,
                                 so.SODesc,So.MasterOrderId,
                                 so.Customer,so.article,PRODPR.ProductionQtyAtPR,So.BuyerItemNo,SO.CustomerPONo
-                                   ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty,CEILING((60/t1.SPT)*("+ PlanHours +@")*t1.NoOfWorkStation) as TargetFD
-                                  			
+                                   ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty,CEILING((60/t1.SPT)*("+ PlanHours + @")*t1.NoOfWorkStation) as TargetFD
+                              ,PRODPR.LotNumber    			
   
                             FROM [TRN].[ProductionOrder] AS PO
                             JOIN [ORG].[Entity] AS EN ON PO.EntityId = EN.Id
@@ -493,10 +628,10 @@ where RD.ProcessId='" + ProcessId + "'";
                             INNER JOIN ProductionOrderSchedulingParametersType1 t1 ON t1.ProductionOrderID=po.Id
 
                              LEFT OUTER JOIN (
-												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR
+												SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR,MIN(s.ProductionDate) AS ProductionStartDateAtPR,s.LotNumber
 											FROM  trn.ProductionSummary S 
 											--WHERE  CONVERT(DATETIME, format(s.ProductionDate,'dd-MMM-yyyy'))<'" + System.DateTime.Now.ToString("dd-MMM-yyyy") + @"'
-											GROUP BY  s.ProductionOrderId,s.ProcessId
+											GROUP BY  s.ProductionOrderId,s.ProcessId,s.LotNumber
 							) AS PRODPR ON  PRODPR.ProductionOrderId=po.id AND PRODPR.ProcessId=(select ProcessId from trn.ProductionOrderProcessSet where IsBaseProcess=1 and ProductionOrderID=po.Id)
 							 left outer join (SELECT pod.ProductionOrderId,
                                 sum(isnull(so.ProductionBookedQty,0)) ProductionBookedQty

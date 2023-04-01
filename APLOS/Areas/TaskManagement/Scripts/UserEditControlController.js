@@ -7,7 +7,8 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'CreateUserEditControl';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    //$scope.deleteUrl = $scope.path + 'delete/';
+    $scope.deleteChildUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
@@ -104,15 +105,32 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#popUpId')).modal('hide');
     };
     //***********************************User ********************************************************//
-    $scope.removeRow = function (index) {
-        $scope.HrefDataList.splice(index, 1);
-    };
+    $scope.removeRow = function (data) {
+        /* $scope.HrefDataList.splice(index, 1);*/
+       
+            $http({
+                method: 'POST',
+                url: 'TaskManagement/TaskAppliedOn/DeleteChildUrl?Id=' + data.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getHrefList();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });    
+        };
 
     $scope.HrefDataList=[];
-    $scope.getHrefList = function (id) {
+    $scope.getHrefList = function () {
         $http({
             method: "get",
-            url: "TaskManagement/TaskAppliedOn/GetHrefDatasList?hrefId=" + id
+            url: "TaskManagement/TaskAppliedOn/GetHrefDatasList?hrefId=" + $scope.ModelNew.Id
         }).then(function successCallback(response) {
             $scope.HrefDataList = response.data;
         });
@@ -201,6 +219,10 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
+            if ($scope.ModelNew.UserId == $scope.ModelList[0]["UserId"]) {
+
+                ShowResult('The employee already Saved!', 'failure');
+            }
             if ($scope.ModelNew.Password == $scope.ModelNew.RePassword) {
 
                 $http({
@@ -242,9 +264,24 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getData();
 
+    $scope.ModelDetailList = [];
+    $scope.GetUserEditControlDetailData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetUserEditControlDetailList?userEditControlId=" + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelDetailList = response.data;
+        });
+    }
+    //$scope.getUserEditControlDetailData();
+
     $scope.GetDblClick = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.ModelNew.RePassword = Object.assign({}, args.data.RePassword);
+        $scope.ModelNew.RePassword = args.data.Password;
+        $scope.getData();
+        $scope.getHrefList();
+        //$scope.GetUserEditControlDetailData($scope.ModelNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -277,6 +314,7 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.HrefDataList = [];
+        //$scope.getHrefList = [];
         return true;
     };
 

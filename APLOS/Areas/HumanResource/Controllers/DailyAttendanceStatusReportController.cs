@@ -133,7 +133,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, AllowAnonymous]
+        [HttpPost, Authorize , AllowAnonymous]
         public JsonResult RemoveFavoriteFilter(string id)
         {
             var sql = @"delete from [TRN].[DailyAttendanceFavoriteFilter] where Id = '"+id+"'";
@@ -289,7 +289,7 @@ left join EmployeeInformation EI on EI.SystemId = DAF.ResponsiblePersonId where 
                 }
 
                 var sql = @"Select ROW_NUMBER() OVER(ORDER BY APD.WorkDate DESC) SrlNo, UN.UserName Entity, D.UserName Division, DP.UserName Department, SC.UserName Section, SBC.UserName SubSection, POS.Activity, DM.UserName Designation, LDSG.UserName GivenDesignation
-, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.OutTime, 'hh:mm tt')OutTime, FORMAT(APD.InTime, 'hh:mm tt')InTime, APD.LateIn,  EMP.EmployeeStatus
+, ST.UserName [Shift], MBGT.Code BudgetCode, EMP.EmployeeCode, EMP.EmployeeName, EMP.CellPhnNo, S.UserName [State], EMP.DOJ, EC.UserName EmployeeCategory , APD.DayStatus, APD.InStatus, FORMAT(APD.InTime, 'hh:mm tt')InTime,  FORMAT(APD.OutTime, 'hh:mm tt')OutTime, APD.LateIn,  EMP.EmployeeStatus
 ,EI2.EmployeeName ResponsiblePerson, EFB.Action Feedback, FORMAT(EFB.AddedDate, 'dd-MMM-yyyy') FeedbackDate, ARM.UserName FeedbackRason, EFB.AddedBy FeedbackBy, RM.ResidenceNumber, RAE.isOccupied,  R.UserName TransportRoute
 ,MBGT2.Code ROBudgetCode,APD.WorkDate , PV.UpdatedBy
 ,ApprovedStatus = case when PV.UpdatedBy is not null then 'Approved' else 'Not Approved' end
@@ -943,7 +943,7 @@ LEFT JOIN EmployeeInformation TDEmp on TDEmp.SystemId = TD.TeamLeaderId
         #endregion
 
         #region Save
-        [HttpPost ,AllowAnonymous]
+        [HttpPost, Authorize, AllowAnonymous]
         public JsonResult Save(Dictionary<string, object> datas, string employeeId)
         {
             try

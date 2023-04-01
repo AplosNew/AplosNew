@@ -1,5 +1,5 @@
 ﻿'use strict';
-BlackListController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+BlackListController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function BlackListController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Black List';
     $scope.Action = 'Save';
@@ -19,7 +19,7 @@ function BlackListController(cboService, commonMessage, $scope, $rootScope, base
             url: $scope.path + "GetList",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
-        }).then(function successCallback(response) {          
+        }).then(function successCallback(response) {
             $scope.BlkList = response.data;
             ClearFields();
         });
@@ -30,7 +30,7 @@ function BlackListController(cboService, commonMessage, $scope, $rootScope, base
         Id: null,
         Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         AadharNumber: null,
-        CompanyEmployeeOutsider: 'OutsiderEmp',
+        CompanyEmployeeOutsider: 'CompanyEmp',
         EmpSystemId: null,
         OutsiderName: null,
         OutsiderFatherName: null,
@@ -78,7 +78,8 @@ function BlackListController(cboService, commonMessage, $scope, $rootScope, base
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields();
+                    $scope.BlackList.Id = response.data.Data.Id;
+                    //ClearFields();
                     $scope.getData();
 
                 }
@@ -115,6 +116,15 @@ function BlackListController(cboService, commonMessage, $scope, $rootScope, base
         ClearFields();
         return true;
     };
+
+
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.BlackListDocument + '/' + data.Id + extention;
+    };
+
 
     function ClearFields() {
         $scope.Action = 'Save';
@@ -221,5 +231,42 @@ function BlackListController(cboService, commonMessage, $scope, $rootScope, base
         $scope.BlackList.ByWhom = data.EmployeeName;
         angular.element(document.querySelector('#ByWhomPopUp')).modal('hide');
     };
+
+    $scope.getByWhomDatabyUserEmp = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + 'getByWhomDatabyUserEmp?empId=' + $window.employeeId
+        }).then(function successCallback(response) {
+            $scope.BlackList.EmpCode = response.data[0].EmployeeCode;
+            $scope.BlackList.ByWhomId = response.data[0].SystemId;
+            $scope.BlackList.ByWhom = response.data[0].EmployeeName;
+        });
+    }
+    $scope.getByWhomDatabyUserEmp();
+
+    $scope.onBeginUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull($scope.BlackList.Id))
+                throw 'Please select/save the data first'
+
+            args.data = $scope.BlackList.Id;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadUrl = "HumanResource/BlackList/SaveDefault";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.BlackList.Id))
+            ShowResult('Please select/save the data first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.BlackList.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+
     // # end region
 }

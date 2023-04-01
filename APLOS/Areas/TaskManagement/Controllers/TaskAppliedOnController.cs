@@ -230,7 +230,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                         //    bplib.clsGenID genid = new bplib.clsGenID();
                         //    genid.GenID("UserEditControlDetail", out _DetailId);
                         //}
-                        
+
 
                         DataView dv = new DataView(dsDetail.Tables[0]);
                         dv.RowFilter = "Id='" + item["HrefId"] + "'";
@@ -241,11 +241,22 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             item["Id"] = detailid;
                             item["UserEditControlId"] = _MasterId;
                             item["Href"] = item["Href"];
-                           
+
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
 
                         }
+                        //if (dv.Count > 0)
+                        //{
+                        //    ccount++;
+                        //    string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                        //    DataRow drmo = dv[0].Row;
+                        //    drmo.BeginEdit();
+                        //    drmo["Id"] = detailid;
+                        //    drmo["UserEditControlId"] = _MasterId;
+                        //    drmo["Href"] = item["Href"]; ;
+                        //    drmo.EndEdit();
 
+                        //}
                     }
                 }
 
@@ -265,9 +276,22 @@ namespace Aplos.Areas.TaskManagement.Controllers
         [HttpGet, Authorize]
         public ActionResult GetUserEditControlList()
         {
-            string sql = @"select UEC.*,U.FullName,U.EmployeeId
+            string sql = @"select UEC.*,U.*
                             from UserEditControl UEC
                             left join sec.[User] U on U.Id=UEC.UserId";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetUserEditControlDetailList(string userEditControlId)
+        {
+            string sql = @"select UEC.*,UECD.Href,MM.Description,MM.Controller
+                            from UserEditControl UEC
+							left join UserEditControlDetail UECD on UECD.UserEditControlId=UEC.Id
+							left join [MST].[MenuMaster] MM on MM.Href=UECD.Href
+                            where UEC.Id = '"+ userEditControlId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -278,7 +302,25 @@ namespace Aplos.Areas.TaskManagement.Controllers
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from dbo.UserEditControlDetail where UserEditControlId='" + id + "'");
                 con.executeQuery("delete from dbo.UserEditControl where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult DeleteChildUrl(string Id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.UserEditControlDetail where Id='" + Id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -313,7 +355,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
         [HttpGet, Authorize]
         public JsonResult GetHrefDatasList(string hrefId)
         {
-            string sql = @"select Id,Description, Controller, Href from [MST].[MenuMaster] where Id = '"+ hrefId + "'";
+            string sql = @"select UECD.Id,UECD.UserEditControlId,MM.Description,MM.Controller,MM.Href
+							from [MST].[MenuMaster] MM 
+							left join UserEditControlDetail UECD on UECD.Href=MM.Href
+							left join UserEditControl UEC on UEC.Id=UECD.UserEditControlId
+                            where UEC.Id = '" + hrefId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

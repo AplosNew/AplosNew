@@ -39,7 +39,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.TargetDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                            <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.TargetDate" ng-change="DateValidation(DailyProductionTargetNew.TargetDate);"datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
                         </div>
                     </div>
                 </div>
@@ -224,7 +224,8 @@
                      e-allowselection="true" e-filtersettings-filterType="excel">
                     <div e-columns>
                         <div e-column e-type="string" e-field="Id" e-headertext="ID" e-width="80"></div>
-                        <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Material" e-visible="false" e-headertext="Material" e-width="80"></div>
+                        <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
                         <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
                         <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Order#" e-width="80"></div>
                         <div e-column e-type="string" e-field="BuyerRefNo" e-headertext="Customer Ord#" e-width="80"></div>
