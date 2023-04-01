@@ -2357,7 +2357,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
 
                         dr["Id"] = _Id;
                         dr["ProductionServiceId"] = item.ProductionServiceId;
-                        dr["StandardName "] = item.StandardName;
+                        dr["StandardName"] = item.StandardName;
                         dr["Production100"] = item.Production100;
                         dr["Efficiency"] = item.Efficiency;
                         dr["Speed"] = item.Speed;
@@ -2391,7 +2391,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr.BeginEdit();
 
                         dr["ProductionServiceId"] = item.ProductionServiceId;
-                        dr["StandardName "] = item.StandardName;
+                        dr["StandardName"] = item.StandardName;
                         dr["Production100"] = item.Production100;
                         dr["Efficiency"] = item.Efficiency;
                         dr["Speed"] = item.Speed;
