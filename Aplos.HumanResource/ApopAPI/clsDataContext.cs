@@ -2269,7 +2269,6 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
                         dr["Value"] = item.Value;
-                        dr["Effeciency"] = item.Effeciency;
                         dr["Remarks"] = item.Remarks;
                         dr["Region1"] = item.Region1;
                         dr["Region1Time"] = item.Region1Time;
@@ -2300,7 +2299,6 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
                         dr["Value"] = item.Value;
-                        dr["Effeciency"] = item.Effeciency;
                         dr["Remarks"] = item.Remarks;
                         dr["Region1"] = item.Region1;
                         dr["Region1Time"] = item.Region1Time;
@@ -2359,7 +2357,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
 
                         dr["Id"] = _Id;
                         dr["ProductionServiceId"] = item.ProductionServiceId;
-                        dr["SandardName "] = item.SandardName;
+                        dr["StandardName "] = item.StandardName;
                         dr["Production100"] = item.Production100;
                         dr["Efficiency"] = item.Efficiency;
                         dr["Speed"] = item.Speed;
@@ -2393,7 +2391,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr.BeginEdit();
 
                         dr["ProductionServiceId"] = item.ProductionServiceId;
-                        dr["SandardName "] = item.SandardName;
+                        dr["StandardName "] = item.StandardName;
                         dr["Production100"] = item.Production100;
                         dr["Efficiency"] = item.Efficiency;
                         dr["Speed"] = item.Speed;
@@ -4288,8 +4286,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string ProductionServiceId { get; set; }
         public string WorkcenterMasterId { get; set; }
         public int PO { get; set; }
-        public int Value { get; set; }
-        public decimal Effeciency { get; set; }
+        public string Value { get; set; }
         public string Remarks { get; set; }
         public string Region1 { get; set; }
         public string Region1Time { get; set; }
@@ -4312,7 +4309,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
     {
         public string Id { get; set; }
         public string ProductionServiceId { get; set; }
-        public string SandardName { get; set; }
+        public string StandardName { get; set; }
         public string Production100 { get; set; }
         public string Efficiency { get; set; }
         public string Speed { get; set; }
