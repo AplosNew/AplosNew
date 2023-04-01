@@ -935,6 +935,56 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //    }
     //}
 
+    //#regon...... Pending Adjustment Vendor Payable
+    $scope.PayablePostedAmount = 0;
+    $scope.PayableUnPostedAmount = 0;
+    $scope.TotalPayablePostedUnPostedAmount = 0;
+
+    $scope.VendorAdvancePostedAmount = 0;
+    $scope.VendorAdvanceUnPostedAmount = 0;
+    $scope.TotalVendorAdvancePostedUnPostedAmount = 0;
+
+    $scope.VendorDebitNotePostedAmount = 0;
+    $scope.VendorDebitNoteUnPostedAmount = 0;
+    $scope.TotalVendorDebitNotePostedUnPostedAmount = 0;
+
+    $scope.GetPartyPaymentStatusPendingAdjustmentList = function () {
+        try {
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetPartyPaymentStatusPendingAdjustmentData",
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.VendorPendingAdjustmentList = response.data;
+
+                $scope.PayablePostedAmount = $scope.VendorPendingAdjustmentList[0]["PayablePostedAmount"];
+                $scope.PayableUnPostedAmount = $scope.VendorPendingAdjustmentList[0]["PayableUnPostedAmount"];
+                $scope.TotalPayablePostedUnPostedAmount = $scope.VendorPendingAdjustmentList[0]["TotalPayablePostedUnPostedAmount"];
+
+                $scope.VendorAdvancePostedAmount = $scope.VendorPendingAdjustmentList[0]["VendorAdvancePostedAmount"];
+                $scope.VendorAdvanceUnPostedAmount = $scope.VendorPendingAdjustmentList[0]["VendorAdvanceUnPostedAmount"];
+                $scope.TotalVendorAdvancePostedUnPostedAmount = $scope.VendorPendingAdjustmentList[0]["TotalVendorAdvancePostedUnPostedAmount"];
+
+                $scope.VendorDebitNotePostedAmount = $scope.VendorPendingAdjustmentList[0]["VendorDebitNotePostedAmount"];
+                $scope.VendorDebitNoteUnPostedAmount = $scope.VendorPendingAdjustmentList[0]["VendorDebitNoteUnPostedAmount"];
+                $scope.TotalVendorDebitNotePostedUnPostedAmount = $scope.VendorPendingAdjustmentList[0]["TotalVendorDebitNotePostedUnPostedAmount"];
+
+                
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+    $scope.GetPartyPaymentStatusPendingAdjustmentList();
+    //#endregon...... Pending Adjustment Vendor Payable
+
     $scope.DateRangeWisePaymentList = [];
     $scope.GetDateRangeWisePaymentData = function () {
         try {
