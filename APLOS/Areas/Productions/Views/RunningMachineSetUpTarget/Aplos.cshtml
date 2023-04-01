@@ -39,7 +39,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.TargetDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                            <input type="text" ng-disabled="DailyTargetList.length>0" ng-model="DailyProductionTargetNew.TargetDate" ng-change="DateValidation(DailyProductionTargetNew.TargetDate);"datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
                         </div>
                     </div>
                 </div>

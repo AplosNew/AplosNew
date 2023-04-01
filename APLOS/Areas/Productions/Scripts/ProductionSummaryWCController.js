@@ -10,6 +10,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlWC = $scope.path + 'createWC';
+    $scope.UpdateUrlWC = $scope.path + 'UpdateWC';
     $scope.saveUrlReason = $scope.path + 'createReason';
     $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
     $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
@@ -420,7 +421,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 .then(function (response) {
                     $scope.wcList = response.data;
                     for (var i = 0; i < $scope.wcList.length; i++) {
-                        Object.assign($scope.wcList[i], { 'Serial': parseInt(i),'Remarks': null });
+                        Object.assign($scope.wcList[i], { 'Serial': parseInt(i)});
                     }
                 });
         } catch (ex) {
@@ -550,6 +551,19 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             throw ex;
         }
     }
+
+    
+    $scope.DateValidation = function (ProductionDate) {
+        try {
+            if (new Date(ProductionDate) > new Date()) {
+                throw "Production Date must be below or equal to current Date!";
+            }
+
+        }
+        catch (ex) {
+            ShowResult(ex,'failure');
+        }
+    };
 
     function ValidationMaster() {
         try {
@@ -1372,15 +1386,19 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             //    }
             //}
 
+            if (parseFloat($scope.productionSummaryNew.Quantity) < 0) {
+                throw "Quantity should not be less than 0.";
+            }
+
             if ($scope.IsFirst == false) {
-                if (parseFloat($scope.NewObject.RemainingQty) < 0) {
+                if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
                     throw "Produced Quantity should less than Order Quantity.";
                 }
             }
 
-            //if ($scope.NewObject.Quantity > parseFloat($scope.NewObject.RemainingQty)) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
+            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
+                throw "Produced Quantity should not be greater than Balance Quantity.";
+            }
 
             $http({
                 method: 'POST',
@@ -1459,47 +1477,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     };
 
     $scope.SaveMasterWC = function (data) {
-        //try {
-   
-        //    $scope.SaveList = [];
-        //    for (var i = 0; i < $scope.wcList.length; i++)
-        //    {
-        //        if ($scope.wcList[i].Flag == true)
-        //        {
-        //            $scope.wcList[i].PlantId = $window.plantId;
-        //            $scope.wcList[i].EntityId = $scope.productionSummaryNew.EntityId;
-        //            $scope.wcList[i].ProcessId = $scope.productionSummaryNew.ProcessId;
-        //            $scope.wcList[i].ProductionDate = $scope.productionSummaryNew.ProductionDate;
-        //            $scope.wcList[i].ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
-        //            $scope.wcList[i].ProductionInChargeId = $scope.productionSummaryNew.ProductionInChargeId;
-        //            $scope.SaveList.push($scope.wcList[i]);
-        //        }
-        //    }
-
-
-        //    $http({
-        //        method: 'POST',
-        //        url: $scope.saveUrlWC,
-        //        data: {
-        //                "DataList": $scope.SaveList,
-        //              },
-        //        dataType: 'JSON'
-        //    }).then(function successCallback(response) {
-        //        if (response.data.Error === true) {
-        //            ShowResult(response.data.Message, 'failure');
-        //        }
-        //        else {
-        //            ShowResult(response.data.Message, 'success');
-        //            $scope.loadWC();
-        //            $scope.Action = 'Save';
-        //        }
-                
-        //    }), function errorCallBack(response) {
-        //        ShowResult(response.data.Message, 'failure');
-        //    };
-        //} catch (ex) {
-        //    ShowResult(ex, 'Info');
-        //}
         $scope.NewObject = data.data;
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
@@ -1580,15 +1557,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 throw "Quantity should not be less than 0.";
             }
 
+            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
+                throw "Produced Quantity should not be greater than Balance Quantity.";
+            }
+
             if ($scope.IsFirst == false) {
-                if (parseFloat($scope.NewObject.RemainingQty) < 0) {
+                if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
                     throw "Produced Quantity should less than Order Quantity.";
                 }
             }
-
-            //if ($scope.NewObject.Quantity > parseFloat($scope.NewObject.RemainingQty)) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
 
             $http({
                 method: 'POST',
@@ -1609,6 +1586,126 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();
                     //$scope.loadWC();
+                    $scope.Action = 'Save';
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.UpdateMasterWC = function (data) {
+        $scope.NewObject = data.data;
+        var processid = $scope.productionSummaryNew.ProcessId;
+        var entityid = $scope.productionSummaryNew.EntityId;
+        var productiondate = $scope.productionSummaryNew.ProductionDate;
+        var shiftid = $scope.productionSummaryNew.ProductionShiftId;
+        var PInChargId = $scope.productionSummaryNew.ProductionInChargeId;
+        var PInCharg = $scope.productionSummaryNew.ProductionInCharge;
+        $scope.productionSummaryNew = data.data;
+        $scope.productionSummaryNew.ProcessId = processid;
+        $scope.productionSummaryNew.EntityId = entityid;
+        $scope.productionSummaryNew.ProductionDate = productiondate;
+        $scope.productionSummaryNew.ProductionShiftId = shiftid;
+        $scope.productionSummaryNew.ProductionInChargeId = PInChargId;
+        $scope.productionSummaryNew.ProductionInCharge = PInCharg;
+        try {
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            $scope.YDate = $filter('dateFiltering')(date);
+            $scope.getProdLevel();
+            if ($scope.productionSummaryNew.ProductionDate < $scope.YDate) {
+                throw "Update should be perform only for today's and yestarday's date.";
+            }
+            ValidationMaster();
+            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
+                $scope.productionSummaryNew.MasterOrderItemId = null;
+                $scope.productionSummaryNew.ProductLibraryId = null;
+            }
+
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
+                $scope.productionSummaryNew.MasterOrderItemId = null;
+                $scope.productionSummaryNew.ProductLibraryId = null;
+            }
+            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
+                $scope.productionSummaryNew.SalesOrderId = null;
+                $scope.productionSummaryNew.ProductLibraryId = null;
+            }
+            else {
+                $scope.productionSummaryNew.SalesOrderId = null;
+            }
+
+            if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
+                throw "Future Date not allowed for Production Booking.";
+            }
+
+            $scope.productionSummaryNew.QtyWithoutScan = $scope.productionSummaryNew.Quantity;
+            CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+            ValidationMaster();
+            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
+                if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
+                    ///
+                } else {
+                    throw "You have entered an invalid value for Lot Number.";
+                }
+            }
+            $scope.ProdQty = 0;
+
+            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
+                for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {
+                        $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
+                    }
+                }
+                $scope.productionSummaryNew.Quantity = $scope.ProdQty;
+                $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
+            }
+            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
+                if ($scope.ProdQty === 0) {
+                    throw "SKU Qty is required.";
+                }
+            }
+
+            if ($scope.IsFirst == false) {
+                if (parseFloat($scope.RemainQty) < 0) {
+                    throw "Order Quantity dosen't available.";
+                }
+            }
+
+            if (parseFloat($scope.productionSummaryNew.Quantity) < 0) {
+                throw "Quantity should not be less than 0.";
+            }
+
+            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
+                throw "Produced Quantity should not be greater than Balance Quantity.";
+            }
+
+            if ($scope.IsFirst == false) {
+                if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
+                    throw "Produced Quantity should less than Order Quantity.";
+                }
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.UpdateUrlWC,
+                data: {
+                    "ps": $scope.productionSummaryNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
                     $scope.Action = 'Save';
                 }
             }), function errorCallBack(response) {
@@ -2325,4 +2422,5 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.closeResponsiblePersonPopUp = function () {
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
+    
 }

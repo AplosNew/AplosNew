@@ -350,9 +350,11 @@
   <ItemGroup>
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\ChartAccountSetupController.cs" />
     <Compile Include="Areas\Accounts\Controllers\CommonAccountsController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\ManagementChartAccountSetupController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GroupBalanceReportController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherGlUpdateController.cs" />
@@ -536,6 +538,7 @@
     <Compile Include="Areas\Employees\Controllers\EmployeeCodeTypeController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationApprovalMultipleNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\DesignationSetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -1769,8 +1772,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
+    <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
     <Content Include="Areas\Accounts\Scripts\inventoryIssueReturnJournalController.js" />
+    <Content Include="Areas\Accounts\Scripts\ManagementChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\parkedReportController.js" />
     <Content Include="Areas\Accounts\Scripts\dayBooksReportController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeTotalAdvanceWriteOffController.js" />
@@ -2035,6 +2040,8 @@
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
+    <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeAttendacneReportController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -4589,6 +4596,24 @@
     <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineLayoutSearchViews.cshtml" />
     <Content Include="Areas\Productions\Views\DailyPlanningAndProductionReport\Report.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeAttendacneReport\Report.cshtml" />
+    <Content Include="Areas\Accounts\Views\ChartAccountSetup\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel1.cshtml" />
+    <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel2.cshtml" />
+    <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel3.cshtml" />
+    <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel4.cshtml" />
+    <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel5.cshtml" />
+    <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel6.cshtml" />
+    <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_BudgetGroup.cshtml" />
+    <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_BudgetCategry.cshtml" />
+    <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_BudgetSubCategory.cshtml" />
+    <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_Budget.cshtml" />
+    <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_Activity.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DesignationSetup\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DesignationSetup\_EmployeeCategory.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DesignationSetup\_DesignationGroup.cshtml" />
+    <Content Include="Areas\HumanResource\Views\DesignationSetup\_Designation.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -1,0 +1,207 @@
+﻿<togglable name="Designation Group"></togglable>
+<div class="form-elements form-horizontal" ng-form="designationgroupNewForm">
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSetDG(1) }"><a ng-click="setTabDG(1)" href="" aria-controls="bank" role="tab" data-toggle="tab">Basic</a></li>
+                <li role="presentation" ng-class="{ active: isSetDG(2) }"><a ng-click="setTabDG(2)" href="" aria-controls="address" role="tab" data-toggle="tab">Local Language</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetDG(1), active: isSetDG(1) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="number" min="1" name="Sequence" ng-model="designationgroupNew.Sequence" class="form-control" required tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" maxlength="15" name="ShortName" ng-model="designationgroupNew.ShortName" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input maxlength="50" type="text" ng-model="designationgroupNew.UserName" name="UserName" class="form-control" required tabindex="5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea maxlength="250" name="Description" class="form-control" rows="3" ng-model="designationgroupNew.Description" tabindex="7"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" maxlength="10" name="Code" ng-model="designationgroupNew.Code" class="form-control" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input maxlength="50" type="text" name="StandardName" ng-model="designationgroupNew.StandardName" class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Level<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input maxlength="50" type="text" name="Level" ng-model="designationgroupNew.Level" class="form-control" required tabindex="6">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea maxlength="250" name="Remarks" class="form-control" rows="3" ng-model="designationgroupNew.Remarks" tabindex="8"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="designationgroupNew.Active">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetDG(2), active: isSetDG(2) }">
+                <div class="row">
+                    <input type="hidden" ng-model="languageNewDG.Id" />
+                    <div class="col-xs-12 col-sm-5 col-md-5">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Language</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select id="languageId" class="form-control" name="Language" ng-model="languageNewDG.LanguageId" tabindex="1">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in languageList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-5 col-md-5">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Locally Translated Name</label>
+                            <div class="col-sm-7">
+                                <input type="text" ng-model="languageNewDG.Name" name="Name" maxlength="50" class="form-control" tabindex="2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button ng-click="AddMultipleLanguage();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus" tabindex="10"></i> {{LanguageCaption}}</button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table" ng-show="languageDataListDG.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Language</th>
+                                        <th>Locally Translated Name</th>
+                                        <th class="col-md-2">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr dir-paginate="x in languageDataListDG |itemsPerPage:languageDataParameters.pageSize" total-items="languageDataParameters.total_count"
+                                        pagination-id="metaData.name + 'languageDataList'">
+                                        <td>{{x.LanguageName}}</td>
+                                        <td>{{x.Name}}</td>
+                                        <td class="text-center table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="languageEdit(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                                                        <i class="glyphicon glyphicon-edit"></i>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button ng-click="languageDelete(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'languageDataList'"
+                                                     direction-links="true" boundary-links="true" on-page-change="getlanguageData(newPageNumber)">
+                            </dir-pagination-controls>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="SaveDG();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{ActionDG}}</button></li>
+            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="ClearDG();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getDataDG()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getDataDG()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sequence</th>
+                    <th>Code</th>
+                    <th>Short Name</th>
+                    <th>Standard Name</th>
+                    <th>User Name</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in designationgroups |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetDG($index);">
+                    <td>{{x.Sequence}}</td>
+                    <td>{{x.Code}}</td>
+                    <td>{{x.ShortName}}</td>
+                    <td>{{x.StandardName}}</td>
+                    <td>{{x.UserName}}</td>
+                    <td>{{x.Active?'Yes':'No'}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10"
+                                 direction-links="true" boundary-links="true"
+                                 on-page-change="getDataDG(newPageNumber)">
+        </dir-pagination-controls>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmlngPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRowDG()"></confirm-archive-generic>

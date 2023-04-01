@@ -548,6 +548,14 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
         [HttpPost]
+        public JsonResult UpdateWC(ProductionSummary ps)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ps.PlantId = identity.PlantId;
+            _ProductionSummaryService.SaveMasterWC(ps, identity.CompanyGroupId);
+            return Json(new { ProductionSummary = ps, Message = AplosMessage.Updated });
+        }
+        [HttpPost]
         public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

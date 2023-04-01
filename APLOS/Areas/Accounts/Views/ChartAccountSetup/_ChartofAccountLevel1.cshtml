@@ -1,0 +1,119 @@
+﻿<togglable name="Chart of Account Level1"></togglable>
+<div class="form-elements" ng-form id="chartOfAccountLevel1" name="chartOfAccountLevel1Form">
+    <input type="hidden" ng-model="chartOfAccountLevel1.Id">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" min="1" name="Sequence" ng-model="chartOfAccountLevel1.Sequence" class="form-control" required tabindex="1">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="15" name="ShortName" ng-model="chartOfAccountLevel1.ShortName" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input maxlength="50" type="text" ng-model="chartOfAccountLevel1.UserName" name="UserName" class="form-control" required tabindex="5">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Description</label>
+            <div class="col-sm-8">
+                <textarea maxlength="250" name="Description" class="form-control" rows="3" ng-model="chartOfAccountLevel1.Description" tabindex="7"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="10" name="Code" ng-model="chartOfAccountLevel1.Code" class="form-control" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input maxlength="50" type="text" name="StandardName" ng-model="chartOfAccountLevel1.StandardName" class="form-control" required tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea maxlength="250" name="Remarks" class="form-control" rows="3" ng-model="chartOfAccountLevel1.Remarks" tabindex="6"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Active</label>
+            <div class="col-sm-8">
+                <div class="checkbox-site">
+                    <label>
+                        <input tabindex="8" type="checkbox" ng-model="chartOfAccountLevel1.Active">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="SaveLevel1s();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{ActionLevel1s}}</button></li>
+            <li> <button ng-click="RemoveLevel1s();" data-target="#confirmPopUp" ng-disabled="CheckIdUseLevel2s" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="ClearLevel1s();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getDataLevel1s()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getDataLevel1s()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table  aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sequence</th>
+                <th>Code</th>
+                <th>Short Name</th>
+                <th>Standard Name</th>
+                <th>User Name</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in chartOfAccountLevel1s |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetLevel1s(x.Id, $index);">
+                <td>{{x.Sequence}}</td>
+                <td>{{x.Code}}</td>
+                <td>{{x.ShortName}}</td>
+                <td>{{x.StandardName}}</td>
+                <td>{{x.UserName}}</td>
+                <td>{{x.Active?'Yes':'No'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="getDataLevel1s(newPageNumber)">
+    </dir-pagination-controls>
+</div>
+<confirm-archive-generic modalid="confirmDetailPopUpLevel1" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteLevel1s();"></confirm-archive-generic>

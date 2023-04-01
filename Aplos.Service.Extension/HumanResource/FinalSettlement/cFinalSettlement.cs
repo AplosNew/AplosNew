@@ -140,6 +140,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
 							,convert(int,efs.TenureDayNo) TenureDayNoA
 							,convert(int,ROUND(efs.LastMonthNetPayAmount,0)) LastMonthNetPayAmount
 							,efs.LvEncashmentRateAmount
+                            ,efs.LvEncashmentRateAmount Dailywages
 							,SY.UserName AS SeparationType
 							,CONVERT(int,ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0),0) SeparationTypeDay
 							,case when PolicyDayNo*PolicyYearNo = 0 then 'N/A' else convert(varchar(100),(SeparationTypeAmount/(PolicyDayNo*PolicyYearNo)),0) end SeparationTypeRate,format(apd.WorkDate,'dd-MMM-yyyy') LastPayDate,SPAD.TotalPayDay
@@ -153,33 +154,7 @@ namespace Library.Service.Extension.HumanResource.FinalSettlement
                             left join (select top 1 * from SalaryProceAttdnData where empsystemId='" + SystemId + @"' order by FromDate Desc) SPAD on SPAD.EmpSystemID=efs.EmpSystemID
                             where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
 
-                string xsql = @"select FORMAT(efs.FinalSettlementDate,'dd-MMM-yyy') FinalSettlementDate,efs.SalaryRate,efs.OTRate,efs.[TotalDeductionAmount]
-                            ,efs.LvEncashmentAmount,efs.OthersAmount,efs.DeductionAmount,efs.GratuityAmount,efs.[LastMonthAbsentDay]
-                            ,efs.OTRate OTRateA,efs.[TotalPayableAmount],efs.[NetPayAmount],efs.[LastMonthOTHour],efs.[LastMonthOTAmount]
-                            ,efs.[StampAmount],efs.[LastMonthAbsenteeismAmount],efs.[LvEncashmentDayNo],efs.[LastMonthProcDay],efs.[LastMonthGrossAmount]
-
-							,SY.UserName+'Day' AS RetirementDayT
-							,SY.UserName+'Rate' AS RetirementRateT
-							,SY.UserName+'Amount' AS RetirementAmountT
-
-                            ,SY.UserName+'Day' AS ResignationDayT
-							,SY.UserName+'Rate' AS ResignationRateT
-							,SY.UserName+'Amount' AS ResignationAmountT
-
-							---,efs.PolicyDayNo
-                            ,CONVERT(INT, ISNULL(efs.PolicyYearNo,0)*ISNULL(efs.PolicyDayNo,0)) PolicyDayNo
-                            ,SY.UserName AS SeprationName
-                            ,efs.TenureDayNo,efs.SeparationTypeAmount,efs.GrossAmount,efs.BasicAmount
-							,convert(int,efs.[TenureYearNo]) TenureYearNo
-							,convert(int,efs.[TenureMonthNo]) TenureMonthNo
-							,convert(int,efs.TenureDayNo) TenureDayNoA
-		                    ,efs.LastMonthNetPayAmount,efs.LvEncashmentRateAmount,apd.WorkDate LastPayDate
-                            From [dbo].[EmployeeFinalSettlement] efs 
-	                        LEFT JOIN [HKP].[SeparationType] SY ON SY.Id=efs.SeparationTypeId
-                            LEFT JOIN EmployeeInformation E ON E.SystemId=efs.EmpSystemID
-                            Left join AttdnProcessData APD ON CONCAT(apd.WorkDate,'-',APD.EmpSystemId)=(select top 1 CONCAT(WorkDate,'-',EmpSystemId) from AttdnProcessData where EmpSystemID= '" + SystemId + @"' and PayDayValue=1 and WorkDate <= E.DOS order by workdate desc ) 
-                            LEFT OUTER JOIN ORG.Plant ep on ep.id=e.PlantId
-                            where efs.EmpSystemId='" + SystemId + @"'and ep.Id='" + plantId + @"'";
+           
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

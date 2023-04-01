@@ -310,6 +310,21 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+
+        [HttpPost]
+        public string PostProductionServiceParameter([FromBody] IEnumerable<ProcessServiceParameter> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionServiceParameter(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #region Production service Test
         [HttpPost]
         public string PostProductionServiceTest([FromBody] IEnumerable<ProcessServiceTest> DataToSave)
@@ -476,6 +491,26 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetWrongCarten(out List<Default2> activelists, Refno, SalesId);
+            return activelists;
+        }
+
+        public List<Default2> GetProcessTagKg(string ProcessId, string EntityId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProcessTagKg(out List<Default2> activelists, ProcessId, EntityId);
+            return activelists;
+        }
+
+        public List<Default2> GetProductionParameterId(string ProcessId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionParameterId(out List<Default2> activelists, ProcessId);
+            return activelists;
+        }
+        public List<Default2> GetProductionParameter(string ParameterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionParameter(out List<Default2> activelists, ParameterId);
             return activelists;
         }
         #endregion Aman
