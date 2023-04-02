@@ -62,12 +62,12 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public ActionResult getFilters(string productionStatusId, string poId)
         {
-            JsonResult json = Json(_productionSummaryData.Productionfilters(productionStatusId,poId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(_productionSummaryData.Productionfilters(productionStatusId, poId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
-       
+
         [HttpPost, Authorize]
         public ActionResult GetPOWiseProductionStatusData()
         {
@@ -635,7 +635,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }//End of function
 
-       
+
 
         private string GetGeneralPK()
         {
@@ -660,7 +660,7 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-               string systemid = GetGeneralPK();
+                string systemid = GetGeneralPK();
                 con.OpenDataSetThroughAdapter("SELECT * FROM dbo.POWiseProductionStatusReport WHERE Id =''", out dsDetail, false, "1");
                 int count = 0;
                 foreach (var item in dataList)
@@ -674,7 +674,7 @@ namespace Aplos.Areas.Productions.Controllers
                         item["Id"] = systemid + "-" + count;
                         AddNewRow(dsDetail.Tables[0], item);
                     }
-                    
+
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
@@ -746,7 +746,7 @@ namespace Aplos.Areas.Productions.Controllers
                 }
             }
 
-            
+
 
             dt.Rows.Add(dr);
         }
@@ -766,7 +766,7 @@ namespace Aplos.Areas.Productions.Controllers
                 }
             }
 
-           
+
             dr.EndEdit();
         }
 
@@ -811,7 +811,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-      
+
         [HttpPost, Authorize]
         public ActionResult ProductionDataWCXls(List<Dictionary<string, object>> data, string reportFileName)
         {
@@ -1072,7 +1072,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colProductionOrderID].Text = data.Rows[i]["PONo"].ToString();
                     sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
                     sheet[ROW, colWorkCenter].Text = data.Rows[i]["WorkCenter"].ToString();
-                    
+
                     sheet[ROW, colbuyer].Text = data.Rows[i]["Buyer"].ToString();
                     sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
                     sheet[ROW, colLotNumber].Text = data.Rows[i]["LotNumber"].ToString();
@@ -2019,298 +2019,65 @@ namespace Aplos.Areas.Productions.Controllers
 
                 #region columns
 
-                sheet[ROW, COL].Text = "Entity";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colEntity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO No";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colPONo = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO Status";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colPOStatus = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Customer";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colCustomer = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Article";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colArticle = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SO No";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colSONO = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Added By";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colAddedBy = COL;
-                COL++;
-                
-                sheet[ROW, COL].Text = "Added Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colAddedDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Updated By";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colUpdatedBy = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Updated Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colUpdatedDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SO Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colSOQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Proc Plan Percentage";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colBaseProcPlanPercentage = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Actual Plan Schedule Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colActualPlanScheduleQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Should Be Base Process Planned Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colShouldBeBaseProcessPlannedQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Process Produce Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colBaseProcessProduceQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Process Remaining Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colBaseProcessRemainingQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Sequence";
-                sheet[ROW, COL].ColumnWidth = 41;
-                int colSequence = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProcess = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Percent Qty";
-                sheet[ROW, COL].ColumnWidth = 28;
-                int colPercentQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process Planned Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessPlannedQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Proc Prod Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcProdQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Pre Proc Prod Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPreProcProdQty = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "WIP";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colWIP = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Proc Balance To Produce";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcBalanceToProduce = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Relay Process";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colRelayProcess = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Process";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colIsBaseProcess = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process Leg Days";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessLegDays = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO First Delivery";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPOFirstDelivery = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO Last Delivery";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPOLastDelivery = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Proc Prod Start Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBaseProcProdStartDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Proc Latest Prod Date";
-                sheet[ROW, COL].ColumnWidth = 13;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBaseProcLatestProdDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Proc Plan Start Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBaseProcPlanStartDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Proc Plan Completion Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBaseProcPlanCompletionDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO Start Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPOStartDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO Completion Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPOCompletionDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "First Process Actual Book Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colFirstProcessActualBookDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO First Prod Book Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPOFirstProdBookDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO Latest Prod Book Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPOLatestProdBookDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Should Be Process Start Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colShouldBeProcessStartDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Should Be Process End Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colShouldBeProcessEndDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process First Book Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessFirstBookDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process Latest Book Date";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessLatestBookDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process Start Days";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessStartDays = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process End Days";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessEndDays = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process Plan Percent";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessPlanPercent = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Process Status";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcessStatus = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "First Process WC";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colFirstProcessWC = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Proc Loss Percent";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcLossPercent = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Base Proc Prod Perenct";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colBaseProcProdPerenct = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Proc Prod Percent";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProcProdPercent = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Entry Check";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colEntryCheck = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Proceess Prod Qty Vs SOQty";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colProceessProdQtyVsSOQty = COL;
-                
+                sheet[ROW, COL].Text = "Entity"; sheet[ROW, COL].ColumnWidth = 16; int colEntity = COL; COL++;
+                sheet[ROW, COL].Text = "PO No"; sheet[ROW, COL].ColumnWidth = 16; int colPONo = COL; COL++;
+                sheet[ROW, COL].Text = "PO Status"; sheet[ROW, COL].ColumnWidth = 16; int colPOStatus = COL; COL++;
+                sheet[ROW, COL].Text = "Customer"; sheet[ROW, COL].ColumnWidth = 16; int colCustomer = COL; COL++;
+                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 16; int colArticle = COL; COL++;
+                sheet[ROW, COL].Text = "SO No"; sheet[ROW, COL].ColumnWidth = 16; int colSONO = COL; COL++;
+                sheet[ROW, COL].Text = "Added By"; sheet[ROW, COL].ColumnWidth = 16; int colAddedBy = COL; COL++;
+                sheet[ROW, COL].Text = "Added Date"; sheet[ROW, COL].ColumnWidth = 16; int colAddedDate = COL; COL++;
+                sheet[ROW, COL].Text = "Updated By"; sheet[ROW, COL].ColumnWidth = 16; int colUpdatedBy = COL; COL++;
+                sheet[ROW, COL].Text = "Updated Date"; sheet[ROW, COL].ColumnWidth = 16; int colUpdatedDate = COL; COL++;
+                sheet[ROW, COL].Text = "SO Qty"; sheet[ROW, COL].ColumnWidth = 16; int colSOQty = COL; COL++;
+                sheet[ROW, COL].Text = "Base Proc Plan Percentage"; sheet[ROW, COL].ColumnWidth = 16; int colBaseProcPlanPercentage = COL; COL++;
+                sheet[ROW, COL].Text = "Actual Plan Schedule Qty"; sheet[ROW, COL].ColumnWidth = 16; int colActualPlanScheduleQty = COL; COL++;
+                sheet[ROW, COL].Text = "Should Be Base Process Planned Qty"; sheet[ROW, COL].ColumnWidth = 16; int colShouldBeBaseProcessPlannedQty = COL; COL++;
+                sheet[ROW, COL].Text = "Base Process Produce Qty"; sheet[ROW, COL].ColumnWidth = 16; int colBaseProcessProduceQty = COL; COL++;
+                sheet[ROW, COL].Text = "Base Process Remaining Qty"; sheet[ROW, COL].ColumnWidth = 16; int colBaseProcessRemainingQty = COL; COL++;
+                sheet[ROW, COL].Text = "Sequence"; sheet[ROW, COL].ColumnWidth = 41; int colSequence = COL; COL++;
+                sheet[ROW, COL].Text = "Process"; sheet[ROW, COL].ColumnWidth = 16; int colProcess = COL; COL++;
+                sheet[ROW, COL].Text = "Percent Qty"; sheet[ROW, COL].ColumnWidth = 28; int colPercentQty = COL; COL++;
+                sheet[ROW, COL].Text = "Process Planned Qty"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessPlannedQty = COL; COL++;
+                sheet[ROW, COL].Text = "Proc Prod Qty"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcProdQty = COL; COL++;
+                sheet[ROW, COL].Text = "Pre Proc Prod Qty"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colPreProcProdQty = COL; COL++;
+                sheet[ROW, COL].Text = "WIP"; sheet[ROW, COL].ColumnWidth = 14; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colWIP = COL; COL++;
+                sheet[ROW, COL].Text = "Proc Balance To Produce"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcBalanceToProduce = COL; COL++;
+                sheet[ROW, COL].Text = "Relay Process"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colRelayProcess = COL; COL++;
+                sheet[ROW, COL].Text = "Base Process"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colIsBaseProcess = COL; COL++;
+                sheet[ROW, COL].Text = "Process Leg Days"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessLegDays = COL; COL++;
+                sheet[ROW, COL].Text = "PO First Delivery"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colPOFirstDelivery = COL; COL++;
+                sheet[ROW, COL].Text = "PO Last Delivery"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colPOLastDelivery = COL; COL++;
+                sheet[ROW, COL].Text = "Base Proc Prod Start Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colBaseProcProdStartDate = COL; COL++;
+                sheet[ROW, COL].Text = "Base Proc Latest Prod Date"; sheet[ROW, COL].ColumnWidth = 13; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colBaseProcLatestProdDate = COL; COL++;
+                sheet[ROW, COL].Text = "Base Proc Plan Start Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colBaseProcPlanStartDate = COL; COL++;
+                sheet[ROW, COL].Text = "Base Proc Plan Completion Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colBaseProcPlanCompletionDate = COL; COL++;
+                sheet[ROW, COL].Text = "PO Start Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colPOStartDate = COL; COL++;
+                sheet[ROW, COL].Text = "PO Completion Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colPOCompletionDate = COL; COL++;
+                sheet[ROW, COL].Text = "First Process Actual Book Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colFirstProcessActualBookDate = COL; COL++;
+                sheet[ROW, COL].Text = "PO First Prod Book Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colPOFirstProdBookDate = COL; COL++;
+                sheet[ROW, COL].Text = "PO Latest Prod Book Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colPOLatestProdBookDate = COL; COL++;
+                sheet[ROW, COL].Text = "Should Be Process Start Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colShouldBeProcessStartDate = COL; COL++;
+                sheet[ROW, COL].Text = "Should Be Process End Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colShouldBeProcessEndDate = COL; COL++;
+                sheet[ROW, COL].Text = "Process First Book Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessFirstBookDate = COL; COL++;
+                sheet[ROW, COL].Text = "Process Latest Book Date"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessLatestBookDate = COL; COL++;
+                sheet[ROW, COL].Text = "Process Start Days"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessStartDays = COL; COL++;
+                sheet[ROW, COL].Text = "Process End Days"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessEndDays = COL; COL++;
+                sheet[ROW, COL].Text = "Process Plan Percent"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessPlanPercent = COL; COL++;
+                sheet[ROW, COL].Text = "Process Status"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessStatus = COL; COL++;
+                sheet[ROW, COL].Text = "First Process WC"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colFirstProcessWC = COL; COL++;
+                sheet[ROW, COL].Text = "Proc Loss Percent"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcLossPercent = COL; COL++;
+                sheet[ROW, COL].Text = "Base Proc Prod Perenct"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colBaseProcProdPerenct = COL; COL++;
+                sheet[ROW, COL].Text = "Proc Prod Percent"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcProdPercent = COL; COL++;
+                sheet[ROW, COL].Text = "Entry Check"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colEntryCheck = COL; COL++;
+                sheet[ROW, COL].Text = "Proceess Prod Qty Vs SOQty"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProceessProdQtyVsSOQty = COL;COL++;
+                sheet[ROW, COL].Text = "Process Status Remark"; sheet[ROW, COL].ColumnWidth = 16; int colProcessStatusRemark = COL; COL++;
+                sheet[ROW, COL].Text = "PO Review Status"; sheet[ROW, COL].ColumnWidth = 16; int colPOReviewStatus = COL; COL++;
+                sheet[ROW, COL].Text = "LotNo-Qty"; sheet[ROW, COL].ColumnWidth = 20; int colLotNoQty = COL; COL++;
+                sheet[ROW, COL].Text = "Input Recovery Percentage"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colInputRecoveryPercentage = COL; COL++;
+                sheet[ROW, COL].Text = "Actual Input Plan Percentage"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colActualInputPlanPercentage = COL; COL++;
+                sheet[ROW, COL].Text = "Latest Process Prod Book Days"; sheet[ROW, COL].ColumnWidth = 20; int colLatestProcessProdBookDays = COL; COL++;
+                sheet[ROW, COL].Text = "Process Review Status"; sheet[ROW, COL].ColumnWidth = 20; int colProcessReviewStatus = COL;
 
                 #endregion columns
 
@@ -2333,7 +2100,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colPONo].Text = data.Rows[i]["PONo"].ToString();
                     sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
                     sheet[ROW, colArticle].Text = data.Rows[i]["Article"].ToString();
-                    sheet[ROW, colSONO].Text = data.Rows[i]["SONO"].ToString();
+                    sheet[ROW, colSONO].Text = data.Rows[i]["SONo"].ToString();
                     sheet[ROW, colPOStatus].Text = data.Rows[i]["POStatus"].ToString();
                     sheet[ROW, colAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
                     sheet[ROW, colAddedDate].Text = data.Rows[i]["AddedDate"].ToString();
@@ -2381,6 +2148,14 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colProcProdPercent].Number = clsStaticInfo.dbl(data.Rows[i]["ProcProdPercent"].ToString());
                     sheet[ROW, colEntryCheck].Text = data.Rows[i]["EntryCheck"].ToString();
                     sheet[ROW, colProceessProdQtyVsSOQty].Number = clsStaticInfo.dbl(data.Rows[i]["ProceessProdQtyVsSOQty"].ToString());
+                    sheet[ROW, colProcessStatusRemark].Text = data.Rows[i]["ProcessStatusRemark"].ToString();
+                    sheet[ROW, colPOReviewStatus].Text = data.Rows[i]["POReviewStatus"].ToString();
+                    sheet[ROW, colLotNoQty].Text = data.Rows[i]["LotNoQty"].ToString();
+                    sheet[ROW, colInputRecoveryPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["InputRecoveryPercentage"].ToString());
+                    sheet[ROW, colActualInputPlanPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["ActualInputPlanPercentage"].ToString());
+                    sheet[ROW, colLatestProcessProdBookDays].Text = data.Rows[i]["LatestProcessProdBookDays"].ToString();
+                    sheet[ROW, colProcessReviewStatus].Text = data.Rows[i]["ProcessReviewStatus"].ToString();
+
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -2436,57 +2211,49 @@ namespace Aplos.Areas.Productions.Controllers
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
 
-                pivotTable.Fields[colPOStatus - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colPOLatestProdBookDate - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colPONo - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPOStatus - 1].Axis = PivotAxisTypes.Row;//1
+                pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;//2
                 pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colSONO - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPONo - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOStartDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOCompletionDate - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colSequence - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colIsBaseProcess - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProcessLegDays - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colRelayProcess - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProcessStatus - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProcessPlanPercent - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProcessPlannedQty - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProcProdQty - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colPreProcProdQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPOLatestProdBookDate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSequence - 1].Axis = PivotAxisTypes.Row;//7
+                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;//8
+                pivotTable.Fields[colSONO - 1].Axis = PivotAxisTypes.Row;//9
+                pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;//9
+                pivotTable.Fields[colProcessPlanPercent - 1].Axis = PivotAxisTypes.Row;//10
+                pivotTable.Fields[colProcessPlannedQty - 1].Axis = PivotAxisTypes.Row;//11
+                pivotTable.Fields[colProcProdQty - 1].Axis = PivotAxisTypes.Row;//12
+                pivotTable.Fields[colPreProcProdQty - 1].Axis = PivotAxisTypes.Row;//13
 
-                IPivotField fieldWIP = pivotTable.Fields[colWIP - 1];
-                pivotTable.DataFields.Add(fieldWIP, "WIP", PivotSubtotalTypes.Sum);
-                fieldWIP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.Fields[colWIP - 1].Axis = PivotAxisTypes.Row;//13
 
-                pivotTable.Fields[colProcProdPercent - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProceessProdQtyVsSOQty - 1].Axis = PivotAxisTypes.Row;
-              
-                //IPivotField field = pivotTable.Fields[colSOQty - 1];
-                //IPivotField fieldNW = pivotTable.Fields[colProcessPlannedQty - 1];
-                //IPivotField fieldGW = pivotTable.Fields[colProcProdQty - 1];
-                //IPivotField fieldPRE = pivotTable.Fields[colPreProcProdQty - 1];
-                //IPivotField fieldPP = pivotTable.Fields[colProcProdPercent - 1];
-                //IPivotField fieldPPQ = pivotTable.Fields[colProceessProdQtyVsSOQty - 1];
+                //IPivotField fieldWIP = pivotTable.Fields[colWIP - 1];//13A
+                //pivotTable.DataFields.Add(fieldWIP, "WIP", PivotSubtotalTypes.Sum);
+                //fieldWIP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
-                //fieldNW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //fieldGW.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //fieldPRE.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //fieldPP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //fieldPPQ.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.Fields[colProcProdPercent - 1].Axis = PivotAxisTypes.Row;//14
+                pivotTable.Fields[colProceessProdQtyVsSOQty - 1].Axis = PivotAxisTypes.Row;//15
+                
+                
 
-                //pivotTable.DataFields.Add(field, "SOQty", PivotSubtotalTypes.None);
-                //pivotTable.DataFields.Add(fieldNW, "ProcessPlannedQty", PivotSubtotalTypes.None);
-                //pivotTable.DataFields.Add(fieldGW, "ProcProdQty", PivotSubtotalTypes.None);
-                //pivotTable.DataFields.Add(fieldPRE, "PreProcProdQty", PivotSubtotalTypes.None);
-                //pivotTable.DataFields.Add(fieldPP, "ProcProdPercent", PivotSubtotalTypes.None);
-                //pivotTable.DataFields.Add(fieldPPQ, "ProceessProdQtyVsSOQty", PivotSubtotalTypes.None);
+                pivotTable.Fields[colIsBaseProcess - 1].Axis = PivotAxisTypes.Row;//16
+                pivotTable.Fields[colProcessLegDays - 1].Axis = PivotAxisTypes.Row;//17
+                pivotTable.Fields[colRelayProcess - 1].Axis = PivotAxisTypes.Row;//19
+                pivotTable.Fields[colProcessStatusRemark - 1].Axis = PivotAxisTypes.Row;//20
+                pivotTable.Fields[colProcessStatus - 1].Axis = PivotAxisTypes.Row;//21
+                pivotTable.Fields[colProcessLatestBookDate - 1].Axis = PivotAxisTypes.Row;//22
+                pivotTable.Fields[colPOReviewStatus - 1].Axis = PivotAxisTypes.Row;//23
+                pivotTable.Fields[colLotNoQty - 1].Axis = PivotAxisTypes.Row;//24
+                pivotTable.Fields[colInputRecoveryPercentage - 1].Axis = PivotAxisTypes.Row;//25
+                pivotTable.Fields[colActualInputPlanPercentage - 1].Axis = PivotAxisTypes.Row;//26
+                pivotTable.Fields[colLatestProcessProdBookDays - 1].Axis = PivotAxisTypes.Row;//26
+                pivotTable.Fields[colProcessReviewStatus - 1].Axis = PivotAxisTypes.Row;//26
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colPOStatus || i == colPOLatestProdBookDate || i == colPONo || i == colPOStartDate || i == colPOCompletionDate || i == colSequence || i == colProcess || i == colIsBaseProcess || i == colProcessLegDays || i == colRelayProcess || i == colProcessStatus || i == colProcessPlanPercent|| i == colSOQty || i == colProcessPlannedQty || i == colProcProdQty || i == colPreProcProdQty || i == colProcProdPercent || i == colProceessProdQtyVsSOQty)
+                    if (i == colPOStatus || i == colPOLatestProdBookDate || i == colPONo || i == colPOStartDate || i == colPOCompletionDate || i == colSequence || i == colProcess || i == colIsBaseProcess || i == colProcessLegDays || i == colRelayProcess || i == colProcessStatus || i == colProcessPlanPercent || i == colSOQty || i == colProcessPlannedQty || i == colProcProdQty || i == colPreProcProdQty || i == colProcProdPercent || i == colProceessProdQtyVsSOQty)
                     {
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                     }

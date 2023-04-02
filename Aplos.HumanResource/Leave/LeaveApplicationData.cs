@@ -2151,7 +2151,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
-                JOIN LeaveType T ON t.Id=L.LeaveTypeId
+                JOIN LeaveType T ON t.Id=L.LeaveTypeId AND T.LeaveType='Earn'
                 where apd.workdate between '" + fromdate + @"' and '"+todate+ @"' and APD.EmpSystemID='" + empId + @"' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -2175,7 +2175,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
                 LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
-                JOIN LeaveType T ON t.Id=L.LeaveTypeId
+                JOIN LeaveType T ON t.Id=L.LeaveTypeId AND T.LeaveType='Earn'
                 where apd.workdate between '" + fromdate + @"' and '" + todate + @"' and EI.PlantID='"+ PlantID + @"' 
                 group by EmpSystemID,t.Id,ei.plantid,ei.EmployeeCode,ei.EmployeeName,ei.DOJ,EI.DOS,T.LeaveType";
                 return _sqlRepository.GetDataCollection(sql);

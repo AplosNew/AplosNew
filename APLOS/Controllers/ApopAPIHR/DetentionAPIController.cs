@@ -310,6 +310,21 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+
+        [HttpPost]
+        public string PostProductionServiceParameter([FromBody] IEnumerable<ProcessServiceParameter> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionServiceParameter(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #region Production service Test
         [HttpPost]
         public string PostProductionServiceTest([FromBody] IEnumerable<ProcessServiceTest> DataToSave)
