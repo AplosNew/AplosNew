@@ -5762,6 +5762,7 @@ namespace Library.Service.HumanResources
                             int InCharge = 0;
                             int Remarks = 0;
                             int ItemDetails = 0;
+                            int DetentionDetails = 0;
                             int ReasonDetails = 0;
                             int Production = 0;
                             int TotalTarget = 0;
@@ -5901,6 +5902,13 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, ItemDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
+                            DetentionDetails = xlsCol;
+                            xlsCol += 1;
+                            sheet1.Range[xlsRow, DetentionDetails].Text = "Detention Details";
+                            sheet1.Range[xlsRow, DetentionDetails].ColumnWidth = 50;
+                            sheet1.Range[xlsRow, DetentionDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            sheet1.Range[xlsRow, DetentionDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                             ReasonDetails = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, ReasonDetails].Text = "Reason Details";
@@ -5988,6 +5996,11 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, ItemDetails].RowHeight = 25;
                                     sheet1.Range[xlsRow, ItemDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, ItemDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    sheet1.Range[xlsRow, DetentionDetails].Text = dvBioDvACitem[i]["DetentionDetails"].ToString();
+                                    sheet1.Range[xlsRow, DetentionDetails].RowHeight = 25;
+                                    sheet1.Range[xlsRow, DetentionDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    sheet1.Range[xlsRow, DetentionDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, ReasonDetails].Text = dvBioDvACitem[i]["ReasonDetails"].ToString();
                                     sheet1.Range[xlsRow, ReasonDetails].RowHeight = 25;

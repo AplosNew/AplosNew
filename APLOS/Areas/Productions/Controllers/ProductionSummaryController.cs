@@ -398,7 +398,7 @@ where RD.ProcessId='" + ProcessId + "'";
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter)
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter, string ProductionSummaryId)
         {
             try
             {
@@ -419,7 +419,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "'";
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "' and MMT.ProductionSummaryId = '" + ProductionSummaryId + "'";
 
 
                 //return _sqlRepository.GetDataCollection(sql, null);

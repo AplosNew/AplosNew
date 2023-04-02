@@ -292,4 +292,458 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
         $scope.budgetCategory.Active = true;
     }
     // #endregion BudgetCategory
+
+    // #region BudgetSubCategory
+    $rootScope.titleBSC = "Budget Sub Category";
+    $scope.ActionBSC = "Save";
+    $scope.index = -1;
+    $scope.budgetSubCategories = [];
+    $scope.pathBSC = "accounts/budgetsubcategory/";
+    $scope.getListUrlBSC = "accounts/companygroupbudgetsubcategory/getlist";
+    $scope.getUrl = $scope.pathBSC + "get";
+    $scope.getSeqUrlBSC = $scope.pathBSC + "getautosequence";
+    $scope.saveUrlBSC = $scope.pathBSC + "create";
+    $scope.updateUrlBSC = $scope.pathBSC + "edit";
+    $scope.deleteUrlBSC = $scope.pathBSC + "delete/";
+    baseService.init($scope.getListUrlBSC);
+    $scope.getDataBSC = function (pageno) {
+        baseService.pagination(pageno)
+            .then(function (result) {
+                $scope.budgetSubCategories = result.Rows;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, "failure");
+            }).finally(function () {
+            });
+    };
+    $scope.getDataBSC();
+
+    $scope.budgetSubCategory = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true,
+        AddedBy: null,
+        AddedDate: new Date(),
+        AddedFromIP: null,
+        UpdatedDate: null
+    };
+
+    $scope.GetSequenceBSC = function () {
+        $http.get($scope.getSeqUrlBSC)
+            .then(function (response) {
+                $scope.budgetSubCategory.Sequence = response.data;
+            });
+    };
+
+    $scope.GetSequenceBSC();
+
+    $scope.GetBSC = function (id, index) {
+        $scope.index = index;
+        $scope.budgetSubCategory = $scope.budgetSubCategories[$scope.index];
+        $scope.ActionBSC = "Update";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveBSC = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.budgetSubCategoryForm.$valid) {
+            if ($scope.ActionBSC === "Save") {
+                $http({
+                    method: "POST",
+                    url: $scope.saveUrlBSC,
+                    data: $scope.budgetSubCategory,
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    } else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.budgetSubCategories.push(response.data.BudgetSubCategory);
+                        baseService.paginationAdd();
+                        ClearFieldsBSC(response.data.Sequence);
+                    }
+                },
+                    function errorCallback(response) {
+                        ShowResult(response.status.Message, "failure");
+                    });
+                return true;
+            } else if ($scope.ActionBSC === "Update") {
+                $http({
+                    method: "POST",
+                    url: $scope.updateUrlBSC,
+                    data: $scope.budgetSubCategory,
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    } else {
+                        ShowResult(response.data.Message, "success");
+                        if ($scope.index > -1) {
+                            $scope.budgetSubCategories[$scope.index] = $scope.budgetSubCategory;
+                        }
+                        ClearFieldsBSC(response.data.Sequence);
+                    }
+                },
+                    function errorCallback(response) {
+                        ShowResult(response.status.Message, "failure");
+                    });
+                return true;
+            }
+        }
+        return true;
+    };
+
+    $scope.DeleteBSC = function () {
+        if (!baseService.isUndefinedOrNull($scope.budgetSubCategory.Id)) {
+            $http({
+                method: "POST",
+                url: $scope.deleteUrlBSC + $scope.budgetSubCategory.Id,
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                } else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.budgetSubCategories.splice($scope.index, 1);
+                    baseService.paginationRemove();
+                    ClearFieldsBSC(response.data.Sequence);
+                }
+            },
+                function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+        } else {
+            ShowResult(commonMessage.primaryKeyNullMessage, "failure");
+        }
+        return true;
+    };
+
+    $scope.ClearBSC = function () {
+        ClearFieldsBSC($scope.GetSequenceBSC());
+        return true;
+    };
+
+    function ClearFieldsBSC(seq) {
+        $scope.ActionBSC = "Save";
+        $scope.budgetSubCategory = {};
+        $scope.budgetSubCategory.Sequence = seq;
+        $scope.budgetSubCategory.Active = true;
+    }
+    // #endregion BudgetSubCategory
+
+    // #region Budget
+    $rootScope.titleBgt = "Budget";
+    $scope.ActionBgt = "Save";
+    $scope.index = -1;
+    $scope.budgets = [];
+    $scope.pathBgt = "accounts/budget/";
+    $scope.getListUrlBgt = "accounts/companygroupbudget/getlist";
+    $scope.getUrlBgt = $scope.pathBgt + "get";
+    $scope.getSeqUrlBgt = $scope.pathBgt + "getautosequence";
+    $scope.saveUrlBgt = $scope.pathBgt + "create";
+    $scope.updateUrlBgt = $scope.pathBgt + "edit";
+    $scope.deleteUrlBgt = $scope.pathBgt + "delete/";
+    baseService.init($scope.getListUrlBgt, null, 15);
+    $scope.getDataBgt = function (pageno) {
+        baseService.pagination(pageno)
+            .then(function (result) {
+                $scope.budgets = result.Rows;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, "failure");
+            }).finally(function () {
+            });
+    };
+    $scope.getDataBgt();
+
+    $scope.budget = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+
+    $scope.GetSequenceBgt = function () {
+        $http.get($scope.getSeqUrlBgt)
+            .then(function (response) {
+                $scope.budget.Sequence = response.data;
+            });
+    };
+    $scope.GetSequenceBgt();
+
+    $scope.GetBgt = function (id, index) {
+        $scope.index = index;
+        $scope.budget = $scope.budgets[$scope.index];
+        $scope.budget.AddedDate = $filter("dateFilter")($scope.budget.AddedDate);
+        $scope.budget.UpdatedDate = $filter("dateFilter")($scope.budget.UpdatedDate);
+        $scope.ActionBgt = "Update";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.SaveBgt = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.budgetForm.$valid) {
+            if ($scope.ActionBgt === "Save") {
+                $http({
+                    method: "POST",
+                    url: $scope.saveUrlBgt,
+                    data: $scope.budget,
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.budgets.push(response.data.Budget);
+                        baseService.paginationAdd();
+                        ClearFieldsBgt(response.data.Sequence);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+            else if ($scope.ActionBgt === "Update") {
+                $http({
+                    method: "POST",
+                    url: $scope.updateUrlBgt,
+                    data: $scope.budget,
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        if ($scope.index > -1) {
+                            $scope.budgets[$scope.index] = $scope.budget;
+                        }
+                        ClearFieldsBgt(response.data.Sequence);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+        }
+        return true;
+    };
+
+    $scope.DeleteBgt = function () {
+        if (!baseService.isUndefinedOrNull($scope.budget.Id)) {
+            $http({
+                method: "POST",
+                url: $scope.deleteUrlBgt + $scope.budget.Id,
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.budgets.splice($scope.index, 1);
+                    baseService.paginationRemove();
+                    ClearFieldsBgt(response.data.Sequence);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+        }
+        else {
+            ShowResult(commonMessage.primaryKeyNullMessage, "failure");
+        }
+        return true;
+    };
+
+    $scope.ClearBgt = function () {
+        ClearFieldsBgt($scope.GetSequenceBgt());
+        return true;
+    };
+
+    function ClearFieldsBgt(seq) {
+        $scope.Action = "Save";
+        $scope.budget = {};
+        $scope.budget.Sequence = seq;
+        $scope.budget.Active = true;
+    }
+    // #endregion Budget
+
+    //  #region Activity
+    $rootScope.title = "Activity";
+    $scope.Action = "Save";
+    $scope.index = -1;
+    $scope.activities = [];
+    $scope.path = "accounts/activity/";
+    $scope.getSeqUrl = $scope.path + "getautosequence";
+    $scope.saveUrl = $scope.path + "create";
+    $scope.updateUrl = $scope.path + "edit";
+    $scope.deleteUrl = $scope.path + "delete/";
+    $scope.getListUrl = "accounts/CompanyGroupActivity/getlist";
+    baseService.init($scope.getListUrl);
+    $scope.getData = function (pageno) {
+        baseService.pagination(pageno)
+            .then(function (result) {
+                $scope.activities = result.Rows;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, "failure");
+            }).finally(function () {
+            });
+    };
+    $scope.getData();
+
+    $scope.activity = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        ActivityType: null,
+        ActivityId: null,
+        FALinked: null,
+        Description: null,
+        Remarks: null,
+        Active: true
+    };
+
+   
+
+    $scope.GetSequenceActivity = function () {
+        $http.get($scope.getSeqUrl)
+            .then(function (response) {
+                $scope.budget.Sequence = response.data;
+            });
+    };
+    $scope.GetSequenceActivity();
+
+    //cboService.getEnumCbo("enum/GetActivityTypeCbo", function (result) {
+    //    $scope.activityTypeList = result;
+    //});
+
+    //cboService.getEnumCbo("enum/GetCboFALinked", function (result) {
+    //    $scope.fALinkedList = result;
+    //});
+
+    $scope.Get = function (id, index) {
+        $scope.index = index;
+        $scope.activity = $scope.activities[$scope.index];
+        $scope.activity.AddedDate = $filter("dateFilter")($scope.activity.AddedDate);
+        $scope.activity.UpdatedDate = $filter("dateFilter")($scope.activity.UpdatedDate);
+        $scope.Action = "Update";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.invalidFALink = false;
+    $scope.fALinkValidation = function () {
+        $scope.invalidFALink = baseService.isUndefinedOrNull($scope.activity.FALinked);
+        return manualValidation("div_FA", $scope.invalidFALink, "FA Link is required.");
+    };
+
+    $scope.Save = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        if ($scope.activity.IsFABased) {
+            $scope.fALinkValidation();
+        }
+        if ($scope.activityForm.$valid && !$scope.invalidFALink) {
+            if ($scope.Action === "Save") {
+                $http({
+                    method: "POST",
+                    url: $scope.saveUrl,
+                    data: $scope.activity,
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.activities.push(response.data.Activity);
+                        baseService.paginationAdd();
+                        ClearFields(response.data.Sequence);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+            else if ($scope.Action === "Update") {
+                $http({
+                    method: "POST",
+                    url: $scope.updateUrl,
+                    data: $scope.activity,
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        if ($scope.index > -1) {
+                            $scope.activities[$scope.index] = $scope.activity;
+                        }
+                        ClearFields(response.data.Sequence);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+        }
+        return true;
+    };
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.activity.Id)) {
+            $http({
+                method: "POST",
+                url: $scope.deleteUrl + $scope.activity.Id,
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.activities.splice($scope.index, 1);
+                    baseService.paginationRemove();
+                    ClearFields(response.data.Sequence);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+        }
+        else {
+            ShowResult(commonMessage.primaryKeyNullMessage, "failure");
+        }
+        return true;
+    };
+
+    $scope.Clear = function () {
+        ClearFields($scope.GetSequenceActivity());
+        return true;
+    };
+
+    function ClearFields(seq) {
+        $scope.Action = "Save";
+        $scope.activity = {};
+        $scope.activity.Sequence = seq;
+        $scope.activity.Active = true;
+    }
+    //  #endregion Activity
 }

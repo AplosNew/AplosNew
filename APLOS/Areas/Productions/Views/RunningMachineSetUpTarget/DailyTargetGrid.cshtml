@@ -28,8 +28,9 @@
         <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="120"></div>
         <div e-column e-template="#ItemValue" e-headertext="Item Value" e-width="50"></div>
         <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="60"></div>
-        <div e-column e-template="#Detention" e-headertext="Detention" e-visible="false" e-width="120"></div>
+        <div e-column e-template="#Detention" e-headertext="Detention" e-width="120"></div>
         <div e-column e-template="#UpdateItemValue" e-headertext="Update Item Value" e-width="60"></div>
+        <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
     </div>
 </div>
 
@@ -146,7 +147,17 @@
         </ul>
     </div>
 </script>
-
+<script type="text/template" id="Delete">
+    <div class="form-group">
+        <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+            <ul class="list-inline action-list">
+                <li>
+                    <button ng-click="$parent.deleteMasterWC(this);" class="btn"><i class="glyphicon glyphicon-remove"></i></button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</script>
 <div class="modal fade site-modal in" id="ItemValuePopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
@@ -257,7 +268,7 @@
     </div>
 </div>
 <!-- #region Detention -->
-<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Detention<button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -329,12 +340,13 @@
                                 <div e-column e-field="WorkCenterMasterId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="ResponsiblePersonId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="200" e-visible="false"></div>
-                                <div e-column e-template="#Department" e-headertext="Department" e-width="200"></div>
-                                <div e-column e-template="#DetentionTypeId" e-headertext="Detention Type" e-width="200"></div>
-                                <div e-column e-template="#DetentionId" e-headertext="Detention" e-width="200"></div>
-                                <div e-column e-template="#ResponsiblePersonD" e-headertext="Responsible Person" e-width="200"></div>
-                                <div e-column e-template="#Remark" e-headertext="Remarks" e-width="200"></div>
-                                <div e-column e-template="#Minute" e-headertext="Minute" e-width="200"></div>
+                                <div e-column e-template="#Department" e-headertext="Department" e-width="180"></div>
+                                <div e-column e-template="#DetentionTypeId" e-headertext="Detention Type" e-width="180"></div>
+                                <div e-column e-template="#DetentionId" e-headertext="Detention" e-width="180"></div>
+                                <div e-column e-template="#Minute" e-headertext="Minute" e-width="60"></div>
+                                <div e-column e-template="#ResponsiblePersonD" e-headertext="Responsible Person" e-width="120"></div>
+                                <div e-column e-template="#Remark" e-headertext="Remarks" e-width="100"></div>
+
                             </div>
                         </div>
                         <script type="text/template" id="checkboxTemplateProductionSummaryDetentionWC">
@@ -363,12 +375,12 @@
                         </script>
 
                         <script type="text/template" id="ResponsiblePersonD">
-                            <div class="col-sm-10" style="padding:0px;">
-                                <input type="text" name="ResponsiblePersonD" ng-model="data.ResponsiblePerson" ng-disabled="true" class="form-control" readonly>
+                            <div class="col-sm-12" style="padding:0px;">
+                                <input type="text" ng-click="$parent.selectDetResponsible(this);" name="ResponsiblePersonD" ng-model="data.ResponsiblePerson" ng-disabled="true" class="form-control" readonly>
                             </div>
-                            <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                            @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
                                 <button ng-click="$parent.selectDetResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                            </div>
+                            </div>*@
                         </script>
                         <script type="text/template" id="Remark">
                             <div class="col-sm-12" style="padding:0px;">
@@ -376,7 +388,7 @@
                             </div>
                         </script>
                         <script type="text/template" id="Minute">
-                            <div class="col-sm-6" style="padding:0px;">
+                            <div class="col-sm-12" style="padding:0px;">
                                 <input type="number" name="Minute" ng-model="data.Minute" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </script>

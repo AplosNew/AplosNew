@@ -159,6 +159,27 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     };
     $scope.DailyProductionTargetNew = Object.assign({}, $scope.DailyProductionTarget);
 
+    $scope.ProcessDetention = {
+        Id: null,
+        RMSTargetId: null,
+        EntityId: null,
+        ProcessId: null,
+        ShiftId: null,
+        Date: null,
+        WorkCenterMasterId: null,
+        DepartmentId: null,
+        DetentionId: null,
+        ResponsiblePersonId: null,
+        WorkCenter: null,
+        Detention: null,
+        DetentionType: null,
+        DetentionTypeId: null,
+        Department: null,
+        ResponsiblePerson: null,
+        Remark: null,
+        Minute: null,
+    };
+
     // Refreshing the serials
     function refreshSerial() {
         for (var j = 0; j < $scope.DailyTargetList.length; j++) {
@@ -690,21 +711,23 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     };
 
 
-
+    $scope.RMSTargetId = null;
     $scope.DailyProductionTargetNew.DetentionSum = 0;
     $scope.ProcessDetentionLists = [];
     $scope.getProcessDetentionPopupPoPUp = function (data) {
         $scope.NewObject = data.data;
+        
         var processid = $scope.DailyProductionTargetNew.ProcessId;
         var entityid = $scope.DailyProductionTargetNew.EntityId;
         var targetdate = $scope.DailyProductionTargetNew.TargetDate;
         var shiftid = $scope.DailyProductionTargetNew.ProductionShiftId;
         $scope.DailyProductionTargetNew = data.data;
+        $scope.RMSTargetId = $scope.DailyProductionTargetNew.Id;
         $scope.DailyProductionTargetNew.ProcessId = processid;
         $scope.DailyProductionTargetNew.EntityId = entityid;
         $scope.DailyProductionTargetNew.TargetDate = targetdate;
         $scope.DailyProductionTargetNew.ProductionShiftId = shiftid;
-        $scope.DailyProductionTargetNew.workCenter = data.data.WorkCenter;
+        $scope.DailyProductionTargetNew.workCenter = data.data.Line;
         $scope.DailyProductionTargetNew.workCenterId = data.data.WorkCenterMasterId;
         try {
             //ValidationMaster();
@@ -717,11 +740,12 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 obj.TargetDate = $scope.DailyProductionTargetNew.TargetDate;
                 obj.ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
                 obj.workCenter = $scope.DailyProductionTargetNew.workCenterId;
+                obj.RMSTargetId = $scope.RMSTargetId;
                 obj.Sequence = i;
                 $scope.ProcessDetentionLists.push(obj);
             }
 
-            $http.get('Productions/RunningMachineSetUpTarget/GetProcessDetentionData?processId=' + $scope.DailyProductionTargetNew.ProcessId + '&entityId=' + $scope.DailyProductionTargetNew.EntityId + '&productionDate=' + $scope.DailyProductionTargetNew.TargetDate + '&shiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
+            $http.get('Productions/RunningMachineSetUpTarget/GetProcessDetentionData?processId=' + $scope.DailyProductionTargetNew.ProcessId + '&entityId=' + $scope.DailyProductionTargetNew.EntityId + '&productionDate=' + $scope.DailyProductionTargetNew.TargetDate + '&shiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId + '&RMSTargetId=' + data.data.Id)
                 .then(
                     function successCallback(response) {
                         if (response.data.length > 0) {
@@ -732,6 +756,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                                         $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
                                         $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
                                         $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
+                                        $scope.ProcessDetentionLists[k].RMSTargetId = response.data[j].RMSTargetId;
                                         $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
                                         $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
                                         $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
@@ -873,7 +898,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
             for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
                 //if ($scope.ProcessDetentionLists[i].Flag == true)
                 if (!baseService.isUndefinedOrNull($scope.ProcessDetentionLists[i].Minute)) {
-                    $scope.ProcessDetentionLists[i].ProductionSummaryId = $scope.DailyProductionTargetNew.Id;
+                    $scope.ProcessDetentionLists[i].RMSTargetId = $scope.DailyProductionTargetNew.Id;
                     $scope.ProcessDetentionLists[i].EntityId = $scope.DailyProductionTargetNew.EntityId;
                     $scope.ProcessDetentionLists[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
                     $scope.ProcessDetentionLists[i].Date = $scope.DailyProductionTargetNew.TargetDate;
@@ -907,8 +932,8 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
 
                     }
                     $scope.NewObject.SumMin = Sum;
-                    $scope.getProcessDetention();
-                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
+                    //$scope.getProcessDetention();
+                    var gridObj = $("#GridDailyTargetList").data("ejGrid");
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();
                 }
@@ -921,6 +946,101 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         }
     };
 
+    //$scope.getProcessDetention = function () {
+    //    try {
+    //        $scope.ProcessDetentionLists = [];
+    //        for (var i = 1; i < 6; i++) {
+    //            var obj = angular.copy($scope.ProcessDetention);
+    //            obj.Id = null;
+    //            obj.ProcessId = $scope.DailyProductionTargetNew.ProcessId;
+    //            obj.EntityId = $scope.DailyProductionTargetNew.EntityId;
+    //            obj.TargetDate = $scope.DailyProductionTargetNew.TargetDate;
+    //            obj.ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
+    //            obj.workCenter = $scope.DailyProductionTargetNew.workCenterId;
+    //            obj.Sequence = i;
+    //            $scope.ProcessDetentionLists.push(obj);
+    //        }
+
+    //        $http.get('Productions/RunningMachineSetUpTarget/GetProcessDetentionData?processId=' + $scope.DailyProductionTargetNew.ProcessId + '&entityId=' + $scope.DailyProductionTargetNew.EntityId + '&productionDate=' + $scope.DailyProductionTargetNew.TargetDate + '&shiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
+    //            .then(
+    //                function successCallback(response) {
+    //                    if (response.data.length > 0) {
+
+    //                        for (var j = 0; j < response.data.length; j++) {
+    //                            for (var k = 0; k < $scope.ProcessDetentionLists.length; k++) {
+    //                                if ($scope.ProcessDetentionLists[k].Sequence == response.data[j].Sequence) {
+    //                                    $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
+    //                                    $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
+    //                                    $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
+    //                                    $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
+    //                                    $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
+    //                                    $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
+    //                                    $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
+    //                                    $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
+    //                                    $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
+    //                                    $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
+    //                                    $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
+    //                                    $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
+    //                                    $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
+    //                                    $scope.ProcessDetentionLists[k].Remark = response.data[j].Remark;
+    //                                }
+    //                            }
+    //                        }
+
+    //                    }
+    //                },
+    //                function errorCallback(response) {
+    //                    ShowResult(response, 'failure');
+    //                });
+    //        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+
+    //};
+
+    //$scope.LoadDetentionList = function () {
+    //    try {
+    //        $http.get('Productions/RunningMachineSetUpTarget/GetProcessDetentionData?processId=' + $scope.DailyProductionTargetNew.ProcessId + '&entityId=' + $scope.DailyProductionTargetNew.EntityId + '&productionDate=' + $scope.DailyProductionTargetNew.TargetDate + '&shiftId=' + $scope.DailyProductionTargetNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
+    //            .then(function (response) {
+    //                $scope.ProcessDetentionLists = response.data;
+    //            });
+    //    } catch (ex) {
+    //        ShowResult(ex, 'Info');
+    //    }
+    //};
+
+    $scope.deleteMasterWC = function (master) {
+        if (!baseService.isUndefinedOrNull(master.data.Id)) {
+            $http({
+                method: 'POST',
+                url: 'Productions/RunningMachineSetUpTarget/DeleteMasterWC?id=' + master.data.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    for (var i = 0; i < $scope.wcList.length; i++) {
+                        if ($scope.DailyTargetList[i].Id == master.data.Id) {
+                            $scope.DailyTargetList[i].Id = null;
+                            break;
+                        }
+                    }
+                    var gridObj = $("#GridDailyTargetList").data("ejGrid");
+                    gridObj.refreshContent();
+                    gridObj.refreshTemplate();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+        else {
+            ShowResult("Production not found...", 'Info');
+        }
+    }
     $scope.Clear = function () {
         ClearFields();
         return true;
