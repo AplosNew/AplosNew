@@ -2270,14 +2270,14 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr["PO"] = item.PO;
                         dr["Value"] = item.Value;
                         dr["Remarks"] = item.Remarks;
-                        dr["Region1"] = item.Region1;
-                        dr["Region1Time"] = item.Region1Time;
-                        dr["Region2"] = item.Region2;
-                        dr["Region2Time"] = item.Region2Time;
-                        dr["Region3"] = item.Region3;
-                        dr["Region3Time"] = item.Region3Time;
-                        dr["Region4"] = item.Region4;
-                        dr["Region4Time"] = item.Region4Time;
+                        dr["Detention1"] = item.Detention1;
+                        dr["Detention1Time"] = item.Detention1Time;
+                        dr["Detention2"] = item.Detention2;
+                        dr["Detention2Time"] = item.Detention2Time;
+                        dr["Detention3"] = item.Detention3;
+                        dr["Detention3Time"] = item.Detention3Time;
+                        dr["Detention4"] = item.Detention4;
+                        dr["Detention4Time"] = item.Detention4Time;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
@@ -2300,14 +2300,14 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr["PO"] = item.PO;
                         dr["Value"] = item.Value;
                         dr["Remarks"] = item.Remarks;
-                        dr["Region1"] = item.Region1;
-                        dr["Region1Time"] = item.Region1Time;
-                        dr["Region2"] = item.Region2;
-                        dr["Region2Time"] = item.Region2Time;
-                        dr["Region3"] = item.Region3;
-                        dr["Region3Time"] = item.Region3Time;
-                        dr["Region4"] = item.Region4;
-                        dr["Region4Time"] = item.Region4Time;
+                        dr["Detention1"] = item.Detention1;
+                        dr["Detention1Time"] = item.Detention1Time;
+                        dr["Detention2"] = item.Detention2;
+                        dr["Detention2Time"] = item.Detention2Time;
+                        dr["Detention3"] = item.Detention3;
+                        dr["Detention3Time"] = item.Detention3Time;
+                        dr["Detention4"] = item.Detention4;
+                        dr["Detention4Time"] = item.Detention4Time;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
@@ -4285,17 +4285,17 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string Id { get; set; }
         public string ProductionServiceId { get; set; }
         public string WorkcenterMasterId { get; set; }
-        public int PO { get; set; }
+        public string PO { get; set; }
         public string Value { get; set; }
         public string Remarks { get; set; }
-        public string Region1 { get; set; }
-        public string Region1Time { get; set; }
-        public string Region2 { get; set; }
-        public string Region2Time { get; set; }
-        public string Region3 { get; set; }
-        public string Region3Time { get; set; }
-        public string Region4 { get; set; }
-        public string Region4Time { get; set; }
+        public string Detention1 { get; set; }
+        public string Detention1Time { get; set; }
+        public string Detention2 { get; set; }
+        public string Detention2Time { get; set; }
+        public string Detention3 { get; set; }
+        public string Detention3Time { get; set; }
+        public string Detention4 { get; set; }
+        public string Detention4Time { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }
