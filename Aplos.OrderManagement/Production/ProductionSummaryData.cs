@@ -681,8 +681,9 @@ namespace Library.OrderManagement.Production
                                                                  trn.SalesOrder XSO 
                                                                  JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
-						                                         LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
-																 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
+						                                         --LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+																 --LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
+                                                                 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
                                                                  WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                    PRS.LotNumber
                                    --,PRS.ResponsiblePerson
