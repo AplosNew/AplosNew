@@ -18,6 +18,9 @@ using Library.Crosscutting.Security;
 using System.Threading;
 using Newtonsoft.Json;
 using bplib;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.IO;
 
 namespace Library.Service.EmployeeServices
 {
@@ -2184,6 +2187,264 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
+        public IEnumerable<object> GetEmployeeSingleData(string fromdate, string todate, string empId)
+        {
+            try
+            {
+                string sql = @"SELECT ei.EmployeeCode,APD.EmpSystemID,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(ei.DOS,'dd-MMM-yyyy')DOS,FORMAT(apd.WorkDate,'dd-MMM-yyyy')[Date]
+				,apd.DayStatus,apd.LTSystemID LeaveId,T.LeaveType,ds.TotalWorkingDay,ds.ActualWorkingDay,ds.PayDay,ds.NonPayDay,ds.PresentValuePD,ds.LeaveValueLP
+				,ds.AbsentValueAB,ds.WeeklyOffWO,ds.HolidayH,ds.Other,ds.Other,ds.OTApplicable,ds.CompensatoryApplicable,ds.GoodWorkApplicable,ds.SandwichStatusFlag
+				,ds.ToAudit,l.EarnValue,l.AvailedValue
+				,D.UserName GivenDesignation,SS.UserName SubSection,S.UserName Section,Dep.UserName Department,apd.ProcessIntime,apd.ProcessOuttime,apd.Duration
+				,apd.OTHr,apd.WorkingDayValue,apd.ActualWorkingDayValue,apd.PresentValue,apd.AbsentValue,T.Code Leave
+				FROM  EmployeeInformation AS ei 
+                JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
+                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+                LEFT JOIN HKP.Designation D on D.Id=ei.GivenDesignationId
+                LEFT JOIN ORG.SubSection SS on SS.Id=ei.SubSectionId
+                LEFT JOIN ORG.Section S on S.Id=ei.SectionId
+                LEFT JOIN ORG.Department Dep on Dep.Id=ei.DepartmentId
+                JOIN LeaveType T ON t.Id=L.LeaveTypeId
+                where apd.workdate between '" + fromdate + @"' and '" + todate + @"' and APD.EmpSystemID='" + empId + @"' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public string EmployeeAttendanceReport(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Employee Attendance Data";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeCode = COL;
+                COL++;
+
+                //sheet[ROW, COL].Text = "Emp SystemID";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int colEmpSystemID = COL;
+                //COL++;
+
+                sheet[ROW, COL].Text = "DOJ";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDOJ = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DOS";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDOS = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Given Designation";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colGivenDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSubSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colDepartment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Process Intime";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcessIntime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Process Outtime";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int colProcessOuttime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Duration";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDuration = COL;
+
+                sheet[ROW, COL].Text = "OT Hr";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colOTHr = COL;
+
+                sheet[ROW, COL].Text = "Day Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDayStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Working Day Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colWorkingDayValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Actual Working Day Value";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualWorkingDayValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Present Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPresentValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Absent Value";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colAbsentValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Leave";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLeave = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Leave Type";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLeaveType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Earn Value";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEarnValue = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Availed Value";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colAvailedValue = COL;
+                
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, colEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    //sheet[ROW, colEmpSystemID].Text = data.Rows[i]["EmpSystemID"].ToString();
+                    sheet[ROW, colDOJ].Text = data.Rows[i]["DOJ"].ToString();
+                    sheet[ROW, colDOS].Text = data.Rows[i]["DOS"].ToString();
+                    sheet[ROW, colGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();
+                    sheet[ROW, colSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, colSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, colDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, colDate].Text = data.Rows[i]["Date"].ToString();
+                    sheet[ROW, colProcessIntime].Text = data.Rows[i]["ProcessIntime"].ToString();
+                    sheet[ROW, colProcessOuttime].Text = data.Rows[i]["ProcessOuttime"].ToString();
+                    sheet[ROW, colDuration].Number = clsStaticInfo.dbl(data.Rows[i]["Duration"].ToString());
+                    sheet[ROW, colOTHr].Number = clsStaticInfo.dbl(data.Rows[i]["OTHr"].ToString());
+                    sheet[ROW, colDayStatus].Text = data.Rows[i]["DayStatus"].ToString();
+                    sheet[ROW, colWorkingDayValue].Number = clsStaticInfo.dbl(data.Rows[i]["WorkingDayValue"].ToString());
+                    sheet[ROW, colActualWorkingDayValue].Number = clsStaticInfo.dbl(data.Rows[i]["ActualWorkingDayValue"].ToString());
+
+                    sheet[ROW, colPresentValue].Number = clsStaticInfo.dbl(data.Rows[i]["PresentValue"].ToString());
+                    sheet[ROW, colAbsentValue].Number = clsStaticInfo.dbl(data.Rows[i]["AbsentValue"].ToString());
+                    sheet[ROW, colLeave].Text = data.Rows[i]["Leave"].ToString();
+                    sheet[ROW, colLeaveType].Text = data.Rows[i]["LeaveType"].ToString();
+                    sheet[ROW, colEarnValue].Number = clsStaticInfo.dbl(data.Rows[i]["EarnValue"].ToString());
+                    sheet[ROW, colAvailedValue].Number = clsStaticInfo.dbl(data.Rows[i]["AvailedValue"].ToString());
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Employee Attendance Data Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
     public class RegularEncashmentService
@@ -2294,6 +2555,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 throw ex;
             }
         }
+
 
     }
 }
