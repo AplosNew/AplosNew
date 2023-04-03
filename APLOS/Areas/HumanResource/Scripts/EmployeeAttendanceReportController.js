@@ -123,58 +123,58 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
     //Employee Attandence Data end
 
     //Employee Attandence Summary start
-    //$scope.EmpSummaryModelNew = {
-    //    EmpSystemID: null,
-    //    EmployeeCode: null,
-    //    EmployeeName: null,
-    //    ToDate: null,
-    //    FromDate: null
-    //};
+    $scope.EmpSummaryModelNew = {
+        EmpSystemID: null,
+        EmployeeCode: null,
+        EmployeeName: null,
+        ToDate: null,
+        FromDate: null
+    };
 
-    //$scope.SearchEmployee = function () {
-    //    $scope.EmpSummaryModelNew.EmployeeName = null;
-    //    $scope.EmpSummaryModelNew.EmpSystemID = null;
+    $scope.SearchEmployee = function () {
+        $scope.EmpSummaryModelNew.EmployeeName = null;
+        $scope.EmpSummaryModelNew.EmpSystemID = null;
 
-    //    for (var i = 0; i < $scope.employee.length; i++) {
-    //        if ($scope.EmpSummaryModelNew.EmployeeCode == $scope.employee[i].EmployeeCode) {
-    //            $scope.EmpSummaryModelNew.EmployeeName = $scope.employee[i].EmployeeName;
-    //            $scope.EmpSummaryModelNew.EmpSystemID = $scope.employee[i].SystemID;
+        for (var i = 0; i < $scope.employee.length; i++) {
+            if ($scope.EmpSummaryModelNew.EmployeeCode == $scope.employee[i].EmployeeCode) {
+                $scope.EmpSummaryModelNew.EmployeeName = $scope.employee[i].EmployeeName;
+                $scope.EmpSummaryModelNew.EmpSystemID = $scope.employee[i].SystemID;
 
-    //            break;
-    //        }
-    //    }
-    //}
-    //$scope.closeEmployeeMultiplePopUp = function () {
-    //    angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('hide');
-    //};
+                break;
+            }
+        }
+    }
+    $scope.closeEmployeeMultiplePopUp = function () {
+        angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('hide');
+    };
 
-    //$scope.employeeSummaryData = [];
-    //$scope.getPopUpDataOnly = function () {
-    //    $scope.employeeSummaryData = [];
-    //    $http({
-    //        method: 'GET',
-    //        url: 'employees/leaveApplication/getemployeelist'
-    //    }).then(function successCallback(response) {
-    //        $scope.employeeSummaryData = response.data;
-    //    });
-    //}
-    //$scope.getPopUpDataOnly();
+    $scope.employeeSummaryData = [];
+    $scope.getPopUpDataOnly = function () {
+        $scope.employeeSummaryData = [];
+        $http({
+            method: 'GET',
+            url: 'employees/leaveApplication/getemployeelist'
+        }).then(function successCallback(response) {
+            $scope.employeeSummaryData = response.data;
+        });
+    }
+    $scope.getPopUpDataOnly();
 
-    //$scope.getPopUpSummary = function () {
+    $scope.getPopUpSummary = function () {
 
-    //    angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('show');
-    //}
+        angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('show');
+    }
 
 
-    //$scope.setEmpSummary = function (obj) {
-    //    // $scope.Clear();
-    //    var data = obj.data;
+    $scope.setEmpSummary = function (obj) {
+        // $scope.Clear();
+        var data = obj.data;
 
-    //    $scope.EmpSummaryModelNew.EmpSystemID = data.SystemID;
-    //    $scope.EmpSummaryModelNew.EmployeeCode = data.EmployeeCode;
-    //    $scope.EmpSummaryModelNew.EmployeeName = data.EmployeeName;
-    //    $scope.closeEmployeeMultiplePopUp();
-    //};
+        $scope.EmpSummaryModelNew.EmpSystemID = data.SystemID;
+        $scope.EmpSummaryModelNew.EmployeeCode = data.EmployeeCode;
+        $scope.EmpSummaryModelNew.EmployeeName = data.EmployeeName;
+        $scope.closeEmployeeMultiplePopUp();
+    };
 
     //$scope.EmployeeSummaryList = [];
     //$scope.GetEmployeeSummaryList = function () {
