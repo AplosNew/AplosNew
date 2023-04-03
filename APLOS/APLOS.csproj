@@ -2041,7 +2041,6 @@
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
-    <Content Include="Areas\HumanResource\Scripts\EmployeeAttendacneReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />

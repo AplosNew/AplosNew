@@ -161,8 +161,16 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
     $scope.getPopUpDataOnly();
 
     $scope.getPopUpSummary = function () {
+        if ($scope.EmpSummaryModelNew.FromDate == null) {
+            ShowResult('Please select From Date', 'failure');
+        }
+        else if ($scope.EmpSummaryModelNew.ToDate == null) {
+            ShowResult('Please select To Date', 'failure');
+        }
+        else {
 
         angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('show');
+        }
     }
 
 
@@ -176,26 +184,27 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
         $scope.closeEmployeeMultiplePopUp();
     };
 
-    //$scope.EmployeeSummaryList = [];
-    //$scope.GetEmployeeSummaryList = function () {
-    //    var NewEmployeeSummaryList = [];
-    //    for (var i = 0; i < $scope.employeeSummaryData.length; i++) {
-    //        if ($scope.employeeSummaryData[i].isSelected == true) {
+    $scope.EmployeeSummaryList = [];
+    $scope.GetEmployeeSummaryList = function () {
+        var NewEmployeeSummaryList = [];
+        for (var i = 0; i < $scope.employeeSummaryData.length; i++) {
+            if ($scope.employeeSummaryData[i].isSelected == true) {
 
-    //            NewEmployeeSummaryList.push($scope.employeeSummaryData[i]);
-    //        }
-    //    }
-    //    if (NewEmployeeSummaryList.length == 0) {
-    //        ShowResult('Please select at least one Party', 'failure');
-    //    }
-    //    $scope.setEmpSummary();
+                NewEmployeeSummaryList.push($scope.employeeSummaryData[i]);
+            }
+        }
+        if (NewEmployeeSummaryList.length == 0) {
+            ShowResult('Please select at least one Party', 'failure');
+        }
+        $scope.setEmpSummary();
 
-    //    $http.get('HumanResource/AttendanceReport/GetEmployeeSingleData?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate + '&empId=' + $scope.EmpSummaryModelNew.EmpSystemID)
-    //        .then(function (response) {
-    //            $scope.EmployeeSummaryList = [];
-    //            $scope.EmployeeSummaryList = response.data;
-    //        });
-    //};
+        $http.get('HumanResource/AttendanceReport/GetEmployeeSummaryData?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate + '&empId=' + NewEmployeeSummaryList[0].SystemID)
+            .then(function (response) {
+                $scope.EmployeeSummaryList = [];
+                $scope.EmployeeSummaryList = response.data;
+                $scope.closeEmployeeMultiplePopUp();
+            });
+    };
 
     //$scope.EmployeeAttendanceSingleSummaryData = function () {
     //    try {

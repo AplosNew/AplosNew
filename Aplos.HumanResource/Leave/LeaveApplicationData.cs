@@ -2445,6 +2445,39 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
+        public IEnumerable<object> GetEmployeeSummaryData(string fromdate, string todate, List<Dictionary<string, object>> empId)
+        {
+            try
+            {
+                string sql = @"SELECT ei.EmployeeCode,APD.EmpSystemID,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy')DOJ,FORMAT(ei.DOS,'dd-MMM-yyyy')DOS,FORMAT(apd.WorkDate,'dd-MMM-yyyy')[Date]
+				,apd.DayStatus,apd.LTSystemID LeaveId,T.LeaveType,ds.TotalWorkingDay,ds.ActualWorkingDay,ds.PayDay,ds.NonPayDay,ds.PresentValuePD,ds.LeaveValueLP
+				,ds.AbsentValueAB,ds.WeeklyOffWO,ds.HolidayH,ds.Other,ds.Other,ds.OTApplicable,ds.CompensatoryApplicable,ds.GoodWorkApplicable,ds.SandwichStatusFlag
+				,ds.ToAudit,l.EarnValue,l.AvailedValue
+				,D.UserName GivenDesignation,SS.UserName SubSection,S.UserName Section,Dep.UserName Department,apd.ProcessIntime,apd.ProcessOuttime,apd.Duration
+				,apd.OTHr,apd.WorkingDayValue,apd.ActualWorkingDayValue,apd.PresentValue,apd.AbsentValue,T.Code Leave
+				FROM  EmployeeInformation AS ei 
+                JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
+                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+                LEFT JOIN HKP.Designation D on D.Id=ei.GivenDesignationId
+                LEFT JOIN ORG.SubSection SS on SS.Id=ei.SubSectionId
+                LEFT JOIN ORG.Section S on S.Id=ei.SectionId
+                LEFT JOIN ORG.Department Dep on Dep.Id=ei.DepartmentId
+                JOIN LeaveType T ON t.Id=L.LeaveTypeId
+                where apd.workdate between '" + fromdate + @"' and '" + todate + @"' and APD.EmpSystemID='" + empId + @"' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
     }
 
     public class RegularEncashmentService
