@@ -148,10 +148,6 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
         angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('hide');
     };
 
-    $scope.closeEmployeeMultiplePopUp = function () {
-        angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('hide');
-    };
-
     $scope.employeeSummaryData = [];
     $scope.getPopUpDataOnly = function () {
         $scope.employeeSummaryData = [];
@@ -170,7 +166,7 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
     }
 
 
-    $scope.setEmpData = function (obj) {
+    $scope.setEmpSummary = function (obj) {
         // $scope.Clear();
         var data = obj.data;
 
@@ -192,6 +188,7 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
         if (NewEmployeeSummaryList.length == 0) {
             ShowResult('Please select at least one Party', 'failure');
         }
+        $scope.setEmpSummary();
 
         $http.get('HumanResource/AttendanceReport/GetEmployeeSingleData?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate + '&empId=' + $scope.EmpSummaryModelNew.EmpSystemID)
             .then(function (response) {
@@ -200,39 +197,39 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
             });
     };
 
-    $scope.EmployeeAttendanceSingleSummaryData = function () {
-        try {
-            var dataList = [];
-            var g = $("#EmpGrid").data("ejGrid");
-            dataList = g.getFilteredRecords();
+    //$scope.EmployeeAttendanceSingleSummaryData = function () {
+    //    try {
+    //        var dataList = [];
+    //        var g = $("#EmpGrid").data("ejGrid");
+    //        dataList = g.getFilteredRecords();
 
-            if (dataList.length == 0) {
-                dataList = $scope.EmployeeSummaryList;
-            }
-            if (dataList.length == 0) {
-                throw "First click on View button.";
-            }
-            $scope.fileName = "Employee Attendance Data.xlsx";
+    //        if (dataList.length == 0) {
+    //            dataList = $scope.EmployeeSummaryList;
+    //        }
+    //        if (dataList.length == 0) {
+    //            throw "First click on View button.";
+    //        }
+    //        $scope.fileName = "Employee Attendance Data.xlsx";
 
-            $http({
-                method: 'POST',
-                url: $scope.path + "EmployeeAttendanceDataXls",
-                data: { 'reportFileName': $scope.fileName, 'data': dataList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.data.Message, 'failure');
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.path + "EmployeeAttendanceDataXls",
+    //            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error == true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+    //            }
+    //        }, function errorCallback(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        });
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
 
     //Employee Attandence Summary end
 
