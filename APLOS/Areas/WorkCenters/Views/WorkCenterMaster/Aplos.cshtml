@@ -567,6 +567,7 @@
                                         <th>Shift Type</th>
                                         <th>In Time</th>
                                         <th>Out Time</th>
+                                        <th>Production Hours</th>
                                         <th>Remove</th>
                                     </tr>
                                 </thead>
@@ -577,6 +578,8 @@
                                         <td>{{x.ShiftType}}</td>
                                         <td>{{x.InTime}}</td>
                                         <td>{{x.OutTime}}</td>
+                                        <td><input type="text" n-decimals="4" ng-model="x.ProductionHours" class="form-control"></td>
+                                        
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
@@ -972,6 +975,7 @@
                                 <th>Shift Type</th>
                                 <th>In Time</th>
                                 <th>Out Time</th>
+                                <th>Production Hours</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -989,6 +993,7 @@
                                 <td>{{x.ShiftType}}</td>
                                 <td>{{x.InTime}}</td>
                                 <td>{{x.OutTime}}</td>
+                                <td><input type="text" n-decimals="4" ng-model="x.ProductionHours" class="form-control"></td>
                             </tr>
                         </tbody>
                     </table>

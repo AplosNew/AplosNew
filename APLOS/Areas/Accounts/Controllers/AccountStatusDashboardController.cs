@@ -128,6 +128,14 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(accountsStatusDashboardService.GetPartyPaymentStatusPendingAdjustmentData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public ActionResult GetPartyReceiveStatusPendingAdjustmentData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+
+            return Json(accountsStatusDashboardService.GetPartyReceiveStatusPendingAdjustmentData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         #region donught PopUp  get data
         [HttpGet, Authorize]
