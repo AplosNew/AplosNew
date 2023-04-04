@@ -11,6 +11,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveSingleRowUrl = $scope.path + 'createSingleRow';
+    $scope.UpdateSingleRowUrl = $scope.path + 'UpdateSingleRow';
     $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.saveUrlItemValue = $scope.path + 'createItemValue';
     $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
@@ -616,7 +617,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                     //ShowResult(response.data.Message, 'success');
                     $scope.RMSId = response.data.Id;
                     $scope.getItemValuePopup(response.data.Id);
-                    /* $scope.getDailytarget();*/
+                     $scope.getDailytarget();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -641,7 +642,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 throw "Efficiency should not be greater than 100";
             }
 
-            $scope.SaveList = [];
+            $scope.UpdateList = [];
             for (var i = 0; i < $scope.DailyTargetList.length; i++) {
                 if ($scope.DailyTargetList[i].TargetFD > 0 && parseFloat(data.data.TargetFD) > 0 && $scope.DailyTargetList[i].Id == data.data.Id) {
                     if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].ProductionOrderId) == true) {
@@ -651,13 +652,13 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                     $scope.DailyTargetList[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
                     $scope.DailyTargetList[i].TargetDate = $scope.DailyProductionTargetNew.TargetDate;
                     $scope.DailyTargetList[i].ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
-                    $scope.SaveList.push($scope.DailyTargetList[i]);
+                    $scope.UpdateList.push($scope.DailyTargetList[i]);
                 }
             }
             $http({
                 method: 'POST',
-                url: $scope.saveSingleRowUrl,
-                data: { 'DailyTargetData': $scope.SaveList, 'TargetDate': $scope.DailyProductionTargetNew.TargetDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId },
+                url: $scope.UpdateSingleRowUrl,
+                data: { 'DailyTargetData': $scope.UpdateList, 'TargetDate': $scope.DailyProductionTargetNew.TargetDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -666,6 +667,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 else {
                     $scope.RMSId = response.data.Id;
                     $scope.getItemValuePopup(response.data.Id);
+                    /*$scope.getDailytarget();*/
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -697,7 +699,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.getDailytarget();
+                    //$scope.getDailytarget();
                 }
                 angular.element(document.querySelector('#ItemValuePopup')).modal('hide');
             }), function errorCallBack(response) {

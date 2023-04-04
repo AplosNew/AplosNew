@@ -161,7 +161,7 @@ Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetai
                                                             left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                            where Pod.ProductionOrderId=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"'  and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId+ @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                                            where Pod.ProductionOrderId=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 isnull(RM.SMV,PS.SPT) as SMV,
 RM.PlanHours,
 RM.TargetFD,
@@ -181,7 +181,7 @@ FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN EmployeeInformation I ON RM.InChargeId=I.SystemId
                         LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId,RMSTargetId from RMSTargetDetentionTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + EntityId + @"' AND MT.Date='" + TargetDate + @"'  AND MT.ShiftId='" + ProductionShiftId + @"'
                         group by WorkCenterId,RMSTargetId) SM ON SM.WorkCenterId=wc.Id and SM.RMSTargetId=RM.Id
-						left join ProductionOrderSchedulingParametersType1 PS ON PS.ProductionOrderID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where WorkCenterMasterID=WC.Id order by AddedDate desc))
+						left join ProductionOrderSchedulingParametersType1 PS ON PS.ProductionOrderID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))
 						where wc.ProcessId = '" + ProcessId + @"'  and wc.EntityId = '" + EntityId + @"' ORDER BY wc.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -330,7 +330,57 @@ where RD.ProcessId='" + ProcessId + "'";
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
+        public JsonResult UpdateSingleRow(List<Dictionary<string, object>> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[RunningMachineSetUpTarget]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                if (DailyTargetData != null)
+                {
+                    foreach (var item in DailyTargetData)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "PCD" + _Id;
+                            item["PlantId"] = identity.PlantId;
+                            Id = item["Id"].ToString();
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            item["PlantId"] = identity.PlantId;
+                            Id = item["Id"].ToString();
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Id = Id, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
         public JsonResult CreateItemValue(List<Dictionary<string, object>> RMSTargetItemData)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -377,7 +427,7 @@ where RD.ProcessId='" + ProcessId + "'";
         }
 
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult createReasonValue(List<Dictionary<string, object>> ProductionReasonData)
         {
             ConnectionManager.DAL.ConManager objCon;
