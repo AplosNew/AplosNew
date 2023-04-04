@@ -182,7 +182,7 @@ FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId,RMSTargetId from RMSTargetDetentionTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + EntityId + @"' AND MT.Date='" + TargetDate + @"'  AND MT.ShiftId='" + ProductionShiftId + @"'
                         group by WorkCenterId,RMSTargetId) SM ON SM.WorkCenterId=wc.Id and SM.RMSTargetId=RM.Id
 						left join ProductionOrderSchedulingParametersType1 PS ON PS.ProductionOrderID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))
-						where wc.ProcessId = '" + ProcessId + @"'  and wc.EntityId = '" + EntityId + @"' ORDER BY wc.Sequence";
+						where wc.Active=1 and wc.ProcessId = '" + ProcessId + @"'  and wc.EntityId = '" + EntityId + @"' ORDER BY wc.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

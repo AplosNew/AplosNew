@@ -7,8 +7,10 @@ using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Employees;
+using Library.OrderManagement.Production;
 using Library.Service.Employees;
 using Library.Service.Helpers;
+using Library.Service.OrderManagements;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
@@ -25,6 +27,8 @@ namespace Aplos.Areas.Productions.Controllers
     public class DailyPlanningAndProductionReportController : BaseController
     {
         #region Constructor
+        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
+        private readonly IProductionOrderService _productionOrderService;
         private readonly IRouteEmployeeService _routeEmployeeService;
         private readonly ISqlRepository _sqlRepository;
         EmployeeTransport ET = new EmployeeTransport();
@@ -49,7 +53,37 @@ namespace Aplos.Areas.Productions.Controllers
         }
         #endregion
 
-       #region -- Operations 
+        #region Daily Production report
+        [HttpGet, Authorize]
+        public JsonResult GetShiftList(string processId)
+        {
+            return Json(_productionSummaryData.GetShiftList(processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetProductionOrderDataList(string entityid, string workCenterMasterId, string productionLevel, string processId, bool ToCloseAllowed)
+        {
+            return Json(_productionSummaryData.GetProductionOrderDataList(entityid, workCenterMasterId, productionLevel, processId, ToCloseAllowed), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetProductionRecipeMaterialList(string productionOrderId)
+        {
+            return Json(_productionOrderService.GetProductionRecipeMaterialList(productionOrderId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetDailyPlanningProductionData(string fromdate, string todate, string entityId, string processId, string shiftId, string wcId, string POId)
+        {
+            var jsondata = Json(_productionSummaryData.GetDailyPlanningProductionData(fromdate, todate, entityId, processId, shiftId, wcId,POId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        #endregion Daily Production report
+
+
+        #region -- Operations 
 
         [HttpPost,Authorize]
         public ActionResult SaveUnAssign(List<UARouteEmployeeList> UArouteEmployeeList)

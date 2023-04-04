@@ -149,16 +149,17 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
     };
 
     $scope.employeeSummaryData = [];
-    $scope.getPopUpDataOnly = function () {
+    $scope.getPopUpDataSummaryOnly = function () {
         $scope.employeeSummaryData = [];
         $http({
             method: 'GET',
             url: 'employees/leaveApplication/getemployeelist'
+            //url: 'HumanResource/AttendanceReport/getemployeeSummarylist?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate
         }).then(function successCallback(response) {
             $scope.employeeSummaryData = response.data;
         });
     }
-    $scope.getPopUpDataOnly();
+    //$scope.getPopUpDataSummaryOnly();
 
     $scope.getPopUpSummary = function () {
         if ($scope.EmpSummaryModelNew.FromDate == null) {
@@ -168,43 +169,65 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
             ShowResult('Please select To Date', 'failure');
         }
         else {
-
+            $scope.getPopUpDataSummaryOnly();
         angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('show');
         }
     }
 
 
-    $scope.setEmpSummary = function (obj) {
-        // $scope.Clear();
-        var data = obj.data;
-
-        $scope.EmpSummaryModelNew.EmpSystemID = data.SystemID;
-        $scope.EmpSummaryModelNew.EmployeeCode = data.EmployeeCode;
-        $scope.EmpSummaryModelNew.EmployeeName = data.EmployeeName;
-        $scope.closeEmployeeMultiplePopUp();
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
 
-    $scope.EmployeeSummaryList = [];
-    $scope.GetEmployeeSummaryList = function () {
-        var NewEmployeeSummaryList = [];
-        for (var i = 0; i < $scope.employeeSummaryData.length; i++) {
-            if ($scope.employeeSummaryData[i].isSelected == true) {
-
-                NewEmployeeSummaryList.push($scope.employeeSummaryData[i]);
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#Grid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.employeeSummaryData.length; i++) {
+                $scope.employeeSummaryData[i].CheckBoxSelect = ChkOrUnchk;
             }
         }
-        if (NewEmployeeSummaryList.length == 0) {
-            ShowResult('Please select at least one Party', 'failure');
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
         }
-        $scope.setEmpSummary();
-
-        $http.get('HumanResource/AttendanceReport/GetEmployeeSummaryData?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate + '&empId=' + NewEmployeeSummaryList[0].SystemID)
-            .then(function (response) {
-                $scope.EmployeeSummaryList = [];
-                $scope.EmployeeSummaryList = response.data;
-                $scope.closeEmployeeMultiplePopUp();
-            });
+        var gridObj = $("#Grid").data("ejGrid");
+        gridObj.refreshContent();
     };
+
+
+    $scope.EmployeeSummaryList = [];
+    //$scope.GetEmployeeSummaryList = function () {
+    //    var NewEmployeeSummaryList = [];
+    //    for (var i = 0; i < $scope.employeeSummaryData.length; i++) {
+    //        if ($scope.employeeSummaryData[i].CheckBoxSelect == true) {
+
+    //            NewEmployeeSummaryList.push($scope.employeeSummaryData[i]);
+    //        }
+    //    }
+    //    if (NewEmployeeSummaryList.length == 0) {
+    //        ShowResult('Please select at least one Party', 'failure');
+    //    }
+    //    $http.get('HumanResource/AttendanceReport/GetEmployeeSummaryData?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate + '&empId=' + NewEmployeeSummaryList)
+    //        .then(function (response) {
+    //            $scope.EmployeeSummaryList = [];
+    //            $scope.EmployeeSummaryList = response.data;
+    //            $scope.closeEmployeeMultiplePopUp();
+    //        });
+    //};
+
+    $scope.saveemployeedata = function () {
+        var row = $filter('filter')($scope.employeeSummaryData, { 'CheckBoxSelect': true });
+        if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
+            $scope.EmployeeSummaryList = row;
+        }
+        $scope.closeEmployeeMultiplePopUp();
+    }
+
 
     //$scope.EmployeeAttendanceSingleSummaryData = function () {
     //    try {

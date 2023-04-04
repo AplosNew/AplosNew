@@ -523,6 +523,93 @@ namespace Library.OrderManagement.Production
             return _sqlRepository.GetDataCollection(CmdText);
         }
 
+        public IEnumerable<object> GetDailyPlanningProductionData(string fromdate, string todate, string entityId, string processId, string shiftId, string wcId, string POId)
+        {
+            try
+            {
+                string sql = @"Select A.EntityId,A.Entity,A.ProcessId,A.Process,A.WorkCenterMasterId,A.WorkCenterMaster,A.ProductPriority,A.Active,A.NoOfWorkStation
+						,A.SPT StandardProcessTime,A.ShiftId,A.[ShiftName],A.[ShiftShortName] ,A.ProductionHours,A.[Date],A.ResponsiblePerson,A.ResponsiblePersonCode
+						,PS.Id SummaryId
+						,Customer=STUFF((select distinct ', '+P.UserName from 
+															HKP.Party P
+															JOIN TRN.MasterOrder MO ON MO.PartyId=P.Id
+															JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
+															JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+															JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+															where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,POArticle=STUFF((select distinct ', '+A.StandardName from 
+															MST.MaterialMasterArticle A
+															JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=A.Id
+															JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+															JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+															where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,LineItemArticle=STUFF((select distinct ', '+AR.StandardName from 
+															MST.MaterialMasterArticle AR
+															JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=AR.Id
+															where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+						,LineItemProductCode=STUFF((select distinct ', '+PL.Code from 
+															dbo.ProductLibrary PL
+															JOIN TRN.MasterOrderItem MOI ON MOI.ProductLibraryId=PL.Id
+															where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,SONo=STUFF((select distinct ', '+SO.Id from 
+															TRN.SalesOrder SO 
+															JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+															where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+						,PS.ProductionOrderId POId,PS.LotNumber,PS.SalesOrderId,PS.MasterOrderItemId,ISNULL(PS.QtyWithoutScan,0)QtyWithoutScan,ISNULL(PS.ScanQty,0) QtyWithScan,TotalActualqty=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+						,ISNULL(D.[Minute],0) DetentionInMinute,SCH.SPT  POSPT,0 ArticleSPT
+						--,SPT= CASE WHEN  ArticleSPT IS NULL ArticleSPT=0 THEN SCH.SPT ELSE SCH.SPT =0 THEN A.SPT END
+						,SPT=CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END
+						,ISNULL(CPS.NoOfEntry,1)NoOfEntry,AllotedHour=ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)
+						,ShouldBeProduction=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))
+						,TotalAvailableHour=A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1))
+						,DetentionHour=(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
+						,NetAvailableHour=(A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
+						,ProduceHour=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0))*(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)/60
+						,DetentionLoss=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1)))
+						,ProductivityVariance=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-
+						(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) -(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+
+						from (
+						Select WCM.EntityId,E.UserName Entity,WCM.ProcessId,P.UserName Process,WCM.Id WorkCenterMasterId, WCM.UserName WorkCenterMaster
+						,ProductPriority=STUFF((select distinct ', '+PM.UserName from 
+															[SCS].[WorkCenterMasterProductPriority]  XSO
+															JOIN MST.ProductMaster PM ON PM.id=XSO.ProductMasterId
+															where XSO.WorkCenterMasterId=WCM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+						,WCM.Active,WCM.NoOfWorkStation,WCM.SPT,SD.SystemID ShiftId,SD.UserName [ShiftName],SD.ShortName [ShiftShortName] ,WCS.ProductionHours
+						,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
+						,'01-Apr-2023'[Date]
+						from SCS.WorkCenterMaster WCM
+						LEFT JOIN dbo.WorkCenterWiseShift WCS ON WCS.WorkCenterMasterId=WCM.Id
+						LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON WCD.WorkCenterMasterId=WCS.WorkCenterMasterId
+						LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=WCS.ShiftDefinationID
+						LEFT JOIN ORG.Entity E ON E.Id=WCM.EntityId
+						LEFT JOIN HKP.Process P ON P.Id=WCM.ProcessId
+						LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=WCM.ResponsiblePersonId
+						Where WCD.StartDate between '" + fromdate + @"' and '" + todate + @"'
+						) A
+						LEFT JOIN trn.ProductionSummary PS ON PS.ProductionShiftId=A.ShiftId AND PS.EntityId=A.EntityId AND PS.WorkCenterMasterId=A.WorkCenterMasterId AND PS.ProcessId=A.ProcessId AND PS.ProductionDate=A.DaTe
+						LEFT JOIN(Select COUNT(Id)NoOfEntry,WorkCenterMasterId,ProductionShiftId,ProductionDate from trn.ProductionSummary Group BY WorkCenterMasterId,ProductionShiftId,ProductionDate) CPS ON CPS.WorkCenterMasterId=A.WorkCenterMasterId AND CPS.ProductionShiftId=A.ShiftId AND CPS.ProductionDate=A.Date
+						LEFT JOIN [dbo].[MachineMasterTransaction] D ON D.ShiftId=A.ShiftId AND D.EntityId=A.EntityId AND D.WorkCenterId=A.WorkCenterMasterId AND D.ProcessId=A.ProcessId AND D.Date=A.DaTe
+						LEFT JOIN [dbo].[ProductionOrderSchedulingParametersType1] SCH ON SCH.ProductionOrderID=PS.ProductionOrderId
+
+                where A.EntityId='" + entityId + @"'
+                    and A.ProcessId='" + processId + @"'
+                    and A.ShiftId='" + shiftId + @"'
+                    and A.WorkCenterMasterId='" + wcId + @"'
+                    and PS.ProductionOrderId='" + POId + @"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+
         public IEnumerable<object> GetProductionOrderDataList(string entityid, string workCenterMasterId, string productionLevel, string processId,bool ToCloseAllowed)
         {
             string wcpr;
