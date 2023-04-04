@@ -101,6 +101,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeSummaryData(string fromdate, string todate, List<Dictionary<string, object>> empId)
+        {
+            var jsondata = Json(alp.GetEmployeeSummaryData(fromdate, todate, empId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
     }
 }

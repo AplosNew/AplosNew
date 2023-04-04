@@ -159,7 +159,7 @@
                             </div>
                             <div class="common-btn" style="margin-top:25px;margin-right:20px;">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="GetEmployeeSummaryList();" class="btn"><i class="glyphicon glyphicon-download"></i> Go </button></li>
+                                    @*<li> <button ng-click="GetEmployeeSummaryList();" class="btn"><i class="glyphicon glyphicon-download"></i> Go </button></li>*@
                                     <li> <button ng-click="EmployeeAttendanceSingleSummaryData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Report </button></li>
                                 </ul>
                             </div>
@@ -239,12 +239,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     Employee List
-                    <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
+                    <button type="button" class="close" ng-click="closeEmployeeMultiplePopUp();">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="content-container-fluid" style="color:black;">
                         <div style="color:black;" id="Grid" ej-grid e-datasource="employeeSummaryData" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-recorddoubleclick="setEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
+                             @*e-recorddoubleclick="setEmpSummary"*@ e-allowselection="true" e-filtersettings-filterType="excel">
                             <div e-columns>
                                 <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkEmployee" e-textalign="center" e-width="30"></div>
                                 <div e-column e-field="SystemId" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
@@ -266,6 +266,7 @@
                     </div>
                 </div>
                 <div class="modal-footer common-btn">
+                    <button ng-click="GetEmployeeSummaryList();" class="btn"><i class=""></i> Go</button>
                     <button ng-click="closeEmployeeMultiplePopUp();" class="btn"><i class=""></i> Close</button>
                 </div>
             </div>
