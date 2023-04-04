@@ -113,6 +113,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         ob.ProductionGrade = $scope.gradeList[0].Value;
         ob.Quantity = 0;
         ob.DetentionSum = 0;
+        ob.SumMin = 0;
         ob.Remarks = null;
         ob.ResponsiblePersonId = e.ResponsiblePersonId;
         ob.InChargeId = e.InChargeId;
@@ -1973,17 +1974,17 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         Minute: null,
     };
 
+    $scope.ProductionSummaryId = null;
     $scope.productionSummaryNew.DetentionSum = 0;
     $scope.ProcessDetentionLists = [];
     $scope.getProcessDetentionPopupPoPUp = function (data) {
         $scope.NewObject = data.data;
-       /* var ProductionSummaryid = $scope.productionSummaryNew.Id;*/
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         $scope.productionSummaryNew = data.data;
-        //$scope.productionSummaryNew.Id = ProductionSummaryid;
+        $scope.ProductionSummaryId = $scope.productionSummaryNew.Id;
         $scope.productionSummaryNew.ProcessId = processid;
         $scope.productionSummaryNew.EntityId = entityid;
         $scope.productionSummaryNew.ProductionDate = productiondate;
@@ -1996,7 +1997,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             for (var i = 1; i < 6; i++) {
                 var obj = angular.copy($scope.ProcessDetention);
                 obj.Id = null;
-                obj.ProductionSummaryId = $scope.productionSummaryNew.Id;
+                obj.ProductionSummaryId = $scope.ProductionSummaryId;
                 obj.ProcessId = $scope.productionSummaryNew.ProcessId;
                 obj.EntityId = $scope.productionSummaryNew.EntityId;
                 obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
@@ -2006,7 +2007,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 $scope.ProcessDetentionLists.push(obj);
             }
         
-            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
+            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId + '&ProductionSummaryId=' + data.data.Id)
                 .then(
                     function successCallback(response) {
                         /*$scope.ProcessDetentionLists = response.data;*/
@@ -2022,6 +2023,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                         $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
                                         $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
                                         $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
+                                        $scope.ProcessDetentionLists[k].ProductionSummaryId = response.data[j].ProductionSummaryId;
                                         $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
                                         $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
                                         $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
@@ -2060,7 +2062,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             for (var i = 1; i < 6; i++) {
                 var obj = angular.copy($scope.ProcessDetention);
                 obj.Id = null;
-                obj.ProductionSummaryId = $scope.productionSummaryNew.Id;
+                obj.ProductionSummaryId = $scope.ProductionSummaryId;
                 obj.ProcessId = $scope.productionSummaryNew.ProcessId;
                 obj.EntityId = $scope.productionSummaryNew.EntityId;
                 obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
@@ -2070,7 +2072,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 $scope.ProcessDetentionLists.push(obj);
             }
 
-            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId)
+            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId + '&ProductionSummaryId=' + $scope.ProductionSummaryId)
                 .then(
                     function successCallback(response) {
                         if (response.data.length > 0)
@@ -2085,6 +2087,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                         $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
                                         $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
                                         $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
+                                        $scope.ProcessDetentionLists[k].ProductionSummaryId = response.data[j].ProductionSummaryId;
                                         $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
                                         $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
                                         $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
@@ -2116,7 +2119,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     
     $scope.LoadDetentionList = function () {
         try {
-            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId)
+            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId + '&ProductionSummaryId=' + $scope.ProductionSummaryId)
                 .then(function (response) {
                     $scope.ProcessDetentionLists = response.data;
                 });

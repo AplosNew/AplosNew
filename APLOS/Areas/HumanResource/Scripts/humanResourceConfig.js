@@ -869,6 +869,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/LeaveRegistersForm/Aplos',
             controller: 'LeaveRegistersFormController'
         })
+        .when('/employee-attendance-report', {
+            templateUrl: 'humanresource/AttendanceReport/Report',
+            controller: 'EmployeeAttendanceReportController'
+        })
 
         .when('/designation-setup', {
             templateUrl: 'humanresource/DesignationSetup/Aplos',
