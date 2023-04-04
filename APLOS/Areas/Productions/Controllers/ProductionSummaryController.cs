@@ -237,6 +237,22 @@ where RD.ProcessId='" + ProcessId + "'";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetProdQtyValidate(string Processid, string POId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty from trn.ProductionOrder PO
+LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + Processid + @"'
+                        LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+						 LEFT JOIN
+                            (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + Processid + @"'  GROUP BY PS.ProductionOrderId
+                            ) AS PRS ON PRS.ProductionOrderId = PO.Id 
+where PO.ID= '" + POId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetIsProductionHourOpen()
         {
