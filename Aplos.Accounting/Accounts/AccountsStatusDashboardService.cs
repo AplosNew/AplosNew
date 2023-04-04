@@ -2544,6 +2544,193 @@ namespace Library.Accounting.Accounts
 
         }
 
+        //Customer Pending Adjustment Chart
+        public List<Dictionary<string, object>> GetPartyReceiveStatusPendingAdjustmentData(string companyGroupId, string companyId, string plantId)
+        {
+            var sql = @" 
+ 
+                     SELECT		sum(ISNULL(X.ReceivablePostedAmount,0)) ReceivablePostedAmount,sum(ISNULL(X.ReceivableUnPostedAmount,0)) ReceivableUnPostedAmount
+							   ,sum(ISNULL(X.ReceivablePostedAmount,0)) + sum(ISNULL(X.ReceivableUnPostedAmount,0)) TotalReceivablePostedUnPostedAmount
+							   ,sum(ISNULL(X.CustomerAdvancePostedAmount,0)) CustomerAdvancePostedAmount,sum(ISNULL(X.CustomerAdvanceUnPostedAmount,0)) CustomerAdvanceUnPostedAmount
+							   ,sum(ISNULL(X.CustomerAdvancePostedAmount,0)) + sum(ISNULL(X.CustomerAdvanceUnPostedAmount,0)) TotalCustomerAdvancePostedUnPostedAmount
+							   ,sum(ISNULL(X.CustomerCreditNotePostedAmount,0)) CustomerCreditNotePostedAmount,sum(ISNULL(X.CustomerCreditNoteUnPostedAmount,0)) CustomerCreditNoteUnPostedAmount
+							   ,sum(ISNULL(X.CustomerCreditNotePostedAmount,0)) + sum(ISNULL(X.CustomerCreditNoteUnPostedAmount,0)) TotalCustomerCreditNotePostedUnPostedAmount
+                    FROM (
+                    SELECT sum(ISNULL(T.ReceivableAmount,0)) ReceivablePostedAmount,0 ReceivableUnPostedAmount
+					,0 CustomerAdvancePostedAmount,0 CustomerAdvanceUnPostedAmount,0 CustomerCreditNotePostedAmount, 0 CustomerCreditNoteUnPostedAmount
+                    FROM  [TRN].[Invoice] AS IV 
+				    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
+
+					LEFT JOIN (SELECT count(i.PartyId) NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ReceivableAmount FROM TRN.Invoice I
+					 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(IwV.SetOffBooksAmount) SetOffBooksAmount
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT iwd.InvoiceDetailId,iw.PartyId
+												,SUM(VDC.CrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+													JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 
+												GROUP BY iwd.InvoiceDetailId,iw.PartyId
+												)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
+											WHERE VI.IsPark=0 and VD.PartyType='Customer'
+											GROUP BY IDE.InvoiceId,VD.PartyId
+										) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+					 and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales') group by Id) T ON T.Id=IV.Id
+
+                    WHERE IV.Archive=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales')
+                      AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+
+                    UNION ALL
+                    SELECT sum(ISNULL(T.ReceivableAmount,0)) ReceivablePostedAmount,0 ReceivableUnPostedAmount
+					,0 CustomerAdvancePostedAmount,0 CustomerAdvanceUnPostedAmount,0 CustomerCreditNotePostedAmount, 0 CustomerCreditNoteUnPostedAmount
+                FROM [TRN].[AdjustmentNote] AS IV
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
+
+                LEFT JOIN (SELECT count(i.PartyId) NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0))-SUM(ISNULL(IVD.SetOffBooksAmount,0)) AS ReceivableAmount FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.DrAmount) InvoiceBooksAmount ,SUM(ISNULL(IwV.SetOffBooksAmount,0)) SetOffBooksAmount
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											LEFT JOIN (SELECT IWD.AdjustmentNoteId,SUM(VDC.CrAmount) SetOffBooksAmount
+												FROM  [TRN].[InvoiceWriteOffDetail] iwd 
+												JOIN TRN.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId 
+												LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
+												LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+												 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
+												WHERE WV.IsPark=0 AND IWD.AdjustmentNoteId is not null
+										GROUP BY  IWD.AdjustmentNoteId
+												)AS IwV ON IwV.AdjustmentNoteId=AD.AdjustmentNoteId 
+											WHERE  VI.Archive=0  AND VI.IsPark=0 and VD.PartyType='Customer' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+					 WHERE  ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
+					 and I.SourceType in ('DebitNote','CustomerReceipt') GROUP BY I.Id) T ON T.Id=IV.Id
+
+                WHERE IV.Archive=0 AND V.IsPark=0  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote','CustomerReceipt')
+                  AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+
+				 UNION ALL
+				  SELECT 0 ReceivablePostedAmount,sum(ISNULL(T.ReceivableAmount,0)) ReceivableUnPostedAmount
+					,0 CustomerAdvancePostedAmount,0 CustomerAdvanceUnPostedAmount,0 CustomerCreditNotePostedAmount, 0 CustomerCreditNoteUnPostedAmount
+                    FROM  [TRN].[Invoice] AS IV 
+				    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
+
+					LEFT JOIN (SELECT count(i.PartyId) NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0)) AS ReceivableAmount FROM TRN.Invoice I
+					 JOIN (select IDE.InvoiceId,VD.PartyId,SUM(VDC.DrAmount) InvoiceBooksAmount 
+											FROM  [TRN].[InvoiceDetail] IDE
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IDE.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											WHERE VI.IsPark=1 and VD.PartyType='Customer'
+											GROUP BY IDE.InvoiceId,VD.PartyId
+										) AS IVD ON IVD.InvoiceId=I.Id AND IVD.PartyId=I.PartyId
+                    WHERE  I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales') group by Id) T ON T.Id=IV.Id
+
+                    WHERE IV.Archive=0 AND V.IsPark=1  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice','InventorySales')
+                      AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+
+                    UNION ALL
+                    SELECT 0 ReceivablePostedAmount,sum(ISNULL(T.ReceivableAmount,0)) ReceivableUnPostedAmount
+					,0 CustomerAdvancePostedAmount,0 CustomerAdvanceUnPostedAmount,0 CustomerCreditNotePostedAmount, 0 CustomerCreditNoteUnPostedAmount
+                FROM [TRN].[AdjustmentNote] AS IV
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=IV.VoucherId
+
+                LEFT JOIN (SELECT count(i.PartyId) NoOfInvoice,I.Id,SUM(ISNULL(IVD.InvoiceBooksAmount,0)) AS ReceivableAmount FROM [TRN].[AdjustmentNote]  I
+										JOIN (select AD.AdjustmentNoteId,VD.PartyId
+										,SUM(VDC.DrAmount) InvoiceBooksAmount 
+											FROM   [TRN].[AdjustmentNoteDetail] AD
+											LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=AD.Id
+											LEFT JOIN [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VD.Id
+											LEFT JOIN [TRN].[Voucher] AS VI ON VI.Id=VD.VoucherId
+											WHERE  VI.Archive=0  AND VI.IsPark=1 and VD.PartyType='Customer' 
+											GROUP BY AD.AdjustmentNoteId,VD.PartyId
+									 ) AS IVD ON IVD.AdjustmentNoteId=I.Id AND IVD.PartyId=I.PartyId
+					 WHERE   I.SourceType in ('DebitNote','CustomerReceipt') GROUP BY I.Id) T ON T.Id=IV.Id
+
+                WHERE IV.Archive=0 AND V.IsPark=1  AND IV.PartyType='Customer' AND IV.SourceType in ('DebitNote','CustomerReceipt')
+                  AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+
+				 UNION ALL
+				SELECT 0 ReceivablePostedAmount,0 ReceivableUnPostedAmount
+					,sum(ISNULL(T.CustomerAdvancePostedAmount,0)) CustomerAdvancePostedAmount,0 CustomerAdvanceUnPostedAmount
+					,0 CustomerCreditNotePostedAmount, 0 CustomerCreditNoteUnPostedAmount
+				FROM(
+				 SELECT  ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0) CustomerAdvancePostedAmount
+				FROM TRN.Advance A
+				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+				INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                LEFT JOIN (select SUM(VDCW.DrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+				INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+                LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=A.Id
+                where  A.IsPark=0 AND A.Archive=0 AND A.SourceType='CustomerAdvance'  and A.PartyType='Customer' 
+				 and ISNULL(VDCA.CrAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0)>0
+				 AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"')T
+
+
+                 UNION ALL
+				SELECT 0 ReceivablePostedAmount,0 ReceivableUnPostedAmount
+					,0 CustomerAdvancePostedAmount,sum(ISNULL(T.CustomerAdvanceUnPostedAmount,0))  CustomerAdvanceUnPostedAmount
+					,0 CustomerCreditNotePostedAmount, 0 CustomerCreditNoteUnPostedAmount
+				FROM(
+				 SELECT  ISNULL(VDCA.CrAmount,0) CustomerAdvanceUnPostedAmount
+				FROM TRN.Advance A
+				INNER JOIN  [TRN].[AdvanceDetail] AD ON AD.AdvanceId=A.Id
+				INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdvanceDetailId=AD.Id
+				INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCA ON VDCA.VoucherDetailId=VDA.Id
+                where  A.IsPark=1 AND A.Archive=0 AND A.SourceType='CustomerAdvance'  and A.PartyType='Customer' 
+				 AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"')T
+
+				 UNION ALL
+				 SELECT 0 ReceivablePostedAmount,0 ReceivableUnPostedAmount
+					,0 CustomerAdvancePostedAmount,0  CustomerAdvanceUnPostedAmount
+					,SUM( ISNULL(T.CustomerCreditNotePostedAmount,0)) CustomerCreditNotePostedAmount, 0 CustomerCreditNoteUnPostedAmount
+				FROM(
+				SELECT  ( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0)) CustomerCreditNotePostedAmount
+				FROM [TRN].[AdjustmentNote] A
+				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
+				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
+                INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+				LEFT JOIN (select SUM(ISNULL(VDCW.DrAmount,0))AdjustmentNoteWriteOffBooksAmount,AdjustmentNoteId from [TRN].[InvoiceWriteOffDetail] IWD
+								INNER JOIN [TRN].[InvoiceWriteOff] IW ON IW.Id=IWD.InvoiceWriteOffId
+								INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.InvoiceWriteOffDetailId=IWD.Id
+								INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+								where IW.IsPark=0 AND IW.Archive=0 AND IWD.AdjustmentNoteId is not null
+								GROUP BY  IWD.AdjustmentNoteId)W ON W.AdjustmentNoteId=AD.AdjustmentNoteId
+                where  VDA.PartyType='Customer' and A.SourceType in('CreditNote')  AND A.IsPark=0 AND A.Archive=0
+				 AND ( ISNULL(VDC.CrAmount,0)- ISNULL(W.AdjustmentNoteWriteOffBooksAmount,0))>0
+				 AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"')T
+
+				UNION ALL
+				 SELECT 0 ReceivablePostedAmount,0 ReceivableUnPostedAmount
+					,0 CustomerAdvancePostedAmount,0  CustomerAdvanceUnPostedAmount
+					,0 CustomerCreditNotePostedAmount, SUM( ISNULL(T.CustomerCreditNoteUnPostedAmount,0))  CustomerCreditNoteUnPostedAmount
+				FROM(
+				SELECT   ISNULL(VDC.CrAmount,0) CustomerCreditNoteUnPostedAmount
+				FROM [TRN].[AdjustmentNote] A
+				LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
+				INNER JOIN  [TRN].[AdjustmentNoteDetail] AD ON AD.AdjustmentNoteId=A.Id
+                INNER JOIN  [TRN].[VoucherDetail] VDA ON VDA.AdjustmentNoteDetailId=AD.Id
+                INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDC ON VDC.VoucherDetailId=VDA.Id
+                where  VDA.PartyType='Customer' and A.SourceType in('CreditNote')  AND A.IsPark=1 AND A.Archive=0
+				 AND A.CompanyGroupId='" + companyGroupId + "' AND A.CompanyId='" + companyId + "' AND A.PlantId='" + plantId + @"')T
+
+                )
+                X  ";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
         //SetOff Detail
         public List<Dictionary<string, object>> GetpartyPaymentSetOffDetailList(string companyGroupId, string companyId, string plantId, string setOffPaymentDetailAgingType, string partyId)
         {

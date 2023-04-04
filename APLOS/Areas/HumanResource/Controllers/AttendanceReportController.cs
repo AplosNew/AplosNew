@@ -101,12 +101,24 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        //[HttpGet, Authorize]
+        //public ActionResult GetEmployeeSummaryData(string fromdate, string todate)
+        //{
+        //    var jsondata = Json(alp.GetEmployeeSummaryData(fromdate, todate), JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
+
         [HttpGet, Authorize]
-        public ActionResult GetEmployeeSummaryData(string fromdate, string todate, List<Dictionary<string, object>> empId)
+        public ActionResult getemployeeSummarylist(string fromdate, string todate)
         {
-            var jsondata = Json(alp.GetEmployeeSummaryData(fromdate, todate, empId), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //return Json(_employeeProfileService.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(alp.GetEmployeeList(fromdate,todate), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
+
+
     }
 }

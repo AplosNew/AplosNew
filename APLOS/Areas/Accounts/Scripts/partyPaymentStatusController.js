@@ -985,6 +985,56 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.GetPartyPaymentStatusPendingAdjustmentList();
     //#endregon...... Pending Adjustment Vendor Payable
 
+    //#regon...... Pending Adjustment Customer Receivable
+    $scope.ReceivablePostedAmount = 0;
+    $scope.ReceivableUnPostedAmount = 0;
+    $scope.TotalReceivablePostedUnPostedAmount = 0;
+
+    $scope.CustomerAdvancePostedAmount = 0;
+    $scope.CustomerAdvanceUnPostedAmount = 0;
+    $scope.TotalCustomerAdvancePostedUnPostedAmount = 0;
+
+    $scope.CustomerCreditNotePostedAmount = 0;
+    $scope.CustomerCreditNoteUnPostedAmount = 0;
+    $scope.TotalCustomerCreditNotePostedUnPostedAmount = 0;
+
+    $scope.GetPartyReceiveStatusPendingAdjustmentData = function () {
+        try {
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetPartyReceiveStatusPendingAdjustmentData",
+                dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.CustomerPendingAdjustmentList = response.data;
+
+                $scope.ReceivablePostedAmount = $scope.CustomerPendingAdjustmentList[0]["ReceivablePostedAmount"];
+                $scope.ReceivableUnPostedAmount = $scope.CustomerPendingAdjustmentList[0]["ReceivableUnPostedAmount"];
+                $scope.TotalReceivablePostedUnPostedAmount = $scope.CustomerPendingAdjustmentList[0]["TotalReceivablePostedUnPostedAmount"];
+
+                $scope.CustomerAdvancePostedAmount = $scope.CustomerPendingAdjustmentList[0]["CustomerAdvancePostedAmount"];
+                $scope.CustomerAdvanceUnPostedAmount = $scope.CustomerPendingAdjustmentList[0]["CustomerAdvanceUnPostedAmount"];
+                $scope.TotalCustomerAdvancePostedUnPostedAmount = $scope.CustomerPendingAdjustmentList[0]["TotalCustomerAdvancePostedUnPostedAmount"];
+
+                $scope.CustomerCreditNotePostedAmount = $scope.CustomerPendingAdjustmentList[0]["CustomerCreditNotePostedAmount"];
+                $scope.CustomerCreditNoteUnPostedAmount = $scope.CustomerPendingAdjustmentList[0]["CustomerCreditNoteUnPostedAmount"];
+                $scope.TotalCustomerCreditNotePostedUnPostedAmount = $scope.CustomerPendingAdjustmentList[0]["TotalCustomerCreditNotePostedUnPostedAmount"];
+
+
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+    $scope.GetPartyReceiveStatusPendingAdjustmentData();
+    //#endregon...... Pending Adjustment Customer Receivable
+
     $scope.DateRangeWisePaymentList = [];
     $scope.GetDateRangeWisePaymentData = function () {
         try {
