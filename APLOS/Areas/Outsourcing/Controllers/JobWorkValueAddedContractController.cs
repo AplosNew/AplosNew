@@ -1819,10 +1819,10 @@ namespace Aplos.Areas.Outsourcing.Controllers
 													from dbo.OSTransformationPOInputMaterial mi 
 													left join HKP.JobWorkItem jwi on jwi.Id=mi.JobWorkItemId
 													left join dbo.EmployeeInformation emp on emp.SystemId=mi.ResponsiblePersonId
-													left join MST.MaterialMaster mm on mm.Id=jwi.MaterialMasterId
+													left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+													left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 							             			left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 							            			left join scs.UnitOfMeasurement juom on juom.Id=jwi.UOMId
-													left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
 										            where mi.OSTransformationPODetailId='" + MaterialMasterId + "' ";
 
 

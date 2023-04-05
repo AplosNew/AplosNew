@@ -2300,12 +2300,14 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colDuration = COL;
+                COL++;
 
                 sheet[ROW, COL].Text = "OT Hr";
                 sheet[ROW, COL].ColumnWidth = 12;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colOTHr = COL;
-
+                COL++;
+                        
                 sheet[ROW, COL].Text = "Day Status";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colDayStatus = COL;

@@ -236,7 +236,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
 								LEFT JOIN scs.Currency AS c ON c.Id=rec.FromCurrencyId
                                 left join org.Entity ENT on ENT.Id=WCM.EntityId
                               LEFT JOIN (
-                              SELECT dpt.WorkCenterMasterID,max(dpt.TotalHourPlanning) AS PlanHour,SUM(dpt.Quantity*CM)/SUM(dpt.Quantity) AS CM,SUM(dpt.Quantity) AS TargetQuantity,
+                              SELECT dpt.WorkCenterMasterID,max(dpt.TotalHourPlanning) AS PlanHour,SUM(dpt.Quantity*CM)/NULLIF(SUM(dpt.Quantity),0) AS CM,SUM(dpt.Quantity) AS TargetQuantity,
                              Convert(decimal(18,0),sum(ord.CM*dpt.Quantity)) AS RevenueOnTarget
                                 FROM trn.DailyProductionTarget AS dpt
                                  left outer join (
@@ -266,7 +266,7 @@ THEN wcm.VariableCost*(TRG.PlanHour-wcm.StandardTimePerDay) ELSE 0 END+wcm.Daily
                               WHERE dpt.TargetDate='" + date + @"'
                               GROUP BY dpt.WorkCenterMasterID) AS TRG ON trg.WorkCenterMasterID=wcm.Id
   
-                              LEFT JOIN ( SELECT dpt.WorkCenterMasterID,SUM(dpt.Quantity*CM)/SUM(dpt.Quantity) AS CM,SUM(dpt.Quantity) AS ProductionQuantity,
+                              LEFT JOIN ( SELECT dpt.WorkCenterMasterID,SUM(dpt.Quantity*CM)/NULLIF(SUM(dpt.Quantity),0) AS CM,SUM(dpt.Quantity) AS ProductionQuantity,
                               Convert(decimal(18,0),SUM( ord.CM*dpt.Quantity)) AS RevenueOnProduction
                                 FROM trn.ProductionSummary AS dpt
                                  left outer join (

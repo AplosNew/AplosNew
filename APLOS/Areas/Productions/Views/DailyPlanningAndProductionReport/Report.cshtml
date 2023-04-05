@@ -107,30 +107,30 @@
                         <div class="common-btn" style="margin-top:25px;margin-right:20px;">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="GetDailyPlanningProductionData();" class="btn"><i class="glyphicon glyphicon-download"></i> Go </button></li>
-                                <li> <button ng-click="EmployeeAttendanceSingleSummaryData();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Report </button></li>
+                                <li> <button ng-click="DailyPlanningProductionDataXls();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Report </button></li>
                             </ul>
                         </div>
-                        <div id="EmpGrid" ej-grid e-datasource="DailyPlanningProductionDataList"
+                        <div id="DPPGrid" ej-grid e-datasource="DailyPlanningProductionDataList"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
                             <div e-columns>
                                 @*<div e-column e-field="EmpSystemID" e-type="string" e-headertext="EmpSystemID" e-width="80"></div>*@
                                 <div e-column e-field="Entity" e-type="string" e-headertext="Entity" e-width="80"></div>
                                 <div e-column e-field="Process" e-headertext="Process" e-width="120"></div>
-                                <div e-column e-field="WorkCenterMaster" e-type="string" e-headertext="Work Center" e-width="70"></div>
+                                <div e-column e-field="WorkCenterMaster" e-type="string" e-headertext="Work Center" e-width="80"></div>
                                 <div e-column e-field="ProductPriority" e-type="string" e-headertext="Product Priority" e-width="70"></div>
                                 <div e-column e-field="Active" e-type="string" e-headertext="Active" e-width="80"></div>
                                 <div e-column e-type="number" e-format="{0:0.00}" e-field="NoOfWorkStation" e-headertext="No Of Work Station" e-width="80" e-textalign="right"></div>
                                 <div e-column e-type="number" e-format="{0:0.00}" e-field="StandardProcessTime" e-headertext="Standard Process Time" e-width="80" e-textalign="right"></div>
 
-                                <div e-column e-field="ShiftName" e-type="string" e-headertext="ShiftName" e-width="80"></div>
+                                <div e-column e-field="ShiftName" e-type="string" e-headertext="Shift Name" e-width="120"></div>
                                 <div e-column e-field="ShiftShortName" e-type="string" e-headertext="Shift Short Name" e-width="120"></div>
                                 <div e-column e-type="number" e-format="{0:0.00}" e-field="ProductionHours" e-headertext="Production Hours" e-width="80" e-textalign="right"></div>
                                 <div e-column e-field="Date" e-type="string" e-headertext="Date" e-width="80"></div>
                                 <div e-column e-field="ResponsiblePerson" e-type="string" e-headertext="Responsible Person" e-width="100"></div>
                                 <div e-column e-field="SummaryId" e-type="string" e-headertext="Summary No" e-width="100"></div>
                                 <div e-column e-field="Customer" e-type="string" e-headertext="Customer" e-width="80"></div>
-                                <div e-column e-field="POArticle" e-type="string" e-headertext="PO Article" e-width="80"></div>
+                                <div e-column e-field="POArticle" e-type="string" e-headertext="PO Article" e-width="120"></div>
                                 <div e-column e-field="LineItemArticle" e-type="string" e-headertext="Line Item Article" e-width="80"></div>
                                 <div e-column e-field="LineItemProductCode" e-type="string" e-headertext="Line Item Product Code" e-width="80"></div>
                                 <div e-column e-field="SONo" e-type="string" e-headertext="SO No" e-width="80"></div>

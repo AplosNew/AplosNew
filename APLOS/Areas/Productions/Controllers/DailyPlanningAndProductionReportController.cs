@@ -80,6 +80,45 @@ namespace Aplos.Areas.Productions.Controllers
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult DailyPlanningProductionReportXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                //DataTable dt = new DataTable("DD");
+                //foreach (string item in data[0].Keys)
+                //{
+                //    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                //        continue;
+
+                //    dt.Columns.Add(item);
+                //}
+
+
+                //for (int i = 0; i < data.Count; i++)
+                //{
+                //    DataRow dr = dt.NewRow();
+                //    foreach (string item in data[i].Keys)
+                //    {
+                //        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                //            continue;
+
+                //        dr[item] = data[i][item];
+                //    }
+
+                //    dt.Rows.Add(dr);
+                //}
+                string fileName = "";
+
+                fileName = _productionSummaryData.DailyPlanningProductionReport(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion Daily Production report
 
 

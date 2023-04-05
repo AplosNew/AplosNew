@@ -2073,11 +2073,11 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "Proceess Prod Qty Vs SOQty"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProceessProdQtyVsSOQty = COL;COL++;
                 sheet[ROW, COL].Text = "Process Status Remark"; sheet[ROW, COL].ColumnWidth = 16; int colProcessStatusRemark = COL; COL++;
                 sheet[ROW, COL].Text = "PO Review Status"; sheet[ROW, COL].ColumnWidth = 16; int colPOReviewStatus = COL; COL++;
-                sheet[ROW, COL].Text = "LotNo-Qty"; sheet[ROW, COL].ColumnWidth = 20; int colLotNoQty = COL; COL++;
                 sheet[ROW, COL].Text = "Input Recovery Percentage"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colInputRecoveryPercentage = COL; COL++;
                 sheet[ROW, COL].Text = "Actual Input Plan Percentage"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colActualInputPlanPercentage = COL; COL++;
                 sheet[ROW, COL].Text = "Latest Process Prod Book Days"; sheet[ROW, COL].ColumnWidth = 20; int colLatestProcessProdBookDays = COL; COL++;
-                sheet[ROW, COL].Text = "Process Review Status"; sheet[ROW, COL].ColumnWidth = 20; int colProcessReviewStatus = COL;
+                sheet[ROW, COL].Text = "Process Review Status"; sheet[ROW, COL].ColumnWidth = 20; int colProcessReviewStatus = COL; COL++;
+                sheet[ROW, COL].Text = "LotNo-Qty"; sheet[ROW, COL].ColumnWidth = 20; int colLotNoQty = COL; 
 
                 #endregion columns
 
@@ -2245,11 +2245,11 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.Fields[colProcessStatus - 1].Axis = PivotAxisTypes.Row;//21
                 pivotTable.Fields[colProcessLatestBookDate - 1].Axis = PivotAxisTypes.Row;//22
                 pivotTable.Fields[colPOReviewStatus - 1].Axis = PivotAxisTypes.Row;//23
-                pivotTable.Fields[colLotNoQty - 1].Axis = PivotAxisTypes.Row;//24
                 pivotTable.Fields[colInputRecoveryPercentage - 1].Axis = PivotAxisTypes.Row;//25
                 pivotTable.Fields[colActualInputPlanPercentage - 1].Axis = PivotAxisTypes.Row;//26
                 pivotTable.Fields[colLatestProcessProdBookDays - 1].Axis = PivotAxisTypes.Row;//26
                 pivotTable.Fields[colProcessReviewStatus - 1].Axis = PivotAxisTypes.Row;//26
+                pivotTable.Fields[colLotNoQty - 1].Axis = PivotAxisTypes.Row;//24
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {

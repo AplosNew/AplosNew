@@ -1,7 +1,9 @@
 ﻿using Aplos.Controllers;
+using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data.Sql;
 using Library.Model.Materials;
 using Library.Security.Core;
 using Library.Service.Materials;
@@ -21,11 +23,13 @@ namespace Aplos.Areas.Materials.Controllers
 
         private readonly IMaterialMasterArticleService _baseService;
         private readonly IMaterialMasterAttributeValueService _valueService;
+        private readonly ISqlRepository _sqlRepository;
 
-        public MaterialMasterArticleController(IMaterialMasterArticleService baseService, IMaterialMasterAttributeValueService valueService)
+        public MaterialMasterArticleController(IMaterialMasterArticleService baseService, IMaterialMasterAttributeValueService valueService, ISqlRepository sqlRepository)
         {
             _baseService = baseService;
             _valueService = valueService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion -- Constructor
@@ -95,6 +99,15 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_baseService.GetAttributeValueList(materialMasterId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public JsonResult GetMaterialMasterWithArticlePopUpData(string column, string value)
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(materialCommonService.GetMaterialMasterWithArticlePopUpData(column, value, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+        }
+
+        
         #endregion List
 
         #region -- Operations
