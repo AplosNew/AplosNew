@@ -2190,7 +2190,7 @@ left join ShiftDefination S On S.SystemID=RM.ProductionShiftId
 left join scs.WorkCenterMaster WC ON WC.Id=RM.WorkCenterMasterId
 left join employeeinformation R on R.SystemId=RM.ResponsiblePersonId
 left join employeeinformation I on I.SystemId=RM.InChargeId
-where RM.EntityId='" + EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "'";
+where RM.EntityId='" + EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "' order by WC.Sequence";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSql, out dsRef);

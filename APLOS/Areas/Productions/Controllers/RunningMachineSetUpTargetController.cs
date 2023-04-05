@@ -60,10 +60,28 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetProcessParameterList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from HKP.Process where Active=1";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult LoadItemDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process from [MST].[ItemDetails] ID";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadParameterDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process from [MST].[ParameterDetails] ID";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -74,6 +92,15 @@ namespace Aplos.Areas.Productions.Controllers
 
             string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process from [MST].[ItemDetails] ID where ID.Id='" + ItemId + @"'";
             return Json(new { item = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadParameterDetailsEditData(string ParameterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process from [MST].[ParameterDetails] ID where ID.Id='" + ParameterId + @"'";
+            return Json(new { parameter = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -131,6 +158,60 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpPost]
+        public JsonResult createParameter(Dictionary<string, object> ParameterData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ParameterDetails] where ParameterName='" + ParameterData["ParameterName"] + "' and ProcessId='" + ParameterData["ProcessId"] + "'", out DataSet dsParameterDetailsParameterNameValidation, false, "1");
+
+                DataSet dsParameterDetails;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[ParameterDetails] where Id='" + ParameterData["Id"] + "'", out dsParameterDetails, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsParameterDetails.Tables[0].Rows.Count == 0)
+                {
+                    if (dsParameterDetailsParameterNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Parameter Name Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("ParameterDetails", out _Id);
+                        _Id = "PD" + _Id;
+                        ParameterData["Id"] = _Id;
+                        AddNewRow(dsParameterDetails.Tables[0], ParameterData);
+                    }
+                }
+                else
+                {
+                    _Id = ParameterData["Id"].ToString();
+                    EditRow(dsParameterDetails.Tables[0].Rows[0], ParameterData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsParameterDetails);
+
+                return Json(new { Error = false, Data = ParameterData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpPost]
         public ActionResult GetEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -151,7 +232,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetDailyTarget(string EntityId, string ProcessId, string TargetDate, string ProductionShiftId, string HeaderResponsiblePersonId, string HeaderInchargeId, string HeaderPlanHour)
+        public ActionResult GetDailyTarget(string EntityId, string ProcessId, string TargetDate, string ProductionShiftId, string HeaderResponsiblePersonId, string HeaderInchargeId, string HeaderPlanHour, string HeaderEfficiency)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT  RM.Id,RM.ProcessId,RM.EntityId,RM.ProductionShiftId,RM.TargetDate,wc.Id as WorkCenterMasterId,CAST (CASE WHEN RM.Id IS NULL THEN 0 ELSE 1 END AS bit) AS Active,wc.UserName as Line,WC.Id WorkCenterMasterId,WC.NoOfWorkStation WorkStation,
@@ -163,16 +244,17 @@ Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetai
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                             where Pod.ProductionOrderId=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 isnull(RM.SMV,PS.SPT) as SMV,
-RM.PlanHours,
-RM.TargetFD,
+isnull(RM.PlanHours,'" + HeaderPlanHour + @"') as PlanHours,
+isnull(RM.TargetFD,(60/PS.SPT*WC.NoOfWorkStation * " + HeaderPlanHour + @" * " + HeaderEfficiency + @") / 100) as TargetFD,
 isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
 isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
 isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId =(select top 1 InChargeId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
 isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId =(select top 1 InChargeId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
 
 RM.Remarks,
-RM.Efficiency,
-RM.TargetProductionFP,isnull(SM.SumMinute,0) as SumMin
+isnull(RM.Efficiency,'" + HeaderEfficiency + @"') as Efficiency,
+isnull(RM.TargetProductionFP,(60/PS.SPT*WC.NoOfWorkStation * " + HeaderPlanHour + @")) as TargetProductionFP,
+isnull(SM.SumMinute,0) as SumMin
 FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.RunningMachineSetUpTarget RM ON RM.WorkCenterMasterId=wc.Id AND RM.ProcessId = '" + ProcessId + @"'  
                         AND  RM.EntityId='" + EntityId + @"' AND RM.TargetDate='"+ TargetDate + "'  AND RM.ProductionShiftId ='" + ProductionShiftId+ @"' 
@@ -206,6 +288,18 @@ where ProcessId='" + ProcessId +"'";
 from MST.ReasonDetails RD
 left join [TRN].[RMSTargetReasonValue] RV ON RV.ReasonId=RD.Id and ProductionId='" + ProductionId + @"'
 where RD.ProcessId='" + ProcessId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadProcessParameterList(string ProcessId, string ProductionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select PV.Id,PV.SNo,PV.ParameterValue,PV.Remarks,PD.Id as ParameterId,PD.ParameterName,format(PV.ParameterDate,'dd-MMM-yyyy') as ParameterDate
+from MST.ParameterDetails PD
+left join [TRN].[RMSTargetParameterValue] PV ON PV.ParameterId=PD.Id and PV.ProductionId='" + ProductionId + @"'
+where PD.ProcessId='" + ProcessId + "'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -281,52 +375,100 @@ where RD.ProcessId='" + ProcessId + "'";
         }
 
         [HttpPost]
-        public JsonResult createSingleRow(List<Dictionary<string, object>> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
+        public JsonResult createSingleRow(Dictionary<string, object> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
         {
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsProdBooked;
-            string TableName = "[TRN].[RunningMachineSetUpTarget]";
-            string contId = string.Empty;
-            string _Id, Id = string.Empty;
+            //ConnectionManager.DAL.ConManager objCon;
+            //DataSet dsProdBooked;
+            //string TableName = "[TRN].[RunningMachineSetUpTarget]";
+            //string contId = string.Empty;
+            //string _Id, Id = string.Empty;
+            //try
+            //{
+            //    objCon = new ConnectionManager.DAL.ConManager("1");
+            //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+            //    if (DailyTargetData != null)
+            //    {
+            //        foreach (var item in DailyTargetData)
+            //        {
+            //            objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+            //            DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+            //            if (dv.Count == 0)
+            //            {
+            //                bplib.clsGenID genid = new bplib.clsGenID();
+            //                genid.GenID(TableName, out _Id);
+            //                item["Id"] = "PCD" + _Id;
+            //                item["PlantId"] = identity.PlantId;
+            //                Id = item["Id"].ToString();
+            //                AddNewRow(dsProdBooked.Tables[0], item);
+            //            }
+            //            else
+            //            {
+            //                DataRow drpb = dv[0].Row;
+            //                item["PlantId"] = identity.PlantId;
+            //                Id = item["Id"].ToString();
+            //                EditRow(drpb, item);
+            //            }
+            //            clsStaticInfo obj = new clsStaticInfo();
+            //            obj.SaveDataSets(dsProdBooked);
+            //        }
+            //    }
+            //    return Json(new { Id = Id, Message = AplosMessage.Insert });
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw (ex);
+            //}
+
             try
             {
-                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+                DataSet dsRunningMachineSetUpTarget;
 
-                if (DailyTargetData != null)
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.RunningMachineSetUpTarget where Id='" + DailyTargetData["Id"] + "'", out dsRunningMachineSetUpTarget, false, "1");
+                string _Id = "", Id = string.Empty;
+
+                #region data update
+                if (dsRunningMachineSetUpTarget.Tables[0].Rows.Count == 0)
                 {
-                    foreach (var item in DailyTargetData)
-                    {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
-                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("[TRN].[RunningMachineSetUpTarget]", out _Id);
+                        _Id = "PCD" + _Id;
+                    DailyTargetData["Id"] = _Id;
+                    DailyTargetData["PlantId"] = identity.PlantId;
+                    Id = DailyTargetData["Id"].ToString();
+                    AddNewRow(dsRunningMachineSetUpTarget.Tables[0], DailyTargetData);
 
-                        if (dv.Count == 0)
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID(TableName, out _Id);
-                            item["Id"] = "PCD" + _Id;
-                            item["PlantId"] = identity.PlantId;
-                            Id = item["Id"].ToString();
-                            AddNewRow(dsProdBooked.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drpb = dv[0].Row;
-                            item["PlantId"] = identity.PlantId;
-                            Id = item["Id"].ToString();
-                            EditRow(drpb, item);
-                        }
-                        clsStaticInfo obj = new clsStaticInfo();
-                        obj.SaveDataSets(dsProdBooked);
-                    }
                 }
-                return Json(new { Id = Id, Message = AplosMessage.Insert });
+                else
+                {
+                    _Id = DailyTargetData["Id"].ToString();
+                    DailyTargetData["PlantId"] = identity.PlantId;
+                    Id = DailyTargetData["Id"].ToString();
+                    EditRow(dsRunningMachineSetUpTarget.Tables[0].Rows[0], DailyTargetData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRunningMachineSetUpTarget);
+
+                return Json(new { Id = Id, Error = false, Data = DailyTargetData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
             {
-                throw (ex);
+
+                return Json(new { Error = true, Message = ex.Message });
+
             }
         }
 
@@ -453,6 +595,52 @@ where RD.ProcessId='" + ProcessId + "'";
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "RRV" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult createParameterValue(List<Dictionary<string, object>> ProductionParameterData)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[RMSTargetParameterValue]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                if (ProductionParameterData != null)
+                {
+                    foreach (var item in ProductionParameterData)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "RPV" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -806,20 +994,21 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 													LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
                                                     group by pod.ProductionOrderId,mm.userName,MMA.StandardName,MOI.MaterialMasterId,MOI.ArticleId,ma.StandardName,PM.UserName,pc.UserName) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE isnull(s.username,'') IN ('ACTIVE','RUNNING') AND  (PO.entityid='" + entityid + @"' OR isnull(PO.Id,'') IN 
-                                    ( SELECT distinct P.ProductionOrderId
-                                             FROM trn.ProductionOrderWorkCenter AS p
-                                           JOIN scs.WorkCenterMaster AS w ON w.Id=p.WorkCenterMasterId
-                                           WHERE w.EntityId='" + entityid + @"'
+                            WHERE isnull(s.username,'') IN ('RUNNING') ";
+            //--AND  (PO.entityid='" + entityid + @"' OR isnull(PO.Id,'') IN 
+            //                       -- ( SELECT distinct P.ProductionOrderId
+            //                              --   FROM trn.ProductionOrderWorkCenter AS p
+            //                              -- JOIN scs.WorkCenterMaster AS w ON w.Id=p.WorkCenterMasterId
+            //                             --  WHERE w.EntityId='" + entityid + @"'
                                            
-                                           UNION
+            //                               UNION
                                            
                                                  
-                                           SELECT distinct P.ProductionOrderId
-                                             FROM trn.RunningOrderWorkCenter  AS p
-                                           JOIN scs.WorkCenterMaster AS w ON w.Id=p.WorkCenterMasterId
-                                           WHERE w.EntityId='" + entityid + @"')) and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
-                            FROM trn.ProductionOrderProcessSet AS pops WHERE pops.ProcessId = '" + processId + @"') ";
+            //                               SELECT distinct P.ProductionOrderId
+            //                                 FROM trn.RunningOrderWorkCenter  AS p
+            //                               JOIN scs.WorkCenterMaster AS w ON w.Id=p.WorkCenterMasterId
+            //                               WHERE w.EntityId='" + entityid + @"')) and PO.Id IN (SELECT DISTINCT pops.ProductionOrderId
+            //                FROM trn.ProductionOrderProcessSet AS pops WHERE pops.ProcessId = '" + processId + @"') ";
 
 
 
