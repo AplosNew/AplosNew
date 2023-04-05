@@ -10,6 +10,7 @@ function DailyPlanningAndProductionReportController(cboService, commonMessage, $
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     // Tab Change
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -155,6 +156,42 @@ function DailyPlanningAndProductionReportController(cboService, commonMessage, $
                 $scope.DailyPlanningProductionDataList = response.data;
             });
     };
+
+    $scope.DailyPlanningProductionDataXls = function () {
+        try {
+            var dataList = [];
+            var g = $("#DPPGrid").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.DailyPlanningProductionDataList;
+            }
+            if (dataList.length == 0) {
+                throw "First click on View button.";
+            }
+
+            $scope.fileName = "Daily Production Report.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "DailyPlanningProductionReportXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     //Tab 1 End
 
