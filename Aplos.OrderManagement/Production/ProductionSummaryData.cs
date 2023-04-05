@@ -4719,10 +4719,49 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                     wp = ProcessId;
                 }
 
-                string sql = @"SELECT A.* from (SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
-                            pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
-                            ,PL.Code ProductCode,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
-                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+                string sql = @"SELECT A.* from (SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty
+--,ORD.CM*pp.Quantity AS ActualCM,
+,(select SUM(xp.Qty*xp.CM)/sum(xp.Qty) 
+							from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+							where PO.Id=PoD.ProductionOrderId)*pp.Quantity AS ActualCM
+                            ,pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter
+							,Material=STUFF((select distinct ','+MA.UserName from
+											MST.MaterialMaster MA
+											left join TRN.MasterOrderItem moi on moi.MaterialMasterId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+											where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')
+							,Article=STUFF((select distinct ','+MA.StandardName from
+											MST.MaterialMasterArticle MA
+											left join TRN.MasterOrderItem moi on moi.ArticleId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+											where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')            
+                           ,PL.Code ProductCode
+						    ,Product=STUFF((select distinct ','+PM.UserName from
+											MST.MaterialMaster mm
+											left join TRN.MasterOrderItem moi on moi.MaterialMasterId=mm.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                            left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+											INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+											where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')						   
+							,ProductCategory=STUFF((select distinct ','+pc.UserName from
+								[HKP].[ProductCategory] PC
+								left join [MST].[ProductMaster] PM on pc.Id=pm.ProductCategoryId
+								left join trn.ProductDefinition AS pd ON pd.ProductMasterId=pm.Id
+								left join mst.MaterialMaster mm on mm.id=pd.MaterialMasterId
+								left join TRN.MasterOrderItem moi on moi.MaterialMasterId=MM.Id
+								left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+								INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+								where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')
+						   ,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate
+                         ,sn.Quantity AS PlanQty,((select SUM(xp.Qty*xp.CM)/sum(xp.Qty) 
+							from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+							where PO.Id=PoD.ProductionOrderId)*pp.Quantity)*sn.Quantity AS PlanCM
+,(select SUM(xp.Qty*xp.CM)/sum(xp.Qty) 
+							from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+							where PO.Id=PoD.ProductionOrderId) CM
                              ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,CPL.ShiftDuration ShiftWorkingMin,so.[Description] AS SalesOrderDescBooking,
                              wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
                              PP.ProductionHours AS WorkingHours,SN.isBuildUp,
@@ -4816,26 +4855,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
 							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-                             left outer join (
-                                                        select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
-                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
-                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
-                                                        from trn.ProductionOrderDetail POD 
-                                                        left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
-                                                        left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
-                                                        left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
-                                                        left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
-                                                        left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                                                       LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
-                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
-                                                        LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
-                                                        left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
-                                                        LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                        left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
-                                                        left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
-                                                        left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
-                                              ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
+                             
                                           	)A ORDER BY A.ActualDate, A.WorkCenterMasterId, A.ProductionOrderID";
                 dtOrder = _sqlRepository.GetDataTable(sql);
             }
