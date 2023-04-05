@@ -4608,6 +4608,7 @@
     <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_BudgetSubCategory.cshtml" />
     <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_Budget.cshtml" />
     <Content Include="Areas\Accounts\Views\ManagementChartAccountSetup\_Activity.cshtml" />
+    <Content Include="Areas\Materials\Views\Shared\_MaterialArticleNewPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

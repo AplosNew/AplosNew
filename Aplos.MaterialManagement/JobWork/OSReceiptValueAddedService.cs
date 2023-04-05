@@ -1827,7 +1827,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
 
                 string sql = @"select distinct IID.InventoryMaterialId,IID.OSTransformationPOId,IM.MaterialMasterId,mi.ArticleId
                                 ,mi.GrossConsumption,AA.TotalIssuedQuantity,QtyForOutput=round((AA.TotalIssuedQuantity/mi.GrossConsumption),4)
-                                 ,IID.JWTCInputId
+                                 ,mi.JobWorkItemId JWTCInputId--,IID.JWTCInputId
                                 from TRN.InventoryIssueDetail IID inner join dbo.OSTransformationPOInputMaterial mi on mi.OSTransformationPODetailId=IID.OSTransformationPOId
                                 inner join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
                                 inner join TRN.InventoryMaterial IM on IM.Id=IID.InventoryMaterialId and IM.ArticleId=mi.ArticleId
@@ -1835,7 +1835,7 @@ group by mp.Id,jwi.UserName, mma.StandardName,jwa.UserName,kk.TotalReceivedQuant
                                 where OSTransformationPOId='" + JWOutputId + @"' group by InventoryMaterialId)
                                 AA on AA.InventoryMaterialId=IM.Id
                                 where IID.OSTransformationPOId='"+ JWOutputId + @"' and II.JWContractId='"+ JWPOId + @"' 
-                                group by IID.InventoryMaterialId,IID.OSTransformationPOId,IM.MaterialMasterId,mi.ArticleId,mi.GrossConsumption,AA.TotalIssuedQuantity,IID.JWTCInputId ";
+                                group by IID.InventoryMaterialId,IID.OSTransformationPOId,IM.MaterialMasterId,mi.ArticleId,mi.GrossConsumption,AA.TotalIssuedQuantity,mi.JobWorkItemId,IID.JWTCInputId ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
