@@ -60,9 +60,9 @@
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="SaveBgt();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionBgt}}</button></li>
             <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            <li> <button ng-click="ClearBgt();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
 </div>
@@ -78,10 +78,10 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getDataBgt()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <button type="button" ng-click="getDataBgt()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                 </div>
             </div>
         </div>
@@ -100,7 +100,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr dir-paginate="x in budgets |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+            <tr dir-paginate="x in budgets |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetBgt(x.Id, $index);">
                 <td>{{x.Sequence}}</td>
                 <td>{{x.Code}}</td>
                 <td>{{x.ShortName}}</td>
@@ -110,6 +110,6 @@
             </tr>
         </tbody>
     </table>
-    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getDataBgt(newPageNumber)"></dir-pagination-controls>
 </div>
 <confirm-modal></confirm-modal>

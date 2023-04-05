@@ -524,6 +524,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("DocumentSetupController", DocumentSetupController)
     .controller("ChartAccountSetupController", ChartAccountSetupController)
     .controller("ManagementChartAccountSetupController", ManagementChartAccountSetupController)
+    .controller("DesignationSetupController", DesignationSetupController)
 
 
     .config(accountConfig)

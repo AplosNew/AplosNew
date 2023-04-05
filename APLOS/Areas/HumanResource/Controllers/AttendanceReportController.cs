@@ -4,9 +4,12 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Model.HumanResources;
 using Library.Service.Attendances;
+using Library.Service.EmployeeServices;
 using Library.Service.HumanResources;
 using Syncfusion.XlsIO;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -17,7 +20,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         #region Constructor
 
         private readonly IAttdnProcessDataService _AttendanceProcessDataService;
-
+        AnnualLeaveProcessingService alp = new AnnualLeaveProcessingService();
         public AttendanceReportController(
               IAttdnProcessDataService workGroupService
             )
@@ -34,17 +37,88 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+        public ActionResult Report()
+        {
+            return View();
+        }
         #endregion -- Pages
 
 
+        //[HttpGet, Authorize]
+        //public ActionResult AttndReport( string fromDate, string toDate)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    var fileName = DateTime.Now.ToString("yy-MM-dd") + " " + "Employee Attendance Report";
+        //    var workbook = _AttendanceProcessDataService.AttndReport(fromDate, toDate, identity.CompanyGroupId ,identity.CompanyId ,identity.PlantId);
+        //    workbook.SaveAs(fileName + ".xlsx", HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
+        //    return null;
+        //}
+
+
         [HttpGet, Authorize]
-        public ActionResult AttndReport( string fromDate, string toDate)
+        public ActionResult GetEmployeeSingleData(string fromdate, string todate, string empId)
+        {
+            var jsondata = Json(alp.GetEmployeeSingleData(fromdate, todate, empId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult EmployeeAttendanceDataXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = alp.EmployeeAttendanceReport(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetEmployeeSummaryData(string fromdate, string todate)
+        //{
+        //    var jsondata = Json(alp.GetEmployeeSummaryData(fromdate, todate), JsonRequestBehavior.AllowGet);
+        //    jsondata.MaxJsonLength = int.MaxValue;
+        //    return jsondata;
+        //}
+
+        [HttpGet, Authorize]
+        public ActionResult getemployeeSummarylist(string fromdate, string todate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var fileName = DateTime.Now.ToString("yy-MM-dd") + " " + "Employee Attendance Report";
-            var workbook = _AttendanceProcessDataService.AttndReport(fromDate, toDate, identity.CompanyGroupId ,identity.CompanyId ,identity.PlantId);
-            workbook.SaveAs(fileName + ".xlsx", HttpContext.ApplicationInstance.Response, ExcelDownloadType.PromptDialog);
-            return null;
+            //return Json(_employeeProfileService.GetEmployeeList(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(alp.GetEmployeeList(fromdate,todate), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
+
+
     }
 }

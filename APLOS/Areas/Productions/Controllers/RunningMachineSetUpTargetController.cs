@@ -161,7 +161,7 @@ Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetai
                                                             left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                            where Pod.ProductionOrderId=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"'  and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId+ @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                                            where Pod.ProductionOrderId=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 isnull(RM.SMV,PS.SPT) as SMV,
 RM.PlanHours,
 RM.TargetFD,
@@ -179,10 +179,10 @@ FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN trn.ProductionOrder AS PO ON PO.ID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where ProcessId = '" + ProcessId + @"'  and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId+ @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))
 						LEFT JOIN EmployeeInformation R ON RM.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation I ON RM.InChargeId=I.SystemId
-                        LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + EntityId + @"' AND MT.Date='" + TargetDate + @"'  AND MT.ShiftId='" + ProductionShiftId + @"'
-                        group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
-						left join ProductionOrderSchedulingParametersType1 PS ON PS.ProductionOrderID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.RunningMachineSetUpTarget where WorkCenterMasterID=WC.Id order by AddedDate desc))
-						where wc.ProcessId = '" + ProcessId + @"'  and wc.EntityId = '" + EntityId + @"' ORDER BY wc.Sequence";
+                        LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId,RMSTargetId from RMSTargetDetentionTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + EntityId + @"' AND MT.Date='" + TargetDate + @"'  AND MT.ShiftId='" + ProductionShiftId + @"'
+                        group by WorkCenterId,RMSTargetId) SM ON SM.WorkCenterId=wc.Id and SM.RMSTargetId=RM.Id
+						left join ProductionOrderSchedulingParametersType1 PS ON PS.ProductionOrderID=isnull(RM.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + EntityId + @"' and ProductionShiftId ='" + ProductionShiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))
+						where wc.Active=1 and wc.ProcessId = '" + ProcessId + @"'  and wc.EntityId = '" + EntityId + @"' ORDER BY wc.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -330,7 +330,57 @@ where RD.ProcessId='" + ProcessId + "'";
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
+        public JsonResult UpdateSingleRow(List<Dictionary<string, object>> DailyTargetData, string TargetDate, string EntityId, string ProcessId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[RunningMachineSetUpTarget]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+
+                if (DailyTargetData != null)
+                {
+                    foreach (var item in DailyTargetData)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "PCD" + _Id;
+                            item["PlantId"] = identity.PlantId;
+                            Id = item["Id"].ToString();
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            item["PlantId"] = identity.PlantId;
+                            Id = item["Id"].ToString();
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Id = Id, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
         public JsonResult CreateItemValue(List<Dictionary<string, object>> RMSTargetItemData)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -377,7 +427,7 @@ where RD.ProcessId='" + ProcessId + "'";
         }
 
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult createReasonValue(List<Dictionary<string, object>> ProductionReasonData)
         {
             ConnectionManager.DAL.ConManager objCon;
@@ -424,7 +474,7 @@ where RD.ProcessId='" + ProcessId + "'";
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter)
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter, string RMSTargetId)
         {
             try
             {
@@ -435,9 +485,9 @@ where RD.ProcessId='" + ProcessId + "'";
 SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Sequence,MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, 
 MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 ,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
-										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute as [Minute],SD.UserName Shift,
-										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
-			                            from MachineMasterTransaction MMT
+										,MMT.Minute as [Minute],SD.UserName Shift,
+										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter,MMT.RMSTargetId
+			                            from RMSTargetDetentionTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId
 										left join ORG.Department D on D.Id=MMT.DepartmentId
 										left join DetentionMaster DM on DM.Id=MMT.DetentionId
@@ -445,7 +495,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "'";
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "' and MMT.RMSTargetId='"+ RMSTargetId + "'";
 
 
                 //return _sqlRepository.GetDataCollection(sql, null);
@@ -502,7 +552,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
-            string TableName = "MachineMasterTransaction";
+            string TableName = "RMSTargetDetentionTransaction";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
             try
@@ -528,7 +578,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                             {
                                 bplib.clsGenID genid = new bplib.clsGenID();
                                 genid.GenID(TableName, out _Id);
-                                item["Id"] = "RRV" + _Id;
+                                item["Id"] = "RDT" + _Id;
                                 AddNewRow(dsProdBooked.Tables[0], item);
                             }
                             else
@@ -551,6 +601,28 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             catch (Exception ex)
             {
                 throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeleteMasterWC(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+
+                conC.BeginTransaction();
+                conC.executeQuery("delete from TRN.RMSTargetReasonValue where ProductionId ='" + id + @"'");
+                conC.executeQuery("delete from TRN.RMSTargetItemValue where RMSTargetId ='" + id + @"'");
+                conC.executeQuery("delete from RMSTargetDetentionTransaction where RMSTargetId ='" + id + @"'");
+                conC.executeQuery("delete from TRN.RunningMachineSetUpTarget where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -619,7 +691,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                 so.OwnRefNo, so.StyleNo, so.OwnStyleNo, so.SONo,
                                 so.SODesc,So.MasterOrderId,
                                 so.Customer,so.article,PRODPR.ProductionQtyAtPR,So.BuyerItemNo,SO.CustomerPONo
-                                   ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty,CEILING((60/t1.SPT)*("+ PlanHours + @")*t1.NoOfWorkStation) as TargetFD
+                                   ,ISNULL(CASE WHEN ISNULL(T1.Qty,0)>0 THEN T1.Qty ELSE PO.PlannedQty END,0)-(ISNULL(PRODPR.ProductionQtyAtPR,0)-ISNULL(PRDQ.ProductionBookedQty,0)) AS ToBePlanQty
                               ,PRODPR.LotNumber    			
   
                             FROM [TRN].[ProductionOrder] AS PO

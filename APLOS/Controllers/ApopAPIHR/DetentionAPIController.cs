@@ -310,6 +310,21 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+
+        [HttpPost]
+        public string PostProductionServiceParameter([FromBody] IEnumerable<ProcessServiceParameter> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostProductionServiceParameter(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #region Production service Test
         [HttpPost]
         public string PostProductionServiceTest([FromBody] IEnumerable<ProcessServiceTest> DataToSave)
@@ -451,6 +466,20 @@ namespace Aplos.Controllers.ApopAPIHR
         }
 
         #region Aman
+        public List<Default2> GetProductionStatus()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetProductionStatus(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetCustomerName()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCustomerName(out List<Default2> activelists);
+            return activelists;
+        }
+
         public List<Default2> GetSalesReturnId()
         {
             clsDataContext clsData = new clsDataContext();
@@ -462,6 +491,13 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetTransactionQty(out List<Default2> activelists, SalesReturnId);
+            return activelists;
+        }
+
+        public List<Default2> GetPoStatusWise(string StatusId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPoStatusWise(out List<Default2> activelists, StatusId);
             return activelists;
         }
 
@@ -498,6 +534,14 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetProductionParameter(out List<Default2> activelists, ParameterId);
             return activelists;
         }
+
+        public List<POWiseReport> GetPoWisereport(string POId, string POStatusId, string CustomerId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPoWisereport(out List<POWiseReport> activelists, POId, POStatusId, CustomerId);
+            return activelists;
+        }
+
         #endregion Aman
         #endregion written by Aman
 

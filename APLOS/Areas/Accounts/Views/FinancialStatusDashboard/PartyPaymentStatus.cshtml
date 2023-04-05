@@ -128,11 +128,11 @@
                     <div class="row">
                         <fieldset class="scheduler-border">
                             @*<div class="col-xs-5 col-sm-5 col-md-5" id="div_FromDate">
-                        <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                        <div class="col-sm-9 show-message">
-                            <input type="text" name="Form Date" ng-model="material.VendorFromDate" datepicker tabindex="2" class="form-control">
-                        </div>
-                    </div>*@
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="Form Date" ng-model="material.VendorFromDate" datepicker tabindex="2" class="form-control">
+                    </div>
+                </div>*@
 
                             <div class="col-xs-5 col-sm-5 col-md-5" id="div_ToDate">
                                 <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
@@ -163,10 +163,10 @@
                                             <div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>
 
                                             @*<td class="text-right">
-         <ul class="list-inline action-list">
-             <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-         </ul>
-        </td>*@
+                                 <ul class="list-inline action-list">
+                                     <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+                                 </ul>
+                                </td>*@
 
                                             <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="60" e-textalign="right"></div>
                                             <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
@@ -305,17 +305,62 @@
 
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="col-lg-12 doc_dashboardpieTableDiv">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">Pending Adjustment</legend>
+                                    <table class="table  table-hover doc_dashboardpieTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th class="text-right">Posted</th>
+                                                <th class="text-right">UnPosted</th>
+                                                <th class="text-right">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="doc_dashboardpieTableTD">Payable</td>
+                                                <td style="text-align:right">{{PayablePostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{PayableUnPostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{TotalPayablePostedUnPostedAmount|number:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="doc_dashboardpieTableTD">Advance</td>
+                                                <td style="text-align:right">{{VendorAdvancePostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{VendorAdvanceUnPostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{TotalVendorAdvancePostedUnPostedAmount|number:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="doc_dashboardpieTableTD">Debit Note</td>
+                                                <td style="text-align:right">{{VendorDebitNotePostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{VendorDebitNoteUnPostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{TotalVendorDebitNotePostedUnPostedAmount|number:2}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+
+                        </div>
+                        <div class="col-md-2">
+
+                        </div>
+                    </div>
                 </div>
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                     <div class="row">
                         <fieldset class="scheduler-border">
                             @*<div class="col-xs-5 col-sm-5 col-md-5" id="div_FromDate">
-                        <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-                        <div class="col-sm-9 show-message">
-                            <input type="text" name="Form Date" ng-model="material.CustomerFromDate" datepicker tabindex="2" class="form-control">
-                        </div>
-                    </div>*@
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="Form Date" ng-model="material.CustomerFromDate" datepicker tabindex="2" class="form-control">
+                    </div>
+                </div>*@
 
                             <div class="col-xs-5 col-sm-5 col-md-5" id="div_CustomerToDate">
                                 <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
@@ -473,6 +518,51 @@
                             </div>
                         </div>
                         <div class="col-md-1">
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="col-lg-12 doc_dashboardpieTableDiv">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border">Pending Adjustment</legend>
+                                    <table class="table  table-hover doc_dashboardpieTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th class="text-right">Posted</th>
+                                                <th class="text-right">UnPosted</th>
+                                                <th class="text-right">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="doc_dashboardpieTableTD">Receivable</td>
+                                                <td style="text-align:right">{{ReceivablePostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{ReceivableUnPostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{TotalReceivablePostedUnPostedAmount|number:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="doc_dashboardpieTableTD">Advance</td>
+                                                <td style="text-align:right">{{CustomerAdvancePostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{CustomerAdvanceUnPostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{TotalCustomerAdvancePostedUnPostedAmount|number:2}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="doc_dashboardpieTableTD">Credit Note</td>
+                                                <td style="text-align:right">{{CustomerCreditNotePostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{CustomerCreditNoteUnPostedAmount|number:2}}</td>
+                                                <td style="text-align:right">{{TotalCustomerCreditNotePostedUnPostedAmount|number:2}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+
+                        </div>
+                        <div class="col-md-2">
 
                         </div>
                     </div>
