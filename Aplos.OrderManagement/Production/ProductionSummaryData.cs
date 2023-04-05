@@ -4533,7 +4533,10 @@ Order BY A.PONo,A.ProcessIndex";
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
 							,PSV.UserName Parameter,ParameterValue=CASE WHEN PBP.IsPreviousValueApplicable=1 THEN PSV.Value ELSE 0 END 
-							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,ISNULL(UOM.Code,'-') UOM,pp.Quantity ProductionQty,ISNULL(pp.Remarks,'-')Remarks
+                            ,DetentionInMin=(select ISNULL(SUM(MMT.[Minute]),0) from 
+			                        dbo.MachineMasterTransaction MMT 
+			                        where MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate)
+                            ,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,ISNULL(UOM.Code,'-') UOM,pp.Quantity ProductionQty,ISNULL(pp.Remarks,'-')Remarks
 
                             FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,ps.Quantity
 									,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
@@ -4543,7 +4546,7 @@ Order BY A.PONo,A.ProcessIndex";
       		                      WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + ProcessId + @") "+ psft + @"
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId,ps.Quantity
                             ) AS pp
-							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
+							
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 							left join ProductLibrary PL on PL.Id=pp.ProductLibraryId
                             LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
