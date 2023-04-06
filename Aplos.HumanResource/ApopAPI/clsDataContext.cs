@@ -4146,7 +4146,8 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
 
                             )X
 
-		                    Where  X.POId = '" + POId + "' and x.POStatusId = '" + POStatusId + "' and x.CustomerId = '" + CustomerId + "'";
+		                    Where  X.POId = '" + POId + "' and x.POStatusId = '" + POStatusId + "' and x.CustomerId = '" + CustomerId + "'" +
+                            "Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
                 #endregion Sql
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -4178,6 +4179,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
                         BaseProcessRemainingQty = dsRef.Tables[0].Rows[i]["BaseProcessRemainingQty"].ToString(),
                         Sequence = dsRef.Tables[0].Rows[i]["Sequence"].ToString(),
                         ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
                         PercentQty = dsRef.Tables[0].Rows[i]["PercentQty"].ToString(),
                         ProcessPlannedQty = dsRef.Tables[0].Rows[i]["ProcessPlannedQty"].ToString(),
                         ProcProdQty = dsRef.Tables[0].Rows[i]["ProcProdQty"].ToString(),
@@ -4757,6 +4759,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string BaseProcessRemainingQty { get; set; }
         public string Sequence { get; set; }
         public string ProcessId { get; set; }
+        public string Process { get; set; }
         public string PercentQty { get; set; }
         public string ProcessPlannedQty { get; set; }
         public string ProcProdQty { get; set; }
