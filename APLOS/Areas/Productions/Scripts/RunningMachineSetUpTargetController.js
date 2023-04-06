@@ -232,8 +232,8 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         HeaderIncharge: null,
         HeaderResponsiblePersonId: null,
         HeaderInchargeId: null,
-        HeaderPlanHour: null,
-        HeaderEfficiency: null,
+        HeaderPlanHour: 0,
+        HeaderEfficiency: 0,
         PlanHours: null,
         Efficiency: null,
         DetentionSum: 0
@@ -620,13 +620,19 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         try {
 
             if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.EntityId))
-                throw 'Plase select entity';
+                throw 'Please select entity';
 
             if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.ProcessId))
-                throw 'Plase select process';
+                throw 'Please select process';
 
             if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.TargetDate))
-                throw 'Plase select target date';
+                throw 'Please select target date';
+
+            if ($scope.DailyProductionTargetNew.HeaderPlanHour > 24)
+                throw 'Enter Hours should not be greater than 24';
+
+            if ($scope.DailyProductionTargetNew.HeaderEfficiency > 100)
+                throw 'Enter Efficiency should not be greater than 100';
 
             $http({
 
@@ -719,11 +725,13 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
             if (baseService.isUndefinedOrNull(data.data.Efficiency)) {
                 throw "Please enter Efficiency and proceed";
             }
-            if (parseInt(data.data.Efficiency) > 100) {
-                throw "Efficiency should not be greater than 100";
+            if (parseInt(data.data.PlanHours) < 1) {
+                throw "PlanHours should not be less than 1";
             }
-
-            $scope.SaveList = [];
+            if (parseInt(data.data.Efficiency) < 10 || parseInt(data.data.Efficiency) > 100) {
+                throw "Efficiency should not be less than 10 and greater than 100";
+            }
+            //$scope.SaveList = [];
             //for (var i = 0; i < $scope.DailyTargetList.length; i++) {
                 if (baseService.isUndefinedOrNull(data.data.Id) == true) {
                     if (baseService.isUndefinedOrNull(data.data.ProductionOrderId) == true) {
