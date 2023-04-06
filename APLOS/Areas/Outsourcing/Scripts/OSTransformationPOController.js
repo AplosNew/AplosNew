@@ -4096,7 +4096,18 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         angular.element(document.querySelector('#InpArticlePopUp')).modal('hide');
     };
 
-
+    $scope.setInputeMaterialArticleData = function (obj) {
+        var data = obj.data;
+        $scope.InputMaterialArticlelistData.ArticleId = data.Id;
+        $scope.InputMaterialArticlelistData.InputArticleCode = data.Code;
+        $scope.InputMaterialArticlelistData.InputArticleName = data.StandardName;
+        $scope.InputMaterialArticlelistData.InputMaterial = data.MaterialMasterName;
+        $scope.InputMaterialArticlelistData.InputMaterialId = data.MaterialMasterId;
+        var gridObj = $("#GridMatInput").data("ejGrid");
+        gridObj.refreshTemplate(true);
+        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+    };
+ 
     $scope.MaterialInputModelTemp = {
         Id: null,
         OSTransformationPODetailId: null,
