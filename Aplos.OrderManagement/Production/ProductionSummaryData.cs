@@ -5206,7 +5206,10 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             ,ISNULL(X.ProcessFirstBookDate,'-')ProcessFirstBookDate,ISNULL(X.ProcessLatestBookDate,'-')ProcessLatestBookDate,X.ProcessStartDays,X.ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
                             ,ROUND(X.ProcProdPercent*100,0)ProcProdPercent,X.EntryCheck,ROUND(X.ProceessProdQtyVsSOQty*100,0)ProceessProdQtyVsSOQty,ISNULL(X.Remarks,'-') ProcessStatusRemark--,X.ProcessProdBookDate
                             ,POReviewStatus=CASE WHEN CONVERT(datetime,X.ProcessLatestBookDate)< (GETDATE()-2) THEN 'To Review' ELSE X.POStatus END
-                            ,X.LotNo LotNoQty
+                            
+                            ,LotNoQty=ISNULL(STUFF((select distinct ', '+xp.LotNumber+'-'+CONVERT(varchar(100),X.ProcProdQty) from
+                            TRN.ProductionSummary AS xp
+                            where X.POId=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'-')
                             ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ROUND((X.FirstProcessProQty/NULLIF(X.BaseProcessProduceQty,0))*100,0)
 ,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
 ,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END
@@ -5269,10 +5272,6 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             ProductionOrderFirstProcessWorkCenter AS xp
                             INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
                             where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'')
-                           
-                            ,LotNo=STUFF((select distinct ', '+xp.LotNumber+'-'+convert(varchar(100), xp.Quantity) from
-                            TRN.ProductionSummary AS xp
-                            where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, '')
 
                             ,InputRecoveryPercentage=STUFF((select distinct ', '+CONVERT(Varchar(100),xp.PlanPercentage) from
                             dbo.MaterialIssueControlMaster AS xp
