@@ -18,6 +18,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
     $scope.saveUrlParameter = $scope.path + 'createParameter';
     $scope.saveUrlParameterValue = $scope.path + 'createParameterValue';
+    $scope.saveUrlSinglePValue = $scope.path + 'createSinglePValue';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.WithEmployee = false;
@@ -549,6 +550,34 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         }
     };
 
+    $scope.SaveSinglePValue = function (data) {
+        try {
+            if (baseService.isUndefinedOrNull(data.data.ParameterValue)) {
+                throw "Please enter Parameter Value and proceed";
+            }
+            data.data.ProductionId = $scope.ProductionId;
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlSinglePValue,
+                data: { 'ProductionParameterData': data.data },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
 
     //$scope.refreshTemplateItemValue = function (args) {
     //    $("#IVheadchk").ejCheckBox({ "change": CheckBoxSelectAllItemValue });
@@ -618,7 +647,6 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
     $scope.getDailytarget = function () {
 
         try {
-
             if (angular.isUndefinedOrNull($scope.DailyProductionTargetNew.EntityId))
                 throw 'Please select entity';
 
@@ -673,47 +701,47 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         gridObj.refreshContent();
     };
 
-    $scope.Save = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
-            $scope.SaveList = [];
-            for (var i = 0; i < $scope.DailyTargetList.length; i++) {
-                if ($scope.DailyTargetList[i].Active == true) {
-                    if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].ProductionOrderId) == true) {
-                        throw "Please select Production Order No. for '" + $scope.DailyTargetList[i].Line + "'";
-                    }
-                    if ($scope.DailyTargetList[i].Efficiency > 100) {
-                        throw "Efficiency should not be greater than 100";
-                    }
-                    $scope.DailyTargetList[i].EntityId = $scope.DailyProductionTargetNew.EntityId;
-                    $scope.DailyTargetList[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
-                    $scope.DailyTargetList[i].TargetDate = $scope.DailyProductionTargetNew.TargetDate;
-                    $scope.DailyTargetList[i].ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
-                    $scope.SaveList.push($scope.DailyTargetList[i]);
-                }
-            }
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'DailyTargetData': $scope.SaveList, 'TargetDate': $scope.DailyProductionTargetNew.TargetDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getDailytarget();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
+    //$scope.Save = function () {
+    //    try {
+    //     /*   $scope.$broadcast('show-errors-check-validity');*/
+    //        $scope.SaveList = [];
+    //        for (var i = 0; i < $scope.DailyTargetList.length; i++) {
+    //            if ($scope.DailyTargetList[i].Active == true) {
+    //                if (baseService.isUndefinedOrNull($scope.DailyTargetList[i].ProductionOrderId) == true) {
+    //                    throw "Please select Production Order No. for '" + $scope.DailyTargetList[i].Line + "'";
+    //                }
+    //                if ($scope.DailyTargetList[i].Efficiency > 100) {
+    //                    throw "Efficiency should not be greater than 100";
+    //                }
+    //                $scope.DailyTargetList[i].EntityId = $scope.DailyProductionTargetNew.EntityId;
+    //                $scope.DailyTargetList[i].ProcessId = $scope.DailyProductionTargetNew.ProcessId;
+    //                $scope.DailyTargetList[i].TargetDate = $scope.DailyProductionTargetNew.TargetDate;
+    //                $scope.DailyTargetList[i].ProductionShiftId = $scope.DailyProductionTargetNew.ProductionShiftId;
+    //                $scope.SaveList.push($scope.DailyTargetList[i]);
+    //            }
+    //        }
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.saveUrl,
+    //            data: { 'DailyTargetData': $scope.SaveList, 'TargetDate': $scope.DailyProductionTargetNew.TargetDate, 'EntityId': $scope.DailyProductionTargetNew.EntityId, 'ProcessId': $scope.DailyProductionTargetNew.ProcessId },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'success');
+    //                $scope.getDailytarget();
+    //            }
+    //        }), function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
 
-        } catch (e) {
-            ShowResult(e, 'failure');
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
 
-        }
-    };
+    //    }
+    //};
 
     $scope.RMSId = null;
     $scope.SaveSingleRow = function (data) {
