@@ -10,6 +10,7 @@ function DailyPlanningAndProductionReportController(cboService, commonMessage, $
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
     // Tab Change
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -35,6 +36,164 @@ function DailyPlanningAndProductionReportController(cboService, commonMessage, $
         return $scope.tab3 === tabNum;
     };
 
+    //Tabe 1 start
+    $scope.dailyProduction = {
+        Id: null,
+        PlantId: null,
+        EntityId: null,
+        ProcessId: null,
+        ProductionOrderId: null,
+        WorkCenterMasterId: null,
+        ProductionBookingLevel: null,
+        FromDate: null,
+        ToDate: null
+    };
+    $scope.dailyProductionNew = Object.assign({}, $scope.dailyProduction);
+
+    $scope.entityList = [];
+    $scope.getAllEntities = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+        }).then(function successCallback(response) {
+            $scope.entityList = response.data;
+            if (baseService.arrayLength(response.data) === 1) {
+                $scope.dailyProductionNew.EntityId = $scope.entityList[0].Value;
+                //default
+                $scope.loadProcessList($scope.dailyProductionNew.EntityId);
+            }
+        });
+    }
+    $scope.getAllEntities();
+
+    $scope.loadProcessList = function (entityid) {
+        cboService.GetEntityProcessCbo(entityid, function (result) {
+            $scope.processList = result;
+            if (baseService.arrayLength(result) === 1) {
+                $scope.dailyProductionNew.ProcessId = $scope.processList[0].Value;
+                $scope.getProdLevel();
+                //default
+                $scope.loadWC($scope.dailyProductionNew.ProcessId, $scope.dailyProductionNew.EntityId, $scope.dailyProductionNew.ProductionShiftId);
+            }
+        });
+    };
+
+    $scope.shiftList = [];
+    $scope.GetShiftList = function () {
+        $scope.shiftList = [];
+        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.dailyProductionNew.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.shiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.dailyProductionNew.ProductionShiftId = $scope.shiftList[0].Value;
+                    }
+                }
+            });
+    }
+
+
+    $scope.wcList = [];
+    $scope.loadWC = function () {
+        cboService.GetWCProcessCbo($scope.dailyProductionNew.ProcessId, $scope.dailyProductionNew.EntityId, $scope.dailyProductionNew.ProductionShiftId, function (result) {
+            $scope.wcList = result;
+        });
+    };
+
+    $scope.ToCloseAllowed = false;
+    $scope.ProductionOrderList = [];
+    $scope.getProductionOrderPopUp = function () {
+        if (baseService.isUndefinedOrNull($scope.dailyProductionNew.WorkCenterMasterId)) {
+            return ShowResult('Please Work Center.', 'failure');
+        }
+        $scope.ProductionOrderList = [];
+        $http.get('Productions/DailyPlanningAndProductionReport/GetProductionOrderDataList?entityid=' + $scope.dailyProductionNew.EntityId + '&workCenterMasterId=' + $scope.dailyProductionNew.WorkCenterMasterId + '&productionLevel=' + $scope.dailyProductionNew.ProductionBookingLevel + '&processId=' + $scope.dailyProductionNew.ProcessId + '&ToCloseAllowed=' + $scope.ToCloseAllowed)
+            .then(
+                function successCallback(response) {
+                    $scope.ProductionOrderList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+
+    };
+
+    $scope.getSalesOrderByProdOrderList = function (prodOrdId) {
+        $scope.openPopup('dialogSOItemsFromProductionOrder');
+        $http({
+            method: 'GET',
+            url: 'Productions/DailyPlanningAndProductionReport/GetProductionRecipeMaterialList?productionOrderId=' + prodOrdId
+        }).then(function successCallback(response) {
+            $scope.SalesOrderListForProductionOrderId = response.data;
+
+        });
+    }
+
+    $scope.SetPrOData = function ($event) {
+        $scope.dailyProductionNew.ProductionOrderId = $event.data.POId;
+        $scope.dailyProductionNew.BuyerItem = $event.data.BuyerItem;
+        $scope.dailyProductionNew.OwnItem = $event.data.OwnItem;
+        $scope.dailyProductionNew.BuyerOrder = $event.data.BuyerOrder;
+        $scope.dailyProductionNew.OwnOrder = $event.data.OwnOrder;
+
+        $scope.dailyProductionNew.ProductLibraryId = null;
+        $scope.dailyProductionNew.ProductCode = null;
+        $scope.dailyProductionNew.MasterOrderItemId = null;
+        $scope.dailyProductionNew.SalesOrderId = null;
+        angular.element(document.querySelector('#POItemPopup')).modal('hide');
+        //$scope.GetTotalProductionBookingQty();
+        //$scope.getLotNumberCbo();
+    }
+
+
+    $scope.DailyPlanningProductionDataList = [];
+    $scope.GetDailyPlanningProductionData = function () {
+        $http.get('Productions/DailyPlanningAndProductionReport/GetDailyPlanningProductionData?fromdate=' + $scope.dailyProductionNew.FromDate + '&todate=' + $scope.dailyProductionNew.ToDate + '&entityId=' + $scope.dailyProductionNew.EntityId + '&processId=' + $scope.dailyProductionNew.ProcessId + '&shiftId=' + $scope.dailyProductionNew.ProductionShiftId + '&wcId=' + $scope.dailyProductionNew.WorkCenterMasterId + '&POId=' + $scope.dailyProductionNew.ProductionOrderId)
+            .then(function (response) {
+                $scope.DailyPlanningProductionDataList = [];
+                $scope.DailyPlanningProductionDataList = response.data;
+            });
+    };
+
+    $scope.DailyPlanningProductionDataXls = function () {
+        try {
+            var dataList = [];
+            var g = $("#DPPGrid").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.DailyPlanningProductionDataList;
+            }
+            if (dataList.length == 0) {
+                throw "First click on View button.";
+            }
+
+            $scope.fileName = "Daily Production Report.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "DailyPlanningProductionReportXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    //Tab 1 End
 
     //Route Emp Start
 

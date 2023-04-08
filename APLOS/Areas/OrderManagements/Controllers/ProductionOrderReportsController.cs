@@ -6625,7 +6625,8 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
 
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(NULLIF(wcm.NoOfWorkStation,0)*pp.ProductionHours*60) AS ActualEfficiency
-							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
+							--,isnull(MMT.[Minute],0) DetentionInMin
+,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
 							,PartyId=STUFF((select distinct ', '+P.Id from HKP.Party P
 											left join trn.MasterOrder MO on mo.PartyId=P.Id
 											left join  TRN.MasterOrderItem moi on moi.MasterOrderId=mo.Id
@@ -6648,7 +6649,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId,ps.Quantity,ps.LotNumber
                             ) AS pp
 
-							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
+							--left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 							
                             LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId

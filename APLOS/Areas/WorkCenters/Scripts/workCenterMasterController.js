@@ -1312,6 +1312,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                     , ShiftType: item.ShiftType
                     , InTime: item.InTime
                     , OutTime: item.OutTime
+                    , ProductionHours: item.ProductionHours
                 });
             });
         }

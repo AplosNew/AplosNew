@@ -10,6 +10,9 @@ using System.Threading;
 using Library.ViewModel.OrderManagements;
 using Library.Service.Systems;
 using ConnectionManager;
+using Syncfusion.XlsIO;
+using Library.Service.Helpers;
+using System.IO;
 
 namespace Library.OrderManagement.Production
 {
@@ -523,6 +526,419 @@ namespace Library.OrderManagement.Production
             return _sqlRepository.GetDataCollection(CmdText);
         }
 
+        public IEnumerable<object> GetDailyPlanningProductionData(string fromdate, string todate, string entityId, string processId, string shiftId, string wcId, string POId)
+        {
+            try
+            {
+                string sql = @"DECLARE @StartDate DATE = '" + fromdate + @"'
+                              , @EndDate DATE =  '" + todate + @"'
+
+                            Select A.EntityId,A.Entity,A.ProcessId,A.Process,A.WorkCenterMasterId,A.WorkCenterMaster,ISNULL(A.ProductPriority,'-') ProductPriority,A.Active,A.NoOfWorkStation
+                            ,A.SPT StandardProcessTime,A.ShiftId,A.[ShiftName],ISNULL(A.[ShiftShortName],'-') [ShiftShortName] ,A.ProductionHours,DT.[Date],ISNULL(A.ResponsiblePerson,'-') ResponsiblePerson,ISNULL(A.ResponsiblePersonCode,'-') ResponsiblePersonCode
+                            ,ISNULL(PS.Id,'-') SummaryId
+                            ,Customer=ISNULL(STUFF((select distinct ', '+P.UserName from 
+			                                                    HKP.Party P
+			                                                    JOIN TRN.MasterOrder MO ON MO.PartyId=P.Id
+			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
+			                                                    JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+									                            JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+			                                                    where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
+                            ,POArticle=ISNULL(STUFF((select distinct ', '+A.StandardName from 
+			                                                    MST.MaterialMasterArticle A
+			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=A.Id
+			                                                    JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+									                            JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+			                                                    where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
+                            ,LineItemArticle=ISNULL(STUFF((select distinct ', '+AR.StandardName from 
+			                                                    MST.MaterialMasterArticle AR
+			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=AR.Id
+			                                                    where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
+
+                            ,LineItemProductCode=ISNULL(STUFF((select distinct ', '+PL.Code from 
+			                                                    dbo.ProductLibrary PL
+			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.ProductLibraryId=PL.Id
+			                                                    where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
+                            ,SONo=ISNULL(STUFF((select distinct ', '+SO.Id from 
+			                                                    TRN.SalesOrder SO 
+									                            JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+			                                                    where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
+
+                            ,ISNULL(PS.ProductionOrderId,'-') POId,ISNULL(PS.LotNumber,'-') LotNumber,ISNULL(PS.SalesOrderId,'-') SalesOrderId,ISNULL(PS.MasterOrderItemId,'-') MasterOrderItemId,ISNULL(PS.QtyWithoutScan,0)QtyWithoutScan,ISNULL(PS.ScanQty,0) QtyWithScan,TotalActualqty=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+                            ,ISNULL(D.[Minute],0) DetentionInMinute,ISNULL(SCH.SPT,0) POSPT,0 ArticleSPT
+                            --,SPT= CASE WHEN  ArticleSPT IS NULL ArticleSPT=0 THEN SCH.SPT ELSE SCH.SPT =0 THEN A.SPT END
+                            ,SPT=CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END
+                            ,ISNULL(CPS.NoOfEntry,1)NoOfEntry,AllotedHour=ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)
+                            ,ShouldBeProduction=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))
+                            ,TotalAvailableHour=A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1))
+                            ,DetentionHour=(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
+                            ,NetAvailableHour=(A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
+                            ,ProduceHour=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0))*(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)/60
+                            ,DetentionLoss=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1)))
+                            ,ProductivityVariance=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-
+                            (ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) -(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+
+                            from (
+                            Select WCM.EntityId,E.UserName Entity,WCM.ProcessId,P.UserName Process,WCM.Id WorkCenterMasterId, WCM.UserName WorkCenterMaster
+                            ,ProductPriority=STUFF((select distinct ', '+PM.UserName from 
+			                                                    [SCS].[WorkCenterMasterProductPriority]  XSO
+			                                                    JOIN MST.ProductMaster PM ON PM.id=XSO.ProductMasterId
+			                                                    where XSO.WorkCenterMasterId=WCM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                            ,WCM.Active,WCM.NoOfWorkStation,WCM.SPT,SD.SystemID ShiftId,SD.UserName [ShiftName],SD.ShortName [ShiftShortName] ,WCS.ProductionHours
+                            ,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
+
+                            from SCS.WorkCenterMaster WCM
+                            LEFT JOIN dbo.WorkCenterWiseShift WCS ON WCS.WorkCenterMasterId=WCM.Id
+                            LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON WCD.WorkCenterMasterId=WCS.WorkCenterMasterId
+                            LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=WCS.ShiftDefinationID
+                            LEFT JOIN ORG.Entity E ON E.Id=WCM.EntityId
+                            LEFT JOIN HKP.Process P ON P.Id=WCM.ProcessId
+                            LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=WCM.ResponsiblePersonId
+                            Where WCD.StartDate between '01-Aug-2022' AND '01-Aug-2022'
+                            ) A
+                            LEFT JOIN(
+
+                            SELECT  format(DATEADD(DAY, nbr - 1, @StartDate),'dd-MMM-yyyy') [Date]
+                            FROM    (SELECT ROW_NUMBER() OVER ( ORDER BY c.object_id ) AS nbr
+                                      FROM sys.columns c
+                                    ) nbrs
+                            WHERE nbr - 1 <= DATEDIFF(DAY, @StartDate, @EndDate)
+                            ) DT ON 1=1
+                            LEFT JOIN trn.ProductionSummary PS ON PS.ProductionShiftId=A.ShiftId AND PS.EntityId=A.EntityId AND PS.WorkCenterMasterId=A.WorkCenterMasterId AND PS.ProcessId=A.ProcessId AND PS.ProductionDate=DT.Date
+                            LEFT JOIN(Select COUNT(Id)NoOfEntry,WorkCenterMasterId,ProductionShiftId,ProductionDate from trn.ProductionSummary Group BY WorkCenterMasterId,ProductionShiftId,ProductionDate) CPS ON CPS.WorkCenterMasterId=A.WorkCenterMasterId AND CPS.ProductionShiftId=A.ShiftId AND CPS.ProductionDate=DT.Date
+                            LEFT JOIN [dbo].[MachineMasterTransaction] D ON D.ShiftId=A.ShiftId AND D.EntityId=A.EntityId AND D.WorkCenterId=A.WorkCenterMasterId AND D.ProcessId=A.ProcessId AND D.Date=DT.Date
+                            LEFT JOIN [dbo].[ProductionOrderSchedulingParametersType1] SCH ON SCH.ProductionOrderID=PS.ProductionOrderId
+
+                where A.EntityId='" + entityId + @"' and A.ProcessId='" + processId + @"' and A.ShiftId='" + shiftId + @"' and A.WorkCenterMasterId='" + wcId + @"'
+                    and PS.ProductionOrderId='" + POId + @"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public string DailyPlanningProductionReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Daily Planning & Production Report";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Entity";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEntity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcess = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Work Center";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colWorkCenterMaster = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Product Priority";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductPriority = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Active";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colActive = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "No Of Work Station";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colNoOfWorkStation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Standard Process Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardProcessTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shift Name";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colShiftName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shift Short Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colShiftShortName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Production Hours";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductionHours = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int colDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Responsible Person";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colResponsiblePerson = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Summary No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSummaryId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Article";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line Item Article";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line Item Product Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemProductCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SO No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSONo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Lot Number";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLotNumber = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Master Order Item No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colMasterOrderItemId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Qty Without Scan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colQtyWithoutScan = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Qty With Scan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colQtyWithScan = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Actual qty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colTotalActualqty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention In Minute";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionInMinute = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "POSPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colArticleSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "No Of Entry";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colNoOfEntry = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Alloted Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colAllotedHour = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Should Be Production";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colShouldBeProduction = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Available Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colTotalAvailableHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Net Available Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colNetAvailableHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Produce Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProduceHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Loss";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionLoss = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Productivity Variance";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductivityVariance = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Count - 1);
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, colEntity].Text = data[i]["Entity"].ToString();
+                    sheet[ROW, colProcess].Text = data[i]["Process"].ToString();
+                    sheet[ROW, colWorkCenterMaster].Text = data[i]["WorkCenterMaster"].ToString();
+                    sheet[ROW, colProductPriority].Text = data[i]["ProductPriority"].ToString();
+                    sheet[ROW, colActive].Text = data[i]["Active"].ToString();
+                    sheet[ROW, colNoOfWorkStation].Number = clsStaticInfo.dbl(data[i]["NoOfWorkStation"].ToString());
+                    sheet[ROW, colStandardProcessTime].Number = clsStaticInfo.dbl(data[i]["StandardProcessTime"].ToString());
+                    sheet[ROW, colShiftName].Text = data[i]["ShiftName"].ToString();
+                    sheet[ROW, colShiftShortName].Text = data[i]["ShiftShortName"].ToString();
+                    sheet[ROW, colProductionHours].Number = clsStaticInfo.dbl(data[i]["ProductionHours"].ToString());
+                    sheet[ROW, colDate].Text = data[i]["Date"].ToString();
+                    sheet[ROW, colResponsiblePerson].Text = data[i]["ResponsiblePerson"].ToString();
+                    sheet[ROW, colSummaryId].Text = data[i]["SummaryId"].ToString();
+                    sheet[ROW, colCustomer].Text = data[i]["Customer"].ToString();
+                    sheet[ROW, colPOArticle].Text = data[i]["POArticle"].ToString();
+                    sheet[ROW, colLineItemArticle].Text = data[i]["LineItemArticle"].ToString();
+                    sheet[ROW, colLineItemProductCode].Text = data[i]["LineItemProductCode"].ToString();
+                    sheet[ROW, colSONo].Text = data[i]["SONo"].ToString(); 
+                    sheet[ROW, colPOId].Text = data[i]["POId"].ToString();
+                    sheet[ROW, colLotNumber].Text = data[i]["LotNumber"].ToString();
+                    sheet[ROW, colMasterOrderItemId].Text = data[i]["MasterOrderItemId"].ToString();
+                    sheet[ROW, colQtyWithoutScan].Number = clsStaticInfo.dbl(data[i]["QtyWithoutScan"].ToString());
+                    sheet[ROW, colQtyWithScan].Number = clsStaticInfo.dbl(data[i]["QtyWithScan"].ToString());
+                    sheet[ROW, colTotalActualqty].Number = clsStaticInfo.dbl(data[i]["TotalActualqty"].ToString());
+                    sheet[ROW, colDetentionInMinute].Number = clsStaticInfo.dbl(data[i]["DetentionInMinute"].ToString());
+                    sheet[ROW, colPOSPT].Number = clsStaticInfo.dbl(data[i]["POSPT"].ToString());
+                    sheet[ROW, colArticleSPT].Number = clsStaticInfo.dbl(data[i]["ArticleSPT"].ToString());
+                    sheet[ROW, colSPT].Number = clsStaticInfo.dbl(data[i]["SPT"].ToString());
+                    sheet[ROW, colNoOfEntry].Number = clsStaticInfo.dbl(data[i]["NoOfEntry"].ToString());
+                    sheet[ROW, colAllotedHour].Number = clsStaticInfo.dbl(data[i]["AllotedHour"].ToString());
+                    sheet[ROW, colShouldBeProduction].Number = clsStaticInfo.dbl(data[i]["ShouldBeProduction"].ToString());
+                    sheet[ROW, colTotalAvailableHour].Number = clsStaticInfo.dbl(data[i]["TotalAvailableHour"].ToString());
+                    sheet[ROW, colDetentionHour].Number = clsStaticInfo.dbl(data[i]["DetentionHour"].ToString());
+                    sheet[ROW, colNetAvailableHour].Number = clsStaticInfo.dbl(data[i]["NetAvailableHour"].ToString());
+                    sheet[ROW, colProduceHour].Number = clsStaticInfo.dbl(data[i]["ProduceHour"].ToString());
+                    sheet[ROW, colDetentionLoss].Number = clsStaticInfo.dbl(data[i]["DetentionLoss"].ToString());
+                    sheet[ROW, colProductivityVariance].Number = clsStaticInfo.dbl(data[i]["ProductivityVariance"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Daily Planning & Production Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetProductionOrderDataList(string entityid, string workCenterMasterId, string productionLevel, string processId,bool ToCloseAllowed)
         {
             string wcpr;
@@ -681,8 +1097,9 @@ namespace Library.OrderManagement.Production
                                                                  trn.SalesOrder XSO 
                                                                  JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
-						                                         LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
-																 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
+						                                         --LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+																 --LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
+                                                                 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.Id=MOI.ArticleId
                                                                  WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                    PRS.LotNumber
                                    --,PRS.ResponsiblePerson
@@ -4445,7 +4862,10 @@ Order BY A.PONo,A.ProcessIndex";
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
 							,PSV.UserName Parameter,ParameterValue=CASE WHEN PBP.IsPreviousValueApplicable=1 THEN PSV.Value ELSE 0 END 
-							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,ISNULL(UOM.Code,'-') UOM,pp.Quantity ProductionQty,ISNULL(pp.Remarks,'-')Remarks
+                            ,DetentionInMin=(select ISNULL(SUM(MMT.[Minute]),0) from 
+			                        dbo.MachineMasterTransaction MMT 
+			                        where MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate)
+                            ,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,ISNULL(UOM.Code,'-') UOM,pp.Quantity ProductionQty,ISNULL(pp.Remarks,'-')Remarks
 
                             FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,ps.Quantity
 									,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
@@ -4455,7 +4875,7 @@ Order BY A.PONo,A.ProcessIndex";
       		                      WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + ProcessId + @") "+ psft + @"
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId,ps.Quantity
                             ) AS pp
-							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
+							
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 							left join ProductLibrary PL on PL.Id=pp.ProductLibraryId
                             LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
@@ -4628,10 +5048,49 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                     wp = ProcessId;
                 }
 
-                string sql = @"SELECT A.* from (SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
-                            pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
-                            ,PL.Code ProductCode,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
-                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+                string sql = @"SELECT A.* from (SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty
+--,ORD.CM*pp.Quantity AS ActualCM,
+,(select SUM(xp.Qty*xp.CM)/sum(xp.Qty) 
+							from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+							where PO.Id=PoD.ProductionOrderId)*pp.Quantity AS ActualCM
+                            ,pt1.SPT AS SAM,pp.ProcessId,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter
+							,Material=STUFF((select distinct ','+MA.UserName from
+											MST.MaterialMaster MA
+											left join TRN.MasterOrderItem moi on moi.MaterialMasterId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+											where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')
+							,Article=STUFF((select distinct ','+MA.StandardName from
+											MST.MaterialMasterArticle MA
+											left join TRN.MasterOrderItem moi on moi.ArticleId=MA.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+											where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')            
+                           ,PL.Code ProductCode
+						    ,Product=STUFF((select distinct ','+PM.UserName from
+											MST.MaterialMaster mm
+											left join TRN.MasterOrderItem moi on moi.MaterialMasterId=mm.Id
+											left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+											left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
+                                            left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
+											INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+											where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')						   
+							,ProductCategory=STUFF((select distinct ','+pc.UserName from
+								[HKP].[ProductCategory] PC
+								left join [MST].[ProductMaster] PM on pc.Id=pm.ProductCategoryId
+								left join trn.ProductDefinition AS pd ON pd.ProductMasterId=pm.Id
+								left join mst.MaterialMaster mm on mm.id=pd.MaterialMasterId
+								left join TRN.MasterOrderItem moi on moi.MaterialMasterId=MM.Id
+								left join trn.SalesOrder AS xp on xp.MasterOrderItemId=moi.Id
+								INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+								where PO.Id=PoD.ProductionOrderId for xml path('') ), 1, 1, '')
+						   ,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate
+                         ,sn.Quantity AS PlanQty,((select SUM(xp.Qty*xp.CM)/sum(xp.Qty) 
+							from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+							where PO.Id=PoD.ProductionOrderId)*pp.Quantity)*sn.Quantity AS PlanCM
+,(select SUM(xp.Qty*xp.CM)/sum(xp.Qty) 
+							from TRN.SalesOrder AS xp INNER JOIN TRN.ProductionOrderDetail POD ON pod.SalesOrderId=xp.id
+							where PO.Id=PoD.ProductionOrderId) CM
                              ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,CPL.ShiftDuration ShiftWorkingMin,so.[Description] AS SalesOrderDescBooking,
                              wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
                              PP.ProductionHours AS WorkingHours,SN.isBuildUp,
@@ -4694,7 +5153,8 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
 							--,PSV.UserName Parameter,psv.[Value] ParameterValue
-							,isnull(MMT.[Minute],0) DetentionInMin,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
+							--,isnull(MMT.[Minute],0) DetentionInMin
+,0 Utilization,pp.ProductionOrderId PORefNo,pp.AddedBy EntryBy,UOM.Code UOM,pp.Quantity ProductionQty,pp.Remarks
 
                             FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,ps.Quantity
 									,PS.AddedBy,ps.Remarks,ps.ProductLibraryId
@@ -4704,7 +5164,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
       		                      WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")  and ps.ProcessId in (" + wp + @")
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,PS.AddedBy,ps.Remarks,ps.ProductLibraryId,ps.Quantity
                             ) AS pp
-							left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
+							--left join MachineMasterTransaction MMT on MMT.ProcessId=pp.ProcessId and MMT.ShiftId=pp.ProductionShiftId and MMT.WorkCenterId=pp.WorkCenterMasterId and MMT.[Date]=pp.ProductionDate
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
 							left join ProductLibrary PL on PL.Id=pp.ProductLibraryId
                             LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
@@ -4724,26 +5184,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
 							LEFT OUTER JOIN hkp.Process AS Tp ON Tp.Id=pp.ToProcessId
                             LEFT OUTER JOIN ORg.Entity AS TRKE ON trke.Id = PP.EntityId
                             LEFT OUTER JOIN org.Plant AS TRKP ON  trkp.Id = TRKE.PlantId
-                             left outer join (
-                                                        select POD.ProductionOrderId,mm.UserName AS Material,MA.StandardName AS Article,PM.UserName AS Product,PC.UserName AS ProductCategory,
-                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.Rate* so.Qty ELSE  so.Rate* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(so.Qty) AS FOB,
-                                                          SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* so.Qty * isnull(RT.ExchangeRate,1) *isnull(RER.ExchangeRate,1) END)/SUM(SO.Qty) AS CM
-                                                        from trn.ProductionOrderDetail POD 
-                                                        left outer join trn.SalesOrder SO on so.id=pod.SalesOrderId
-                                                        left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
-                                                        left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
-                                                        left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
-                                                        left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                                                       LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
-                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
-                                                        LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
-                                                        left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
-                                                        LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
-                                                        left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
-                                                        left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
-                                                        left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-                                                        group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
-                                              ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
+                             
                                           	)A ORDER BY A.ActualDate, A.WorkCenterMasterId, A.ProductionOrderID";
                 dtOrder = _sqlRepository.GetDataTable(sql);
             }
@@ -4762,28 +5203,36 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             ,X.BaseProcessProduceQty,X.BaseProcessRemainingQty,X.Sequence,X.ProcessId,X.Process,X.PercentQty,X.ProcessPlannedQty,X.ProcProdQty,X.PreProcProdQty,X.WIP,X.ProcBalanceToProduce,X.RelayProcess,X.IsBaseProcess
                             ,X.ProcessLegDays,X.POFirstDelivery,X.POLastDelivery,X.BaseProcProdStartDate,X.BaseProcLatestProdDate,X.BaseProcPlanStartDate,X.BaseProcPlanCompletionDate
                             ,X.POStartDate,X.POCompletionDate,X.FirstProcessActualBookDate,X.POFirstProdBookDate,X.POLatestProdBookDate,X.ShouldBeProcessStartDate,X.ShouldBeProcessEndDate
-                            ,X.ProcessFirstBookDate,X.ProcessLatestBookDate,X.ProcessStartDays,X.ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
-                            ,X.ProcProdPercent,X.EntryCheck,X.ProceessProdQtyVsSOQty
-
+                            ,ISNULL(X.ProcessFirstBookDate,'-')ProcessFirstBookDate,ISNULL(X.ProcessLatestBookDate,'-')ProcessLatestBookDate,X.ProcessStartDays,X.ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
+                            ,ROUND(X.ProcProdPercent*100,0)ProcProdPercent,X.EntryCheck,ROUND(X.ProceessProdQtyVsSOQty*100,0)ProceessProdQtyVsSOQty,ISNULL(X.Remarks,'-') ProcessStatusRemark--,X.ProcessProdBookDate
+                            ,POReviewStatus=CASE WHEN CONVERT(datetime,X.ProcessLatestBookDate)< (GETDATE()-2) THEN 'To Review' ELSE X.POStatus END
+                            
+                            ,LotNoQty=ISNULL(STUFF((select distinct ', '+xp.LotNumber+'-'+CONVERT(varchar(100),X.ProcProdQty) from
+                            TRN.ProductionSummary AS xp
+                            where X.POId=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'-')
+                            ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ROUND((X.FirstProcessProQty/NULLIF(X.BaseProcessProduceQty,0))*100,0)
+,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
+,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END,ProcessBalanceProd=X.ProcessPlannedQty-X.ProcProdQty
                             FROM(
                             SELECT 
                             T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
                             ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/t2.BaseProcessPlannedQty,0)
-                            ,ProcProdPercent=ISNULL(T2.ProcProdQty/t2.ProcessPlannedQty,0)
+                            ,ProcProdPercent=ISNULL(T1.ProcProdQty/t1.ProcessPlannedQty,0)
                             ,EntryCheck=CASE WHEN T2.ProcProdQty-T1.ProcProdQty<0 THEN 'ToCheck' ELSE '' END
                             ,ProceessProdQtyVsSOQty=COALESCE(T1.ProcProdQty / NULLIF(T1.SOQty ,0), 0)
                             FROM
                             (Select ROW_NUMBER() OVER(partition by A.POId ORDER BY A.Sequence) ProcessIndex,A.*
                             from (select E.Id EntityId,E.UserName Entity,P.Id POId,PRS.Id POStatusId,PRS.UserName POStatus,P.AddedBy,Format(P.AddedDate,'dd-MMM-yyyy')AddedDate,P.UpdatedBy,Format(P.UpdatedDate,'dd-MMM-yyyy')UpdatedDate
                             --,SOQty=P.Qty*PSQ.Qty/100
-                            ,SOQty=(select SUM(xp.Qty) from
-                                trn.SalesOrder AS xp
+                            ,SOQty=(select SUM(xp.Qty) from trn.SalesOrder AS xp
                                 INNER JOIN TRN.ProductionOrderDetail PD ON pd.SalesOrderId=xp.id
                                 where P.Id=PD.ProductionOrderId)
+                           
                             ,BaseProcPlanPercentage=(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)
                             ,ActualPlanScheduleQty=PQ.Qty
                             ,(PQ.Qty*(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)/100) ShouldBeBaseProcessPlannedQty
                             ,ISNULL(PS.Quantity,0) BaseProcessProduceQty
+                            ,ISNULL(FPSQ.Quantity,0) FirstProcessProQty
                             ,PQ.Qty-ISNULL(PS.Quantity,0) BaseProcessRemainingQty
                             ,PSQ.Sequence,PRO.Id ProcessId,PRO.UserName Process
                             ,PSQ.Qty PercentQty
@@ -4791,7 +5240,7 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             ,ISNULL(PBQ.ProcProdQty,0) ProcProdQty
                             ,ProcBalanceToProduce=ISNULL((CASE WHEN PSQ.IsBaseProcess=1 THEN PQ.Qty ELSE PQ.Qty*PSQ.Qty/100 END)-PBQ.ProcProdQty,0)
                             ,RelayProcess=CASE WHEN PSQ.IsCompleted=1 THEN 'Yes' ELSE 'No' End
-                            ,PSQ.IsBaseProcess
+                            ,PSQ.IsBaseProcess,PSQ.Remarks
                             ,ProcessLegDays= CASE WHEN PSQ.Symbol='+' THEN CONVERT(varchar(100),PSQ.Days) ELSE ISNULL((PSQ.Symbol+''+CONVERT(varchar(100),PSQ.Days)),0) END
                             ,FORMAT(POD.POFirstDelivery,'dd-MMM-yyyy')POFirstDelivery,FORMAT(POD.POLastDelivery,'dd-MMM-yyyy')POLastDelivery
                             ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProcLatestProdDate,'dd-MMM-yyyy')BaseProcLatestProdDate,ISNULL(FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy'),'') BaseProcPlanStartDate,ISNULL(FORMAT(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),'')BaseProcPlanCompletionDate
@@ -4823,7 +5272,11 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             ProductionOrderFirstProcessWorkCenter AS xp
                             INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
                             where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'')
-                            
+
+                            ,InputRecoveryPercentage=STUFF((select distinct ', '+CONVERT(Varchar(100),xp.PlanPercentage) from
+                            dbo.MaterialIssueControlMaster AS xp
+                            where P.Id=xp.POId for xml path('') ), 1, 1, '')
+
                             ,Customer=STUFF((select distinct ','+XP.UserName from 
 		                                      trn.SalesOrder XSO 
 		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -4860,11 +5313,12 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
                             left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY B.ProductionOrderId) PS ON P.Id=PS.ProductionOrderId
                             LEFT JOIN (Select SUM(Quantity)ProcProdQty, MIN(ProductionDate)ProcessFirstBookDate,MAX(ProductionDate)ProcessLatestBookDate ,ProductionOrderId,ProcessId from TRN.ProductionSummary Group BY ProductionOrderId,ProcessId) PBQ ON P.Id=PBQ.ProductionOrderId AND PBQ.ProcessId=PRO.Id
-
+                            LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
+                            left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.Sequence=1 Group BY B.ProductionOrderId) FPSQ ON P.Id=FPSQ.ProductionOrderId
                             Where P.AddedDate>= @POCreationDate 
                             GROUP BY E.Id,E.UserName,P.Id,PSQ.Sequence,PRO.Id,PRO.UserName,P.PlannedQty,P.Qty,PSQ.Qty,PRS.Id,PRS.UserName,P.AddedBy,P.AddedDate,P.UpdatedBy,P.UpdatedDate,PQ.Qty,PBQ.ProcProdQty,PSQ.IsCompleted,PSQ.IsBaseProcess
                             ,PSQ.Days,PSQ.Symbol,POD.POFirstDelivery,POD.POLastDelivery,BASEP.BaseProcProdStartDate,BASEP.BaseProcLatestProdDate,BASEP.BaseProcLatestProdDate,Type1.BaseProcPlanStartDate
-                            ,Type1.BaseProcPlanCompletionDate,Type1.BaseProcPlanStartDate,FBPPD.POFirstProdBookDate,FBPPD.POLatestProdBookDate,PBQ.ProcessFirstBookDate,PBQ.ProcessLatestBookDate,PS.Quantity--,BPP.ProcessPlannedQty 
+                            ,Type1.BaseProcPlanCompletionDate,Type1.BaseProcPlanStartDate,FBPPD.POFirstProdBookDate,FBPPD.POLatestProdBookDate,PBQ.ProcessFirstBookDate,PBQ.ProcessLatestBookDate,PS.Quantity,PSQ.Remarks,FPSQ.Quantity--,BPP.ProcessPlannedQty 
                             ) A )T1
                             LEFT JOIN (Select ROW_NUMBER() OVER(partition by A.POId ORDER BY A.Sequence)+1 ProcessIndex,A.*
                             from (select 

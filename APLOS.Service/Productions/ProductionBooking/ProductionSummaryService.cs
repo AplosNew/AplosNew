@@ -523,9 +523,9 @@ namespace Library.Service.Productions
                         LEFT JOIN EmployeeInformation I ON PW.InChargeId=I.SystemId
                         LEFT JOIN EmployeeInformation PI ON PW.ProductionInChargeId=PI.SystemId
                         LEFT JOIN TRN.RunningMachineSetUpTarget RM ON RM.EntityId='" + entityId + @"' and RM.ProcessId='" + ProcessId + @"' and RM.TargetDate='" + productionDate + @"' and RM.ProductionShiftId='" + shiftId + @"' and RM.WorkCenterMasterId=wc.Id and RM.ProductionOrderId=pw.ProductionOrderId
-						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + entityId + @"' AND MT.Date='" + productionDate + @"'  AND MT.ShiftId='" + shiftId + @"'
-                        group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
-                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' order by wc.UserName";
+						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId, ProductionSummaryId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + entityId + @"' AND MT.Date='" + productionDate + @"'  AND MT.ShiftId='" + shiftId + @"'
+                        group by WorkCenterId,ProductionSummaryId) SM ON SM.WorkCenterId=wc.Id and SM.ProductionSummaryId=pw.Id
+                        where wc.Active=1 and wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' order by wc.UserName";
             return _sqlRepository.GetDataCollection(sql);
         }
 

@@ -1320,7 +1320,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 			$scope.NotificationSetting = response.data;
 			$scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
 			$scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
-			$scope.GetCheckedByAndApprovedBy1();
+			//$scope.GetCheckedByAndApprovedBy1();
 			if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false) {
 				$scope.ReceiptTransformation.labelCheckAndApproved = 'To be checked by';
 			}
@@ -2836,7 +2836,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 				$scope.ApprovedByStatusForNoti = true;
 				$scope.ReceiptTransformation.CheckedBy = x.data.CheckedById;
 			}
-			$scope.GetCheckedByAndApprovedBy1();
+			//$scope.GetCheckedByAndApprovedBy1();
 			if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
 				$scope.ReceiptTransformation.CheckedBy = x.data.ApprovedById;
@@ -2872,7 +2872,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 				$scope.ApprovedByStatusForNoti = true;
 				$scope.ReceiptVA.CheckedBy = x.data.CheckedById;
 			}
-			$scope.GetCheckedByAndApprovedBy1();
+			//$scope.GetCheckedByAndApprovedBy1();
 			if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
 				$scope.ReceiptVA.CheckedBy = x.data.ApprovedById;
@@ -3035,7 +3035,7 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 								//		var IssuedMatInputCount = $scope.GetIssuedMatInputList.length;
 
 								for (var i = 0; i < $scope.GetMaterialInputList.length; i++) {
-									if (baseService.isUndefinedOrNull($scope.GetMaterialInputList[i].ArticleId)) {
+									if (!baseService.isUndefinedOrNull($scope.GetMaterialInputList[i].ArticleId)) {
 										var getjwiRow = $filter("filter")($scope.GetIssuedMatInputList, { "JWTCInputId": $scope.GetMaterialInputList[i].JobWorkItemId });
 										if (getjwiRow.length == 0) {
 											x.check = false;
@@ -3047,18 +3047,18 @@ function OSReceiptValueAddedController($window, cboService, commonMessage, $scop
 
 										}
 									}
-									else {
-										var getRow = $filter("filter")($scope.GetIssuedMatInputList, { "ArticleId": $scope.GetMaterialInputList[i].ArticleId });
-										if (getRow.length == 0) {
-											x.check = false;
-											ShowResult("This Output detail Id " + $scope.JWOutputId + " Material " + x.UserName + " Article " + x.StandardName + " cannot be received ");
-											return false;
-										}
-										else {
-											var a = getRow[0].QtyForOutput;
+									//else {
+									//	var getRow = $filter("filter")($scope.GetIssuedMatInputList, { "ArticleId": $scope.GetMaterialInputList[i].ArticleId });
+									//	if (getRow.length == 0) {
+									//		x.check = false;
+									//		ShowResult("This Output detail Id " + $scope.JWOutputId + " Material " + x.UserName + " Article " + x.StandardName + " cannot be received ");
+									//		return false;
+									//	}
+									//	else {
+									//		var a = getRow[0].QtyForOutput;
 
-										}
-                                    }
+									//	}
+         //                           }
 					
 								}
 								if (!baseService.isUndefinedOrNull(a)) {

@@ -2041,7 +2041,7 @@
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
-    <Content Include="Areas\HumanResource\Scripts\EmployeeAttendacneReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -4596,7 +4596,6 @@
     <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineDesignReport.cshtml" />
     <Content Include="Areas\Productions\Views\RunningMachineSetUpTarget\LineLayoutSearchViews.cshtml" />
     <Content Include="Areas\Productions\Views\DailyPlanningAndProductionReport\Report.cshtml" />
-    <Content Include="Areas\HumanResource\Views\EmployeeAttendacneReport\Report.cshtml" />
     <Content Include="Areas\Accounts\Views\ChartAccountSetup\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel1.cshtml" />
     <Content Include="Areas\Accounts\Views\ChartAccountSetup\_ChartofAccountLevel2.cshtml" />
@@ -4614,6 +4613,8 @@
     <Content Include="Areas\HumanResource\Views\DesignationSetup\_EmployeeCategory.cshtml" />
     <Content Include="Areas\HumanResource\Views\DesignationSetup\_DesignationGroup.cshtml" />
     <Content Include="Areas\HumanResource\Views\DesignationSetup\_Designation.cshtml" />
+    <Content Include="Areas\HumanResource\Views\AttendanceReport\Report.cshtml" />
+    <Content Include="Areas\Materials\Views\Shared\_MaterialArticleNewPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\_QualityProcess.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

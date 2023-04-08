@@ -2171,10 +2171,15 @@ where RM.EntityId='"+ EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.P
                 strSql = @"select RM.Id as RMTargetId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(RM.TargetDate,'dd-MMM-yyyy') as TargetDate,
 WC.UserName as WorkCenter,RM.LotNumber,RM.ProductionOrderId as PONo,RM.Article,Convert(decimal(18,2),RM.PlanHours) as PlanHours,
 ceiling(RM.Efficiency) as Efficiency,
-ceiling(RM.TargetFD) as TargetFD,ceiling(RM.TargetProductionFP) as TargetProductionFP,I.EmployeeName as Responsible,
+ceiling(RM.TargetFD) as TargetFD,ceiling(RM.TargetProductionFP) as TargetProductionFP,
+ceiling(RM.TargetFD) - ceiling(RM.TargetProductionFP) as Difference,
+I.EmployeeName as Responsible,
 R.EmployeeName as InCharge,RM.Remarks,Reverse(stuff(Reverse((select ID.ItemName + '-' + convert(varchar(200),IV.ItemValue) +', ' from TRN.RMSTargetItemValue IV
 left join MST.ItemDetails ID on ID.Id=IV.ItemId
 where RMSTargetId=RM.Id for xml PATH(''))),1,2,'')) ItemDetails,
+Reverse(stuff(Reverse((select DM.DetentionUserName + '-' + convert(varchar(200),MMT.Minute) +', ' from RMSTargetDetentionTransaction MMT
+left join DetentionMaster DM on DM.Id=MMT.DetentionId
+where MMT.EntityId=RM.EntityId and MMT.Date=RM.TargetDate and MMT.ShiftId=RM.ProductionShiftId and MMT.ProcessId=RM.ProcessId and MMT.WorkCenterId=RM.WorkCenterMasterId and MMT.RMSTargetId=RM.Id for xml PATH(''))),1,2,'')) DetentionDetails,
 Reverse(stuff(Reverse((select RD.ReasonName + '-' + convert(varchar(200),RV.ReasonValue) +', ' from TRN.RMSTargetReasonValue RV
 left join MST.ReasonDetails RD on RD.Id=RV.ReasonId
 where RV.ProductionId=RM.Id for xml PATH(''))),1,2,'')) ReasonDetails
@@ -2185,7 +2190,7 @@ left join ShiftDefination S On S.SystemID=RM.ProductionShiftId
 left join scs.WorkCenterMaster WC ON WC.Id=RM.WorkCenterMasterId
 left join employeeinformation R on R.SystemId=RM.ResponsiblePersonId
 left join employeeinformation I on I.SystemId=RM.InChargeId
-where RM.EntityId='" + EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "'";
+where RM.EntityId='" + EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "' order by WC.Sequence";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSql, out dsRef);
@@ -2244,7 +2249,7 @@ ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.
 I.EmployeeName as Responsible,
 R.EmployeeName as InCharge,PS.Remarks,Reverse(stuff(Reverse((select DM.DetentionUserName + '-' + convert(varchar(200),MMT.Minute) +', ' from MachineMasterTransaction MMT
 left join DetentionMaster DM on DM.Id=MMT.DetentionId
-where MMT.EntityId=PS.EntityId and MMT.Date=PS.ProductionDate and MMT.ShiftId=PS.ProductionShiftId and MMT.ProcessId=PS.ProcessId and MMT.WorkCenterId=PS.WorkCenterMasterId for xml PATH(''))),1,2,'')) DetentionDetails,
+where MMT.EntityId=PS.EntityId and MMT.Date=PS.ProductionDate and MMT.ShiftId=PS.ProductionShiftId and MMT.ProcessId=PS.ProcessId and MMT.WorkCenterId=PS.WorkCenterMasterId and MMT.ProductionSummaryId=PS.Id for xml PATH(''))),1,2,'')) DetentionDetails,
 Reverse(stuff(Reverse((select RD.ReasonName + '-' + convert(varchar(200),RV.ReasonValue) +', ' from TRN.ProductionReasonValue RV
 left join MST.ReasonDetails RD on RD.Id=RV.ReasonId
 where RV.ProductionId=PS.Id for xml PATH(''))),1,2,'')) ReasonDetails,

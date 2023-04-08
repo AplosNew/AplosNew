@@ -384,7 +384,7 @@
                         <fieldset class="scheduler-border">
                             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">PO Wise Data</span></legend>
                             <div id="PR">
-                                <div class="content-container-fluid" style="color:black;">
+                                <div class="content-container-fluid" style="color:black;" ng-show="POWiseList.length>0">
 
                                     <div style="color:black;" id="GridPoWise" ej-grid e-datasource="POWiseList"
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
@@ -444,6 +444,15 @@
                                             <div e-column e-field="ProcProdPercent" e-headertext="Proc Prod Percent" e-width="110" textAlign='Right'></div>
                                             <div e-column e-field="EntryCheck" e-headertext="Entry Check" e-width="110" textAlign='Right'></div>
                                             <div e-column e-field="ProceessProdQtyVsSOQty" e-headertext="ProceessProdQty Vs SOQty" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessBalanceProd" e-headertext="Process Balance Production" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessStatusRemark" e-headertext="Process Status Remark" e-width="110"></div>
+                                            <div e-column e-field="POReviewStatus" e-headertext="PO Review Status" e-width="80"></div>
+                                            <div e-column e-field="InputRecoveryPercentage" e-headertext="Input Recovery Percentage" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ActualInputPlanPercentage" e-headertext="Actual Input Plan Percentage" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="LatestProcessProdBookDays" e-headertext="Latest Process Prod Book Days" e-width="80"></div>
+                                            <div e-column e-field="ProcessReviewStatus" e-headertext="Process Review Status" e-width="80"></div>
+                                            <div e-column e-field="LotNoQty" e-headertext="LotNo Qty" e-width="110"></div>
+
                                         </div>
 
                                     </div>

@@ -645,7 +645,7 @@ namespace Library.Service.WorkCenters
             {
                
                 string CmdText = @"SELECT WS.Id,WS.WorkCenterMasterId,SD.SystemID ShiftDefinationID, SD.ShiftDefinationName, SD.ShiftDefinationDescription, SD.ShiftType, SD.SequenceNo ShiftSequence
-                                  ,CONVERT(VARCHAR(10), SD.InTime, 108) AS InTime, CONVERT(VARCHAR(10), SD.OutTime, 108) AS OutTime
+                                  ,CONVERT(VARCHAR(10), SD.InTime, 108) AS InTime, CONVERT(VARCHAR(10), SD.OutTime, 108) AS OutTime,WS.ProductionHours
                                   FROM [dbo].[WorkCenterWiseShift] WS 
                                   LEFT JOIN ShiftDefination SD ON WS.ShiftDefinationID=SD.SystemID
                                   WHERE SD.GroupID = '" + sGroupID + @"' AND SD.PlantID = '"+ sPlantID + @"' AND WS.WorkCenterMasterId='"+ workCenterMasterId + @"' Order By SD.ShiftDefinationName";

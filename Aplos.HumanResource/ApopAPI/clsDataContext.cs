@@ -2269,16 +2269,15 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
                         dr["Value"] = item.Value;
-                        dr["Effeciency"] = item.Effeciency;
                         dr["Remarks"] = item.Remarks;
-                        dr["Region1"] = item.Region1;
-                        dr["Region1Time"] = item.Region1Time;
-                        dr["Region2"] = item.Region2;
-                        dr["Region2Time"] = item.Region2Time;
-                        dr["Region3"] = item.Region3;
-                        dr["Region3Time"] = item.Region3Time;
-                        dr["Region4"] = item.Region4;
-                        dr["Region4Time"] = item.Region4Time;
+                        dr["Detention1"] = item.Detention1;
+                        dr["Detention1Time"] = item.Detention1Time;
+                        dr["Detention2"] = item.Detention2;
+                        dr["Detention2Time"] = item.Detention2Time;
+                        dr["Detention3"] = item.Detention3;
+                        dr["Detention3Time"] = item.Detention3Time;
+                        dr["Detention4"] = item.Detention4;
+                        dr["Detention4Time"] = item.Detention4Time;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
@@ -2300,16 +2299,15 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
                         dr["Value"] = item.Value;
-                        dr["Effeciency"] = item.Effeciency;
                         dr["Remarks"] = item.Remarks;
-                        dr["Region1"] = item.Region1;
-                        dr["Region1Time"] = item.Region1Time;
-                        dr["Region2"] = item.Region2;
-                        dr["Region2Time"] = item.Region2Time;
-                        dr["Region3"] = item.Region3;
-                        dr["Region3Time"] = item.Region3Time;
-                        dr["Region4"] = item.Region4;
-                        dr["Region4Time"] = item.Region4Time;
+                        dr["Detention1"] = item.Detention1;
+                        dr["Detention1Time"] = item.Detention1Time;
+                        dr["Detention2"] = item.Detention2;
+                        dr["Detention2Time"] = item.Detention2Time;
+                        dr["Detention3"] = item.Detention3;
+                        dr["Detention3Time"] = item.Detention3Time;
+                        dr["Detention4"] = item.Detention4;
+                        dr["Detention4Time"] = item.Detention4Time;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
@@ -2359,7 +2357,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
 
                         dr["Id"] = _Id;
                         dr["ProductionServiceId"] = item.ProductionServiceId;
-                        dr["SandardName "] = item.SandardName;
+                        dr["StandardName"] = item.StandardName;
                         dr["Production100"] = item.Production100;
                         dr["Efficiency"] = item.Efficiency;
                         dr["Speed"] = item.Speed;
@@ -2393,7 +2391,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         dr.BeginEdit();
 
                         dr["ProductionServiceId"] = item.ProductionServiceId;
-                        dr["SandardName "] = item.SandardName;
+                        dr["StandardName"] = item.StandardName;
                         dr["Production100"] = item.Production100;
                         dr["Efficiency"] = item.Efficiency;
                         dr["Speed"] = item.Speed;
@@ -3671,6 +3669,76 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             }
         }
 
+
+        public void GetCustomerName(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id As Value, StandardName As Name from HKP.Party Order By Sequence";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetProductionStatus(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id As Value, UserName As Name from HKP.ProductionStatus";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
         public void GetTransactionQty(out List<Default2> DataList, string SalesReturnId)
         {
             clsConnectionManager objCon = null;
@@ -3704,6 +3772,41 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
                 objCon = null;
             }
         }
+
+        public void GetPoStatusWise(out List<Default2> DataList, string StatusId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id As Name , ProductionStatusId As Value from TRN.ProductionOrder  where ProductionStatusId = '" + StatusId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
 
         public void GetCartonBookedQty(out List<Weight> DataList, string SalesId)
         {
@@ -3864,6 +3967,261 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
                         Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
                         Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
 
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetPoWisereport(out List<POWiseReport> DataList, string POId, string POStatusId, string CustomerId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<POWiseReport>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                #region Sql
+                strSQL = @"DECLARE @POCreationDate varchar(100)=DATEADD(day,-180,GETDate())
+                            SELECT x.ProcessIndex,X.EntityId,X.Entity,X.CustomerId, X.Customer,X.Article,X.SONo,X.POId PONo,X.POStatusId,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,X.ActualPlanScheduleQty,X.ShouldBeBaseProcessPlannedQty
+                            ,X.BaseProcessProduceQty,X.BaseProcessRemainingQty,X.Sequence,X.ProcessId,X.Process,X.PercentQty,X.ProcessPlannedQty,X.ProcProdQty,X.PreProcProdQty,X.WIP,X.ProcBalanceToProduce,X.RelayProcess,X.IsBaseProcess
+                            ,X.ProcessLegDays,X.POFirstDelivery,X.POLastDelivery,X.BaseProcProdStartDate,X.BaseProcLatestProdDate,X.BaseProcPlanStartDate,X.BaseProcPlanCompletionDate
+                            ,X.POStartDate,X.POCompletionDate,X.FirstProcessActualBookDate,X.POFirstProdBookDate,X.POLatestProdBookDate,X.ShouldBeProcessStartDate,X.ShouldBeProcessEndDate
+                            ,ISNULL(X.ProcessFirstBookDate,'-')ProcessFirstBookDate,ISNULL(X.ProcessLatestBookDate,'-')ProcessLatestBookDate,X.ProcessStartDays,X.ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
+                            ,ROUND(X.ProcProdPercent*100,0)ProcProdPercent,X.EntryCheck,ROUND(X.ProceessProdQtyVsSOQty*100,0)ProceessProdQtyVsSOQty,ISNULL(X.Remarks,'-') ProcessStatusRemark--,X.ProcessProdBookDate
+                            ,POReviewStatus=CASE WHEN CONVERT(datetime,X.ProcessLatestBookDate)< (GETDATE()-2) THEN 'To Review' ELSE X.POStatus END
+                            ,X.LotNo LotNoQty
+                            ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ROUND((X.FirstProcessProQty/NULLIF(X.BaseProcessProduceQty,0))*100,0)
+,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
+,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END
+                            FROM(
+                            SELECT 
+                            T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
+                            ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/t2.BaseProcessPlannedQty,0)
+                            ,ProcProdPercent=ISNULL(T2.ProcProdQty/t2.ProcessPlannedQty,0)
+                            ,EntryCheck=CASE WHEN T2.ProcProdQty-T1.ProcProdQty<0 THEN 'ToCheck' ELSE '' END
+                            ,ProceessProdQtyVsSOQty=COALESCE(T1.ProcProdQty / NULLIF(T1.SOQty ,0), 0)
+                            FROM
+                            (Select ROW_NUMBER() OVER(partition by A.POId ORDER BY A.Sequence) ProcessIndex,A.*
+                            from (select E.Id EntityId,E.UserName Entity,P.Id POId,PRS.Id POStatusId,PRS.UserName POStatus,P.AddedBy,Format(P.AddedDate,'dd-MMM-yyyy')AddedDate,P.UpdatedBy,Format(P.UpdatedDate,'dd-MMM-yyyy')UpdatedDate
+                            --,SOQty=P.Qty*PSQ.Qty/100
+                            ,SOQty=(select SUM(xp.Qty) from trn.SalesOrder AS xp
+                                INNER JOIN TRN.ProductionOrderDetail PD ON pd.SalesOrderId=xp.id
+                                where P.Id=PD.ProductionOrderId)
+                           
+                            ,BaseProcPlanPercentage=(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)
+                            ,ActualPlanScheduleQty=PQ.Qty
+                            ,(PQ.Qty*(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)/100) ShouldBeBaseProcessPlannedQty
+                            ,ISNULL(PS.Quantity,0) BaseProcessProduceQty
+                            ,ISNULL(FPSQ.Quantity,0) FirstProcessProQty
+                            ,PQ.Qty-ISNULL(PS.Quantity,0) BaseProcessRemainingQty
+                            ,PSQ.Sequence,PRO.Id ProcessId,PRO.UserName Process
+                            ,PSQ.Qty PercentQty
+                            ,ProcessPlannedQty=(CASE WHEN PSQ.IsBaseProcess=1 THEN PQ.Qty ELSE PQ.Qty*PSQ.Qty/100 END)
+                            ,ISNULL(PBQ.ProcProdQty,0) ProcProdQty
+                            ,ProcBalanceToProduce=ISNULL((CASE WHEN PSQ.IsBaseProcess=1 THEN PQ.Qty ELSE PQ.Qty*PSQ.Qty/100 END)-PBQ.ProcProdQty,0)
+                            ,RelayProcess=CASE WHEN PSQ.IsCompleted=1 THEN 'Yes' ELSE 'No' End
+                            ,PSQ.IsBaseProcess,PSQ.Remarks
+                            ,ProcessLegDays= CASE WHEN PSQ.Symbol='+' THEN CONVERT(varchar(100),PSQ.Days) ELSE ISNULL((PSQ.Symbol+''+CONVERT(varchar(100),PSQ.Days)),0) END
+                            ,FORMAT(POD.POFirstDelivery,'dd-MMM-yyyy')POFirstDelivery,FORMAT(POD.POLastDelivery,'dd-MMM-yyyy')POLastDelivery
+                            ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProcLatestProdDate,'dd-MMM-yyyy')BaseProcLatestProdDate,ISNULL(FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy'),'') BaseProcPlanStartDate,ISNULL(FORMAT(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),'')BaseProcPlanCompletionDate
+
+                            ,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  < Type1.BaseProcPlanStartDate  then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
+
+                            ,POCompletionDate=FORMAT((case when Type1.BaseProcPlanCompletionDate is null or BASEP.BaseProcLatestProdDate  > Type1.BaseProcPlanCompletionDate  then BASEP.BaseProcLatestProdDate else Type1.BaseProcPlanCompletionDate end),'dd-MMM-yyyy')
+
+                            ,FirstProcessActualBookDate=FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')
+
+                            ,FORMAT(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy')POFirstProdBookDate
+                            ,FORMAT(FBPPD.POLatestProdBookDate,'dd-MMM-yyyy')POLatestProdBookDate
+
+                            ,ShouldBeProcessStartDate=FORMAT(DATEADD(DAY,PSQ.Days
+                            ,(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  < Type1.BaseProcPlanStartDate  then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end)),'dd-MMM-yyyy')
+
+                            ,ShouldBeProcessEndDate=FORMAT(DATEADD(DAY,PSQ.Days
+                            ,(case when Type1.BaseProcPlanCompletionDate is null or BASEP.BaseProcLatestProdDate  > Type1.BaseProcPlanCompletionDate  then BASEP.BaseProcLatestProdDate else Type1.BaseProcPlanCompletionDate end)),'dd-MMM-yyyy')
+
+                            ,FORMAT(PBQ.ProcessFirstBookDate,'dd-MMM-yyyy')ProcessFirstBookDate,FORMAT(PBQ.ProcessLatestBookDate,'dd-MMM-yyyy')ProcessLatestBookDate
+                            ,ProcessStartDays=DateDiff(Day,PBQ.ProcessFirstBookDate,GETDate())
+                            ,ProcessEndDays=DateDiff(Day,PBQ.ProcessLatestBookDate,GETDate())
+
+                            ,ProcessPlanPercent=PSQ.Qty
+
+                            ,ProcessStatus= CASE WHEN PBQ.ProcProdQty>=ISNULL(CASE WHEN ISNULL(PSQ.Qty,0)=0 THEN ISNULL(PQ.Qty,P.PlannedQty) ELSE P.PlannedQty*PSQ.Qty/100 END,0) THEN 'Complete'
+					                            WHEN PBQ.ProcProdQty=0 THEN 'To Start' WHEN PBQ.ProcProdQty>0 THEN 'Running' ELSE 'To Check' END
+                            ,FirstProcessWC=ISNULL(STUFF((select distinct ','+xw.UserName from
+                            ProductionOrderFirstProcessWorkCenter AS xp
+                            INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
+                            where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'')
+                           
+                            ,LotNo=STUFF((select distinct ', '+xp.LotNumber+'-'+convert(varchar(100), xp.Quantity) from
+                            TRN.ProductionSummary AS xp
+                            where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, '')
+
+                            ,InputRecoveryPercentage=STUFF((select distinct ', '+CONVERT(Varchar(100),xp.PlanPercentage) from
+                            dbo.MaterialIssueControlMaster AS xp
+                            where P.Id=xp.POId for xml path('') ), 1, 1, '')
+
+                            ,Customer=STUFF((select distinct ','+XP.UserName from 
+		                                      trn.SalesOrder XSO 
+		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                      left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+		                                      where P.Id=Xpod.ProductionOrderId	 for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+											  ,CustomerId=STUFF((select distinct ','+XP.Id from 
+		                                      trn.SalesOrder XSO 
+		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+		                                      left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+		                                      where P.Id=Xpod.ProductionOrderId	 for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,Article=STUFF((select distinct ','+XMO.StandardName from 
+		                                      trn.SalesOrder XSO 
+		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+		                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+		                                      left outer join MST.MaterialMasterArticle XMO on Xmo.Id=Xmoi.ArticleId
+		                                      where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+							,SONo=STUFF((select distinct ','+XSO.Id from 
+		                                      trn.SalesOrder XSO 
+		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id		                                      
+		                                      where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+                            from TRN.ProductionOrder P
+                            Left JOIN ORG.Entity E ON E.Id=P.EntityId
+                            LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id
+                            LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = P.Id
+                            LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+                            LEFT JOIN HKP.Process PRO ON PRO.Id=PSQ.ProcessId
+
+                            LEFT JOIN (Select MIN(SO.DeliveryDate) POFirstDelivery,MAX(SO.DeliveryDate) POLastDelivery,PD.ProductionOrderId FROM TRN.SalesOrder SO
+                            LEFT JOIN TRN.ProductionOrderDetail PD ON PD.SalesOrderId=SO.Id GROUP BY PD.ProductionOrderId)POD ON POD.ProductionOrderId=P.Id
+                            LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProcLatestProdDate,A.ProductionOrderId From TRN.ProductionSummary A
+                            LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
+                            Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=P.Id
+                            LEFT JOIN(Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=P.Id
+                            LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=P.Id
+
+                            LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
+                            left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY B.ProductionOrderId) PS ON P.Id=PS.ProductionOrderId
+                            LEFT JOIN (Select SUM(Quantity)ProcProdQty, MIN(ProductionDate)ProcessFirstBookDate,MAX(ProductionDate)ProcessLatestBookDate ,ProductionOrderId,ProcessId from TRN.ProductionSummary Group BY ProductionOrderId,ProcessId) PBQ ON P.Id=PBQ.ProductionOrderId AND PBQ.ProcessId=PRO.Id
+                            LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
+                            left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.Sequence=1 Group BY B.ProductionOrderId) FPSQ ON P.Id=FPSQ.ProductionOrderId
+                            Where P.AddedDate>= @POCreationDate 
+                            GROUP BY E.Id,E.UserName,P.Id,PSQ.Sequence,PRO.Id,PRO.UserName,P.PlannedQty,P.Qty,PSQ.Qty,PRS.Id,PRS.UserName,P.AddedBy,P.AddedDate,P.UpdatedBy,P.UpdatedDate,PQ.Qty,PBQ.ProcProdQty,PSQ.IsCompleted,PSQ.IsBaseProcess
+                            ,PSQ.Days,PSQ.Symbol,POD.POFirstDelivery,POD.POLastDelivery,BASEP.BaseProcProdStartDate,BASEP.BaseProcLatestProdDate,BASEP.BaseProcLatestProdDate,Type1.BaseProcPlanStartDate
+                            ,Type1.BaseProcPlanCompletionDate,Type1.BaseProcPlanStartDate,FBPPD.POFirstProdBookDate,FBPPD.POLatestProdBookDate,PBQ.ProcessFirstBookDate,PBQ.ProcessLatestBookDate,PS.Quantity,PSQ.Remarks,FPSQ.Quantity--,BPP.ProcessPlannedQty 
+                            ) A )T1
+                            LEFT JOIN (Select ROW_NUMBER() OVER(partition by A.POId ORDER BY A.Sequence)+1 ProcessIndex,A.*
+                            from (select 
+
+                            (PQ.Qty*(Select Qty from TRN.ProductionOrderProcessSet Where IsBaseProcess=1 AND ProductionOrderId=P.id)/100) BaseProcessPlannedQty
+                            ,PS.Quantity BaseProcessProduceQty
+
+                            ,PSQ.Qty PercentQty
+                            ,ProcessPlannedQty=(CASE WHEN PSQ.IsBaseProcess=1 THEN PQ.Qty ELSE PQ.Qty*PSQ.Qty/100 END)
+                            ,P.Id POId,PSQ.Sequence,PBQ.ProcProdQty
+
+                            from TRN.ProductionOrder P
+                            Left JOIN ORG.Entity E ON E.Id=P.EntityId
+                            LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id
+                            LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = P.Id
+                            LEFT JOIN HKP.ProductionStatus PRS ON PRS.Id=P.ProductionStatusId
+                            LEFT JOIN HKP.Process PRO ON PRO.Id=PSQ.ProcessId
+                            LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
+                            left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId  AND B.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY B.ProductionOrderId ) PS ON P.Id=PS.ProductionOrderId
+                            LEFT JOIN (Select SUM(Quantity)ProcProdQty,ProductionOrderId,ProcessId from TRN.ProductionSummary Group BY ProductionOrderId,ProcessId) PBQ ON P.Id=PBQ.ProductionOrderId AND PBQ.ProcessId=PRO.Id
+                            Where P.AddedDate>= @POCreationDate 
+                            GROUP BY P.Id,PSQ.Sequence,P.Qty,PSQ.Qty,PSQ.IsBaseProcess,PQ.Qty,PBQ.ProcProdQty,PS.Quantity 
+                            ) A )T2 ON T1.ProcessIndex=T2.ProcessIndex AND  T1.POId=T2.POId
+
+                            )X
+
+		                    Where  X.POId = '" + POId + "' and x.POStatusId = '" + POStatusId + "' and x.CustomerId = '" + CustomerId + "'" +
+                            "Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                #endregion Sql
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new POWiseReport
+                    {
+                        ProcessIndex = dsRef.Tables[0].Rows[i]["ProcessIndex"].ToString(),
+                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                        Entity = dsRef.Tables[0].Rows[i]["Entity"].ToString(),
+                        CustomerId = dsRef.Tables[0].Rows[i]["CustomerId"].ToString(),
+                        Customer = dsRef.Tables[0].Rows[i]["Customer"].ToString(),
+                        Article = dsRef.Tables[0].Rows[i]["Article"].ToString(),
+                        SONo = dsRef.Tables[0].Rows[i]["SONo"].ToString(),
+                        PONo = dsRef.Tables[0].Rows[i]["PONo"].ToString(),
+                        POStatusId = dsRef.Tables[0].Rows[i]["POStatusId"].ToString(),
+                        POStatus = dsRef.Tables[0].Rows[i]["POStatus"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                        AddedDate = dsRef.Tables[0].Rows[i]["AddedDate"].ToString(),
+                        UpdatedBy = dsRef.Tables[0].Rows[i]["UpdatedBy"].ToString(),
+                        UpdatedDate = dsRef.Tables[0].Rows[i]["UpdatedDate"].ToString(),
+                        SOQty = dsRef.Tables[0].Rows[i]["SOQty"].ToString(),
+                        BaseProcPlanPercentage = dsRef.Tables[0].Rows[i]["BaseProcPlanPercentage"].ToString(),
+                        ActualPlanScheduleQty = dsRef.Tables[0].Rows[i]["ActualPlanScheduleQty"].ToString(),
+                        ShouldBeBaseProcessPlannedQty = dsRef.Tables[0].Rows[i]["ShouldBeBaseProcessPlannedQty"].ToString(),
+                        BaseProcessProduceQty = dsRef.Tables[0].Rows[i]["BaseProcessProduceQty"].ToString(),
+                        BaseProcessRemainingQty = dsRef.Tables[0].Rows[i]["BaseProcessRemainingQty"].ToString(),
+                        Sequence = dsRef.Tables[0].Rows[i]["Sequence"].ToString(),
+                        ProcessId = dsRef.Tables[0].Rows[i]["ProcessId"].ToString(),
+                        Process = dsRef.Tables[0].Rows[i]["Process"].ToString(),
+                        PercentQty = dsRef.Tables[0].Rows[i]["PercentQty"].ToString(),
+                        ProcessPlannedQty = dsRef.Tables[0].Rows[i]["ProcessPlannedQty"].ToString(),
+                        ProcProdQty = dsRef.Tables[0].Rows[i]["ProcProdQty"].ToString(),
+                        PreProcProdQty = dsRef.Tables[0].Rows[i]["PreProcProdQty"].ToString(),
+                        WIP = dsRef.Tables[0].Rows[i]["WIP"].ToString(),
+                        ProcBalanceToProduce = dsRef.Tables[0].Rows[i]["ProcBalanceToProduce"].ToString(),
+                        RelayProcess = dsRef.Tables[0].Rows[i]["RelayProcess"].ToString(),
+                        IsBaseProcess = dsRef.Tables[0].Rows[i]["IsBaseProcess"].ToString(),
+                        ProcessLegDays = dsRef.Tables[0].Rows[i]["ProcessLegDays"].ToString(),
+                        POFirstDelivery = dsRef.Tables[0].Rows[i]["POFirstDelivery"].ToString(),
+                        POLastDelivery = dsRef.Tables[0].Rows[i]["POLastDelivery"].ToString(),
+                        BaseProcProdStartDate = dsRef.Tables[0].Rows[i]["BaseProcProdStartDate"].ToString(),
+                        BaseProcLatestProdDate = dsRef.Tables[0].Rows[i]["BaseProcLatestProdDate"].ToString(),
+                        BaseProcPlanStartDate = dsRef.Tables[0].Rows[i]["BaseProcPlanStartDate"].ToString(),
+                        BaseProcPlanCompletionDate = dsRef.Tables[0].Rows[i]["BaseProcPlanCompletionDate"].ToString(),
+                        POStartDate = dsRef.Tables[0].Rows[i]["POStartDate"].ToString(),
+                        POCompletionDate = dsRef.Tables[0].Rows[i]["POCompletionDate"].ToString(),
+                        FirstProcessActualBookDate = dsRef.Tables[0].Rows[i]["FirstProcessActualBookDate"].ToString(),
+                        POFirstProdBookDate = dsRef.Tables[0].Rows[i]["POFirstProdBookDate"].ToString(),
+                        POLatestProdBookDate = dsRef.Tables[0].Rows[i]["POLatestProdBookDate"].ToString(),
+                        ShouldBeProcessStartDate = dsRef.Tables[0].Rows[i]["ShouldBeProcessStartDate"].ToString(),
+                        ShouldBeProcessEndDate = dsRef.Tables[0].Rows[i]["ShouldBeProcessEndDate"].ToString(),
+                        ProcessFirstBookDate = dsRef.Tables[0].Rows[i]["ProcessFirstBookDate"].ToString(),
+                        ProcessLatestBookDate = dsRef.Tables[0].Rows[i]["ProcessLatestBookDate"].ToString(),
+                        ProcessStartDays = dsRef.Tables[0].Rows[i]["ProcessStartDays"].ToString(),
+                        ProcessEndDays = dsRef.Tables[0].Rows[i]["ProcessEndDays"].ToString(),
+                        ProcessPlanPercent = dsRef.Tables[0].Rows[i]["ProcessPlanPercent"].ToString(),
+                        ProcessStatus = dsRef.Tables[0].Rows[i]["ProcessStatus"].ToString(),
+                        FirstProcessWC = dsRef.Tables[0].Rows[i]["FirstProcessWC"].ToString(),
+                        ProcLossPercent = dsRef.Tables[0].Rows[i]["ProcLossPercent"].ToString(),
+                        ProcLossQty = dsRef.Tables[0].Rows[i]["ProcLossQty"].ToString(),
+                        BaseProcProdPerenct = dsRef.Tables[0].Rows[i]["BaseProcProdPerenct"].ToString(),
+                        ProcProdPercent = dsRef.Tables[0].Rows[i]["ProcProdPercent"].ToString(),
+                        EntryCheck = dsRef.Tables[0].Rows[i]["EntryCheck"].ToString(),
+                        ProceessProdQtyVsSOQty = dsRef.Tables[0].Rows[i]["ProceessProdQtyVsSOQty"].ToString(),
+                        ProcessStatusRemark = dsRef.Tables[0].Rows[i]["ProcessStatusRemark"].ToString(),
+                        POReviewStatus = dsRef.Tables[0].Rows[i]["POReviewStatus"].ToString(),
+                        LotNoQty = dsRef.Tables[0].Rows[i]["LotNoQty"].ToString(),
+                        InputRecoveryPercentage = dsRef.Tables[0].Rows[i]["InputRecoveryPercentage"].ToString(),
+                        ActualInputPlanPercentage = dsRef.Tables[0].Rows[i]["ActualInputPlanPercentage"].ToString(),
+                        LatestProcessProdBookDays = dsRef.Tables[0].Rows[i]["LatestProcessProdBookDays"].ToString(),
+                        ProcessReviewStatus = dsRef.Tables[0].Rows[i]["ProcessReviewStatus"].ToString(),
                     });
                 }
             }
@@ -4287,18 +4645,17 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string Id { get; set; }
         public string ProductionServiceId { get; set; }
         public string WorkcenterMasterId { get; set; }
-        public int PO { get; set; }
-        public int Value { get; set; }
-        public decimal Effeciency { get; set; }
+        public string PO { get; set; }
+        public string Value { get; set; }
         public string Remarks { get; set; }
-        public string Region1 { get; set; }
-        public string Region1Time { get; set; }
-        public string Region2 { get; set; }
-        public string Region2Time { get; set; }
-        public string Region3 { get; set; }
-        public string Region3Time { get; set; }
-        public string Region4 { get; set; }
-        public string Region4Time { get; set; }
+        public string Detention1 { get; set; }
+        public string Detention1Time { get; set; }
+        public string Detention2 { get; set; }
+        public string Detention2Time { get; set; }
+        public string Detention3 { get; set; }
+        public string Detention3Time { get; set; }
+        public string Detention4 { get; set; }
+        public string Detention4Time { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }
@@ -4312,7 +4669,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
     {
         public string Id { get; set; }
         public string ProductionServiceId { get; set; }
-        public string SandardName { get; set; }
+        public string StandardName { get; set; }
         public string Production100 { get; set; }
         public string Efficiency { get; set; }
         public string Speed { get; set; }
@@ -4376,6 +4733,75 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string AddedDate { get; set; }
         public string DueDate { get; set; }
         public string CommitmentDate { get; set; }
+    }
+
+    public class POWiseReport
+    {
+        public string ProcessIndex { get; set; }
+        public string EntityId { get; set; }
+        public string Entity { get; set; }
+        public string CustomerId { get; set; }
+        public string Customer { get; set; }
+        public string Article { get; set; }
+        public string SONo { get; set; }
+        public string PONo { get; set; }
+        public string POStatusId { get; set; }
+        public string POStatus { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string SOQty { get; set; }
+        public string BaseProcPlanPercentage { get; set; }
+        public string ActualPlanScheduleQty { get; set; }
+        public string ShouldBeBaseProcessPlannedQty { get; set; }
+        public string BaseProcessProduceQty { get; set; }
+        public string BaseProcessRemainingQty { get; set; }
+        public string Sequence { get; set; }
+        public string ProcessId { get; set; }
+        public string Process { get; set; }
+        public string PercentQty { get; set; }
+        public string ProcessPlannedQty { get; set; }
+        public string ProcProdQty { get; set; }
+        public string PreProcProdQty { get; set; }
+        public string WIP { get; set; }
+        public string ProcBalanceToProduce { get; set; }
+        public string RelayProcess { get; set; }
+        public string IsBaseProcess { get; set; }
+        public string ProcessLegDays { get; set; }
+        public string POFirstDelivery { get; set; }
+        public string POLastDelivery { get; set; }
+        public string BaseProcProdStartDate { get; set; }
+        public string BaseProcLatestProdDate { get; set; }
+        public string BaseProcPlanStartDate { get; set; }
+        public string BaseProcPlanCompletionDate { get; set; }
+        public string POStartDate { get; set; }
+        public string POCompletionDate { get; set; }
+        public string FirstProcessActualBookDate { get; set; }
+        public string POFirstProdBookDate { get; set; }
+        public string POLatestProdBookDate { get; set; }
+        public string ShouldBeProcessStartDate { get; set; }
+        public string ShouldBeProcessEndDate { get; set; }
+        public string ProcessFirstBookDate { get; set; }
+        public string ProcessLatestBookDate { get; set; }
+        public string ProcessStartDays { get; set; }
+        public string ProcessEndDays { get; set; }
+        public string ProcessPlanPercent { get; set; }
+        public string ProcessStatus { get; set; }
+        public string FirstProcessWC { get; set; }
+        public string ProcLossPercent { get; set; }
+        public string ProcLossQty { get; set; }
+        public string BaseProcProdPerenct { get; set; }
+        public string ProcProdPercent { get; set; }
+        public string EntryCheck { get; set; }
+        public string ProceessProdQtyVsSOQty { get; set; }
+        public string ProcessStatusRemark { get; set; }
+        public string POReviewStatus { get; set; }
+        public string LotNoQty { get; set; }
+        public string InputRecoveryPercentage { get; set; }
+        public string ActualInputPlanPercentage { get; set; }
+        public string LatestProcessProdBookDays { get; set; }
+        public string ProcessReviewStatus { get; set; }
     }
     #endregion WrittenBy Aman
 
