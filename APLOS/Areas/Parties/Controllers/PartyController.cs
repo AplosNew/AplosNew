@@ -16,7 +16,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using System.Threading;
+using System.Linq;
 using System.Web.Mvc;
+using System.Linq.Expressions;
 
 namespace Aplos.Areas.Parties.Controllers
 {
@@ -763,23 +765,43 @@ namespace Aplos.Areas.Parties.Controllers
         [HttpPost]
         public JsonResult Edit(Party party, AddressMaster addressMaster, IEnumerable<ContactMaster> contactmasters,
             IEnumerable<CompanyParty> companyPartyDataList, IEnumerable<CompanyPartyGL> companyPartyGLDataList,
-            IEnumerable<PartyPartnerFunction> vendorPartnerFunction)
+            IEnumerable<PartyPartnerFunction> vendorPartnerFunction,bool isCustomerCurrencyChanges, bool isVendorCurrencyChanges)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             party.CompanyGroupId = identity.CompanyGroupId;
             party.PartyType = PartyType.Party.ToString();
 
-            if (party.PartyType == "Party")
+            var listCount = companyPartyDataList.ToList().Count;
+            if (isCustomerCurrencyChanges == true && listCount > 0)
             {
-                ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster = null;
-                string sql = "select* from trn.VoucherDetail where PartyId = '" + party.Id + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                if (dsMaster.Tables[0].Rows.Count > 0)
+                foreach (var item in companyPartyDataList.Where(r => r.PartyType == "Customer"))
                 {
-                    throw new CustomException("Currency update not allowed!! Voucher have already done against this Party.");
+                    ConnectionManager.DAL.ConManager objCon;
+                    DataSet dsMaster = null;
+                    string sql = "select* from trn.VoucherDetail where PartyId = '" + party.Id + "' and PartyType='"+ item.PartyType + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Customer Currency update not allowed!! Voucher have already done against this Party.");
+                    }
+                }
+            }
+            if (isVendorCurrencyChanges == true && listCount > 0)
+            {
+                foreach (var item in companyPartyDataList.Where(r=>r.PartyType=="Vendor"))
+                {
+                    ConnectionManager.DAL.ConManager objCon;
+                    DataSet dsMaster = null;
+                    string sql = "select* from trn.VoucherDetail where PartyId = '" + party.Id + "' and PartyType='" + item.PartyType + "'";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        throw new CustomException("Vendor Currency update not allowed !! Voucher have already done against this Party.");
+                    }
                 }
             }
 

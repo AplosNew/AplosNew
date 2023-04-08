@@ -2071,6 +2071,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "Proc Prod Percent"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcProdPercent = COL; COL++;
                 sheet[ROW, COL].Text = "Entry Check"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colEntryCheck = COL; COL++;
                 sheet[ROW, COL].Text = "Proceess Prod Qty Vs SOQty"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProceessProdQtyVsSOQty = COL;COL++;
+                sheet[ROW, COL].Text = "Process Balance Production"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colProcessBalanceProd = COL;COL++;
                 sheet[ROW, COL].Text = "Process Status Remark"; sheet[ROW, COL].ColumnWidth = 16; int colProcessStatusRemark = COL; COL++;
                 sheet[ROW, COL].Text = "PO Review Status"; sheet[ROW, COL].ColumnWidth = 16; int colPOReviewStatus = COL; COL++;
                 sheet[ROW, COL].Text = "Input Recovery Percentage"; sheet[ROW, COL].ColumnWidth = 12; sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight; int colInputRecoveryPercentage = COL; COL++;
@@ -2148,6 +2149,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colProcProdPercent].Number = clsStaticInfo.dbl(data.Rows[i]["ProcProdPercent"].ToString());
                     sheet[ROW, colEntryCheck].Text = data.Rows[i]["EntryCheck"].ToString();
                     sheet[ROW, colProceessProdQtyVsSOQty].Number = clsStaticInfo.dbl(data.Rows[i]["ProceessProdQtyVsSOQty"].ToString());
+                    sheet[ROW, colProcessBalanceProd].Number = clsStaticInfo.dbl(data.Rows[i]["ProcessBalanceProd"].ToString());
                     sheet[ROW, colProcessStatusRemark].Text = data.Rows[i]["ProcessStatusRemark"].ToString();
                     sheet[ROW, colPOReviewStatus].Text = data.Rows[i]["POReviewStatus"].ToString();
                     sheet[ROW, colLotNoQty].Text = data.Rows[i]["LotNoQty"].ToString();
@@ -2235,6 +2237,7 @@ namespace Aplos.Areas.Productions.Controllers
 
                 pivotTable.Fields[colProcProdPercent - 1].Axis = PivotAxisTypes.Row;//14
                 pivotTable.Fields[colProceessProdQtyVsSOQty - 1].Axis = PivotAxisTypes.Row;//15
+                pivotTable.Fields[colProcessBalanceProd - 1].Axis = PivotAxisTypes.Row;//15
                 
                 
 

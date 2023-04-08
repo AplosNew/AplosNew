@@ -61,7 +61,7 @@
         </div>
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                <li> <button ng-click="Save();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                 @*<li> <button ng-click="Update();" id="updatebtn" style="display:none" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>*@
                 @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
@@ -77,30 +77,19 @@
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine</a></li>
                 <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="Service" role="tab" data-toggle="tab">Product</a></li>              
                 <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="Service" role="tab" data-toggle="tab">Workcenter</a></li>
-
+                
             </ul>
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
-                    @*<div class="form-elements form-horizontal" ng-form name="ModelNewForm">*@
+                   
 
                     <div class="row" ng-form name="ParameterForm">
                         @*COLUMN 1*@
                         <div class="col-xs-12 col-sm-8 col-md-4">
-                            @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="ProcessId" required name="Process"
-                                                tabindex="2">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in ProcessList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>*@
+
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">parameter category<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -150,18 +139,34 @@
 
                                 </div>
                             </div>
+
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Parameter Type</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ParameterId" Type required name="Process"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option value="General">General</option>
+                                            <option value="Order Specific">Order Specific</option>
+                                            <option value="Other">Other</option>
+                                            <option value="Both">Both</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         @*COLUMN 2*@
                         <div class="col-xs-12 col-sm-8 col-md-4">
                             @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterList" e-value="MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                                    </div>
+                            <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="MachineMasterList" e-value="MachineMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                                 </div>
-                            </div>*@
+                            </div>
+                        </div>*@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Crititcal Level<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -196,41 +201,52 @@
 
                         </div>
                         @*COLUMN 3*@
-                        <div class="col-xs-12 col-sm-8 col-md-4">
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Parameter<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="ParameterId" required name="Parameter"
-                                                tabindex="2">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in ParameterMasterList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="input-group">
-
-                                        <input type="text" name="UOM" ng-model="UOMName" class="form-control" required readonly>
-                                        <span class="input-group-btn">
-                                            <button name="submit" ng-click="openUOMPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Checkin Days</label>
-                                <div class="col-sm-8 show-message">
-
-                                    <input type="number" name="Checkin Days" ng-model="CheckinDays" class="form-control" maxlength="15" required tabindex="3">
-
+                    <div class="col-xs-12 col-sm-8 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Parameter<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ParameterId" required name="Parameter"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in ParameterMasterList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="common-btn">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+
+                                    <input type="text" name="UOM" ng-model="UOMName" class="form-control" required readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="openUOMPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Checkin Days</label>
+                            <div class="col-sm-8 show-message">
+
+                                <input type="number" name="Checkin Days" ng-model="CheckinDays" class="form-control" maxlength="15" required tabindex="3">
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Machine Confirm</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelNew.MachineConfirm" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="common-btn" style="margin-bottom:20px">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="CreateParameter();" id="savebtn" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
                                 @*<li> <button ng-click="Update();" id="updatebtn" style="display:none" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Update</button></li>*@
@@ -291,59 +307,59 @@
             </div>
 
             @*   TAB -2 ENTITY START   *@
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
 
-            
-            <div class="row">
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="row">
 
-                    <div class="common-btn" style="margin-bottom:10px">
-                        <ul class="list-inline text-left">
-                            <li>
-                                <button name="submit" class="btn single-small-btn" ng-click="OpenEntityPopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Entity</button>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
 
-                            </li>
-                        </ul>
+                        <div class="common-btn" style="margin-bottom:10px">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button name="submit" class="btn single-small-btn" ng-click="OpenEntityPopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Entity</button>
+
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+                <div class="table-responsive modal-table" ng-show="ParameterEntityList.length>0">
+                    <table class="table table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Parameter Setup</th>
+                                <th>Entity</th>
+                                <th>Remove</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in ParameterEntityList">
+                                <td>
+                                    {{x.ParameterSetup}}
+                                </td>
+                                <td>
+                                    {{x.Entity}}
+                                </td>
+
+                                <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
             </div>
-            <div class="table-responsive modal-table" ng-show="ParameterEntityList.length>0">
-                <table class="table table-responsive table-striped">
-                    <thead>
-                        <tr>
-                            <th>Parameter Setup</th>
-                            <th>Entity</th>
-                            <th>Remove</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in ParameterEntityList">
-                            <td>
-                                {{x.ParameterSetup}}
-                            </td>
-                            <td>
-                                {{x.Entity}}
-                            </td>
-
-                            <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
-
-                        </tr>
-                    </tbody>
-
-                </table>
-
-            </div>
-        </div>
             @*   TAB -2 CLOSE   *@
 
             @*   TAB -3 PROCESS START   *@
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-            <div class="row" ng-form>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row" ng-form>
 
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    @*<div class="form-group" show-errors>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        @*<div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Parameter Entity<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
@@ -355,102 +371,102 @@
                             </div>
                         </div>
                     </div>*@
-                    <div class="common-btn" style="margin-bottom:10px">
-                        <ul class="list-inline text-left">
-                            <li>
-                                <button name="submit" class="btn single-small-btn" ng-click="OpenProcessPopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Process</button>
+                        <div class="common-btn" style="margin-bottom:10px">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button name="submit" class="btn single-small-btn" ng-click="OpenProcessPopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Process</button>
 
-                            </li>
-                        </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+                <div class="table-responsive modal-table" ng-show="ParameterProcessList.length>0">
+                    <table class="table table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Parameter Setup</th>
+                                <th>Code</th>
+                                <th>Process</th>
+                                <th>Remove</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in ParameterProcessList">
+                                <td>
+                                    {{x.ParameterSetup}}
+                                </td>
+                                <td>
+                                    {{x.Code}}
+                                </td>
+
+                                <td>
+                                    {{x.Process}}
+                                </td>
+
+                                <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
             </div>
-            <div class="table-responsive modal-table" ng-show="ParameterProcessList.length>0">
-                <table class="table table-responsive table-striped">
-                    <thead>
-                        <tr>
-                            <th>Parameter Setup</th>
-                            <th>Code</th>
-                            <th>Process</th>
-                            <th>Remove</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in ParameterProcessList">
-                            <td>
-                                {{x.ParameterSetup}}
-                            </td>
-                            <td>
-                                {{x.Code}}
-                            </td>
-
-                            <td>
-                                {{x.Process}}
-                            </td>
-
-                            <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
-
-                        </tr>
-                    </tbody>
-
-                </table>
-
-            </div>
-        </div>
             @*   TAB -3 CLOSE   *@
 
             @*   TAB -4 MACHINE START   *@
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="common-btn" style="margin-bottom:10px">
-                        <ul class="list-inline text-left">
-                            <li>
-                                <button name="submit" class="btn single-small-btn" ng-click="OpenMachinePopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Machine</button>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn" style="margin-bottom:10px">
+                            <ul class="list-inline text-left">
+                                <li>
+                                    <button name="submit" class="btn single-small-btn" ng-click="OpenMachinePopUp()" tabindex="1"><i class="cr-icon glyphicon glyphicon-plus"></i>Add Machine</button>
 
-                            </li>
-                        </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+                <div class="table-responsive modal-table" ng-show="ParameterMachineList.length>0">
+                    <table class="table table-responsive table-striped">
+                        <thead>
+                            <tr>
+                                <th>Parameter Setup</th>
+                                <th>Machine</th>
+                                <th>Category</th>
+                                <th>Sub Category</th>
+                                <th>Remove</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in ParameterMachineList">
+                                <td>
+                                    {{x.ParameterSetup}}
+                                </td>
+                                <td>
+                                    {{x.Machine}}
+                                </td>
+                                <td>
+                                    {{x.Category}}
+                                </td>
+
+                                <td>
+                                    {{x.SubCategory}}
+                                </td>
+
+                                <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
             </div>
-            <div class="table-responsive modal-table" ng-show="ParameterMachineList.length>0">
-                <table class="table table-responsive table-striped">
-                    <thead>
-                        <tr>
-                            <th>Parameter Setup</th>
-                            <th>Machine</th>
-                            <th>Category</th>
-                            <th>Sub Category</th>
-                            <th>Remove</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in ParameterMachineList">
-                            <td>
-                                {{x.ParameterSetup}}
-                            </td>
-                            <td>
-                                {{x.Machine}}
-                            </td>
-                            <td>
-                                {{x.Category}}
-                            </td>
-
-                            <td>
-                                {{x.SubCategory}}
-                            </td>
-
-                            <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
-
-                        </tr>
-                    </tbody>
-
-                </table>
-
-            </div>
-        </div>
             @*   TAB -4 CLOSE   *@
 
             @*  TAB - 5   *@
@@ -510,18 +526,7 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
                 <div class="row" ng-form>
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        @*<div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Parameter Entity<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="paramEntityId" required name="Process"
-                                            tabindex="2">
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in SavedParamEntityId" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>*@
+
                         <div class="common-btn" style="margin-bottom:10px">
                             <ul class="list-inline text-left">
                                 <li>
@@ -572,10 +577,9 @@
                 </div>
             </div>
 
+            </div>
 
         </div>
-
-    </div>
 </div>
 
 
