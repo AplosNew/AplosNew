@@ -58,6 +58,7 @@ function ParameterMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.GetParameterEntity();
             $scope.GetSavedProcess();
             $scope.GetSavedMachine();
+            $scope.GetQualityProcess()
             $rootScope.toggle();
 
         }
@@ -90,6 +91,7 @@ function ParameterMasterController(cboService, commonMessage, $scope, $rootScope
 
         }
     };
+
         // Parameter
         $scope.MachineMasterId = null;
         $scope.CreateParameter = function () {
@@ -1087,5 +1089,105 @@ function ParameterMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.SavedParamEntityId = resp.data;
         });
     }
+
+    // #region QUALITY PROCESS TAB
+    $scope.QPAction = 'Save';
+    $scope.QPSaveUrl = $scope.path + 'QPSave';
+
+    $scope.QualityProcessTemp = {
+        Id:null,
+        QualityProcess: null,
+        StandardProcess:null
+    }
+    $scope.QualityProcess = Object.assign({}, $scope.ModelTemp);
+
+
+    $scope.QPSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.QualityProcessForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.QPSaveUrl,
+                data: {
+                    'data': $scope.QualityProcess,
+                    'headerId': $scope.ModelNew.Id
+
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.QualityProcess.Id = response.data.Data.Id;
+                    $scope.QPClear();
+                    $scope.GetQualityProcess();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.QualityProcessList = [];
+    $scope.GetQualityProcess = function () {
+        $scope.QualityProcessList = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetQualityProcess?headerId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.QualityProcessList = resp.data;
+            $scope.QualityProcess = Object.assign({}, resp.data[0])
+        });
+
+    }
+
+    $scope.GetOnDblClick = function (x) {
+        
+        $scope.QualityProcess = Object.assign({}, x.QualityProcess)
+        $scope.QPAction = 'Update';
+    }
+
+    $scope.QPClear = function () {
+        QPClearFields();
+        return true;
+    };
+    function QPClearFields() {
+        $scope.QPAction = 'Save';
+
+        $scope.QualityProcessTemp = {
+            Id: null,
+            QualityProcess: null,
+            StandardProcess: null
+        }
+        $scope.QualityProcess = Object.assign({}, $scope.ModelTemp);
+
+    }
+
+    $scope.RemoveQualityPeocess = function (x) {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'RemoveQualityPeocess?Id=' + x.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                
+                $scope.GetQualityProcess()
+
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    }
+    // #endregion QUALITY PROCESS TAB
 
   }

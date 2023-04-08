@@ -5899,41 +5899,41 @@ namespace Library.Service.HumanResources
                             Remarks = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, Remarks].Text = "Remarks";
-                            sheet1.Range[xlsRow, Remarks].ColumnWidth = 30;
+                            sheet1.Range[xlsRow, Remarks].ColumnWidth = 60;
                             sheet1.Range[xlsRow, Remarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, Remarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             ItemDetails = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, ItemDetails].Text = "Item Details";
-                            sheet1.Range[xlsRow, ItemDetails].ColumnWidth = 45;
+                            sheet1.Range[xlsRow, ItemDetails].ColumnWidth = 60;
                             sheet1.Range[xlsRow, ItemDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ItemDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             DetentionDetails = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, DetentionDetails].Text = "Detention Details";
-                            sheet1.Range[xlsRow, DetentionDetails].ColumnWidth = 45;
+                            sheet1.Range[xlsRow, DetentionDetails].ColumnWidth = 60;
                             sheet1.Range[xlsRow, DetentionDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, DetentionDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             ReasonDetails = xlsCol;
                             xlsCol += 1;
                             sheet1.Range[xlsRow, ReasonDetails].Text = "Reason Details";
-                            sheet1.Range[xlsRow, ReasonDetails].ColumnWidth = 45;
+                            sheet1.Range[xlsRow, ReasonDetails].ColumnWidth = 60;
                             sheet1.Range[xlsRow, ReasonDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, ReasonDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             Production = xlsCol;
                             sheet1.Range[xlsRow, Production].Text = "Production";
-                            sheet1.Range[xlsRow, Production].ColumnWidth = 35;
+                            sheet1.Range[xlsRow, Production].ColumnWidth = 60;
                             sheet1.Range[xlsRow, Production].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, Production].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].BorderInside(ExcelLineStyle.Hair);
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.Font.Bold = true;
-                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol].RowHeight = 60;
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol].RowHeight = 70;
                             endXlsCol = xlsCol;
 
                             for (int i = 0; i < dvBioDvACitem.Count; i++)
@@ -5946,78 +5946,78 @@ namespace Library.Service.HumanResources
 
                                     xlsRow += 1;
                                     sheet1.Range[xlsRow, WorkCenter].Text = dvBioDvACitem[i]["WorkCenter"].ToString();
-                                    sheet1.Range[xlsRow, WorkCenter].RowHeight = 60;
+                                    sheet1.Range[xlsRow, WorkCenter].RowHeight = 70;
                                     sheet1.Range[xlsRow, WorkCenter].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, WorkCenter].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, LotNumber].Text = dvBioDvACitem[i]["LotNumber"].ToString();
-                                    sheet1.Range[xlsRow, LotNumber].RowHeight = 60;
+                                    sheet1.Range[xlsRow, LotNumber].RowHeight = 70;
                                     sheet1.Range[xlsRow, LotNumber].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, LotNumber].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, PONo].Text = dvBioDvACitem[i]["PONo"].ToString();
-                                    sheet1.Range[xlsRow, PONo].RowHeight = 60;
+                                    sheet1.Range[xlsRow, PONo].RowHeight = 70;
                                     sheet1.Range[xlsRow, PONo].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, PONo].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
 
                                     sheet1.Range[xlsRow, PlanHours].Text = dvBioDvACitem[i]["PlanHours"].ToString();
-                                    sheet1.Range[xlsRow, PlanHours].RowHeight = 60;
+                                    sheet1.Range[xlsRow, PlanHours].RowHeight = 70;
                                     sheet1.Range[xlsRow, PlanHours].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, PlanHours].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, Efficiency].Text = dvBioDvACitem[i]["Efficiency"].ToString();
-                                    sheet1.Range[xlsRow, Efficiency].RowHeight = 60;
+                                    sheet1.Range[xlsRow, Efficiency].RowHeight = 70;
                                     sheet1.Range[xlsRow, Efficiency].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Efficiency].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, PlanProductionFP].Text = dvBioDvACitem[i]["TargetFD"].ToString();
-                                    sheet1.Range[xlsRow, PlanProductionFP].RowHeight = 60;
+                                    sheet1.Range[xlsRow, PlanProductionFP].RowHeight = 70;
                                     sheet1.Range[xlsRow, PlanProductionFP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, PlanProductionFP].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, TargetProductionFP].Text = dvBioDvACitem[i]["TargetProductionFP"].ToString();
-                                    sheet1.Range[xlsRow, TargetProductionFP].RowHeight = 60;
+                                    sheet1.Range[xlsRow, TargetProductionFP].RowHeight = 70;
                                     sheet1.Range[xlsRow, TargetProductionFP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, TargetProductionFP].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, Difference].Text = dvBioDvACitem[i]["Difference"].ToString();
-                                    sheet1.Range[xlsRow, Difference].RowHeight = 60;
+                                    sheet1.Range[xlsRow, Difference].RowHeight = 70;
                                     sheet1.Range[xlsRow, Difference].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Difference].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, Responsible].Text = dvBioDvACitem[i]["Responsible"].ToString();
-                                    sheet1.Range[xlsRow, Responsible].RowHeight = 60;
+                                    sheet1.Range[xlsRow, Responsible].RowHeight = 70;
                                     sheet1.Range[xlsRow, Responsible].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Responsible].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, InCharge].Text = dvBioDvACitem[i]["InCharge"].ToString();
-                                    sheet1.Range[xlsRow, InCharge].RowHeight = 60;
+                                    sheet1.Range[xlsRow, InCharge].RowHeight = 70;
                                     sheet1.Range[xlsRow, InCharge].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, InCharge].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, Article].Text = dvBioDvACitem[i]["Article"].ToString();
-                                    sheet1.Range[xlsRow, Article].RowHeight = 60;
+                                    sheet1.Range[xlsRow, Article].RowHeight = 70;
                                     sheet1.Range[xlsRow, Article].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                     sheet1.Range[xlsRow, Article].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, Remarks].Text = dvBioDvACitem[i]["Remarks"].ToString();
-                                    sheet1.Range[xlsRow, Remarks].RowHeight = 60;
+                                    sheet1.Range[xlsRow, Remarks].RowHeight = 70;
                                     sheet1.Range[xlsRow, Remarks].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Remarks].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, ItemDetails].Text = dvBioDvACitem[i]["ItemDetails"].ToString();
-                                    sheet1.Range[xlsRow, ItemDetails].RowHeight = 60;
+                                    sheet1.Range[xlsRow, ItemDetails].RowHeight = 70;
                                     sheet1.Range[xlsRow, ItemDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, ItemDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, DetentionDetails].Text = dvBioDvACitem[i]["DetentionDetails"].ToString();
-                                    sheet1.Range[xlsRow, DetentionDetails].RowHeight = 60;
+                                    sheet1.Range[xlsRow, DetentionDetails].RowHeight = 70;
                                     sheet1.Range[xlsRow, DetentionDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, DetentionDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, ReasonDetails].Text = dvBioDvACitem[i]["ReasonDetails"].ToString();
-                                    sheet1.Range[xlsRow, ReasonDetails].RowHeight = 60;
+                                    sheet1.Range[xlsRow, ReasonDetails].RowHeight = 70;
                                     sheet1.Range[xlsRow, ReasonDetails].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, ReasonDetails].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -6061,7 +6061,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
 
                             sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 1].CellStyle.Font.Bold = true;
-                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 1].RowHeight = 60;
+                            sheet1.Range[xlsRow, 1, xlsRow, xlsCol + 1].RowHeight = 70;
 
                         }
 
@@ -6172,7 +6172,7 @@ namespace Library.Service.HumanResources
                         sheet1.Range[xlsRow, 4].Text = "Running Machine Job Card: ";
                         sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].Merge();
                         sheet1.Range[xlsRow, 4].CellStyle.Font.Size = 20;
-                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 60;
+                        sheet1.Range[xlsRow, 4, xlsRow, endXlsCol].RowHeight = 70;
                         sheet1.Range[xlsRow, 4].CellStyle.Font.Bold = true;
                         sheet1.Range[xlsRow, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;

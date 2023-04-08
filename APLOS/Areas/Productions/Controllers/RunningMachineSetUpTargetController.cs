@@ -296,7 +296,15 @@ where RD.ProcessId='" + ProcessId + "'";
         public ActionResult LoadProcessParameterList(string ProcessId, string ProductionId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select PV.Id,PV.SNo,PV.ParameterValue,PV.Remarks,PD.Id as ParameterId,PD.ParameterName,format(PV.ParameterDate,'dd-MMM-yyyy') as ParameterDate
+            string str = @"select distinct '' as Id,isnull(PV.SNo,(select top 1 SNo from [TRN].[RMSTargetParameterValue] where ParameterId=PD.Id order by AddedDate desc)) as SNo,
+isnull(PV.ParameterValue,(select top 1 ParameterValue from [TRN].[RMSTargetParameterValue] where ParameterId=PD.Id order by AddedDate desc)) as ParameterValue,
+isnull(PV.Remarks,(select top 1 Remarks from [TRN].[RMSTargetParameterValue] where ParameterId=PD.Id order by AddedDate desc)) as Remarks,
+PD.Id as ParameterId,
+PD.ParameterName,
+isnull(format(PV.ParameterDate,'dd-MMM-yyyy'), (select top 1 format(ParameterDate,'dd-MMM-yyyy') from [TRN].[RMSTargetParameterValue] where ParameterId=PD.Id order by AddedDate desc)) as ParameterDate,
+Day(getdate()-isnull(format(PV.ParameterDate,'dd-MMM-yyyy'), (select top 1 format(ParameterDate,'dd-MMM-yyyy') from [TRN].[RMSTargetParameterValue] where ParameterId=PD.Id order by AddedDate desc))) as ParameterDays,
+isnull(PV.AddedBy,(select top 1 AddedBy from [TRN].[RMSTargetParameterValue] where ParameterId=PD.Id order by AddedDate desc)) as AddedBy
+--,isnull(PV.UpdatedBy,(select top 1 UpdatedBy from [TRN].[RMSTargetParameterValue] where ParameterId=PD.Id order by AddedDate desc)) as UpdatedBy
 from MST.ParameterDetails PD
 left join [TRN].[RMSTargetParameterValue] PV ON PV.ParameterId=PD.Id and PV.ProductionId='" + ProductionId + @"'
 where PD.ProcessId='" + ProcessId + "'";
@@ -658,6 +666,61 @@ where PD.ProcessId='" + ProcessId + "'";
             catch (Exception ex)
             {
                 throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult createSinglePValue(Dictionary<string, object> ProductionParameterData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[RMSTargetParameterValue] where ProductionId='" + ProductionParameterData["ProductionId"] + "' and ParameterId ='" + ProductionParameterData["ParameterId"] + "'", out DataSet dsRMSTargetParameterValueValidation, false, "1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                DataSet dsRMSTargetParameterValue;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[RMSTargetParameterValue] where Id='" + ProductionParameterData["Id"] + "'", out dsRMSTargetParameterValue, false, "1");
+                string _Id = "", Id = string.Empty;
+
+                #region data update
+                if (dsRMSTargetParameterValue.Tables[0].Rows.Count == 0)
+                {
+                    if (dsRMSTargetParameterValueValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("This Record Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("[TRN].[RMSTargetParameterValue]", out _Id);
+                        ProductionParameterData["Id"] = "RPV" + _Id;
+                        AddNewRow(dsRMSTargetParameterValue.Tables[0], ProductionParameterData);
+                    }
+
+                }
+                else
+                {
+                    _Id = ProductionParameterData["Id"].ToString();
+                    EditRow(dsRMSTargetParameterValue.Tables[0].Rows[0], ProductionParameterData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsRMSTargetParameterValue);
+
+                return Json(new { Error = false, Data = ProductionParameterData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
             }
         }
 
