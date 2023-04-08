@@ -153,7 +153,7 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                 $scope.LineItemsList = [];
                 $scope.WorkDayList = [];
                 var ob = {};
-                $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate)
+                $http.get("Productions/FinishGoodsBooking/GetItemScanChildData?entityId=" + $scope.modelNew.ProductionEntityId + '&fromDate=' + $scope.modelNew.FromDate + '&toDate=' + $scope.modelNew.ToDate + '&level=' + $scope.modelNew.Level)
                     .then(
                         function successCallback(response) {
                             if (baseService.arrayLength(response.data) > 0) {
@@ -561,7 +561,30 @@ function ConsumptionBookingController(cboService, commonMessage, $scope, $rootSc
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-        angular.element(document.querySelector('#CostingItemDetailDataPoUp')).modal('show');
+        if ($scope.modelNew.Level == "QBOQ") {
+            angular.element(document.querySelector('#CostingItemDetailDataPoUp')).modal('show');
+        }
+        else if ($scope.modelNew.Level == "Costing") {
+
+        }
+        
+    };
+
+    $scope.QBOQItemDetailList = [];
+    $scope.GetQBOQItemDetailData = function (obj) {
+        $scope.QBOQItemDetailList = [];
+        $http.get("Productions/FinishGoodsBooking/GetQBOQItemDetailData?costingId=" + obj.data.OrderCostingMasterTemplateId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.QBOQItemDetailList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#QBOQItemDetailDataPoUp')).modal('show');
+
     };
 
 

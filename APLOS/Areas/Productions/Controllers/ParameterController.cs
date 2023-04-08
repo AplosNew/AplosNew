@@ -289,6 +289,10 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         }
+        public ActionResult GetParameterEntity(string headerid)
+        {
+            return Json(pc.GetParameterEntity(headerid), JsonRequestBehavior.AllowGet);
+        }
         #endregion Entity
 
         #region Process
@@ -371,6 +375,7 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(pc.GetSavedMachine(headerid), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize]
         public ActionResult RemoveMachine(string machineid)
         {
             try
@@ -399,9 +404,55 @@ namespace Aplos.Areas.Productions.Controllers
         }
         #endregion Machine
 
-        public ActionResult GetParameterEntity(string headerid)
+        
+
+        #region QualityProcess
+        [HttpPost]
+        public ActionResult QPSave(Dictionary<string, object> data, string headerId)
         {
-            return Json(pc.GetParameterEntity(headerid), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(new { Error = false, Data = pc.SaveQP(data, headerId), Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityProcess(string headerid)
+        {
+            return Json(pc.GetQualityProcess(headerid), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize]
+        public ActionResult RemoveQualityPeocess(string Id)
+        {
+            try
+            {
+
+                string ret = pc.RemoveQualityPeocess(Id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+        #endregion QualityProcess
     }
 }
