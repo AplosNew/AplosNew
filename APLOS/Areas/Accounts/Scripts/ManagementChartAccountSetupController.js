@@ -240,7 +240,6 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
             }).finally(function () {
             });
     };
-    //$scope.getDataBC();
 
     $scope.budgetCategory = {
         Id: null,
