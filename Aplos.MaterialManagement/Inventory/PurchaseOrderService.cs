@@ -13649,6 +13649,7 @@ ORDER BY IR.ID DESC";
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='OutSourceCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
+                    return _sqlRepository.GetDataCollection(sql);
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
@@ -13656,12 +13657,10 @@ ORDER BY IR.ID DESC";
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           --where  A.ActionStatus='OutSourceApprovedBy'
                             where  A.ActionStatus='OutSourceApproveBy' AND E.EmployeeStatus='Active' ";//A.PlantId='" + identity.PlantId + "' AND
+                    return _sqlRepository.GetDataCollection(sql);
                 }
-                else if (CheckedBy == "false" && ApprovedBy == "false")
-                {
-
-                }
-                return _sqlRepository.GetDataCollection(sql);
+                else
+                    return null;
 
             }
             catch (Exception ex)
