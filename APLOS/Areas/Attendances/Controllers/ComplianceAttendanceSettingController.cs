@@ -509,7 +509,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                --WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
                                --WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
                                --ELSE 0 END,
-                                TotalPresent = CASE WHEN DayStatus = 'P' OR DayStatus = 'L' THEN 1 
+                                TotalPresent = CASE WHEN DayStatus = 'P' THEN 1 
                                 ELSE 0 END,
 
                                TotalLate = CASE WHEN DayStatus = 'L'THEN 1
@@ -1582,7 +1582,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "L")
                                         {
                                             sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
-                                            sheet1.Range[xlsRow, iDayStatus].Text = "P";
+                                            sheet1.Range[xlsRow, iDayStatus].Text = "L";
                                         }
                                         else
                                         {
@@ -3087,7 +3087,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "L")
                                         {
                                             sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
-                                            sheet1.Range[xlsRow, iDayStatus].Text = "P";
+                                            sheet1.Range[xlsRow, iDayStatus].Text = "L";
                                         }
                                         else
                                         {
