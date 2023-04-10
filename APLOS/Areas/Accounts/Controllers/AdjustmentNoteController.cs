@@ -315,13 +315,29 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Amount should more than 0");
                 voucherVM.EntityId = advanceDetailVM.EntityId;
             }
-            if(voucherVM.PaymentSource == "SetOff")
+            if (voucherVM.PaymentSource == "SetOff")
             {
                 voucherVM.Amount = voucherDetailInvoiceList.Sum(r => r.Amount);
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteInvoiceSetOff(voucherVM, voucherDetailVMList,voucherDetailInvoiceList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteInvoiceSetOff(voucherVM, voucherDetailVMList, voucherDetailInvoiceList)) });
             }
             else
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteSetOff(voucherVM, voucherDetailVMList, taxDetailVMList)) });
+            {
+                if (voucherVM.CurrencyId == voucherDetailVMList.FirstOrDefault().CurrencyId)
+                {
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteSetOff(voucherVM, voucherDetailVMList, taxDetailVMList)) });
+                }
+                else
+                {
+                    if (voucherVM.BankAmount == 0 || voucherVM.BankAmount.ToString() == null)
+                        throw new CustomException("Please Input Bank Amount.");
+                    foreach (var voucherDetailVM in voucherDetailVMList)
+                    {
+                        if (voucherDetailVM.ConvertedAmount == 0 || voucherDetailVM.ConvertedAmount.ToString() == null)
+                            throw new CustomException("Tr. Amount should more than 0");
+                    }
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteSetOffDifferentCurrency(voucherVM, voucherDetailVMList, taxDetailVMList)) });
+                }
+            }
 
         }
 
