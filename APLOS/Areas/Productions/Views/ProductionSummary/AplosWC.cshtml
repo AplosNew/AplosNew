@@ -227,7 +227,7 @@
                     </div>
                 </script>
                 <script type="text/template" id="Article">
-                    <div class="col-sm-12" style="padding:0px; height:30px;" >
+                    <div class="col-sm-12" style="padding:0px; height:30px;">
                         <input type="text" name="Article" ng-model="data.Article" ng-show="data.BookingLevel=='ProductionOrder'"  class="form-control">
                         <input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">
                         <input type="text" ng-click="$parent.getMasterOrderItemPopUp(this);" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
