@@ -368,6 +368,11 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public object GetItemsDataWC(string entityid, string workCenterMasterId, string productionLevel, string processId, string productionOrderId)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<object> GetProductionOrderData(string entityid, string workCenterMasterId, string productionLevel, string processId, string status)
         {
             //string CmdText = @"SELECT SO.CustomerPOId
