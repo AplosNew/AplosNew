@@ -171,7 +171,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
                         ,TempTrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
-						,IRD.BaseUOMId IssueTransactionUoMId
+						,IRD.BaseUOMId IssueTransactionUoMId,IRD.MaterialStorageId,MS.UserName MaterialStorage
 						,'' IssueTransactionUoM,ISNULL(IRD.LotNumber,'') LotNumber
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id
@@ -180,6 +180,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					LEFT JOIN HKP.CharacteristicsValue SC ON SC.Id=IM.SecondCharacteristicsValueId
 					LEFT JOIN mst.MaterialMaster MM ON MM.Id=Im.MaterialMasterId
 					LEFT JOIN mst.MaterialMasterArticle MMA ON MMA.Id=Im.ArticleId
+                    LEFT JOIN [HKP].[MaterialStorage] MS ON MS.Id=IRD.MaterialStorageId
                     left JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id
                     LEFT JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                     left JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id

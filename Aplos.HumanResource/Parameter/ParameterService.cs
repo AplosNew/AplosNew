@@ -1005,6 +1005,23 @@ where PS.Id = '" + headerid + "'";
 
             }
         }
+
+        public IEnumerable<object> GetParameterEntity(string headerid)
+        {
+            try
+            {
+                var sql = @"select E.Id Value, E.UserName Text from MST.ParameterEntity PE
+                            LEFT JOIN ORG.Entity E on E.Id = PE.EntityId
+                            LEFT JOIN HKP.ParameterSetup PS on PS.Id = PE.ParameterSetupId
+                            where PE.ParameterSetupId = '" + headerid + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         #endregion  Entity
 
         #region Process
@@ -1238,23 +1255,92 @@ where PMM.ParameterSetupId = '"+ headerid + "'";
         }
         #endregion  Machine
 
-        public IEnumerable<object> GetParameterEntity(string headerid)
+
+        #region Quality Process
+        public Dictionary<string, object> SaveQP(Dictionary<string, object> data, string headerId)
         {
             try
             {
-                var sql = @"select E.Id Value, E.UserName Text from MST.ParameterEntity PE
-                            LEFT JOIN ORG.Entity E on E.Id = PE.EntityId
-                            LEFT JOIN HKP.ParameterSetup PS on PS.Id = PE.ParameterSetupId
-                            where PE.ParameterSetupId = '"+ headerid + "'";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception)
-            {
+                string TableName = "TRN.ParameterQualityProcess";
 
-                throw;
+                DataSet dsMaster;
+
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string _Id = "";
+
+                #region  HEAD
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = _Id;
+                    data["ParameterSetupId"] = headerId;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion  HEAD
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return data;
+        }
+
+        public IEnumerable<object> GetQualityProcess(string headerid)
+        {
+            try
+            {
+                var query = @"select QP.*, PS.UserName from TRN.ParameterQUalityProcess QP
+                                left join HKP.ParameterSetup PS on PS.Id = QP.parameterSetupId
+                                where PS.Id = '"+ headerid + "'";
+                return _sqlRepository.GetDataCollection(query);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
         }
 
+        public string RemoveQualityPeocess(string Id)
+        {
+            try
+            {
+
+                string TableName = "TRN.ParameterQUalityProcess";
+                if (string.IsNullOrEmpty(Id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + Id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion Quality Process
     }
     #endregion Parameter Child
 

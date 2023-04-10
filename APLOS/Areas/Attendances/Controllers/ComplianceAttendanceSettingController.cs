@@ -502,17 +502,17 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 + ISNULL(TotalCompAssignLv, 0) + ISNULL(TotalHoliDay, 0) + ISNULL(TotalWeekOffHoliDay, 0),Category,DayStatus
                                 FROM(SELECT EmpSystemID, WorkDate, EmployeeCode,Category,DayStatus,
 
-                                TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
-                                WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Late' and LTSystemID is null THEN 1
-                                WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
-                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                               --TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
+                               --WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                               --WHEN Category = 'Late' and LTSystemID is null THEN 1
+                               --WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                               --WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
+                               --WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                               --ELSE 0 END,
+                                TotalPresent = CASE WHEN DayStatus = 'P' or DayStatus = 'PW' THEN 1 
                                 ELSE 0 END,
-    
-                                TotalLate = CASE WHEN Category = 'Late' and LTSystemID is null THEN 1
-                                WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration=1 THEN 1
+
+                               TotalLate = CASE WHEN DayStatus = 'L'THEN 1
                                 ELSE 0 END,
                                 
                                 TotalAbsent = CASE WHEN Category = 'Absent' and LTSystemID is null THEN 1
@@ -532,15 +532,19 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 TotalMLv = 0,
                                 TotalCompAssignLv = 0,
 
-                               -- TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
+                              --TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
 								                       -- WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
 								                       -- WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
-								                       -- WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=0 THEN 1
+								                      --  WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=0 THEN 1                               
+                                --ELSE 0 END,
 
-                                TotalWeekOff = CASE WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
-								                       WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
-                                ELSE 0 END,
+                               -- TotalWeekOff = CASE WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
+								                       --WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+                                --ELSE 0 END,
                                 
+                                TotalWeekOff = CASE WHEN DayStatus = 'W' OR DayStatus = 'WL' OR DayStatus = 'CW' OR DayStatus = 'CWL' OR DayStatus = 'CWP' OR DayStatus = 'WP' THEN 1
+                                ELSE 0 END,
+
                                 TotalHoliDay = CASE WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTEntitle=1 AND A.IsOTEntitled=0 THEN 1
 														WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTNotEntitle=1 AND A.IsOTEntitled=1 THEN 1
                                 ELSE 0 END,
@@ -1578,7 +1582,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "L")
                                         {
                                             sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
-                                            sheet1.Range[xlsRow, iDayStatus].Text = "P";
+                                            sheet1.Range[xlsRow, iDayStatus].Text = "L";
                                         }
                                         else
                                         {
@@ -3083,7 +3087,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "L")
                                         {
                                             sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
-                                            sheet1.Range[xlsRow, iDayStatus].Text = "P";
+                                            sheet1.Range[xlsRow, iDayStatus].Text = "L";
                                         }
                                         else
                                         {

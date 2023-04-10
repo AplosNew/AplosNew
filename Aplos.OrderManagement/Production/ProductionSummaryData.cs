@@ -536,83 +536,82 @@ namespace Library.OrderManagement.Production
             try
             {
                 string sql = @"DECLARE @StartDate DATE = '" + fromdate + @"'
-                              , @EndDate DATE =  '" + todate + @"'
+                                  , @EndDate DATE = '" + todate + @"'
+                                Select A.EntityId,A.Entity,A.ProcessId,A.Process,A.WorkCenterMasterId,A.WorkCenterMaster,A.ProductPriority,A.Active,A.NoOfWorkStation
+                                ,A.SPT StandardProcessTime,A.ShiftId,A.[ShiftName],A.[ShiftShortName] ,A.ProductionHours,DT.[Date],A.ResponsiblePerson,A.ResponsiblePersonCode
+                                ,PS.Id SummaryId
+                                ,Customer=STUFF((select distinct ', '+P.UserName from 
+			                                                        HKP.Party P
+			                                                        JOIN TRN.MasterOrder MO ON MO.PartyId=P.Id
+			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
+			                                                        JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+									                                JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                ,POArticle=STUFF((select distinct ', '+A.StandardName from 
+			                                                        MST.MaterialMasterArticle A
+			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=A.Id
+			                                                        JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+									                                JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                ,LineItemArticle=STUFF((select distinct ', '+AR.StandardName from 
+			                                                        MST.MaterialMasterArticle AR
+			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=AR.Id
+			                                                        where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                            Select A.EntityId,A.Entity,A.ProcessId,A.Process,A.WorkCenterMasterId,A.WorkCenterMaster,ISNULL(A.ProductPriority,'-') ProductPriority,A.Active,A.NoOfWorkStation
-                            ,A.SPT StandardProcessTime,A.ShiftId,A.[ShiftName],ISNULL(A.[ShiftShortName],'-') [ShiftShortName] ,A.ProductionHours,DT.[Date],ISNULL(A.ResponsiblePerson,'-') ResponsiblePerson,ISNULL(A.ResponsiblePersonCode,'-') ResponsiblePersonCode
-                            ,ISNULL(PS.Id,'-') SummaryId
-                            ,Customer=ISNULL(STUFF((select distinct ', '+P.UserName from 
-			                                                    HKP.Party P
-			                                                    JOIN TRN.MasterOrder MO ON MO.PartyId=P.Id
-			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
-			                                                    JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
-									                            JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-			                                                    where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
-                            ,POArticle=ISNULL(STUFF((select distinct ', '+A.StandardName from 
-			                                                    MST.MaterialMasterArticle A
-			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=A.Id
-			                                                    JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
-									                            JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-			                                                    where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
-                            ,LineItemArticle=ISNULL(STUFF((select distinct ', '+AR.StandardName from 
-			                                                    MST.MaterialMasterArticle AR
-			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=AR.Id
-			                                                    where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
+                                ,LineItemProductCode=STUFF((select distinct ', '+PL.Code from 
+			                                                        dbo.ProductLibrary PL
+			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.ProductLibraryId=PL.Id
+			                                                        where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                ,SONo=STUFF((select distinct ', '+SO.Id from 
+			                                                        TRN.SalesOrder SO 
+									                                JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                            ,LineItemProductCode=ISNULL(STUFF((select distinct ', '+PL.Code from 
-			                                                    dbo.ProductLibrary PL
-			                                                    JOIN TRN.MasterOrderItem MOI ON MOI.ProductLibraryId=PL.Id
-			                                                    where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
-                            ,SONo=ISNULL(STUFF((select distinct ', '+SO.Id from 
-			                                                    TRN.SalesOrder SO 
-									                            JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-			                                                    where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'-')
+                                ,PS.ProductionOrderId POId,PS.LotNumber,PS.SalesOrderId,PS.MasterOrderItemId,ISNULL(PS.QtyWithoutScan,0)QtyWithoutScan,ISNULL(PS.ScanQty,0) QtyWithScan,TotalActualqty=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+                                ,ISNULL(D.[Minute],0) DetentionInMinute,SCH.SPT  POSPT,0 ArticleSPT
+                                --,SPT= CASE WHEN  ArticleSPT IS NULL ArticleSPT=0 THEN SCH.SPT ELSE SCH.SPT =0 THEN A.SPT END
+                                ,SPT=CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END
+                                ,ISNULL(CPS.NoOfEntry,1)NoOfEntry,AllotedHour=ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)
+                                ,ShouldBeProduction=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))
+                                ,TotalAvailableHour=A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1))
+                                ,DetentionHour=(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
+                                ,NetAvailableHour=(A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
+                                ,ProduceHour=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0))*(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)/60
+                                ,DetentionLoss=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1)))
+                                ,ProductivityVariance=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-
+                                (ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) -(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
 
-                            ,ISNULL(PS.ProductionOrderId,'-') POId,ISNULL(PS.LotNumber,'-') LotNumber,ISNULL(PS.SalesOrderId,'-') SalesOrderId,ISNULL(PS.MasterOrderItemId,'-') MasterOrderItemId,ISNULL(PS.QtyWithoutScan,0)QtyWithoutScan,ISNULL(PS.ScanQty,0) QtyWithScan,TotalActualqty=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
-                            ,ISNULL(D.[Minute],0) DetentionInMinute,ISNULL(SCH.SPT,0) POSPT,0 ArticleSPT
-                            --,SPT= CASE WHEN  ArticleSPT IS NULL ArticleSPT=0 THEN SCH.SPT ELSE SCH.SPT =0 THEN A.SPT END
-                            ,SPT=CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END
-                            ,ISNULL(CPS.NoOfEntry,1)NoOfEntry,AllotedHour=ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)
-                            ,ShouldBeProduction=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))
-                            ,TotalAvailableHour=A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1))
-                            ,DetentionHour=(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
-                            ,NetAvailableHour=(A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
-                            ,ProduceHour=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0))*(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)/60
-                            ,DetentionLoss=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1)))
-                            ,ProductivityVariance=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-
-                            (ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) -(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+                                from (
+                                Select WCM.EntityId,E.UserName Entity,WCM.ProcessId,P.UserName Process,WCM.Id WorkCenterMasterId, WCM.UserName WorkCenterMaster
+                                ,ProductPriority=STUFF((select distinct ', '+PM.UserName from 
+			                                                        [SCS].[WorkCenterMasterProductPriority]  XSO
+			                                                        JOIN MST.ProductMaster PM ON PM.id=XSO.ProductMasterId
+			                                                        where XSO.WorkCenterMasterId=WCM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                            from (
-                            Select WCM.EntityId,E.UserName Entity,WCM.ProcessId,P.UserName Process,WCM.Id WorkCenterMasterId, WCM.UserName WorkCenterMaster
-                            ,ProductPriority=STUFF((select distinct ', '+PM.UserName from 
-			                                                    [SCS].[WorkCenterMasterProductPriority]  XSO
-			                                                    JOIN MST.ProductMaster PM ON PM.id=XSO.ProductMasterId
-			                                                    where XSO.WorkCenterMasterId=WCM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                ,WCM.Active,WCM.NoOfWorkStation,WCM.SPT,SD.SystemID ShiftId,SD.UserName [ShiftName],SD.ShortName [ShiftShortName] ,WCS.ProductionHours
+                                ,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
 
-                            ,WCM.Active,WCM.NoOfWorkStation,WCM.SPT,SD.SystemID ShiftId,SD.UserName [ShiftName],SD.ShortName [ShiftShortName] ,WCS.ProductionHours
-                            ,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
+                                from SCS.WorkCenterMaster WCM
+                                LEFT JOIN dbo.WorkCenterWiseShift WCS ON WCS.WorkCenterMasterId=WCM.Id
+                                LEFT JOIN (Select MAX(StartDate)StartDate,WorkCenterMasterId from  [SCS].[WorkCenterMasterEffectiveDate] Group BY WorkCenterMasterId) WCD ON WCD.WorkCenterMasterId=WCS.WorkCenterMasterId
+                                LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=WCS.ShiftDefinationID
+                                LEFT JOIN ORG.Entity E ON E.Id=WCM.EntityId
+                                LEFT JOIN HKP.Process P ON P.Id=WCM.ProcessId
+                                LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=WCM.ResponsiblePersonId
+                                ) A
+                                LEFT JOIN(
 
-                            from SCS.WorkCenterMaster WCM
-                            LEFT JOIN dbo.WorkCenterWiseShift WCS ON WCS.WorkCenterMasterId=WCM.Id
-                            LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON WCD.WorkCenterMasterId=WCS.WorkCenterMasterId
-                            LEFT JOIN dbo.ShiftDefination SD ON SD.SystemID=WCS.ShiftDefinationID
-                            LEFT JOIN ORG.Entity E ON E.Id=WCM.EntityId
-                            LEFT JOIN HKP.Process P ON P.Id=WCM.ProcessId
-                            LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=WCM.ResponsiblePersonId
-                            Where WCD.StartDate between '01-Aug-2022' AND '01-Aug-2022'
-                            ) A
-                            LEFT JOIN(
-
-                            SELECT  format(DATEADD(DAY, nbr - 1, @StartDate),'dd-MMM-yyyy') [Date]
-                            FROM    (SELECT ROW_NUMBER() OVER ( ORDER BY c.object_id ) AS nbr
-                                      FROM sys.columns c
-                                    ) nbrs
-                            WHERE nbr - 1 <= DATEDIFF(DAY, @StartDate, @EndDate)
-                            ) DT ON 1=1
-                            LEFT JOIN trn.ProductionSummary PS ON PS.ProductionShiftId=A.ShiftId AND PS.EntityId=A.EntityId AND PS.WorkCenterMasterId=A.WorkCenterMasterId AND PS.ProcessId=A.ProcessId AND PS.ProductionDate=DT.Date
-                            LEFT JOIN(Select COUNT(Id)NoOfEntry,WorkCenterMasterId,ProductionShiftId,ProductionDate from trn.ProductionSummary Group BY WorkCenterMasterId,ProductionShiftId,ProductionDate) CPS ON CPS.WorkCenterMasterId=A.WorkCenterMasterId AND CPS.ProductionShiftId=A.ShiftId AND CPS.ProductionDate=DT.Date
-                            LEFT JOIN [dbo].[MachineMasterTransaction] D ON D.ShiftId=A.ShiftId AND D.EntityId=A.EntityId AND D.WorkCenterId=A.WorkCenterMasterId AND D.ProcessId=A.ProcessId AND D.Date=DT.Date
-                            LEFT JOIN [dbo].[ProductionOrderSchedulingParametersType1] SCH ON SCH.ProductionOrderID=PS.ProductionOrderId
+                                SELECT  format(DATEADD(DAY, nbr - 1, @StartDate),'dd-MMM-yyyy') [Date]
+                                FROM    (SELECT ROW_NUMBER() OVER ( ORDER BY c.object_id ) AS nbr
+                                          FROM sys.columns c
+                                        ) nbrs
+                                WHERE nbr - 1 <= DATEDIFF(DAY, @StartDate, @EndDate)
+                                ) DT ON 1=1
+                                LEFT JOIN trn.ProductionSummary PS ON PS.ProductionShiftId=A.ShiftId AND PS.EntityId=A.EntityId AND PS.WorkCenterMasterId=A.WorkCenterMasterId AND PS.ProcessId=A.ProcessId AND PS.ProductionDate=DT.Date
+                                LEFT JOIN(Select COUNT(Id)NoOfEntry,WorkCenterMasterId,ProductionShiftId,ProductionDate from trn.ProductionSummary Group BY WorkCenterMasterId,ProductionShiftId,ProductionDate) CPS ON CPS.WorkCenterMasterId=A.WorkCenterMasterId AND CPS.ProductionShiftId=A.ShiftId AND CPS.ProductionDate=DT.Date
+                                --LEFT JOIN [dbo].[MachineMasterTransaction] D ON D.ShiftId=A.ShiftId AND D.EntityId=A.EntityId AND D.WorkCenterId=A.WorkCenterMasterId AND D.ProcessId=A.ProcessId AND D.Date=DT.Date
+                                LEFT JOIN [dbo].[MachineMasterTransaction] D ON D.ProductionSummaryId=PS.Id
+                                LEFT JOIN [dbo].[ProductionOrderSchedulingParametersType1] SCH ON SCH.ProductionOrderID=PS.ProductionOrderId
 
                 where A.EntityId='" + entityId + @"' and A.ProcessId='" + processId + @"' and A.ShiftId='" + shiftId + @"' and A.WorkCenterMasterId='" + wcId + @"'
                     and PS.ProductionOrderId='" + POId + @"'";
@@ -5217,12 +5216,12 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             where X.POId=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'-')
                             ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ROUND((X.FirstProcessProQty/NULLIF(X.BaseProcessProduceQty,0))*100,0)
 ,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
-,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END
+,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END,ProcessBalanceProd=X.ProcessPlannedQty-X.ProcProdQty
                             FROM(
                             SELECT 
                             T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
                             ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/t2.BaseProcessPlannedQty,0)
-                            ,ProcProdPercent=ISNULL(T2.ProcProdQty/t2.ProcessPlannedQty,0)
+                            ,ProcProdPercent=ISNULL(T1.ProcProdQty/t1.ProcessPlannedQty,0)
                             ,EntryCheck=CASE WHEN T2.ProcProdQty-T1.ProcProdQty<0 THEN 'ToCheck' ELSE '' END
                             ,ProceessProdQtyVsSOQty=COALESCE(T1.ProcProdQty / NULLIF(T1.SOQty ,0), 0)
                             FROM

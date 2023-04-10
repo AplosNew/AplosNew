@@ -61,7 +61,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="SaveBC();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionBC}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="RemoveBudgetCategory();" data-target="#confirmPopUp" ng-disabled="CheckIdUseBudgetCategory" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="ClearBC();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -72,13 +72,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="$root.parameters.searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        <select ng-model="BCparameters.searchBy">
+                            <option ng-repeat="option in searchByBCList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getDataBC()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="BCparameters.search" ng-enter="getDataBC()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getDataBC()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -112,4 +112,4 @@
     </table>
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getDataBC(newPageNumber)"></dir-pagination-controls>
 </div>
-<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDetailPopUpBudgetcategory" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteBC();"></confirm-archive-generic>
