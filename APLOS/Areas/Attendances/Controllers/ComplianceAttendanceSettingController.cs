@@ -509,7 +509,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                --WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
                                --WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
                                --ELSE 0 END,
-                                TotalPresent = CASE WHEN DayStatus = 'P' THEN 1 
+                                TotalPresent = CASE WHEN DayStatus = 'P' or DayStatus = 'PW' THEN 1 
                                 ELSE 0 END,
 
                                TotalLate = CASE WHEN DayStatus = 'L'THEN 1
