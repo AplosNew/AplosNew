@@ -143,8 +143,8 @@ namespace Aplos.Areas.Commercial.Controllers
 							where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
 							,PLC.BenificiaryBankDescription
-                            , PLC.LeinBank
-							, plc.LeinBankDescription
+                           ,ISNULL(PLC.LeinBank,0)LeinBank
+							, ISNULL(plc.LeinBankDescription,0)LeinBankDescription
 						
 					
 							,plc.VendorId
