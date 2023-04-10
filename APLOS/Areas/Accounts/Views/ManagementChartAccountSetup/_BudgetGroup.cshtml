@@ -60,7 +60,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="SaveBG();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionBG}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button ng-click="RemoveBudgetGroup();" data-target="#confirmPopUp" ng-disabled="CheckIdUseBudgetGroup" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="ClearBG();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -71,13 +71,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="$root.parameters.searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        <select ng-model="BGparameters.searchBy">
+                            <option ng-repeat="option in searchByBGList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getDataBG()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="BGparameters.search" ng-enter="getDataBG()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getDataBG()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -111,4 +111,4 @@
     </table>
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getDataBG(newPageNumber)"></dir-pagination-controls>
 </div>
-<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDetailPopUpBudgetGroup" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteBG();"></confirm-archive-generic>

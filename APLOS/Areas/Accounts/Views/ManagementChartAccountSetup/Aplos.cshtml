@@ -1,11 +1,11 @@
 ﻿<div class="tab-design">
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Group</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Category</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Sub Category</a></li>
-            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget</a></li>
-            <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="Service" role="tab" data-toggle="tab">Activity</a></li>
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1); getDataBG();"  href="" aria-controls="general" role="tab" data-toggle="tab">Budget Group</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2); getDataBC();" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Category</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3); getDataBSC();"  href="" aria-controls="general" role="tab" data-toggle="tab">Budget Sub Category</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4); getDataBgt();" href="" aria-controls="general" role="tab" data-toggle="tab">Budget</a></li>
+            <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5); getData();" href="" aria-controls="Service" role="tab" data-toggle="tab">Activity</a></li>
             
         </ul>
     </div>

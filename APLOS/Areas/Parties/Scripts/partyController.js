@@ -1206,6 +1206,18 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
     // #endregion
 
     // #region Save
+    $scope.IsCustomerCurrencyChanges = false;
+    $scope.IsVendorCurrencyChanges = false;
+    $scope.checkCustomerCurrencyChange = function () {
+        if ($scope.Action === 'Update') {
+            $scope.IsCustomerCurrencyChanges = true;
+        }
+    }
+    $scope.checkVendorCurrencyChange = function () {
+        if ($scope.Action === 'Update') {
+            $scope.IsVendorCurrencyChanges = true;
+        }
+    }
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -1265,7 +1277,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
                         data: {
                             'party': $scope.party, 'addressMaster': $scope.addressMaster, 'contactMasters': $scope.contactMasters,
                             'companyPartyDataList': $scope.companyPartyList, 'companyPartyGLDataList': $scope.companyPartyGLList,
-                            'partyPartnerFunction': $scope.partyPartnerFunctionList
+                            'partyPartnerFunction': $scope.partyPartnerFunctionList, 'isCustomerCurrencyChanges': $scope.IsCustomerCurrencyChanges, 'isVendorCurrencyChanges': $scope.IsVendorCurrencyChanges
                         },
                         dataType: 'JSON'
                     }).then(function successCallBack(response) {
@@ -1279,6 +1291,8 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
                                 $scope.party.Id = response.data.Party.Id;
                                 $scope.parties = $filter('orderBy')($scope.parties, 'Sequence');
                                 $scope.tempList = [];
+                                $scope.IsCustomerCurrencyChanges = false;
+                                $scope.IsVendorCurrencyChanges = false;
                             }
                             ClearFields(response.data.Sequence);
                             $scope.getData();

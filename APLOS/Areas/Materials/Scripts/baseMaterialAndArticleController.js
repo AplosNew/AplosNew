@@ -422,7 +422,31 @@ function baseMaterialAndArticleController(cboService, commonMessage, $scope, $ro
     };
 
     // #endregion Material by material type
+    $scope.searchByMaterial = "MaterialMasterName"; $scope.search = "";
+    $scope.searchByMaterialList = [{ value: 'MaterialMasterName', name: "Material" }, { value: 'StandardName', name: "Article" }, { value: 'MaterialTypeName', name: "MaterialType" }
+        , { value: 'MaterialGroupMasterName', name: "MaterialGroup" }
+        , { value: 'HSNCode', name: "HSNCode" }];
 
+    $scope.materialArticleList = [];
+    $scope.InputMaterialArticlelistData = {};
+    $scope.getMaterialMasterWithArticle = function (data) {
+        $http({
+            method: 'POST',
+            url: 'Materials/MaterialMasterArticle/GetMaterialMasterWithArticlePopUpData',
+            data: { column: $scope.searchByMaterial, value: $scope.search },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.materialArticleList = response.data;
+        });
+        $scope.InputMaterialArticlelistData = data;
+        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
 
+    };
+    $scope.getMaterialMasterWithArticleBySearch = function () {
+        $scope.getMaterialMasterWithArticle($scope.InputMaterialArticlelistData);
+    }
+    $scope.closeMaterialMasterWithArticle = function () {
+        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('show');
+    }
 
 }

@@ -2171,7 +2171,9 @@ where RM.EntityId='"+ EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.P
                 strSql = @"select RM.Id as RMTargetId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(RM.TargetDate,'dd-MMM-yyyy') as TargetDate,
 WC.UserName as WorkCenter,RM.LotNumber,RM.ProductionOrderId as PONo,RM.Article,Convert(decimal(18,2),RM.PlanHours) as PlanHours,
 ceiling(RM.Efficiency) as Efficiency,
-ceiling(RM.TargetFD) as TargetFD,ceiling(RM.TargetProductionFP) as TargetProductionFP,I.EmployeeName as Responsible,
+ceiling(RM.TargetFD) as TargetFD,ceiling(RM.TargetProductionFP) as TargetProductionFP,
+ceiling(RM.TargetFD) - ceiling(RM.TargetProductionFP) as Difference,
+I.EmployeeName as Responsible,
 R.EmployeeName as InCharge,RM.Remarks,Reverse(stuff(Reverse((select ID.ItemName + '-' + convert(varchar(200),IV.ItemValue) +', ' from TRN.RMSTargetItemValue IV
 left join MST.ItemDetails ID on ID.Id=IV.ItemId
 where RMSTargetId=RM.Id for xml PATH(''))),1,2,'')) ItemDetails,
@@ -2188,7 +2190,7 @@ left join ShiftDefination S On S.SystemID=RM.ProductionShiftId
 left join scs.WorkCenterMaster WC ON WC.Id=RM.WorkCenterMasterId
 left join employeeinformation R on R.SystemId=RM.ResponsiblePersonId
 left join employeeinformation I on I.SystemId=RM.InChargeId
-where RM.EntityId='" + EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "'";
+where RM.EntityId='" + EntityId + "' and RM.ProcessId='"+ ProcessId + "' and RM.ProductionShiftId='"+ ShiftId + "' and  RM.TargetDate='"+ TargetDate + "' order by WC.Sequence";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSql, out dsRef);

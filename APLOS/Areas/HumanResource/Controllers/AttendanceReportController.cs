@@ -73,11 +73,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                     if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
                         continue;
-
                     dt.Columns.Add(item);
                 }
-
-
                 for (int i = 0; i < data.Count; i++)
                 {
                     DataRow dr = dt.NewRow();
@@ -85,10 +82,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                     {
                         if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
                             continue;
-
                         dr[item] = data[i][item];
                     }
-
                     dt.Rows.Add(dr);
                 }
                 string fileName = "";
@@ -101,12 +96,37 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetEmployeeSummaryData(string fromdate, string todate, List<Dictionary<string, object>> empId)
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSummaryData(string fromdate, string todate,string empId)
         {
             var jsondata = Json(alp.GetEmployeeSummaryData(fromdate, todate, empId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
+
+        [HttpGet, Authorize]
+        public ActionResult getemployeeSummarylist(string fromdate, string todate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(alp.GetEmployeeList(fromdate,todate), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult EmployeeAttendanceSummaryDataXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = alp.EmployeeAttendanceSummaryReport(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

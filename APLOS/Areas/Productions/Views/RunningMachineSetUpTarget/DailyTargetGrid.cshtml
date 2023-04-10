@@ -28,6 +28,7 @@
         <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="120"></div>
         <div e-column e-template="#ItemValue" e-headertext="Item Value" e-width="50"></div>
         <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="60"></div>
+        <div e-column e-template="#Parameter" e-headertext="Parameter Value" e-width="60"></div>
         <div e-column e-template="#Detention" e-headertext="Detention" e-width="120"></div>
         <div e-column e-template="#UpdateItemValue" e-headertext="Update Item Value" e-width="60"></div>
         <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
@@ -110,6 +111,17 @@
             <div class="common-btn">
                 <ul class="list-inline text-left">
                     <li><button ng-click="$parent.CalculateTargetProductioinDiff(this);$parent.getReasonValuePopup(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/template" id="Parameter">
+    <div class="form-group">
+        <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="$parent.getParameterValuePopup(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                 </ul>
             </div>
         </div>
@@ -267,6 +279,74 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="ParameterValuePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Parameter Value List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please Select an Parameter</p>
+                        <div style="color:black;" id="GridParameterValuePopup" ej-grid e-datasource="ProductionParameterList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="" e-templaterefresh="">
+                            <div e-columns>
+                                <div e-column e-field="ParameterId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="ParameterName" e-headertext="Para.Name" e-width="50"></div>
+                                <div e-column e-template="#ParameterSNo" e-headertext="SNo" e-width="20"></div>
+                                <div e-column e-template="#ParameterValue" e-headertext="P.Value" e-width="30"></div>
+                                <div e-column e-type="Date" e-template="#ParameterDate" e-headertext="P.Date" e-width="60"></div>
+                                <div e-column e-template="#ParameterRemarks" e-headertext="Remarks" e-width="80"></div>
+                                <div e-column e-template="#ParameterSave" e-headertext="Save" e-width="30"></div>
+                                <div e-column e-field="ParameterDays" e-headertext="Days" e-width="40"></div>
+                                <div e-column e-field="AddedBy" e-headertext="Added By" e-width="50"></div>
+                                <div e-column e-field="UpdatedBy" e-headertext="Updated By" e-visible="false" e-width="50"></div>
+                            </div>
+                            <script type="text/template" id="ParameterSNo">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="number" name="SNo" ng-model="data.SNo" ng-click="" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="ParameterValue">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="text" name="ParameterValue" ng-model="data.ParameterValue" ng-click="" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="ParameterRemarks">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="text" name="Parameter Remarks" ng-model="data.Remarks" ng-click="" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="ParameterDate">
+                                <div class="col-sm-12" style="padding:0px;">
+                                    <input type="text" ng-model="data.ParameterDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                </div>
+                            </script>
+
+                            <script type="text/template" id="ParameterSave">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-center small">
+                                        <li><button ng-click="$parent.SaveSinglePValue(this);" class="btn small" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" tabindex="9"><i class="glyphicon glyphicon-floppy-disk" style="top: 1px;"></i></button></li>
+                                    </ul>
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <button ng-click="closeParameterValuePopup();" class="btn"><i class=""></i> Close</button>
+                            <button ng-click="SaveParameterValue();" class="btn"><i class=""></i> Save</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- #region Detention -->
 <div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
@@ -379,8 +459,8 @@
                                 <input type="text" ng-click="$parent.selectDetResponsible(this);" name="ResponsiblePersonD" ng-model="data.ResponsiblePerson" ng-disabled="true" class="form-control" readonly>
                             </div>
                             @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                                <button ng-click="$parent.selectDetResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                            </div>*@
+                                    <button ng-click="$parent.selectDetResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </div>*@
                         </script>
                         <script type="text/template" id="Remark">
                             <div class="col-sm-12" style="padding:0px;">

@@ -523,7 +523,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="CurrencyIds" class="form-control" name="Currency" ng-model="v.CurrencyId" ng-disabled="!v.Active">
+                                    <select id="CurrencyIds" class="form-control" name="Currency" ng-model="v.CurrencyId" ng-disabled="!v.Active" ng-change="checkVendorCurrencyChange()">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in tranCurrencyList | filter: {'CompanyId': v.CompanyId}" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -606,7 +606,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="CurrencyId" class="form-control" name="Currency" ng-model="c.CurrencyId" ng-disabled="!c.Active">
+                                    <select id="CurrencyId" class="form-control" name="Currency" ng-model="c.CurrencyId" ng-disabled="!c.Active" ng-change="checkCustomerCurrencyChange()">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in tranCurrencyList | filter: {'CompanyId': c.CompanyId}" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>

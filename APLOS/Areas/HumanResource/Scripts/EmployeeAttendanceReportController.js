@@ -131,7 +131,7 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
         FromDate: null
     };
 
-    $scope.SearchEmployee = function () {
+    $scope.SearchEmployees = function () {
         $scope.EmpSummaryModelNew.EmployeeName = null;
         $scope.EmpSummaryModelNew.EmpSystemID = null;
 
@@ -149,16 +149,17 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
     };
 
     $scope.employeeSummaryData = [];
-    $scope.getPopUpDataOnly = function () {
+    $scope.getPopUpDataSummaryOnly = function () {
         $scope.employeeSummaryData = [];
         $http({
             method: 'GET',
             url: 'employees/leaveApplication/getemployeelist'
+            //url: 'HumanResource/AttendanceReport/getemployeeSummarylist?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate
         }).then(function successCallback(response) {
             $scope.employeeSummaryData = response.data;
         });
     }
-    $scope.getPopUpDataOnly();
+    //$scope.getPopUpDataSummaryOnly();
 
     $scope.getPopUpSummary = function () {
         if ($scope.EmpSummaryModelNew.FromDate == null) {
@@ -168,77 +169,123 @@ function EmployeeAttendanceReportController(cboService, commonMessage, $scope, $
             ShowResult('Please select To Date', 'failure');
         }
         else {
-
+            $scope.getPopUpDataSummaryOnly();
         angular.element(document.querySelector('#employeeMultipleNewPopUp')).modal('show');
         }
     }
 
 
-    $scope.setEmpSummary = function (obj) {
-        // $scope.Clear();
-        var data = obj.data;
-
-        $scope.EmpSummaryModelNew.EmpSystemID = data.SystemID;
-        $scope.EmpSummaryModelNew.EmployeeCode = data.EmployeeCode;
-        $scope.EmpSummaryModelNew.EmployeeName = data.EmployeeName;
-        $scope.closeEmployeeMultiplePopUp();
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
 
-    $scope.EmployeeSummaryList = [];
-    $scope.GetEmployeeSummaryList = function () {
-        var NewEmployeeSummaryList = [];
-        for (var i = 0; i < $scope.employeeSummaryData.length; i++) {
-            if ($scope.employeeSummaryData[i].isSelected == true) {
-
-                NewEmployeeSummaryList.push($scope.employeeSummaryData[i]);
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#Grid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.employeeSummaryData.length; i++) {
+                $scope.employeeSummaryData[i].CheckBoxSelect = ChkOrUnchk;
             }
         }
-        if (NewEmployeeSummaryList.length == 0) {
-            ShowResult('Please select at least one Party', 'failure');
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
         }
-        $scope.setEmpSummary();
-
-        $http.get('HumanResource/AttendanceReport/GetEmployeeSummaryData?fromdate=' + $scope.EmpSummaryModelNew.FromDate + '&todate=' + $scope.EmpSummaryModelNew.ToDate + '&empId=' + NewEmployeeSummaryList[0].SystemID)
-            .then(function (response) {
-                $scope.EmployeeSummaryList = [];
-                $scope.EmployeeSummaryList = response.data;
-                $scope.closeEmployeeMultiplePopUp();
-            });
+        var gridObj = $("#Grid").data("ejGrid");
+        gridObj.refreshContent();
     };
 
-    //$scope.EmployeeAttendanceSingleSummaryData = function () {
-    //    try {
-    //        var dataList = [];
-    //        var g = $("#EmpGrid").data("ejGrid");
-    //        dataList = g.getFilteredRecords();
 
-    //        if (dataList.length == 0) {
-    //            dataList = $scope.EmployeeSummaryList;
-    //        }
-    //        if (dataList.length == 0) {
-    //            throw "First click on View button.";
-    //        }
-    //        $scope.fileName = "Employee Attendance Data.xlsx";
+    $scope.EmployeeSummaryList = [];
+    
+    $scope.GetEmployeeSummaryList = function () {
+        $http({
+            method: 'POST',
+            url: 'HumanResource/AttendanceReport/GetEmployeeSummaryData',
+            data: { 'fromdate': $scope.EmpSummaryModelNew.FromDate, 'todate': $scope.EmpSummaryModelNew.ToDate, 'empId': $scope.EmpSummaryModelNew.EmployeeSystemId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.EmployeeSummaryList = [];
+                $scope.EmployeeSummaryList = response.data;
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    };
 
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.path + "EmployeeAttendanceDataXls",
-    //            data: { 'reportFileName': $scope.fileName, 'data': dataList },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error == true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-    //            }
-    //        }, function errorCallback(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        });
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
+
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.saveemployeedata = function () {      
+        $scope.idList = [];
+
+        for (var di = 0; di < $scope.employeeSummaryData.length; di++) {
+            if (($scope.employeeSummaryData[di].CheckBoxSelect)) {
+                $scope.idList.push($scope.employeeSummaryData[di]);
+                }   
+        }
+        if ($scope.idList.length > 0) {
+            var uniqueSystemID = removeDuplicates($scope.idList, 'SystemID');
+            var wcEmpCode = "";
+            var wcEmpSystem = "";
+            if (uniqueSystemID.length > 0) {
+                wcEmpSystem = "IN(";
+                 wcEmpSystem+= Array.prototype.map.call(uniqueSystemID, function (item) { return "'" + item.SystemID + "'"; }).join(",") + ")";
+
+                wcEmpCode = Array.prototype.map.call(uniqueSystemID, function (item) { return "" + item.EmployeeCode + ""; }).join(",");
+            }
+            $scope.EmpSummaryModelNew.EmployeeSystemId =  wcEmpSystem;
+            $scope.EmpSummaryModelNew.EmployeeCode = wcEmpCode;
+        }
+        $scope.closeEmployeeMultiplePopUp();
+    }
+
+    $scope.EmployeeAttendanceSummaryDataXls = function () {
+        try {
+            var dataList = [];
+            var g = $("#EmpSummaryGrid").data("ejGrid");
+            dataList = g.getFilteredRecords();
+
+            if (dataList.length == 0) {
+                dataList = $scope.EmployeeSummaryList;
+            }
+            if (dataList.length == 0) {
+                throw "First click on Go button.";
+            }
+            $scope.fileName = "Employee Attendance Summary Report.xlsx";
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "EmployeeAttendanceSummaryDataXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
     //Employee Attandence Summary end
 

@@ -1,0 +1,55 @@
+﻿<div class="modal fade site-modal in" id="materialarticleNewPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Material Article<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="searchByMaterial">
+                                                <option ng-repeat="option in searchByMaterialList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getMaterialMasterWithArticleBySearch();">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="getMaterialMasterWithArticleBySearch()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="MAGrid" ej-grid e-datasource="materialArticleList" e-allowfiltering="true" e-allowpaging="true" e-recorddoubleclick="setInputeMaterialArticleData"
+                             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true" 
+                             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                            <div e-columns>
+                                <div e-column e-field="MaterialGroupMasterName" e-headertext="M Group" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="MaterialTypeName" e-headertext="MaterialType" e-width="100"></div>
+                                <div e-column e-field="MaterialCode" e-headertext="Material Code" e-width="80" textAlign='Center'></div>
+                                <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="80" textAlign='Center'></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="80"></div>
+                                <div e-column e-field="StandardName" e-headertext="Article" e-width="100"></div>
+                                <div e-column e-field="HSNCode" e-headertext="HSN Code" e-width="60" textAlign='Center'></div>
+                                <div e-column e-field="IsAsset" e-headertext="IsAsset" e-width="60"></div>
+                                <div e-column e-field="WithSKU" e-headertext="WithSKU" e-width="60"></div>
+                                <div e-column e-field="HasAttribute" e-headertext="HasAttribute" e-width="60"></div>
+                                <div e-column e-field="IsMachineApplicable" e-headertext="MachineApplicable" e-width="60"></div>
+                                <div e-column e-field="IsWorkCenterApplicable" e-headertext="WorkCenterApplicable" e-width="60"></div>
+                                <div e-column e-field="IsOriginApplicable" e-headertext="OriginApplicable" e-width="60"></div>
+                            </div>
+
+
+                        </div>
+                        
+                    </div>
+                    <i>**Showing top 600 Article</i>
+            </div>
+        </div>
+    </div>
+</div>
