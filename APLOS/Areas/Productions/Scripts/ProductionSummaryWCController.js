@@ -2436,4 +2436,72 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
 
+    $scope.getSalesOrderPopUp = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getSalesOrder();
+        angular.element(document.querySelector('#SalesOrderItemPopup')).modal('show');
+    }
+
+    $scope.SalesOrderItemList = [];
+    $scope.getSalesOrder = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetSalesOrder?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.Newobject.WorkCenterMasterId + '&productionLevel=' + $scope.Newobject.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.Newobject.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.SalesOrderItemList = resp.data;
+        });
+    }
+
+    $scope.selectSalesOrderItem = function (e) {
+        $scope.Newobject.SalesOrderId = e.data.SOId;
+        $scope.Newobject.SOArticle = e.data.Article;
+        angular.element(document.querySelector('#SalesOrderItemPopup')).modal('hide');
+    }
+
+    $scope.getMasterOrderItemPopUp = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getMasterOrderItem();
+        angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
+    }
+
+    $scope.MasterOrderItemList = [];
+    $scope.getMasterOrderItem = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.Newobject.WorkCenterMasterId + '&productionLevel=' + $scope.Newobject.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.Newobject.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.MasterOrderItemList = resp.data;
+        });
+    }
+
+    $scope.selectMasterOrderItem = function (e) {
+        $scope.Newobject.MasterOrderItemId = e.data.MasterOrderItemId;
+        $scope.Newobject.MOIArticle = e.data.Article;
+        angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
+    }
+
+    $scope.getProductCodePopUp = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getProductCode();
+        angular.element(document.querySelector('#ProductCodePopup')).modal('show');
+    }
+
+    $scope.ProductCodeList = [];
+    $scope.getProductCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetProductCode?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.Newobject.WorkCenterMasterId + '&productionLevel=' + $scope.Newobject.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.Newobject.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ProductCodeList = resp.data;
+        });
+    }
+
+    $scope.selectProductCode = function (e) {
+        $scope.Newobject.MasterOrderItemId = e.data.MOIId;
+        $scope.Newobject.ProductCodeArticle = e.data.Article;
+        angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
+    }
 }

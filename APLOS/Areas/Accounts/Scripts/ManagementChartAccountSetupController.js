@@ -6,9 +6,11 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
+        $scope.getDataBG();
     };
 
     $scope.isSet = function (tabNum) {
+        
         return $scope.tab === tabNum;
     };
         // #endregion TAB CHANGE
@@ -22,11 +24,45 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.updateUrlBG = $scope.pathBG + "edit";
     $scope.deleteUrlBG = $scope.pathBG + "delete/";
     $scope.getListUrlBG = "accounts/companygroupbudgetgroup/getlist";
-    baseService.init($scope.getListUrlBG, null, 15);
+   // baseService.init($scope.getListUrlBG, null, 15);
+    $scope.searchByBGList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'User Defined Name',
+            'value': 'UserName'
+        }
+    ];
+    $scope.BGparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "Sequence",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
     $scope.getDataBG = function (pageno) {
-        baseService.pagination(pageno)
+        baseService.paginationBase($scope.getListUrlBG, pageno, $scope.BGparameters)
             .then(function (result) {
                 $scope.budgetGroups = result.Rows;
+                $scope.BGparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, "failure");
             }).finally(function () {
@@ -159,17 +195,51 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.saveUrlBC = $scope.pathBC + "create";
     $scope.updateUrlBC = $scope.pathBC + "edit";
     $scope.deleteUrlBC = $scope.pathBC + "delete/";
-    baseService.init($scope.getListUrlBC);
+    //baseService.init($scope.getListUrlBC);
+
+    $scope.searchByBCList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'User Defined Name',
+            'value': 'UserName'
+        }
+    ];
+    $scope.BCparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "Sequence",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
     $scope.getDataBC = function (pageno) {
-        baseService.pagination(pageno)
+        baseService.paginationBase($scope.getListUrlBC, pageno, $scope.BCparameters)
             .then(function (result) {
                 $scope.budgetCategories = result.Rows;
+                $scope.BCparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, "failure");
             }).finally(function () {
             });
     };
-    $scope.getDataBC();
 
     $scope.budgetCategory = {
         Id: null,
@@ -305,8 +375,9 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.saveUrlBSC = $scope.pathBSC + "create";
     $scope.updateUrlBSC = $scope.pathBSC + "edit";
     $scope.deleteUrlBSC = $scope.pathBSC + "delete/";
-    baseService.init($scope.getListUrlBSC);
+   // baseService.init($scope.getListUrlBSC);
     $scope.getDataBSC = function (pageno) {
+        baseService.init($scope.getListUrlBSC, pageno, 15, 'asc', 'Sequence', $scope.SearchBy);
         baseService.pagination(pageno)
             .then(function (result) {
                 $scope.budgetSubCategories = result.Rows;
@@ -315,7 +386,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
             }).finally(function () {
             });
     };
-    $scope.getDataBSC();
+   // $scope.getDataBSC();
 
     $scope.budgetSubCategory = {
         Id: null,
@@ -450,8 +521,9 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.saveUrlBgt = $scope.pathBgt + "create";
     $scope.updateUrlBgt = $scope.pathBgt + "edit";
     $scope.deleteUrlBgt = $scope.pathBgt + "delete/";
-    baseService.init($scope.getListUrlBgt, null, 15);
+   // baseService.init($scope.getListUrlBgt, null, 15);
     $scope.getDataBgt = function (pageno) {
+        baseService.init($scope.getListUrlBgt, pageno, 15, 'asc', 'Sequence', $scope.SearchBy);
         baseService.pagination(pageno)
             .then(function (result) {
                 $scope.budgets = result.Rows;
@@ -460,7 +532,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
             }).finally(function () {
             });
     };
-    $scope.getDataBgt();
+    //$scope.getDataBgt();
 
     $scope.budget = {
         Id: null,
@@ -593,8 +665,9 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.updateUrl = $scope.path + "edit";
     $scope.deleteUrl = $scope.path + "delete/";
     $scope.getListUrl = "accounts/CompanyGroupActivity/getlist";
-    baseService.init($scope.getListUrl);
+    //baseService.init($scope.getListUrl);
     $scope.getData = function (pageno) {
+        baseService.init($scope.getListUrl, pageno, 15, 'asc', 'Sequence', $scope.SearchBy)
         baseService.pagination(pageno)
             .then(function (result) {
                 $scope.activities = result.Rows;
@@ -603,7 +676,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
             }).finally(function () {
             });
     };
-    $scope.getData();
+    //$scope.getData();
 
     $scope.activity = {
         Id: null,
@@ -708,7 +781,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
         return true;
     };
 
-    $scope.Delete = function () {
+    $scope.DeleteActivity = function () {
         if (!baseService.isUndefinedOrNull($scope.activity.Id)) {
             $http({
                 method: "POST",
@@ -746,4 +819,40 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
         $scope.activity.Active = true;
     }
     //  #endregion Activity
+
+    $scope.message_Detailconfirmation = null;
+    $scope.RemoveBudgetGroup = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.budgetGroup.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUpBudgetGroup')).modal('show');
+    }
+
+    $scope.RemoveBudgetCategory = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.budgetCategory.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUpBudgetcategory')).modal('show');
+    }
+
+    $scope.RemoveBudgetSubCategory = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.budgetSubCategory.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUpBudgetSubCategory')).modal('show');
+    }
+
+    $scope.RemoveBudget = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.budget.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUpBudget')).modal('show');
+    }
+
+    $scope.RemoveActivity = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.activity.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUpActivity')).modal('show');
+    }
 }

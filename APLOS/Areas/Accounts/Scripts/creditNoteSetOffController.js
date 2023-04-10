@@ -478,7 +478,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
     $scope.closePopUp = function () {
         angular.element(document.querySelector("#vendorInvoicePopUp")).modal("hide");
     };
-
+    $scope.invoiceCurrencyId = "";
     $scope.closeInvoicePopUpselected = function () {
         angular.forEach($scope.invoiceList, function (data, i) {
             if (data.Active === true) {
@@ -488,6 +488,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
                 getRow = $filter("filter")($scope.voucherDetailList, { "TrnType": "Dr", "DocRefNo": data.DocRefNo, "AdjustmentNoteDetailId": data.AdjustmentNoteDetailId });
                 if (getRow.length === 0) {
                     data.Amount = data.Balance;
+                    $scope.invoiceCurrencyId = data.CurrencyId;
                     $scope.voucherDetailList.push(data);
                     if ($scope.voucher.PaymentSource == 'SetOff')
                         $scope.voucher.CompanyCurrencyRate = $scope.voucherDetailList[0].CompanyCurrencyRate;
@@ -506,8 +507,9 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         });
 
     };
-
+    var BankBookAmount = 0;
     $scope.exchangeGainLossAmount = function (data) {
+        BankBookAmount = Math.abs(data.ConvertedAmount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         var balance = parseFloat(data.Balance), dramount = parseFloat(data.Amount);
         if (dramount > balance) {
             data.Amount = data.Balance;
@@ -516,6 +518,7 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         else {
             CloseShowResult();
         }
+    if (data.CurrencyId === $scope.voucher.CurrencyId) {
         if (data.CompanyCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
             data.ExchangeAmount = Math.abs(data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)).toFixed(2);
             data.ExchangeType = "ExchangeLoss";
@@ -528,21 +531,53 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
             data.ExchangeAmount = 0;
             data.ExchangeType = null;
         }
+    }
+    else {
+        if (dramount < BankBookAmount) {
+            data.ExchangeAmount = Math.abs(BankBookAmount - dramount).toFixed(2);
+            data.ExchangeType = "ExchangeLoss";
+        }
+        else if (dramount > BankBookAmount) {
+            data.ExchangeAmount = Math.abs(dramount - BankBookAmount).toFixed(2);
+            data.ExchangeType = "ExchangeGain";
+        }
+        else {
+            data.ExchangeAmount = 0;
+            data.ExchangeType = null;
+        }
+    }
     };
 
     $scope.exchangeGainLossCal = function (rate) {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
-            if ($scope.voucherDetailList[i].CompanyCurrencyRate < rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate);
-                $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
-            }
-            else if ($scope.voucherDetailList[i].CompanyCurrencyRate > rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate);
-                $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
+            if ($scope.voucherDetailList[i].CurrencyId === $scope.voucher.CurrencyId) {
+                if ($scope.voucherDetailList[i].CompanyCurrencyRate < rate) {
+                    $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate);
+                    $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
+                }
+                else if ($scope.voucherDetailList[i].CompanyCurrencyRate > rate) {
+                    $scope.voucherDetailList[i].ExchangeAmount = $scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate);
+                    $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
+                }
+                else {
+                    $scope.voucherDetailList[i].ExchangeAmount = 0;
+                    $scope.voucherDetailList[i].ExchangeType = null;
+                }
             }
             else {
-                $scope.voucherDetailList[i].ExchangeAmount = 0;
-                $scope.voucherDetailList[i].ExchangeType = null;
+                BankBookAmount = Math.abs($scope.voucherDetailList[i].ConvertedAmount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
+                if ($scope.voucherDetailList[i].Amount < BankBookAmount) {
+                    $scope.voucherDetailList[i].ExchangeAmount = Math.abs(BankBookAmount - $scope.voucherDetailList[i].Amount).toFixed(2);
+                    $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
+                }
+                else if ($scope.voucherDetailList[i].Amount > BankBookAmount) {
+                    $scope.voucherDetailList[i].ExchangeAmount = Math.abs($scope.voucherDetailList[i].Amount - BankBookAmount).toFixed(2);
+                    $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
+                }
+                else {
+                    $scope.voucherDetailList[i].ExchangeAmount = 0;
+                    $scope.voucherDetailList[i].ExchangeType = null;
+                }
             }
         }
     };
@@ -822,12 +857,12 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
     $scope.passBankCashAmount = function () {
         if (!baseService.isUndefinedOrNull($scope.voucher.CashCurrencyId)) {
             if ($scope.voucher.CashCurrencyId === $scope.companyCurrencyId) {
-                $scope.voucher.BankAmount = $scope.voucher.Amount;
+                $scope.voucher.BankAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount"));
             }
         }
         if (!baseService.isUndefinedOrNull($scope.voucher.BankCurrencyId)) {
             if ($scope.voucher.BankCurrencyId === $scope.companyCurrencyId) {
-                $scope.voucher.BankAmount = $scope.voucher.Amount;
+                $scope.voucher.BankAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount"));
             }
         }
     };

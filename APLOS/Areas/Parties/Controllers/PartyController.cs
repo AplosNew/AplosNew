@@ -771,7 +771,6 @@ namespace Aplos.Areas.Parties.Controllers
             party.CompanyGroupId = identity.CompanyGroupId;
             party.PartyType = PartyType.Party.ToString();
 
-           
             var listCount = companyPartyDataList.ToList().Count;
             if (isCustomerCurrencyChanges == true && listCount > 0)
             {

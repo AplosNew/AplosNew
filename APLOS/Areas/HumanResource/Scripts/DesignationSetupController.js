@@ -309,7 +309,7 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
     $scope.saveUrlDG = $scope.pathDG + 'create';
     $scope.updateUrlDG = $scope.pathDG + 'edit';
     $scope.deleteUrlDG = $scope.pathDG + 'delete/';
-    baseService.init($scope.getListUrlDG);
+    baseService.initBG($scope.getListUrlDG);
     $scope.getDataDG = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {

@@ -1668,6 +1668,7 @@ namespace Library.MaterialManagement.Inventory
                                         TotalAmount = (item.BaseQty == (item.IssueQty + item.RequisitionQty)) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2) * Convert.ToDecimal((item.GRNBaseUoMFactor / item.BaseUoMFactor)),//Convert.ToDecimal(detailtrnAmount),
                                         IssueRequestDetailId = item.IssueRequest,
                                         IssueReturnQty = 0,
+                                        MaterialStorageId=item.MaterialStorageId,
                                         BooksCurrencyBaseRate = Math.Round(Convert.ToDecimal(item.BooksCurrencyBaseRate), 4) * Convert.ToDecimal((item.BaseUoMFactor / item.GRNBaseUoMFactor)),
                                         TotalMaterialBooksCurrencyAmount = (item.BaseQty == (item.IssueQty + item.RequisitionQty)) ? Math.Round(Convert.ToDecimal(item.TotalMaterialBooksCurrencyAmount - item.TotalIssueAmount), 2) : Math.Round(Convert.ToDecimal(totalReqQty * Convert.ToDecimal(item.BooksCurrencyBaseRate)), 2) * Convert.ToDecimal((item.GRNBaseUoMFactor / item.BaseUoMFactor))//totalReqQty item.RequisitionQty
                                     };
