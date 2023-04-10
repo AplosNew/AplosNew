@@ -750,14 +750,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].Text = "BaseProcPlanEndDate"; sheet[ROW, COL].ColumnWidth = 22; int colBaseProcPlanEndDate = COL; COL++;
                 sheet[ROW, COL].Text = "POStartDate"; sheet[ROW, COL].ColumnWidth = 22; int colPOStartDate = COL; COL++;
                 sheet[ROW, COL].Text = "POCompletionDate"; sheet[ROW, COL].ColumnWidth = 22; int colPOCompletionDate = COL; COL++;
-                sheet[ROW, COL].Text = "NoOfSO"; sheet[ROW, COL].ColumnWidth = 22; int colNoOfSO = COL; COL++;
+                sheet[ROW, COL].Text = "NoOfSO"; sheet[ROW, COL].ColumnWidth = 8; int colNoOfSO = COL; COL++;
                 sheet[ROW, COL].Text = "Date"; sheet[ROW, COL].ColumnWidth = 22; int colDate = COL; COL++;
-                sheet[ROW, COL].Text = "PlanningStatus"; sheet[ROW, COL].ColumnWidth = 22; int colPlanningStatus = COL; COL++;
-                sheet[ROW, COL].Text = "POCompletion"; sheet[ROW, COL].ColumnWidth = 22; int colPOCompletion = COL; COL++;
-                sheet[ROW, COL].Text = "ProdQty"; sheet[ROW, COL].ColumnWidth = 22; int colProdQty = COL; COL++;
-                sheet[ROW, COL].Text = "PlanQty"; sheet[ROW, COL].ColumnWidth = 22; int colPlanQty = COL; COL++;
-                sheet[ROW, COL].Text = "AvailableQty"; sheet[ROW, COL].ColumnWidth = 12; int colAvailableQty = COL; COL++;
-                sheet[ROW, COL].Text = "CumProdQty"; sheet[ROW, COL].ColumnWidth = 12; int colCumProdQty = COL; 
+                sheet[ROW, COL].Text = "PlanningStatus"; sheet[ROW, COL].ColumnWidth = 10; int colPlanningStatus = COL; COL++;
+                sheet[ROW, COL].Text = "POCompletion"; sheet[ROW, COL].ColumnWidth = 10; int colPOCompletion = COL; COL++;
+                sheet[ROW, COL].Text = "ProdQty"; sheet[ROW, COL].ColumnWidth = 10; int colProdQty = COL; COL++;
+                sheet[ROW, COL].Text = "PlanQty"; sheet[ROW, COL].ColumnWidth = 10; int colPlanQty = COL; COL++;
+                sheet[ROW, COL].Text = "AvailableQty"; sheet[ROW, COL].ColumnWidth = 10; int colAvailableQty = COL; COL++;
+                sheet[ROW, COL].Text = "CumProdQty"; sheet[ROW, COL].ColumnWidth = 10; int colCumProdQty = COL; 
                 #endregion columns
 
                 int endCol = COL;
@@ -800,6 +800,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     ROW++;
 
                 }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
                 sheet.IsDisplayZeros = false;
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
@@ -822,6 +824,62 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 
                 sheet.IsGridLinesVisible = false;
+
+
+                IWorksheet sheet2 = workbook.Worksheets[0];
+                sheet2.Name = "SOComDate";
+                //sheet2.ImportDataTable(dt, true, 1, 1);
+                //int lc = sheet.UsedRange.LastColumn;
+                //sheet2.Range[1, 1, 1, lc].ColumnWidth = 14;
+                #region columns
+                int ROW2 = 6, COL2 = 1;
+                int startRow2 = ROW2;
+                sheet2[ROW2, COL2].Text = "Sequence"; sheet2[ROW2, COL2].ColumnWidth = 8; int colSequence = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "POId"; sheet2[ROW2, COL2].ColumnWidth = 8; int colProductionId = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "SOStatus"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOStatus = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Delivery Date"; sheet2[ROW2, COL2].ColumnWidth = 14; int colDeliveryDate = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "SOId"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOId = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "SOQty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOQty = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "SoCommqty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSoCommqty = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "SO Completion Date"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOComDate = COL2;
+                int endcol2 = COL2;
+                #endregion columns
+
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Interior.Color = System.Drawing.Color.FromArgb(0, 0, 0);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Bold = true;
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Size = 9f;
+                sheet2.Range[ROW2, 1, ROW2, endcol2].BorderInside(ExcelLineStyle.Hair);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].BorderAround(ExcelLineStyle.Hair);
+                sheet2.Range[ROW2, 1, ROW2, endcol2].CellStyle.Font.Color = ExcelKnownColors.White;
+
+
+                ROW2++;
+                for (int i = 0; i < dtSOComplete.Rows.Count; i++)
+                {
+                    sheet2[ROW2, colSequence].Text = dtSOComplete.Rows[i]["Seq"].ToString();
+                    sheet2[ROW2, colPOId].Text = dtSOComplete.Rows[i]["ProductionOrderId"].ToString();
+                    sheet2[ROW2, colSOStatus].Text = dtSOComplete.Rows[i]["SOStatus"].ToString();
+                    sheet2[ROW2, colDeliveryDate].Text = dtSOComplete.Rows[i]["DeliveryDate"].ToString();
+                    sheet2[ROW2, colSOId].Text = dtSOComplete.Rows[i]["SOId"].ToString();
+                    sheet2[ROW2, colSOQty].Text = dtSOComplete.Rows[i]["SOQty"].ToString();
+                    sheet2[ROW2, colSoCommqty].Text = dtSOComplete.Rows[i]["SoCommqty"].ToString();
+                    sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["POCompletionDate"].ToString();
+                    ROW2++;
+                }
+                sheet2.AutoFilters.FilterRange = sheet2.Range[startRow2 - 1, 1, ROW2, endcol2];
+
+                reportUtility.CompanyPlantHeaderNew(ref sheet2, 1, "Sales Order Wise Production Completion Date Report", identity.CompanyId, identity.CompanyName, "");
+
+                reportUtility.PageSetup(ref sheet2, 6, ExcelPageOrientation.Landscape);
+                sheet2[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet2.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                sheet2.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet2.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet2.IsGridLinesVisible = false;
+
+
+
 
                 return workbook;
             }
