@@ -2237,7 +2237,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
             {
                 return ex.ToString();
             }
-           
+
 
         }
 
@@ -2264,7 +2264,7 @@ and ta.ResponsiblePersonId = '" + UserId + "' and ta.DueDate = DATEADD(day, 7, '
                         genid.GenID(TableName, out string _Id);
 
 
-                        dr["Id"] =  _Id;
+                        dr["Id"] = _Id;
                         dr["ProductionServiceId"] = item.ProductionServiceId;
                         dr["WorkcenterMasterId"] = item.WorkcenterMasterId;
                         dr["PO"] = item.PO;
@@ -3538,7 +3538,7 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
             {
                 strSQL = @"select dm.Id as Value, dm.DetentionUserName As Name from DetentionMasterProcess DMP
 left join DetentionMaster  As dm on dm.Id = DMP.DetentionMasterId
-where ProcessId = '"+ ProcessId +"'";
+where ProcessId = '" + ProcessId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -3563,7 +3563,7 @@ where ProcessId = '"+ ProcessId +"'";
             }
         }
 
-        public void GetPODetail(out List<PODetail> DataList, string POId,string ProcessId)
+        public void GetPODetail(out List<PODetail> DataList, string POId, string ProcessId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -3773,7 +3773,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             }
         }
 
-        public void GetPoStatusWise(out List<Default2> DataList, string StatusId)
+        public void GetPoStatusWise(out List<Default2> DataList)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -3782,7 +3782,41 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id As Name , ProductionStatusId As Value from TRN.ProductionOrder  where ProductionStatusId = '" + StatusId + "'";
+                strSQL = @"select Id As Name , ProductionStatusId As Value from TRN.ProductionOrder";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetPoStatusWiseNew(out List<Default2> DataList, string StatusId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id As Name , ProductionStatusId As Value from TRN.ProductionOrder where ProductionStatusId = '" + StatusId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -3984,29 +4018,33 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
+            string strSQL1 = "";
             DataList = new List<POWiseReport>();
 
             System.Data.DataSet dsRef;
             try
             {
                 #region Sql
-                strSQL = @"DECLARE @POCreationDate varchar(100)=DATEADD(day,-180,GETDate())
-                            SELECT x.ProcessIndex,X.EntityId,X.Entity,X.CustomerId, X.Customer,X.Article,X.SONo,X.POId PONo,X.POStatusId,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,X.ActualPlanScheduleQty,X.ShouldBeBaseProcessPlannedQty
+                strSQL1 = @"DECLARE @POCreationDate varchar(100)=DATEADD(day,-180,GETDate())
+                            SELECT x.ProcessIndex,X.EntityId,X.Entity,X.CustomerId ,X.Customer,X.Article,X.SONo,X.POId PONo,X.POStatusId,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,X.ActualPlanScheduleQty,X.ShouldBeBaseProcessPlannedQty
                             ,X.BaseProcessProduceQty,X.BaseProcessRemainingQty,X.Sequence,X.ProcessId,X.Process,X.PercentQty,X.ProcessPlannedQty,X.ProcProdQty,X.PreProcProdQty,X.WIP,X.ProcBalanceToProduce,X.RelayProcess,X.IsBaseProcess
                             ,X.ProcessLegDays,X.POFirstDelivery,X.POLastDelivery,X.BaseProcProdStartDate,X.BaseProcLatestProdDate,X.BaseProcPlanStartDate,X.BaseProcPlanCompletionDate
                             ,X.POStartDate,X.POCompletionDate,X.FirstProcessActualBookDate,X.POFirstProdBookDate,X.POLatestProdBookDate,X.ShouldBeProcessStartDate,X.ShouldBeProcessEndDate
                             ,ISNULL(X.ProcessFirstBookDate,'-')ProcessFirstBookDate,ISNULL(X.ProcessLatestBookDate,'-')ProcessLatestBookDate,X.ProcessStartDays,X.ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
                             ,ROUND(X.ProcProdPercent*100,0)ProcProdPercent,X.EntryCheck,ROUND(X.ProceessProdQtyVsSOQty*100,0)ProceessProdQtyVsSOQty,ISNULL(X.Remarks,'-') ProcessStatusRemark--,X.ProcessProdBookDate
                             ,POReviewStatus=CASE WHEN CONVERT(datetime,X.ProcessLatestBookDate)< (GETDATE()-2) THEN 'To Review' ELSE X.POStatus END
-                            ,X.LotNo LotNoQty
+                            
+                            ,LotNoQty=ISNULL(STUFF((select distinct ', '+xp.LotNumber+'-'+CONVERT(varchar(100),X.ProcProdQty) from
+                            TRN.ProductionSummary AS xp
+                            where X.POId=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'-')
                             ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ROUND((X.FirstProcessProQty/NULLIF(X.BaseProcessProduceQty,0))*100,0)
 ,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
-,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END
+,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END,ProcessBalanceProd=X.ProcessPlannedQty-X.ProcProdQty
                             FROM(
                             SELECT 
                             T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
                             ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/t2.BaseProcessPlannedQty,0)
-                            ,ProcProdPercent=ISNULL(T2.ProcProdQty/t2.ProcessPlannedQty,0)
+                            ,ProcProdPercent=ISNULL(T1.ProcProdQty/t1.ProcessPlannedQty,0)
                             ,EntryCheck=CASE WHEN T2.ProcProdQty-T1.ProcProdQty<0 THEN 'ToCheck' ELSE '' END
                             ,ProceessProdQtyVsSOQty=COALESCE(T1.ProcProdQty / NULLIF(T1.SOQty ,0), 0)
                             FROM
@@ -4061,10 +4099,6 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
                             ProductionOrderFirstProcessWorkCenter AS xp
                             INNER JOIN scs.WorkCenterMaster AS xw ON xp.WorkCenterMasterId=xw.Id
                             where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'')
-                           
-                            ,LotNo=STUFF((select distinct ', '+xp.LotNumber+'-'+convert(varchar(100), xp.Quantity) from
-                            TRN.ProductionSummary AS xp
-                            where P.Id=xp.ProductionOrderId for xml path('') ), 1, 1, '')
 
                             ,InputRecoveryPercentage=STUFF((select distinct ', '+CONVERT(Varchar(100),xp.PlanPercentage) from
                             dbo.MaterialIssueControlMaster AS xp
@@ -4076,9 +4110,8 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
 		                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
 		                                      left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 		                                      left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
-		                                      where P.Id=Xpod.ProductionOrderId	 for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-											  ,CustomerId=STUFF((select distinct ','+XP.Id from 
+		                                      where P.Id=Xpod.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											   ,CustomerId=STUFF((select distinct ','+XP.Id from 
 		                                      trn.SalesOrder XSO 
 		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 		                                      left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
@@ -4144,10 +4177,36 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
                             GROUP BY P.Id,PSQ.Sequence,P.Qty,PSQ.Qty,PSQ.IsBaseProcess,PQ.Qty,PBQ.ProcProdQty,PS.Quantity 
                             ) A )T2 ON T1.ProcessIndex=T2.ProcessIndex AND  T1.POId=T2.POId
 
-                            )X
+                            )X";
+                if (CustomerId != null && POId == null && POStatusId == null)
+                {
+                   strSQL =  strSQL1 + " Where x.CustomerId = '" + CustomerId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";  
+                }
+                if (CustomerId == null && POId != null && POStatusId == null)
+                {
+                    strSQL = strSQL1 + " Where x.POId = '" + POId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                }
+                if (CustomerId == null && POId == null && POStatusId != null)
+                {
+                    strSQL = strSQL1 + " Where x.POStatusId = '" + POStatusId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                }
+                if (CustomerId != null && POId != null && POStatusId == null)
+                {
+                    strSQL = strSQL1 + " Where x.CustomerId = '" + CustomerId + "' and x.POId = '" + POId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                }
+                if (CustomerId != null && POId == null && POStatusId != null)
+                {
+                    strSQL = strSQL1 + " Where x.CustomerId = '" + CustomerId + "' and x.POStatusId = '" + POStatusId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                }
+                if (CustomerId == null && POId != null && POStatusId != null)
+                {
+                    strSQL = strSQL1 + " Where x.POId = '" + POId + "' and x.POStatusId = '" + POStatusId + "' Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                }
+                if (CustomerId != null && POId != null && POStatusId != null)
+                {
+                    strSQL = strSQL1 + " Where x.POId = '" + POId + "' and x.POStatusId = '" + POStatusId + "' and x.CustomerId = '" + CustomerId + "'  Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
+                }
 
-		                    Where  X.POId = '" + POId + "' and x.POStatusId = '" + POStatusId + "' and x.CustomerId = '" + CustomerId + "'" +
-                            "Order By X.POId,X.ProcessIndex,X.Sequence,X.Process";
                 #endregion Sql
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -4802,6 +4861,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string ActualInputPlanPercentage { get; set; }
         public string LatestProcessProdBookDays { get; set; }
         public string ProcessReviewStatus { get; set; }
+        public string ProcessBalanceProd { get; set; }
     }
     #endregion WrittenBy Aman
 
