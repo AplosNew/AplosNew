@@ -4208,7 +4208,7 @@ GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.Bas
         {
             try
             {
-                string sql = @"Select distinct T1.*,T2.POCompletionDate from 
+                string sql = @"Select distinct T1.*,T2.POCompletionDate,ExpExFactory=FORMAT(DATEADD(Day,T1.Days,T2.POCompletionDate),'dd-MMM-yyyy') from 
 (select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq, POD.ProductionOrderId,SO.OrderStatusId SOStatus,BP.[Days]
 ,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
 ,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
@@ -4267,7 +4267,7 @@ Group BY PO.Id,T1.ProductionDate
 Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>''
 GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
 ,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty
-) T2 ON T2.POId=T1.ProductionOrderId  AND T2.CumProdQty>=T1.SoCommqty  AND T1.SOStatus  NOT IN('Cancelled','Closed')";
+) T2 ON T2.POId=T1.ProductionOrderId  AND T2.CumProdQty<=T1.SoCommqty AND T1.SOStatus NOT IN('Cancelled','Closed')";
 
                  dt = _sqlRepository.GetDataTable(sql);
 

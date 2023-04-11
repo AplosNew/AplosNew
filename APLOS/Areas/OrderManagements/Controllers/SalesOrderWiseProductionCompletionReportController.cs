@@ -732,7 +732,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(2);
-                workbook.Worksheets[1].Name = "OS3 Data";
+                workbook.Worksheets[1].Name = "PrO Data";
                 sheet = workbook.Worksheets[1];
 
                 int ROW = 6; int COL = 1;
@@ -815,7 +815,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "OS3", identity.CompanyId, identity.CompanyName, "");
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Production Data", identity.CompanyId, identity.CompanyName, "");
 
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -828,7 +828,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
                 IWorksheet sheet2 = workbook.Worksheets[0];
-                sheet2.Name = "SOComDate";
+                sheet2.Name = "SOComData";
                 //sheet2.ImportDataTable(dt, true, 1, 1);
                 //int lc = sheet.UsedRange.LastColumn;
                 //sheet2.Range[1, 1, 1, lc].ColumnWidth = 14;
@@ -842,7 +842,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet2[ROW2, COL2].Text = "SOId"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOId = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "SOQty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOQty = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "SoCommqty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSoCommqty = COL2; COL2++;
-                sheet2[ROW2, COL2].Text = "SO Completion Date"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOComDate = COL2;
+                sheet2[ROW2, COL2].Text = "SO Completion Date"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOComDate = COL2++;
+                sheet2[ROW2, COL2].Text = "Leg Days"; sheet2[ROW2, COL2].ColumnWidth = 10; int colLegDays = COL2++;
+                sheet2[ROW2, COL2].Text = "Exp Ex Factory Date"; sheet2[ROW2, COL2].ColumnWidth = 10; int colExpExFactory = COL2;
                 int endcol2 = COL2;
                 #endregion columns
 
@@ -865,6 +867,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet2[ROW2, colSOQty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SOQty"].ToString());
                     sheet2[ROW2, colSoCommqty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString());
                     sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["POCompletionDate"].ToString();
+                    sheet2[ROW2, colLegDays].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["Days"].ToString());
+                    sheet2[ROW2, colExpExFactory].Text = dtSOComplete.Rows[i]["ExpExFactory"].ToString();
                     ROW2++;
                 }
                 sheet2.AutoFilters.FilterRange = sheet2.Range[startRow2, 1, ROW2, endcol2];
