@@ -494,10 +494,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetPoStatusWise(string StatusId)
+        public List<Default2> GetPoStatusWise()
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetPoStatusWise(out List<Default2> activelists, StatusId);
+            clsData.GetPoStatusWise(out List<Default2> activelists);
             return activelists;
         }
 
@@ -505,6 +505,13 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetCartonBookedQty(out List<Weight> activelists, SalesId);
+            return activelists;
+        }
+
+        public List<Default2> GetPoStatusWiseNew(string StatusId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPoStatusWiseNew(out List<Default2> activelists, StatusId);
             return activelists;
         }
 

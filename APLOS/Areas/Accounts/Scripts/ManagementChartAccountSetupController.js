@@ -25,18 +25,50 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.deleteUrlBG = $scope.pathBG + "delete/";
     $scope.getListUrlBG = "accounts/companygroupbudgetgroup/getlist";
    // baseService.init($scope.getListUrlBG, null, 15);
+    $scope.searchByBGList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'User Defined Name',
+            'value': 'UserName'
+        }
+    ];
+    $scope.BGparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "Sequence",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
     $scope.getDataBG = function (pageno) {
-        
-        baseService.init($scope.getListUrlBG, null, null, 'asc', 'Sequence', 'UserName');
-        baseService.pagination(pageno)
+        baseService.paginationBase($scope.getListUrlBG, pageno, $scope.BGparameters)
             .then(function (result) {
                 $scope.budgetGroups = result.Rows;
+                $scope.BGparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, "failure");
             }).finally(function () {
             });
     };
-    //$scope.getDataBG();
+    $scope.getDataBG();
 
     $scope.budgetGroup = {
         Id: null,
@@ -165,18 +197,49 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.deleteUrlBC = $scope.pathBC + "delete/";
     //baseService.init($scope.getListUrlBC);
 
+    $scope.searchByBCList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'User Defined Name',
+            'value': 'UserName'
+        }
+    ];
+    $scope.BCparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "Sequence",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
     $scope.getDataBC = function (pageno) {
-        baseService.init($scope.getListUrlBC, pageno, 15, 'asc', 'Sequence', $scope.SearchBy);
-        baseService.pagination(pageno)
+        baseService.paginationBase($scope.getListUrlBC, pageno, $scope.BCparameters)
             .then(function (result) {
-                
                 $scope.budgetCategories = result.Rows;
+                $scope.BCparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, "failure");
             }).finally(function () {
             });
     };
-    //$scope.getDataBC();
 
     $scope.budgetCategory = {
         Id: null,

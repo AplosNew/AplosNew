@@ -469,6 +469,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.NotificationSetting = response.data;
+            console.log('$scope.NotificationSetting',$scope.NotificationSetting)
             if ($scope.NotificationSetting.length > 0) {
                 $scope.CheckedByStatusForNoti = $scope.NotificationSetting[0].RequiredChecking;
                 $scope.ApprovedByStatusForNoti = $scope.NotificationSetting[0].RequiredApproval;
@@ -488,24 +489,24 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
     };
     $scope.NotificationSettingStatus();
     $scope.checkedByList = [];
-    //$scope.GetCheckedByAndApprovedBy1 = function () {
-    //    //debugger;
+    $scope.GetCheckedByAndApprovedBy1 = function () {
+        //debugger;
 
-    //    if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
-    //        $http({
-    //            method: 'GET',
-    //            url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBYForOurSource?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            $scope.checkedByList = response.data;
-    //        });
+        if (!baseService.isUndefinedOrNull($scope.CheckedByStatusForNoti) && !baseService.isUndefinedOrNull($scope.ApprovedByStatusForNoti)) {
+            $http({
+                method: 'GET',
+                url: 'Products/PurchaseOrder/GetCheckedByAndApprovedBYForOurSource?CheckedBy=' + $scope.CheckedByStatusForNoti + '&ApprovedBy=' + $scope.ApprovedByStatusForNoti,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.checkedByList = response.data;
+            });
 
-    //    }
-    //    else {
+        }
+        else {
 
-    //    }
+        }
 
-    //}
+    }
     $scope.HSNCode = null;
     $scope.HSNCodeId = null;
 
@@ -979,7 +980,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
             $scope.ApprovedByStatusForNoti = true;
             $scope.productNew.CheckedBy = x.data.CheckedById;
         }
-        //$scope.GetCheckedByAndApprovedBy1();
+        $scope.GetCheckedByAndApprovedBy1();
         if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
 
             $scope.productNew.CheckedBy = x.data.ApprovedById;

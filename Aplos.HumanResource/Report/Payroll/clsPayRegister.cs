@@ -9062,17 +9062,16 @@ where h.HeadCategory='GROSS'
                                 --WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
                                 --ELSE 0 END,
     
-							TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
-                                WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Late' and LTSystemID is null THEN 1
-                                WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
-                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+							--otalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
+                            --   WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                            --   WHEN Category = 'Late' and LTSystemID is null THEN 1
+                            --   WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                            --   WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
+                            --   WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                            --   ELSE 0 END,
+                                TotalPresent = CASE WHEN DayStatus = 'P' or DayStatus = 'PW' THEN 1 
                                 ELSE 0 END,
-    
-                                TotalLate = CASE WHEN Category = 'Late' and LTSystemID is null THEN 1
-                                WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Late' and LTSystemID is not null and LeaveDuration=1 THEN 1
+                                TotalLate = CASE WHEN DayStatus = 'L' THEN 1
                                 ELSE 0 END,
                                 
                                 TotalAbsent = CASE WHEN Category = 'Absent' and LTSystemID is null THEN 1
@@ -9097,8 +9096,7 @@ where h.HeadCategory='GROSS'
 								                       --WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
 								                       --WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=0 THEN 1
 
-                                TotalWeekOff = CASE WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1        
-								                       WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+                                TotalWeekOff = CASE WHEN DayStatus = 'W' OR DayStatus = 'WL' OR DayStatus = 'CW' OR DayStatus = 'CWL' OR DayStatus = 'CWP' OR DayStatus = 'WP' THEN 1
                                 ELSE 0 END,
                                 
                                 TotalHoliDay = CASE WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTEntitle=1 AND A.IsOTEntitled=0 THEN 1
