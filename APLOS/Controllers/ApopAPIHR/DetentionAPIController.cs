@@ -508,6 +508,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetPoStatusWiseNew(string StatusId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPoStatusWiseNew(out List<Default2> activelists, StatusId);
+            return activelists;
+        }
+
         public List<Default2> GetWrongCarten(string Refno, string SalesId)
         {
             clsDataContext clsData = new clsDataContext();
