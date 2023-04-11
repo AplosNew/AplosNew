@@ -785,7 +785,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colBaseProcPlanStartDate].Text = dtOrderMaster.Rows[i]["BaseProcPlanStartDate"].ToString();
                     sheet[ROW, colBaseProcPlanEndDate].Text = dtOrderMaster.Rows[i]["BaseProcPlanEndDate"].ToString();
                     sheet[ROW, colPOStartDate].Text = dtOrderMaster.Rows[i]["POStartDate"].ToString();
-                    sheet[ROW, colNoOfSO].Text = dtOrderMaster.Rows[i]["NoOfSO"].ToString();
+                    sheet[ROW, colNoOfSO].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["NoOfSO"].ToString());
                     sheet[ROW, colDate].Text = dtOrderMaster.Rows[i]["Date"].ToString();
                     sheet[ROW, colPlanningStatus].Text = dtOrderMaster.Rows[i]["PlanningStatus"].ToString();
                     sheet[ROW, colPOCompletion].Text = dtOrderMaster.Rows[i]["POCompletion"].ToString();
@@ -856,17 +856,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ROW2++;
                 for (int i = 0; i < dtSOComplete.Rows.Count; i++)
                 {
-                    sheet2[ROW2, colSequence].Text = dtSOComplete.Rows[i]["Seq"].ToString();
+                    sheet2[ROW2, colSequence].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["Seq"].ToString());
                     sheet2[ROW2, colPOId].Text = dtSOComplete.Rows[i]["ProductionOrderId"].ToString();
                     sheet2[ROW2, colSOStatus].Text = dtSOComplete.Rows[i]["SOStatus"].ToString();
                     sheet2[ROW2, colDeliveryDate].Text = dtSOComplete.Rows[i]["DeliveryDate"].ToString();
                     sheet2[ROW2, colSOId].Text = dtSOComplete.Rows[i]["SOId"].ToString();
-                    sheet2[ROW2, colSOQty].Text = dtSOComplete.Rows[i]["SOQty"].ToString();
-                    sheet2[ROW2, colSoCommqty].Text = dtSOComplete.Rows[i]["SoCommqty"].ToString();
-                    sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["POCompletionDate"].ToString();
+                    sheet2[ROW2, colSOQty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SOQty"].ToString());
+                    sheet2[ROW2, colSoCommqty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString());
+                    sheet2[ROW2, colSOComDate].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["POCompletionDate"].ToString());
                     ROW2++;
                 }
-                sheet2.AutoFilters.FilterRange = sheet2.Range[startRow2 - 1, 1, ROW2, endcol2];
+                sheet2.AutoFilters.FilterRange = sheet2.Range[startRow2, 1, ROW2, endcol2];
 
                 reportUtility.CompanyPlantHeaderNew(ref sheet2, 1, "Sales Order Wise Production Completion Date Report", identity.CompanyId, identity.CompanyName, "");
 
