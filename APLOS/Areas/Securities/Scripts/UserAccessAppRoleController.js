@@ -6,6 +6,12 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
     $scope.Action = 'Save';
     $scope.tableShow = false;
 
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        $scope.getRole();
+        
+    }
 
     $scope.ModelTemp = {
         Id: null,
@@ -18,14 +24,7 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    /*$scope.userRoleNew = {
-        Id: null,
-        RoleId: null,
-        UserId: null,
-        EmployeeId: null,
-        CompanyGroupId: null
-    }
-    $scope.ModelNew1 = Object.assign({}, $scope.userRoleNew);*/
+    
 
     $scope.roleList = [];
     $scope.getRole = function () {
@@ -69,6 +68,8 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
         $scope.ModelNew.EmployeeId = e.data.EmployeeId;
         $scope.ModelNew.User = e.data.FullName;
         $scope.ModelNew.UserId = e.data.UserId;
+        
+        $scope.GetUserAccessedIcon();
         $scope.CloseContractorPopUp();
     }
 
@@ -88,14 +89,57 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
                 ShowResult(response.data.Message, 'failure');
             }
             else {
+               
                 ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
+                $scope.Action = 'Update';
+                //ClearFields(response.data.Sequence);
                 $scope.getData();
 
             }
         }), function errorCallBack(response) { ShowResult(response.data.Message, 'failure'); }
     };
 
+    $scope.AccessedIcon = [];
+    $scope.GetUserAccessedIcon = function () {
+        $http.get('Securities/UserAccessAppRole/GetUserAccessedIcon?employeeId=' + $scope.ModelNew.EmployeeId).
+            then(function successCallback(response) {
+                $scope.AccessedIcon = response.data;
+            },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
 
+
+    $scope.Delete = function () {
+        
+            $http({
+                method: 'POST',
+                url: 'Securities/UserAccessAppRole/Delete',
+                data: { 'id': $scope.ModelNew.UserId},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.chartOfAccountLevel5s.splice($scope.index, 1);
+                    
+                    //ClearFields(response.data.Sequence);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, 'failure');
+            });
+        
+    };
+
+    $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+    $scope.Remove = function () {
+
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id))
+            $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
+        angular.element(document.querySelector('#confirmDetailPopUp')).modal('show');
+    }
     
 }
