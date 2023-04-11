@@ -554,6 +554,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         drmo.BeginEdit();
                                         drmo["SalesReturnId"] = _Id;
                                         drmo["ReturnNetWeight"] = scitem["ReturnNetWeight"];
+                                        drmo["Booked"] = false;
                                         drmo["UpdatedBy"] = identity.Name;
                                         drmo["UpdatedDate"] = DateTime.Now.ToString();
                                         drmo.EndEdit();
