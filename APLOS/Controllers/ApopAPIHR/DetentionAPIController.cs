@@ -494,10 +494,10 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetPoStatusWise(string StatusId)
+        public List<Default2> GetPoStatusWise()
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetPoStatusWise(out List<Default2> activelists, StatusId);
+            clsData.GetPoStatusWise(out List<Default2> activelists);
             return activelists;
         }
 
