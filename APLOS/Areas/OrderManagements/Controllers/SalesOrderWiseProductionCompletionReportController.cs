@@ -785,6 +785,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet[ROW, colBaseProcPlanStartDate].Text = dtOrderMaster.Rows[i]["BaseProcPlanStartDate"].ToString();
                     sheet[ROW, colBaseProcPlanEndDate].Text = dtOrderMaster.Rows[i]["BaseProcPlanEndDate"].ToString();
                     sheet[ROW, colPOStartDate].Text = dtOrderMaster.Rows[i]["POStartDate"].ToString();
+                    sheet[ROW, colPOCompletionDate].Text = dtOrderMaster.Rows[i]["POCompletionDate"].ToString();
                     sheet[ROW, colNoOfSO].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["NoOfSO"].ToString());
                     sheet[ROW, colDate].Text = dtOrderMaster.Rows[i]["Date"].ToString();
                     sheet[ROW, colPlanningStatus].Text = dtOrderMaster.Rows[i]["PlanningStatus"].ToString();
@@ -863,7 +864,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet2[ROW2, colSOId].Text = dtSOComplete.Rows[i]["SOId"].ToString();
                     sheet2[ROW2, colSOQty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SOQty"].ToString());
                     sheet2[ROW2, colSoCommqty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString());
-                    sheet2[ROW2, colSOComDate].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["POCompletionDate"].ToString());
+                    sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["POCompletionDate"].ToString();
                     ROW2++;
                 }
                 sheet2.AutoFilters.FilterRange = sheet2.Range[startRow2, 1, ROW2, endcol2];
