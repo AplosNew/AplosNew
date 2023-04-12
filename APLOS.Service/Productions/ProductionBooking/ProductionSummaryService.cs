@@ -471,8 +471,16 @@ namespace Library.Service.Productions
                         isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
                         isnull(C.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 CheckedBy from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))) as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty,
                         isnull(CEILING(PQ.Qty),PO.PlannedQty) OrderQty,
-						ISNULL(CEILING(PRS.TotalProductionQty), 0) as BookedQty,RM.TargetProductionFP,
-                                       Article=STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
+						ISNULL(CEILING(PRS.TotalProductionQty), 0) as BookedQty,RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel,(select ProductionBookingLevel from hkp.EntityProcessTag where EntityId='" + entityId + "' and ProcessId='" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,
+(select MA.StandardName from trn.salesorder SO
+left outer join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+where SO.Id=pw.SalesOrderId) as SOArticle,pw.MasterOrderItemId,(select MA.StandardName from trn.MasterOrderItem MOI
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+where MOI.Id=pw.MasterOrderItemId) as MOIArticle,(select MA.StandardName from trn.MasterOrderItem MOI
+left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
+where MOI.Id=pw.MasterOrderItemId) as ProductCodeArticle,
+                                       Article =STUFF((select distinct ','+MA.StandardName from trn.ProductionOrderDetail Pod 
                                                             left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId=so.Id
                                                             left outer join trn.MasterOrderItem MOI on moi.Id=so.MasterOrderItemId
                                                             left outer join [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId

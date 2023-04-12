@@ -17,7 +17,7 @@
         <div e-column e-field="ProductionOrderId" e-headertext="PO No" e-width="60"></div>
         <div e-column e-template="#templateSearchPR" e-headertext="" e-width="50"></div>
         <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="80"></div>
-        <div e-column e-field="Article" e-headertext="Article" e-width="140"></div>
+        <div e-column e-template="#Article" e-headertext="Article" e-width="300"></div>
         <div e-column e-template="#templateSMV" e-headertext="SPT" e-visible="true" e-width="80"></div>
         <div e-column e-template="#templatePlanHour" e-headertext="Plan Hours" e-width="80"></div>
         <div e-column e-template="#templateEfficiency" e-headertext="Efficiency" e-width="80"></div>
@@ -72,7 +72,14 @@
         </ul>
     </div>
 </script>
-
+<script type="text/template" id="Article">
+    <div class="col-sm-12" style="padding:0px; height:30px;">
+        <input type="text" name="Article" ng-model="data.Article" ng-show="data.BookingLevel=='ProductionOrder'" class="form-control">
+        <input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">
+        <input type="text" ng-click="$parent.getMasterOrderItemPopUp(this);" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
+        <input type="text" ng-click="$parent.getProductCodePopUp(this);" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">
+    </div>
+</script>
 <script type="text/template" id="Remarks">
     <div class="col-sm-10" style="padding:0px;">
         <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
@@ -321,7 +328,7 @@
                             </script>
                             <script type="text/template" id="ParameterDate">
                                 <div class="col-sm-12" style="padding:0px;">
-                                    <input type="text" ng-model="data.ParameterDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                                    <input type="text" ng-model="data.ParameterDate" ng-change="$parent.ParameterDateValidation(data.ParameterDate);" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
                                 </div>
                             </script>
 
@@ -339,7 +346,7 @@
                     <ul class="list-inline text-center">
                         <li>
                             <button ng-click="closeParameterValuePopup();" class="btn"><i class=""></i> Close</button>
-                            <button ng-click="SaveParameterValue();" class="btn"><i class=""></i> Save</button>
+                            <button ng-click="SaveParameterValue();" ng-hide="true" class="btn"><i class=""></i> Save</button>
                         </li>
                     </ul>
                 </div>
@@ -557,6 +564,71 @@
                         </li>
                     </ul>
 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal site-modal in" id="SalesOrderItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Sales Order Item<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="SalesOrderGrid" ej-grid e-datasource="SalesOrderItemList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSalesOrderItem"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-type="string" e-field="SOId" e-headertext="Sales Order No" e-width="60"></div>
+                            <div e-column e-type="string" e-field="MOIId" e-headertext="Line Item No" e-width="60"></div>
+                            <div e-column e-field="DeliveryDate" e-headertext="Delivery Date" e-width="60"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="PlannedQty" e-headertext="SO Qty" e-textalign="right" e-width="60"></div>
+                            <div e-column e-type="string" e-field="ProductCode" e-headertext="Product Code" e-width="60"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal site-modal in" id="ProductCodePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Product Code<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="ProductCodeGrid" ej-grid e-datasource="ProductCodeList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectProductCode"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-type="string" e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                            <div e-column e-type="string" e-field="MOIId" e-headertext="Line Item No" e-width="80"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal site-modal in" id="MasterOrderItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Master Order Item<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div style="color:black;" id="MasterOrderItemGrid" ej-grid e-datasource="MasterOrderItemList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectMasterOrderItem"
+                         e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-type="string" e-field="MasterOrderItemId" e-headertext="Line Item No" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductCode" e-headertext="Product Code" e-width="80"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
