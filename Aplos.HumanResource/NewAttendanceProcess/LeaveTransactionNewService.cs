@@ -1241,6 +1241,27 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
 
             return _sqlRepository.GetGridData(parameters).Source;
         }
+        public DataSet GetLeavePolicyDetailBackDatePosting(string empSystemId, string fromDate, string lTSystemID)
+        {
+            GridParameter parameters = null;
+            parameters = new GridParameter
+            {
+                ExportType = "DATASET",
+                CmdText = @"SELECT IsBackDatePosting,CAST( GETDATE()-BackDatePostingAllowedDays AS date) BackDatePostingDate,DATEDIFF(DAY, CAST( GETDATE()-BackDatePostingAllowedDays AS date), '" + fromDate + @"') AS DateDiff
+                             FROM  [dbo].[LeavePolicyDetail] LPD
+							INNER JOIN (SELECT E.SystemId, E.EmployeeId, E.EmployeeCode,E.EmployeeName,DGM.EmployeeCategoryId,DMC.LeavePolicyMasterId
+												FROM EmployeeInformation e
+												LEFT JOIN hkp.Designation egdsg ON egdsg.id = e.GivenDesignationId
+												LEFT JOIN HKP.LegalDesignation ld ON ld.Id = e.LegalDesignationId
+												LEFT JOIN MST.DesignationMasterLegalDesignation DMLD ON DMLD.LegalDesignationId=E.LegalDesignationId
+												LEFT JOIN mst.DesignationMaster DGM ON DGM.Id = DMLD.DesignationMasterId
+												LEFT JOIN SCS.DesignationMasterConfiguration DMC on DMC.DesignationMasterId=DGM.Id and DMC.PlantId=e.PlantId
+												WHERE E.SystemId = '" + empSystemId + @"'  )E ON E.EmployeeCategoryId=LPD.EmpCatId AND E.LeavePolicyMasterId=LPD.LPMSystemID
+                            WHERE  LPD.LTSystemID='" + lTSystemID + @"' "
+            };
+
+            return _sqlRepository.GetGridData(parameters).Source;
+        }
 
         public IEnumerable<object> GetLvTransInfo(string strSysTemID)
         {
@@ -1689,7 +1710,14 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                     throw new CustomException("Year end process has been done, So leave apply is not allowed on this year.");
                 }
 
-               
+                var getIsBackDatePosting = GetLeavePolicyDetailBackDatePosting(leaveTransaction.EmpSystemID, leaveTransaction.FromDate.ToString("yyyy-MM-dd"), leaveTransaction.LTSystemID);
+                if (Convert.ToBoolean(getIsBackDatePosting.Tables[0].Rows[0]["IsBackDatePosting"].ToString()) == true)
+                {
+                    if (Convert.ToInt32(getIsBackDatePosting.Tables[0].Rows[0]["DateDiff"]) <0)
+                    {
+                        throw new CustomException("Back Date Posting Not Allowed!.");
+                    }
+                }
 
                 var restEmployee = GetRestEmployee(leaveTransaction.EmpSystemID, leaveTransaction.FromDate.ToString("dd-MMM-yyyy"), leaveTransaction.ToDate.ToString());
 

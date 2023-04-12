@@ -248,6 +248,7 @@ function leavePolicyController(commonMessage, $scope, $rootScope, baseService, $
                 EncashmentDate: null,
                 LeaveCalculationRoundOption: null,
                 IsBackDatePosting: false,
+                BackDatePostingAllowedDays: 0,
                 EmpCatId: null
             };
 
