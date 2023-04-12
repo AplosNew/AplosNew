@@ -92,6 +92,24 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
             return null;
         }
+
+        private DataRow GetExpectedSOCompletionDate(double RequiredQty, string POId, DataTable Data)
+        {
+            for (int i = 0; i < Data.Rows.Count; i++)
+            {
+                if (Data.Rows[i]["POId"].ToString() == POId)
+                {
+
+                    if (clsStaticInfo.dbl(Data.Rows[i]["CumProdQty"].ToString()) >= RequiredQty)
+                    {
+                        return Data.Rows[i];
+                    }
+                }
+            }
+
+
+            return null;
+        }
         private string CellAddr(int Col, int Row)
         {
             return clsStaticInfo.GetxlsCol(Col) + Row.ToString();
@@ -721,6 +739,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             IWorkbook workbook = null;
             IWorksheet sheet = null;
             DataTable dtSOComplete, dtOrderMaster;
+            string ExpectedDate = "";
             try
             {
                 _productionSummaryData.GetProductionOrderMaster(parameters, out dtOrderMaster);
@@ -757,7 +776,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet[ROW, COL].Text = "ProdQty"; sheet[ROW, COL].ColumnWidth = 10; int colProdQty = COL; COL++;
                 sheet[ROW, COL].Text = "PlanQty"; sheet[ROW, COL].ColumnWidth = 10; int colPlanQty = COL; COL++;
                 sheet[ROW, COL].Text = "AvailableQty"; sheet[ROW, COL].ColumnWidth = 10; int colAvailableQty = COL; COL++;
-                sheet[ROW, COL].Text = "CumProdQty"; sheet[ROW, COL].ColumnWidth = 10; int colCumProdQty = COL; 
+                sheet[ROW, COL].Text = "CumProdQty"; sheet[ROW, COL].ColumnWidth = 10; int colCumProdQty = COL;
                 #endregion columns
 
                 int endCol = COL;
@@ -774,7 +793,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 for (int i = 0; i < dtOrderMaster.Rows.Count; i++)
                 {
-                  
+
                     sheet[ROW, colSeq].Number = clsStaticInfo.dbl(dtOrderMaster.Rows[i]["Seq"].ToString());
                     sheet[ROW, colPOId].Text = dtOrderMaster.Rows[i]["POId"].ToString();
                     sheet[ROW, colScheduleId].Text = dtOrderMaster.Rows[i]["ScheduleId"].ToString();
@@ -829,9 +848,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 IWorksheet sheet2 = workbook.Worksheets[0];
                 sheet2.Name = "SOComData";
-                //sheet2.ImportDataTable(dt, true, 1, 1);
-                //int lc = sheet.UsedRange.LastColumn;
-                //sheet2.Range[1, 1, 1, lc].ColumnWidth = 14;
+               
                 #region columns
                 int ROW2 = 6, COL2 = 1;
                 int startRow2 = ROW2;
@@ -842,9 +859,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet2[ROW2, COL2].Text = "SOId"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOId = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "SOQty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOQty = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "SoCommqty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSoCommqty = COL2; COL2++;
-                sheet2[ROW2, COL2].Text = "SO Completion Date"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOComDate = COL2++;
-                sheet2[ROW2, COL2].Text = "Leg Days"; sheet2[ROW2, COL2].ColumnWidth = 10; int colLegDays = COL2++;
-                sheet2[ROW2, COL2].Text = "Exp Ex Factory Date"; sheet2[ROW2, COL2].ColumnWidth = 10; int colExpExFactory = COL2;
+                sheet2[ROW2, COL2].Text = "SO Completion Date"; sheet2[ROW2, COL2].ColumnWidth = 14; int colSOComDate = COL2++;
+                sheet2[ROW2, COL2].Text = "Leg Days"; sheet2[ROW2, COL2].ColumnWidth = 7; int colLegDays = COL2++;
+                sheet2[ROW2, COL2].Text = "Exp Ex Factory Date"; sheet2[ROW2, COL2].ColumnWidth = 14; int colExpExFactory = COL2;
                 int endcol2 = COL2;
                 #endregion columns
 
@@ -866,9 +883,22 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet2[ROW2, colSOId].Text = dtSOComplete.Rows[i]["SOId"].ToString();
                     sheet2[ROW2, colSOQty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SOQty"].ToString());
                     sheet2[ROW2, colSoCommqty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString());
-                    sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["POCompletionDate"].ToString();
                     sheet2[ROW2, colLegDays].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["Days"].ToString());
-                    sheet2[ROW2, colExpExFactory].Text = dtSOComplete.Rows[i]["ExpExFactory"].ToString();
+                    //sheet2[ROW2, colExpExFactory].Text = dtSOComplete.Rows[i]["ExpExFactory"].ToString();
+                   // sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["Date"].ToString();
+
+                    DataRow dr = GetExpectedSOCompletionDate(clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString()), dtSOComplete.Rows[i]["ProductionOrderId"].ToString(), dtOrderMaster);
+
+                    if (dr != null)
+                    {
+                        ExpectedDate = GetDate(dr["Date"].ToString());
+
+                        sheet2[ROW2, colSOComDate].Text = ExpectedDate;
+                        sheet2[ROW2, colSOComDate].NumberFormat = "dd-MMM-yyyy";
+
+                        sheet2[ROW2, colExpExFactory].Text = Convert.ToDateTime(ExpectedDate).AddDays(clsStaticInfo.dbl(dtSOComplete.Rows[i]["Days"].ToString())).ToString("dd-MMM-yyyy");
+                    }
+
                     ROW2++;
                 }
                 sheet2.AutoFilters.FilterRange = sheet2.Range[startRow2, 1, ROW2, endcol2];

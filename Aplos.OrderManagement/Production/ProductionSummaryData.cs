@@ -4183,10 +4183,9 @@ LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderI
 LEFT JOIN(
 Select B.* from
 (
-Select DISTINCT PO.Id POId,PS.ProductionDate Date,SUM(Quantity) ProdQty,0 PlanQty
-from TRN.ProductionOrder PO
+Select PS.ProductionOrderId POId,PS.ProductionDate Date,SUM(Quantity)ProdQty,0 PlanQty from TRN.ProductionOrder PO
 LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
-Group BY PO.Id,PS.ProductionDate
+left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=PS.ProductionOrderId  AND PS.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY PS.ProductionOrderId,PS.ProductionDate
 UNION
 Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
 from TRN.ProductionOrder PO
@@ -4208,66 +4207,77 @@ GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.Bas
         {
             try
             {
-                string sql = @"Select distinct T1.*,T2.POCompletionDate,ExpExFactory=FORMAT(DATEADD(Day,T1.Days,T2.POCompletionDate),'dd-MMM-yyyy') from 
-(select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq, POD.ProductionOrderId,SO.OrderStatusId SOStatus,BP.[Days]
+                //                string sql = @"Select distinct T1.*,T2.Date,ExpExFactory=FORMAT(DATEADD(Day,T1.Days,T2.Date),'dd-MMM-yyyy') from 
+                //(select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq, POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
+                //,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
+                //,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+
+                //from trn.SalesOrder SO
+                //left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+                //LEFT JOIN TRN.ProductionOrderProcessSet M ON m.ProductionOrderId=POD.ProductionOrderId
+                //AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionOrderProcessSet EII WHERE EII.ProductionOrderId=POD.ProductionOrderId ORDER BY EII.Sequence DESC)
+                //Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''
+                //) T1
+
+                //LEFT JOIN (
+                //Select row_number() over (partition by po.Id order by po.Id,A.Date) as Seq
+                //,po.Id POId,sc.ID ScheduleId,PS.UserName POStatus,FORMAT(PO.AddedDate,'dd-MMM-yyyy')POCreationDate ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProductionEndDate,'dd-MMM-yyyy')BaseProductionEndDate
+                //,FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')BaseProcPlanStartDate,FORMAT(Type1.BaseProcPlanEndDate,'dd-MMM-yyyy')BaseProcPlanEndDate
+                //,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
+                //,POCompletionDate=FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy')
+                //,COUNT(SO.id) NoOfSO
+                //,FORMAT(A.Date,'dd-MMM-yyyy') Date
+
+                //,PlanningStatus=CASE WHEN FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy') IS NULL 
+                //OR FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy') IS NULL OR SC.Id IS NULL THEN 'Schedule Missing' ELSE 'Schedule' END
+                //,POCompletion= CASE WHEN A.Date<= GETDATE() Then 'Complete' else 'Scheduled' END 
+                //,A.ProdQty,A.PlanQty,AvailableQty= CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END
+
+                //,CumProdQty=SUM(CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END) OVER(PARTITION BY PO.ID ORDER BY A.Date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+
+
+                //FROM trn.SalesOrder SO
+                //LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=so.Id
+                //LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProductionEndDate,A.ProductionOrderId 
+                //FROM TRN.ProductionSummary A
+                //LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
+                //Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=POD.ProductionOrderId
+
+                //LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanEndDate,ProductionOrderId 
+                //From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=POD.ProductionOrderId
+                //LEFT JOIN TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
+                //LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
+                //LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderID=PO.Id
+                //--LEFT JOIN (Select * from TRN.ProductionOrderProcessSet Where IsBaseProcess=1) BP ON BP.ProductionOrderId=PO.Id
+                //LEFT JOIN(
+                //Select B.* from
+                //(
+                //Select PS.ProductionOrderId POId,PS.ProductionDate Date,SUM(Quantity)ProdQty,0 PlanQty from TRN.ProductionOrder PO
+                //LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
+                //left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=PS.ProductionOrderId  AND PS.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY PS.ProductionOrderId,PS.ProductionDate
+                //UNION
+                //Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
+                //from TRN.ProductionOrder PO
+                //LEFT JOIN dbo.ProductionPlanningType1 T1 ON T1.ProductionOrderID=PO.Id
+                //Group BY PO.Id,T1.ProductionDate
+                //)B Where ISNULL(B.Date,'')<>'' 
+                //)A ON A.POId=PO.Id
+
+                //Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>''
+                //GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
+                //,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty
+                //) T2 ON T2.POId=T1.ProductionOrderId  AND T2.CumProdQty<=T1.SoCommqty AND T1.SOStatus NOT IN('Cancelled','Closed')";
+
+                string sql = @"select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq,
+POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
 ,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
 ,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
 
 from trn.SalesOrder SO
 left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-LEFT JOIN (Select * from TRN.ProductionOrderProcessSet Where IsBaseProcess=1) BP ON BP.ProductionOrderId=POD.ProductionOrderId
-Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''
-) T1
-
-LEFT JOIN (
-Select row_number() over (partition by po.Id order by po.Id,A.Date) as Seq
-,po.Id POId,sc.ID ScheduleId,PS.UserName POStatus,FORMAT(PO.AddedDate,'dd-MMM-yyyy')POCreationDate ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProductionEndDate,'dd-MMM-yyyy')BaseProductionEndDate
-,FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')BaseProcPlanStartDate,FORMAT(Type1.BaseProcPlanEndDate,'dd-MMM-yyyy')BaseProcPlanEndDate
-,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
-,POCompletionDate=FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy')
-,COUNT(SO.id) NoOfSO
-,FORMAT(A.Date,'dd-MMM-yyyy') Date
-
-,PlanningStatus=CASE WHEN FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy') IS NULL 
-OR FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy') IS NULL OR SC.Id IS NULL THEN 'Schedule Missing' ELSE 'Schedule' END
-,POCompletion= CASE WHEN A.Date<= GETDATE() Then 'Complete' else 'Scheduled' END 
-,A.ProdQty,A.PlanQty,AvailableQty= CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END
-
-,CumProdQty=SUM(CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END) OVER(PARTITION BY PO.ID ORDER BY A.Date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
-
-
-FROM trn.SalesOrder SO
-LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=so.Id
-LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProductionEndDate,A.ProductionOrderId 
-FROM TRN.ProductionSummary A
-LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
-Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=POD.ProductionOrderId
-
-LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanEndDate,ProductionOrderId 
-From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=POD.ProductionOrderId
-LEFT JOIN TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
-LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
-LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderID=PO.Id
---LEFT JOIN (Select * from TRN.ProductionOrderProcessSet Where IsBaseProcess=1) BP ON BP.ProductionOrderId=PO.Id
-LEFT JOIN(
-Select B.* from
-(
-Select DISTINCT PO.Id POId,PS.ProductionDate Date,SUM(Quantity) ProdQty,0 PlanQty
-from TRN.ProductionOrder PO
-LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
-Group BY PO.Id,PS.ProductionDate
-UNION
-Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
-from TRN.ProductionOrder PO
-LEFT JOIN dbo.ProductionPlanningType1 T1 ON T1.ProductionOrderID=PO.Id
-Group BY PO.Id,T1.ProductionDate
-)B Where ISNULL(B.Date,'')<>'' 
-)A ON A.POId=PO.Id
-
-Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>''
-GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
-,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty
-) T2 ON T2.POId=T1.ProductionOrderId  AND T2.CumProdQty<=T1.SoCommqty AND T1.SOStatus NOT IN('Cancelled','Closed')";
+LEFT JOIN TRN.ProductionOrderProcessSet M ON m.ProductionOrderId=POD.ProductionOrderId
+AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionOrderProcessSet EII WHERE EII.ProductionOrderId=POD.ProductionOrderId ORDER BY EII.Sequence DESC)
+Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''";
 
                  dt = _sqlRepository.GetDataTable(sql);
 
@@ -5270,8 +5280,8 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             FROM(
                             SELECT 
                             T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
-                            ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/t2.BaseProcessPlannedQty,0)
-                            ,ProcProdPercent=ISNULL(T1.ProcProdQty/t1.ProcessPlannedQty,0)
+                            ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/NULLIF(t2.BaseProcessPlannedQty,0),0)
+                            ,ProcProdPercent=ISNULL(T1.ProcProdQty/NULLIF(t1.ProcessPlannedQty,0),0)
                             ,EntryCheck=CASE WHEN T2.ProcProdQty-T1.ProcProdQty<0 THEN 'ToCheck' ELSE '' END
                             ,ProceessProdQtyVsSOQty=COALESCE(T1.ProcProdQty / NULLIF(T1.SOQty ,0), 0)
                             FROM
@@ -5451,9 +5461,325 @@ Order by PV.ProductionSummaryId,PB.Sequence";
             }
         }
 
+        public string OnRolePrintReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Daily Planning & Production Report";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeCategory = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Day Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDayStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "In Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colInStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "In Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colInTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Out Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colOutTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PV Out";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colPVOut = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PV In";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPVIn = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "In Duration";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colInDuration = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Out Duration";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int colOutDuration = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Summary No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSummaryId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Article";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line Item Article";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line Item Product Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemProductCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SO No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSONo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Lot Number";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLotNumber = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Master Order Item No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colMasterOrderItemId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Qty Without Scan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colQtyWithoutScan = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Qty With Scan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colQtyWithScan = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Actual qty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colTotalActualqty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention In Minute";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionInMinute = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "POSPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colArticleSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "No Of Entry";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colNoOfEntry = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Alloted Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colAllotedHour = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Should Be Production";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colShouldBeProduction = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Available Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colTotalAvailableHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Net Available Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colNetAvailableHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Produce Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProduceHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Loss";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionLoss = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Productivity Variance";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductivityVariance = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Count - 1);
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, colEmployeeCode].Text = data[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colEmployeeName].Text = data[i]["EmployeeName"].ToString();
+                    sheet[ROW, colEmployeeCategory].Text = data[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, colDayStatus].Text = data[i]["DayStatus"].ToString();
+                    sheet[ROW, colInStatus].Text = data[i]["InStatus"].ToString();
+                    //sheet[ROW, colNoOfWorkStation].Number = clsStaticInfo.dbl(data[i]["NoOfWorkStation"].ToString());
+                    //sheet[ROW, colStandardProcessTime].Number = clsStaticInfo.dbl(data[i]["StandardProcessTime"].ToString());
+                    sheet[ROW, colInTime].Text = data[i]["InTime"].ToString();
+                    sheet[ROW, colOutTime].Text = data[i]["OutTime"].ToString();
+                    sheet[ROW, colPVOut].Number = clsStaticInfo.dbl(data[i]["PVOut"].ToString());
+                    sheet[ROW, colPVIn].Text = data[i]["PVIn"].ToString();
+                    sheet[ROW, colInDuration].Text = data[i]["InDuration"].ToString();
+                    sheet[ROW, colOutDuration].Text = data[i]["OutDuration"].ToString();
+                    sheet[ROW, colDesignation].Text = data[i]["Designation"].ToString();
+                    sheet[ROW, colPOArticle].Text = data[i]["POArticle"].ToString();
+                    sheet[ROW, colLineItemArticle].Text = data[i]["LineItemArticle"].ToString();
+                    sheet[ROW, colLineItemProductCode].Text = data[i]["LineItemProductCode"].ToString();
+                    sheet[ROW, colSONo].Text = data[i]["SONo"].ToString();
+                    sheet[ROW, colPOId].Text = data[i]["POId"].ToString();
+                    sheet[ROW, colLotNumber].Text = data[i]["LotNumber"].ToString();
+                    sheet[ROW, colMasterOrderItemId].Text = data[i]["MasterOrderItemId"].ToString();
+                    sheet[ROW, colQtyWithoutScan].Number = clsStaticInfo.dbl(data[i]["QtyWithoutScan"].ToString());
+                    sheet[ROW, colQtyWithScan].Number = clsStaticInfo.dbl(data[i]["QtyWithScan"].ToString());
+                    sheet[ROW, colTotalActualqty].Number = clsStaticInfo.dbl(data[i]["TotalActualqty"].ToString());
+                    sheet[ROW, colDetentionInMinute].Number = clsStaticInfo.dbl(data[i]["DetentionInMinute"].ToString());
+                    sheet[ROW, colPOSPT].Number = clsStaticInfo.dbl(data[i]["POSPT"].ToString());
+                    sheet[ROW, colArticleSPT].Number = clsStaticInfo.dbl(data[i]["ArticleSPT"].ToString());
+                    sheet[ROW, colSPT].Number = clsStaticInfo.dbl(data[i]["SPT"].ToString());
+                    sheet[ROW, colNoOfEntry].Number = clsStaticInfo.dbl(data[i]["NoOfEntry"].ToString());
+                    sheet[ROW, colAllotedHour].Number = clsStaticInfo.dbl(data[i]["AllotedHour"].ToString());
+                    sheet[ROW, colShouldBeProduction].Number = clsStaticInfo.dbl(data[i]["ShouldBeProduction"].ToString());
+                    sheet[ROW, colTotalAvailableHour].Number = clsStaticInfo.dbl(data[i]["TotalAvailableHour"].ToString());
+                    sheet[ROW, colDetentionHour].Number = clsStaticInfo.dbl(data[i]["DetentionHour"].ToString());
+                    sheet[ROW, colNetAvailableHour].Number = clsStaticInfo.dbl(data[i]["NetAvailableHour"].ToString());
+                    sheet[ROW, colProduceHour].Number = clsStaticInfo.dbl(data[i]["ProduceHour"].ToString());
+                    sheet[ROW, colDetentionLoss].Number = clsStaticInfo.dbl(data[i]["DetentionLoss"].ToString());
+                    sheet[ROW, colProductivityVariance].Number = clsStaticInfo.dbl(data[i]["ProductivityVariance"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Daily Planning & Production Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
-
-
 }
 
 
