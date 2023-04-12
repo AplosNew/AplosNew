@@ -2320,10 +2320,11 @@ namespace Library.Accounting.Accounts
 			try
 			{
 				string CmdText = @"SELECT  II.Id,II.DocRefNo,II.SalesReturnDate, 
-                                SUM(IID.TransactionQty) Qty,II.Narration,II.SalesId
+                                SUM(IID.TransactionQty) Qty,ISNULL(ISC.ReturnNetWeight,0) Verified_Qty,II.Narration,II.SalesId
                                 FROM [TRN].[SalesReturn] AS II
                                 JOIN TRN.SalesReturnDetail AS IID ON IID.SalesReturnId=II.Id
-                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate,II.Addeddate 
+								LEFT JOIN (SELECT SalesReturnId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild group by SalesReturnId) ISC ON ISC.SalesReturnId=II.Id
+                                GROUP BY II.Id,II.Narration,II.Id,II.SalesId,II.DocRefNo,II.SalesReturnDate,II.Addeddate,ISC.ReturnNetWeight 
 								Order By II.AddedDate desc";
 				return _sqlRepository.GetDataCollection(CmdText);
 			}
