@@ -45,7 +45,7 @@ namespace Aplos.Areas.Securities.Controllers
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableNameHead, out _Id);
-                    data["Id"] =_Id;
+                    data["Id"] =  _Id;
                     data["CompanyGroupId"] = identity.CompanyGroupId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }

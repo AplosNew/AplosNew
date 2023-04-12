@@ -164,7 +164,7 @@ namespace Aplos.Areas.Securities.Controllers
                 //LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
                 //LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id";
                 #endregion commented
-                string sql = @"SELECT distinct p.ModuleId, mp.ModuleName  ModuleName, c.name  RoleName 
+                string sql = @"SELECT distinct p.ModuleId, mp.ModuleName  ModuleName, c.name  RoleName,  P.RoleId
 FROM SEC.AppRoleDetail AS p
 LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
 LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
@@ -180,20 +180,20 @@ order by mp.ModuleName";
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetDataById(string moduleid)
+        public ActionResult GetDataById(string roleId, string moduleId)
         {
             try
             {
                 #region commented
                 string st = @"SELECT p.RoleId AS RoleId, p.ModuleId As ModuleId, p.IconId As IconID, c.name AS RoleName ,  mp.ModuleName As ModuleName, 
-                mi.IconName As IconName
+                mi.IconName As IconName, mi.Id IconId
                 FROM SEC.AppRoleDetail AS p
                 LEFT JOIN SEC.AppRole AS c ON p.RoleId = c.id
                 LEFT JOIN dbo.MobileAppModule AS mp ON p.ModuleId = mp.id
                 LEFT JOIN dbo.MobileAppIcon AS mi ON p.IconId = mi.id
-                where p.ModuleId = '"+ moduleid + @"'
-                order by mp.ModuleName
-                ";
+                where  P.RoleId = '" + roleId + "' and P.ModuleId = '"+ moduleId + "' order by mp.ModuleName";
+
+
                 #endregion commented
 
                 return Json(_sqlRepository.GetDataCollection(st), JsonRequestBehavior.AllowGet);
@@ -203,6 +203,39 @@ order by mp.ModuleName";
                 return Json(new { Error = true, Message = ex.Message });
             }
 
+        }
+
+        public ActionResult ActiveInactiveIcon(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableNameHead = "dbo.MobileAppIcon";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.MobileAppIcon where Id = '" + data["RoleId"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Name already exists!!!");
+
+                //con.OpenDataSetThroughAdapter("select * from dbo.MobileAppIcon where Id = '" + data["RoleId"] + "'", out dsMaster, false, "1");
+                string query = @"select *,  '' RoleStatus  from dbo.MobileAppIcon where Id = 1";
+                int datalen = query.Length;
+                for(int i = 0; i < datalen; i++)
+                {
+                    var rolests = query[i];
+                }
+
+               
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+
+            }
         }
 
     }

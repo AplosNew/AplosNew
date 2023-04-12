@@ -1,8 +1,11 @@
 ﻿<h3 class="site-heading" style="cursor:default"><span class="glyphicon glyphicon-info-sign"></span> User Access App Role</h3>
-<div class="form-horizontal  form-elements" ng-form name="userRoleForm">
+<div class="form-horizontal  form-elements" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
     <fieldset style="border:0px solid">
         <div class="col-xs-12 col-sm-6 col-md-6" style="margin-top: 8px;">
+
             <div class="form-group">
+
                 <label class="col-sm-4 control-label">Username<sup>*</sup></label>
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 15px;">
                     <span class="input-group-addon">{{ModelNew.EmployeeId}}</span>
@@ -30,17 +33,17 @@
     </fieldset>
     <div class="col-xs-12 col-sm-6 col-md-6" style="padding-top: 11px;">
         @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Role<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select class="form-control" name="Role" ng-model="userRole.RoleId" id="roleId"
-                            required tabindex="1">
-                        <option value=""></option>
-                        <option ng-repeat="option in roleList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
+                <label class="col-sm-4 control-label">Role<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Role" ng-model="userRole.RoleId" id="roleId"
+                                required tabindex="1">
+                            <option value=""></option>
+                            <option ng-repeat="option in roleList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6" style="padding-top: 11px;">
         @*<div class="form-group">
@@ -62,102 +65,24 @@
         </ul>
     </div>
 </div>
-<!--<div class="clearfix"></div>
-<div class="table-responsive modal-table">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Company</th>
-                <th>Role</th>-->
-@*<th>Active</th>*@
-<!--<th class="text-right" style="width:200px">Action</th>
-    </tr>
-</thead>
-<tbody>
-    <tr dir-paginate="x in userRoles |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'userRoles'">
-        <td>{{x.Id}}</td>
-        <td>{{x.CompanyName}}</td>
-        <td>{{x.RoleName}}</td>-->
-@*<td>{{x.Active?'Yes':'No'}}</td>*@
-<!--<td class="text-right">
-    <ul class="list-inline action-list">-->
-@*<li><a href="{{bootPoint}}user-role-detail" ng-click="send(x)" class="btn btn-action tooltip-here" data-placement="top" title="Role Override" tooltip>Role Override</a></li>*@
-<!--<li><button ng-click="Get(x.Id, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit"><i class="glyphicon glyphicon-edit"></i></button></li>
-                        <li><button ng-click="valuePassInDelModal(x, $index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-</div>
-<div class="modal fade site-modal in" id="popUpId" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                User <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="popUpParameters.searchBy">
-                                            <option ng-repeat="option in searchByUserList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Employee Id</th>
-                                <th>Full Name</th>
-                                <th>Auth Token</th>
-                                <th>User Type</th>
-                                <th>Auth Token Locked</th>
-                                <th>User Locked</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" total-items="popUpParameters.total_count"
-                                ng-click="selectSingleClick(x)" ng-class="{selected : x.UserId === rowSelected}" ng-dblclick="selectDoubleClick(x);" pagination-id="metaData.name + 'popUpList'">
-                                <td>{{x.UserId}}</td>
-                                <td>{{x.EmployeeId}}</td>
-                                <td>{{x.FullName}}</td>
-                                <td>{{x.AuthToken}}</td>
-                                <td>{{x.UserType}}</td>
-                                <td>{{x.AuthTokenLocked?'Locked':'UnLocked'}}</td>
-                                <td>{{x.UserLocked?'Locked':'UnLocked'}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'popUpList'" direction-links="true" boundary-links="true" on-page-change="getPopUpData(newPageNumber)"></dir-pagination-controls>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="selectByButton();" class="btn"><i class=""></i> Select</button></li>
-                        <li><button type="button" class="btn btn-default" ng-click="closePopUp();">Cancel</button></li>
-                    </ul>
-                </div>
+
+<div class="table-responsive" style="margin-top: 10px; width:30% ">
+    <div id="GridEdit" ej-grid e-datasource="AccessedIcon" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="20" e-isprimarykey="true" e-visible="true"></div>
+            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+            <div e-column e-field="IconName" e-headertext="Icon Name" e-width="50"></div>
+            <div e-column e-headertext="Actions" e-width="60">
+                <button style="color: #f3f3ec;background-color: #1c1f32;padding: 3px 7px 3px 6px;" class="btn">
+                    <i class="glyphicon glyphicon-trash" title="Delete" data-target="#confirmPopUp" ng-click="$parent.Remove();"></i>
+                </button>
+              @* <button ng-click="RemoveLevel1s();" data-target="#confirmPopUp" ng-disabled="CheckIdUseLevel2s" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button>*@
+
             </div>
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"> </confirm-archive-generic>-->
-
+<confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 @Html.Partial("~/Areas/Securities/Views/UserAccessAppRole/_UserDetailPopUp.cshtml")
