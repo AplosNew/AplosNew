@@ -402,6 +402,18 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
     // On Downloading the Excel
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.printReport = function () {
+        //var dataList = [];
+        //var g = $("#getClickDetail").data("ejGrid");
+        //dataList = g.getFilteredRecords();
+
+        //if (dataList.length == 0) {
+        //    dataList = $scope.ClickDetail;
+        //}
+        //if (dataList.length == 0) {
+        //    throw "First click on View button.";
+        //}
+
+        //$scope.fileName = "Daily Production Report.xlsx";
         $http({
             method: 'POST',
             url: 'NewAttdnDashboard/GetPrintReport',
@@ -427,4 +439,37 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.OnRoleprintReport = function () {
+        var dataList = [];
+        var g = $("#getClickDetail").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.OnRoleClickDetail;
+        }
+        if (dataList.length == 0) {
+            throw "First click on View button.";
+        }
+
+        $scope.fileName = "Daily Production Report.xlsx";
+        $http({
+            method: 'POST',
+            url: 'NewAttdnDashboard/GetOnRolePrintReport',
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
 }

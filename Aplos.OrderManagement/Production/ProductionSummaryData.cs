@@ -5396,9 +5396,325 @@ Order by PV.ProductionSummaryId,PB.Sequence";
             }
         }
 
+        public string OnRolePrintReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Daily Planning & Production Report";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "Employee Code";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colEmployeeCategory = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Day Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDayStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "In Status";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colInStatus = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "In Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colInTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Out Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colOutTime = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PV Out";
+                sheet[ROW, COL].ColumnWidth = 41;
+                int colPVOut = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PV In";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPVIn = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "In Duration";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colInDuration = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Out Duration";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int colOutDuration = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Summary No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSummaryId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colCustomer = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Article";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line Item Article";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line Item Product Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemProductCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SO No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSONo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Lot Number";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colLotNumber = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Master Order Item No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colMasterOrderItemId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Qty Without Scan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colQtyWithoutScan = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Qty With Scan";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colQtyWithScan = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Actual qty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colTotalActualqty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention In Minute";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionInMinute = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "POSPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colPOSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colArticleSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "No Of Entry";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colNoOfEntry = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Alloted Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colAllotedHour = COL;
+                COL++;
+
+
+                sheet[ROW, COL].Text = "Should Be Production";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colShouldBeProduction = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Available Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colTotalAvailableHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Net Available Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colNetAvailableHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Produce Hour";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProduceHour = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Detention Loss";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionLoss = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Productivity Variance";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductivityVariance = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Count - 1);
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    sheet[ROW, colEmployeeCode].Text = data[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colEmployeeName].Text = data[i]["EmployeeName"].ToString();
+                    sheet[ROW, colEmployeeCategory].Text = data[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, colDayStatus].Text = data[i]["DayStatus"].ToString();
+                    sheet[ROW, colInStatus].Text = data[i]["InStatus"].ToString();
+                    //sheet[ROW, colNoOfWorkStation].Number = clsStaticInfo.dbl(data[i]["NoOfWorkStation"].ToString());
+                    //sheet[ROW, colStandardProcessTime].Number = clsStaticInfo.dbl(data[i]["StandardProcessTime"].ToString());
+                    sheet[ROW, colInTime].Text = data[i]["InTime"].ToString();
+                    sheet[ROW, colOutTime].Text = data[i]["OutTime"].ToString();
+                    sheet[ROW, colPVOut].Number = clsStaticInfo.dbl(data[i]["PVOut"].ToString());
+                    sheet[ROW, colPVIn].Text = data[i]["PVIn"].ToString();
+                    sheet[ROW, colInDuration].Text = data[i]["InDuration"].ToString();
+                    sheet[ROW, colOutDuration].Text = data[i]["OutDuration"].ToString();
+                    sheet[ROW, colDesignation].Text = data[i]["Designation"].ToString();
+                    sheet[ROW, colPOArticle].Text = data[i]["POArticle"].ToString();
+                    sheet[ROW, colLineItemArticle].Text = data[i]["LineItemArticle"].ToString();
+                    sheet[ROW, colLineItemProductCode].Text = data[i]["LineItemProductCode"].ToString();
+                    sheet[ROW, colSONo].Text = data[i]["SONo"].ToString();
+                    sheet[ROW, colPOId].Text = data[i]["POId"].ToString();
+                    sheet[ROW, colLotNumber].Text = data[i]["LotNumber"].ToString();
+                    sheet[ROW, colMasterOrderItemId].Text = data[i]["MasterOrderItemId"].ToString();
+                    sheet[ROW, colQtyWithoutScan].Number = clsStaticInfo.dbl(data[i]["QtyWithoutScan"].ToString());
+                    sheet[ROW, colQtyWithScan].Number = clsStaticInfo.dbl(data[i]["QtyWithScan"].ToString());
+                    sheet[ROW, colTotalActualqty].Number = clsStaticInfo.dbl(data[i]["TotalActualqty"].ToString());
+                    sheet[ROW, colDetentionInMinute].Number = clsStaticInfo.dbl(data[i]["DetentionInMinute"].ToString());
+                    sheet[ROW, colPOSPT].Number = clsStaticInfo.dbl(data[i]["POSPT"].ToString());
+                    sheet[ROW, colArticleSPT].Number = clsStaticInfo.dbl(data[i]["ArticleSPT"].ToString());
+                    sheet[ROW, colSPT].Number = clsStaticInfo.dbl(data[i]["SPT"].ToString());
+                    sheet[ROW, colNoOfEntry].Number = clsStaticInfo.dbl(data[i]["NoOfEntry"].ToString());
+                    sheet[ROW, colAllotedHour].Number = clsStaticInfo.dbl(data[i]["AllotedHour"].ToString());
+                    sheet[ROW, colShouldBeProduction].Number = clsStaticInfo.dbl(data[i]["ShouldBeProduction"].ToString());
+                    sheet[ROW, colTotalAvailableHour].Number = clsStaticInfo.dbl(data[i]["TotalAvailableHour"].ToString());
+                    sheet[ROW, colDetentionHour].Number = clsStaticInfo.dbl(data[i]["DetentionHour"].ToString());
+                    sheet[ROW, colNetAvailableHour].Number = clsStaticInfo.dbl(data[i]["NetAvailableHour"].ToString());
+                    sheet[ROW, colProduceHour].Number = clsStaticInfo.dbl(data[i]["ProduceHour"].ToString());
+                    sheet[ROW, colDetentionLoss].Number = clsStaticInfo.dbl(data[i]["DetentionLoss"].ToString());
+                    sheet[ROW, colProductivityVariance].Number = clsStaticInfo.dbl(data[i]["ProductivityVariance"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Daily Planning & Production Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
-
-
 }
 
 

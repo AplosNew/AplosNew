@@ -27,43 +27,31 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Employee</th>
-                                <th>Currency</th>
-                                <th>Advanced</th>
-                                <th>Write-off</th>
-                                <th>Balance</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in employeeAdvanceDataList |itemsPerPage:employeeAdvanceParameters.pageSize" pagination-id="metaData.name + 'employeeAdvanceDataList'" total-items="employeeAdvanceParameters.total_count"
-                                ng-class="{selected : x.AdvanceId == rowSelected}" ng-dblclick="closeEmployeeAdvancePopUp(x)">
-                                
-                                <td>{{x.EmployeeCode}} - {{x.EmployeeName}}</td>
-                                <td>{{x.CurrencyCode}}</td>
-                                <td class="text-right">{{x.Receivable | number:2}}</td>
-                                <td class="text-right">{{x.Received | number:2}}</td>
-                                <td class="text-right">{{x.Balance | number:2}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'employeeAdvanceDataList'"
-                                             direction-links="true" boundary-links="true" on-page-change="getEmployeeAdvanceData(newPageNumber)"></dir-pagination-controls>
+               
+
+                <div class="modal-body">
+                    <div class="content-container-fluid" style="color:black;">
+                        <div style="color:black;" id="GridEmp" ej-grid e-datasource="employeeAdvanceDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-recorddoubleclick="closeEmployeeAdvancePopUp" e-allowselection="true" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                <div e-type="string" e-column e-field="CurrencyCode" e-headertext="Currency" e-width="80"></div>
+                                <div e-type="string" e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                                <div e-column e-field="Receivable" e-headertext="Advanced" e-width="80"></div>
+                                <div e-column e-field="Received" e-headertext="Write-off" e-width="80"></div>
+                                <div e-column e-field="Balance" e-headertext="Balance" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </div>
-
-
 
             <div class="modal-footer common-btn">
                 @*TODO:*@
-                @*<button type="button" class="btn btn-default" ng-click="EmployeeAdvanceDueList();">Report</button>*@
-                <button type="button" class="btn btn-default" ng-click="closeEmployeeAdvancePopUp();">Select</button>
+                <button type="button" class="btn btn-default" ng-click="EmployeeAdvanceDueList();">Report</button>
+                <button type="button" class="btn btn-default" ng-click="closeEmployeePopUp();">Close</button>
             </div>
-
-
         </div>
     </div>
 </div>

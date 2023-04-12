@@ -878,7 +878,7 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion
 
         #region In Ward Material Report
-        //[Authorize]
+        [Authorize]
         public JsonResult GetInWardMaterialData(string fromDate, string toDate)
         {
             try
