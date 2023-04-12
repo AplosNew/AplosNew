@@ -539,6 +539,7 @@
     <Compile Include="Areas\Employees\Controllers\ResignationApprovalMultipleNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DesignationSetupController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\HRReportMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -2042,6 +2043,7 @@
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -4616,6 +4618,7 @@
     <Content Include="Areas\HumanResource\Views\AttendanceReport\Report.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_MaterialArticleNewPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\_QualityProcess.cshtml" />
+    <Content Include="Areas\HumanResource\Views\HRReportMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

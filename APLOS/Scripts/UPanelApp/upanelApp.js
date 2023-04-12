@@ -1157,6 +1157,7 @@ upanelApp.controller("EditControlController", EditControlController)
 upanelApp.controller("RunningMachineSetUpTargetController", RunningMachineSetUpTargetController)
 upanelApp.controller("DailyPlanningAndProductionReportController", DailyPlanningAndProductionReportController)
 upanelApp.controller("EmployeeAttendanceReportController", EmployeeAttendanceReportController)
+upanelApp.controller("HRReportMasterController", HRReportMasterController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

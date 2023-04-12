@@ -36,6 +36,25 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         }
     };
 
+    $scope.ParameterDateValidation = function (ParameterDate) {
+        try {
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            $scope.YDate = $filter('dateFiltering')(date);
+           
+            if (ParameterDate < $scope.YDate) {
+                throw "Parameter date should be today's or yestarday's date only.";
+            }
+            if (new Date(ParameterDate) > new Date()) {
+                throw "Parameter Date must be below or equal to current Date!";
+            }
+
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -237,6 +256,7 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
         HeaderEfficiency: 0,
         PlanHours: null,
         Efficiency: null,
+        SalesOrderId: null,
         DetentionSum: 0
 
     };
@@ -1306,6 +1326,76 @@ function RunningMachineSetUpTargetController(cboService, commonMessage, $scope, 
             $scope.DifferenceFP = response.data[0].DifferenceFP;
         });
     }
+
+    $scope.getSalesOrderPopUp = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getSalesOrder();
+        angular.element(document.querySelector('#SalesOrderItemPopup')).modal('show');
+    }
+
+    $scope.SalesOrderItemList = [];
+    $scope.getSalesOrder = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetSalesOrder?entityid=' + $scope.DailyProductionTargetNew.EntityId + '&workCenterMasterId=' + $scope.Newobject.WorkCenterMasterId + '&productionLevel=' + $scope.Newobject.BookingLevel + '&processId=' + $scope.DailyProductionTargetNew.ProcessId + '&ProductionOrderId=' + $scope.Newobject.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.SalesOrderItemList = resp.data;
+        });
+    }
+
+    $scope.selectSalesOrderItem = function (e) {
+        $scope.Newobject.SalesOrderId = e.data.SOId;
+        $scope.Newobject.SOArticle = e.data.Article;
+        angular.element(document.querySelector('#SalesOrderItemPopup')).modal('hide');
+    }
+
+    $scope.getMasterOrderItemPopUp = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getMasterOrderItem();
+        angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
+    }
+
+    $scope.MasterOrderItemList = [];
+    $scope.getMasterOrderItem = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.DailyProductionTargetNew.EntityId + '&workCenterMasterId=' + $scope.Newobject.WorkCenterMasterId + '&productionLevel=' + $scope.Newobject.BookingLevel + '&processId=' + $scope.DailyProductionTargetNew.ProcessId + '&ProductionOrderId=' + $scope.Newobject.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.MasterOrderItemList = resp.data;
+        });
+    }
+
+    $scope.selectMasterOrderItem = function (e) {
+        $scope.Newobject.MasterOrderItemId = e.data.MasterOrderItemId;
+        $scope.Newobject.MOIArticle = e.data.Article;
+        angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
+    }
+
+    $scope.getProductCodePopUp = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getProductCode();
+        angular.element(document.querySelector('#ProductCodePopup')).modal('show');
+    }
+
+    $scope.ProductCodeList = [];
+    $scope.getProductCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetProductCode?entityid=' + $scope.DailyProductionTargetNew.EntityId + '&workCenterMasterId=' + $scope.Newobject.WorkCenterMasterId + '&productionLevel=' + $scope.Newobject.BookingLevel + '&processId=' + $scope.DailyProductionTargetNew.ProcessId + '&ProductionOrderId=' + $scope.Newobject.ProductionOrderId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ProductCodeList = resp.data;
+        });
+    }
+
+    $scope.selectProductCode = function (e) {
+        $scope.Newobject.MasterOrderItemId = e.data.MOIId;
+        $scope.Newobject.ProductCodeArticle = e.data.Article;
+        angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
+    }
+
     $scope.rowDataBound = function rowDataBound(e) {
 
         if (e.data.IsManual == true)

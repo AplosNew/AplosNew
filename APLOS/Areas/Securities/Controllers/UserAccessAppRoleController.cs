@@ -84,6 +84,23 @@ namespace Aplos.Areas.Securities.Controllers
 
             }
         }
+
+        public ActionResult GetUserAccessedIcon(string employeeId)
+        {
+            try
+            {
+                var sql = @"select A.Id, A.EmployeeId , A.UserId ,EI.EmployeeName, A.RoleId , AR.[Name] IconName from SEC.AppRoleMapping A
+                            left join SEC.AppRole AR on AR.Id = A.RoleId
+                            left join EmployeeInformation EI on EI.SystemId = A.EmployeeId
+                            where A.EmployeeId = '" + employeeId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
         #endregion save
         #region Create and Edit Default Column
 
@@ -127,6 +144,34 @@ namespace Aplos.Areas.Securities.Controllers
         }
 
         #endregion Create and Edit Default Column
+
+        #region DELETE
+        [HttpPost]
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+
+                string TableName = "SEC.AppRoleMapping";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where UserId='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        #endregion DELETE
 
     }
 }

@@ -17,28 +17,21 @@ function UserAppAuthenticationController(cboService, baseService, $rootScope, $s
     $scope.userAccessApp = Object.assign({}, $scope.userRoleNew);
 
     $scope.Get = function (args) {
-        $scope.userAccessApp = Object.assign({}, args.data);
+        $scope.userAccessApp = Object.assign({}, args.data);        
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-
-            $scope.GetDataById(args.data.ModuleId);
+            $scope.getModule(args.data.ModuleId);
+            $scope.geticon();
+            $scope.GetDataById();
         }
     }
 
-    $scope.GetDataById = function (x) {
-        $http.get('Securities/UserAppAuthentication/GetDataById?moduleid=' + x)
+    $scope.GetDataById = function () {
+        $http.get('Securities/UserAppAuthentication/GetDataById?roleId=' + $scope.userAccessApp.RoleId + '&moduleId=' + $scope.userAccessApp.ModuleId)
         .then(function successCallback(response) {
             $scope.DataList = response.data;
-            for (var j = 0; j < $scope.ModuleList.length; j++)  {
-                for (var i = 0; i < $scope.DataList.length; i++) {
-                    if ($scope.DataList[j].ModuleId == $scope.ModuleList[i].Value) {
-                        $scope.userAccessApp.ModuleId = $scope.ModuleList[i].Value;
-                        break;
-                    }
-                }
-            }
-
+            
         },
             function errorCallback(response) {
                 ShowResult(response, 'failure');
@@ -63,6 +56,15 @@ function UserAppAuthenticationController(cboService, baseService, $rootScope, $s
         $http.get('Securities/UserAppAuthentication/getModule').
             then(function successCallback(response) {
                 $scope.ModuleList = response.data;
+                
+                //for (var j = 0; j < $scope.ModuleList.length; j++) {
+                //    for (var i = 0; i < $scope.DataList.length; i++) {
+                //        if ($scope.DataList[j].ModuleId == $scope.ModuleList[i].Value) {
+                //            $scope.ModuleList[j].Value = $scope.DataList[j].ModuleId;
+                //            break;
+                //        }
+                //    }
+                //}
             },
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
@@ -100,6 +102,47 @@ function UserAppAuthenticationController(cboService, baseService, $rootScope, $s
                 ShowResult(response.data.Message, 'success');
                 ClearFields(response.data.Sequence);
                 $scope.getData();
+
+            }
+        }), function errorCallBack(response) { ShowResult(response.data.Message, 'failure'); }
+    };
+
+    $scope.saveList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.DataList.length; i++) {
+            if ($scope.DataList[i].isSelected == true) {
+                if (checkExists($scope.saveList, $scope.DataList[i].RoleStatus) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.RoleId = $scope.DataList[i].RoleId;
+                    
+                    $scope.saveList.push(ob);
+                }
+                else {
+                    ShowResult("This Employee " + $scope.DataList[i].EmployeeCode + " is already taken.", 'failure');
+                }
+            }
+        }
+
+    }
+
+    $scope.ActiveInactiveIcon = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: 'Securities/UserAppAuthentication/ActiveInactiveIcon',
+            data: {
+                'data': $scope.userAccessApp,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //ClearFields(response.data.Sequence);
+                //$scope.getData();
 
             }
         }), function errorCallBack(response) { ShowResult(response.data.Message, 'failure'); }
