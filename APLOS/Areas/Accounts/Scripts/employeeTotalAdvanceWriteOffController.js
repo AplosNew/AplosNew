@@ -15,6 +15,9 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
     $scope.deleteUrl = $scope.url + "/DeleteEmployeeTotalAdvanceWriteOff";
     $scope.postUrl = $scope.url + '/PostEmployeeAdvanceWriteOff';
     $scope.voucherDetailList = [];
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+
     baseService.init('accounts/Advance/GetEmployeeAdvanceWriteOffList', null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -615,7 +618,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
     $scope.employeeAdvanceSalaryUrl = 'accounts/Advance/GetEmployeeAvilabeAdvanceSalaryList';
     $scope.employeeAdvanceSelectedIndex = -1;
     $scope.employeeAdvanceParameters = {
-        limit: 10,
+        limit: 100000,
         offset: 0,
         order: 'ASC',
         sort: 'EmployeeName',
@@ -665,7 +668,9 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
     $scope.clearCashPopUp = function () {
         $scope.clearBankPopUp();
     }
-    $scope.closeEmployeeAdvancePopUp = function (data) {
+    $scope.closeEmployeeAdvancePopUp = function (obj) {
+        var data = obj.data;
+
         $scope.advance.EmployeeId = data.EmployeeId;
         $scope.advance.EmployeeName = data.EmployeeName;
         $scope.advance.AdvanceAmount = data.Balance;
@@ -684,9 +689,14 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         $scope.advance.ActivityId = data.ActivityId;
         $scope.advance.JournalType = data.JournalType;
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
-        angular.element(document.querySelector("#employeeTotalAdvancePopUp")).modal("hide");
+        $scope.closeEmployeePopUp();
         angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
     };
+
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeeTotalAdvancePopUp')).modal('hide');
+    };
+
 
     $scope.delete = function (advanceWriteOffId, voucherId) {
         $http({
@@ -723,20 +733,52 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
 
     //TODO:Report
 
-    $scope.EmployeeAdvanceDueList = function () { 
+    //$scope.EmployeeAdvanceDueList = function () { 
 
-        //var MasterOrderId = "1935";
+    //    //var MasterOrderId = "1935";
+    //    try {
+    //        var file_src = $scope.url + "/EmployeeAdvanceDueList"; 
+    //        $rootScope.report(file_src);
+
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+
+    $scope.EmployeeAdvanceDueList = function () {
         try {
-            var file_src = $scope.url + "/EmployeeAdvanceDueList"; 
-            $rootScope.report(file_src);
+            var dataList = [];
+            var g = $("#GridEmp").data("ejGrid");
+            dataList = g.getFilteredRecords();
 
+            if (dataList.length == 0) {
+                dataList = $scope.employeeAdvanceDataList;
+            }
+            
+            $scope.fileName = "Employee Advance List Report.xlsx";
 
+            $http({
+                method: 'POST',
+                url: "accounts/Advance/EmployeeAdvanceDueListReportXls",
+                data: { 'reportFileName': $scope.fileName, 'data': dataList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
         } catch (e) {
             ShowResult(e, 'failure');
         }
     }
 
-    
        
 
 

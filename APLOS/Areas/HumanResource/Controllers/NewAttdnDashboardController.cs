@@ -2,6 +2,7 @@
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.HumanResource.NewAttendanceProcess;
+using Library.OrderManagement.Production;
 using Library.Service.Helpers;
 using Library.Service.Organizations;
 using Library.ViewModel.Accounts;
@@ -17,9 +18,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class NewAttdnDashboardController : BaseController
     {
-       // private readonly IManpowerBudgetDashboardService na;
+        // private readonly IManpowerBudgetDashboardService na;
 
-
+        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         NewAttdnDashboardService na = new NewAttdnDashboardService();
 
         public NewAttdnDashboardController()
@@ -90,6 +91,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw ex;
             }
         }
+
 
         private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
         {
@@ -309,5 +311,22 @@ namespace Aplos.Areas.HumanResource.Controllers
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
+        
+        [HttpPost, Authorize]
+        public ActionResult GetOnRolePrintReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                string fileName = "";
+
+                fileName = _productionSummaryData.OnRolePrintReport(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
