@@ -866,7 +866,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet2[ROW2, colSOId].Text = dtSOComplete.Rows[i]["SOId"].ToString();
                     sheet2[ROW2, colSOQty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SOQty"].ToString());
                     sheet2[ROW2, colSoCommqty].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString());
-                    sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["POCompletionDate"].ToString();
+                    sheet2[ROW2, colSOComDate].Text = dtSOComplete.Rows[i]["Date"].ToString();
                     sheet2[ROW2, colLegDays].Number = clsStaticInfo.dbl(dtSOComplete.Rows[i]["Days"].ToString());
                     sheet2[ROW2, colExpExFactory].Text = dtSOComplete.Rows[i]["ExpExFactory"].ToString();
                     ROW2++;

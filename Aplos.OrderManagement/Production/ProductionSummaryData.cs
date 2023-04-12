@@ -4183,10 +4183,9 @@ LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderI
 LEFT JOIN(
 Select B.* from
 (
-Select DISTINCT PO.Id POId,PS.ProductionDate Date,SUM(Quantity) ProdQty,0 PlanQty
-from TRN.ProductionOrder PO
+Select PS.ProductionOrderId POId,PS.ProductionDate Date,SUM(Quantity)ProdQty,0 PlanQty from TRN.ProductionOrder PO
 LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
-Group BY PO.Id,PS.ProductionDate
+left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=PS.ProductionOrderId  AND PS.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY PS.ProductionOrderId,PS.ProductionDate
 UNION
 Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
 from TRN.ProductionOrder PO
@@ -4208,14 +4207,15 @@ GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.Bas
         {
             try
             {
-                string sql = @"Select distinct T1.*,T2.POCompletionDate,ExpExFactory=FORMAT(DATEADD(Day,T1.Days,T2.POCompletionDate),'dd-MMM-yyyy') from 
-(select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq, POD.ProductionOrderId,SO.OrderStatusId SOStatus,BP.[Days]
+                string sql = @"Select distinct T1.*,T2.Date,ExpExFactory=FORMAT(DATEADD(Day,T1.Days,T2.Date),'dd-MMM-yyyy') from 
+(select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq, POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
 ,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
 ,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
 
 from trn.SalesOrder SO
 left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-LEFT JOIN (Select * from TRN.ProductionOrderProcessSet Where IsBaseProcess=1) BP ON BP.ProductionOrderId=POD.ProductionOrderId
+LEFT JOIN TRN.ProductionOrderProcessSet M ON m.ProductionOrderId=POD.ProductionOrderId
+AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionOrderProcessSet EII WHERE EII.ProductionOrderId=POD.ProductionOrderId ORDER BY EII.Sequence DESC)
 Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''
 ) T1
 
@@ -4252,10 +4252,9 @@ LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderI
 LEFT JOIN(
 Select B.* from
 (
-Select DISTINCT PO.Id POId,PS.ProductionDate Date,SUM(Quantity) ProdQty,0 PlanQty
-from TRN.ProductionOrder PO
+Select PS.ProductionOrderId POId,PS.ProductionDate Date,SUM(Quantity)ProdQty,0 PlanQty from TRN.ProductionOrder PO
 LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
-Group BY PO.Id,PS.ProductionDate
+left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=PS.ProductionOrderId  AND PS.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY PS.ProductionOrderId,PS.ProductionDate
 UNION
 Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
 from TRN.ProductionOrder PO
