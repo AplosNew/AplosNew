@@ -4207,8 +4207,69 @@ GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.Bas
         {
             try
             {
-                string sql = @"Select distinct T1.*,T2.Date,ExpExFactory=FORMAT(DATEADD(Day,T1.Days,T2.Date),'dd-MMM-yyyy') from 
-(select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq, POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
+                //                string sql = @"Select distinct T1.*,T2.Date,ExpExFactory=FORMAT(DATEADD(Day,T1.Days,T2.Date),'dd-MMM-yyyy') from 
+                //(select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq, POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
+                //,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
+                //,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+
+                //from trn.SalesOrder SO
+                //left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+                //LEFT JOIN TRN.ProductionOrderProcessSet M ON m.ProductionOrderId=POD.ProductionOrderId
+                //AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionOrderProcessSet EII WHERE EII.ProductionOrderId=POD.ProductionOrderId ORDER BY EII.Sequence DESC)
+                //Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''
+                //) T1
+
+                //LEFT JOIN (
+                //Select row_number() over (partition by po.Id order by po.Id,A.Date) as Seq
+                //,po.Id POId,sc.ID ScheduleId,PS.UserName POStatus,FORMAT(PO.AddedDate,'dd-MMM-yyyy')POCreationDate ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProductionEndDate,'dd-MMM-yyyy')BaseProductionEndDate
+                //,FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')BaseProcPlanStartDate,FORMAT(Type1.BaseProcPlanEndDate,'dd-MMM-yyyy')BaseProcPlanEndDate
+                //,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
+                //,POCompletionDate=FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy')
+                //,COUNT(SO.id) NoOfSO
+                //,FORMAT(A.Date,'dd-MMM-yyyy') Date
+
+                //,PlanningStatus=CASE WHEN FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy') IS NULL 
+                //OR FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy') IS NULL OR SC.Id IS NULL THEN 'Schedule Missing' ELSE 'Schedule' END
+                //,POCompletion= CASE WHEN A.Date<= GETDATE() Then 'Complete' else 'Scheduled' END 
+                //,A.ProdQty,A.PlanQty,AvailableQty= CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END
+
+                //,CumProdQty=SUM(CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END) OVER(PARTITION BY PO.ID ORDER BY A.Date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+
+
+                //FROM trn.SalesOrder SO
+                //LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=so.Id
+                //LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProductionEndDate,A.ProductionOrderId 
+                //FROM TRN.ProductionSummary A
+                //LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
+                //Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=POD.ProductionOrderId
+
+                //LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanEndDate,ProductionOrderId 
+                //From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=POD.ProductionOrderId
+                //LEFT JOIN TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
+                //LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
+                //LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderID=PO.Id
+                //--LEFT JOIN (Select * from TRN.ProductionOrderProcessSet Where IsBaseProcess=1) BP ON BP.ProductionOrderId=PO.Id
+                //LEFT JOIN(
+                //Select B.* from
+                //(
+                //Select PS.ProductionOrderId POId,PS.ProductionDate Date,SUM(Quantity)ProdQty,0 PlanQty from TRN.ProductionOrder PO
+                //LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
+                //left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=PS.ProductionOrderId  AND PS.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY PS.ProductionOrderId,PS.ProductionDate
+                //UNION
+                //Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
+                //from TRN.ProductionOrder PO
+                //LEFT JOIN dbo.ProductionPlanningType1 T1 ON T1.ProductionOrderID=PO.Id
+                //Group BY PO.Id,T1.ProductionDate
+                //)B Where ISNULL(B.Date,'')<>'' 
+                //)A ON A.POId=PO.Id
+
+                //Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>''
+                //GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
+                //,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty
+                //) T2 ON T2.POId=T1.ProductionOrderId  AND T2.CumProdQty<=T1.SoCommqty AND T1.SOStatus NOT IN('Cancelled','Closed')";
+
+                string sql = @"select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq,
+POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
 ,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
 ,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
 
@@ -4216,57 +4277,7 @@ from trn.SalesOrder SO
 left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
 LEFT JOIN TRN.ProductionOrderProcessSet M ON m.ProductionOrderId=POD.ProductionOrderId
 AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionOrderProcessSet EII WHERE EII.ProductionOrderId=POD.ProductionOrderId ORDER BY EII.Sequence DESC)
-Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''
-) T1
-
-LEFT JOIN (
-Select row_number() over (partition by po.Id order by po.Id,A.Date) as Seq
-,po.Id POId,sc.ID ScheduleId,PS.UserName POStatus,FORMAT(PO.AddedDate,'dd-MMM-yyyy')POCreationDate ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProductionEndDate,'dd-MMM-yyyy')BaseProductionEndDate
-,FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')BaseProcPlanStartDate,FORMAT(Type1.BaseProcPlanEndDate,'dd-MMM-yyyy')BaseProcPlanEndDate
-,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
-,POCompletionDate=FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy')
-,COUNT(SO.id) NoOfSO
-,FORMAT(A.Date,'dd-MMM-yyyy') Date
-
-,PlanningStatus=CASE WHEN FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy') IS NULL 
-OR FORMAT((case when Type1.BaseProcPlanEndDate is null or BASEP.BaseProductionEndDate  > Type1.BaseProcPlanEndDate then BASEP.BaseProductionEndDate else Type1.BaseProcPlanEndDate end ),'dd-MMM-yyyy') IS NULL OR SC.Id IS NULL THEN 'Schedule Missing' ELSE 'Schedule' END
-,POCompletion= CASE WHEN A.Date<= GETDATE() Then 'Complete' else 'Scheduled' END 
-,A.ProdQty,A.PlanQty,AvailableQty= CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END
-
-,CumProdQty=SUM(CASE WHEN ISNULL(A.ProdQty,0)>0 THEN A.ProdQty ELSE A.PlanQty END) OVER(PARTITION BY PO.ID ORDER BY A.Date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
-
-
-FROM trn.SalesOrder SO
-LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=so.Id
-LEFT JOIN(Select MIN(ProductionDate)BaseProcProdStartDate,MAX(ProductionDate)BaseProductionEndDate,A.ProductionOrderId 
-FROM TRN.ProductionSummary A
-LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
-Group By A.ProductionOrderId) BASEP ON BASEP.ProductionOrderId=POD.ProductionOrderId
-
-LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanEndDate,ProductionOrderId 
-From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=POD.ProductionOrderId
-LEFT JOIN TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
-LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
-LEFT JOIN dbo.ProductionOrderSchedulingParametersType1 SC ON Sc.ProductionOrderID=PO.Id
---LEFT JOIN (Select * from TRN.ProductionOrderProcessSet Where IsBaseProcess=1) BP ON BP.ProductionOrderId=PO.Id
-LEFT JOIN(
-Select B.* from
-(
-Select PS.ProductionOrderId POId,PS.ProductionDate Date,SUM(Quantity)ProdQty,0 PlanQty from TRN.ProductionOrder PO
-LEFT JOIN TRN.ProductionSummary PS ON PS.ProductionOrderId=PO.Id
-left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=PS.ProductionOrderId  AND PS.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY PS.ProductionOrderId,PS.ProductionDate
-UNION
-Select DISTINCT PO.Id POId,T1.ProductionDate Date, 0 ProdQty,SUM(T1.Quantity) PlanQty 
-from TRN.ProductionOrder PO
-LEFT JOIN dbo.ProductionPlanningType1 T1 ON T1.ProductionOrderID=PO.Id
-Group BY PO.Id,T1.ProductionDate
-)B Where ISNULL(B.Date,'')<>'' 
-)A ON A.POId=PO.Id
-
-Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>''
-GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
-,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty
-) T2 ON T2.POId=T1.ProductionOrderId  AND T2.CumProdQty<=T1.SoCommqty AND T1.SOStatus NOT IN('Cancelled','Closed')";
+Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''";
 
                  dt = _sqlRepository.GetDataTable(sql);
 
@@ -5269,8 +5280,8 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             FROM(
                             SELECT 
                             T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
-                            ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/t2.BaseProcessPlannedQty,0)
-                            ,ProcProdPercent=ISNULL(T1.ProcProdQty/t1.ProcessPlannedQty,0)
+                            ,ProcLossQty=ISNULL(T2.ProcessPlannedQty-T1.ProcessPlannedQty,0),BaseProcProdPerenct=ISNULL(t2.BaseProcessProduceQty/NULLIF(t2.BaseProcessPlannedQty,0),0)
+                            ,ProcProdPercent=ISNULL(T1.ProcProdQty/NULLIF(t1.ProcessPlannedQty,0),0)
                             ,EntryCheck=CASE WHEN T2.ProcProdQty-T1.ProcProdQty<0 THEN 'ToCheck' ELSE '' END
                             ,ProceessProdQtyVsSOQty=COALESCE(T1.ProcProdQty / NULLIF(T1.SOQty ,0), 0)
                             FROM
