@@ -1711,11 +1711,14 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 }
 
                 var getIsBackDatePosting = GetLeavePolicyDetailBackDatePosting(leaveTransaction.EmpSystemID, leaveTransaction.FromDate.ToString("yyyy-MM-dd"), leaveTransaction.LTSystemID);
-                if (Convert.ToBoolean(getIsBackDatePosting.Tables[0].Rows[0]["IsBackDatePosting"].ToString()) == true)
+                if (getIsBackDatePosting.Tables[0].Rows.Count > 0)
                 {
-                    if (Convert.ToInt32(getIsBackDatePosting.Tables[0].Rows[0]["DateDiff"]) <0)
+                    if (Convert.ToBoolean(getIsBackDatePosting.Tables[0].Rows[0]["IsBackDatePosting"].ToString()) == true)
                     {
-                        throw new CustomException("Back Date Posting Not Allowed!.");
+                        if (Convert.ToInt32(getIsBackDatePosting.Tables[0].Rows[0]["DateDiff"]) < 0)
+                        {
+                            throw new CustomException("Back Date Posting Not Allowed!.");
+                        }
                     }
                 }
 
