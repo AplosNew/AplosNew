@@ -622,8 +622,10 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\RunningMachineSetUpTargetController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
+    <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -2210,8 +2212,10 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\WCWorkStationsControlController.js" />
     <Content Include="Areas\Productions\Scripts\RunningMachineSetUpTargetController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
+    <Content Include="Areas\Productions\Scripts\WCWorkStationsControlMasterController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
@@ -4619,6 +4623,13 @@
     <Content Include="Areas\Materials\Views\Shared\_MaterialArticleNewPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\Parameter\_QualityProcess.cshtml" />
     <Content Include="Areas\HumanResource\Views\HRReportMaster\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControlMaster\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControl\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControl\Aplos1.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControl\AplosInOut.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControl\AplosSFG.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControl\AplosWC.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControl\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

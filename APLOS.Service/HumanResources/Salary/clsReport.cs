@@ -1703,7 +1703,7 @@ MSC.Category,MSC.CostType,MSC.EstimationLevel,MSC.Remarks as StoresRemarks,
 isnull((SELECT TOP 1 format(ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] where Id=APD.Id
  ORDER BY Id DESC),'') as LastMaintenanceDate,
 Case when isnull((SELECT TOP 1 format(MPD.ActualDate,'dd-MMM-yyyy') from [TRN].[MachineAssetPlannedDetails] MPD where MPD.Id=APD.Id
-ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else Format((MS.ScheduleDays+GETDATE()),'dd-MMM-yyyy') end CurrentMaintanceDate,
+ORDER BY MPD.Id DESC),'')='' then Format(GETDATE(),'dd-MMM-yyyy') else format(MS.ScheduleDays+APD.ActualDate,'dd-MMM-yyyy') end CurrentMaintanceDate,
 MA.AssetReference,Y.Closing as StockQty
 from TRN.Maintenancescheduling MS
 --left Join MST.MachineMaster MM ON MM.id=MS.MachineMasterId
