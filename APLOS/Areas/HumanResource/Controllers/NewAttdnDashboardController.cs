@@ -17,14 +17,14 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class NewAttdnDashboardController : BaseController
     {
-       // private readonly IManpowerBudgetDashboardService na;
+        // private readonly IManpowerBudgetDashboardService na;
 
 
         NewAttdnDashboardService na = new NewAttdnDashboardService();
 
         public NewAttdnDashboardController()
         {
-            
+
         }
 
         public ActionResult Aplos()
@@ -33,10 +33,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat , string EmpStat)
+        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat, EmpStat);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date, stat, EmpCat, EmpStat);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -44,7 +44,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetDrillDownListJSON(string CompanyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(na.DrillDownList(identity.CompanyGroupId,CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(na.DrillDownList(identity.CompanyGroupId, CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -55,15 +55,15 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat, string EmpStat)
+        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat, string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost , Authorize]
-        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data ,string stat , string EmpCat, string EmpStat)
+        [HttpPost, Authorize]
+        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var JsonData = Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet); ;
@@ -77,7 +77,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             try
             {
-                var workbook = GetFilterData(ChartColumnList,  seq,  date,  Column, data,  stat,  EmpCat,  EmpStat);
+                var workbook = GetFilterData(ChartColumnList, seq, date, Column, data, stat, EmpCat, EmpStat);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + "-" + Column + "-" + "EmpReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -153,7 +153,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Out Time Difference", 13, ExcelHAlign.HAlignCenter);
             int ColOutD = COL;
             COL++;
-            
+
             report.SetHeaderText(ref sheet, ROW, COL, "OT Hour", 13, ExcelHAlign.HAlignCenter);
             int ColOTHour = COL;
             COL++;
@@ -298,10 +298,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
             ROW++;
-           
+
             endRow = ROW - 1;
             endRow = ROW - 1;
-             
+
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             ReportUtility reportUtility = new ReportUtility();
