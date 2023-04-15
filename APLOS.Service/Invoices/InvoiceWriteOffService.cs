@@ -5003,6 +5003,11 @@ namespace Library.Service.Invoices
 
                     item.IsPark = false;
                     AuditService.UpdatedLog(item);
+                    if (item.AddedBy == item.UpdatedBy)
+                    {
+                        throw new CustomException("You are not authorized to Post!,Prepared by and posted by are same!");
+                    }
+                        
                     _invoiceWriteOffRepository.Update(item);
                     _voucherService.PostVoucher(item.VoucherId);
                     var financingwriteOff = _loanInterestPayableRepository.Query(r => r.VoucherId == item.VoucherId).Select().FirstOrDefault();

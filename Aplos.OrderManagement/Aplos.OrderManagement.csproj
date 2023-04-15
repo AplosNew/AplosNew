@@ -105,6 +105,7 @@
     <Compile Include="Production\GeneralWasteService.cs" />
     <Compile Include="Production\IssueHKPService.cs" />
     <Compile Include="Production\IssueMasterHKPService.cs" />
+    <Compile Include="Production\WorkStationsControlService.cs" />
     <Compile Include="Production\PackingMasterService.cs" />
     <Compile Include="Production\ProductionGeneralReportService.cs" />
     <Compile Include="Production\ProductiveAllowanceRateSetupServices.cs" />
