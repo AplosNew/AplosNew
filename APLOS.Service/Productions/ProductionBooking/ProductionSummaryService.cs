@@ -537,6 +537,45 @@ where MOI.Id=pw.MasterOrderItemId) as ProductCodeArticle,
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string ProductionInChargeId)
+        {
+            var sql = @"select B.Id,B.ProcessId,B.EntityId,B.ShiftId,B.Date,B.WorkCenterMasterId,B.WorkCenter,B.ResponsiblePerson,B.ResponsiblePersonId,B.InCharge,B.InChargeId,B.Remarks,B.ItemName,B.ColumnInfoId,B.Sequence
+into #tempPC from 
+ (select A.Id,A.ProcessId,A.EntityId,A.ShiftId,A.Date,A.WorkCenterMasterId,A.WorkCenter,A.ResponsiblePerson,A.ResponsiblePersonId,A.InCharge,A.InChargeId,A.Remarks,A.ItemName,A.ColumnInfoId,A.Sequence from
+ (SELECT distinct wcs.Id,wcs.ProcessId,wcs.EntityId,wcs.ShiftId,wcs.Date,wc.Id as WorkCenterMasterId,CAST (CASE WHEN wcs.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,wc.UserName as WorkCenter,
+                        isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
+                        isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
+                        isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
+                        isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
+                        wcs.Remarks,CD.ItemName,'0' as ColumnInfoId,wc.Sequence
+
+                        FROM  SCS.WorkCenterMaster wc 
+                        LEFT JOIN TRN.WCWorkStationControlSummary wcs ON wcs.WorkCenterMasterId=wc.Id AND wcs.ProcessId = '"+ ProcessId +@"' 
+                        AND  wcs.EntityId='"+ entityId +"' AND wcs.Date='"+ Date +"'  AND wcs.ShiftId='"+ shiftId +@"' 
+                        LEFT JOIN EmployeeInformation R ON wcs.ResponsiblePersonId=R.SystemId
+                        LEFT JOIN EmployeeInformation I ON wcs.InChargeId=I.SystemId
+						LEFT JOIN TRN.ColumnsDetails CD ON CD.ProcessId='"+ ProcessId +@"' and CD.Active=1
+                        where wc.Active=1 and wc.ProcessId = '"+ ProcessId +"' and wc.EntityId = '"+ entityId +@"')A
+				)B order by B.Sequence 
+
+DECLARE @sql nvarchar(max), @col nvarchar(max)
+
+ SELECT @col = (
+ SELECT DISTINCT ',' + QUOTENAME(REPLACE(CONVERT(VARCHAR(40), ItemName, 113), ' ', '-'))
+
+ FROM #tempPC 
+                                FOR XML PATH('')
+                            )                             SELECT @sql = N'
+ (SELECT *
+ FROM #tempPC
+                            PIVOT(
+ MAX([ColumnInfoId]) FOR[ItemName] IN('+STUFF(@col,1,1,'')+')
+ ) as pvt)' 
+
+ EXEC sp_executesql @sql
+ drop table #tempPC";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         public IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid)
         {
             var sql = @"SELECT C.Id, C.UserName FROM [TRN].[FirstCharacteristics] FC

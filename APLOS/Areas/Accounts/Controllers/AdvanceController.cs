@@ -22,6 +22,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web.Mvc;
@@ -2741,7 +2742,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 ExcelEngine excelEngine = new ExcelEngine();
 
-                IWorkbook workbook = EmployeeAdvanceDueReport(identity.CompanyGroupId,identity.CompanyId,identity.PlantId);
+                IWorkbook workbook = EmployeeAdvanceDueReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
                 string strFileName = "Employee Advance.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -2755,11 +2756,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return null;
         }
 
-        private IWorkbook EmployeeAdvanceDueReport( string companyGroupId, string companyId, string plantId)
+        private IWorkbook EmployeeAdvanceDueReport(string companyGroupId, string companyId, string plantId)
         {
-            
+
             //Start EmployeeAdvanceDueList
-           
+
 
             ExcelEngine excelEngine = new ExcelEngine();
             //Instantiate the Excel application object
@@ -2806,16 +2807,16 @@ namespace Aplos.Areas.Accounts.Controllers
                 throw new Exception("No data found");
 
 
-            
+
 
             worksheet.Name = "EmployeeAdvanceDueListReport";
 
             int COL = 1; int ROW = 5;
             int startCol = COL;
 
-           // worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
-           // worksheet[ROW, COL].CellStyle.Font.Bold = true;
-          //  ROW++;
+            // worksheet[ROW, COL].Text = "Employee Advance Due List Details:";
+            // worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            //  ROW++;
 
             worksheet[ROW, COL].Text = "Voucher No";
             int colVoucherNO = COL;
@@ -2904,7 +2905,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 worksheet[ROW, colEntity].Text = dtEmployeeAdvanceDueList.Rows[i]["Entity"].ToString();
                 worksheet[ROW, colCurrency].Text = dtEmployeeAdvanceDueList.Rows[i]["CurrencyCode"].ToString();
                 worksheet[ROW, colAdvanced].Number = clsStaticInfo.dbl(dtEmployeeAdvanceDueList.Rows[i]["Receivable"].ToString());
-                 worksheet[ROW, colAdvanced].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colAdvanced].NumberFormat = clsStaticInfo.NumberFormat();
                 // worksheet[ROW, colAdvanced].Text = dtEmployeeAdvanceDueList.Rows[i]["Receivable"].ToString();
 
                 //worksheet[ROW, colWriteOff].Text = dtEmployeeAdvanceDueList.Rows[i]["Received"].ToString();
@@ -2921,8 +2922,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 // worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
                 //worksheet[StartDataRow, colPurchaseLCAmount, ROW - 1, colPurchaseLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet.Range[ROW , 1, ROW , endCol].BorderAround(ExcelLineStyle.Hair);
-                worksheet.Range[ROW , 1, ROW , endCol].BorderInside(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
 
@@ -2934,19 +2935,142 @@ namespace Aplos.Areas.Accounts.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.PlantHeaderWithOutLogo(ref worksheet, endCol, "Employee Advance" , identity.PlantId);
-           
+            reportUtility.PlantHeaderWithOutLogo(ref worksheet, endCol, "Employee Advance", identity.PlantId);
+
             //reportUtility.PlantHeader(ref worksheet, endCol, "Employee Advance" , identity.PlantId);
             reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
-           // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            // worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
             worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
             worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
             worksheet.IsGridLinesVisible = false;
-        
+
             return workbook;
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult EmployeeAdvanceTotalListReportXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                string fileName = "";
+
+                fileName = EmployeeAdvanceTotalReport(data, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }           
+        }
+
+        private string EmployeeAdvanceTotalReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName)
+        {
+
+            //Start EmployeeAdvanceDueList
+
+            var filePath = "";
+
+            ExcelEngine excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+
+            if (data.Count == 0)
+                throw new Exception("No data found");            
+
+            worksheet.Name = "EmployeeAdvanceDueListReport";
+
+            int COL = 1; int ROW = 5;
+            int startCol = COL;
+
+            worksheet[ROW, COL].Text = "Employee";
+            int colEmployee = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Currency";
+            int colCurrency = COL;
+            worksheet[ROW, COL].ColumnWidth = 10;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Advanced";
+            int colAdvanced = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Write-Off";
+            int colWriteOff = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Balance";
+            int colBalance = COL;
+            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        
+            int endCol = COL;
+            worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            ROW++;
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                worksheet[ROW, colEmployee].Text = data[i]["EmployeeName"].ToString();
+                worksheet[ROW, colCurrency].Text = data[i]["CurrencyCode"].ToString();
+                
+                worksheet[ROW, colAdvanced].Number = clsStaticInfo.dbl(data[i]["Receivable"].ToString());
+                worksheet[ROW, colAdvanced].NumberFormat = clsStaticInfo.NumberFormat();
+                worksheet[ROW, colWriteOff].Number = clsStaticInfo.dbl(data[i]["Received"].ToString());
+                worksheet[ROW, colWriteOff].NumberFormat = clsStaticInfo.NumberFormat();
+
+                worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(data[i]["Balance"].ToString());
+                worksheet[ROW, colBalance].NumberFormat = clsStaticInfo.NumberFormat();
+
+                worksheet.Range[ROW , 1, ROW , endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW , 1, ROW , endCol].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            worksheet.UsedRange.CellStyle.Font.Size = 8f;
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeaderWithOutLogo(ref worksheet, endCol, "Employee Advance" , identity.PlantId);
+           
+            reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+            worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            worksheet.Range[1, 1, 4, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+            filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+            workbook.SaveAs(filePath);
+            workbook.Close();
+            excelEngine.Dispose();
+            return filePath;
         }
 
         [HttpPost]
