@@ -4151,8 +4151,9 @@ Where C.Sequence=2";
 
         public void GetProductionOrderMaster(Dictionary<string, string> parameters, out DataTable dtOrderMaster)
         {
-
-            string sql = @"Select row_number() over (partition by po.Id order by po.Id,A.Date) as Seq
+            try
+            {
+                string sql = @"Select * from(Select row_number() over (partition by po.Id order by po.Id,A.Date) as Seq
 ,po.Id POId,sc.ID ScheduleId,PS.UserName POStatus,FORMAT(PO.AddedDate,'dd-MMM-yyyy')POCreationDate ,FORMAT(BASEP.BaseProcProdStartDate,'dd-MMM-yyyy')BaseProcProdStartDate,FORMAT(BASEP.BaseProductionEndDate,'dd-MMM-yyyy')BaseProductionEndDate
 ,FORMAT(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy')BaseProcPlanStartDate,FORMAT(Type1.BaseProcPlanEndDate,'dd-MMM-yyyy')BaseProcPlanEndDate
 ,POStartDate=FORMAT(case when Type1.BaseProcPlanStartDate is null or BASEP.BaseProcProdStartDate  <  Type1.BaseProcPlanStartDate then BASEP.BaseProcProdStartDate else Type1.BaseProcPlanStartDate end,'dd-MMM-yyyy')
@@ -4196,29 +4197,48 @@ Group BY PO.Id,T1.ProductionDate
 
 Where SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 and pod.ProductionOrderId<>''
 GROUP BY po.Id,BASEP.BaseProcProdStartDate,BASEP.BaseProductionEndDate,Type1.BaseProcPlanStartDate,Type1.BaseProcPlanEndDate
-,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty";
-
-            dtOrderMaster = _sqlRepository.GetDataTable(sql);
-
-
+,A.Date,sc.ID,PS.UserName,PO.AddedDate,A.ProdQty,A.PlanQty)x
+Where X.POId IN (" + parameters["POId"] + @")";
+                dtOrderMaster = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public void GetSOCompletionData(out DataTable dt)
+        public void GetSOCompletionData(Dictionary<string, string> parameters,out DataTable dt)
         {
             try
             {
-                string sql = @"select row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq,
+                string sql = @"SELECT row_number() over (partition by POD.ProductionOrderId order by POD.ProductionOrderId,SO.DeliveryDate) as Seq,
 POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
 ,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,SO.Id SOId,SO.Qty SOQty
 ,SoCommqty=SUM(SO.Qty) OVER (PARTITION BY POD.ProductionOrderId ORDER BY SO.DeliveryDate ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+,P.UserName Customer,MOI.BuyerReferenceNo,moi.OwnReferenceNo,moi.Id LineitemId,MMA.StandardName Article,PL.Code ProductCode
+,ProductLibraryDetail=STUFF((select distinct ','+MA.Code+'-'+MA.AttributeValue from
+												[dbo].ProductLibraryAttribute MA												
+												where MA.ProductLibraryId=PL.Id for xml path('') ), 1, 1, '')
 
+,PS.UserName POStatus,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,RP.EmployeeName ResponsiblePerson,E.UserName Entity,CP.PartyType
 from trn.SalesOrder SO
 left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+left join TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId
 LEFT JOIN TRN.ProductionOrderProcessSet M ON m.ProductionOrderId=POD.ProductionOrderId
 AND m.Id=(SELECT TOP 1 ID FROM TRN.ProductionOrderProcessSet EII WHERE EII.ProductionOrderId=POD.ProductionOrderId ORDER BY EII.Sequence DESC)
-Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''";
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
+LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
+LEFT JOIN [dbo].[ProductLibrary] PL ON PL.Id=MOI.ProductLibraryId
+LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId
+LEFT JOIN dbo.EmployeeInformation RP ON RP.SystemId=SO.ResponsiblePersonId
+LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
+LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''
+AND PO.Id IN (" + parameters["POId"] + @") AND P.Id IN (" + parameters["PartyId"] + @")  AND SO.ResponsiblePersonId IN (" + parameters["ResponsiblePersonId"] + @") ";
 
-                 dt = _sqlRepository.GetDataTable(sql);
+                dt = _sqlRepository.GetDataTable(sql);
 
             }
             catch (Exception ex)
@@ -4231,12 +4251,14 @@ Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0 
         {
             try
             {
-                string sql = @"SELECT distinct MO.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,MO.EntityId,EN.UserName Entity,MO.PartyId,P.UserName Customer,SO.OrderStatusId FROM trn.MasterOrder MO
-LEFT JOIN ORG.Entity EN ON EN.Id=MO.EntityId
+                string sql = @"SELECT distinct POD.ProductionOrderId POId, SO.ResponsiblePersonId,E.EmployeeName ResponsiblePerson,MO.PartyId,P.UserName Customer,SO.DeliveryDate
+FROM  TRN.SalesOrder SO 
+left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
+LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
 LEFT JOIN HKP.Party P ON P.Id = MO.PartyId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=MO.ResponsiblePersonId
-LEFT JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
-LEFT JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id";
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=SO.ResponsiblePersonId
+Where  SO.OrderStatusId NOT IN('Cancelled','Closed') AND SO.ShipmentFromStock=0  AND POD.ProductionOrderId<>''";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
