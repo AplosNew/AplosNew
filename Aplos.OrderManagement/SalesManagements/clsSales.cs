@@ -595,7 +595,7 @@ namespace Library.OrderManagement.Sales
 ,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,FORMAT(sm.TransactionRate,'N4') UnitPrice,FORMAT(sm.TransactionAmount,'N2') GrossAmount,'' Discount,''PreTaxValue
 ,FORMAT(sm.TransactionAmount,'N2') Taxablevalue,FORMAT(TAxInfo1.Percentage,'N2') GSTRate,FORMAT(TAxInfo1.Amount,'N4') IgstAmt,FORMAT(TAxInfo2.Amount,'N2') SgstAmt,FORMAT(TAxInfo3.Amount,'N2') CgstAmt,'' CessRate,''CessAmtAdval
-,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,FORMAT(sm.NetAmount,'N2') ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
+,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,TAxInfo4.TaxAmount OtherCharges,FORMAT(sm.NetAmount,'N2') ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
 ,FORMAT(sm.NetAmount,'N2') TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
 ,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorList
   FROM TRN.Sales S
@@ -603,7 +603,7 @@ LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
 LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
 LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
-LEFT JOIN HKP.HSNCode AS ha ON h.Id = mma.HSNCodeId
+LEFT JOIN HKP.HSNCode AS ha ON ha.Id = mma.HSNCodeId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
 LEFT JOIN hkp.Party P ON P.Id = S.PartyId
 LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId
@@ -629,6 +629,12 @@ LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 WHERE B.Code='CGST' AND SalesServiceId IS NULL
 ) TAxInfo3	ON TAxInfo3.SalesMaterialId=sm.Id
+LEFT JOIN (
+SELECT A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage,A.TaxAmount 
+FROM TRN.[SalesAdditionalTax] A
+LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+WHERE B.Code='TCS'
+) TAxInfo4	ON TAxInfo4.SalesId=s.Id
 WHERE s.Id " + Ids + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -649,7 +655,7 @@ WHERE s.Id " + Ids + "";
 ,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,2),sm.TransactionRate*s.ToCurrencyRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)GrossAmount,'' Discount,''PreTaxValue
 ,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)Taxablevalue,CONVERT(numeric(10,2),TAxInfo1.Percentage) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount*s.ToCurrencyRate) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount*s.ToCurrencyRate) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount*s.ToCurrencyRate) CgstAmt,'' CessRate,''CessAmtAdval
-,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
+,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,TAxInfo4.TaxAmount OtherCharges,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
 ,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate)TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
 ,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorListst
   FROM TRN.Sales S
@@ -683,6 +689,12 @@ LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 WHERE B.Code='CGST' AND SalesServiceId IS NULL
 ) TAxInfo3	ON TAxInfo3.SalesMaterialId=sm.Id
+LEFT JOIN (
+SELECT A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage,A.TaxAmount 
+FROM TRN.[SalesAdditionalTax] A
+LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+WHERE B.Code='TCS'
+) TAxInfo4	ON TAxInfo4.SalesId=s.Id
 WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 return _sqlRepository.GetDataTable(sql);
             }

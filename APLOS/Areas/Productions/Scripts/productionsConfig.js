@@ -342,5 +342,13 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/DailyPlanningAndProductionReport/Report',
             controller: 'DailyPlanningAndProductionReportController'
         })
+        .when('/wcwork-stations-control-master', {
+            templateUrl: 'Productions/WCWorkStationsControlMaster/Aplos',
+            controller: 'WCWorkStationsControlMasterController'
+        })
+        .when('/wcwork-stations-control', {
+            templateUrl: 'Productions/WCWorkStationsControl/AplosWC',
+            controller: 'WCWorkStationsControlController'
+        })
         ;
 }
