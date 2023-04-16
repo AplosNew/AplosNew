@@ -552,5 +552,14 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Aman
         #endregion written by Aman
 
+        #region Sales Return
+        public List<Default2> GetSalesNumber()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSalesNumber(out List<Default2> activelists);
+            return activelists;
+        }
+        #endregion Sales Return
+
     }
 }
