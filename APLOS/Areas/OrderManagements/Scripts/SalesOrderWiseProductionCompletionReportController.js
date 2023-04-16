@@ -15,10 +15,10 @@ function SalesOrderWiseProductionCompletionReportController(cboService, commonMe
         }).then(function successCallback(response) {
             $scope.filters = response.data;
             var columnList = [
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
                 { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
-                { field: 'OrderStatusId', width: 20, headerText: "Order Status", type: "string" },
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'POId', width: 20, headerText: "POId", type: "string" },
+                { field: 'DeliveryDate', width: 20, headerText: "DeliveryDate", type: "string" },
 
             ];
             $("#filters").ejGrid({
@@ -50,10 +50,10 @@ function SalesOrderWiseProductionCompletionReportController(cboService, commonMe
 
         var parameters = [];
 
-        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        parameters.push({ "Key": "POId", "Value": getString(fl, "POId") });
         parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
         parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
-        parameters.push({ "Key": "OrderStatusId", "Value": getString(fl, "OrderStatusId") });
+        parameters.push({ "Key": "DeliveryDate", "Value": getString(fl, "DeliveryDate") });
 
 
         $scope.parameters = parameters;
@@ -87,17 +87,7 @@ function SalesOrderWiseProductionCompletionReportController(cboService, commonMe
         }
         var k = 100;
     }
-
-
-    $scope.Xgetos3 = function () {
-        try {
-            var file_src = 'OrderManagements/SalesOrderWiseProductionCompletionReport/OS3xls?entityid=' + 118;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
-    }
+  
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getos3 = function (reportType) {
         try {
