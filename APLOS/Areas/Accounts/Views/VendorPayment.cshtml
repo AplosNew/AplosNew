@@ -616,6 +616,7 @@
                 <th>Vendor</th>
                 <th>Posting Date</th>
                 <th>Multiple Payment No</th>
+                <th>Doc. RefNo</th>
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -628,6 +629,7 @@
                 <td>{{x.PartyCode}} - {{x.PartyName}}</td>
                 <td>{{x.PostingDate | dateFiltering}}</td>
                 <td>{{x.MultiplePaymentNo}}</td>
+                <td>{{x.DocRefNo}}</td>
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
