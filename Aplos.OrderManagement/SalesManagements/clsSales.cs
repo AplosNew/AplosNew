@@ -695,7 +695,7 @@ FROM TRN.[SalesAdditionalTax] A
 LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 WHERE B.Code='TCS'
 ) TAxInfo4	ON TAxInfo4.SalesId=s.Id
-WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
+WHERE sm.Id IN(" + Ids + ")";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
