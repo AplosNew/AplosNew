@@ -1,0 +1,60 @@
+﻿<div class="modal fade site-modal in" id="UserGroupPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">User Group <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div class="form-elements form-horizontal" ng-form>
+                            
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6 col-md-4">
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <div class="select-style">
+                                                <select class="form-control" name="User Group" ng-model="ob.UserGroupId" ng-change="GetUserSubGroup(); GetGrade();" required>
+                                                    <option ng-repeat="option in UserGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 col-sm-6 col-md-4">
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">User Sub Group<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <div class="select-style">
+                                                <select class="form-control" name="User Sub Group" ng-model="ob.UserSubGroupId" required>
+
+                                                    <option ng-repeat="option in UserSubGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-4">
+                                    <div class="form-group" show-errors>
+                                        <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+                                        <div class="col-sm-8 show-message">
+                                            <div class="select-style">
+                                                <select class="form-control" name="Grade" ng-model="ob.Grade" required>
+
+                                                    <option ng-repeat="option in GradeList" value="{{option.Value}}">{{option.Text}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                   
+                    </div>
+                    
+                </div>
+            </div>
+</div>

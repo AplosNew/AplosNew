@@ -1,0 +1,97 @@
+﻿<div class="modal fade site-modal in" id="popupToExportExcel" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" width="100">
+        <div class="modal-content">
+            <div class="modal-header">User Group <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div class="form-elements form-horizontal" ng-form>
+                        <div class="row form-horizontal">
+                            @*COLUMN 1*@
+
+                            <div class="col-xs-12 col-sm-8 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Entity</label>
+                                    <div class="col-sm-6">
+                                        <div class="select-style">
+                                            <input id="entityId" e-change="GetBudget" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="EntityList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Employee Category</label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ModelNew.EmployeecategoryId" name="Employee Category Id"
+                                                    tabindex="2">
+                                                <option value="">--Select--</option>
+                                                <option ng-repeat="option in EmpCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @*COLUMN 2*@
+                        <div class="col-xs-12 col-sm-8 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Process</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ModelNew.EmployeecategoryId" name="Process"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in ProcessList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Day Status</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ModelNew.DayStatus" name="Day Status"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in DayStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @*<div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Employee Current Status</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ModelNew.EmployeeStatus" name="Process"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in EmpStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>*@
+
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    @*<li> <button class="btn" ng-click="OpenFavoritePopUp();" tabindex="9"><i class="glyphicon glyphicon-flag"></i> Add Favourite</button></li>
+                <li> <button class="btn" ng-click="GetDailyAttendanceStatus();" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                <li> <button class="btn" ng-click="Clear();" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+

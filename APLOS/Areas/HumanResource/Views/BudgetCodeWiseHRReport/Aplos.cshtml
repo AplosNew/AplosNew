@@ -1,0 +1,55 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{title}}</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Favourite</label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <input id="favourite" e-change="GetDataOnFavouriteFilter" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="HRReportMasterList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+        </div>
+    </div>
+    <div class="table-responsive">
+        <div ej-grid e-datasource="BudgetList" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+
+                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                <div e-column e-field="Division" e-headertext="Division" e-width="100"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+
+                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
+
+
+                <div e-column e-field="Shift" e-headertext="Shift" e-width="150"></div>
+                <div e-column e-field="PositionCode" e-headertext="PositionCode" e-width="100"></div>
+
+                <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="100"></div>
+                <div e-column e-field="UserGroup" e-headertext="UserGroup" e-width="100"></div>
+                <div e-column e-field="UserSubGroup" e-headertext="User Sub Group" e-width="100"></div>
+                <div e-column e-field="Grade" e-headertext="Grade" e-width="100"></div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="popupToExportExcel()" class="btn" tabindex="9"><i class="glyphicon glyphicon-print"></i> Export to Excel</button></li>
+        </ul>
+
+    </div>
+</div>
+
+@Html.Partial("~/Areas/HumanResource/Views/BudgetCodeWiseHRReport/_ExportToExcelPop.cshtml")
