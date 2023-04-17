@@ -44,11 +44,11 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-           
-                setList(response.data);
-                
-                createColList();
-           
+
+            setList(response.data);
+
+            createColList();
+
         });
     };
     $scope.ManPowerBudget();
@@ -84,8 +84,8 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             });
         }
     };
-    
-    
+
+
 
     function getDrillDownList(companyId) {
         $http({
@@ -261,7 +261,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         $scope.index = x.Sequence;
     };
 
-   
+
 
     $scope.dFunction = function () {
         $scope.clickCount = 0;
@@ -269,8 +269,9 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             method: 'POST',
             url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
             data: {
-                'date': $scope.Date,'stat': $scope.Stat,
-                'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,},
+                'date': $scope.Date, 'stat': $scope.Stat,
+                'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             setList(response.data);
@@ -281,7 +282,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         });
     };
 
-  
+
 
     $scope.headerNav = function (x) {
         $scope.clickCount = 0;
@@ -295,21 +296,21 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 method: 'POST',
                 url: 'NewAttdnDashboard/GetGroupWiseCompanyList/',
                 data: {
-                    'date': $scope.Date,'stat': $scope.Stat,
+                    'date': $scope.Date, 'stat': $scope.Stat,
                     'EmpCat': $scope.EmpCat, 'EmpStat': $scope.EmpStat,
                 },
 
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 setList(response.data);
-                
+
                 $scope.index = -1;
                 $scope.stIndex = $scope.index - 1;
             });
         }
     };
-    
-    
+
+
 
     function setList(list) {
         $scope.date = new Date();
@@ -348,7 +349,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         $scope.chartDataSalary.push(BudgetedSal);
         $scope.chartDataSalary.push(OnRoleSal);
 
-        
+
     }
 
     // On Click on the Table
@@ -356,7 +357,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
     $scope.RptData = [];
     $scope.RptColumn = "";
 
-    $scope.TableClick = function (data , column) {
+    $scope.TableClick = function (data, column) {
         $scope.RptData = data;
         $scope.RptColumn = column;
         $http({
@@ -370,7 +371,7 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
                 'data': data,
                 'stat': $scope.Stat,
                 'EmpCat': $scope.EmpCat,
-                'EmpStat' : $scope.EmpStat,
+                'EmpStat': $scope.EmpStat,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

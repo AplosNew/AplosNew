@@ -575,6 +575,7 @@ namespace Library.Service.Leave
         public string LvEncashmentFormulaDesID { get; set; }
         public string FormulaDescription { get; set; }
         public bool IsBackDatePosting { get; set; }
+        public int BackDatePostingAllowedDays { get; set; }
         public string EmpCatId { get; set; }
     }
 

@@ -3886,7 +3886,7 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select POId as Value, RefNo As Name from dbo.ItemScanChild where RefNo = '" + Refno + "' and SalesId = '" + SalesId + "'";
+                strSQL = @"select SalesReturnId as Value, RefNo As Name from dbo.ItemScanChild where RefNo = '" + Refno + "' and SalesId = '" + SalesId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -4393,6 +4393,44 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             public string UpdatedFromIP { get; set; }
         }
         #endregion Test For production service
+
+        #region Sales Return
+        public void GetSalesNumber(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id as Value, InvoiceNo as Name from TRN.Sales where SourceType = 'Packing'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        #endregion Sales Return
 
     }
 
