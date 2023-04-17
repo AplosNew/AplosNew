@@ -537,31 +537,31 @@ where MOI.Id=pw.MasterOrderItemId) as ProductCodeArticle,
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string ProductionInChargeId)
+        public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)
         {
-            var sql = @"select B.Id,B.ProcessId,B.EntityId,B.ShiftId,B.Date,B.WorkCenterMasterId,B.WorkCenter,B.ResponsiblePerson,B.ResponsiblePersonId,B.InCharge,B.InChargeId,B.Remarks,B.ItemName,B.ColumnInfoId,B.Sequence
+            var sql = @"select B.Id,B.ProcessId,B.EntityId,B.ShiftId,B.Date,B.WorkCenterMasterId,B.WorkCenter,B.WorkStation,B.ResponsiblePerson,B.ResponsiblePersonId,B.InCharge,B.InChargeId,B.Remarks,B.ItemName,B.ColumnInfoId,B.Sequence,B.Column1,B.Column2,B.Column3,B.Column4
 into #tempPC from 
- (select A.Id,A.ProcessId,A.EntityId,A.ShiftId,A.Date,A.WorkCenterMasterId,A.WorkCenter,A.ResponsiblePerson,A.ResponsiblePersonId,A.InCharge,A.InChargeId,A.Remarks,A.ItemName,A.ColumnInfoId,A.Sequence from
- (SELECT distinct wcs.Id,wcs.ProcessId,wcs.EntityId,wcs.ShiftId,wcs.Date,wc.Id as WorkCenterMasterId,CAST (CASE WHEN wcs.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,wc.UserName as WorkCenter,
-                        isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
+ (select A.Id,A.ProcessId,A.EntityId,A.ShiftId,A.Date,A.WorkCenterMasterId,A.WorkCenter,A.WorkStation,A.ResponsiblePerson,A.ResponsiblePersonId,A.InCharge,A.InChargeId,A.Remarks,A.ItemName,A.ColumnInfoId,A.Sequence,A.Column1,A.Column2,A.Column3,A.Column4 from
+ (SELECT distinct wcs.Id,wcs.ProcessId,wcs.EntityId,wcs.ShiftId,wcs.Date,wc.Id as WorkCenterMasterId,CAST (CASE WHEN wcs.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,wc.UserName as WorkCenter,wc.NoOfWorkStation as WorkStation,
+                        isnull(R.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '" + ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePerson,
                         isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
                         isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
-                        isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
-                        wcs.Remarks,CD.ItemName,'0' as ColumnInfoId,wc.Sequence
+                        isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
+                        wcs.Remarks,CD.ColumnInfoId,wcs.Column1,wcs.Column2,wcs.Column3,wcs.Column4,'0' as ItemName,wc.Sequence
 
                         FROM  SCS.WorkCenterMaster wc 
-                        LEFT JOIN TRN.WCWorkStationControlSummary wcs ON wcs.WorkCenterMasterId=wc.Id AND wcs.ProcessId = '"+ ProcessId +@"' 
-                        AND  wcs.EntityId='"+ entityId +"' AND wcs.Date='"+ Date +"'  AND wcs.ShiftId='"+ shiftId +@"' 
+                        LEFT JOIN TRN.WCWorkStationControlSummary wcs ON wcs.WorkCenterMasterId=wc.Id AND wcs.ProcessId = '" + ProcessId +@"' 
+                        AND  wcs.EntityId='"+ entityId +"' AND wcs.Date='"+ Date +"'  AND wcs.ShiftId='"+ shiftId + @"' 
                         LEFT JOIN EmployeeInformation R ON wcs.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation I ON wcs.InChargeId=I.SystemId
-						LEFT JOIN TRN.ColumnsDetails CD ON CD.ProcessId='"+ ProcessId +@"' and CD.Active=1
-                        where wc.Active=1 and wc.ProcessId = '"+ ProcessId +"' and wc.EntityId = '"+ entityId +@"')A
+						LEFT JOIN TRN.ColumnsDetails CD ON CD.WSMId='" + WSMId + @"' and CD.Active=1
+                        where wc.Active=1 and wc.ProcessId = '"+ ProcessId +"' and wc.EntityId = '"+ entityId + @"')A
 				)B order by B.Sequence 
 
 DECLARE @sql nvarchar(max), @col nvarchar(max)
 
  SELECT @col = (
- SELECT DISTINCT ',' + QUOTENAME(REPLACE(CONVERT(VARCHAR(40), ItemName, 113), ' ', '-'))
+ SELECT DISTINCT ',' + QUOTENAME(REPLACE(CONVERT(VARCHAR(40), ColumnInfoId, 113), ' ', '-'))
 
  FROM #tempPC 
                                 FOR XML PATH('')
@@ -569,7 +569,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
  (SELECT *
  FROM #tempPC
                             PIVOT(
- MAX([ColumnInfoId]) FOR[ItemName] IN('+STUFF(@col,1,1,'')+')
+ MAX([ItemName]) FOR[ColumnInfoId] IN('+STUFF(@col,1,1,'')+')
  ) as pvt)' 
 
  EXEC sp_executesql @sql
@@ -932,7 +932,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
             }
         }
 
-        public void SaveMasterWC(ProductionSummary ps,string companyGroupId)
+        public void SaveMasterWC(ProductionSummary ps, string companyGroupId)
         {
             var flag = false;
             try
@@ -1025,51 +1025,6 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                     _unitOfWork.Rollback();
             }
         }
-
-        //public void SaveMasterWC(List<Dictionary<string, object>> DataList)
-        //{
-        //    ConnectionManager.DAL.ConManager objCon;
-        //    DataSet dsProdBooked;
-        //    string TableName = "TRN.ProductionSummary";
-        //    string contId = string.Empty;
-        //    string _Id, Id = string.Empty;
-        //    try
-        //    {
-        //        objCon = new ConnectionManager.DAL.ConManager("1");
-
-
-        //        if (DataList != null)
-        //        {
-        //            foreach (var item in DataList)
-        //            {
-        //                objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
-        //                DataView dv = new DataView(dsProdBooked.Tables[0]);
-
-        //                if (dv.Count == 0)
-        //                {
-        //                    //bplib.clsGenID genid = new bplib.clsGenID();
-        //                    //genid.GenID(TableName, out _Id);
-        //                    //item["Id"] = "P" + _Id;
-        //                    item["Id"] = "P" + GetPK();
-        //                    AddNewRow(dsProdBooked.Tables[0], item);
-        //                }
-        //                else
-        //                {
-        //                    DataRow drpb = dv[0].Row;
-        //                    EditRow(drpb, item);
-        //                }
-        //                clsStaticInfo obj = new clsStaticInfo();
-        //                obj.SaveDataSets(dsProdBooked);
-        //            }
-        //        }
-
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw (ex);
-        //    }
-        //}
         public void SaveDetentionWC(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;

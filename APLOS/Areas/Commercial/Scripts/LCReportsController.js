@@ -80,6 +80,43 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
         }
     }
 
+    //$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+
+    //$scope.MasterLCReport = function () {
+    //    if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
+    //        throw 'Please enter from date';
+
+    //    if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
+    //        throw 'Please enter to date';
+
+    //    var MasterLCList = "";
+    //    for (var i = 0; i < $scope.MasterLCList.length; i++) {
+    //        if ($scope.MasterLCList[i].isSelected == true) {
+    //            if (MasterLCList == "")
+    //                MasterLCList = "'" + $scope.MasterLCList[i].MasterLCNo + "'";
+    //            else
+    //                MasterLCList += ",'" + $scope.MasterLCList[i].MasterLCNo + "'";
+    //        }
+    //    }
+
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + "MasterLCReport",
+
+    //        data: {'MasterLCList': MasterLCList},
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+    //}
+
     $scope.MasterOrderReport = function () {
 
         //var MasterOrderId = "1935";
