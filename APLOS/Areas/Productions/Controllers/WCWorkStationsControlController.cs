@@ -79,6 +79,16 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [Authorize, HttpGet]
+        public JsonResult GetWSMUserNameList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from MST.WCWorkStationsControlMaster where IsActive=1";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetProcessReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -160,12 +170,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadProcessReasonList(string ProcessId, string ProductionId)
+        public ActionResult LoadProcessReasonList(string ProcessId, string WSCId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select RV.Id,RV.ReasonValue,RV.Remarks,RD.Id as ReasonId,RD.ReasonName
 from MST.ReasonDetails RD
-left join [TRN].[ProductionReasonValue] RV ON RV.ReasonId=RD.Id and ProductionId='" + ProductionId + @"'
+left join [TRN].[WSCReasonValue] RV ON RV.ReasonId=RD.Id and WSCId='" + WSCId + @"'
 where RD.ProcessId='" + ProcessId + "'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -176,7 +186,7 @@ where RD.ProcessId='" + ProcessId + "'";
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
-            string TableName = "[TRN].[ProductionReasonValue]";
+            string TableName = "[TRN].[WSCReasonValue]";
             string contId = string.Empty;
             string _Id, Id = string.Empty;
             try
@@ -196,7 +206,7 @@ where RD.ProcessId='" + ProcessId + "'";
                         {
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
-                            item["Id"] = "PRV" + _Id;
+                            item["Id"] = "WRV" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -523,10 +533,10 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetWCProcessCboNew(string processid, string entityId, string Date, string shiftId, string ProductionInChargeId)
+        public JsonResult GetWCProcessCboNew(string processid, string entityId, string Date, string shiftId, string WSMId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetWSCWC(identity.PlantId, processid, entityId, Date, shiftId, ProductionInChargeId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetWSCWC(identity.PlantId, processid, entityId, Date, shiftId, WSMId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
@@ -763,19 +773,70 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
         //[HttpPost]
-        //public JsonResult CreateWC(List<Dictionary<string, object>> DataList)
+        //public JsonResult CreateWC(ProductionSummary ps)
         //{
         //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    _ProductionSummaryService.SaveMasterWC(DataList);
-        //    return Json(new { Message = AplosMessage.Success });
+        //    ps.PlantId = identity.PlantId;
+        //    _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId);
+        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         //}
         [HttpPost]
-        public JsonResult CreateWC(ProductionSummary ps)
+        public JsonResult CreateWSC(Dictionary<string, object> WSCData,string Column1, string Column2, string Column3, string Column4)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                DataSet dsWCWorkStationControlSummary;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from TRN.WCWorkStationControlSummary where Id='" + WSCData["Id"] + "'", out dsWCWorkStationControlSummary, false, "1");
+                string _Id = "", Id = string.Empty;
+
+                #region data update
+                if (dsWCWorkStationControlSummary.Tables[0].Rows.Count == 0)
+                {
+                   
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.WCWorkStationControlSummary", out _Id);
+                        WSCData["Id"] = "WSC" + _Id;
+                        WSCData["PlantId"] = identity.PlantId;
+                        WSCData["Column1"] = Column1;
+                        WSCData["Column2"] = Column2;
+                        WSCData["Column3"] = Column3;
+                        WSCData["Column4"] = Column4;
+                        AddNewRow(dsWCWorkStationControlSummary.Tables[0], WSCData);
+                 
+                }
+                else
+                {
+                    _Id = WSCData["Id"].ToString();
+                    WSCData["PlantId"] = identity.PlantId;
+                    WSCData["Column1"] = Column1;
+                    WSCData["Column2"] = Column2;
+                    WSCData["Column3"] = Column3;
+                    WSCData["Column4"] = Column4;
+                    EditRow(dsWCWorkStationControlSummary.Tables[0].Rows[0], WSCData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsWCWorkStationControlSummary);
+
+                return Json(new { Error = false, Data = WSCData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
         }
         [HttpPost]
         public JsonResult UpdateWC(ProductionSummary ps)
@@ -1055,10 +1116,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
 
                 conC.BeginTransaction();
-                conC.executeQuery("delete from TRN.ProductionReasonValue where ProductionId ='" + id + @"'");
-                conC.executeQuery("delete from MachineMasterTransaction where ProductionSummaryId ='" + id + @"'");
-                conC.executeQuery("delete from ProductionSummaryParameterValue where ProductionSummaryId ='" + id + @"'");
-                conC.executeQuery("delete from [TRN].[ProductionSummary] where Id ='" + id + @"'");
+                conC.executeQuery("delete from TRN.WSCReasonValue where WSCId ='" + id + @"'");
+                conC.executeQuery("delete from [TRN].[WCWorkStationControlSummary] where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
