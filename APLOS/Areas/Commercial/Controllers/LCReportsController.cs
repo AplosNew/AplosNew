@@ -615,7 +615,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 #region Last subtotal
                 al.Add(ROW);
                 SetHeadText(worksheet, ROW, 1, " Subtotal:");
-                //worksheet.Range[ROW, 1, ROW, (colPurchaseLCAmount - 1)].Merge();
+                worksheet.Range[ROW, 1, ROW, (colPurchaseLCAmount - 1)].Merge();
                 worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
 
                 worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
@@ -623,13 +623,13 @@ namespace Aplos.Areas.Commercial.Controllers
                 #endregion
 
                 #region Grand Total
-                //SetHeadText(worksheet, ROW, 1, "Grand Total:");
+                SetHeadText(worksheet, ROW, 1, "Grand Total:");
                 //worksheet.Range[ROW, 1, ROW, (ROW - 1)].Merge();
 
 
-                //worksheet.Range[ROW, colPurchaseLCAmount].Formula = GetFormulaGrandTotal(al, colPurchaseLCAmount);
+                worksheet.Range[ROW, colPurchaseLCAmount].Formula = GetFormulaGrandTotal(al, colPurchaseLCAmount);
 
-                //worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
+                worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
                 #endregion
 
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
