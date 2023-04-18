@@ -110,7 +110,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 string sql = @"select convert(bit,0) AS isSelected,
 				 PLC.Id PurchaseLCId 
 
-				-- , PLC.LCRef as PurchaseLCRefNo
+				,ISNULL(mlc.LCRef,'') as MasterLCRefNo
                     ,PurchaseLCRef= STUFF((select distinct ','+XVD.LCRef 
                     from dbo.PurchaseLC XVD 
                     where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
@@ -205,8 +205,8 @@ namespace Aplos.Areas.Commercial.Controllers
                             left outer join hkp.Bank b on b.id= bm.BankId
                            -- left outer join mst.Destination fd on fd.id= PLC.FinalDestinationId
                             left outer join hkp.Party as P on P.Id=PLC.VendorId
-
-							--left join dbo.Contract c on c.CustomerId=p.Id
+                            left join dbo.Contract c on c.Id=PLC.ContractId
+							left join dbo.MasterLC MLC on MLC.Id=c.MasterLCId
 
 		                    where PLC.LCDate between '" + FromDate + "' and '" + ToDate + @"' 
 							and PLC.ContractId  <>''";
@@ -369,6 +369,10 @@ namespace Aplos.Areas.Commercial.Controllers
                 worksheet[ROW, COL].ColumnWidth = 10;
                 COL++;
 
+                worksheet[ROW, COL].Text = "Percentage";
+                int colPercentage = COL;
+                worksheet[ROW, COL].ColumnWidth = 21;
+                COL++;
 
                 worksheet[ROW, COL].Text = "Present LC Value";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -391,41 +395,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 worksheet[ROW, COL].Text = "LC Accepted Value";
                 int colLCAcceptedValue = COL;
                 worksheet[ROW, COL].ColumnWidth = 17;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Purchase LC Value";
-                //int colPurchaseLCValue = COL;
-                //worksheet[ROW, COL].ColumnWidth = 21;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Master LC Id";
-                //int colMasterLCId = COL;
-                //worksheet[ROW, COL].ColumnWidth = 13;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Buyer";
-                //int colCustomerId = COL;
-                //worksheet[ROW, COL].ColumnWidth = 10;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Currency";
-                //int colCode = COL;
-                //worksheet[ROW, COL].ColumnWidth = 10;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "PurchaseLC Opening Date";
-                //int colPurchaseLCOpeningDate = COL;
-                //worksheet[ROW, COL].ColumnWidth = 25;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "POValue";
-                //int colPOValue = COL;
-                //worksheet[ROW, COL].ColumnWidth = 20;
-                //COL++;
-
-
-                //Assign some text in a cell
-
+                
                 int endCol = COL;
 
                 worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
@@ -473,9 +443,18 @@ namespace Aplos.Areas.Commercial.Controllers
                                 lastEmpCat = group1;
                                 al.Add(ROW);
                                 SetHeadText(worksheet, ROW, 1, " Subtotal:");
-                                worksheet.Range[ROW, 1, ROW, (colPurchaseLCAmount - 1)].Merge();
+                                worksheet.Range[ROW, 1, ROW, (colMasterLCAmount - 1)].Merge();
+
+                                worksheet.Range[ROW, colMasterLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colMasterLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colMasterLCAmount) + (ROW - 1) + ")";
+                                worksheet.Range[ROW, colSalesOrderQty].Formula = "=SUM(" + ru.GetColumnNameForXls(colSalesOrderQty) + catFRow + ":" + ru.GetColumnNameForXls(colSalesOrderQty) + (ROW - 1) + ")";
+                                worksheet.Range[ROW, colSalesOrderValue].Formula = "=SUM(" + ru.GetColumnNameForXls(colSalesOrderValue) + catFRow + ":" + ru.GetColumnNameForXls(colSalesOrderValue) + (ROW - 1) + ")";
+                                worksheet.Range[ROW, colContractFundCommission].Formula = "=SUM(" + ru.GetColumnNameForXls(colContractFundCommission) + catFRow + ":" + ru.GetColumnNameForXls(colContractFundCommission) + (ROW - 1) + ")";
+                                worksheet.Range[ROW, colContractFundUtilization].Formula = "=SUM(" + ru.GetColumnNameForXls(colContractFundUtilization) + catFRow + ":" + ru.GetColumnNameForXls(colContractFundUtilization) + (ROW - 1) + ")";
                                 worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
-                                worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
+                                worksheet.Range[ROW, colPercentage].Formula = "=SUM(" + ru.GetColumnNameForXls(colPercentage) + catFRow + ":" + ru.GetColumnNameForXls(colPercentage) + (ROW - 1) + ")";
+                                worksheet.Range[ROW, colPresentLCValue].Formula = "=SUM(" + ru.GetColumnNameForXls(colPresentLCValue) + catFRow + ":" + ru.GetColumnNameForXls(colPresentLCValue) + (ROW - 1) + ")";
+
+                                worksheet.Range[ROW, colMasterLCAmount, ROW, colPresentLCValue].CellStyle.Font.Bold = true;
 
                                 ROW++;
                             }
@@ -508,6 +487,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                         worksheet[ROW, colMasterLCRefNo].Text = dsData.Rows[i]["MasterLCRefNo"].ToString();
                         worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString());
+
                         //  worksheet[ROW, colMasterLCCustomerId].Text = dsData.Tables[0].Rows[i]["Buyer"].ToString();
                         worksheet[ROW, colCurrencyCode].Text = dsData.Rows[i]["MasterLCcurrency"].ToString();
                         worksheet[ROW, colPartyId].Text = dsData.Rows[i]["Customer"].ToString();
@@ -561,6 +541,12 @@ namespace Aplos.Areas.Commercial.Controllers
                         StartRowGroup3 = ROW;
                         group3 = group2 + dsData.Rows[i]["PurchaseLCRefNo"].ToString();
 
+                        worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString());
+                        worksheet[ROW, colSalesOrderQty].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderQty"].ToString());
+                        worksheet[ROW, colSalesOrderValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderValue"].ToString());
+                        worksheet[ROW, colContractFundCommission].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "*" + (clsStaticInfo.dbl(dsData.Rows[i]["CommissionPercentage"].ToString())).ToString() + "%";
+                        worksheet[ROW, colContractFundUtilization].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colContractFundCommission) + ROW.ToString();
+
                         worksheet[ROW, colPurchaseLCNo].Text = dsData.Rows[i]["PurchaseLCRefNo"].ToString();
 
                         worksheet[ROW, colPurchaseLCCurrencyId].Text = dsData.Rows[i]["PurchasePLCurrency"].ToString();
@@ -569,6 +555,12 @@ namespace Aplos.Areas.Commercial.Controllers
                         worksheet[ROW, colPurchaseLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLcOpeningValue"].ToString()); // PurchaseLcOpeningValue
                         worksheet[ROW, colPartyUserName].Text = dsData.Rows[i]["vendor"].ToString();
                         worksheet[ROW, colLastAmendmentDate].Text = dsData.Rows[i]["LastAmendmentDate"].ToString();
+
+                        //var percentage = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLcOpeningValue"] + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"])) + "%";
+                        //worksheet[ROW, colPercentage].Text = percentage;
+
+                        worksheet[ROW, colPercentage].Formula = clsStaticInfo.GetxlsCol(colPurchaseLCAmount) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colMasterLCAmount) + ROW.ToString() + "%";
+
                         worksheet[ROW, colPresentLCValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["PresentLCValue"].ToString());
                         worksheet[ROW, colPurchaseLCLCDate].Text = dsData.Rows[i]["PurchaseLCOpeningDate"].ToString();
 
@@ -615,29 +607,51 @@ namespace Aplos.Areas.Commercial.Controllers
                 #region Last subtotal
                 al.Add(ROW);
                 SetHeadText(worksheet, ROW, 1, " Subtotal:");
-                worksheet.Range[ROW, 1, ROW, (colPurchaseLCAmount - 1)].Merge();
-                worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
+                worksheet.Range[ROW, 1, ROW, (colMasterLCAmount - 1)].Merge();
 
-                worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
+                worksheet.Range[ROW, colMasterLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colMasterLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colMasterLCAmount) + (ROW - 1) + ")";
+                worksheet.Range[ROW, colSalesOrderQty].Formula = "=SUM(" + ru.GetColumnNameForXls(colSalesOrderQty) + catFRow + ":" + ru.GetColumnNameForXls(colSalesOrderQty) + (ROW - 1) + ")";
+                worksheet.Range[ROW, colSalesOrderValue].Formula = "=SUM(" + ru.GetColumnNameForXls(colSalesOrderValue) + catFRow + ":" + ru.GetColumnNameForXls(colSalesOrderValue) + (ROW - 1) + ")";
+
+                worksheet.Range[ROW, colContractFundCommission].Formula = "=SUM(" + ru.GetColumnNameForXls(colContractFundCommission) + catFRow + ":" + ru.GetColumnNameForXls(colContractFundCommission) + (ROW - 1) + ")";
+
+                worksheet.Range[ROW, colContractFundUtilization].Formula = "=SUM(" + ru.GetColumnNameForXls(colContractFundUtilization) + catFRow + ":" + ru.GetColumnNameForXls(colContractFundUtilization) + (ROW - 1) + ")";
+                worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
+                worksheet.Range[ROW, colPercentage].Formula = "=SUM(" + ru.GetColumnNameForXls(colPercentage) + catFRow + ":" + ru.GetColumnNameForXls(colPercentage) + (ROW - 1) + ")";
+                worksheet.Range[ROW, colPresentLCValue].Formula = "=SUM(" + ru.GetColumnNameForXls(colPresentLCValue) + catFRow + ":" + ru.GetColumnNameForXls(colPresentLCValue) + (ROW - 1) + ")";
+
+                worksheet.Range[ROW, colMasterLCAmount, ROW, colPresentLCValue].CellStyle.Font.Bold = true;
                 ROW++;
                 #endregion
 
                 #region Grand Total
                 SetHeadText(worksheet, ROW, 1, "Grand Total:");
-                //worksheet.Range[ROW, 1, ROW, (ROW - 1)].Merge();
+                worksheet.Range[ROW, 1, ROW, (colMasterLCAmount - 1)].Merge();
 
 
+                worksheet.Range[ROW, colMasterLCAmount].Formula = GetFormulaGrandTotal(al, colMasterLCAmount);
+                worksheet.Range[ROW, colSalesOrderQty].Formula = GetFormulaGrandTotal(al, colSalesOrderQty);
+                worksheet.Range[ROW, colSalesOrderValue].Formula = GetFormulaGrandTotal(al, colSalesOrderValue);
+                worksheet.Range[ROW, colContractFundCommission].Formula = GetFormulaGrandTotal(al, colContractFundCommission);
+                worksheet.Range[ROW, colContractFundUtilization].Formula = GetFormulaGrandTotal(al, colContractFundUtilization);
                 worksheet.Range[ROW, colPurchaseLCAmount].Formula = GetFormulaGrandTotal(al, colPurchaseLCAmount);
+                worksheet.Range[ROW, colPercentage].Formula = GetFormulaGrandTotal(al, colPercentage);
+                worksheet.Range[ROW, colPresentLCValue].Formula = GetFormulaGrandTotal(al, colPresentLCValue);
 
-                worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
+                worksheet.Range[ROW, colMasterLCAmount, ROW, colPresentLCValue].CellStyle.Font.Bold = true;
                 #endregion
 
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
                 worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                worksheet[StartDataRow, colMasterLCAmount, ROW - 1, colMasterLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[StartDataRow, colSalesOrderQty, ROW - 1, colSalesOrderQty].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[StartDataRow, colPurchaseLCAmount, ROW - 1, colPurchaseLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[StartDataRow, colPercentage, ROW - 1, colPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[StartDataRow, colPresentLCValue, ROW - 1, colPresentLCValue].NumberFormat = "#,##0.00;(#,##0.00)";
 
                 //  worksheet[ROW, colQty].Formula = "SUM("+ clsStaticInfo.GetxlsCol(colQty) + StartDataRow + ":"+ clsStaticInfo.GetxlsCol(colQty) + (ROW-1).ToString() + ")";
 
