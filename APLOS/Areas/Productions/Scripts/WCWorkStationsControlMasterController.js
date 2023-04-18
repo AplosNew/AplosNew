@@ -7,12 +7,172 @@ function WCWorkStationsControlMasterController(cboService, commonMessage, $scope
     $scope.path = 'Productions/WCWorkStationsControlMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrlReason = $scope.path + 'createReason';
+    $scope.saveControlPeriodUrl = $scope.path + 'createControlPeriod';
     $scope.saveUrlColumns = $scope.path + 'createColumns';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = null; $scope.search = null;
     $scope.processList = [];
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.Reason = {
+        Id: null,
+        ProcessId: null,
+        ReasonName: null,
+    };
+    $scope.ReasonNew = Object.assign({}, $scope.Reason);
+
+    $scope.ProcessReasonList = [];
+    $scope.GetProcessReasonList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/WCWorkStationsControlMaster/GetProcessReasonList'
+        }).then(function successCallback(response) {
+            $scope.ProcessReasonList = response.data;
+        });
+    }
+    $scope.GetProcessReasonList();
+
+    $scope.ReasonList = [];
+    $scope.LoadReasonDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/WCWorkStationsControlMaster/LoadReasonDetails'
+        }).then(function successCallback(response) {
+            $scope.ReasonList = response.data;
+        }
+        )
+    }
+    $scope.LoadReasonDetails();
+
+    $scope.GetReasonDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Productions/WCWorkStationsControlMaster/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.ReasonNew = response.data.Reason[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.ReasonSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ReasoningDetailsForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlReason,
+                data: {
+                    'ReasonData': $scope.ReasonNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadReasonDetails();
+                    ReasonClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.ReasonClear = function () {
+        ReasonClearFields();
+    };
+
+    function ReasonClearFields() {
+        $scope.Action = "Save";
+        $scope.ReasonNew = Object.assign({}, $scope.Reason);
+    }
+
+    $scope.ControlPeriodList = [];
+    $scope.LoadControlPeriodDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/WCWorkStationsControlMaster/LoadControlPeriodDetails'
+        }).then(function successCallback(response) {
+            $scope.ControlPeriodList = response.data;
+        }
+        )
+    }
+    $scope.LoadControlPeriodDetails();
+
+    $scope.refreshTemplateControlPeriod = function (args) {
+        $("#CPheadchk").ejCheckBox({ "change": CheckBoxSelectAllControlPeriod });
+    };
+    function CheckBoxSelectAllControlPeriod(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridControlPeriod").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ControlPeriodList.length; i++) {
+                $scope.ControlPeriodList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Active = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridControlPeriod").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.ControlPeriodSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ControlPeriodList.length; i++) {
+                /*if ($scope.ControlPeriodList[i].Active == true) {*/
+                $scope.SaveList.push($scope.ControlPeriodList[i]);
+                /* }*/
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveControlPeriodUrl,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadControlPeriodDetails();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 
     $scope.getData = function () {
         $http({

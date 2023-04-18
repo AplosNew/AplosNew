@@ -89,84 +89,13 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetProcessReasonList()
+        public JsonResult GetPeriodList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,UserName as Text from HKP.Process where Active=1";
+            var sql = @"select Id as Value,ControlPeriodName as Text from hkp.WSMControlPeriod where Active=1";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadReasonDetails()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=RD.ProcessId) as Process from [MST].[ReasonDetails] RD";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpGet]
-        public ActionResult LoadReasonDetailsEditData(string ReasonId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=RD.ProcessId) as Process from [MST].[ReasonDetails] RD where RD.Id='" + ReasonId + @"'";
-            return Json(new { Reason = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpPost]
-        public JsonResult createReason(Dictionary<string, object> ReasonData)
-        {
-            try
-            {
-
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[ReasonDetails] where ReasonName='" + ReasonData["ReasonName"] + "' and ProcessId='" + ReasonData["ProcessId"] + "'", out DataSet dsItemDetailsReasonNameValidation, false, "1");
-
-                DataSet dsReasonDetails;
-
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[ReasonDetails] where Id='" + ReasonData["Id"] + "'", out dsReasonDetails, false, "1");
-                string _Id = "";
-
-                #region data update
-                if (dsReasonDetails.Tables[0].Rows.Count == 0)
-                {
-                    if (dsItemDetailsReasonNameValidation.Tables[0].Rows.Count > 0)
-                    {
-                        throw new Exception("Item Name Already Exist.");
-                    }
-                    else
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("ReasonDetails", out _Id);
-                        _Id = "QAG" + _Id;
-                        ReasonData["Id"] = _Id;
-                        AddNewRow(dsReasonDetails.Tables[0], ReasonData);
-                    }
-                }
-                else
-                {
-                    _Id = ReasonData["Id"].ToString();
-                    EditRow(dsReasonDetails.Tables[0].Rows[0], ReasonData);
-                }
-                #endregion data update
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsReasonDetails);
-
-                return Json(new { Error = false, Data = ReasonData, Message = AplosMessage.Insert });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
         }
 
         [Authorize, HttpGet]
@@ -174,7 +103,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select RV.Id,RV.ReasonValue,RV.Remarks,RD.Id as ReasonId,RD.ReasonName
-from MST.ReasonDetails RD
+from MST.WSMReasonDetails RD
 left join [TRN].[WSCReasonValue] RV ON RV.ReasonId=RD.Id and WSCId='" + WSCId + @"'
 where RD.ProcessId='" + ProcessId + "'";
 
@@ -772,14 +701,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             }
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
-        //[HttpPost]
-        //public JsonResult CreateWC(ProductionSummary ps)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    ps.PlantId = identity.PlantId;
-        //    _ProductionSummaryService.SaveMasterWC(ps,identity.CompanyGroupId);
-        //    return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
-        //}
+        
         [HttpPost]
         public JsonResult CreateWSC(Dictionary<string, object> WSCData,string Column1, string Column2, string Column3, string Column4)
         {

@@ -470,7 +470,8 @@ namespace Library.Service.Productions
                         isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId ='" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
                         isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
                         isnull(C.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 CheckedBy from TRN.ProductionSummary where ProcessId = '" + ProcessId + @"' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc))) as CheckedByName,pw.Quantity,isnull(pw.ProductionGrade,'A') as ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin,ISNULL((CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(PQ.Qty,PO.PlannedQty) ELSE PO.PlannedQty*PPS.Qty/100 END)-ISNULL(CEILING(PRS.TotalProductionQty), 0),0) RemainingQty,
-                        isnull(CEILING(PQ.Qty),PO.PlannedQty) OrderQty,
+                        --isnull(CEILING(PQ.Qty),PO.PlannedQty) OrderQty,
+                        OrderQty=ISNULL(CASE WHEN ISNULL(PPS.Qty,0)=0 THEN ISNULL(CEILING(PQ.Qty),PO.PlannedQty) ELSE CEILING(PO.PlannedQty*PPS.Qty/100) END,0),
 						ISNULL(CEILING(PRS.TotalProductionQty), 0) as BookedQty,RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel,(select ProductionBookingLevel from hkp.EntityProcessTag where EntityId='" + entityId + "' and ProcessId='" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,
 (select MA.StandardName from trn.salesorder SO
 left outer join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
@@ -547,11 +548,11 @@ into #tempPC from
                         isnull(R.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as ResponsiblePersonId,
                         isnull(I.EmployeeName,(select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId ='"+ shiftId +@"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InCharge,
                         isnull(I.SystemId,(select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.WCWorkStationControlSummary where ProcessId = '"+ ProcessId +"' and EntityId='"+ entityId +"' and ShiftId = '"+ shiftId + @"' and WorkCenterMasterID=WC.Id order by AddedDate desc))) as InChargeId,
-                        wcs.Remarks,CD.ColumnInfoId,wcs.Column1,wcs.Column2,wcs.Column3,wcs.Column4,'0' as ItemName,wc.Sequence
+                        wcs.Remarks,CD.ColumnInfoId,wcs.Column1,wcs.Column2,wcs.Column3,wcs.Column4,CD.ItemName,wc.Sequence
 
                         FROM  SCS.WorkCenterMaster wc 
-                        LEFT JOIN TRN.WCWorkStationControlSummary wcs ON wcs.WorkCenterMasterId=wc.Id AND wcs.ProcessId = '" + ProcessId +@"' 
-                        AND  wcs.EntityId='"+ entityId +"' AND wcs.Date='"+ Date +"'  AND wcs.ShiftId='"+ shiftId + @"' 
+                        LEFT JOIN TRN.WCWorkStationControlSummary wcs ON wcs.WorkCenterMasterId=wc.Id AND wcs.ProcessId = '" + ProcessId + @"' and wcs.WSMId='" + WSMId + @"'
+                        AND  wcs.EntityId='" + entityId +"' AND wcs.Date='"+ Date +"'  AND wcs.ShiftId='"+ shiftId + @"' 
                         LEFT JOIN EmployeeInformation R ON wcs.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation I ON wcs.InChargeId=I.SystemId
 						LEFT JOIN TRN.ColumnsDetails CD ON CD.WSMId='" + WSMId + @"' and CD.Active=1

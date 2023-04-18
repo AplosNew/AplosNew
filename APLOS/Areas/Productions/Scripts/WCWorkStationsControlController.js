@@ -11,7 +11,6 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlWC = $scope.path + 'CreateWSC';
     $scope.UpdateUrlWC = $scope.path + 'UpdateWC';
-    $scope.saveUrlReason = $scope.path + 'createReason';
     $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
     $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
     $scope.saveDetailUrl = $scope.path + 'createDetail';
@@ -23,16 +22,7 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
     $scope.RemainQty = 0;
     $scope.DetentionSum = 0;
 
-    $scope.tab = 1;
-    $scope.setTab = function (newTab) {
-        $scope.tab = newTab;
-
-
-    };
-
-    $scope.isSet = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
+    
 
     $scope.gradeList = [
         {
@@ -67,6 +57,7 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
         Column2: null,
         Column3: null,
         Column4: null,
+        PeriodId: null,
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -97,40 +88,41 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
         refreshSerial();
     }
 
-
+    $scope.CD1 = null;
+    $scope.CD2 = null;
+    $scope.CD3 = null;
+    $scope.CD4 = null;
     $scope.rowDataBoundWSC = function rowDataBoundWSC(e) {
-        if (e.data.CD1 == 0) {
+        if (!baseService.isUndefinedOrNull(e.data.CD1)) {
             e.model.columns[4].visible = true;
+            $scope.CD1 = e.data.CD1;
         }
         else {
             e.model.columns[4].visible = false;
         }
-        if (e.data.CD2 == 0) {
+        if (!baseService.isUndefinedOrNull(e.data.CD2)) {
             e.model.columns[5].visible = true;
+            $scope.CD2 = e.data.CD2;
         }
         else {
             e.model.columns[5].visible = false;
         }
-        if (e.data.CD3 == 0) {
+        if (!baseService.isUndefinedOrNull(e.data.CD3)) {
             e.model.columns[6].visible = true;
+            $scope.CD3 = e.data.CD3
         }
         else {
             e.model.columns[6].visible = false;
         }
-        if (e.data.CD4 == 0) {
+        if (!baseService.isUndefinedOrNull(e.data.CD4)) {
             e.model.columns[7].visible = true;
+            $scope.CD4 = e.data.CD4;
         }
         else {
             e.model.columns[7].visible = false;
         }
     }
 
-    $scope.Reason = {
-        Id: null,
-        ProcessId: null,
-        ReasonName: null,
-    };
-    $scope.ReasonNew = Object.assign({}, $scope.Reason);
 
     $scope.WSMUserNameList = [];
     $scope.GetWSMUserNameList = function () {
@@ -143,75 +135,16 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
     }
     $scope.GetWSMUserNameList();
 
-    $scope.ProcessReasonList = [];
-    $scope.GetProcessReasonList = function () {
+    $scope.PeriodList = [];
+    $scope.GetPeriodList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/WCWorkStationsControl/GetProcessReasonList'
+            url: 'Productions/WCWorkStationsControl/GetPeriodList'
         }).then(function successCallback(response) {
-            $scope.ProcessReasonList = response.data;
+            $scope.PeriodList = response.data;
         });
     }
-    $scope.GetProcessReasonList();
-
-    $scope.ReasonList = [];
-    $scope.LoadReasonDetails = function () {
-        $http({
-            method: 'Get',
-            url: 'Productions/WCWorkStationsControl/LoadReasonDetails'
-        }).then(function successCallback(response) {
-            $scope.ReasonList = response.data;
-        }
-        )
-    }
-    $scope.LoadReasonDetails();
-
-    $scope.GetReasonDetails = function (args) {
-        $http({
-            method: 'Get',
-            url: 'Productions/WCWorkStationsControl/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
-        }).then(function successCallback(response) {
-            $scope.ReasonNew = response.data.Reason[0];
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        }
-        )
-    }
-
-    $scope.ReasonSave = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ReasoningDetailsForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlReason,
-                data: {
-                    'ReasonData': $scope.ReasonNew
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadReasonDetails();
-                    ReasonClearFields();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        }
-    };
-
-    $scope.ReasonClear = function () {
-        ReasonClearFields();
-    };
-
-    function ReasonClearFields() {
-        $scope.Action = "Save";
-        $scope.ReasonNew = Object.assign({}, $scope.Reason);
-    }
+    $scope.GetPeriodList();
 
     $scope.WSCId = null;
     $scope.ProductionReasonList = [];
@@ -640,6 +573,8 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
             CheckField("Process", $scope.productionSummaryNew.ProcessId);
             CheckField("Date", $scope.productionSummaryNew.Date);
             CheckField("Shift", $scope.productionSummaryNew.ShiftId);
+            CheckField("WSM UserName", $scope.productionSummaryNew.WSMId);
+            CheckField("Period", $scope.productionSummaryNew.PeriodId);
         } catch (ex) {
             throw ex;
         }
@@ -660,6 +595,9 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
     $scope.masterGo = function (isdisabled) {
         try {
             ValidationPreMaster();
+            $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+            $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+            $scope.getProdLevel();
             $scope.SetGo(isdisabled);
             if ($scope.IsParameterBased == true) {
                 $scope.IsVisible = false;
@@ -1514,6 +1452,7 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
         var date = $scope.productionSummaryNew.Date;
         var shiftid = $scope.productionSummaryNew.ShiftId;
         var wsmid = $scope.productionSummaryNew.WSMId;
+        var periodid = $scope.productionSummaryNew.PeriodId;
        
         $scope.productionSummaryNew = data.data;
         $scope.productionSummaryNew.ProcessId = processid;
@@ -1521,6 +1460,7 @@ function WCWorkStationsControlController(cboService, commonMessage, $scope, $roo
         $scope.productionSummaryNew.Date = date;
         $scope.productionSummaryNew.ShiftId = shiftid;
         $scope.productionSummaryNew.WSMId = wsmid;
+        $scope.productionSummaryNew.PeriodId = periodid;
       
         try {
             $http({
