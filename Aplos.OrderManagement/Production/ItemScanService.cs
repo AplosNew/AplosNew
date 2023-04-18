@@ -812,8 +812,6 @@ namespace Library.Service.EmployeeServices
                         dr.BeginEdit();
                         dr["BookedDate"] = DateTime.Now;
                         dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["PackingId"] = item.PackingId;
-                        dr["SalesReturnId"] = item.SalesReturnId;
                         dr["ReturnNetWeight"] = item.ReturnNetWeight;
                         dr["Booked"] = false;
                         dr.EndEdit();
