@@ -12,6 +12,7 @@ using Library.Service.Setups;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
@@ -43,7 +44,7 @@ namespace Aplos.Areas.Commercial.Controllers
             return clsStaticInfo.GetxlsCol(Col) + Row.ToString();
         }
 
-       
+
         public ActionResult Aplos()
         {
             return View();
@@ -104,7 +105,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 //            left outer join hkp.Bank bb on bb.id= bm.BankId
                 //            left outer join mst.Destination fd on fd.id= mlc.FinalDestinationId
                 //            left outer join hkp.Party as Cus on Cus.Id=mlc.CustomerId
-		              //      where MLC.LCDate between '" + FromDate + @"' and '" + ToDate + "'";
+                //      where MLC.LCDate between '" + FromDate + @"' and '" + ToDate + "'";
 
                 string sql = @"select convert(bit,0) AS isSelected,
 				 PLC.Id PurchaseLCId 
@@ -207,7 +208,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 							--left join dbo.Contract c on c.CustomerId=p.Id
 
-		                    where PLC.LCDate between '" + FromDate+"' and '"+ToDate+ @"' 
+		                    where PLC.LCDate between '" + FromDate + "' and '" + ToDate + @"' 
 							and PLC.ContractId  <>''";
 
 
@@ -273,7 +274,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 worksheet[ROW, COL].ColumnWidth = 13;
                 COL++;
 
-               
+
                 worksheet[ROW, COL].Text = "LC Value";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colMasterLCAmount = COL;
@@ -293,7 +294,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 worksheet[ROW, COL].Text = "Contract No";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                int colContractNo  = COL;
+                int colContractNo = COL;
                 worksheet[ROW, COL].ColumnWidth = 11;
                 COL++;
 
@@ -436,7 +437,242 @@ namespace Aplos.Areas.Commercial.Controllers
                 // worksheet.Range[ROW,  ROW].BorderInside(ExcelLineStyle.Hair);
 
 
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                var dsData = GetLcData(MasterLCList);
+
+
+
+
+                if (dsData.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found");
+                }
+
+
+                //con.getDataSet(@"Select * from EmployeeInformation", out DataSet dsData);
+                //left join EmpDateWiseShiftAssign on ei.EmployeeCode=EmpDateWiseShiftAssign.GroupID
+                ROW++;
+                int StartDataRow = ROW;//7
+                // worksheet = workbook.Worksheets[8];
+                string group1 = ""; string group2 = ""; string group3 = "";
+                int startRowGroup1 = ROW; int startRowGroup2 = ROW; int StartRowGroup3 = ROW;
+                int SerialNumber = 0;
+                var catFRow = ROW;
+                ArrayList al = new ArrayList();
+                var lastEmpCat = string.Empty;
+                ReportUtility ru = new ReportUtility();
+                for (int i = 0; i < dsData.Rows.Count; i++)
+                {
+                    var catLRow = ROW;
+                    if (group1 != dsData.Rows[i]["MasterLCId"].ToString())
+                    {
+                        if (i > 0)
+                        {
+                            #region Subtotal
+                            if (catFRow < ROW)
+                            {
+                                lastEmpCat = group1;
+                                al.Add(ROW);
+                                SetHeadText(worksheet, ROW, 1, " Subtotal:");
+                                worksheet.Range[ROW, 1, ROW, (colPurchaseLCAmount - 1)].Merge();
+                                worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
+                                worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
+
+                                ROW++;
+                            }
+                            #endregion
+
+
+                            if (ROW > startRowGroup1 + 1)
+                            {
+                                //worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
+                                //worksheet[startRowGroup1, colMasterLCId, ROW - 1, colMasterLCId].Merge();
+                                //worksheet[startRowGroup1, colMasterLCRefNo, ROW - 1, colMasterLCRefNo].Merge();
+                                //worksheet[startRowGroup1, colMasterLCAmount, ROW - 1, colMasterLCAmount].Merge();
+                                //// worksheet[startRowGroup1, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge();
+                                //worksheet[startRowGroup1, colCurrencyCode, ROW - 1, colCurrencyCode].Merge();
+                                //worksheet[startRowGroup1, colPartyId, ROW - 1, colPartyId].Merge();
+
+                            }
+                            
+                        }
+
+
+                        SerialNumber++;
+                        startRowGroup1 = ROW;
+                        group1 = dsData.Rows[i]["MasterLCId"].ToString();
+
+                        
+
+                        worksheet[ROW, colSLNO].Text = (SerialNumber).ToString();
+                        worksheet[ROW, colMasterLCId].Text = dsData.Rows[i]["MasterLCId"].ToString();
+
+                        worksheet[ROW, colMasterLCRefNo].Text = dsData.Rows[i]["MasterLCRefNo"].ToString();
+                        worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString());
+                        //  worksheet[ROW, colMasterLCCustomerId].Text = dsData.Tables[0].Rows[i]["Buyer"].ToString();
+                        worksheet[ROW, colCurrencyCode].Text = dsData.Rows[i]["MasterLCcurrency"].ToString();
+                        worksheet[ROW, colPartyId].Text = dsData.Rows[i]["Customer"].ToString();
+                        if (catFRow < ROW)
+                        {
+                            catFRow = ROW;
+                        }
+                    }
+
+                    if (group2 != group1 + dsData.Rows[i]["ContractId"].ToString()) //ContractNo, ContractId 
+                    {
+                        if (i > 0)
+                        {
+
+                            //if (ROW > startRowGroup2 + 1)
+                            //{
+                            //    worksheet[startRowGroup2, colContractFundPercentage, ROW - 1, colContractFundPercentage].Merge();
+                            //    worksheet[startRowGroup2, colContractId, ROW - 1, colContractId].Merge();
+                            //    worksheet[startRowGroup2, colContractNo, ROW - 1, colContractNo].Merge();
+
+                            //    worksheet[startRowGroup2, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge(); // new
+                            //    worksheet[startRowGroup2, colMasterOrderCurrencyId, ROW - 1, colMasterOrderCurrencyId].Merge();
+                            //    worksheet[startRowGroup2, colSalesOrderQty, ROW - 1, colSalesOrderQty].Merge();
+                            //    worksheet[startRowGroup2, colSalesOrderValue, ROW - 1, colSalesOrderValue].Merge();
+                            //    worksheet[startRowGroup2, colContractFundCommission, ROW - 1, colContractFundCommission].Merge();
+                            //    worksheet[startRowGroup2, colContractFundUtilization, ROW - 1, colContractFundUtilization].Merge();
+
+                            //}
+
+                        }
+                        startRowGroup2 = ROW;
+                        group2 = group1 + dsData.Rows[i]["ContractId"].ToString(); //ContractNo, ContractId
+
+                        worksheet[ROW, colContractFundCommission].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "*" + (clsStaticInfo.dbl(dsData.Rows[i]["CommissionPercentage"].ToString())).ToString() + "%";
+                        worksheet[ROW, colContractFundUtilization].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colContractFundCommission) + ROW.ToString();
+
+                        worksheet[ROW, colContractFundPercentage].Formula = clsStaticInfo.GetxlsCol(colContractFundUtilization) + ROW.ToString() + "*" + clsStaticInfo.dbl(dsData.Rows[i]["PurchaseMargin"].ToString()) + "%";
+
+                        worksheet[ROW, colContractId].Text = dsData.Rows[i]["ContractId"].ToString(); //ContractNo, ContractId
+                        worksheet[ROW, colContractNo].Text = dsData.Rows[i]["ContractNo"].ToString(); //ContractNo, ContractId
+                        worksheet[ROW, colMasterLCCustomerId].Text = dsData.Rows[i]["Buyer"].ToString(); // New
+                        worksheet[ROW, colMasterOrderCurrencyId].Text = dsData.Rows[i]["MasterOrderCurrency"].ToString();
+                        worksheet[ROW, colSalesOrderQty].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderQty"].ToString());
+                        worksheet[ROW, colSalesOrderQty].NumberFormat = clsStaticInfo.NumberFormat();
+                        worksheet[ROW, colSalesOrderValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderValue"].ToString());
+
+                    }
+
+                    if (group3 != group2 + dsData.Rows[i]["PurchaseLCRefNo"].ToString()) //PurchaseLCRefNo
+                    {
+                        StartRowGroup3 = ROW;
+                        group3 = group2 + dsData.Rows[i]["PurchaseLCRefNo"].ToString();
+
+                        worksheet[ROW, colPurchaseLCNo].Text = dsData.Rows[i]["PurchaseLCRefNo"].ToString();
+
+                        worksheet[ROW, colPurchaseLCCurrencyId].Text = dsData.Rows[i]["PurchasePLCurrency"].ToString();
+
+                        worksheet[ROW, colPurchaseOrderDetailTrnQtyRate].Number = clsStaticInfo.dbl(dsData.Rows[i]["POValue"].ToString());
+                        worksheet[ROW, colPurchaseLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLcOpeningValue"].ToString()); // PurchaseLcOpeningValue
+                        worksheet[ROW, colPartyUserName].Text = dsData.Rows[i]["vendor"].ToString();
+                        worksheet[ROW, colLastAmendmentDate].Text = dsData.Rows[i]["LastAmendmentDate"].ToString();
+                        worksheet[ROW, colPresentLCValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["PresentLCValue"].ToString());
+                        worksheet[ROW, colPurchaseLCLCDate].Text = dsData.Rows[i]["PurchaseLCOpeningDate"].ToString();
+
+
+                       
+                    }
+                    //worksheet[StartDataRow, colPurchaseLCAmount, ROW - 1, colPurchaseLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                    ROW++;
+                }
+
+
+            
+                //if (ROW > startRowGroup1 + 1)
+                //{
+                //    worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
+                //    worksheet[startRowGroup1, colMasterLCId, ROW - 1, colMasterLCId].Merge();
+                //    worksheet[startRowGroup1, colMasterLCRefNo, ROW - 1, colMasterLCRefNo].Merge();
+                //    worksheet[startRowGroup1, colMasterLCAmount, ROW - 1, colMasterLCAmount].Merge();
+                //    // worksheet[startRowGroup1, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge();
+                //    worksheet[startRowGroup1, colCurrencyCode, ROW - 1, colCurrencyCode].Merge();
+                //    worksheet[startRowGroup1, colPartyId, ROW - 1, colPartyId].Merge();
+
+
+                //}
+                //worksheet[StartDataRow, colMasterLCAmount, ROW - 1, colMasterLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                //if (ROW > startRowGroup2 + 1)
+                //{
+                //    worksheet[startRowGroup2, colContractFundPercentage, ROW - 1, colContractFundPercentage].Merge();
+                //    worksheet[startRowGroup2, colContractId, ROW - 1, colContractId].Merge();
+                //    worksheet[startRowGroup2, colContractNo, ROW - 1, colContractNo].Merge();
+                //    worksheet[startRowGroup2, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge(); //new buyer
+                //    worksheet[startRowGroup2, colMasterOrderCurrencyId, ROW - 1, colMasterOrderCurrencyId].Merge();
+                //    worksheet[startRowGroup2, colSalesOrderQty, ROW - 1, colSalesOrderQty].Merge();
+                //    worksheet[startRowGroup2, colSalesOrderValue, ROW - 1, colSalesOrderValue].Merge();
+                //    worksheet[startRowGroup2, colContractFundCommission, ROW - 1, colContractFundCommission].Merge();
+                //    worksheet[startRowGroup2, colContractFundUtilization, ROW - 1, colContractFundUtilization].Merge();
+
+                //}
+
+                #region Last subtotal
+                al.Add(ROW);
+                SetHeadText(worksheet, ROW, 1, " Subtotal:");
+                worksheet.Range[ROW, 1, ROW, (colPurchaseLCAmount - 1)].Merge();
+                worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
+
+                worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
+                ROW++;
+                #endregion
+
+                #region Grand Total
+                SetHeadText(worksheet, ROW, 1, "Grand Total:");
+                //worksheet.Range[ROW, 1, ROW, (ROW - 1)].Merge();
+
+
+                worksheet.Range[ROW, colPurchaseLCAmount].Formula = GetFormulaGrandTotal(al, colPurchaseLCAmount);
+
+                worksheet.Range[ROW, colPurchaseLCAmount, ROW, colPurchaseLCAmount].CellStyle.Font.Bold = true;
+                #endregion
+
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                //  worksheet[ROW, colQty].Formula = "SUM("+ clsStaticInfo.GetxlsCol(colQty) + StartDataRow + ":"+ clsStaticInfo.GetxlsCol(colQty) + (ROW-1).ToString() + ")";
+
+                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Master LC", identity.CompanyId, identity.PlantName, "");
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+
+            }
+
+
+
+
+        }
+
+        public DataTable GetLcData(string MasterLCList)
+        {
+            try
+            {
+
                 string sql = @"select cus.UserName as Customer,  mlc.Id as MasterLCId,  mlc.LCRef as MasterLCRefNo, MLC.Amount as MasterLCValue , cur.Code AS MasterLCcurrency
                 , format( MLC.LCDate,'dd-MMM-yyyy') as MasterLCOpeningDate
 
@@ -445,7 +681,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
                  ,plc.id as PurchaseLcId ,plc.LCRef as PurchaseLCRefNo ,  P.UserName as vendor, PLC.Amount as PurchaseLcOpeningValue   ,curPLC.Code AS PurchasePLCurrency                                  
                  ,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate  , PLCV.Amount as PresentLCValue				                        
-                 ,format( PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate ,format( PLC.AmendmentDate,'dd-MMM-yyyy')as AmendmentDate , po.POValue,COV.MasterOrderCurrency
+                 ,format( PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate ,format( PLC.AmendmentDate,'dd-MMM-yyyy')as AmendmentDate , po.POValue
                  from MasterLC MLC			                       
 										
                    left join [dbo].[Contract] as c on c.MasterLCId=MLC.Id
@@ -490,189 +726,67 @@ namespace Aplos.Areas.Commercial.Controllers
                 order by MLC.id, c.id, plc.id";
 
 
-                ConnectionManager.DAL.ConManager objCon=new ConnectionManager.DAL.ConManager("1");
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1"); ;
 
-
-                if (dsData.Tables[0].Rows.Count == 0)
-                {
-                    throw new Exception("No Data Found");
-                }
-
-
-                //con.getDataSet(@"Select * from EmployeeInformation", out DataSet dsData);
-                //left join EmpDateWiseShiftAssign on ei.EmployeeCode=EmpDateWiseShiftAssign.GroupID
-                ROW++;
-                int StartDataRow = ROW;//7
-                // worksheet = workbook.Worksheets[8];
-                string group1 = ""; string group2 = ""; string group3 = "";
-                int startRowGroup1 = ROW; int startRowGroup2 = ROW; int StartRowGroup3 = ROW;
-                int SerialNumber = 0;
-                for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
-                {
-                    if (group1 != dsData.Tables[0].Rows[i]["MasterLCId"].ToString())
-                    {
-                        if (i > 0)
-                        {
-
-                            if (ROW > startRowGroup1 + 1)
-                            {
-                                worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
-                                worksheet[startRowGroup1, colMasterLCId, ROW - 1, colMasterLCId].Merge();
-                                worksheet[startRowGroup1, colMasterLCRefNo, ROW - 1, colMasterLCRefNo].Merge();
-                                worksheet[startRowGroup1, colMasterLCAmount, ROW - 1, colMasterLCAmount].Merge();
-                               // worksheet[startRowGroup1, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge();
-                                worksheet[startRowGroup1, colCurrencyCode, ROW - 1, colCurrencyCode].Merge();
-                                worksheet[startRowGroup1, colPartyId, ROW - 1, colPartyId].Merge();
-
-                            }
-
-                        }
-
-
-                        SerialNumber++;
-                        startRowGroup1 = ROW;
-                        group1 = dsData.Tables[0].Rows[i]["MasterLCId"].ToString();
-
-                        worksheet[ROW, colSLNO].Text = (SerialNumber).ToString();
-                        worksheet[ROW, colMasterLCId].Text = dsData.Tables[0].Rows[i]["MasterLCId"].ToString();
-
-                        worksheet[ROW, colMasterLCRefNo].Text = dsData.Tables[0].Rows[i]["MasterLCRefNo"].ToString();
-                        worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["MasterLCValue"].ToString());
-                      //  worksheet[ROW, colMasterLCCustomerId].Text = dsData.Tables[0].Rows[i]["Buyer"].ToString();
-                        worksheet[ROW, colCurrencyCode].Text = dsData.Tables[0].Rows[i]["MasterLCcurrency"].ToString();
-                        worksheet[ROW, colPartyId].Text = dsData.Tables[0].Rows[i]["Customer"].ToString();
-
-                    }
-
-                    if (group2 != group1 + dsData.Tables[0].Rows[i]["ContractId"].ToString()) //ContractNo, ContractId 
-                    {
-                        if (i > 0)
-                        {
-
-                            if (ROW > startRowGroup2 + 1)
-                            {
-                                worksheet[startRowGroup2, colContractFundPercentage, ROW - 1, colContractFundPercentage].Merge();
-                                worksheet[startRowGroup2, colContractId, ROW - 1, colContractId].Merge();
-                                worksheet[startRowGroup2, colContractNo, ROW - 1, colContractNo].Merge();
-                                
-                                worksheet[startRowGroup2, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge(); // new
-                                worksheet[startRowGroup2, colMasterOrderCurrencyId, ROW - 1, colMasterOrderCurrencyId].Merge();
-                                worksheet[startRowGroup2, colSalesOrderQty, ROW - 1, colSalesOrderQty].Merge();
-                                worksheet[startRowGroup2, colSalesOrderValue, ROW - 1, colSalesOrderValue].Merge();
-                                worksheet[startRowGroup2, colContractFundCommission, ROW - 1, colContractFundCommission].Merge();
-                                worksheet[startRowGroup2, colContractFundUtilization, ROW - 1, colContractFundUtilization].Merge();
-
-                            }
-
-                        }
-                        startRowGroup2 = ROW;
-                        group2 = group1 + dsData.Tables[0].Rows[i]["ContractId"].ToString(); //ContractNo, ContractId
-
-                        worksheet[ROW, colContractFundCommission].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "*" + (clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["CommissionPercentage"].ToString())).ToString() + "%";
-                        worksheet[ROW, colContractFundUtilization].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colContractFundCommission) + ROW.ToString();
-
-                        worksheet[ROW, colContractFundPercentage].Formula = clsStaticInfo.GetxlsCol(colContractFundUtilization) + ROW.ToString() + "*" + clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PurchaseMargin"].ToString()) + "%";
-
-                        worksheet[ROW, colContractId].Text = dsData.Tables[0].Rows[i]["ContractId"].ToString(); //ContractNo, ContractId
-                        worksheet[ROW, colContractNo].Text = dsData.Tables[0].Rows[i]["ContractNo"].ToString(); //ContractNo, ContractId
-                        worksheet[ROW, colMasterLCCustomerId].Text = dsData.Tables[0].Rows[i]["Buyer"].ToString(); // New
-                        worksheet[ROW, colMasterOrderCurrencyId].Text = dsData.Tables[0].Rows[i]["MasterOrderCurrency"].ToString();
-                        worksheet[ROW, colSalesOrderQty].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ContractOrderQty"].ToString());
-                        worksheet[ROW, colSalesOrderQty].NumberFormat = clsStaticInfo.NumberFormat();
-                        worksheet[ROW, colSalesOrderValue].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ContractOrderValue"].ToString());
-
-                    }
-
-                    if (group3 != group2 + dsData.Tables[0].Rows[i]["PurchaseLCRefNo"].ToString()) //PurchaseLCRefNo
-                    {
-                        StartRowGroup3 = ROW;
-                        group3 = group2 + dsData.Tables[0].Rows[i]["PurchaseLCRefNo"].ToString(); 
-
-                        worksheet[ROW, colPurchaseLCNo].Text = dsData.Tables[0].Rows[i]["PurchaseLCRefNo"].ToString();
-
-                        worksheet[ROW, colPurchaseLCCurrencyId].Text = dsData.Tables[0].Rows[i]["PurchasePLCurrency"].ToString();
-
-                        worksheet[ROW, colPurchaseOrderDetailTrnQtyRate].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["POValue"].ToString());
-                        worksheet[ROW, colPurchaseLCAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PurchaseLcOpeningValue"].ToString()); // PurchaseLcOpeningValue
-                        worksheet[ROW, colPartyUserName].Text = dsData.Tables[0].Rows[i]["vendor"].ToString();
-                        worksheet[ROW, colLastAmendmentDate].Text = dsData.Tables[0].Rows[i]["LastAmendmentDate"].ToString();
-                        worksheet[ROW, colPresentLCValue].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PresentLCValue"].ToString());
-                        worksheet[ROW, colPurchaseLCLCDate].Text = dsData.Tables[0].Rows[i]["PurchaseLCOpeningDate"].ToString();
-
-                    }
-                    //worksheet[StartDataRow, colPurchaseLCAmount, ROW - 1, colPurchaseLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-                    ROW++;
-                }
-                if (ROW > startRowGroup1 + 1)
-                {
-                    worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
-                    worksheet[startRowGroup1, colMasterLCId, ROW - 1, colMasterLCId].Merge();
-                    worksheet[startRowGroup1, colMasterLCRefNo, ROW - 1, colMasterLCRefNo].Merge();
-                    worksheet[startRowGroup1, colMasterLCAmount, ROW - 1, colMasterLCAmount].Merge();
-                   // worksheet[startRowGroup1, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge();
-                    worksheet[startRowGroup1, colCurrencyCode, ROW - 1, colCurrencyCode].Merge();
-                    worksheet[startRowGroup1, colPartyId, ROW - 1, colPartyId].Merge();
-
-
-                }
-                worksheet[StartDataRow, colMasterLCAmount, ROW - 1, colMasterLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-               
-                
-                if (ROW > startRowGroup2 + 1)
-                {
-                    worksheet[startRowGroup2, colContractFundPercentage, ROW - 1, colContractFundPercentage].Merge();
-                    worksheet[startRowGroup2, colContractId, ROW - 1, colContractId].Merge();
-                    worksheet[startRowGroup2, colContractNo, ROW - 1, colContractNo].Merge();
-                    worksheet[startRowGroup2, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge(); //new buyer
-                    worksheet[startRowGroup2, colMasterOrderCurrencyId, ROW - 1, colMasterOrderCurrencyId].Merge();
-                    worksheet[startRowGroup2, colSalesOrderQty, ROW - 1, colSalesOrderQty].Merge();
-                    worksheet[startRowGroup2, colSalesOrderValue, ROW - 1, colSalesOrderValue].Merge();
-                    worksheet[startRowGroup2, colContractFundCommission, ROW - 1, colContractFundCommission].Merge();
-                    worksheet[startRowGroup2, colContractFundUtilization, ROW - 1, colContractFundUtilization].Merge();
-                
-                }
-
-                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-                worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                //  worksheet[ROW, colQty].Formula = "SUM("+ clsStaticInfo.GetxlsCol(colQty) + StartDataRow + ":"+ clsStaticInfo.GetxlsCol(colQty) + (ROW-1).ToString() + ")";
-
-                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Master LC", identity.CompanyId, identity.PlantName, "");
-                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
-
-                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                return workbook;
-
+                return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
             {
-                throw (ex);
-
+                throw ex;
             }
-
-
-
 
         }
 
+        string GetFormulaGrandTotal(ArrayList al, int col)
+        {
+            string _formula = string.Empty;
+            ReportUtility ru = new ReportUtility();
+            try
+            {
+                for (int i = 0; i < al.Count; i++)
+                {
+                    if (_formula.Length == 0)
+                    {
+                        _formula = "=" + ru.GetColumnNameForXls(col) + al[i];
+                    }
+                    else
+                    {
+                        _formula += "+" + ru.GetColumnNameForXls(col) + al[i];
+                    }
+                }
+                return _formula;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, string Text)
+        {
 
+            sheet.Range[xlsRow, xlsCol].Text = Text;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
 
-     
+        }
+        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, double Number)
+        {
+            sheet.Range[xlsRow, xlsCol].Number = Number;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+        }
+        private void SetHeadText(IWorksheet sheet, int xlsRow, int xlsCol, string text)
+        {
+            sheet.Range[xlsRow, xlsCol].Text = text;
+            sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        }
+
+      
     }
 }

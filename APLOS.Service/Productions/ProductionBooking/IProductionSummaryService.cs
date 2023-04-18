@@ -36,7 +36,7 @@ namespace Library.Service.Productions
         IEnumerable<object> Query(string plantId);
         IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId, string shiftId);
         IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId,string productionDate,string shiftId,string HeaderResponsiblePersonId);
-        IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string HeaderResponsiblePersonId);
+        IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId);
         void Save(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd);
         void DeleteDetail(string masterid);
         IEnumerable<object> GetSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId);
@@ -49,6 +49,7 @@ namespace Library.Service.Productions
         //void SaveMasterWC(List<Dictionary<string, object>> DataList);
 
         void SaveMasterWC(ProductionSummary ps, string companyGroupId);
+
         void SaveDetentionWC(List<Dictionary<string, object>> DataList);
         void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
         void SaveDetail(string psid, IEnumerable<ProductionSummaryDetail> psd);

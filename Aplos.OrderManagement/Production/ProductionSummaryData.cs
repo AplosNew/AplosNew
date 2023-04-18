@@ -537,56 +537,56 @@ namespace Library.OrderManagement.Production
             {
                 string sql = @"DECLARE @StartDate DATE = '" + fromdate + @"'
                                   , @EndDate DATE = '" + todate + @"'
-                                Select A.EntityId,A.Entity,A.ProcessId,A.Process,A.WorkCenterMasterId,A.WorkCenterMaster,A.ProductPriority,A.Active,A.NoOfWorkStation
-                                ,A.SPT StandardProcessTime,A.ShiftId,A.[ShiftName],A.[ShiftShortName] ,A.ProductionHours,DT.[Date],A.ResponsiblePerson,A.ResponsiblePersonCode
-                                ,PS.Id SummaryId
-                                ,Customer=STUFF((select distinct ', '+P.UserName from 
+                                Select A.EntityId,A.Entity,A.ProcessId,A.Process,POPS.Sequence ProcessSequence,A.WorkCenterMasterId,A.WorkCenterMaster,A.ProductPriority,A.Active,A.NoOfWorkStation
+                                ,A.SPT StandardProcessTime,A.ShiftId,A.ShiftName,ISNULL(A.ShiftShortName,'') ShiftShortName,A.ProductionHours,DT.[Date],ISNULL(A.ResponsiblePerson,'') ResponsiblePerson,A.ResponsiblePersonCode
+                                ,PS.Id SummaryId,PS.MasterOrderItemId,'' StandardProduct
+                                ,Customer=ISNULL(STUFF((select distinct ', '+P.UserName from 
 			                                                        HKP.Party P
 			                                                        JOIN TRN.MasterOrder MO ON MO.PartyId=P.Id
 			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=MO.Id
 			                                                        JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 									                                JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                ,POArticle=STUFF((select distinct ', '+A.StandardName from 
+			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                                ,POArticle=ISNULL(STUFF((select distinct ', '+A.StandardName from 
 			                                                        MST.MaterialMasterArticle A
 			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=A.Id
 			                                                        JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
 									                                JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                ,LineItemArticle=STUFF((select distinct ', '+AR.StandardName from 
+			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                                ,LineItemArticle=ISNULL(STUFF((select distinct ', '+AR.StandardName from 
 			                                                        MST.MaterialMasterArticle AR
 			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.ArticleId=AR.Id
-			                                                        where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			                                                        where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
-                                ,LineItemProductCode=STUFF((select distinct ', '+PL.Code from 
+                                ,LineItemProductCode=ISNULL(STUFF((select distinct ', '+PL.Code from 
 			                                                        dbo.ProductLibrary PL
 			                                                        JOIN TRN.MasterOrderItem MOI ON MOI.ProductLibraryId=PL.Id
-			                                                        where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                ,SONo=STUFF((select distinct ', '+SO.Id from 
+			                                                        where PS.MasterOrderItemId=MOI.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+                                ,SONo=ISNULL(STUFF((select distinct ', '+SO.Id from 
 			                                                        TRN.SalesOrder SO 
 									                                JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
-			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			                                                        where POD.ProductionOrderId=PS.ProductionOrderId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
-                                ,PS.ProductionOrderId POId,PS.LotNumber,PS.SalesOrderId,PS.MasterOrderItemId,ISNULL(PS.QtyWithoutScan,0)QtyWithoutScan,ISNULL(PS.ScanQty,0) QtyWithScan,TotalActualqty=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
-                                ,ISNULL(D.[Minute],0) DetentionInMinute,SCH.SPT  POSPT,0 ArticleSPT
+                                ,PS.ProductionOrderId POId,PS.LotNumber,PS.SalesOrderId,ISNULL(PS.MasterOrderItemId,'.') MasterOrderItemId,ISNULL(PS.QtyWithoutScan,0)QtyWithoutScan,ISNULL(PS.ScanQty,0) QtyWithScan,TotalActualqty=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+                                ,ISNULL(D.[Minute],0) DetentionInMinute,FORMAT(SCH.SPT,'N2')  POSPT,0 ArticleSPT
                                 --,SPT= CASE WHEN  ArticleSPT IS NULL ArticleSPT=0 THEN SCH.SPT ELSE SCH.SPT =0 THEN A.SPT END
-                                ,SPT=CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END
-                                ,ISNULL(CPS.NoOfEntry,1)NoOfEntry,AllotedHour=ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)
-                                ,ShouldBeProduction=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))
-                                ,TotalAvailableHour=A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1))
-                                ,DetentionHour=(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
-                                ,NetAvailableHour=(A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))
-                                ,ProduceHour=(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0))*(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)/60
-                                ,DetentionLoss=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1)))
-                                ,ProductivityVariance=(60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-
-                                (ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) -(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) 
+                                ,SPT=FORMAT(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END,'N2')
+                                ,ISNULL(CPS.NoOfEntry,1)NoOfEntry,AllotedHour=FORMAT(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1),'N2')
+                                ,ShouldBeProduction=FORMAT((60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1))),'N2')
+                                ,TotalAvailableHour=FORMAT(A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)),'N2')
+                                ,DetentionHour=FORMAT((ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1)),'N2')
+                                ,NetAvailableHour=FORMAT((A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1)),'N2')
+                                ,ProduceHour=FORMAT((ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0))*(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)/60,'N2')
+                                ,DetentionLoss=FORMAT(ISNULL((60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*(ISNULL(D.[Minute],0)*A.NoOfWorkStation/60)/(ISNULL(CPS.NoOfEntry,1))),0),'N2')
+                                ,ProductivityVariance=FORMAT((60/(CASE WHEN SCH.SPT=0 THEN A.SPT ELSE SCH.SPT END)*A.NoOfWorkStation*(ROUND(A.ProductionHours,3)/ISNULL(CPS.NoOfEntry,1)))-
+                                (ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)) -(ISNULL(PS.QtyWithoutScan,0)+ISNULL(PS.ScanQty,0)),'N2') 
 
                                 from (
                                 Select WCM.EntityId,E.UserName Entity,WCM.ProcessId,P.UserName Process,WCM.Id WorkCenterMasterId, WCM.UserName WorkCenterMaster
-                                ,ProductPriority=STUFF((select distinct ', '+PM.UserName from 
+                                ,ProductPriority=ISNULL(STUFF((select distinct ', '+PM.UserName from 
 			                                                        [SCS].[WorkCenterMasterProductPriority]  XSO
 			                                                        JOIN MST.ProductMaster PM ON PM.id=XSO.ProductMasterId
-			                                                        where XSO.WorkCenterMasterId=WCM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+			                                                        where XSO.WorkCenterMasterId=WCM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
                                 ,WCM.Active,WCM.NoOfWorkStation,WCM.SPT,SD.SystemID ShiftId,SD.UserName [ShiftName],SD.ShortName [ShiftShortName] ,WCS.ProductionHours
                                 ,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
@@ -612,9 +612,11 @@ namespace Library.OrderManagement.Production
                                 --LEFT JOIN [dbo].[MachineMasterTransaction] D ON D.ShiftId=A.ShiftId AND D.EntityId=A.EntityId AND D.WorkCenterId=A.WorkCenterMasterId AND D.ProcessId=A.ProcessId AND D.Date=DT.Date
                                 LEFT JOIN [dbo].[MachineMasterTransaction] D ON D.ProductionSummaryId=PS.Id
                                 LEFT JOIN [dbo].[ProductionOrderSchedulingParametersType1] SCH ON SCH.ProductionOrderID=PS.ProductionOrderId
+								left join trn.ProductionOrderProcessSet POPS on POPS.ProductionOrderId=PS.ProductionOrderId and POPS.ProcessId=A.ProcessId
 
                 where A.EntityId='" + entityId + @"' and A.ProcessId='" + processId + @"' and A.ShiftId='" + shiftId + @"' and A.WorkCenterMasterId='" + wcId + @"'
-                    and PS.ProductionOrderId='" + POId + @"'";
+                    and PS.ProductionOrderId='" + POId + @"'
+                order by A.EntityId,A.Process,PS.ProductionOrderId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -650,6 +652,11 @@ namespace Library.OrderManagement.Production
                 int colEntity = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Process Sequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProcessSequence = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Process";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colProcess = COL;
@@ -658,11 +665,6 @@ namespace Library.OrderManagement.Production
                 sheet[ROW, COL].Text = "Work Center";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colWorkCenterMaster = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Product Priority";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colProductPriority = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Active";
@@ -675,19 +677,9 @@ namespace Library.OrderManagement.Production
                 int colNoOfWorkStation = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Standard Process Time";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colStandardProcessTime = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Shift Name";
+                sheet[ROW, COL].Text = "Shift";
                 sheet[ROW, COL].ColumnWidth = 41;
                 int colShiftName = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Shift Short Name";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colShiftShortName = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Production Hours";
@@ -695,9 +687,14 @@ namespace Library.OrderManagement.Production
                 int colProductionHours = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Date";
-                sheet[ROW, COL].ColumnWidth = 28;
-                int colDate = COL;
+                sheet[ROW, COL].Text = "Standard Product";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardProduct = COL;
+                COL++;
+                
+                sheet[ROW, COL].Text = "Standard Process Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colStandardProcessTime = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Responsible Person";
@@ -706,39 +703,9 @@ namespace Library.OrderManagement.Production
                 int colResponsiblePerson = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Summary No";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colSummaryId = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Customer";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colCustomer = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PO Article";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colPOArticle = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Line Item Article";
-                sheet[ROW, COL].ColumnWidth = 14;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colLineItemArticle = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Line Item Product Code";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colLineItemProductCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SO No";
-                sheet[ROW, COL].ColumnWidth = 12;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colSONo = COL;
+                sheet[ROW, COL].Text = "Date";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int colDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "PO No";
@@ -749,11 +716,17 @@ namespace Library.OrderManagement.Production
                 sheet[ROW, COL].Text = "Lot Number";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colLotNumber = COL;
-                COL++;
+                COL++;  
 
                 sheet[ROW, COL].Text = "Master Order Item No";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colMasterOrderItemId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SO No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSONo = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Qty Without Scan";
@@ -771,9 +744,16 @@ namespace Library.OrderManagement.Production
                 int colTotalActualqty = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Detention In Minute";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colDetentionInMinute = COL;
+                sheet[ROW, COL].Text = "Line Item Product Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemProductCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Article";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPOArticle = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "POSPT";
@@ -781,14 +761,9 @@ namespace Library.OrderManagement.Production
                 int colPOSPT = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Article SPT";
+                sheet[ROW, COL].Text = "Detention Hour";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int colArticleSPT = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "SPT";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colSPT = COL;
+                int colDetentionHour = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "No Of Entry";
@@ -801,20 +776,53 @@ namespace Library.OrderManagement.Production
                 int colAllotedHour = COL;
                 COL++;
 
-
-                sheet[ROW, COL].Text = "Should Be Production";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int colShouldBeProduction = COL;
-                COL++;
-
                 sheet[ROW, COL].Text = "Total Available Hour";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int colTotalAvailableHour = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Detention Hour";
+                sheet[ROW, COL].Text = "Summary No";
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colSummaryId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Customer";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int colDetentionHour = COL;
+                int colCustomer = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Line Item Article";
+                sheet[ROW, COL].ColumnWidth = 14;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colLineItemArticle = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Shift Short Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colShiftShortName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Product Priority";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colProductPriority = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Detention In Minute";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colDetentionInMinute = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Article SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colArticleSPT = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SPT";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colSPT = COL;
+                COL++;
+               
+
+                sheet[ROW, COL].Text = "Should Be Production";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int colShouldBeProduction = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Net Available Hour";
@@ -854,6 +862,7 @@ namespace Library.OrderManagement.Production
                 for (int i = 0; i < data.Count; i++)
                 {
                     sheet[ROW, colEntity].Text = data[i]["Entity"].ToString();
+                    sheet[ROW, colProcessSequence].Text = data[i]["ProcessSequence"].ToString();
                     sheet[ROW, colProcess].Text = data[i]["Process"].ToString();
                     sheet[ROW, colWorkCenterMaster].Text = data[i]["WorkCenterMaster"].ToString();
                     sheet[ROW, colProductPriority].Text = data[i]["ProductPriority"].ToString();
@@ -861,6 +870,7 @@ namespace Library.OrderManagement.Production
                     sheet[ROW, colNoOfWorkStation].Number = clsStaticInfo.dbl(data[i]["NoOfWorkStation"].ToString());
                     sheet[ROW, colStandardProcessTime].Number = clsStaticInfo.dbl(data[i]["StandardProcessTime"].ToString());
                     sheet[ROW, colShiftName].Text = data[i]["ShiftName"].ToString();
+                    sheet[ROW, colStandardProduct].Text = data[i]["StandardProduct"].ToString();
                     sheet[ROW, colShiftShortName].Text = data[i]["ShiftShortName"].ToString();
                     sheet[ROW, colProductionHours].Number = clsStaticInfo.dbl(data[i]["ProductionHours"].ToString());
                     sheet[ROW, colDate].Text = data[i]["Date"].ToString();
@@ -873,7 +883,10 @@ namespace Library.OrderManagement.Production
                     sheet[ROW, colSONo].Text = data[i]["SONo"].ToString(); 
                     sheet[ROW, colPOId].Text = data[i]["POId"].ToString();
                     sheet[ROW, colLotNumber].Text = data[i]["LotNumber"].ToString();
+                    if (data[i]["MasterOrderItemId"] !=null)
+                    {
                     sheet[ROW, colMasterOrderItemId].Text = data[i]["MasterOrderItemId"].ToString();
+                    }
                     sheet[ROW, colQtyWithoutScan].Number = clsStaticInfo.dbl(data[i]["QtyWithoutScan"].ToString());
                     sheet[ROW, colQtyWithScan].Number = clsStaticInfo.dbl(data[i]["QtyWithScan"].ToString());
                     sheet[ROW, colTotalActualqty].Number = clsStaticInfo.dbl(data[i]["TotalActualqty"].ToString());

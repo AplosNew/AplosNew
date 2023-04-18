@@ -190,6 +190,10 @@ function vendorPaymentController(bankService, accountService, cboService, common
             "Value": "Status"
         },
         {
+            "Text": "Doc. RefNo",
+            "Value": "DocRefNo"
+        },
+        {
             "Text": "Amount",
             "Value": "Amount"
         }
