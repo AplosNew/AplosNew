@@ -91,20 +91,11 @@
         width: 1400px;
     }
 </style>
-<div class="site-tab">
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Production Booking</a></li>
-        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Reasoning Details</a></li>
-    </ul>
-</div>
-<div class="tab-content">
-    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-        <h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Production Booking</h3>
-        <p style="color:blue;font-size:11px">This screen has Entity and Process Level access</p>
+        <h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span>WC/Work Stations Control</h3>
         <div class="form-element-ctrl form-horizontal row" ng-form="modelForm">
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
                             <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.EntityId" ng-change="loadProcessList(productionSummaryNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
@@ -115,24 +106,22 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" ng-change="DateValidation(productionSummaryNew.ProductionDate);" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                        <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.Date" ng-change="DateValidation(productionSummaryNew.ProductionDate);" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
                     </div>
 
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 contro-label">Production InCharge<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">WSM UserName<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="Responsible Person" ng-disabled="true" ng-model="productionSummaryNew.ProductionInCharge" class="form-control" maxlength="100" required autocomplete="off">
-                        </div>
-                        <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                            <button ng-click="selectProductionInCharge();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <div class="select-style">
+                            <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.WSMId" name="WSMId" ng-options="item.Value as item.Text for item in WSMUserNameList" required>
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                 </div>
-                @*<h3 class="site-heading" style="cursor:unset;height:25px;"></h3>*@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
@@ -149,18 +138,27 @@
                     <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                            <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
                                 <option value=""></option>
                             </select>
                         </div>
                     </div>
                 </div>
-
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Periods<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.PeriodId" name="PeriodId" ng-options="item.Value as item.Text for item in PeriodList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ProductionDate={{productionSummaryNew.ProductionDate}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a></li>
-                            <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);getProdLevel();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
+                            @* <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ProductionDate={{productionSummaryNew.ProductionDate}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a></li>*@
+                            <li><button ng-click="masterGo(true);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
                             <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
                         </ul>
                     </div>
@@ -171,7 +169,7 @@
             <div id="ProductionSummaryWC" ej-grid style="z-index:3;"
                  e-templaterefresh="refreshTemplateProductionSummaryWC"
                  e-datasource="wcList"
-                 e-rowdatabound="onactivedatabound"
+                 e-rowdatabound="rowDataBoundWSC"
                  e-allowfiltering="true"
                  e-allowpaging="true"
                  e-allowsorting="true"
@@ -180,35 +178,19 @@
                  e-allowselection="true"
                  e-filtersettings-filterType="excel">
                 <div e-columns>
-                    @* <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryWC" e-template="#checkboxTemplateProductionSummaryWC" e-textalign="center" e-width="30"></div>*@
                     <div e-column e-template="#AddTile" e-headertext="Add" e-width="60"></div>
                     <div e-column e-field="WorkCenterMasterId" e-headertext="Id" e-width="50" e-visible="false"></div>
-                    <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
-                    <div e-column e-template="#ProductionOrderId" e-headertext="PO No" e-width="120"></div>
-                    <div e-column e-field="BookingLevel" e-headertext="Booking Level" e-visible="false" e-width="120"></div>
-                    <div e-column e-template="#Article" e-headertext="Article" e-width="300"></div>
-                    @*<div e-column e-template="#ProductionArticle" e-headertext="Production Article" e-width="200"></div>*@
-                    <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="80"></div>
-                    <div e-column e-template="#ProductionGrade" e-headertext="Grade" e-width="80"></div>
-                    <div e-column e-template="#Quantity" e-headertext="Quantity" e-width="120"></div>
-                    <div e-column e-template="#SaveWP" e-headertext="Save" e-width="80"></div>
-                    <div e-column e-template="#Detention" e-headertext="Detention" e-width="120"></div>
-                    <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="100"></div>
-                    <div e-column e-template="#BalanceQty" e-headertext="Balance Qty" e-width="80"></div>
-                    <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
-                    <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="120"></div>
+                    <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="80"></div>
+                    <div e-column e-field="WorkStation" e-headertext="Work Stations" e-width="80"></div>
+                    <div e-column e-template="#C1" e-headertext="CD1" e-visible="false" e-width="80"></div>
+                    <div e-column e-template="#C2" e-headertext="CD2" e-visible="false" e-width="80"></div>
+                    <div e-column e-template="#C3" e-headertext="CD3" e-visible="false" e-width="80"></div>
+                    <div e-column e-template="#C4" e-headertext="CD4" e-visible="false" e-width="80"></div>
+                    <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+                    <div e-column e-template="#InCharge" e-headertext="InCharge" e-width="100"></div>
                     <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="150"></div>
-                    <div e-column e-template="#Update" e-headertext="Update" e-width="80"></div>
-                    <div e-column e-template="#Mentor" e-headertext="Mentor" e-width="200" e-visible="false"></div>
-                    <div e-column e-template="#CheckedBy" e-headertext="CheckedBy" e-visible="false" e-width="200"></div>
-                    <div e-column e-template="#OrderQty" e-headertext="Odr.Qty" e-width="100"></div>
-                    <div e-column e-template="#BookedQty" e-headertext="Bkd.Qty" e-width="100"></div>
-                    <div e-column e-field="TargetProductionFP" e-headertext="Prod.FP" e-width="100"></div>
-                    <div e-column e-field="SONo" e-headertext="SO No" e-width="200"></div>
-                    <div e-column e-field="Customer" e-headertext="Customer" e-width="200"></div>
-                    <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="200"></div>
-                    <div e-column e-field="ProductDetails" e-headertext="Product Details" e-width="200"></div>
-                    <div e-column e-field="CustomerRefNo" e-headertext="Customer Ref No" e-width="200"></div>
+                    <div e-column e-template="#SaveWP" e-headertext="Save" e-width="80"></div>
+                    <div e-column e-template="#ReasonValue" e-headertext="Reason Value" e-width="80"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                 </div>
             </div>
@@ -218,28 +200,24 @@
             <script type="text/x-jsrender" id="headerTemplateProductionSummaryWC">
                 <input type="checkbox" id="headchk" />
             </script>
-            <script type="text/template" id="ProductionOrderId">
-                <div class="col-sm-8" style="padding:0px;">
-                    <input type="text" name="ProductionOrderId" ng-model="data.ProductionOrderId" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
-                </div>
-                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                    <button ng-click="$parent.getProductionOrderPopUp(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            <script type="text/template" id="C1">
+                <div class="col-sm-12" style="padding:0px;">
+                    <input type="text" name="C1" ng-model="data.Column1" class="form-control" tabindex="4" maxlength="50">
                 </div>
             </script>
-            <script type="text/template" id="Article">
-                <div class="col-sm-12" style="padding:0px; height:30px;">
-                    <input type="text" name="Article" ng-model="data.Article" ng-show="data.BookingLevel=='ProductionOrder'" class="form-control">
-                    <input type="text" ng-click="$parent.getSalesOrderPopUp(this);" name="Sales Order" ng-show="data.BookingLevel=='SalesOrder'" placeholder="Select SO Item" ng-model="data.SOArticle" class="form-control">
-                    <input type="text" ng-click="$parent.getMasterOrderItemPopUp(this);" name="Master Order Item" ng-show="data.BookingLevel=='MasterOrderItem'" placeholder="Select MO Item" ng-model="data.MOIArticle" class="form-control">
-                    <input type="text" ng-click="$parent.getProductCodePopUp(this);" name="Product Code" ng-show="data.BookingLevel=='ProductCode'" ng-model="data.ProductCodeArticle" placeholder="Select Product Code" class="form-control">
+            <script type="text/template" id="C2">
+                <div class="col-sm-12" style="padding:0px;">
+                    <input type="text" name="C2" ng-model="data.Column2" class="form-control" tabindex="4" maxlength="50">
                 </div>
             </script>
-            <script type="text/template" id="Mentor">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" name="Mentor" ng-model="data.Mentor" ng-disabled="true" class="form-control" readonly>
+            <script type="text/template" id="C3">
+                <div class="col-sm-12" style="padding:0px;">
+                    <input type="text" name="C3" ng-model="data.Column3" class="form-control" tabindex="4" maxlength="50">
                 </div>
-                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                    <button ng-click="$parent.showEmployeeListPopUp(this,'Mentor');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            </script>
+            <script type="text/template" id="C4">
+                <div class="col-sm-12" style="padding:0px;">
+                    <input type="text" name="C4" ng-model="data.Column4" class="form-control" tabindex="4" maxlength="50">
                 </div>
             </script>
             <script type="text/template" id="ResponsiblePerson">
@@ -258,39 +236,14 @@
                 <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
             </div>*@
             </script>
-            <script type="text/template" id="CheckedBy">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" name="Responsible Person" ng-model="data.CheckedByName" ng-disabled="true" class="form-control" readonly>
-                </div>
-                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                    <button ng-click="$parent.showEmployeeListPopUp(this,'CheckedBy');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </div>
-            </script>
-            <script type="text/template" id="LotNumber">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" name="LotNumbers" ng-model="data.LotNumber" class="form-control" maxlength="200">
-                </div>
-            </script>
-            <script type="text/template" id="Quantity">
+            <script type="text/template" id="SaveWP">
                 <div class="form-group">
-                    <div class="col-sm-7" style="padding:0px;">
-                        <input type="text" class="form-control" ng-disabled="$parent.PQEnable" placeholder="Produced Quantity" ng-model="data.Quantity">
-                    </div>
                     <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-show="$parent.IsParameterBased==true" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                <li><button ng-click="$parent.SaveMasterWC(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                             </ul>
                         </div>
-                    </div>
-                </div>
-            </script>
-            <script type="text/template" id="SaveWP">
-                <div class="form-group">
-                    <div class="common-btn">
-                        <ul class="list-inline text-left">
-                            <li><button ng-click="$parent.SaveMasterWC(this);" ng-show="$parent.IsParameterBased==false" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
-                        </ul>
                     </div>
                 </div>
             </script>
@@ -315,51 +268,6 @@
                     <ul class="list-inline text-center">
                         <li><button ng-click="$parent.AddTile(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i></button></li>
                     </ul>
-                </div>
-            </script>
-            <script type="text/template" id="BalanceQty">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" name="Balance Qty" ng-disabled="true" ng-model="data.RemainingQty" ng-click="" class="form-control" maxlength="200">
-                </div>
-            </script>
-            <script type="text/template" id="OrderQty">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" name="Order Qty" ng-disabled="true" ng-model="data.OrderQty" ng-click="" class="form-control" maxlength="200">
-                </div>
-            </script>
-            <script type="text/template" id="BookedQty">
-                <div class="col-sm-10" style="padding:0px;">
-                    <input type="text" name="Booked Qty" ng-disabled="true" ng-model="data.BookedQty" ng-click="" class="form-control" maxlength="200">
-                </div>
-            </script>
-            <script type="text/template" id="ProductionGrade">
-                <div class="select-style">
-                    <select class="form-control" ng-model="data.ProductionGrade" name="ProductionGrade" required
-                            ng-options="item.Value as item.Text for item in $parent.gradeList">
-                        @*<option value="">Select</option>*@
-                    </select>
-                </div>
-            </script>
-            <script type="text/template" id="ProductionArticle">
-                <div class="select-style">
-                    <select class="form-control" ng-model="data.ProductionArticle" name="Production Article" required
-                            ng-options="item.Value as item.Text for item in $parent.ArticleList">
-                        @*<option value="">Select</option>*@
-                    </select>
-                </div>
-            </script>
-            <script type="text/template" id="Detention">
-                <div class="form-group">
-                    <div class="col-sm-7" style="padding:0px;">
-                        <input type="text" class="form-control" ng-disabled="true" ng-model="data.SumMin">
-                    </div>
-                    <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
-                        <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click="$parent.getProcessDetentionPopupPoPUp(this);" ng-disabled="data.Id==null" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
             </script>
             <script type="text/template" id="Delete">
@@ -392,45 +300,7 @@
                 <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
-    </div>
-    <div role="tabpanel" ng-form="ReasoningDetailsForm" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" id="ProcessId" ng-model="ReasonNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in ProcessReasonList" required>
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Reason Name</label>
-                <div class="col-sm-8">
-                    <input type="text" name="Reason Name" ng-model="ReasonNew.ReasonName" class="form-control" maxlength="100" autocomplete="off">
-                </div>
-            </div>
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="ReasonSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                <li> <button ng-click="ReasonClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
-        <div id="GridReason" ej-grid e-datasource="ReasonList" e-recorddoubleclick="GetReasonDetails"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
-                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
-                <div e-column e-field="ReasonName" e-headertext="Reason Name" e-width="100"></div>
-            </div>
-        </div>
-    </div>
-</div>
+    
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <div class="loader" data-loader>
     Please wait

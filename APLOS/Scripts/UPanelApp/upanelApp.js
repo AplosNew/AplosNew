@@ -494,6 +494,7 @@ upanelApp.controller('complianceAttendanceSettingController', complianceAttendan
 upanelApp.controller('complianceRawDataDownloadController', complianceRawDataDownloadController);
 upanelApp.controller('ConfirmationController', ConfirmationController);
 upanelApp.controller('contractController', contractController);
+upanelApp.controller('contractNewController', contractNewController);
 upanelApp.controller('costingGroupFormulaController', costingGroupFormulaController);
 upanelApp.controller('costingItemController', costingItemController);
 upanelApp.controller('CropMasterController', CropMasterController);
@@ -1158,6 +1159,9 @@ upanelApp.controller("RunningMachineSetUpTargetController", RunningMachineSetUpT
 upanelApp.controller("DailyPlanningAndProductionReportController", DailyPlanningAndProductionReportController)
 upanelApp.controller("EmployeeAttendanceReportController", EmployeeAttendanceReportController)
 upanelApp.controller("HRReportMasterController", HRReportMasterController)
+upanelApp.controller("WCWorkStationsControlMasterController", WCWorkStationsControlMasterController)
+upanelApp.controller("WCWorkStationsControlController", WCWorkStationsControlController)
+upanelApp.controller("BudgetCodeWiseHRReportController", BudgetCodeWiseHRReportController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

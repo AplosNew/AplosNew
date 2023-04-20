@@ -733,20 +733,20 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
 
     //TODO:Report
 
-    //$scope.EmployeeAdvanceDueList = function () { 
+    $scope.EmployeeAdvanceDueList = function () { 
 
-    //    //var MasterOrderId = "1935";
-    //    try {
-    //        var file_src = $scope.url + "/EmployeeAdvanceDueList"; 
-    //        $rootScope.report(file_src);
+        //var MasterOrderId = "1935";
+        try {
+            var file_src = $scope.url + "/EmployeeAdvanceDueList"; 
+            $rootScope.report(file_src);
 
 
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 
-    $scope.EmployeeAdvanceDueList = function () {
+    $scope.EmployeeAdvanceTotalList = function () {
         try {
             var dataList = [];
             var g = $("#GridEmp").data("ejGrid");
@@ -760,7 +760,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
 
             $http({
                 method: 'POST',
-                url: "accounts/Advance/EmployeeAdvanceDueListReportXls",
+                url: "accounts/Advance/EmployeeAdvanceTotalListReportXls",
                 data: { 'reportFileName': $scope.fileName, 'data': dataList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

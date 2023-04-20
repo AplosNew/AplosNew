@@ -2,7 +2,6 @@
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.HumanResource.NewAttendanceProcess;
-using Library.OrderManagement.Production;
 using Library.Service.Helpers;
 using Library.Service.Organizations;
 using Library.ViewModel.Accounts;
@@ -20,12 +19,12 @@ namespace Aplos.Areas.HumanResource.Controllers
     {
         // private readonly IManpowerBudgetDashboardService na;
 
-        ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
+
         NewAttdnDashboardService na = new NewAttdnDashboardService();
 
         public NewAttdnDashboardController()
         {
-            
+
         }
 
         public ActionResult Aplos()
@@ -34,10 +33,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat , string EmpStat)
+        public ActionResult GetGroupWiseCompanyList(string date, string stat, string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date,  stat,  EmpCat, EmpStat);
+            var data = na.GroupWiseCompanyList(identity.CompanyGroupId, date, stat, EmpCat, EmpStat);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -45,7 +44,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetDrillDownListJSON(string CompanyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(na.DrillDownList(identity.CompanyGroupId,CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(na.DrillDownList(identity.CompanyGroupId, CompanyId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -56,15 +55,15 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat , string EmpCat, string EmpStat)
+        public ActionResult GetDetailDrillDownTable(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string stat, string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             return Json(na.DetailDrillDownTable(ChartColumnList, seq, date, identity.CompanyGroupId, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost , Authorize]
-        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data ,string stat , string EmpCat, string EmpStat)
+        [HttpPost, Authorize]
+        public ActionResult DetailTableClick(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var JsonData = Json(na.DetailTableClick(ChartColumnList, seq, date, identity.CompanyGroupId, Column, data, stat, EmpCat, EmpStat), JsonRequestBehavior.AllowGet); ;
@@ -78,7 +77,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             try
             {
-                var workbook = GetFilterData(ChartColumnList,  seq,  date,  Column, data,  stat,  EmpCat,  EmpStat);
+                var workbook = GetFilterData(ChartColumnList, seq, date, Column, data, stat, EmpCat, EmpStat);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + "-" + Column + "-" + "EmpReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -91,7 +90,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw ex;
             }
         }
-
 
         private IWorkbook GetFilterData(IEnumerable<ChartColumnList> ChartColumnList, int seq, string date, string Column, Dictionary<string, string> data, string stat, string EmpCat, string EmpStat)
         {
@@ -155,7 +153,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Out Time Difference", 13, ExcelHAlign.HAlignCenter);
             int ColOutD = COL;
             COL++;
-            
+
             report.SetHeaderText(ref sheet, ROW, COL, "OT Hour", 13, ExcelHAlign.HAlignCenter);
             int ColOTHour = COL;
             COL++;
@@ -300,10 +298,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
             ROW++;
-           
+
             endRow = ROW - 1;
             endRow = ROW - 1;
-             
+
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             ReportUtility reportUtility = new ReportUtility();
@@ -311,22 +309,5 @@ namespace Aplos.Areas.HumanResource.Controllers
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
-        
-        [HttpPost, Authorize]
-        public ActionResult GetOnRolePrintReport(List<Dictionary<string, object>> data, string reportFileName)
-        {
-            try
-            {
-                string fileName = "";
-
-                fileName = _productionSummaryData.OnRolePrintReport(data, "", reportFileName);
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
     }
 }
