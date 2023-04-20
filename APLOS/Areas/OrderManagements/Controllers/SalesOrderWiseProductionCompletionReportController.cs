@@ -254,6 +254,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 sheet2[ROW2, COL2].Text = "SO Qty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSOQty = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "EarlyBy"; sheet2[ROW2, COL2].ColumnWidth = 10; int colEarlyBy = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "LateBy"; sheet2[ROW2, COL2].ColumnWidth = 10; int colLateBy = COL2; COL2++;
+                sheet2[ROW2, COL2].Text = "Diff. From Commitmeny/ExfactoryDate"; sheet2[ROW2, COL2].ColumnWidth = 10; int colCE = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Sequence"; sheet2[ROW2, COL2].ColumnWidth = 8; int colSequence = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "So Commqty"; sheet2[ROW2, COL2].ColumnWidth = 10; int colSoCommqty = COL2; COL2++;
                 sheet2[ROW2, COL2].Text = "Leg Days"; sheet2[ROW2, COL2].ColumnWidth = 7; int colLegDays = COL2;
@@ -290,6 +291,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     sheet2[ROW2, colPOStat].Text = dtSOComplete.Rows[i]["POStatus"].ToString();
                     sheet2[ROW2, colExFactoryDate].Text = dtSOComplete.Rows[i]["ExFactoryDate"].ToString();
                     sheet2[ROW2, colCommitmentDate].Text = dtSOComplete.Rows[i]["CommitmentDate"].ToString();
+                    sheet2[ROW2, colCE].Text = dtSOComplete.Rows[i]["DiffComEx"].ToString();
 
                     DataRow dr = GetExpectedSOCompletionDate(clsStaticInfo.dbl(dtSOComplete.Rows[i]["SoCommqty"].ToString()), dtSOComplete.Rows[i]["ProductionOrderId"].ToString(), dtOrderMaster);
 

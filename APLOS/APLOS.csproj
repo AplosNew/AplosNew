@@ -538,6 +538,7 @@
     <Compile Include="Areas\Employees\Controllers\EmployeeCodeTypeController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationApprovalMultipleNewController.cs" />
     <Compile Include="Areas\Employees\Controllers\ResignationTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\BudgetCodeWiseHRReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DesignationSetupController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\HRReportMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
@@ -1980,6 +1981,7 @@
     <Content Include="Areas\Banks\Scripts\rePrintNonCashCheckController.js" />
     <Content Include="Areas\Biometric\Scripts\attendanceDeviceZoneController.js" />
     <Content Include="Areas\Biometric\Scripts\BiometricConfig.js" />
+    <Content Include="Areas\Commercial\Scripts\contractNewController.js" />
     <Content Include="Areas\Commercial\Scripts\InvoiceTaggedWithLCController.js" />
     <Content Include="Areas\Commercial\Scripts\CommercialConfig.js" />
     <Content Include="Areas\Commercial\Scripts\CNFExpenseBockingController.js" />
@@ -2043,6 +2045,7 @@
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
+    <Content Include="Areas\HumanResource\Scripts\BudgetCodeWiseHRReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
@@ -4629,6 +4632,10 @@
     <Content Include="Areas\Productions\Views\WCWorkStationsControl\AplosInOut.cshtml" />
     <Content Include="Areas\Productions\Views\WCWorkStationsControl\AplosWC.cshtml" />
     <Content Include="Areas\Productions\Views\WCWorkStationsControl\Report.cshtml" />
+    <Content Include="Areas\HumanResource\Views\BudgetCodeWiseHRReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\HRReportMaster\_UserGroupPop.cshtml" />
+    <Content Include="Areas\HumanResource\Views\BudgetCodeWiseHRReport\_ExportToExcelPop.cshtml" />
+    <Content Include="Areas\Commercial\Views\Contract\Aplos1.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

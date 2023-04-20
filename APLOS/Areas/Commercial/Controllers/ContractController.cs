@@ -49,6 +49,10 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             return View();
         }
+        public ActionResult Aplos1()
+        {
+            return View();
+        }
 
         public ActionResult MasterLC()
         {
