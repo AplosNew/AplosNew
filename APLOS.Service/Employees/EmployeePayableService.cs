@@ -757,7 +757,7 @@ namespace Library.Service.Employees
             }
         }
 
-        public void DeleteInvoiceBeneficiaryEmployee(string invoiceId, string voucherId)
+        public void DeleteInvoiceBeneficiaryEmployee(string invoiceId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
@@ -768,6 +768,10 @@ namespace Library.Service.Employees
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", invoiceId, "", "", "", "", "", "", "", deletedRemarks);
+
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
