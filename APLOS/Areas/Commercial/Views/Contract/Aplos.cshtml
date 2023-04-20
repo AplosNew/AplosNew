@@ -10,7 +10,27 @@
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row">
-
+                        <div class="row text-right aplos-grid-toggle">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div class="search-form">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-3 col-md-3">
+                                            <div class="select-style">
+                                                <select ng-model="searchBy">
+                                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-7 col-md-7">
+                                            <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getSavedData()">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <button type="button" ng-click="getSavedData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div style="color:black;" id="Grid2" ej-grid e-datasource="contractList" e-recorddoubleclick="selectContract"
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
@@ -58,7 +78,7 @@
                     <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2)" href="" aria-controls="Service" role="tab" data-toggle="tab2">Fund</a></li>
                     <li role="presentation" ng-class="{ active: isSet2(3) }"><a ng-click="setTab2(3)" href="" aria-controls="Service" role="tab" data-toggle="tab2">MasterLC</a></li>
                     <li role="presentation" ng-class="{ active: isSet2(4) }"><a ng-click="setTab2(4)" href="" aria-controls="T&C" role="tab" data-toggle="tab2">Terms&Conditions</a></li>
-                    <li role="presentation" ng-class="{ active: isSet2(5) }"><a ng-click="setTab2(5)" href="" aria-controls="T&C" role="tab" data-toggle="tab2">Items</a></li>
+                    @*<li role="presentation" ng-class="{ active: isSet2(5) }"><a ng-click="setTab2(5)" href="" aria-controls="T&C" role="tab" data-toggle="tab2">Items</a></li>*@
                 </ul>
             </div>
             <div class="tab-content">
@@ -67,12 +87,13 @@
                         <div class="col-xs-12">
 
                             <div class="col-xs-4">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Customer</label>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Customer<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <div class="input-group">
-                                            <input type="text" name="Customer" ng-model="modelNew.CustomerName" class="form-control" readonly>
+                                            <input type="text" name="Customer" ng-model="modelNew.CustomerName" class="form-control" readonly required>
                                             <span class="input-group-btn">
+                                                <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                                                 <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                             </span>
                                         </div>
@@ -257,77 +278,32 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <div class="col-xs-12 col-sm-5" id="Unassign">
-                                <fieldset class="scheduler-border">
-                                    <legend class="scheduler-border">Unassign</legend>
-                                    <div class="clearfix"></div>
-
-                                    <div style="color:black;" id="Grid" ej-grid e-datasource="masterOrderList" e-allowscrolling="true" @*e-summaryrows="summaryRows"*@
-                                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-actioncomplete="actionCompleteUnassign"
-                                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                                        <div e-columns>
-                                            <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
-                                            <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
-                                            <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
-                                            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                            <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
-                                            <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                                            <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                                            <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
-                                            <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                                            <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
-                                            <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
-                                            <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
-                                            <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
-                                            <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
-                                            <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
-                                        </div>
-                                    </div>
-                                    <script type="text/template" id="checkboxTemplateMaster">
-                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                                    </script>
-
-                                </fieldset>
+                            <div style="color:black;" id="Grid3" ej-grid e-datasource="SalesOrderList" e-actioncomplete="actionCompleteSelected"
+                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                <div e-columns>
+                                    <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                    <div e-column e-field="SalesOrderId" e-headertext="SO NO" e-width="80"></div>
+                                    <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
+                                    <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
+                                    <div e-column e-field="ContractId" e-headertext="ContractId" e-width="80"></div>
+                                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                    <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                                    <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                                    <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                                    <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
+                                    <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+                                    <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
+                                    <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
+                                    <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
+                                    <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                                    <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
+                                    <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
+                                </div>
                             </div>
-                            <div class="col-xs-1">
-                                <br />
-                                <br />
-                                <br />
-                                <button ng-click="MakeData()" ng-disabled="modelNew.MasterOrderId!==null" class="btn btn-action tooltip-here" data-placement="top" title="Add">>></button><br />
-                                <button ng-click="RemovePO()" ng-disabled="modelNew.MasterOrderId!==null" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><<</button>
-                            </div>
-                            <div class="col-xs-12 col-sm-6" id="Assigned">
-                                <fieldset class="scheduler-border">
-                                    <legend class="scheduler-border">Assigned</legend>
-                                    <div class="clearfix"></div>
-
-                                    <div style="color:black;" id="Grid3" ej-grid e-datasource="masterOrderCustomerList" e-actioncomplete="actionCompleteSelected"
-                                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                                        <div e-columns>
-                                            <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
-                                            <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
-                                            <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
-                                            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                            <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
-                                            <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                                            <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                                            <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
-                                            <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                                            <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
-                                            <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
-                                            <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
-                                            <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
-                                            <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
-                                            <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
-                                        </div>
-                                    </div>
-                                    <script type="text/template" id="checkboxTemplateMaster">
-                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                                    </script>
-
-                                </fieldset>
-                            </div>
+                            <script type="text/template" id="checkboxTemplateMaster">
+                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                            </script>
                         </div>
 
                     </div>
@@ -707,6 +683,58 @@
     </div>
 </div>
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+
+<div class="modal fade site-modal in" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closeCustomerPopUpNew();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="ShowCustomerPopUpNew()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="ShowCustomerPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" id="customerPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="SetCustomerData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeCustomerPopUpNew();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

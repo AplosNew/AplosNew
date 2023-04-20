@@ -102,6 +102,7 @@ namespace Library.Model.OrderManagements
         #region Navigation Properties
 
         public string MasterOrderItemId { get; set; }
+        public string ContractId { get; set; }
         public string DestinationId { get; set; }
         public string ShipmentModeId { get; set; }
         public string CustomerPOId { get; set; }
