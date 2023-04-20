@@ -4149,17 +4149,19 @@ namespace Library.Service.Invoices
             return _invoiceDetailRepository.Find(invoiceDetailId);
         }
 
-        public void DeleteInvoice(string invoiceId, string voucherId)
+        public void DeleteInvoice(string invoiceId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
             {
-
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId,voucher.VoucherNo,"","",invoiceId,"","","","", "","","", deletedRemarks);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
