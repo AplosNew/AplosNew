@@ -1025,12 +1025,12 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
 
     //Delete Option
 
-    $scope.delete = function (invoiceId, voucherId) {
+    $scope.delete = function (invoiceId, voucherId, deletedRemarks) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
-                "invoiceId": invoiceId, "voucherId": voucherId
+                "invoiceId": invoiceId, "voucherId": voucherId, "deletedRemarks": deletedRemarks
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1038,6 +1038,8 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.Clear();
@@ -1050,12 +1052,17 @@ function customerInvoiceController(cboService, commonMessage, $scope, $rootScope
         return true;
     };
 
+    $scope.deletedRemarks = "";
     $scope.invoiceId = null;
     $scope.confirmDelete = function (invoiceId, voucherId) {
         $scope.invoiceId = invoiceId;
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
-        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
+    };
+
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
     };
 
     $scope.taxCodCboListWithhold = [];

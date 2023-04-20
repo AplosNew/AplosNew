@@ -52,7 +52,7 @@ namespace Library.Service.Invoices
         void Post(string invoiceId);
 
         InvoiceDetail FindInvoiceDetail(string invoiceDetailId);
-        void DeleteInvoice(string invoiceId, string voucherId);
+        void DeleteInvoice(string invoiceId, string voucherId, string deletedRemarks);
         void DeleteIncentiveReceivableInvoice(string invoiceId, string voucherId);
         Invoice FindInvoice(string Id);
         void DeleteInvoice(string id);

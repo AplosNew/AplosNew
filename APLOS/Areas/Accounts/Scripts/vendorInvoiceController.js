@@ -1228,12 +1228,12 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
-    $scope.delete = function (invoiceId, voucherId, type, tDSVoucherId, tDSVoucherNo) {
+    $scope.delete = function (invoiceId, voucherId, type, tDSVoucherId, tDSVoucherNo, deletedRemarks) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
-                "invoiceId": invoiceId, "voucherId": voucherId, "type": type, "tDSVoucherId": tDSVoucherId, "tDSVoucherNo": tDSVoucherNo
+                "invoiceId": invoiceId, "voucherId": voucherId, "type": type, "tDSVoucherId": tDSVoucherId, "tDSVoucherNo": tDSVoucherNo, "deletedRemarks": deletedRemarks
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1241,6 +1241,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.Clear();
@@ -1254,6 +1256,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         return true;
     };
 
+    $scope.deletedRemarks = "";
     $scope.invoiceId = null;
     $scope.confirmDelete = function (invoiceId, voucherId, type, tDSVoucherId, tDSVoucherNo) {
         $scope.invoiceId = invoiceId;
@@ -1262,10 +1265,12 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         $scope.tDSVoucherId = tDSVoucherId;
         $scope.tDSVoucherNo = tDSVoucherNo;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
-        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
     };
 
-
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
+    };
 
     $scope.clearPartyData = function () {
         $scope.voucher.PartyId = null;
