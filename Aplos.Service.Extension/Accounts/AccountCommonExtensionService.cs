@@ -777,6 +777,50 @@ namespace Library.Service.Extension.Accounts
         {
             return transactionCurrencyId == companyCurrencyId ? (decimal)1 : 1 / companyCurrencyRate;
         }
-       
+        #region Deleted/Parked Log 
+        public void InsertVoucherLogDeleted(string voucherId, string VoucherNo, string financingId, string financingWriteOffId, string invoiceId, string invoiceWriteOffId, string advanceId, string advanceWriteOffId, string adjustmentNoteId, string bankJournalId, string employeePayableId, string employeePayableWriteOffId, string remarks)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var rdBuilder = new System.Text.StringBuilder();
+                var builderSql = @"DECLARE @VoucherLogId AS VARCHAR(80)='',@VoucherId AS VARCHAR(80)='" + voucherId + "',@FinancingId AS VARCHAR(10)='" + financingId + "',@FinancingWriteOffId AS VARCHAR(80)='" + financingWriteOffId + "',@InvoiceId AS VARCHAR(80)='" + invoiceId + "',@InvoiceWriteOffId AS VARCHAR(80)='" + invoiceWriteOffId + "',@AdvanceId AS VARCHAR(80)='" + advanceId + "',@AdvanceWriteOffId AS VARCHAR(80)='" + advanceWriteOffId + "',@AdjustmentNoteId AS VARCHAR(80)='" + adjustmentNoteId + "',@BankJournalId AS VARCHAR(80)='" + bankJournalId + "',@EmployeePayableId AS VARCHAR(80)='" + employeePayableId + "',@EmployeePayableWriteOffId AS VARCHAR(80)='" + employeePayableWriteOffId + "',@ActivityType AS VARCHAR(100)='Delete',@Status AS VARCHAR(200)='',@Remarks AS VARCHAR(500)='" + remarks + "',@AddedBy AS VARCHAR(30)='" + identity.Name + @"',@AddedFromIP AS VARCHAR(15)='" + identity.IPAddress + @"';
+                
+                select @VoucherLogId=ISNULL(MAX(CAST(Id AS INT)), 0)+1  from [TRN].[VoucherLog]
+                SET @Status='VoucherNo " + VoucherNo + @" is Deleted by " + identity.Name + @"'
+
+                INSERT INTO [TRN].[VoucherLog](Id, VoucherId, FinancingId, FinancingWriteOffId, InvoiceId, InvoiceWriteOffId, AdvanceId, AdvanceWriteOffId, AdjustmentNoteId, BankJournalId, EmployeePayableId, EmployeePayableWriteOffId, ActivityType, Status, Remarks, AddedBy, AddedDate, AddedFromIP)
+                VALUES(@VoucherLogId,@VoucherId, @FinancingId, @FinancingWriteOffId, @InvoiceId, @InvoiceWriteOffId, @AdvanceId, @AdvanceWriteOffId, @AdjustmentNoteId, @BankJournalId, @EmployeePayableId, @EmployeePayableWriteOffId, @ActivityType, @Status, @Remarks, @AddedBy, GETDATE(), @AddedFromIP) 
+
+                INSERT INTO [TRN].[VoucherDeleted](Id, CompanyGroupId, CompanyId, PlantId, EntityId, FiscalYearId, FiscalYearPeriodId, TaxYearId, TaxYearPeriodId, VoucherTypeId, CurrencyId, SourceType, VoucherNo, VoucherDate, TransactionRefNo, PostingDate, DocRefNo, DocDate, Narration, IsPark, Archive, AddedBy, AddedDate, AddedFromIP, UpdatedBy, UpdatedDate, UpdatedFromIP, PostedBy, PostedDate, PostedFromIP, ExchangeType)
+                SELECT Id, CompanyGroupId, CompanyId, PlantId, EntityId, FiscalYearId, FiscalYearPeriodId, TaxYearId, TaxYearPeriodId, VoucherTypeId, CurrencyId, SourceType, VoucherNo, VoucherDate, TransactionRefNo, PostingDate, DocRefNo, DocDate, Narration, IsPark, Archive, AddedBy, AddedDate, AddedFromIP, UpdatedBy, UpdatedDate, UpdatedFromIP, PostedBy, PostedDate, PostedFromIP, ExchangeType FROM [TRN].[Voucher] WHERE Id=@VoucherId
+
+                INSERT INTO [TRN].[VoucherDetailDeleted](Id, PlantId, EntityId, FiscalYearId, FiscalYearPeriodId, VoucherId, GLGeneralInfoId, BudgetMasterId, ActivityId, CheckLotDetailId, CurrencyId, BankMasterId, BankChargeId, CashMasterId, CostCenterId, FinancingDetailId, InvoiceTaxWriteOffDetailId, EmployeeId, PartyId, PartyPlantId, InvoiceDetailId, AdvanceDetailId, AdvanceWriteOffDetailId, InvoiceWriteOffDetailId, SecurityDepositDetailId, SecurityDepositWriteOffDetailId, EmployeePayableDetailId, EmployeePayableWriteOffDetailId, ExpenseBookingDetailId, PartyType, DocRefNo, DocDate, RefCode, Narration, DrAmount, CrAmount, TotalTaxAmount, PostingWithoutTaxAllow, IsExcludingTax, IsPark, Archive, AddedBy, AddedDate, AddedFromIP, UpdatedBy, UpdatedDate, UpdatedFromIP, CompanyId, PaymentSource, JournalId, InterTransactionDetailId, BankJournalDetailId, InvoiceTaxDetailId, TrnNature, AdjustmentNoteDetailId, InventoryIssueDetailId, OpeningBalanceDetailId, FinancingDetailWriteOffId, FixedAssetMasterId, FAType, IsCapitalizeExpenseRegister, LoanSetOffGroupNo, SalaryType, SalaryHeadId)
+                SELECT Id, PlantId, EntityId, FiscalYearId, FiscalYearPeriodId, VoucherId, GLGeneralInfoId, BudgetMasterId, ActivityId, CheckLotDetailId, CurrencyId, BankMasterId, BankChargeId, CashMasterId, CostCenterId, FinancingDetailId, InvoiceTaxWriteOffDetailId, EmployeeId, PartyId, PartyPlantId, InvoiceDetailId, AdvanceDetailId, AdvanceWriteOffDetailId, InvoiceWriteOffDetailId, SecurityDepositDetailId, SecurityDepositWriteOffDetailId, EmployeePayableDetailId, EmployeePayableWriteOffDetailId, ExpenseBookingDetailId, PartyType, DocRefNo, DocDate, RefCode, Narration, DrAmount, CrAmount, TotalTaxAmount, PostingWithoutTaxAllow, IsExcludingTax, IsPark, Archive, AddedBy, AddedDate, AddedFromIP, UpdatedBy, UpdatedDate, UpdatedFromIP, CompanyId, PaymentSource, JournalId, InterTransactionDetailId, BankJournalDetailId, InvoiceTaxDetailId, TrnNature, AdjustmentNoteDetailId, InventoryIssueDetailId, OpeningBalanceDetailId, FinancingDetailWriteOffId, FixedAssetMasterId, FAType, IsCapitalizeExpenseRegister, LoanSetOffGroupNo, SalaryType, SalaryHeadId FROM [TRN].[VoucherDetail] WHERE VoucherId=@VoucherId
+
+                INSERT INTO [TRN].[VoucherDetailCurrencyDeleted] (Id, VoucherId, VoucherDetailId, ParallelCurrencyId, FromCurrencyId, ToCurrencyId, ToCurrencyRate, ToCurrencyConversion, DrAmount, CrAmount, AddedBy, AddedDate, AddedFromIP, UpdatedBy, UpdatedDate, UpdatedFromIP)
+                SELECT Id, VoucherId, VoucherDetailId, ParallelCurrencyId, FromCurrencyId, ToCurrencyId, ToCurrencyRate, ToCurrencyConversion, DrAmount, CrAmount, AddedBy, AddedDate, AddedFromIP, UpdatedBy, UpdatedDate, UpdatedFromIP FROM [TRN].[VoucherDetailCurrency] WHERE VoucherId=@VoucherId
+                ";
+                rdBuilder.Append(builderSql);
+                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                //
+            }
+        }
+        #endregion
+
     }
 }

@@ -52,7 +52,7 @@ namespace Library.Service.Employees
         List<Dictionary<string, object>> GetExoenseBookingReportData(string companyId, string voucherId);
         GridModel GetEmployeeReconGLBudgetActivity(GridParameter parameters, string companyGroupId, string companyId);
         GridModel GetEmployeeReconAssetGLBudgetActivity(GridParameter parameters, string companyGroupId, string companyId);
-        void DeleteInvoiceBeneficiaryEmployee(string invoiceId, string voucherId);
+        void DeleteInvoiceBeneficiaryEmployee(string invoiceId, string voucherId, string deletedRemarks);
         void DeleteGRNBeneficiaryEmployee(string grnId, string invoiceId, string voucherId);
         void DeleteServiceBeneficiaryEmployee(string serviceAckId, string invoiceId, string voucherId);
     }

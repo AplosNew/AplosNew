@@ -1891,6 +1891,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
             , PackingTypeId: null
+            , ContractId: null
+            , ContractNo: null
         };
         getSalesOrderList();
         $scope.getDestination();
@@ -2350,6 +2352,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
             , PackingTypeId: null
+            , ContractId: null
+            , ContractNo: null
         };
     }
 
@@ -2411,6 +2415,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , StockResponsiblePersonId: null
         , StockResponsiblePerson: null
         , PackingTypeId: null
+        , ContractId: null
+        , ContractNo: null
     };
 
     $scope.SplitSO = function (data) {
@@ -2456,6 +2462,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.soSplitModel.OrderStatusChangedBy = data.OrderStatusChangedBy;
         $scope.soSplitModel.OrderStatusChangedDate = data.OrderStatusChangedDate;
         $scope.soSplitModel.OrderStatusChangedFromIP = data.OrderStatusChangedFromIP;
+        $scope.soSplitModel.ContractId = data.ContractId;
+        $scope.soSplitModel.ContractNo = data.ContractNo;
         angular.element(document.querySelector('#soSplitPoUp')).modal('show');
     }
 
