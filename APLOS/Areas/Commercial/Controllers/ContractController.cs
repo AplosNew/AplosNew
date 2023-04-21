@@ -6,6 +6,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
+using Library.General.Commercial;
 using Library.Model.OrderManagements;
 using Library.Model.Payrolls;
 using Library.Service.Enums;
@@ -36,6 +37,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
+        clsContract clsCon = new clsContract();
         public ContractController(IUnitOfWork U, ISqlRepository R)
         {
             _unitOfWork = U;
@@ -62,30 +64,11 @@ namespace Aplos.Areas.Commercial.Controllers
 
         #region -- Operations
 
-        [HttpGet, Authorize]
-        public ActionResult GetList()
+        [HttpPost, Authorize]
+        public ActionResult GetList(string column, string value)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT C.Id, C.CustomerId, C.IsLC, C.AddedBy, C.AddedDate, C.AddedFromIP, C.UpdatedBy, C.UpdatedDate, C.UpdatedFromIP, C.MasterLCId, 
-isnull(C.ContractNo,'')ContractNo, C.TotalQty, C.SOQty, C.Amount, C.Description, isnull(C.UDNo,'')UDNo, C.UDDate, C.ContractDate, C.IsPrint,C. IsMarketingCommisssionApplicable, 
-C.MarketingCommisssionId, C.IsBusinessDevelopmentChargesApplicable, C.BusinessDevelopmentCharge, C.BusinessDevelopmentChargeValue, 
-C.InvoicingPartyPlantId, C.DeliveryPartyPlantId, C.InvoicingByAddress, C.DeliveryByAddress, C.MarketingCommisssionCharge, 
-C.MarketingCommisssionValue,  isnull(C.Remarks,'')Remarks, C.PlantId, isnull(P.UserName,'') CustomerName,PM.UserName MarketingCommisssion,LC.LCRef MasterLCNo,FORMAT(C.AddedDate,'dd-MMM-yyyy') CreationDate
-,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
-TRN.MasterOrder XMOI
-INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
-LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId	  
-where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-,ItemNo=isnull(STUFF((select distinct ','+I.Id from 
- TRN.MasterOrderItem I 
-where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-                            FROM [dbo].[Contract] C
-                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
-							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
-							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
-                            WHERE C.PlantId='" + identity.PlantId + "' ORDER BY C.AddedDate desc";
-
-            JsonResult json = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsCon.GetContractList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
@@ -100,45 +83,30 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
         [HttpGet, Authorize]
         public ActionResult GetContractTermsAndConditionsList(string ContractId)
         {
-            string sql = @"SELECT CT.*,TC.Sequence,TC.Code,TC.ShortName,TC.StandardName,TC.UserName,TC.Description  FROM [dbo].[ContractTermsAndConditions] CT
-                            LEFT JOIN HKP.TermsAndConditions TC ON TC.Id=CT.TermsAndConditionsId
-                            WHERE CT.ContractId='" + ContractId + "'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetContractTermsAndConditionsList(ContractId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetContractDetail(string partyId, string contractId)
         {
-            var sql = @"SELECT SUM(A.TotalQty) TotalQty,C.Code 
-                    FROM TRN.MasterOrder A
-                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                    WHERE PartyId='" + partyId + @"' AND ContractId='" + contractId + @"'
-                    GROUP BY A.TotalQty,C.Code";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetContractDetail(partyId,contractId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetContractListByCustomer(string customerId)
         {
-            string sql = @"SELECT Active=CAST (0 AS bit),C.*, P.UserName AS CustomerName
-                            FROM [dbo].[Contract] C
-                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
-                            WHERE C.MasterLCId IS NULL AND C.CustomerId='" + customerId + "' ORDER BY C.CustomerId";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+           
+            return Json(clsCon.GetContractListByCustomer(customerId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetSavedContractList(string masterLCId)
         {
-            string sql = @"SELECT C.*, P.UserName AS CustomerName
-                            FROM [dbo].[Contract] C
-                            JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
-                            Where C.MasterLCId='" + masterLCId + "' ORDER BY C.CustomerId";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetSavedContractList(masterLCId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public JsonResult Create(Contract model, string selectedMasterOrderList, List<Dictionary<string, object>> funds)
+        public JsonResult Create(Contract model, string selectedSalesOrderList, List<Dictionary<string, object>> funds)
         {
             try
             {
@@ -147,7 +115,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                     NullValueHandling = NullValueHandling.Ignore,
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
-                List<MasterOrderItemModel> masterOrderItem = JsonConvert.DeserializeObject<List<MasterOrderItemModel>>(selectedMasterOrderList, settings);
+                List<MasterOrderItemModel> masterOrderItem = JsonConvert.DeserializeObject<List<MasterOrderItemModel>>(selectedSalesOrderList, settings);
 
                 SaveData(model, masterOrderItem, out string contractId, funds);
 
@@ -322,28 +290,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SI.TotalQty	
-                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency, 0 Active,B.UserName Buyer, SO.Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article
-                            FROM [TRN].[MasterOrderItem] AS I
-							inner join [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
-                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
-							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
-							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                            LEFT JOIN (
-							Select SUM(TotalQty) TotalQty,MasterOrderId,Id FROM [TRN].[MasterOrderItem] Group By MasterOrderId,Id
-							) SI ON SI.Id=I.Id
-                            LEFT JOIN (
-							SELECT SUM(S.Qty) Qty, SUM(S.Qty*S.Rate) Amount, MOI.Id
-							FROM TRN.SalesOrder S
-							LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=S.MasterOrderItemId
-							GROUP BY MOI.Id
-							) SO ON SO.Id=I.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND I.ContractId IS NULL  ORDER BY P.Id";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterOrderList(identity.CompanyId,identity.PlantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -365,29 +312,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-                var sql = @"SELECT A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SI.TotalQty	
-                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency, 0 Active,B.UserName Buyer, SO.Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article
-                            FROM [TRN].[MasterOrderItem] AS I
-							inner join [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
-                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
-							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
-							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                            LEFT JOIN (
-							Select SUM(TotalQty) TotalQty,MasterOrderId,Id FROM [TRN].[MasterOrderItem] Group By MasterOrderId,Id
-							) SI ON SI.Id=I.Id
-                            LEFT JOIN (
-							SELECT SUM(S.Qty) Qty, SUM(S.Qty*S.Rate) Amount, MOI.Id
-							FROM TRN.SalesOrder S
-							LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=S.MasterOrderItemId
-							GROUP BY MOI.Id
-							) SO ON SO.Id=I.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND I.ContractId='" + contractId + "' ORDER BY P.Id";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterOrderListbyContract(contractId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -404,28 +329,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SI.TotalQty	
-                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency, 0 Active,B.UserName Buyer, SO.Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article
-                             FROM [TRN].[MasterOrderItem] AS I
-							inner join [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
-                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
-							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
-							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                           LEFT JOIN (
-							Select SUM(TotalQty) TotalQty,MasterOrderId,Id FROM [TRN].[MasterOrderItem] Group By MasterOrderId,Id
-							) SI ON SI.Id=I.Id
-                           LEFT JOIN (
-							SELECT SUM(S.Qty) Qty, SUM(S.Qty*S.Rate) Amount, MOI.Id
-							FROM TRN.SalesOrder S
-							LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=S.MasterOrderItemId
-							GROUP BY MOI.Id
-							) SO ON SO.Id=I.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND A.PartyId='" + customerId + "' AND I.ContractId IS NULL ORDER BY P.Id";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterOrderListbyCustomer(identity.CompanyId,identity.PlantId,customerId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -455,7 +359,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strUSQL = "update TRN.MasterOrderItem set ContractId=NULL Where ContractId='" + Id + "'";
+                strUSQL = "update TRN.SalesOrder set ContractId=NULL Where ContractId='" + Id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -591,11 +495,11 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                 foreach (var item in masterOrderItem)
                 {
                     if (id == "")
-                        id = "'" + item.MasterOrderItemId + "'";
+                        id = "'" + item.SalesOrderId + "'";
                     else
-                        id = id + ",'" + item.MasterOrderItemId + "'";
+                        id = id + ",'" + item.SalesOrderId + "'";
                 }
-                string mosql = "SELECT * FROM TRN.MasterOrderItem WHERE Id IN (" + id + ")";
+                string mosql = "SELECT * FROM TRN.SalesOrder WHERE Id IN (" + id + ")";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
 
@@ -603,7 +507,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                 foreach (var item in masterOrderItem)
                 {
                     DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item.MasterOrderItemId + "'";
+                    dv.RowFilter = "Id='" + item.SalesOrderId + "'";
                     if (string.IsNullOrEmpty(contId))
                     {
                         cId = data.Id;
@@ -1053,10 +957,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
         {
             try
             {
-                var sql = @"SELECT M.* FROM [dbo].[MasterLC] M
-                            LEFT JOIN [dbo].[Contract] C ON C.MasterLCId=M.Id
-                            WHERE C.Id='" + contractId + "'";
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterLcData(contractId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -1067,57 +968,19 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
         [HttpGet, Authorize]
         public ActionResult GetMasterLCList(string customerId)
         {
-            string sql = @" SELECT MLC.Id, MLC.BenificiaryBankId, MLC.OpeningBank, MLC.OpeningDescription, MLC.LeinBank, MLC.LeinDescription, MLC.LCRef, FORMAT(MLC.LCDate,'dd-MMM-yyyy') LCDate, FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,
-                             MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId, MLC.PortOfLandingId, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId
-                            ,OB.AccountTitle OpeningBank,CN.Code Currency, MLC.CustomerId, P.UserName PartyName 
-                            FROM [dbo].[MasterLC] MLC                            
-                            LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
-                            LEFT JOIN SCS.Currency CN ON CN.Id=MLC.CurrencyId
-                            LEFT JOIN HKP.Party P ON P.Id=MLC.CustomerId
-                            WHERE MLC.CustomerId='" + customerId + "'";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetMasterLCList(customerId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetMasterLCDataList()
         {
-            string sql = @"SELECT MLC.Id, MLC.BenificiaryBankId, MLC.OpeningBank, MLC.OpeningDescription, MLC.LeinBank, MLC.LeinDescription, MLC.LCRef, FORMAT(MLC.LCDate,'dd-MMM-yyyy') LCDate, FORMAT(MLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate,
-                          MLC.Amount, MLC.Type, MLC.Tenure, MLC.FinalDestinationId, MLC.PortOfLandingId, MLC.AddedBy,FORMAT(MLC.AddedDate,'dd-MMM-yyyy') AddedDate, MLC.AddedFromIP, MLC.UpdatedBy, FORMAT(MLC.UpdatedDate,'dd-MMM-yyyy') UpdatedDate, MLC.UpdatedFromIP, MLC.CurrencyId
-                         ,LB.UserName BenificiaryBank,CN.Code Currency, MLC.CustomerId, P.UserName PartyName 
-                         FROM [dbo].[MasterLC] MLC
-                         LEFT JOIN MST.BankMaster OB  ON OB.Id=MLC.BenificiaryBankId
-                         LEFT JOIN HKP.Bank LB ON LB.Id=OB.BankId
-                         LEFT JOIN SCS.Currency CN ON CN.Id=MLC.CurrencyId
-                         LEFT JOIN HKP.Party P ON P.Id=MLC.CustomerId";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetMasterLCDataList(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public ActionResult GetContractFundData(string contractId)
         {
-            string sql = @"SELECT A.Id,A.Sequence,A.FundUtilization,A.UserName,CONVERT(decimal(18,2),SUM(A.FundValue)) CostingValue,A.StandardValue [Percentage],A.StandardValue CostingValuePercentage,A.Remarks,A.CurrencyId,A.UserValue 
-,CostingPercentage=CONVERT(decimal(18,2),CASE WHEN SUM(A.OrderValue)>0 THEN SUM(A.FundValue)/SUM(A.OrderValue) ELSE 0 END)
-FROM
-(
-SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.ValueType,SO.OrderValue
-,FundValue=CASE WHEN CFU.ValueType='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/NULLIF(CFU.StandardValue,0)) ELSE CFU.StandardValue END
-,CFU.StandardValue,CFU.Sequence,CF.Remarks,CF.CurrencyId,CF.UserValue
-FROM  dbo.ContractFundUtilization CFU 
-LEFT JOIN TRN.MasterOrderItem MOI ON MOI.ContractId='" + contractId + @"'
-LEFT JOIN (Select SUM(Rate*Qty) OrderValue,MasterOrderItemId From TRN.SalesOrder Group BY MasterOrderItemId) SO ON SO.MasterOrderItemId=MOI.Id
-LEFT JOIN (
- SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.GrossAmount AS TotalGrossAmount FROM OrderPreCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
-    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingDirectProcess AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
-    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.[Value] AS TotalGrossAmount FROM OrderPreCostingOperation AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
-    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingSalesExpense AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
-    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingValueLoss AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
-    UNION ALL SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.Amount AS TotalGrossAmount FROM OrderPreCostingProfit AS pc INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
-) C ON C.OrderCostingMasterTemplateId=MOI.OrderCostingMasterTemplateId and C.ContractFundId = CFU.Id AND ISNULL(C.TotalGrossAmount,0)>0  
-LEFT JOIN ContractFund CF ON CF.ContractId=MOI.ContractId AND CFU.Id=CF.FundUtilization
-) A
-GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,A.CurrencyId,A.UserValue ORDER BY A.Sequence";
-
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(clsCon.GetContractFundData(contractId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -1248,6 +1111,33 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
         }//End of function
 
 
+        [HttpGet, Authorize]
+        public ActionResult GetSalesOrderList(string customerId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(clsCon.GetSalesOrderList(identity.CompanyId, identity.PlantId, customerId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEditSalesOrderList(string customerId, string contractId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(clsCon.GetEditSalesOrderList(identity.CompanyId, identity.PlantId, customerId, contractId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
 
         #region Master Order & Items Details Report 
@@ -1281,7 +1171,6 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             return null;
         }
 
-
         private IWorkbook GetMasterOrderReport(string ContractId, bool isMatrix)
         {
             ExcelEngine excelEngine = new ExcelEngine();
@@ -1299,7 +1188,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
                 DataTable dtOrderMaster = _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer,mo.PartyId
-				                , c.ContractNo,moi.ContractId,   c.MasterLCId, ml.LCRef As MasterLCNo, moi.id as MasterOrderItemNo
+				                , c.ContractNo,SO.ContractId,   c.MasterLCId, ml.LCRef As MasterLCNo, moi.id as MasterOrderItemNo
                                 ,  mo.OrderYear as Year, mo.TotalQty as TotalQuantity
                                     , uom.UserName as UnitOfMeasurement, mo.NoOfLineItem, mo.OrderWastagePercentage
                                     , mo.ExtraOrderPercentage, mo.BuyerReferenceNo, mo.OwnReferenceNo, BDept.UserName as BuyerDepartment
@@ -1313,7 +1202,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                     left join hkp.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
                                     left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId 
 					                left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
-					                left join Contract C on c.id = moi.ContractId
+					                left join trn.SalesOrder SO on SO.MasterOrderItemid =MOI.Id
+					                left join dbo.Contract C on c.id = SO.ContractId
 					                left join MasterLC ml on ml.Id = c.MasterLCId
                                     where c.Id='" + ContractId + "'");
 
@@ -1327,11 +1217,12 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                              ,moi.OrderWastagePercentage, moi.ExtraOrderPercentage ,mm.UserName as Material ,mma.StandardName as Article, moi.Type
                              from trn.MasterOrderItem MOI
                              left join TRN.MasterOrder mo  on mo.id=moi.MasterOrderId
+                             left join TRN.SalesOrder So on So.MasterOrderItemid=moi.Id
                              left join MST.MaterialMaster MM on mm.id = moi.MaterialMasterId
                              left join MST.MaterialMasterArticle mma on mma.id= moi.ArticleId
                              left join scs.TestingStandard ts on ts.id=moi.TestingStandardId
-				             left join hkp.buyer B on b.id = mo.buyerid 
-                            where moi.ContractId='" + ContractId + "'");
+				             left join hkp.buyer B on b.id = mo.buyerid
+                            where so.ContractId='" + ContractId + "'");
 
 
                 DataTable dtSalesOrderItem = _sqlRepository.GetDataTable(@"select so.MasterOrderItemId
@@ -1368,7 +1259,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 left join hkp.Characteristics C3 on c3.id = ThirdCS.CharacteristicsId
                 left join HKP.CharacteristicsValue CV3 on CV3.id= ThirdCS.CharacteristicsValueId
 
-                where moi.ContractId='" + ContractId + "'");
+                where so.ContractId='" + ContractId + "'");
 
                 worksheet.Name = "MasterOrderDetailsReport";
 
@@ -1563,7 +1454,6 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 
         }
 
-
         [Authorize, HttpGet]
         public ActionResult ProformaInvoice(string ContractId)
         {
@@ -1609,8 +1499,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 DataTable dsOrderMaster;
                 DataTable dsTermsAndCondition;
 
-                dsOrderMaster = ProformaInvoiceSQL(ContractId);
-                dsTermsAndCondition = TermsAndConditionSQL(ContractId);
+                dsOrderMaster =clsCon.ProformaInvoiceSQL(ContractId);
+                dsTermsAndCondition = clsCon.TermsAndConditionSQL(ContractId);
 
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
@@ -1718,8 +1608,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 DataTable dsOrderMaster;
                 DataTable dsTermsAndCondition;
 
-                dsOrderMaster = ProformaInvoiceSQL(ContractId);
-                dsTermsAndCondition = TermsAndConditionSQL(ContractId);
+                dsOrderMaster = clsCon.ProformaInvoiceSQL(ContractId);
+                dsTermsAndCondition = clsCon.TermsAndConditionSQL(ContractId);
 
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
@@ -2088,77 +1978,6 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             return 0;
         }
 
-        public DataTable ProformaInvoiceSQL(string ContractId)
-        {
-            string strSQL;
-            try
-            {
-                strSQL = @"select  moi.Id MasterOrderItemID,c.Id as ContractId
-                                ,so.Rate,So.UpCharge
-								,so.Qty
-								,(so.Rate*so.Qty) as Amount
-,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
-                                ,c.description as Reference,
-                                pc.UserName as CustomerName,u.UserName as UoM,
-                                pbt.UserName as ConsigneeBilltoName,
-                                pst.UserName as ConsigneeShiptoName
-                                ,c.MarketingCommisssionCharge,
-                                c.Remarks,
-                                CONVERT(NUMERIC(10,2),ISNULL(c.MarketingCommisssionValue,0)) MarketingCommisssionValue,
-                                c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
-                                p.UserName as MarketingCommissioningAgent,c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
-                                ,SO.Id SONo,CONVERT(varchar,SO.DeliveryDate,5) DeliveryDate,DS.UserName Destination,moi.BuyerReferenceNo,C.AddedBy CreatedBy
-                                from dbo.[Contract] C
-                                left join TRN.MasterOrderItem as moi on moi.ContractId=c.Id
-                                left join  TRN.SalesOrder as so on MOI.Id=SO.MasterOrderItemId
-                                left join HKP.Party as p on p.Id=c.MarketingCommisssionId
-                                left join HKP.Party as pc on pc.Id=c.CustomerId
-                                left join HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
-                                left join HKP.PartyPlant as pst on pst.Id=c.DeliveryPartyPlantId
-                                LEFT JOIN MST.Destination DS ON DS.Id=SO.DestinationId
-                                left join MST.MaterialMaster as mm on mm.Id=moi.MaterialMasterId
-                                left join MST.MaterialMasterArticle as mma on mma.MaterialMasterId=mm.Id AND MOI.ArticleId=MMA.Id
-                                left join HKP.HSNCode as h on h.Id=mma.HSNCodeId
-                                left join TRN.MasterOrder as mo on mo.id=moi.MasterOrderId
-                                left join SCS.UnitOfMeasurement as u on u.Id=mo.TotalQtyUOMId
-                                left join scs.Currency as cu on cu.Id=mo.CurrencyId
-                                left join MSt.PaymentTerm PT ON PT.Id=MO.PaymentTermId
-                                where c.Id='" + ContractId + "'";
-
-                return _sqlRepository.GetDataTable(strSQL);
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-
-            }
-        }
-        public DataTable TermsAndConditionSQL(string ContractId)
-        {
-            string strSQL;
-            try
-            {
-                strSQL = @"SELECT ROW_NUMBER() OVER(ORDER BY TC.Sequence) RoWNo,
-                        tc.Description as TermsAndConditions from dbo.ContractTermsAndConditions as ctc
-                        left outer join hkp.TermsAndConditions as tc on tc.Id=ctc.TermsAndConditionsId
-                        where ctc.ContractId='" + ContractId + "' Order By TC.Sequence ";
-
-                return _sqlRepository.GetDataTable(strSQL);
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-
-            }
-        }
-
-
         private void DrawSOBreakdownData(DataTable dtData, IWorksheet sheet, ref int ROW, bool Matrix = true)
         {
 
@@ -2407,7 +2226,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
                 DataTable dtOrderMaster = _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer,mo.PartyId
-				               ,format(c.AddedDate,'dd-MMM-yyyy') as ContractDate, c.ContractNo,moi.ContractId,   c.MasterLCId, ml.LCRef As MasterLCNo, moi.id as MasterOrderItemNo
+				               ,format(c.AddedDate,'dd-MMM-yyyy') as ContractDate, c.ContractNo,SO.ContractId,   c.MasterLCId, ml.LCRef As MasterLCNo, moi.id as MasterOrderItemNo
                                 ,  mo.OrderYear as Year, mo.TotalQty as TotalQuantity
                                     , uom.UserName as UnitOfMeasurement, mo.NoOfLineItem, mo.OrderWastagePercentage
                                     , mo.ExtraOrderPercentage, mo.BuyerReferenceNo, mo.OwnReferenceNo, BDept.UserName as BuyerDepartment
@@ -2421,7 +2240,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                                     left join hkp.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
                                     left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId 
 					                left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
-					                left join Contract C on c.id = moi.ContractId
+					                left join trn.SalesOrder SO ON SO.MasterOrderItemId=MOI.Id
+					                left join dbo.Contract C on c.id = SO.ContractId
 					                left join MasterLC ml on ml.Id = c.MasterLCId
                                     where c.Id='" + ContractId + "'");
 
@@ -2472,7 +2292,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 --left join TRN.ThirdCharacteristics ThirdCS on ThirdCS.SalesOrderId=so.id and scs.id=ThirdCS.SecondCharacteristicsId
                 --left join hkp.Characteristics C3 on c3.id = ThirdCS.CharacteristicsId
                 --left join HKP.CharacteristicsValue CV3 on CV3.id= ThirdCS.CharacteristicsValueId
-                  where moi.ContractId='" + ContractId + "'");
+                  where SO.ContractId='" + ContractId + "'");
 
                 worksheet.Name = "ContractSummaryReport";
 
@@ -2482,8 +2302,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 DataTable dtCustomerDetail = null;
                 DataTable dtVendorDetail = null;
 
-                dtCustomerDetail = dtConsigneeNameAddress(dtOrderMaster.Rows[0]["PartyId"].ToString());
-                dtVendorDetail = dtNameAddressVendor(companyId);
+                dtCustomerDetail = clsCon.dtConsigneeNameAddress(dtOrderMaster.Rows[0]["PartyId"].ToString());
+                dtVendorDetail = clsCon.dtNameAddressVendor(companyId);
 
                 string customerName = dtCustomerDetail.Rows[0]["CustomerName"].ToString();
                 string vendorName = dtVendorDetail.Rows[0]["CompanyName"].ToString();
@@ -2737,50 +2557,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 
         }
 
-        private DataTable dtConsigneeNameAddress(string partyId)
-        {
-            try
-            {
-                string sql = "";
-
-                sql = @"SELECT P.UserName CustomerName,AM.Address1,CN.UserName CountryName FROM HKP.Party P
-                LEFT JOIN MST.AddressMaster AM ON AM.Id=P.AddressMasterId
-                LEFT JOIN SCS.District D ON D.Id=AM.DistrictId
-                LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
-                
-                WHERE P.Id='" + partyId + @"'";
-
-                return _sqlRepository.GetDataTable(sql);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        private DataTable dtNameAddressVendor(string companyId)// Company Address
-        {
-            try
-            {
-                string sql = "";
-
-                sql = @"SELECT C.UserName CompanyName,AM.Address1,CM.Phone1 Phone,D.UserName DistrictName,CN.UserName CountryName FROM ORG.Company C
-                    LEFT JOIN MST.AddressMaster AM ON AM.Id=C.AddressMasterId
-                    LEFT JOIN MST.ContactMaster CM ON CM.Id=C.ContactMasterId
-                    LEFT JOIN SCS.District D ON D.Id=AM.DistrictId
-                    LEFT JOIN SCS.Country CN ON CN.Id=AM.CountryId
-                    WHERE C.Id='" + companyId + @"'
-                ";
-
-                return _sqlRepository.GetDataTable(sql);
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
+      
         #endregion
 
         #region ContractItem
@@ -2791,44 +2568,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT CI.Id,CI.BuyerItemRef,CI.OwnItemRef,CI.ContractId,A.Id AS  MasterOrderId,MOI.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.CurrencyId,CO.BaseCurrencyId, A.TotalQty,SO.Qty,SO.Rate,Amount=SO.Qty*SO.Rate	
-                                    , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
-		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress								    
-								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,0 Active
-                                    ,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
-									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
-                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,MOI.ContractId
-                                    , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
-									,MM.Id MaterialMasterId, MMA.Id ArticleId
-                                    ,PONumber=  REPLACE(REPLACE(
-										            STUFF((SELECT DISTINCT ','+CPO.PONumber from 
-	                                                    TRN.SalesOrder XSO 
-		                                                    JOIN [TRN].[CustomerPO] CPO ON CPO.Id=XSO.CustomerPOId
-		                                                      JOIN trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    LEFT OUTER JOIN TRN.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-			                                                WHERE MOI.Id=Xmoi.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										                    ,'&amp;','&'), 'amp;', '')	
-                            FROM [dbo].[ContractItems] CI
-							JOIN TRN.MasterOrderItem MOI ON MOI.Id=CI.MasterOrderItemId
-							LEFT JOIN [TRN].[MasterOrder] AS A ON A.Id=MOI.MasterOrderId
-                            LEFT JOIN [ORG].[Company] AS CO ON CO.Id=A.CompanyId
-                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId  AND CP.PlantId=A.PlantId AND CP.PartyType='Customer'
-                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
-                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-                            LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
-                            LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
-                            LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
-                            LEFT JOIN HKP.Buyer AS B ON B.Id=A.BuyerId
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
-							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
-                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
-							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
-							LEFT JOIN(Select SUM(Qty) Qty,Rate,MasterOrderItemId From TRN.SalesOrder Group By MasterOrderItemId,Rate) SO ON SO.MasterOrderItemId=MOI.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "' AND A.PlantId='" + identity.PlantId + "' AND CI.ContractId='" + contractId + "' --ORDER BY P.Id";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetContractItemDataList(identity.CompanyId, identity.PlantId, contractId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -2842,43 +2582,8 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"SELECT A.Id AS  MasterOrderId,MOI.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.CurrencyId,CO.BaseCurrencyId, A.TotalQty,SO.Qty,SO.Rate,Amount=SO.Qty*SO.Rate	
-                                    , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
-		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress								    
-								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,0 Active
-                                    ,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
-									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
-                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,MOI.ContractId
-                                    , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
-                                    ,MM.Id MaterialMasterId, MMA.Id ArticleId
-                                    ,PONumber=  REPLACE(REPLACE(
-										            STUFF((SELECT DISTINCT ','+CPO.PONumber from 
-	                                                    TRN.SalesOrder XSO 
-		                                                    JOIN [TRN].[CustomerPO] CPO ON CPO.Id=XSO.CustomerPOId
-		                                                      JOIN trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-		                                                    LEFT OUTER JOIN TRN.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-			                                                WHERE MOI.Id=Xmoi.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-										                    ,'&amp;','&'), 'amp;', '')	
-                            FROM [TRN].[MasterOrder] AS A
-                            LEFT JOIN [ORG].[Company] AS CO ON CO.Id=A.CompanyId
-							JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=A.Id
-                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=A.PartyId  AND CP.PlantId=A.PlantId AND CP.PartyType='Customer'
-                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
-                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-                            LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
-                            LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
-                            LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
-                            LEFT JOIN HKP.Buyer AS B ON B.Id=A.BuyerId
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
-							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
-                            LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
-							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
-							LEFT JOIN(Select SUM(Qty) Qty,Rate,MasterOrderItemId From TRN.SalesOrder Group By MasterOrderItemId,Rate) SO ON SO.MasterOrderItemId=MOI.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "' AND A.PlantId='" + identity.PlantId + "' --ORDER BY P.Id";
 
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(clsCon.GetMasterOrderDataList(identity.CompanyId,identity.PlantId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -3634,6 +3339,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
     {
         public string MasterOrderItemId { get; set; }
         public string MasterOrderId { get; set; }
+        public string SalesOrderId { get; set; }
     }
     #endregion
 }

@@ -18,10 +18,10 @@ function CommercialConfig($routeProvider) {
             templateUrl: 'Commercial/contract/Aplos',
             controller: 'contractController'
         })
-        .when('/contracts', {
-            templateUrl: 'Commercial/contract/Aplos1',
-            controller: 'contractNewController'
-        })
+        //.when('/contracts', {
+        //    templateUrl: 'Commercial/contract/Aplos1',
+        //    controller: 'contractNewController'
+        //})
         .when('/purchaselc', {
             templateUrl: 'Commercial/PurchaseLC/Aplos',
             controller: 'purchaseLCController'

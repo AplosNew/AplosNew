@@ -2276,14 +2276,21 @@ namespace Library.Accounting.Accounts
 								, IVS.CurrencyId, CU.Code AS CurrencyCode
 	                            , IVS.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy,  IVS.DeliveryPartyPlantId
 								, DPP.UserName AS DeliveryBy
-	                            , IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount
+	                            , ISC.ReturnNetWeight TransactionQty,ISC.PackingId
                                 , S1.UserName AS InvoicingState, S2.UserName AS DeliveryState
 								, CP.TaxApplicable,CP.IsPaymentTermChangeable,IVS.PaymentTermId,PT.UserName PaymentTerm
 								,REPLACE(CONVERT(CHAR(11), IVS.BaseOnDueDate, 106),' ','-') BaseOnDueDate,IVS.BaseNoOfDays,REPLACE(CONVERT(CHAR(11), IVS.MatureDate, 106),' ','-') MatureDate
 								,'Customer' [Type]
                                 ,CO.BaseCurrencyId,IVS.ToCurrencyRate
                                 ,'' NoteForAccounts,IVS.SourceType
-                    FROM [TRN].[Sales] AS IVS LEFT JOIN [HKP].[Party] AS P ON IVS.PartyId=P.Id
+                    FROM [TRN].[Sales] AS IVS 
+					LEFT JOIN [HKP].[Party] AS P ON IVS.PartyId=P.Id
+					 JOIN (SELECT isc.SalesId,pli.PackingId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
+					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
+					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
+					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
+					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId) ISC ON ISC.SalesId=IVS.Id
+
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.PartyId AND CP.PlantId=IVS.PlantId
                     LEFT JOIN [SCS].[Currency] AS CU ON IVS.CurrencyId=CU.Id
@@ -2294,17 +2301,9 @@ namespace Library.Accounting.Accounts
                     LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                     LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
                     LEFT JOIN ORG.Company AS CO ON CO.Id=IVS.CompanyId
-                     LEFT JOIN (SELECT A.SalesId, SUM(A.TransactionQty) AS TransactionQty, SUM(ROUND(A.TransactionAmount,4)) AS TransactionAmount, SUM(ROUND(A.BooksCurrencyTransactionAmount,0)) AS BaseAmount 
-					 FROM [TRN].[SalesMaterial] AS A
-		                        JOIN [TRN].[Sales] AS B ON A.SalesId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.SalesId) AS IRD ON IRD.SalesId=IVS.Id
-                    LEFT JOIN (SELECT A.SalesId, A.TransactionUoMId 
-								FROM [TRN].[SalesMaterial] AS A 
-								JOIN [TRN].[Sales] AS B ON A.SalesId=B.Id
-		                        WHERE B.PlantId='" + plantId + @"' GROUP BY A.SalesId, A.TransactionUoMId HAVING COUNT(A.SalesId)> COUNT(A.TransactionUoMId)) AS TU ON TU.SalesId=IVS.Id
-                    LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
 					LEFT JOIN ORG.Entity E ON E.Id=IVS.EntityId
 					LEFT JOIN MST.PaymentTerm PT ON PT.Id=IVS.PaymentTermId
-                    WHERE IVS.PlantId='" + plantId + @"'  AND IVS.VoucherId IS NOT NULL
+                    WHERE IVS.PlantId='"+plantId+@"'  AND IVS.VoucherId IS NOT NULL
 					) AS TEMP WHERE " + strkey + " order by SalesDate DESC ";
 				return _sqlRepository.GetDataCollection(sql);
 			}
@@ -2371,7 +2370,7 @@ namespace Library.Accounting.Accounts
 				throw ex;
 			}
 		}
-		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId)
+		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId,string packingId)
 		{
 
 			var cmdText = @"SELECT '' Id,SP.PackingId,SM.Id SalesMaterialId,SM.SalesOrderId,SM.SalesId
@@ -2395,7 +2394,7 @@ namespace Library.Accounting.Accounts
 			,TC.Id ThirdCharacteristicsId
 			,TC.CharacteristicsValueId ThirdCharacteristicsValueId
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
-			, SO.SOType,SO.Rate,0 ReturnQty,0 Amount,0 TaxAmount,0 VerifiedQty
+			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,(ISC.ReturnNetWeight * SM.TransactionRate) Amount,0 TaxAmount,ISC.ReturnNetWeight VerifiedQty
            ,SM.TransactionQty SalesQty
                 ,SM.TransactionQty 
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
@@ -2403,6 +2402,11 @@ namespace Library.Accounting.Accounts
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 			LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=SA.Id
+			LEFT JOIN (SELECT isc.SalesId,pli.PackingId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
+					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
+					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
+					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
+					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId) ISC ON ISC.PackingId=sp.PackingId
             LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
             JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
@@ -2429,7 +2433,7 @@ namespace Library.Accounting.Accounts
             LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
             JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
-            WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "'";
+            WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "' and sp.PackingId='"+ packingId + "'";
 
 			return _sqlRepository.GetDataCollection(cmdText);
 		}
@@ -2459,6 +2463,18 @@ namespace Library.Accounting.Accounts
                                 left join trn.POLotReference pol on pol.Id = isc.PackingId
                                 left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
                                 where  pli.PackingId = '" + packingId + "' AND pli.SOId IN ('"+ soId + "') and isc.SalesId='"+ salesId + @"'";
+
+			return _sqlRepository.GetDataCollection(cmdText);
+		}
+
+		public List<Dictionary<string, object>> GetItemScanChildDataByPackingId(string salesId, string packingId, string soId)
+		{
+
+			var cmdText = @"SELECT isc.Id,isc.SalesId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight,isc.NetWeight ReturnNetWeight,isc.Shade,isc.Booked,isc.IsDespatch
+								,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
+                                left join trn.POLotReference pol on pol.Id = isc.PackingId
+                                left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+                                where  pli.PackingId = '" + packingId + "' AND  isc.SalesId='" + salesId + @"' and isc.SalesReturnId IS NULL and isc.booked=0";
 
 			return _sqlRepository.GetDataCollection(cmdText);
 		}
