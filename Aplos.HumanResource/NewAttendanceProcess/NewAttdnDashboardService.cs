@@ -521,19 +521,19 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 if (Column == "InStat")
                 {
-                    whereCol = " and apd.InStatus = 'IN'";
+                    whereCol = " and isnull(apd.InStatus,'') = 'IN'";
                 }
                 if (Column == "EarlyIn")
                 {
-                    whereCol = " and apd.InStatus ='EI'";
+                    whereCol = " and isnull(apd.InStatus,'') ='EI'";
                 }
                 if (Column == "LateIn")
                 {
-                    whereCol = " and  apd.InStatus ='LI'";
+                    whereCol = " and  isnull(apd.InStatus,'') ='LI'";
                 }
                 if (Column == "InMissing")
                 {
-                    whereCol = "  and apd.InStatus = 'IM'";
+                    whereCol = "  and isnull(apd.InStatus,'') = 'IM'";
                 }
                 if (Column == "OD")
                 {
@@ -549,11 +549,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 if (Column == "Other")
                 {
-                    whereCol = " and InStatus ='O'";
+                    whereCol = " and isnull(InStatus,'') ='O'";
                 }
                 if (Column == "OTIN")
                 {
-                    whereCol = " and  (apd.InStatus='IN' or apd.InStatus='EI' or apd.InStatus='LI' )";
+                    whereCol = " and  (isnull(apd.InStatus,'')='IN' or isnull(apd.InStatus,'')='EI' or isnull(apd.InStatus,'')='LI' )";
                 }
                 if (Column == "INVM")
                 {
@@ -582,16 +582,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = "";
                 if(secSql == 0)
                 {
-                     str = @"select x.*,y.ROEmployeeName,y.RODOJ RO1Date,z.PREmployeeName,z.PRDOJ PO1Date from (
+                     str = @"select x.*,y.ROEmployeeName,y.RODOJ RO1Date,z.PREmployeeName,z.PRDOJ PO1Date,InStatus from (
 Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
-                            FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime , FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt') as OutTime
-                            , apd.DayStatus,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift,
+                            FORMAT(CAST(apd.InTime AS DATETIME),'hh:mm tt') as InTime ,isnull(FORMAT(CAST(apd.OutTime AS DATETIME),'hh:mm tt'),'-') as OutTime
+                            ,isnull(apd.DayStatus,'')DayStatus,desg.UserName as Designation ,ei.EmployeeCurrentStatus, plant.username as Plant , mb.Code as BudgetCode, shift.Username as Shift, dess.UserName as LDesignation,unit.UserName Unit,
                             subsection.Username as SubSection , section.UserName as Section , department.Username as Department, e.UserName as Entity,
-                            FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt') as PVIn ,FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt') as PVOut 
-                            , DATEDIFF(MINUTE, apd.InTime, pv.InTime) as InDuration --, DATEDIFF(MINUTE, apd.OutTime, pv.OutTime) as OutDuration
-                             ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo
-                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory
-                            from dbo.AttdnProcessData apd
+                            isnull(FORMAT(CAST(pv.InTime AS DATETIME),'hh:mm tt'),'-') as PVIn , isnull(FORMAT(CAST(pv.OutTime AS DATETIME),'hh:mm tt'),'-') as PVOut 
+                            , isnull(DATEDIFF(MINUTE, apd.InTime, pv.InTime),0) as InDuration , isnull(DATEDIFF(MINUTE, apd.OutTime, pv.OutTime),0) as OutDuration
+                             ,TG.UserName Transport,RG.UserName Residence,ei.EntryLevel EntryType,ei.CellPhnNo MobileNo,departmentu.UserName as SDept
+                             ,mb.ROBudgetCode,mb.PRBudgetCode,EC.userName EmployeeCategory,isnull(apd.InStatus,'')InStatus, uu.FullName as ScanName
+                            
+                            from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
                             left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
@@ -607,6 +608,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
+                            left join hkp.LegalDesignation dess on dess.Id = ei.LegalDesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
                             left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '" + date+ @"'
@@ -615,12 +617,15 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
 							left join mst.DesignationMaster dmm on dmm.DesignationId = ei.GivenDesignationId
 							left join [HKP].[EmployeeCategory] EC on EC.Id=dmm.EmployeeCategoryId
-                            
+                            left join SEC.[User] uu on uu.AuthToken = pv.AddedBy
+                            left join dbo.EmployeeInformation eui on ei.SystemId = uu.EmployeeId
+							left join org.Department departmentu on departmentu.Id = eui.DepartmentId
+
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @")x
                              left outer join 
 (select top(1) x.DOJ RODOJ, x.EmployeeName ROEmployeeName,x.EmployeeCode ROEmployeeCode from (
-Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.ROBudgetCode
+Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.ROBudgetCode, dess.UserName as LDesignation,unit.UserName Unit, uu.FullName as ScanName
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -637,18 +642,20 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.ROBudgetCode
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
+                            left join hkp.LegalDesignation dess on dess.Id = ei.LegalDesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
                             left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '13-Feb-2023'
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join SEC.[User] uu on uu.AuthToken = pv.AddedBy
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @") x
                              order by x.DOJ asc ) y on y.ROEmployeeCode=x.EmployeeCode
 							left outer join 
 (select top(1) x.DOJ PRDOJ, x.EmployeeName PREmployeeName,x.EmployeeCode PREmployeeCode from (
-Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
+Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode, dess.UserName as LDesignation,unit.UserName Unit, uu.FullName as ScanName
                             from dbo.AttdnProcessData apd
                              left join org.Plant plant on plant.Id = apd.PlantID
                             left join org.Company company on company.Id = plant.CompanyId
@@ -665,12 +672,14 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join org.SubSection subsection on subsection.id = pos.SubSectionId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join hkp.Designation desg on desg.Id = dm.DesignationId
+                            left join hkp.LegalDesignation dess on dess.Id = ei.LegalDesignationId
                             left join org.Department dept on dept.id = pos.DepartmentId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
                             left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = '13-Feb-2023'
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join SEC.[User] uu on uu.AuthToken = pv.AddedBy
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @") x
                              order by x.DOJ asc ) z on z.PREmployeeCode=x.EmployeeCode

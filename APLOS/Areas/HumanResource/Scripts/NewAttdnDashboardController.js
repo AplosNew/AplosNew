@@ -403,19 +403,48 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
     // On Downloading the Excel
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.printReport = function () {
+        var dataList = [];
+        var onRoleList = [];
+        var g = $("#getClickDetail").data("ejGrid");
+        onRoleList = g.getFilteredRecords();
+
+        var LateInList = [];
+        var g = $("#getClickDetailLateIn").data("ejGrid");
+        LateInList = g.getFilteredRecords();
+
+        var InMissingList = [];
+        var g = $("#getClickDetailInMissing").data("ejGrid");
+        InMissingList = g.getFilteredRecords();
+
+        var ClickDetailsList = [];
+        var g = $("#getClickDetails").data("ejGrid");
+        ClickDetailsList = g.getFilteredRecords();
+
+        if (onRoleList.length != 0) {
+            dataList = onRoleList;
+        }
+        else if (LateInList.length != 0)
+        {
+            dataList = LateInList;
+        }
+        else if (InMissingList.length != 0) {
+            dataList = InMissingList;
+        }
+        else if (ClickDetailsList.length != 0) {
+            dataList = ClickDetailsList;
+        }
+        else {
+            dataList = $scope.ClickDetail;
+        }
+        if (dataList.length == 0) {
+            throw "First click on View button.";
+        }
+
+        $scope.fileName = "Daily Production Report.xlsx";
         $http({
             method: 'POST',
-            url: 'NewAttdnDashboard/GetPrintReport',
-            data: {
-                'ChartColumnList': $scope.ColList,
-                'seq': $scope.index,
-                'date': $scope.Date,
-                'Column': $scope.RptColumn,
-                'data': $scope.RptData,
-                'stat': $scope.Stat,
-                'EmpCat': $scope.EmpCat,
-                'EmpStat': $scope.EmpStat,
-            },
+            url: 'NewAttdnDashboard/GetPrintReportUpd',
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -428,4 +457,37 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+
+    //$scope.downloadgriddataUrl = 'GridReports/Download';
+    //$scope.OnRoleprintReport = function () {
+    //    var dataList = [];
+    //    var g = $("#getClickDetail").data("ejGrid");
+    //    dataList = g.getFilteredRecords();
+
+    //    if (dataList.length == 0) {
+    //        dataList = $scope.OnRoleClickDetail;
+    //    }
+    //    if (dataList.length == 0) {
+    //        throw "First click on View button.";
+    //    }
+
+    //    $scope.fileName = "Daily Production Report.xlsx";
+    //    $http({
+    //        method: 'POST',
+    //        url: 'NewAttdnDashboard/GetOnRolePrintReport',
+    //        data: { 'reportFileName': $scope.fileName, 'data': dataList },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error == true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
+    //}
+
 }
