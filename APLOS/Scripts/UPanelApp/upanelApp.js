@@ -494,7 +494,7 @@ upanelApp.controller('complianceAttendanceSettingController', complianceAttendan
 upanelApp.controller('complianceRawDataDownloadController', complianceRawDataDownloadController);
 upanelApp.controller('ConfirmationController', ConfirmationController);
 upanelApp.controller('contractController', contractController);
-upanelApp.controller('contractNewController', contractNewController);
+//upanelApp.controller('contractNewController', contractNewController);
 upanelApp.controller('costingGroupFormulaController', costingGroupFormulaController);
 upanelApp.controller('costingItemController', costingItemController);
 upanelApp.controller('CropMasterController', CropMasterController);

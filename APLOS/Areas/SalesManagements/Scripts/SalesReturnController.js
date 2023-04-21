@@ -101,13 +101,15 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.selectDoubleClick = function (data) {
         $scope.product = data.data;
         $scope.product.SalesId = data.data.Id;
+        $scope.product.SalesId = data.data.Id;
         $scope.product.Id = null;
         $scope.product.SalesDate = data.data.SalesDateNew;
         $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
         $scope.productNew = Object.assign({}, $scope.product);
         $scope.materialStockList = [];
         $scope.specificStockList = [];
-        getIssueDetailList();
+        getIssueDetailList($scope.product.SalesId, data.data.PackingId);
+        getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
         getInvTaxList();
         $scope.productNew.TaxOption = 'Yes';
         $scope.productNew.TaxOptionMat = 'Yes';
@@ -471,15 +473,26 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     }
 
 
-    function getIssueDetailList() {
+    function getIssueDetailList(salesId,packingId) {
         if ($scope.productNew.SourceType == 'Packing') {
-            $scope.returnDetailurl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales?salesId=' + $scope.productNew.SalesId
+            $scope.returnDetailurl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales?salesId=' + salesId + '&packingid=' + packingId
         } else {
-            $scope.returnDetailurl = 'SalesManagements/Sales/GetSalesDetailDataBySales?salesId=' + $scope.productNew.SalesId
+            $scope.returnDetailurl = 'SalesManagements/Sales/GetSalesDetailDataBySales?salesId=' + salesId
         }
         $http.get($scope.returnDetailurl)
             .then(function (response) {
                 $scope.detailList = response.data;
+            });
+    }
+
+    function getItemScanChildByPackingId(salesId, packingId) {
+        $scope.tempitemScanList = [];
+        if ($scope.productNew.SourceType == 'Packing') {
+            $scope.returnDetailurl = 'SalesManagements/Sales/GetItemScanChildDataByPackingId?salesId=' + salesId + '&packingid=' + packingId
+        }
+        $http.get($scope.returnDetailurl)
+            .then(function (response) {
+                $scope.tempitemScanList = response.data;
             });
     }
 
