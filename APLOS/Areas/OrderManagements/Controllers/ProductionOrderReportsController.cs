@@ -6050,11 +6050,10 @@ group by pbt.productionOrderId,pbtm.MaxNoOfWS, pbt.Id ) Btn on Btn.ProductionOrd
                             LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
 
                             left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
-							left outer join dbo.[Contract] con on con.Id=MOI.ContractId
+                            left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+                            LEFT JOIN dbo.[Contract]  CON on CON.Id = SO.ContractId
 							left outer join HKP.Party PA on PA.Id=con.CustomerId
 							left outer join MasterLC M on m.Id=con.MasterLCId
-
-                            left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
                             left join HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                             left join [ExpectedSOWiseProductionCompletion] XCOM on XCOM.SalesOrderId=SO.Id
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
@@ -6122,7 +6121,7 @@ left outer join trn.ProductionBulletinTemplateDetail pbtd on pbtd.ProductionBull
 AND  pbtm.ProcessId=(select top 1 sx.ProcessId from trn.ProductionOrderProcessSet SX where SX.ProductionOrderId=pbt.productionOrderId and isnull(SX.IsBaseProcess,0)=1)
 group by pbt.productionOrderId,pbtm.MaxNoOfWS, pbt.Id ) Btn on Btn.ProductionOrderId=po.Id
 --left outer join BOQ on boq.SalesOrderId=so.Id and boq.SalesOrderId=(select top 1 SalesOrderId from boq where SalesOrderId=so.Id)
-                            WHERE os.Id IN("+ orderStatusIds +@") AND mo.EntityId IN (" + entityid + @") AND mo.AddedDate between '"+fromDate+@"' AND '"+toDate+@"'
+                            WHERE os.Id IN(" + orderStatusIds +@") AND mo.EntityId IN (" + entityid + @") AND mo.AddedDate between '"+fromDate+@"' AND '"+toDate+@"'
             ORDER BY trkp.UserName,trke.UserName,PAG.UserName DESC, p.UserName, b.UserName,convert(date,so.DeliveryDate),SO.ID";
 
             dtOrderMaster = _sqlRepository.GetDataTable(sql);
