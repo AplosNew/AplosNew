@@ -2024,7 +2024,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.Id = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
@@ -2254,7 +2254,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.ID = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=SO.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
@@ -2783,7 +2783,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.Id = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
@@ -3008,7 +3008,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.ID = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
@@ -3507,7 +3507,7 @@ Order by P.Sequence";
 									from TRN.SalesMaterial SM 
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 

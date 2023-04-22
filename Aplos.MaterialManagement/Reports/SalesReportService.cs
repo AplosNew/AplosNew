@@ -4244,7 +4244,8 @@ namespace Library.MaterialManagement.Reports
 						 ,OA.Address1 OpeningBankAddress
 						 from trn.SalesOrderItem as SOI
 						 LEFT JOIN TRN.MasterOrderItem  MOI on MOI.Id=SOI.MasterOrderItemId
-						 LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
+						 LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
 						 LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
 						 LEFT JOIN  MST.BankMaster OB on OB.Id=PLC.OpeningBankMasterId
 						 LEFT JOIN  HKP.Bank B on B.Id=OB.BankId

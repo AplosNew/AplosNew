@@ -5631,7 +5631,8 @@ namespace Library.MaterialManagement.Inventory
                     ,PO.PartyId
                     ,BuyerReferenceNo = STUFF((SELECT DISTINCT ',' + moi.BuyerReferenceNo from
                                             trn.MasterOrderItem moi
-                                        WHERE CNO.Id = moi.ContractId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											LEFT JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=moi.Id
+                                        WHERE CNO.Id = SO.ContractId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                     ,POD.RefferenceNo
                     , isnull(PO.DiscountAmount, 0) DiscountAmount
                     ,ISNULL(PO.DeliveryInstruction, '') DeliveryInstruction

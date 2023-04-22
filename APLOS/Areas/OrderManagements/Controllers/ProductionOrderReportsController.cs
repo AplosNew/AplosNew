@@ -5941,11 +5941,10 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                             LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + entityid + @"))
 
                             left outer join trn.MasterOrderItem MOI on moi.MasterOrderId=mo.Id
-							left outer join dbo.[Contract] con on con.Id=MOI.ContractId
+                            left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
+							left outer join dbo.[Contract] con on con.Id=SO.ContractId
 							left outer join HKP.Party PA on PA.Id=con.CustomerId
 							left outer join MasterLC M on m.Id=con.MasterLCId
-
-                            left join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
                             left join HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                             left join [ExpectedSOWiseProductionCompletion] XCOM on XCOM.SalesOrderId=SO.Id
                             LEFT OUTER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id
