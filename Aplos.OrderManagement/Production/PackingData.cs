@@ -1122,7 +1122,7 @@ order by pk.Date  DESC";
                     left join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                     left join hkp.Party p on p.Id = mo.PartyId
                     LEFT OUTER JOIN [MST].[MaterialMasterArticle] mma ON mma.Id=moi.ArticleId
-                    Left Join dbo.Contract c on c.Id = moi.ContractId
+                    Left Join dbo.Contract c on c.Id = so.ContractId
 
 					left join(
 					Select so.Id , isnull(sum(sm.TransactionQty),0) as Dispatch from trn.SalesOrder so 
@@ -1161,7 +1161,7 @@ JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id
 JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 LEFT JOIN [MST].[MaterialMasterArticle] AS MMA ON MOI.ArticleId = MMA.Id							
 LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
-LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
+LEFT JOIN dbo.[contract] as c on c.id = SO.contractId
 LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
 LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
 LEFT JOIN dbo.SalesPacking SP on SP.PackingId=pli.PackingId

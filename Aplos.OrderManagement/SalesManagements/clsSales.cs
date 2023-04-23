@@ -654,8 +654,8 @@ WHERE s.Id " + Ids + "";
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
 ,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,ISNULL(ha.Code,h.Code) HSNcode   
 ,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,2),sm.TransactionRate*s.ToCurrencyRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)GrossAmount,'' Discount,''PreTaxValue
-,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)Taxablevalue,CONVERT(numeric(10,2),TAxInfo1.Percentage) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount*s.ToCurrencyRate) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount*s.ToCurrencyRate) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount*s.ToCurrencyRate) CgstAmt,'' CessRate,''CessAmtAdval
-,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,TAxInfo4.TaxAmount OtherCharges,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
+,CONVERT(numeric(10,2),sm.TransactionAmount*s.ToCurrencyRate)Taxablevalue,CONVERT(numeric(10,2),ISNULL(TAxInfo1.Percentage,0)+ISNULL(TAxInfo2.Percentage,0)+ISNULL(TAxInfo3.Percentage,0)) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount*s.ToCurrencyRate) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount*s.ToCurrencyRate) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount*s.ToCurrencyRate) CgstAmt,'' CessRate,''CessAmtAdval
+,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,CONVERT(numeric(10,2),TAxInfo4.TaxAmount) OtherCharges,CONVERT(numeric(10,2),(sm.NetAmount*s.ToCurrencyRate)+ISNULL(TAxInfo4.TaxAmount,0)) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
 ,CONVERT(numeric(10,2),sm.NetAmount*s.ToCurrencyRate)TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
 ,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorListst
   FROM TRN.Sales S
@@ -1296,7 +1296,8 @@ WHERE sm.Id IN(" + Ids + ")";
                     //sheet1.Range[xlsRow, colGSTRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colIgstAmt].Text = dtdata.Rows[i]["IgstAmt"].ToString();
                     IgstAmt = clsStaticInfo.dbl(dtdata.Compute("SUM(IgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'"));
-                    sheet1.Range[xlsRow, colIgstAmts].Text = Convert.ToString(IgstAmt);
+					//sheet1.Range[xlsRow, colIgstAmts].Text = Convert.ToString(IgstAmt);
+					sheet1.Range[xlsRow, colIgstAmts].Text = null; 
                     sheet1.Range[xlsRow, colSgstAmt].Text = dtdata.Rows[i]["SgstAmt"].ToString();
                     sheet1.Range[xlsRow, colSgstAmts].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(SgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     sheet1.Range[xlsRow, colCgstAmt].Text = dtdata.Rows[i]["CgstAmt"].ToString();
@@ -1310,7 +1311,8 @@ WHERE sm.Id IN(" + Ids + ")";
                     sheet1.Range[xlsRow, colStateCessAdvalAmt].Text = dtdata.Rows[i]["StateCessAdvalAmt"].ToString();
                     sheet1.Range[xlsRow, colStateCessNonAdvalAmt].Text = dtdata.Rows[i]["StateCessNonAdvalAmt"].ToString();
                     sheet1.Range[xlsRow, colOtherCharges].Text = dtdata.Rows[i]["OtherCharges"].ToString();
-                    sheet1.Range[xlsRow, colOtherChargess].Text = dtdata.Rows[i]["OtherCharges"].ToString();
+                    //sheet1.Range[xlsRow, colOtherChargess].Text = dtdata.Rows[i]["OtherCharges"].ToString();
+                    sheet1.Range[xlsRow, colOtherChargess].Text = null;
                     sheet1.Range[xlsRow, colItemTotal].Text = dtdata.Rows[i]["ItemTotal"].ToString();
                     sheet1.Range[xlsRow, colTotalInvoicevalues].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(ItemTotal)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     sheet1.Range[xlsRow, colBatchName].Text = dtdata.Rows[i]["BatchName"].ToString();
@@ -2022,7 +2024,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.Id = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
@@ -2252,7 +2254,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.ID = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=SO.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
@@ -2781,7 +2783,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.Id = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
@@ -3006,7 +3008,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.ID = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
@@ -3505,7 +3507,7 @@ Order by P.Sequence";
 									from TRN.SalesMaterial SM 
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 

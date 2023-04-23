@@ -565,10 +565,12 @@ namespace Library.OrderManagement.OrderControl
 																			trn.MasterOrderItem XMOI 	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
                                     ContractNo=STUFF((select distinct ','+CNT.ContractNo from dbo.Contract CNT
-															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id	  
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XSO.MasterOrderItemId=XMOI.Id
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 									MasterLCNo=STUFF((select distinct ','+MLC.LCRef from dbo.Contract CNT
-															INNER JOIN TRN.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XSO.MasterOrderItemId=XMOI.Id
 															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                             															

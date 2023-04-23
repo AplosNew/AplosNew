@@ -210,11 +210,13 @@ namespace Library.Service.OrderManagements
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 									  ,A.PaymentTermId,A.PaymentTermDays,A.ExceptionalProcessId,A.ExceptionalSubProcessId
                                    
-                                    ,ContractNo=STUFF((select distinct ','+CNT.ContractNo from dbo.Contract CNT
-															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id	  
+                                   ,ContractNo=STUFF((select distinct ','+CNT.ContractNo from dbo.Contract CNT
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 									MasterLCNo=STUFF((select distinct ','+MLC.LCRef from dbo.Contract CNT
-															INNER JOIN TRN.MasterOrderItem XMOI  ON XMOI.ContractId=CNT.Id
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId
 															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
 							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                             FROM [TRN].[MasterOrder] AS A
@@ -288,7 +290,7 @@ namespace Library.Service.OrderManagements
 								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,0 Active
                                     ,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
 									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
-                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,MOI.ContractId
+                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,SO.ContractId
                                     , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                                     ,PONumber=  REPLACE(REPLACE(
 										            STUFF((SELECT DISTINCT ','+CPO.PONumber from 
@@ -310,7 +312,8 @@ namespace Library.Service.OrderManagements
                             LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
                             LEFT JOIN HKP.Buyer AS B ON B.Id=A.BuyerId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
+							LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  CNT on CNT.Id = SO.ContractId
 							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId
@@ -494,7 +497,8 @@ namespace Library.Service.OrderManagements
 	                         , MOI.OrderWastagePercentage, MOI.ExtraOrderPercentage, MOI.ProductionGrouping, MM.HSNCodeId
 							 , ISNULL(HART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
                              , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty,MOI.Type,MOI.IsRepeat, PM.UserName AS ProductMaster
-                             ,MOI.ContractId,CNT.ContractNo,MLC.LCRef,MOI.BuyerItemDescription,MOI.MainRawMaterialDescription,MOI.PartyId,MOI.EntityIdWithinGroup,MOI.EntityIdWithinCompany,MOI.JobWorkType
+                            --a ,MOI.ContractId,CNT.ContractNo,MLC.LCRef
+							 ,MOI.BuyerItemDescription,MOI.MainRawMaterialDescription,MOI.PartyId,MOI.EntityIdWithinGroup,MOI.EntityIdWithinCompany,MOI.JobWorkType
                              , EntityOrVendorName= CASE WHEN MOI.EntityIdWithinCompany<>'' THEN EWCC.UserName +' - '+EWC.UserName 
 					                        WHEN MOI.EntityIdWithinGroup<>'' THEN EWGC.UserName+' - '+EWG.UserName
 					                        WHEN MOI.PartyId<>'' THEN PRT.UserName
@@ -512,8 +516,8 @@ namespace Library.Service.OrderManagements
                                             FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS HART ON HART.MaterialMasterId=MM.Id
                         LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId= MM.Id
 						LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
-                        LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
-						LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
+                        --LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
+						--LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
 						LEFT JOIN ORG.Entity AS EWC ON MOI.EntityIdWithinCompany=EWC.Id
 						LEFT JOIN ORG.Company AS EWCC ON EWC.CompanyId=EWCC.Id
                         LEFT JOIN ORG.Entity AS EWG ON MOI.EntityIdWithinGroup=EWG.Id
@@ -684,7 +688,7 @@ namespace Library.Service.OrderManagements
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType,SO.ContractId,C.ContractNo
                     FROM [TRN].[SalesOrder] AS SO
                    -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
@@ -694,6 +698,7 @@ namespace Library.Service.OrderManagements
                     LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
                     LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
+                    LEFT JOIN dbo.Contract C ON C.Id=SO.ContractId
                     WHERE SO.MasterOrderItemId='" + masterItemId + "' ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
             }

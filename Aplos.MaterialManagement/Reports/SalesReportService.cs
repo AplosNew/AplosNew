@@ -1110,7 +1110,7 @@ namespace Library.MaterialManagement.Reports
 
                 DataTable dsOrderMaster;
 
-                dsOrderMaster = loadLocalTaxMaterialMaster(salesId);
+                dsOrderMaster = GetloadLocalTaxMaterialMaster(salesId);
                 Dictionary<string, string> columns = new Dictionary<string, string>();
 
                 foreach (DataColumn item in dsOrderMaster.Columns)
@@ -4244,7 +4244,8 @@ namespace Library.MaterialManagement.Reports
 						 ,OA.Address1 OpeningBankAddress
 						 from trn.SalesOrderItem as SOI
 						 LEFT JOIN TRN.MasterOrderItem  MOI on MOI.Id=SOI.MasterOrderItemId
-						 LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
+						 LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
 						 LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
 						 LEFT JOIN  MST.BankMaster OB on OB.Id=PLC.OpeningBankMasterId
 						 LEFT JOIN  HKP.Bank B on B.Id=OB.BankId
@@ -4462,7 +4463,8 @@ namespace Library.MaterialManagement.Reports
 						 ,OA.Address1 OpeningBankAddress
                          from trn.SalesOrderItem as SOI
                          LEFT JOIN TRN.MasterOrderItem MOI on MOI.Id = SOI.MasterOrderItemId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
+                         LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
                          LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
                          LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
@@ -4651,7 +4653,8 @@ namespace Library.MaterialManagement.Reports
 						 ,OA.Address1 OpeningBankAddress
                          from trn.SalesOrderItem as SOI
                          LEFT JOIN TRN.MasterOrderItem MOI on MOI.Id = SOI.MasterOrderItemId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
+                         LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
                          LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
                          LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
@@ -5027,7 +5030,8 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
 						 ,OA.Address1 OpeningBankAddress
                          from trn.SalesOrderItem as SOI
                          LEFT JOIN TRN.MasterOrderItem MOI on MOI.Id = SOI.MasterOrderItemId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = MOI.ContractId
+                         LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
                          LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
                          LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
                          LEFT JOIN  HKP.Bank B on B.Id = OB.BankId

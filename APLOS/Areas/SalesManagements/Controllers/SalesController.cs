@@ -421,11 +421,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPackingSalesDetailDataBySales(string salesId)
+        public ActionResult GetPackingSalesDetailDataBySales(string salesId,string packingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(accountsSalesService.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId, packingId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -433,6 +433,13 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
             return Json(accountsSalesService.GetItemScanChildData(salesId, packingId, soId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetItemScanChildDataByPackingId(string salesId, string packingId, string soId)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(accountsSalesService.GetItemScanChildDataByPackingId(salesId, packingId, soId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -553,8 +560,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         DataRow drmo = dvsc[0].Row;
                                         drmo.BeginEdit();
                                         drmo["SalesReturnId"] = _Id;
-                                        drmo["ReturnNetWeight"] = scitem["ReturnNetWeight"];
-                                        drmo["Booked"] = false;
+                                        //drmo["ReturnNetWeight"] = scitem["ReturnNetWeight"];
+                                        //drmo["Booked"] = false;
                                         drmo["UpdatedBy"] = identity.Name;
                                         drmo["UpdatedDate"] = DateTime.Now.ToString();
                                         drmo.EndEdit();

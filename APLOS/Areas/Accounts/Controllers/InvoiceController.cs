@@ -227,9 +227,11 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteCustomerInvoice(string invoiceId, string voucherId)
+        public ActionResult DeleteCustomerInvoice(string invoiceId, string voucherId, string deletedRemarks)
         {
-            _invoiceService.DeleteInvoice(invoiceId, voucherId);
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
+            _invoiceService.DeleteInvoice(invoiceId, voucherId, deletedRemarks);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
@@ -410,15 +412,17 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteVendorInvoice(string invoiceId, string voucherId, string type, string tDSVoucherId, string tDSVoucherNo)
+        public ActionResult DeleteVendorInvoice(string invoiceId, string voucherId, string type, string tDSVoucherId, string tDSVoucherNo,string deletedRemarks)
         {
             if (tDSVoucherId != null)
                 throw new CustomException("TDS voucher no  " + tDSVoucherNo + "need to delete first!");
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
 
             if (type == NewBeneficiaryType.Vendor.ToString())
-                _invoiceService.DeleteInvoice(invoiceId, voucherId);
+                _invoiceService.DeleteInvoice(invoiceId, voucherId, deletedRemarks);
             if (type == NewBeneficiaryType.Employee.ToString())
-                _employeePayableService.DeleteInvoiceBeneficiaryEmployee(invoiceId, voucherId);
+                _employeePayableService.DeleteInvoiceBeneficiaryEmployee(invoiceId, voucherId, deletedRemarks);
             return Json(new { Message = AplosMessage.Deleted });
         }
 

@@ -2370,9 +2370,8 @@ namespace Library.OrderManagement.Production
                //            (SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
                //            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
                //            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id ='" + productionOrderId + @"' GROUP BY TotalProductionQty,PQ.Qty";
-
-
-       //         sql = @"SELECT (PO.PlannedQty*PPS.Qty/100) PlannedQty,ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty,((PO.PlannedQty*PPS.Qty/100) -ISNULL(CEILING(PRS.TotalProductionQty),0))RemainingQty
+               
+                //         sql = @"SELECT (PO.PlannedQty*PPS.Qty/100) PlannedQty,ISNULL(CEILING(PRS.TotalProductionQty),0)TotalProductionQty,((PO.PlannedQty*PPS.Qty/100) -ISNULL(CEILING(PRS.TotalProductionQty),0))RemainingQty
        //                     FROM trn.ProductionOrder AS PO
        //                     LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 							//LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID=PO.Id AND PPS.ProcessId='" + processId + @"'
@@ -2385,7 +2384,6 @@ namespace Library.OrderManagement.Production
 , ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
-
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
                             LEFT JOIN
                             (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId
@@ -4233,7 +4231,7 @@ POD.ProductionOrderId,SO.OrderStatusId SOStatus,m.[Days]
 												[dbo].ProductLibraryAttribute MA												
 												where MA.ProductLibraryId=PL.Id for xml path('') ), 1, 1, '')
 
-,PS.UserName POStatus,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,RP.EmployeeName ResponsiblePerson,E.UserName Entity,CP.PartyType
+,PS.UserName POStatus,FORMAT(SO.PlanExFactoryDate,'dd-MMM-yyyy')ExFactoryDate,FORMAT(SO.CommitmentDate,'dd-MMM-yyyy')CommitmentDate,RP.EmployeeName ResponsiblePerson,E.UserName Entity,CP.PartyType,DiffComEx=CASE  WHEN SO.CommitmentDate IS NULL THEN DATEDIFF(DAY,PlanExFactoryDate,GETDATE()) ELSE DATEDIFF(DAY,SO.CommitmentDate,GETDATE()) END
 from trn.SalesOrder SO
 left join TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
 left join TRN.ProductionOrder PO ON PO.Id=POD.ProductionOrderId

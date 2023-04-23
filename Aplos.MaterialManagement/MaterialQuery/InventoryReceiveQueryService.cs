@@ -3923,7 +3923,7 @@ namespace Aplos.MaterialManagement
 						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
 						,CU.Code CurrencyName
 						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
-						,ROUND(Isnull(IRD.MaterialTranAmount*ir.ToCurrencyRate,0),2) TotalMaterialTranAmount
+						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
 						,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount
 						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
