@@ -4458,7 +4458,7 @@ DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus
 
 from AttdnProcessData apd 
 left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
@@ -4548,6 +4548,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
                         UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
                         GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
                         Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
                        
                     });
                 }
@@ -5150,6 +5151,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
         public string UserGroup { get; set; }
         public string GroupId { get; set; }
         public string Location { get; set; }
+        public string CurrentStatus { get; set; }
        
     }
 
