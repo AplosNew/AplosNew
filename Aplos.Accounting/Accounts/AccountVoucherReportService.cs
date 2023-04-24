@@ -435,7 +435,7 @@ namespace Library.Accounting.Accounts
         {
             var cmdText = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                             SELECT REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
-                            , V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
+                             ,V.SourceType, V.DocRefNo, REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, VD.Narration, ISNULL(VD.DrAmount,0) AS DrAmount, ISNULL(VD.CrAmount,0) AS CrAmount
                             , CC.CompanyCurrencyId, ISNULL(CC.CompanyCurrencyDrAmount, 0) AS CompanyCurrencyDrAmount, ISNULL(CC.CompanyCurrencyCrAmount, 0) AS CompanyCurrencyCrAmount, VD.CurrencyId
 							, C.Code AS CurrencyCode, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, BGM.RefNo, BG.UserName AS BudgetName, A.UserName AS ActivityName,p.username as Party
                             ,Particular =concat( STUFF((select distinct ','+xpA.UserName+ ' '+'('+ xp.UserName+')' from
@@ -2182,14 +2182,15 @@ namespace Library.Accounting.Accounts
                 {
                     reportUtility.SetHeaderText(ref sheet, row, colActivity, "Activity", 10); colActivity = col; col++;
                 }
-                reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 15); int colVoucherNo = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 17); int colVoucherNo = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 14); int colPostingDate = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Source Type", 14); int colSourceType = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Doc Ref.", 14); int colDocRef = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Doc Date", 14); int colDocDate = col; col++;
 
                 reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 30); int colNarration = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Party", 15); int colParty = col; col++;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 20); int colParticulars = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
                 colTranCurrencyDebit = col;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
@@ -2272,7 +2273,7 @@ namespace Library.Accounting.Accounts
 
                         reportUtility.SetText(ref sheet, row, colPostingDate, ledgerData.Rows[i]["PostingDate"].ToString()); col++;
 
-
+                        reportUtility.SetText(ref sheet, row, colSourceType, ledgerData.Rows[i]["SourceType"].ToString()); col++;
                         reportUtility.SetText(ref sheet, row, colDocRef, ledgerData.Rows[i]["DocRefNo"].ToString()); col++;
                         reportUtility.SetText(ref sheet, row, colDocDate, ledgerData.Rows[i]["DocDate"].ToString()); col++;
                         reportUtility.SetText(ref sheet, row, colVoucherNo, ledgerData.Rows[i]["VoucherNo"].ToString()); col++;

@@ -617,7 +617,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 LEFT JOIN TRN.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
                                 LEFT JOIN TRN.SalesOrder as so on so.Id=pli.SOId
                                 LEFT JOIN TRN.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
-                                LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
+                                LEFT JOIN dbo.[contract] as c on c.id = so.contractId
 								
                                 LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId=C.Id						
                                 LEFT JOIN  MST.BankMaster IB on IB.Id=PLC.OpeningBankMasterId

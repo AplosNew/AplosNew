@@ -561,5 +561,21 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Sales Return
 
+        #region Attedance
+        public List<Default2> GetUserGroup()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetUserGroup(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis);
+            return activelists;
+        }
+        #endregion Attedance
+
     }
 }

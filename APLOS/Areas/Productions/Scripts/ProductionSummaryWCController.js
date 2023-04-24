@@ -514,6 +514,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.TotalSalesOrderQty = parseFloat(response.data[0].PlannedQty).toFixed(2);
                             $scope.RemainQty = parseFloat(response.data[0].RemainingQty).toFixed(2);
                             $scope.TotalProductionBookingQty = parseFloat(response.data[0].TotalProductionQty).toFixed(2);
+                            $scope.NewObject.RemainingQty = $scope.RemainQty;
+                            $scope.NewObject.OrderQty = $scope.TotalSalesOrderQty;
+                            $scope.NewObject.BookedQty = $scope.TotalProductionBookingQty;
+
                         }
                     });
             } else {
@@ -526,6 +530,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.TotalSalesOrderQty = parseFloat(response.data[0].PlannedQty).toFixed(2);
                             $scope.RemainQty = parseFloat(response.data[0].RemainingQty).toFixed(2);
                             $scope.TotalProductionBookingQty = parseFloat(response.data[0].TotalProductionQty).toFixed(2);
+                            $scope.NewObject.RemainingQty = $scope.RemainQty;
+                            $scope.NewObject.OrderQty = $scope.TotalSalesOrderQty;
+                            $scope.NewObject.BookedQty = $scope.TotalProductionBookingQty;
                         }
                     });
             }
@@ -791,7 +798,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.NewObject.ProductionOrderId = $event.data.POId;
         $scope.NewObject.LotNumber = $event.data.LotNumber;
         $scope.NewObject.ResponsiblePerson = $scope.productionSummaryNew.HeaderResponsiblePerson;
-        $scope.NewObject.RemainingQty = $event.data.RemainingQty;
+        //$scope.NewObject.RemainingQty = $event.data.RemainingQty;
         $scope.GetTotalProductionBookingQty();
         $scope.getArticle($scope.NewObject.ProductionOrderId);
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
@@ -1360,7 +1367,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.productionSummaryNew.Quantity = $scope.productionSummaryNew.QtyWithoutScan;
             CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             ValidationMaster();
-            $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
             if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
                 if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
                     ///
@@ -1433,6 +1439,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
                     ShowResult(response.data.Message, 'success');
                     $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                    $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
                     var gridObj = $("#ProductionSummaryWC").data("ejGrid");
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();
@@ -1533,7 +1540,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.productionSummaryNew.QtyWithoutScan = $scope.productionSummaryNew.Quantity;
             CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             ValidationMaster();
-            $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
+           
             if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
                 if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
                     ///
@@ -1604,6 +1611,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
                     ShowResult(response.data.Message, 'success');
                     $scope.NewObject.Id = response.data.ProductionSummary.Id;
+                    $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
                     var gridObj = $("#ProductionSummaryWC").data("ejGrid");
                     gridObj.refreshContent();
                     gridObj.refreshTemplate();

@@ -628,6 +628,7 @@
     <Compile Include="Areas\Productions\Controllers\RunningMachineSetUpTargetController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlMasterController.cs" />
+    <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlReportController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -1982,6 +1983,7 @@
     <Content Include="Areas\Banks\Scripts\rePrintNonCashCheckController.js" />
     <Content Include="Areas\Biometric\Scripts\attendanceDeviceZoneController.js" />
     <Content Include="Areas\Biometric\Scripts\BiometricConfig.js" />
+    <Content Include="Areas\Commercial\Scripts\contractController.js" />
     <Content Include="Areas\Commercial\Scripts\InvoiceTaggedWithLCController.js" />
     <Content Include="Areas\Commercial\Scripts\CommercialConfig.js" />
     <Content Include="Areas\Commercial\Scripts\CNFExpenseBockingController.js" />
@@ -2025,7 +2027,7 @@
     <Content Include="Areas\Costings\Scripts\quickCostingMasterControllerBackup.js" />
     <Content Include="Areas\Costings\Scripts\quickCostingMasterController.js" />
     <Content Include="Areas\Costings\Scripts\costingSubCategoryController.js" />
-    <Content Include="Areas\Commercial\Scripts\contractController.js" />
+    <Content Include="Areas\Commercial\Scripts\contractNewController.js" />
     <Content Include="Areas\Costings\Scripts\costingCategoryController.js" />
     <Content Include="Areas\Costings\Scripts\costingItemController.js" />
     <Content Include="Areas\Costings\Scripts\CostingsConfig.js" />
@@ -2220,6 +2222,7 @@
     <Content Include="Areas\Productions\Scripts\RunningMachineSetUpTargetController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlMasterController.js" />
+    <Content Include="Areas\Productions\Scripts\WCWorkStationsControlReportController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
@@ -3509,7 +3512,7 @@
     <Content Include="Areas\Costings\Views\CostingSubCategory\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\_DebitCreditNotePopUp.cshtml" />
     <Content Include="Areas\Commercial\Views\OverHeadType\Aplos.cshtml" />
-    <Content Include="Areas\Commercial\Views\Contract\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\Contract\Aplos1.cshtml" />
     <Content Include="Areas\Leave\Views\LeavePolicy\LeavePolicy.cshtml" />
     <Content Include="Areas\Costings\Views\QuickCostingMaster\Aplos_backup.cshtml" />
     <Content Include="Areas\Costings\Views\Shared\_CostingSubCategoryPopUp.cshtml" />
@@ -4636,6 +4639,9 @@
     <Content Include="Areas\HumanResource\Views\BudgetCodeWiseHRReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\HRReportMaster\_UserGroupPop.cshtml" />
     <Content Include="Areas\HumanResource\Views\BudgetCodeWiseHRReport\_ExportToExcelPop.cshtml" />
+    <Content Include="Areas\Commercial\Views\Contract\Aplos.cshtml" />
+    <Content Include="Areas\Commercial\Views\Contract\Aplos1.cshtml" />
+    <Content Include="Areas\Productions\Views\WCWorkStationsControlReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\BudgetReportMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\BudgetReportMaster\_UserGroupPop.cshtml" />
     <Content Include="Areas\HumanResource\Views\HRReportMaster\_ResponsiblePerson.cshtml" />

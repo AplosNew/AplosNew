@@ -96,6 +96,7 @@
     <Compile Include="AdministrationTasks\VehicleMovementLocationsService.cs" />
     <Compile Include="Conversions\CurrencyConversions.cs" />
     <Compile Include="Conversions\UOMConversion.cs" />
+    <Compile Include="Commercial\clsContract.cs" />
     <Compile Include="IE\clsBulletin.cs" />
     <Compile Include="Farming\FarmingData.cs" />
     <Compile Include="FormulaEvaluator\ThreadConsumption.cs" />
