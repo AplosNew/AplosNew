@@ -569,10 +569,17 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis)
+        public List<Locations> GetLocation()
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis);
+            clsData.GetLocation(out List<Locations> activelists);
+            return activelists;
+        }
+
+        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations);
             return activelists;
         }
         #endregion Attedance

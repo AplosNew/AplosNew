@@ -716,11 +716,11 @@ namespace Aplos.Areas.Commercial.Controllers
 											 c.Id As ContractNo,CurOrder.Code AS MasterOrderCurrency
 					,SUM(so.Qty) AS ContractOrderQty,sum(so.qty*so.rate) AS ContractOrderValue from MasterLC MLC
 									inner join Contract C on mlc.Id=c.MasterLCId
-									left outer join trn.MasterOrderItem moi on moi.ContractId=c.Id
+                                    LEFT JOIN TRN.SalesOrder so on c.Id=so.ContractId
+									left outer join trn.MasterOrderItem moi on moi.id=so.MasterOrderItemId
 
 									inner join trn.MasterOrder mo on moi.MasterOrderId=mo.Id 
 									
-									left outer join trn.SalesOrder SO on so.MasterOrderItemId=moi.Id
 									left join scs.Currency CurOrder on CurOrder.id=mo.CurrencyId
 									group by c.Id,CurOrder.Code) AS COV on cov.ContractNo=c.Id                                     
                                         
