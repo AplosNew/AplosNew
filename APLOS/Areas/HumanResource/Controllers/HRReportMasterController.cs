@@ -86,8 +86,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                string sql = @"select HRM.*, EI.EmployeeName Employee from [HKP].[HRReportMaster] HRM
-left join EmployeeInformation EI on EI.SystemId = HRM.EmpSystemId
+                string sql = @"select HRM.* from [HKP].[HRReportMaster] HRM
 order by Sequence
 ";
 
@@ -201,7 +200,7 @@ where BGT.EntityId in (" + Entity + ") " +
             }
         }
 
-        public ActionResult Save(Dictionary<string, object> datas, string Employee)
+        public ActionResult Save(Dictionary<string, object> datas)
         {
             try
             {
@@ -223,13 +222,13 @@ where BGT.EntityId in (" + Entity + ") " +
                     genid.GenID(TableName, out _Id);
 
                     datas["Id"] = _Id;
-                    datas["EmpSystemId"] = Employee;
+                   
                     AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else
                 {
                     _Id = datas["Id"].ToString();
-                    datas["ResponsiblePersonId"] = Employee;
+                    
                     EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
                 #endregion data update
@@ -237,7 +236,7 @@ where BGT.EntityId in (" + Entity + ") " +
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Data = datas, Employee, Message = AplosMessage.Insert });
+                return Json(new { Data = datas, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {

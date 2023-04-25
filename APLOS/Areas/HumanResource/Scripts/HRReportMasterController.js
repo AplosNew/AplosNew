@@ -230,8 +230,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         Code: null,
         Active: true,
         Remarks: null,
-        UserGroup: null,
-        UserSubGroup: null,
+        
         
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -239,7 +238,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
 
-        if ($scope.ModelNewForm.$valid) {
+       /* if ($scope.ModelNewForm.$valid) {*/
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -262,7 +261,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             }
 
-        }
+        /*}*/
     };
 
     $scope.Delete = function () {
