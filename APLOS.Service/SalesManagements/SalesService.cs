@@ -2905,7 +2905,7 @@ namespace Library.Service.SalesManagements
             }
         }
 
-        public void DeleteMasterOrderSalePost(string companyId, string plantId, string salesId, string voucherId)
+        public void DeleteMasterOrderSalePost(string companyId, string plantId, string salesId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
@@ -2914,6 +2914,10 @@ namespace Library.Service.SalesManagements
                 _unitOfWork.BeginTransaction();
                 flag = true;
 
+                var voucher = _voucherService.FindVoucher(voucherId);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", "", "", "", "", "", "", "", "", salesId, deletedRemarks);
+                
                 var writtenOff = _invoiceService.Query(r => r.VoucherId == voucherId && r.WrittenOffAmount > 0).Select().ToList();
 
                 if (writtenOff.Count()>0)
