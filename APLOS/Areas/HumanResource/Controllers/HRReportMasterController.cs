@@ -341,7 +341,7 @@ where BGT.EntityId in (" + Entity + ") " +
                 foreach (var item in chkBgtList)
                 {
                     DataView dv = new DataView(dsChildA.Tables[0]);
-                    dv.RowFilter = "Id='" + item["HRReportMasterId"] + "'";
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
                     if (dv.Count > 0)
                     {
                        
