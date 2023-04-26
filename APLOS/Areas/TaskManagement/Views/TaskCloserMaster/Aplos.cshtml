@@ -1,59 +1,81 @@
-﻿<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-2 control-label">From Date<sup>*</sup></label>
-            <div class="col-sm-10 show-message">
-                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.FromDate" datepicker class="form-control" required>
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-10 show-message">
+                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.FromDate" datepicker class="form-control" required>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
-            <label class="col-sm-2 control-label">To Date<sup>*</sup></label>
-            <div class="col-sm-10 show-message">
-                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.ToDate" datepicker class="form-control" required>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">To Date<sup>*</sup></label>
+                <div class="col-sm-10 show-message">
+                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.ToDate" datepicker class="form-control" required>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="table-responsive">
-        <div ej-grid e-datasource="BudgetList" e-load="loadGridEdit"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                <div e-column e-headertext="Active / Inactive" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
+        <div class="table-responsive" style="border:1px solid white">
+            <div ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                    <div e-column e-headertext="Active / Inactive" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="100"></div>
 
-                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                <div e-column e-field="Division" e-headertext="Division" e-width="100"></div>
-                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                    <div e-column e-field="Task" e-headertext="Task" e-width="250"></div>
+                    <div e-column e-field="TaskType" e-headertext="Task Type" e-width="100"></div>
+                    <div e-column e-field="AssignedDate" e-headertext="AssignedDate" e-width="200"></div>
+                    <div e-column e-field="DueDate" e-headertext="DueDate" e-width="200"></div>
 
-                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-                <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
+                    <div e-column e-field="AssignedBy" e-headertext="Assigned By" e-width="150"></div>
+                    <div e-column e-field="AssignedTo" e-headertext="Assign To" e-width="150"></div>
 
-                @*<div e-column e-field="Activity" e-headertext="Activity" e-width="50"></div>*@
-                <div e-column e-field="Shift" e-headertext="Shift" e-width="150"></div>
-                <div e-column e-field="PositionCode" e-headertext="PositionCode" e-width="100"></div>
-                @*<div e-column e-field="Position" e-headertext="Position" e-width="100"></div>*@
-                <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="100"></div>
-                @*<div e-column e-headertext="User Group" e-template="#userGroupId" e-textalign="center" e-width="100"></div>
-                <div e-column e-headertext="User Sub Group" e-template="#userSubGroupId" e-textalign="center" e-width="100"></div>
-                <div e-column e-headertext="Grade" e-template="#GradeId" e-textalign="center" e-width="100"></div>*@
-                <div e-column e-headertext="User Group" e-template="#userGroupId" e-textalign="center" e-width="100"></div>
+                    <div e-column e-field="TaskStatus" e-headertext="Task Status" e-width="100"></div>
+                    <div e-column e-field="TaskDetail" e-headertext="Task Detail" e-width="250"></div>
+                    <div e-column e-field="CheckBy" e-headertext="CheckBy" e-width="150"></div>
+                    <div e-column e-field="CrossCheckBy" e-headertext="Cross Check By" e-width="150"></div>
+                    <div e-column e-field="ApproveBy" e-headertext="ApproveBy" e-width="150"></div>
+
+                </div>
             </div>
-        </div>
-        <script type="text/template" id="checkboxUnallocationTemplate">
-            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
-        </script>
+            <script type="text/template" id="checkboxUnallocationTemplate">
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+            </script>
 
-        <script type="text/template" id="userGroupId">
+            @*<script type="text/template" id="userGroupId">
             <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px; padding-top:1px; padding-bottom:1px; border-radius:0" class="btn"><i class="glyphicon glyphicon-menu-hamburger" title="Print Report" style="margin: -6px;" ng-click="$parent.OpenUserGroupPopUp(this)"></i></button>
 
-        </script>
-
-
+        </script>*@
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CloseOpenTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                </ul>
+            </div>
+        </div>
     </div>
 </div>

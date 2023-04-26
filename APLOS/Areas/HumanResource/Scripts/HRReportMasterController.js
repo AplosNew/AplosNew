@@ -4,7 +4,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     $rootScope.title = 'HR Report Master';
     $scope.Action = 'Save';
     $scope.ActionT2 = 'Save';
-    $scope.ActionB = 'SaveBudgetCode'
+    $scope.ActionB = 'SaveBudgetCode' 
     $scope.ActionC = 'Save Responsible Person'
     $scope.ModelList = [];
     $scope.path = 'HumanResource/HRReportMaster/';
@@ -90,7 +90,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
+            //ClearFields(response.data.Sequence);
             $scope.GetSequence();
         });
     }
@@ -103,11 +103,11 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         $scope.SelectedEmployeeId = args.data.EmpSystemId;
         $scope.Employee = args.data.Employee;
         $scope.Action = 'Update';
-        $scope.ActionB = 'UpdateBudgetCode'
+        //$scope.ActionB = 'UpdateBudgetCode'
         //$scope.ActionC = 'Update Responsible Person'
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            $scope.GetAllSavedBudgetCode();
+            //$scope.GetAllSavedBudgetCode();
            // $scope.GetSavedResponsiblePerson();
         }
 
@@ -335,7 +335,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
 
     
 
-    $scope.ActionB = 'Save Budget Code';
+    $scope.ActionB = 'SaveBudgetCode';
     $scope.CheckedBudgetCodeList = [];
     $scope.SaveBudgetCode = function () {
         $scope.CheckedBudgetCodeList = [];
