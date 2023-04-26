@@ -1580,7 +1580,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=SO.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
