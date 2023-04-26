@@ -542,6 +542,7 @@
     <Compile Include="Areas\HumanResource\Controllers\BudgetReportMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DesignationSetupController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\HRReportMasterController.cs" />
+    <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -1244,6 +1245,7 @@
     <Compile Include="Areas\Setups\Controllers\TnaSettingMasterController.cs" />
     <Compile Include="Areas\Setups\Controllers\ShiftGroupController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\EditControlController.cs" />
+    <Compile Include="Areas\TaskManagement\Controllers\TaskCloserMasterController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\TaskManagementReportController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\EntityTaskController.cs" />
     <Compile Include="Areas\TaskManagement\Controllers\TaskManagerDashboardController.cs" />
@@ -2052,6 +2054,7 @@
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
+    <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -2955,6 +2958,7 @@
     <Content Include="Areas\Setups\Scripts\plantSettingController.js" />
     <Content Include="Areas\Setups\Views\HSNTaxPercentageNew\Aplos.cshtml" />
     <Content Include="Areas\TaskManagement\Scripts\EditControlController.js" />
+    <Content Include="Areas\TaskManagement\Scripts\TaskCloserMasterController.js" />
     <Content Include="Areas\TaskManagement\Scripts\UserEditControlController.js" />
     <Content Include="Areas\TaskManagement\Scripts\TaskManagementReportController.js" />
     <Content Include="Areas\TaskManagement\Scripts\taskDetailController.js" />
@@ -4645,6 +4649,7 @@
     <Content Include="Areas\HumanResource\Views\BudgetReportMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\BudgetReportMaster\_UserGroupPop.cshtml" />
     <Content Include="Areas\HumanResource\Views\HRReportMaster\_ResponsiblePerson.cshtml" />
+    <Content Include="Areas\IE\Views\WorkcenterWiseDetention\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4787,6 +4792,7 @@
     <Content Include="Areas\QMS\Views\DocumentSetup\_DocumentType.cshtml" />
     <Content Include="Areas\QMS\Views\DocumentSetup\_DocumentSource.cshtml" />
     <Content Include="Areas\QMS\Views\DocumentSetup\_DocumentLocation.cshtml" />
+    <Content Include="Areas\TaskManagement\Views\TaskCloserMaster\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

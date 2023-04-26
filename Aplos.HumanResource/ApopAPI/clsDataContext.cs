@@ -4409,7 +4409,40 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis)
+        public void GetLocation(out List<Locations> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Locations>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct Location from dbo.ResidenceMaster";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Locations
+                    {
+                        Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4420,12 +4453,12 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             try
             {
                 #region Sql
-                strSQL1 = @"select distinct EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+                strSQL1 = @"select distinct LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus
 
 from AttdnProcessData apd 
 left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
@@ -4461,9 +4494,18 @@ left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv
 left join dbo.AttdnRawData Ard on Ard.LogDownLoadNum = EMP.SystemId and Ard.PDate = apd.WorkDate
 left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
 left join HKP.HRReportGroupMaster Hg on Hg.Id = Hrg.UserGroupId
+left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
+left join LeaveType LTY on LTY.Id = LT.LTSystemID
+left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
+left join ResidenceMaster RM on RM.Id = RA.ResidenceId
 
 where emp.employeecode is not null and emp.employeestatus = 'Active'
 and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
+
+                if(locations != null)
+                {
+                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "' and ";
+                }
 
                 if (inmis ==  "IN" || inmis == "IM")
                 {
@@ -4473,6 +4515,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
                 {
                     strSQL = strSQL1 + " and apd.WeeklyStatus = 'W'";
                 }
+
                 #endregion Sql
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -4482,6 +4525,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
                 {
                     DataList.Add(new AttendanceReport
                     {
+                        LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
                         SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
                         EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
                         EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
@@ -4503,6 +4547,8 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
                         ManpowerBudgetId = dsRef.Tables[0].Rows[i]["ManpowerBudgetId"].ToString(),
                         UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
                         GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
+                        Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
                        
                     });
                 }
@@ -5082,6 +5128,7 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
     #region Attendance
     public class AttendanceReport
     {
+        public string LeaveCode { get; set; }
         public string SystemID { get; set; }
         public string EMPCode { get; set; }
         public string EmployeeName { get; set; }
@@ -5103,7 +5150,14 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
         public string ManpowerBudgetId { get; set; }
         public string UserGroup { get; set; }
         public string GroupId { get; set; }
+        public string Location { get; set; }
+        public string CurrentStatus { get; set; }
        
+    }
+
+    public class Locations
+    {
+        public string Location { get; set; } = "";
     }
     #endregion Attendance
 }
