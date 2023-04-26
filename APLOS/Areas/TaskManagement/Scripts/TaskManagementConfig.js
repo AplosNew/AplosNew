@@ -76,5 +76,10 @@ function TaskManagementConfig($routeProvider, $locationProvider) {
             templateUrl: 'TaskManagement/EditControl/EditCtrl',
             controller: 'EditControlController'
         })
+
+        .when('/task-closer', {
+            templateUrl: 'TaskManagement/TaskCloserMaster/Aplos',
+            controller: 'TaskCloserMasterController'
+        })
         ;
 }

@@ -4374,6 +4374,195 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
 
         }
 
+        #region Attendance
+        public void GetUserGroup(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select id as Value, UserGroup as Name  from HKP.HRReportGroupMaster";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetLocation(out List<Locations> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Locations>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct Location from dbo.ResidenceMaster";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Locations
+                    {
+                        Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            string strSQL1 = "";
+            DataList = new List<AttendanceReport>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                #region Sql
+                strSQL1 = @"select distinct LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
+(select top 1 rw.PTime from AttdnRawData rw
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus
+
+from AttdnProcessData apd 
+left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+LEFT JOIN MST.DesignationMasterLegalDesignation DMLD on DMLD.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = DMLD.DesignationMasterId
+left join scs.designationmasterconfiguration dmc on dmc.designationmasterid = dm.id
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
+left join mst.LegalSalaryGradeDesignation GRD on GRD.legaldesignationid = gdsg.id
+left join scs.legalsalarygrade lsg on lsg.id = grd.legalsalarygradeid
+left join scs.legalsalarygradehead lsh on lsh.legalsalarygradeid = lsg.id
+left join mst.LegalSalaryStructure lss on lss.legalsalarygradeid = lsh.legalsalarygradeid
+left join mst.LegalSalaryStructureValue lsv on lsv.legalsalarystructureid = lss.id
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
+left join SalaryRuleMaster SRM on srm.systemid = dmc.salaryrulemasterid
+left join EmployeeBankInfo BNK on BNK.EmpSystemID = emp.SystemId
+left join ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId
+left join TransportGroup TG on TG.Id = EMP.TransportGroupId
+left join employeecodetype ect on ect.id = emp.employeecodetypeid
+left join hkp.Process PR on PR.Id = POS.ProcessId
+left join scs.District DT on DT.Id = emp.ParmDistrictID
+left join scs.[State] ST on ST.Id = EMP.ParmStateId
+left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
+left join dbo.AttdnRawData Ard on Ard.LogDownLoadNum = EMP.SystemId and Ard.PDate = apd.WorkDate
+left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
+left join HKP.HRReportGroupMaster Hg on Hg.Id = Hrg.UserGroupId
+left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
+left join LeaveType LTY on LTY.Id = LT.LTSystemID
+left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
+left join ResidenceMaster RM on RM.Id = RA.ResidenceId
+
+where emp.employeecode is not null and emp.employeestatus = 'Active'
+and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
+
+                if(locations != null)
+                {
+                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "' and ";
+                }
+
+                if (inmis ==  "IN" || inmis == "IM")
+                {
+                    strSQL = strSQL1 + " and apd.InStatus = '" + inmis + "'";
+                }
+                if (inmis == "W")
+                {
+                    strSQL = strSQL1 + " and apd.WeeklyStatus = 'W'";
+                }
+
+                #endregion Sql
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new AttendanceReport
+                    {
+                        LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
+                        SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
+                        EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
+                        SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
+                        Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
+                        Category = dsRef.Tables[0].Rows[i]["Category"].ToString(),
+                        Activity = dsRef.Tables[0].Rows[i]["Activity"].ToString(),
+                        InStatus = dsRef.Tables[0].Rows[i]["InStatus"].ToString(),
+                        InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
+                        InVerificationTime = dsRef.Tables[0].Rows[i]["InVerificationTime"].ToString(),
+                        BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
+                        Shift = dsRef.Tables[0].Rows[i]["Shift"].ToString(),
+                        ShiftId = dsRef.Tables[0].Rows[i]["ShiftId"].ToString(),
+                        MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
+                        WeeklyStatus = dsRef.Tables[0].Rows[i]["WeeklyStatus"].ToString(),
+                        Residence = dsRef.Tables[0].Rows[i]["Residence"].ToString(),
+                        Transport = dsRef.Tables[0].Rows[i]["Transport"].ToString(),
+                        ManpowerBudgetId = dsRef.Tables[0].Rows[i]["ManpowerBudgetId"].ToString(),
+                        UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
+                        GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
+                        Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                       
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Attendance
 
 
 
@@ -4936,5 +5125,39 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string BookedQty { get; set; } = "";
     }
 
+    #region Attendance
+    public class AttendanceReport
+    {
+        public string LeaveCode { get; set; }
+        public string SystemID { get; set; }
+        public string EMPCode { get; set; }
+        public string EmployeeName { get; set; }
+        public string Section { get; set; }
+        public string SubSection { get; set; }
+        public string Designation { get; set; }
+        public string Category { get; set; }
+        public string Activity { get; set; }
+        public string InStatus { get; set; }
+        public string InTime { get; set; }
+        public string InVerificationTime { get; set; }
+        public string BudgetCode { get; set; }
+        public string Shift { get; set; }
+        public string ShiftId { get; set; }
+        public string MobileNo { get; set; }
+        public string WeeklyStatus { get; set; }
+        public string Residence { get; set; }
+        public string Transport { get; set; }
+        public string ManpowerBudgetId { get; set; }
+        public string UserGroup { get; set; }
+        public string GroupId { get; set; }
+        public string Location { get; set; }
+        public string CurrentStatus { get; set; }
+       
+    }
 
+    public class Locations
+    {
+        public string Location { get; set; } = "";
+    }
+    #endregion Attendance
 }

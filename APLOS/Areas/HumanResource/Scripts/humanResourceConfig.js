@@ -888,5 +888,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/BudgetCodeWiseHRReport/Aplos',
             controller: 'BudgetCodeWiseHRReportController'
         })
+        .when('/bgt-report-master', {
+            templateUrl: 'humanresource/BudgetReportMaster/Aplos',
+            controller: 'BudgetReportMasterController'
+        })
         ;
 }

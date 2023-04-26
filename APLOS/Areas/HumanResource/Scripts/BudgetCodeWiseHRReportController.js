@@ -205,4 +205,34 @@ function BudgetCodeWiseHRReportController(cboService, commonMessage, $scope, $ro
         },
     ]
 
+    $scope.POWiseReportExcel = function () {
+        var dataList = [];
+        var g = $("#GridPoWise").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.POWiseList;
+        }
+        $scope.fileName = 'HRReportMaaster.xlsx';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "HRReportMasterDataReport",
+            data: {
+                'data': dataList,
+                'reportFileName': $scope.fileName
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
 };

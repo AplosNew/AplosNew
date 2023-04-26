@@ -69,8 +69,8 @@ namespace Library.OrderManagement.BOM
                  left join MST.MaterialMaster MM on mm.id = moi.MaterialMasterId
                  left join MST.MaterialMasterArticle mma on mma.id= moi.ArticleId
                  left join scs.TestingStandard ts on ts.id=moi.TestingStandardId
-
-                 LEFT JOIN [Contract] AS c ON c.Id=moi.ContractId
+LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
+                 LEFT JOIN [Contract] AS c ON c.Id=so.ContractId
                  LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
                  where moi.Id='" + MasterOrderItemId + "'");
 
@@ -947,7 +947,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             try
             {
                 DataTable dtOrderMaster = _sqlRepository.GetDataTable(@"select mo.Id, mo.type, b.UserName as Buyer, p.UserName as Customer,mo.PartyId
-				                , c.ContractNo,moi.ContractId,   c.MasterLCId, ml.LCRef As MasterLCNo, moi.id as MasterOrderItemNo
+				                , c.ContractNo,so.ContractId,   c.MasterLCId, ml.LCRef As MasterLCNo, moi.id as MasterOrderItemNo
                                 ,  mo.OrderYear as Year, mo.TotalQty as TotalQuantity
                                     , uom.UserName as UnitOfMeasurement, mo.NoOfLineItem, mo.OrderWastagePercentage
                                     , mo.ExtraOrderPercentage, mo.BuyerReferenceNo, mo.OwnReferenceNo, BDept.UserName as BuyerDepartment
@@ -961,7 +961,8 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                                     left join hkp.BuyerDepartment BDept on BDept.id = mo.buyerDepartmentid 
                                     left join HKP.buyerdivision BDev on BDev.id = mo.BuyerDivisionId 
 					                left join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
-					                left join Contract C on c.id = moi.ContractId
+LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
+					                left join Contract C on c.id = so.ContractId
 					                left join MasterLC ml on ml.Id = c.MasterLCId
                                     where c.Id='" + ContractId + "'");
 
@@ -1035,7 +1036,7 @@ SUM(k.BOMQty) BOMQty,SUM(k.RequiredQty) RequiredQty,SUM(k.RequiredQtyPO) Require
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                                WHERE moi.ContractId ='" + ContractId + @"'
+                                WHERE so.ContractId ='" + ContractId + @"'
                                  and isnull(B.Id,'') NOT IN (select ParentId from BOQ 
 								JOIn TRN.MasterOrderItem MOI ON MOI.Id=BOQ.MasterOrderItemId
 								where isnull(ParentId,'')<>'' AND MOI.ContractId='" + ContractId + @"'
@@ -2668,8 +2669,8 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                  left join MST.MaterialMaster MM on mm.id = moi.MaterialMasterId
                  left join MST.MaterialMasterArticle mma on mma.id= moi.ArticleId
                  left join scs.TestingStandard ts on ts.id=moi.TestingStandardId
-
-                 LEFT JOIN [Contract] AS c ON c.Id=moi.ContractId
+LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
+                 LEFT JOIN [Contract] AS c ON c.Id=so.ContractId
                  LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
                  where mo.Id='" + MasterOrderId + "'");
 
@@ -3803,8 +3804,8 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
                  left join MST.MaterialMaster MM on mm.id = moi.MaterialMasterId
                  left join MST.MaterialMasterArticle mma on mma.id= moi.ArticleId
                  left join scs.TestingStandard ts on ts.id=moi.TestingStandardId
-
-                 LEFT JOIN [Contract] AS c ON c.Id=moi.ContractId
+LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
+                 LEFT JOIN [Contract] AS c ON c.Id=so.ContractId
                  LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
 				 WHERE MOI.ContractId='" + ContractId + "'");
 
@@ -3904,7 +3905,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                                WHERE moi.ContractId='" + ContractId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"'))
+                                WHERE so.ContractId='" + ContractId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"'))
                                 ORDER BY isnull(b.Sequence,0),b.SalesOrderId";
                     dtBOMData = _sqlRepository.GetDataTable(strsql);
                 }
@@ -3975,7 +3976,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
 								
 								) GRN On GRN.BOQDetailId = b.Id
 
-                                WHERE moi.ContractId='" + ContractId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"'))
+                                WHERE so.ContractId='" + ContractId + @"' and isnull(B.Id,'') NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + ContractId + @"'))
                         ) AS B
                                 GROUP BY B.Sequence,B.POIds, B.GRNIds, B.MasterOrderItemId, B.MasterOrderId, B.OwnReferenceNo,
        B.BuyerReferenceNo, B.VendorId, B.Material, B.Article, B.Vendor, B.SKUDesc,
@@ -4907,7 +4908,7 @@ k.Article,k.Vendor,k.SKUDesc,k.CharVal1,k.CharVal2,k.CharVal3,k.isParent,k.isChi
             IWorksheet worksheet = workbook.Worksheets[0];
 
 
-            string WhereClause = @"       WHERE moi.ContractId='" + Id + @"' and isnull(B.Id,'') 
+            string WhereClause = @"       WHERE so.ContractId='" + Id + @"' and isnull(B.Id,'') 
                             NOT IN (select ParentId from BOQ where isnull(ParentId,'')<>'' 
                             AND MasterOrderItemId IN(SELECT Id FROM trn.MasterOrderItem Where ContractId='" + Id + @"'))
                       ";

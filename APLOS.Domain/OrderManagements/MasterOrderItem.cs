@@ -78,7 +78,6 @@ namespace Library.Model.OrderManagements
         public string EntityIdWithinCompany { get; set; }
         public string EntityIdWithinGroup { get; set; }
         public string PartyId { get; set; }
-        public string ContractId { get; set; }
         public string UOMId { get; set; }
         public string OrderCostingMasterTemplateId { get; set; }
 

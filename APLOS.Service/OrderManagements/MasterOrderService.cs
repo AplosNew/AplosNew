@@ -290,7 +290,7 @@ namespace Library.Service.OrderManagements
 								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,0 Active
                                     ,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
 									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
-                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,MOI.ContractId
+                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,SO.ContractId
                                     , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                                     ,PONumber=  REPLACE(REPLACE(
 										            STUFF((SELECT DISTINCT ','+CPO.PONumber from 
@@ -312,7 +312,8 @@ namespace Library.Service.OrderManagements
                             LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
                             LEFT JOIN HKP.Buyer AS B ON B.Id=A.BuyerId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
+							LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  CNT on CNT.Id = SO.ContractId
 							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId

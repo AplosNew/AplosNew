@@ -4,6 +4,8 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     $rootScope.title = 'HR Report Master';
     $scope.Action = 'Save';
     $scope.ActionT2 = 'Save';
+    $scope.ActionB = 'SaveBudgetCode'
+    $scope.ActionC = 'Save Responsible Person'
     $scope.ModelList = [];
     $scope.path = 'HumanResource/HRReportMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -11,6 +13,16 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+
+    // #region Lists
+    $scope.EntityList = [];
+    $scope.userMPList = [];
+    $scope.BudgetList = [];
+    $scope.UserGroupList = [];
+    $scope.UserSubGroupList = [];
+    $scope.GradeList = [];
+    $scope.SelEmpList = [];
+    // #endregion Lists
 
     // #region First Tab
 
@@ -36,7 +48,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     };
     // #endregion Header Tab
 
-    // ALL POP UPs
+    // #region ALL POP UPs
     // POP OPEN
     $scope.selectEmployee = function () {
 
@@ -54,8 +66,12 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     $scope.closeEmpPopUp = function () {
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
+    // #endregion ALL POP UPs
 
-    // Get Sequence
+    // #region Get Fun
+
+    // #region Get Sequence
+  
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -63,6 +79,8 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         });
     };
     $scope.GetSequence();
+
+   // #endregion Get Sequence
 
     $scope.getData = function () {
         $http({
@@ -78,19 +96,128 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
     $scope.getData();
 
-    $scope.EmployeeList = [];
-    $scope.getEmployee = function () {
+    $scope.ChildMasterID = null;
+    $scope.Get = function (args) {
+
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.SelectedEmployeeId = args.data.EmpSystemId;
+        $scope.Employee = args.data.Employee;
+        $scope.Action = 'Update';
+        $scope.ActionB = 'UpdateBudgetCode'
+        //$scope.ActionC = 'Update Responsible Person'
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+            $scope.GetAllSavedBudgetCode();
+           // $scope.GetSavedResponsiblePerson();
+        }
+
+    };
+
+   
+    $scope.GetEntity = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getEmployee",
+            url: $scope.path + "GetEntity",
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.EmployeeList = response.data;
+            $scope.EntityList = response.data;
+
+        });
+    }
+    $scope.GetEntity();
+
+    
+    $scope.GetBudget = function () {
+        // $scope.CheckedEntity = [];
+        var DropDownEntityListObj = $("#entityId").data("ejDropDownList");
+        var EntityId = DropDownEntityListObj.getSelectedValue();
+
+        if (angular.isUndefinedOrNull(EntityId)) {
+            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
+                if (angular.isUndefinedOrNull(EntityId)) {
+                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
+                } else {
+                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
+                }
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetBudgetCode",
+            data: { 'EntityId': EntityId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BudgetList = response.data;
+            $scope.GetUserGroup();
+            //$scope.GetUserSubGroup();
         });
     }
 
-    $scope.getEmployee();
+    
+    $scope.GetUserGroup = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetUserGroup",
+            //data: { 'headerId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.UserGroupList = response.data;
 
+        });
+    }
+
+    
+    $scope.GetUserSubGroup = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetUserSubGroup",
+            data: { 'userId': $scope.ob.UserGroupId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.UserSubGroupList = response.data;
+
+        });
+    }
+
+   
+    $scope.GetGrade = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetGrade",
+            data: { 'userId': $scope.ob.UserGroupId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.GradeList = response.data;
+
+        });
+    }
+
+    $scope.GetAllSavedBudgetCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetAllSavedBudgetCode",
+            data: { 'headerId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BudgetList = response.data;
+            $scope.GetUserGroup();
+            $scope.GetUserSubGroup();
+            $scope.GetGrade();
+        });
+    }
+
+    $scope.GetSavedResponsiblePerson = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetSavedResponsiblePerson",
+            data: { 'headerId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EmployeeList = response.data;
+        })
+    }
+    // #endregion Get Fun
     
     $scope.ModelTemp = {
         Id: null,
@@ -103,43 +230,15 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         Code: null,
         Active: true,
         Remarks: null,
-        UserGroup: null,
-        UserSubGroup: null,
+        
         
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.SelEmpList = [];
-
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
-    $scope.SelEmpList = [];
-
-    $scope.ChildMasterID = null;
-    $scope.Get = function (args) {
-
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.SelectedEmployeeId = args.data.EmpSystemId;
-        $scope.Employee = args.data.Employee;
-        $scope.Action = 'Update';
-       // $scope.ActionB = 'UpdateBudgetCode'
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-            $scope.GetAllSavedBudgetCode();
-        }
-
-
-    };
-
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
 
-        if ($scope.ModelNewForm.$valid) {
+       /* if ($scope.ModelNewForm.$valid) {*/
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -162,7 +261,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             }
 
-        }
+        /*}*/
     };
 
     $scope.Delete = function () {
@@ -234,128 +333,148 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
 
-    $scope.EntityList = [];
-    $scope.userMPList = [];
-    $scope.GetEntity = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetEntity",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.EntityList = response.data;
-            
-        });
-    }
-    $scope.GetEntity();
-
-    $scope.BudgetList = [];
-    $scope.GetBudget = function () {
-       // $scope.CheckedEntity = [];
-        var DropDownEntityListObj = $("#entityId").data("ejDropDownList");
-        var EntityId = DropDownEntityListObj.getSelectedValue();
-
-        if (angular.isUndefinedOrNull(EntityId)) {
-            for (var i = 0; i < DropDownEntityListObj.popupListItems.length; i++) {
-                if (angular.isUndefinedOrNull(EntityId)) {
-                    EntityId = + DropDownEntityListObj.popupListItems[i].Id;
-                } else {
-                    EntityId += ',' + DropDownEntityListObj.popupListItems[i].Id;
-                }
-            }
-        }
-
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetBudgetCode",
-            data: { 'EntityId': EntityId},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.BudgetList = response.data;
-            $scope.GetUserGroup();
-            //$scope.GetUserSubGroup();
-        });
-    }
-
-    $scope.UserGroupList = [];
-    $scope.GetUserGroup = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetUserGroup",
-            //data: { 'headerId': $scope.ModelNew.Id },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.UserGroupList = response.data;
-
-        });
-    }
     
-    $scope.UserSubGroupList = [];
-    $scope.GetUserSubGroup = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetUserSubGroup",
-            data: { 'userId': $scope.ob.UserGroupId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.UserSubGroupList = response.data;
-            
-        });
-    }
-
-    $scope.GradeList = [];
-    $scope.GetGrade = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetGrade",
-            data: { 'userId': $scope.ob.UserGroupId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.GradeList = response.data;
-
-        });
-    }
-
-    $scope.GetAllSavedBudgetCode = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetAllSavedBudgetCode",
-            //data: { 'headerId': $scope.ModelNew.Id },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.BudgetList = response.data;
-
-        });
-    }
 
     $scope.ActionB = 'Save Budget Code';
     $scope.CheckedBudgetCodeList = [];
     $scope.SaveBudgetCode = function () {
         $scope.CheckedBudgetCodeList = [];
-        for (var i = 0; i < $scope.BudgetList.length; i++) {
+        if ($scope.ActionB === 'SaveBudgetCode') {
+            for (var i = 0; i < $scope.BudgetList.length; i++) {
 
-            if ($scope.BudgetList[i].isSelected) {
-                $scope.CheckedBudgetCodeList.push($scope.BudgetList[i]);
+                if ($scope.BudgetList[i].isSelected) {
+                    $scope.CheckedBudgetCodeList.push($scope.BudgetList[i]);
+                }
             }
+            if ($scope.ob.UserGroupId == null) {
+                throw ShowResult("Please Select User Group");
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveBudgetCode',
+                data: {
+                    'chkBgtList': $scope.CheckedBudgetCodeList,
+                    //'usersubgroup': $scope.UserSubGroupId,
+                    'headerid': $scope.ModelNew.Id
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.UnchkOfCheckedItem();
+                }
+            });
         }
+        else if ($scope.ActionB === 'UpdateBudgetCode') {
+            $scope.UnCheckedBudgetCodeList = [];
+            for (var i = 0; i < $scope.BudgetList.length; i++) {
+
+                if ($scope.BudgetList[i].isSelected == false) {
+                    $scope.UnCheckedBudgetCodeList.push($scope.BudgetList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'UpdateBudgetCode',
+                data: {
+                    'unchkBgtList': $scope.UnCheckedBudgetCodeList,
+                    //'usersubgroup': $scope.UserSubGroupId,
+                    'headerid': $scope.ModelNew.Id
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.UnchkOfCheckedItem();
+                }
+            });
+        }
+    }
+    // #region Responsible person Tab
+
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'SaveBudgetCode',
-            data: {
-                'chkBgtList': $scope.CheckedBudgetCodeList,
-                //'usersubgroup': $scope.UserSubGroupId,
-                'headerid': $scope.ModelNew.Id
-            },
-            dataType: 'JSON',
+            url: $scope.path + "getEmployee",
+            dataType: 'JSON'
         }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.UnchkOfCheckedItem();
-            }
+            $scope.EmployeeList = response.data;
         });
     }
+
+    $scope.getEmployee();
+
+    $scope.Save_One_or_MultipleResPers = function () {
+        $scope.CheckedResponsiblePersonList = [];
+        if ($scope.ActionC === 'Save Responsible Person') {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+
+                if ($scope.EmployeeList[i].isSelected) {
+                    $scope.CheckedResponsiblePersonList.push($scope.EmployeeList[i]);
+                }
+            }
+           
+            $http({
+                method: 'POST',
+                url: $scope.path + 'Save_One_or_MultipleResPers',
+                data: {
+                    'chkRespersonList': $scope.CheckedResponsiblePersonList,
+                    
+                    'headerid': $scope.ModelNew.Id
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    for (var i = 0; i < $scope.CheckedResponsiblePersonList.length; i++) {
+
+                        if ($scope.CheckedResponsiblePersonList[i].isSelected) {
+                            $scope.CheckedResponsiblePersonList[i].isSelected = false;
+                        }
+                    }
+                    angular.element(document.querySelector('#EmployeePop')).modal('hide');
+                }
+            });
+        }
+        else if ($scope.ActionC === 'Update Responsible Person') {
+            $scope.UnCheckedResponsiblePersonList = [];
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+
+                if ($scope.EmployeeList[i].isSelected == false) {
+                    $scope.UnCheckedResponsiblePersonList.push($scope.BudgetList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'Save_One_or_MultipleResPers',
+                data: {
+                    'unchkBgtList': $scope.UnCheckedBudgetCodeList,
+                    //'usersubgroup': $scope.UserSubGroupId,
+                    'headerid': $scope.ModelNew.Id
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    
+                }
+            });
+        }
+    }
+    // #endregion Responsible person Tab
 
     $scope.UnchkOfCheckedItem = function () {
         for (var i = 0; i < $scope.CheckedBudgetCodeList.length; i++) {
@@ -363,6 +482,13 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             if ($scope.CheckedBudgetCodeList[i].isSelected) {
                 $scope.CheckedBudgetCodeList[i].isSelected = false;
             }
+        }
+    }
+
+    $scope.ClosePopupOnSelectAllField = function () {
+        if ($scope.ob.UserGroupId != null && $scope.ob.UserSubGroupId != null && $scope.ob.Grade != null) {
+            angular.element(document.querySelector('#UserGroupPop')).modal('hide');
+            ShowResult("User Group Selected", 'success');
         }
     }
     // #endregion First Tab
