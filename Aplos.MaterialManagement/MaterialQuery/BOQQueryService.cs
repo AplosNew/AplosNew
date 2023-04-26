@@ -228,11 +228,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
         {
             try
             {
-                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,moi.ContractId,mo.Id MasterOrderId,boq.SalesOrderId,PO.CurrencyId,CU.Code CurrencyCode
+                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,so.ContractId,mo.Id MasterOrderId,boq.SalesOrderId,PO.CurrencyId,CU.Code CurrencyCode
 							FROM BOQ  boq 
 							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
 							LEFT JOIN TRN.MasterOrderItem moi on moi.Id=boq.MasterOrderItemId
+                            LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
 							LEFT JOIN TRN.MasterOrder mo on mo.Id=moi.MasterOrderId
 							LEFT JOIN TRN.POBOQMAP pomap on pomap.BOQDetailId=boq.Id
 							LEFT JOIN HKP.Party P ON P.Id=mo.PartyId

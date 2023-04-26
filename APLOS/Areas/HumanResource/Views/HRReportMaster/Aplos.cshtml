@@ -4,7 +4,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSetHeader(1) }"><a ng-click="setTabHeader(1)" href="" aria-controls="general" role="tab" data-toggle="tab">HR Report Master</a></li>
             <li role="presentation" ng-class="{ active: isSetHeader(2) }"><a ng-click="setTabHeader(2)" href="" aria-controls="general" role="tab" data-toggle="tab">User Group / User Sub Group / Grade</a></li>
-
+            
         </ul>
     </div>
     <div class="tab-content">
@@ -33,13 +33,18 @@
                                 <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Remarks</label>
+                            <label class="col-sm-4 control-label">Active</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="2" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
+
                     </div>
 
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -59,26 +64,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-
-                            <div class="col-sm-8" style="display:flex">
-                                <input type="text" name="" ng-model="Employee" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-                                <button ng-click="selectEmployee()" class="btn" style="background:#3E445A; color:#FFF;border-radius:0"><i class="glyphicon glyphicon-search"></i></button>
-                            </div>
-
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Active</label>
+                            <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
+                                <textarea class="form-control" rows="2" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
                             </div>
                         </div>
+
+                        
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -93,6 +85,7 @@
                         <div class="site-tab">
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
+                                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Person</a></li>
 
                             </ul>
                         </div>
@@ -133,8 +126,8 @@
                                             @*<div e-column e-field="Position" e-headertext="Position" e-width="100"></div>*@
                                             <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="100"></div>
                                             @*<div e-column e-headertext="User Group" e-template="#userGroupId" e-textalign="center" e-width="100"></div>
-                    <div e-column e-headertext="User Sub Group" e-template="#userSubGroupId" e-textalign="center" e-width="100"></div>
-                    <div e-column e-headertext="Grade" e-template="#GradeId" e-textalign="center" e-width="100"></div>*@
+                                                <div e-column e-headertext="User Sub Group" e-template="#userSubGroupId" e-textalign="center" e-width="100"></div>
+                                                <div e-column e-headertext="Grade" e-template="#GradeId" e-textalign="center" e-width="100"></div>*@
                                             <div e-column e-headertext="User Group" e-template="#userGroupId" e-textalign="center" e-width="100"></div>
                                         </div>
                                     </div>
@@ -147,41 +140,33 @@
 
                                     </script>
 
-                                    @*<script type="text/template" id="userGroupId">
-                <div class="select-style">
-                    <select class="form-control" name="User Group" ng-model="data.UserGroupId" required>
-                        <option ng-repeat="option in $parent.UserGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </script>
-            <script type="text/template" id="userSubGroupId">
-                <div class="select-style">
-                    <select class="form-control" name="User Sub Group" ng-model="data.UserSubGroupId" required>
 
-                        <option ng-repeat="option in $parent.UserSubGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </script>
-            <script type="text/template" id="GradeId">
-                <div class="select-style">
-                    <select class="form-control" name="Grade" ng-model="data.Grade" required>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                    </select>
-                </div>
-            </script>*@
                                 </div>
                                 @Html.Partial("~/Areas/HumanResource/Views/HRReportMaster/_UserGroupPop.cshtml")
 
                                 <div class="common-btn">
                                     <ul class="list-inline text-right">
                                         <li> <button ng-click="SaveBudgetCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionB}}</button></li>
+                                       
                                     </ul>
 
                                 </div>
                             </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                                <div ng-form>
+                                    <div class="form-group">
 
+
+                                        <div class="col-sm-8" style="display:flex">
+                                            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                                            @*<input type="text" name="" ng-model="Employee" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">*@
+                                            <button ng-click="selectEmployee()" class="btn" style="background:#3E445A; color:#FFF;border-radius:0"><i class="glyphicon glyphicon-search"></i></button>
+                                        </div>
+
+                                    </div>
+                                    @Html.Partial("~/Areas/HumanResource/Views/HRReportMaster/_ResponsiblePerson.cshtml")
+                                </div>
+                            </div>
 
                         </div>
 
@@ -211,7 +196,7 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetHeader(2), active: isSetHeader(2) }">
             <togglable></togglable>
             <div class="form-elements form-horizontal" ng-form name="ModelNewBForm">
-                <input type="hidden" ng-model="ModelNew.Id">
+                <input type="hidden" ng-model="ModelNewB.Id">
                 <div class="row" style="background: #F2F0EC;">
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -220,13 +205,7 @@
                                 <input type="text" name="UserGroup" ng-model="ModelNewB.UserGroup" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Grade" ng-model="ModelNewB.Grade" class="form-control" required tabindex="4" maxlength="50">
-                            </div>
-                        </div>
-
+                        
                     </div>
 
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -275,57 +254,17 @@
 
         </div>
 
-
-
-
+        
     </div>
 
 </div>
-
-
 
 
 
 
 
 <!--POP UP SCREEN  FOR EMPLOYEE DETAIL  (EmployeeInformation)   -->
-<div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify ">
-        <div class="modal-content">
-            <div class="modal-header">Employee Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Please Select Employee Detail .</p>
-                        <div style="color:black;" id="GridEmployee" ej-grid e-datasource="EmployeeList" e-recorddoubleclick="selectEmpDetail"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                            <div e-columns>
-                                <div e-column e-field="SystemId" e-headertext="System Id" e-width="50"></div>
 
-                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
-                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="120"></div>
-
-                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
     function isNumber(evt) {

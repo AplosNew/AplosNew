@@ -98,7 +98,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     function getPartyPlantList() {
         $scope.partyPlantList = [];
-        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.fileNew.PartyId).then(function (response) {
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.modelNew.CustomerId).then(function (response) {
             angular.forEach(response.data, function (item) {
                 $scope.partyPlantList.push(item);
                 if (item.IsDefault) {

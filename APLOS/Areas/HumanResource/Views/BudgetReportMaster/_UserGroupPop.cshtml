@@ -5,7 +5,7 @@
             <div class="modal-body form-elements form-horizontal">
                 
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div class="form-elements form-horizontal">
+                        <div class="form-elements form-horizontal" ng-form>
                             
                             <div class="row">
                                 <div class="col-xs-12 col-sm-6 col-md-4">
@@ -40,7 +40,7 @@
                                         <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
                                         <div class="col-sm-8 show-message">
                                             <div class="select-style">
-                                                <select class="form-control" name="Grade" ng-model="ob.Grade" ng-change="ClosePopupOnSelectAllField()" required>
+                                                <select class="form-control" name="Grade" ng-model="ob.Grade" required>
 
                                                     <option ng-repeat="option in GradeList" value="{{option.Value}}">{{option.Text}}</option>
                                                 </select>

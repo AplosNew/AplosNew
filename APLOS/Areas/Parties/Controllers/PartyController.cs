@@ -675,7 +675,8 @@ namespace Aplos.Areas.Parties.Controllers
                                     ) AS SGL ON SGL.CompanyPartyId=CP.Id
                                     Left join boq boq ON boq.VendorId=p.Id									
 									LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=boq.MasterOrderItemId
-                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + customerVendor + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"' and moi.ContractId='"+ ContractId + @"'
+									LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
+                                    WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + customerVendor + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"' and so.ContractId='"+ ContractId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
                 return _sqlRepository.GetDataCollection(sql);
             }

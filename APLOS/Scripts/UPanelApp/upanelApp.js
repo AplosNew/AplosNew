@@ -1163,6 +1163,10 @@ upanelApp.controller("WCWorkStationsControlMasterController", WCWorkStationsCont
 upanelApp.controller("WCWorkStationsControlController", WCWorkStationsControlController)
 upanelApp.controller("BudgetCodeWiseHRReportController", BudgetCodeWiseHRReportController)
 upanelApp.controller("WCWorkStationsControlReportController", WCWorkStationsControlReportController)
+upanelApp.controller("BudgetReportMasterController", BudgetReportMasterController)
+upanelApp.controller("WorkcenterWiseDetentionController", WorkcenterWiseDetentionController)
+upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
+
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
