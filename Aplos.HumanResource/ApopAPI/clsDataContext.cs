@@ -4458,7 +4458,7 @@ DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,D.Deployment,A.ToDayIN, Diffenence=A.ToDayIN-D.Deployment
 
 from AttdnProcessData apd 
 left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
@@ -4498,9 +4498,12 @@ left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDa
 left join LeaveType LTY on LTY.Id = LT.LTSystemID
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
+LEFT JOIN (Select SUM(Deployment)Deployment,ManpowerBudgetId from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId) D ON D.ManpowerBudgetId=MBGT.Id
+
+LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy') AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id
 
 where emp.employeecode is not null and emp.employeestatus = 'Active'
-and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
+and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
 
                 if(locations != null)
                 {
@@ -4549,6 +4552,9 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
                         GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
                         Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
                         CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                        Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
+                        ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
+                        Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
                        
                     });
                 }
@@ -4650,7 +4656,6 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
 
 
                         dr["Id"] =  _Id;
-                        dr["ProductionDate"] = item.UserName;
                         dr["EntityId"] = item.PhoneNumber;
                         dr["ProcessId"] = item.Email;
                         dr["ShiftId"] = item.Password;
@@ -4666,7 +4671,6 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["ProductionDate"] = item.UserName;
                         dr["EntityId"] = item.PhoneNumber;
                         dr["ProcessId"] = item.Email;
                         dr["ShiftId"] = item.Password;
@@ -5337,6 +5341,9 @@ and emp.employeecode NOT IN (2222229, 2222230)   and apd.WorkDate = '" + date + 
         public string GroupId { get; set; }
         public string Location { get; set; }
         public string CurrentStatus { get; set; }
+        public string Deployment { get; set; }
+        public string ToDayIN { get; set; }
+        public string Diffenence { get; set; }
        
     }
 
