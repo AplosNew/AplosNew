@@ -56,9 +56,10 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.ob = {};
-    $scope.OpenUserGroupPopUp = function (x) {
+    $scope.OpenUserGroupPopUp = function () {
         angular.element(document.querySelector('#UserGroupPop')).modal('show');
-        $scope.ob = x.data;
+        $scope.GetUserGroup();
+        //$scope.ob = x.data;
         
     }
 
@@ -149,7 +150,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.BudgetList = response.data;
-            $scope.GetUserGroup();
+            /*$scope.GetUserGroup();*/
             //$scope.GetUserSubGroup();
         });
     }
@@ -333,8 +334,6 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
 
-    
-
     $scope.ActionB = 'SaveBudgetCode';
     $scope.CheckedBudgetCodeList = [];
     $scope.SaveBudgetCode = function () {
@@ -486,10 +485,9 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.ClosePopupOnSelectAllField = function () {
-        if ($scope.ob.UserGroupId != null && $scope.ob.UserSubGroupId != null && $scope.ob.Grade != null) {
             angular.element(document.querySelector('#UserGroupPop')).modal('hide');
             ShowResult("User Group Selected", 'success');
-        }
+        
     }
     // #endregion First Tab
 
