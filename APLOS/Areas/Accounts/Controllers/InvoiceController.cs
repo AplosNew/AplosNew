@@ -846,9 +846,11 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteWriteOff(string invoiceWriteOffId, string voucherId)
+        public ActionResult DeleteWriteOff(string invoiceWriteOffId, string voucherId, string deletedRemarks)
         {
-            _invoiceWriteOffService.DeleteWriteOff(invoiceWriteOffId, voucherId);
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
+            _invoiceWriteOffService.DeleteWriteOff(invoiceWriteOffId, voucherId, deletedRemarks);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
