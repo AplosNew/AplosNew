@@ -770,7 +770,7 @@ namespace Library.Service.Employees
                     throw new CustomException("Delete is not allow after post ! ");
 
                 AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
-                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", invoiceId, "", "", "", "", "", "", "", deletedRemarks);
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", invoiceId, "", "", "", "", "", "", "", "", deletedRemarks);
 
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();

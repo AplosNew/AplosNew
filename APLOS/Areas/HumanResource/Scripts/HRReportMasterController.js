@@ -4,7 +4,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     $rootScope.title = 'HR Report Master';
     $scope.Action = 'Save';
     $scope.ActionT2 = 'Save';
-    $scope.ActionB = 'SaveBudgetCode'
+    $scope.ActionB = 'SaveBudgetCode' 
     $scope.ActionC = 'Save Responsible Person'
     $scope.ModelList = [];
     $scope.path = 'HumanResource/HRReportMaster/';
@@ -56,9 +56,10 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.ob = {};
-    $scope.OpenUserGroupPopUp = function (x) {
+    $scope.OpenUserGroupPopUp = function () {
         angular.element(document.querySelector('#UserGroupPop')).modal('show');
-        $scope.ob = x.data;
+        $scope.GetUserGroup();
+        //$scope.ob = x.data;
         
     }
 
@@ -90,7 +91,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
+            //ClearFields(response.data.Sequence);
             $scope.GetSequence();
         });
     }
@@ -103,11 +104,11 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         $scope.SelectedEmployeeId = args.data.EmpSystemId;
         $scope.Employee = args.data.Employee;
         $scope.Action = 'Update';
-        $scope.ActionB = 'UpdateBudgetCode'
+        //$scope.ActionB = 'UpdateBudgetCode'
         //$scope.ActionC = 'Update Responsible Person'
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            $scope.GetAllSavedBudgetCode();
+            //$scope.GetAllSavedBudgetCode();
            // $scope.GetSavedResponsiblePerson();
         }
 
@@ -149,7 +150,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.BudgetList = response.data;
-            $scope.GetUserGroup();
+            /*$scope.GetUserGroup();*/
             //$scope.GetUserSubGroup();
         });
     }
@@ -230,8 +231,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         Code: null,
         Active: true,
         Remarks: null,
-        UserGroup: null,
-        UserSubGroup: null,
+        
         
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -239,7 +239,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
 
-        if ($scope.ModelNewForm.$valid) {
+       /* if ($scope.ModelNewForm.$valid) {*/
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -262,7 +262,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             }
 
-        }
+        /*}*/
     };
 
     $scope.Delete = function () {
@@ -334,9 +334,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
 
-    
-
-    $scope.ActionB = 'Save Budget Code';
+    $scope.ActionB = 'SaveBudgetCode';
     $scope.CheckedBudgetCodeList = [];
     $scope.SaveBudgetCode = function () {
         $scope.CheckedBudgetCodeList = [];
@@ -487,10 +485,9 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.ClosePopupOnSelectAllField = function () {
-        if ($scope.ob.UserGroupId != null && $scope.ob.UserSubGroupId != null && $scope.ob.Grade != null) {
             angular.element(document.querySelector('#UserGroupPop')).modal('hide');
             ShowResult("User Group Selected", 'success');
-        }
+        
     }
     // #endregion First Tab
 

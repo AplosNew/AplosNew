@@ -1233,11 +1233,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId)
+        public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId, string deletedRemarks)
         {
-
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _salesService.DeleteMasterOrderSalePost(identity.CompanyId, identity.PlantId, salesId, voucherId);
+            _salesService.DeleteMasterOrderSalePost(identity.CompanyId, identity.PlantId, salesId, voucherId, deletedRemarks);
 
             return Json(new { Message = AplosMessage.Deleted });
         }
@@ -1695,5 +1696,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 objCon = null;
             }
         }//End of function
+
+        [Authorize, HttpGet]
+        public ActionResult SalesReturnReport(string salesReturnId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.SalesReturnService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesReturnId);
+
+            return View();
+        }
     }
 }
