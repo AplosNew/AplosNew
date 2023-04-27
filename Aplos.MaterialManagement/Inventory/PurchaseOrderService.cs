@@ -8717,20 +8717,22 @@ ORDER BY IR.ID DESC";
 									trn.MasterOrder XMOI
 									LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 									LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
-									where I.ContractId=C.Id for xml path('') ), 1, 1, ''
+                                    LEFT JOIN TRN.SalesOrder so on I.Id=so.MasterOrderItemId
+									where so.ContractId=C.Id for xml path('') ), 1, 1, ''
 									)
                             ,C.UDNo,MLC.OpeningBank
 							FROM [dbo].[Contract] C
 							JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
 							LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id=C.MasterLCId--MLC ON MLC.ContractId=C.Id
 							 where  (C.PlantId='" + plantId + @"' OR isnull(C.Id,'') IN(
-						   select isnull(MOI.ContractId,'') from trn.MasterOrderItem MOI
+						    select isnull(so.ContractId,'') from trn.MasterOrderItem MOI
+						   LEFT JOIN TRN.SalesOrder so on MOI.Id=so.MasterOrderItemId
 						   join org.Entity E on e.id=isnull(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						   where Type='OutSource' and isnull(consignment,0)=0 and E.plantId='" + plantId + @"'
                             )) AND isnull(C.Id,'') NOT IN (
-                                select isnull(so.ContractId,'') from trn.MasterOrderItem MOI
+                                 select isnull(so.ContractId,'') from trn.MasterOrderItem MOI
+						   LEFT JOIN TRN.SalesOrder so on MOI.Id=so.MasterOrderItemId
                                 join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
-                                LEFT JOIN TRN.SalesOrder so on moi.Id=so.MasterOrderItemId
                                 WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + plantId + @"'
                             )
 
