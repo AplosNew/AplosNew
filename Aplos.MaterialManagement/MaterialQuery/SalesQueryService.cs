@@ -1488,10 +1488,17 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			try
 			{
-				var str = @"select x.* from (
+				var str = @"declare @fromdate varchar(20)= '"+ FromDate + @"'
+declare @todate varchar(20)= '"+ ToDate + @"'
+declare @plantId varchar(10)= '"+ PlantId + @"'--Sangrur
+
+select x.* from (
 					SELECT  SM.Id SalesMaterialId
 								,SM.SalesId SalesNo
 								,'Sales' ItemType
+								,SalesType=CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
+									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
+									ELSE  SA.SourceType END 
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
 								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
@@ -1503,9 +1510,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								
 								,MGM.UserName AS MaterialGroup
 								,MM.UserName Material
-								--,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
-								--	WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
-								--	ELSE  SA.SourceType END SourceType
+								
 								
 								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
 								
@@ -1551,9 +1556,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 							    ,FORMAT(SA.MatureDate,'dd-MMM-yyyy') MatureDate
 								,PL.Amount LCAmount
 								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
-								--,TA.UserName TransportAgent	
-
-								--,CNfA.UserName CNFAgent
+								
 								,PSI.CNFContainerNo
 								,PSI.CNFVesselTrackingNo
 								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
@@ -1570,12 +1573,26 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
+									,IGL.AccountCode DrGLCode
+						,IGL.UserName AS DrGL
+						,IGL.Id DrGLGeneralInfoId
+						,IA.Code DrActivityCode
+						,IA.UserName DrActivity
+						,IA.Id DrActivityId
+						,B.UserName AS DrBudget
+						,IGL1.UserName AS CrGL
+						,IGL1.AccountCode CrGLCode
+						,IGL1.Id CrGLGeneralInfoId
+						,IA1.Id CrActivityId
+						,IA1.UserName AS CrActivity
+						,IA1.Code CrActivityCode
+						,B1.UserName AS CrBudget
+						,IBM1.RefNo CrBudgetrefNo,BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss
 									,So.Other,So.UpCharge
 								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
-								FROM TRN.SalesMaterial AS SM 
+						        FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
@@ -1630,6 +1647,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
 						LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
 						Left JOIN [ORG].[Entity] E On E.id= SA.EntityId
+						 LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=SM.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=SM.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=SM.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=SM.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=SM.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=SM.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+						LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=IBM1.BudgetCategoryId
+						LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=IBM1.BudgetSubCategoryId
 						LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,VoucherId 
 										FROM TRN.Invoice GROUP BY VoucherId) I ON I.VoucherId=SA.VoucherId
 						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
@@ -1671,7 +1698,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 
-								WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+								WHERE SA.PlantId=@plantId AND convert(Date,SA.InvoiceDate) BETWEEN  @fromdate AND @todate 
 
 									UNION ALL
 
@@ -1679,6 +1706,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								ISs.Id SalesMaterialId
 								,IR.Id SalesNo
 								,'Service' ItemType
+								,SalesType=CASE WHEN IR.SourceType='Sales' THEN 'MaterialSales'
+									WHEN IR.SourceType='Packing' THEN 'PackingwiseSales'
+									ELSE  IR.SourceType END 
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
 								,FORMAT(IR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
@@ -1744,6 +1774,21 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,NULL DrGLCode
+						,NULL DrGL
+						,NULL DrGLGeneralInfoId
+						,NULL DrActivityCode
+						,NULL DrActivity
+						,NULL DrActivityId
+						,NULL DrBudget
+						,NULL CrGL
+						,NULL CrGLCode
+						,NULL CrGLGeneralInfoId
+						,NULL CrActivityId
+						,NULL CrActivity
+						,NULL CrActivityCode
+						,NULL CrBUdget
+						,NULL CrBudgetrefNo,NULL BudgetCategory, NULL BudgetSubCategory
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 								,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
@@ -1769,6 +1814,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 						left join trn.Voucher V1 on V1.Id=ep.VoucherId
 						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
+						
 						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
 									,A.Amount TaxAmount--,HS.Code HSCode 
 									FROM  [TRN].[SalesTax] A
@@ -1813,13 +1859,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									WHERE B.Code='TCS'
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+								WHERE IR.PlantId=@plantId AND convert(Date,IR.InvoiceDate) BETWEEN  @fromdate AND @todate 
 								UNION ALL
 
 								SELECT 
 								IID.Id SalesMaterialId
 								,II.Id   SalesNo
 								,'InventorySales' ItemType
+								,SalesType='InventorySales'
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
@@ -1835,8 +1882,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								,IID.SalesRate TransactionRate
-								,IID.BooksCurrencyTransactionAmount TransactionQty 
-								,IID.BooksCurrencyTransactionAmount *IID.SalesRate TransactionAmount
+								,IID.TransactionQty  
+								,IID.TransactionQty *IID.SalesRate TransactionAmount
 								,0 StockRate,Difference=0
 								,TUoM.UserName AS TransactionUoM
 								,SCr1.TaxAmount TaxAmount
@@ -1875,6 +1922,21 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,''OwnReferenceNo
 								,0 RealizeAmount
 								,''RealizeDate
+								,IGL.AccountCode DrGLCode
+						,IGL.UserName AS DrGL
+						,IGL.Id DrGLGeneralInfoId
+						,IA.Code DrActivityCode
+						,IA.UserName DrActivity
+						,IA.Id DrActivityId
+						,B.UserName AS DrBudget
+						,IGL1.UserName AS CrGL
+						,IGL1.AccountCode CrGLCode
+						,IGL1.Id CrGLGeneralInfoId
+						,IA1.Id CrActivityId
+						,IA1.UserName AS CrActivity
+						,IA1.Code CrActivityCode
+						,B1.UserName AS CrBUdget
+						,IBM1.RefNo CrBudgetrefNo,BC.UserName AS BudgetCategory, BSC.UserName AS BudgetSubCategory
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
@@ -1882,8 +1944,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
 								left join ORG.Company COMP on COMP.Id=II.CompanyId
 								LEFT JOIN SCS.Currency AS CURR ON CURR.Id=COMP.BaseCurrencyId
-								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
-								left JOIN [TRN].[InventoryReceiveDetail] AS IRD on ISH.InventoryReceiveDetailId=IRD.ID
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
 								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
@@ -1924,9 +1984,19 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+						LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=IBM1.BudgetCategoryId
+						LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=IBM1.BudgetSubCategoryId
 						LEFT JOIN(Select sum(Amount) Amount, sum(TotalTaxAmount) TotalTaxAmount, InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
 						LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
-			LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
 									FROM [TRN].[InventorySalesTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
 									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
@@ -1968,7 +2038,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									Group by A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+						WHERE II.PlantId=@plantId AND convert(Date,II.SalesDate) BETWEEN  @fromdate AND @todate 
 					
 
 								UNION ALL
@@ -1977,6 +2047,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								ISs.Id SalesMaterialId
 								,'' SalesNo
 								,'InventoryService' ItemType
+								,SalesType='InventorySales'
 								--,'' GRNDate
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
@@ -2034,12 +2105,27 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,''OwnReferenceNo
 						,0 RealizeAmount
 					    ,''RealizeDate
+						,NULL DrGLCode
+						,NULL DrGL
+						,NULL DrGLGeneralInfoId
+						,NULL DrActivityCode
+						,NULL DrActivity
+						,NULL DrActivityId
+						,NULL DrBudget
+						,NULL CrGL
+						,NULL CrGLCode
+						,NULL CrGLGeneralInfoId
+						,NULL CrActivityId
+						,NULL CrActivity
+						,NULL CrActivityCode
+						,NULL CrBUdget
+						,NULL CrBudgetrefNo,NULL BudgetCategory, NULL BudgetSubCategory
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 						,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 						,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
-						from trn.InventoryService AS ISS
+						from trn.InventorySalesService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
-						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
+						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventorySalesId
 						left join ORG.Company COMP on COMP.Id=IR.CompanyId
 						LEFT JOIN SCS.Currency AS CURRE ON CURRE.Id=COMP.BaseCurrencyId
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
@@ -2102,7 +2188,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                                     Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+								WHERE IR.PlantId=@plantId AND convert(Date,IR.SalesDate) BETWEEN  @fromdate AND @todate  
 						)x order by convert(Date,x.InvoiceDate) ,x.SalesNo,x.ItemType";
 
 				return _sqlRepository.GetDataTable(str);
