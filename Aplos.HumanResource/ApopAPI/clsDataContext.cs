@@ -4500,10 +4500,9 @@ left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemI
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
 LEFT JOIN (Select SUM(Deployment)Deployment,ManpowerBudgetId from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId) D ON D.ManpowerBudgetId=MBGT.Id
 
-LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy') AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id
-
-where emp.employeecode is not null and emp.employeestatus = 'Active'
-and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
+LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
+"where emp.employeecode is not null and emp.employeestatus = 'Active'" +
+"and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
 
                 if(locations != null)
                 {
@@ -4512,11 +4511,11 @@ and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "
 
                 if (inmis ==  "IN" || inmis == "IM")
                 {
-                    strSQL = strSQL1 + " and apd.InStatus = '" + inmis + "'";
+                    strSQL = strSQL1 + " and apd.InStatus = '" + inmis + "' order by Diffenence Asc";
                 }
                 if (inmis == "W")
                 {
-                    strSQL = strSQL1 + " and apd.WeeklyStatus = 'W'";
+                    strSQL = strSQL1 + " and apd.WeeklyStatus = 'W' order by Diffenence Asc";
                 }
 
                 #endregion Sql
