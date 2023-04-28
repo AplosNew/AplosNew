@@ -575,6 +575,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     };
 
     $scope.LocalTaxInvoiceReport = function (data) {
-        location.href = "Sales/LocalTaxInvoice?salesId=" + data.Id;
+        location.href = "Sales/SalesReturnReport?salesReturnId=" + data.Id;
     };
 }

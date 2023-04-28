@@ -626,23 +626,26 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
             });
     }
 
-
+    $scope.deletedRemarks = "";
     $scope.onClickDeletePopUp = function (x) {
         var data = x;
         $scope.salesId = data.Id;
         $scope.voucherId = data.VoucherId;
 
         $scope.message_delete_confirmation = "Are you sure to Delete?";
-        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+        angular.element(document.querySelector('#confirmDeletePopUp_Remarks')).modal('show');
     };
 
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
+    };
 
-    $scope.delete = function (salesId, voucherId) {
+    $scope.delete = function (salesId, voucherId, deletedRemarks) {
         $http({
             method: "POST",
             url: 'SalesManagements/Sales/DeleteMasterOrderSalePost',
             data: {
-                "salesId": salesId, "voucherId": voucherId 
+                "salesId": salesId, "voucherId": voucherId, "deletedRemarks": deletedRemarks
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -650,6 +653,8 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
                 ShowResult(response.data.Message, "success");
                 $scope.getMasterOrderSalesPosted();
                 $scope.Clear();

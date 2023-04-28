@@ -8001,7 +8001,7 @@ namespace Library.Service.Invoices
             }
         }
 
-        public void DeleteWriteOff(string invoiceWriteOffId, string voucherId)
+        public void DeleteWriteOff(string invoiceWriteOffId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
@@ -8012,6 +8012,9 @@ namespace Library.Service.Invoices
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", "", invoiceWriteOffId, "", "", "", "", "", "", "", deletedRemarks);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();

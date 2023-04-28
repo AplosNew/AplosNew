@@ -46,7 +46,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var sql = @"select Id Value, UserGroup Text from HKP.HRReportGroupMaster";
+                var sql = @"select Id, UserGroup, UserSubGroup from HKP.HRReportGroupMaster";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -163,7 +163,7 @@ where BGT.EntityId in (" + Entity + ") " +
             }
         }
 
-        public ActionResult GetSavedResponsiblePerson( string headerId)
+        public ActionResult GetSavedResponsiblePerson(string headerId)
         {
             try
             {
@@ -341,7 +341,7 @@ where BGT.EntityId in (" + Entity + ") " +
                 foreach (var item in chkBgtList)
                 {
                     DataView dv = new DataView(dsChildA.Tables[0]);
-                    dv.RowFilter = "Id='" + item["HRReportMasterId"] + "'";
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
                     if (dv.Count > 0)
                     {
                        
@@ -449,11 +449,15 @@ where BGT.EntityId in (" + Entity + ") " +
                     {
 
                         DataRow dr = dv[0].Row;
-
+                        dr.BeginEdit();
                         dr["Active"] = false;
 
-                        EditRow(dr, item) ;
-                        
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
                     }
                     
                 }
