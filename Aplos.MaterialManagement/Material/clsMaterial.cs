@@ -1339,7 +1339,7 @@ Left Join [ORG].[CostCenter] CC On CC.Id=D.CostCenterId
             {
                 string sql = @"SELECT B.Id Value, B.UserName Text FROM TRN.ProductionOrderProcessSet A
 LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
-Where A.ProductionOrderId='"+ ProductionOrderId + "' AND A.Sequence=1";
+Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1347,6 +1347,47 @@ Where A.ProductionOrderId='"+ ProductionOrderId + "' AND A.Sequence=1";
                 throw ex;
             }
         }
+
+        public void GetMaterialIssueReportData(string masterId, out DataTable dtOrder)
+        {
+            try
+            {
+                string strSql = string.Empty;
+                strSql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,MS.PlanPercentage,FORMAT(MS.AddedDate,'dd-MMM-yyyy')AddedDate
+                ,D.ValueLoss,D.GrossConsumption*100 GrossConsumption,D.TotalConsumption
+				,D.PlanConsumption,ISNULL(IR.IssueQty,0) IssueQty,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks
+				,I.UserName Item,A.StandardName QBOQArticle
+                ,M.UserName MaterialMaster,um.Code as UoM,IRM.CheckedByStatus,IRM.AuthorizedByStatus,MS.POId,IRM.Id IssueSlipId,CC.UserName CostCenter
+				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
+                FROM dbo.MaterialIssueControlDetail D 
+				INNER JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
+				INNER JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
+				INNER JOIN TRN.SalesOrder SO ON SO.Id=MSO.SOId
+				INNER JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
+				INNER JOIN TRN.MasterOrderItem MOI ON MOI.Id=MSO.LineItemId
+				INNER JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
+				LEFT JOIN HKP.Party P ON P.Id=MSO.CustomerId
+				Left Join [ORG].[CostCenter] CC On CC.Id=MS.CostCenterId
+                INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
+                left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
+                LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
+                LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
+				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId
+							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId)IR ON IR.MaterialIssueControlDetailId=D.Id
+				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId
+                WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
+
+                dtOrder = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                
+            }
+        }//End Function
 
         #endregion
 

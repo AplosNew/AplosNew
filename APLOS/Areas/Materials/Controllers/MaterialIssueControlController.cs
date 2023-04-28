@@ -32,6 +32,9 @@ using System.Drawing;
 using Aplos.Areas.Commercial.Controllers;
 using Library.Service.Systems;
 using Library.MaterialManagement.Material;
+using Syncfusion.XlsIO;
+using Syncfusion.ExcelToPdfConverter;
+using Library.Model.Enums;
 #endregion
 
 namespace Aplos.Areas.Materials.Controllers
@@ -750,7 +753,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         public void DeleteData(string Id, string issueId)
         {
-            DataSet dsIssue=null;
+            DataSet dsIssue = null;
             string strSQL, strBSQL, strIRSQL, strMDSQL, strSOSQL, strISMSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
@@ -773,7 +776,7 @@ namespace Aplos.Areas.Materials.Controllers
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
 
-                
+
 
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strIRSQL, true, "1");
@@ -1221,7 +1224,197 @@ namespace Aplos.Areas.Materials.Controllers
             return total;
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetMaterialIssueReportPdf(ReportFormat reportFormat, string masterId)
+        {
+            try
+            {
+                string fileName = "";
 
+                IWorkbook workbook = GetMaterialIssueWorkbook("MaterialIssue", masterId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "MaterialIssueReport";
+                // return RenderReportAsPdf(workbook, reportFileName);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        PdfDocument document = new PdfDocument();
+                        ExcelToPdfConverterSettings settings = new ExcelToPdfConverterSettings();
+                        settings.TemplateDocument = document;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document = converter1.Convert(settings);
+                        }
+                        document.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+                        return null;
+
+                    case ReportFormat.PdfView:
+                        PdfDocument document1 = new PdfDocument();
+                        ExcelToPdfConverterSettings settings1 = new ExcelToPdfConverterSettings();
+                        settings1.TemplateDocument = document1;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document1 = converter1.Convert(settings1);
+                        }
+                        document1.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                        //return RenderReportAsPdf(document1, reportFileName);
+                        return RenderReportAsPdf(workbook, reportFileName);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public IWorkbook GetMaterialIssueWorkbook(string SheetName, string masterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Data";
+                sheet = workbook.Worksheets[0];
+                DataTable dtOrder;
+                clsM.GetMaterialIssueReportData(masterId, out dtOrder);
+
+                if (dtOrder.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found.");
+                }
+                int ROW = 4; int COL = 1;
+                sheet.Range[ROW, COL].Text = "SlipNo. :";
+                sheet.Range[ROW, COL+1].Text =  dtOrder.Rows[0]["IssueSlipId"].ToString();  
+                sheet.Range[ROW, COL+2].Text = "Date" + ": " + dtOrder.Rows[0]["AddedDate"].ToString();
+                sheet.Range[ROW, COL+2].ColumnWidth = 14;
+                sheet.Range[ROW, COL+3].Text = "Customer: ";
+                sheet.Range[ROW, COL + 3].ColumnWidth = 16;
+                sheet.Range[ROW, COL+4].Text =  dtOrder.Rows[0]["Customer"].ToString();
+                sheet.Range[ROW, COL, ROW, COL + 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[ROW, COL, ROW, COL + 5].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[ROW, COL + 4, ROW, COL + 5].Merge();
+
+                sheet.Range[ROW, COL+6].Text = "P.Code." + ": " + dtOrder.Rows[0]["Code"].ToString(); 
+                sheet.Range[ROW, COL + 7].Text = "Checked Status" + ": " + dtOrder.Rows[0]["CheckedByStatus"].ToString();
+                sheet.Range[ROW, COL + 7].ColumnWidth = 20;
+
+                ROW = 5; COL = 1;
+                sheet.Range[ROW, COL].Text = "PO No. :";
+                sheet.Range[ROW, COL+1].Text =  dtOrder.Rows[0]["POId"].ToString();  
+                sheet.Range[ROW, COL+2].Text = "Cost Center" + ": " + dtOrder.Rows[0]["CostCenter"].ToString(); 
+                sheet.Range[ROW, COL+3].Text = "Order Qty" + ": " + dtOrder.Rows[0]["SOQty"].ToString() + " " + dtOrder.Rows[0]["UoM"].ToString(); 
+                sheet.Range[ROW, COL+4].Text = "Plan %" + ": " + dtOrder.Rows[0]["PlanPercentage"].ToString() + "%"; 
+                sheet.Range[ROW, COL+5].Text = "Shade" + ": " + "";
+                sheet.Range[ROW, COL + 5].ColumnWidth = 14;
+                sheet.Range[ROW, COL+6].Text = "Approved Status: " + dtOrder.Rows[0]["AuthorizedByStatus"].ToString();
+                sheet.Range[ROW, COL + 7].ColumnWidth = 19;
+
+                ROW = 6; COL = 1;
+
+                #region ColumnsHeader
+
+                sheet[ROW, COL].Text = "SL"; sheet[ROW, COL].ColumnWidth = 8; int colSL = COL; COL++;
+                sheet[ROW, COL].Text = "Description"; sheet[ROW, COL].ColumnWidth = 16; int colDescription = COL; COL++;
+                sheet[ROW, COL].Text = "Packing Type"; sheet[ROW, COL].ColumnWidth = 16; int colPackingType = COL; COL++;
+                sheet[ROW, COL].Text = "Master Order Item"; sheet[ROW, COL].ColumnWidth = 25; int colMOI = COL; COL++;
+                sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 30; int colArticle = COL; COL++;
+                sheet[ROW, COL].Text = "%Age"; sheet[ROW, COL].ColumnWidth = 14; int colAge = COL; COL++;
+                sheet[ROW, COL].Text = "Value Loss"; sheet[ROW, COL].ColumnWidth = 19; int colVL= COL; COL++;
+                sheet[ROW, COL].Text = "UOM"; sheet[ROW, COL].ColumnWidth = 20; int colUoM = COL; COL++;
+                sheet[ROW, COL].Text = "Total Qty"; sheet[ROW, COL].ColumnWidth = 8; int colTQ = COL; COL++;
+                sheet[ROW, COL].Text = "Issue Qty"; sheet[ROW, COL].ColumnWidth = 8; int colIQ = COL;
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                #endregion columns
+
+                ROW++;
+                int startRow = ROW;
+
+                #region DataPlot
+                for (int i = 0; i < dtOrder.Rows.Count; i++)
+                {
+                    sheet[ROW, colSL].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["SrNo"].ToString());
+                    sheet[ROW, colDescription].Text = dtOrder.Rows[i]["Remarks"].ToString();
+                    sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["PackingType"].ToString();
+                    sheet[ROW, colMOI].Text = dtOrder.Rows[i]["MaterialMaster"].ToString();
+                    sheet[ROW, colArticle].Text = dtOrder.Rows[i]["QBOQArticle"].ToString();
+                    sheet[ROW, colAge].Text = dtOrder.Rows[i]["GrossConsumption"].ToString();
+                    sheet[ROW, colVL].Text = dtOrder.Rows[i]["ValueLoss"].ToString();
+                    sheet[ROW, colUoM].Text = dtOrder.Rows[i]["UOM"].ToString();
+                    sheet[ROW, colTQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["TotalConsumption"].ToString());
+                    sheet[ROW, colIQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["IssueQty"].ToString());
+
+
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+                #endregion
+
+                #region ReportHeader
+                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = false;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+                #endregion
+
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         #endregion
     }
 }

@@ -760,6 +760,19 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     }
 
+    $scope.PrintData = function (data) {
+        try {
+            $scope.fileName = "MaterialIssueReport.xls";
 
+          
+           // $scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
+            var url = 'Materials/MaterialIssueControl/GetMaterialIssueReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
+            $rootScope.report(url);
+           
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 }
