@@ -150,7 +150,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     $scope.MCFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'POId' },
-        { 'name': 'IssueId', 'value': 'IssueId' },
+        { 'name': 'SlipId', 'value': 'IssueId' },
     ];
 
     $scope.MCSearchColumn = 'POId';
