@@ -1359,6 +1359,8 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
 				,I.UserName Item,A.StandardName QBOQArticle
                 ,M.UserName MaterialMaster,um.Code as UoM,IRM.CheckedByStatus,IRM.AuthorizedByStatus,MS.POId,IRM.Id IssueSlipId,CC.UserName CostCenter
 				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
+                ,Shade=STUFF((select distinct ','+PLA.AttributeValue from ProductLibraryAttribute PLA                                               
+							                                where PLA.ProductLibraryId=PL.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                 FROM dbo.MaterialIssueControlDetail D 
 				INNER JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
 				INNER JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
