@@ -56,9 +56,15 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         , { value: 'DocDate', name: "Doc Date" }];
     $scope.approvedSalesList = [];
     $scope.getPopUpData = function () {
+        if ($scope.productNew.ReturnType == 'PackingSales') {
+            $scope.SalesPopupUrl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales'
+        }
+        else {
+            $scope.SalesPopupUrl = 'SalesManagements/Sales/GetSalesReturnData'
+        }
         $http({
             method: 'POST',
-            url: 'SalesManagements/Sales/GetMaterialSalesListForReturn',
+            url: $scope.SalesPopupUrl,
             data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
         }).then(function successCallback(response) {
             $scope.approvedSalesList = response.data;
@@ -109,7 +115,9 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.materialStockList = [];
         $scope.specificStockList = [];
         getIssueDetailList($scope.product.SalesId, data.data.PackingId);
-        getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
+        if ($scope.productNew.ReturnType == 'PackingSales') {
+            getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
+        }
         getInvTaxList();
         $scope.productNew.TaxOption = 'Yes';
         $scope.productNew.TaxOptionMat = 'Yes';

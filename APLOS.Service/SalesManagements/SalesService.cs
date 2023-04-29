@@ -2969,11 +2969,12 @@ namespace Library.Service.SalesManagements
         {
             try
             {
-                string sql = @"SELECT distinct A.MasterOrderItemId,A.MasterOrderId, MOI.ContractId,C.ContractNo,MLC.LCRef, MLC.BenificiaryBankId
+                string sql = @"SELECT distinct A.MasterOrderItemId,A.MasterOrderId, SO.ContractId,C.ContractNo,MLC.LCRef, MLC.BenificiaryBankId
 								FROM [TRN].[SalesOrderItem]  A
                                 LEFT JOIN TRN.MasterOrder B ON B.Id=A.MasterOrderId
 								LEFT JOIN TRN.MasterOrderItem MOI ON MOI.MasterOrderId=A.MasterOrderId
-								LEFT JOIN dbo.[Contract] C ON C.Id=MOI.ContractId
+								LEFT JOIN [TRN].[SalesOrder] SO ON SO.MasterOrderItemId=MOI.Id
+								LEFT JOIN dbo.[Contract] C ON C.Id=SO.ContractId
 								LEFT JOIN dbo.[MasterLC] MLC ON MLC.Id=C.MasterLCId
                                 WHERE SalesId='" + salesId + "'";
                 return _sqlRepository.GetDataCollection(sql);
