@@ -378,7 +378,7 @@
 
 </div>
 
-@Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedSalesDetailPopUp.cshtml")
+@*@Html.Partial("~/Areas/Accounts/Views/InventoryPayable/_ApprovedSalesDetailPopUp.cshtml")*@
 
 <div class="modal fade site-modal in" id="detailPopUp" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -1094,6 +1094,62 @@
 
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
 
+<div class="modal fade site-modal in" id="SalespopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header"> Sales <button type="button" class="close" ng-click="closeSalesPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchBySales">
+                                            <option ng-repeat="option in searchBySalesList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchSales" ng-enter="getPopUpData();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;" id="GRNGrid" ej-grid e-datasource="approvedSalesList" e-recorddoubleclick="selectDoubleClick"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Type" e-headertext="Type" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="PartyName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="Tracenent" e-headertext="Tracenent" e-width="130"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee" e-width="130"></div>
+                                <div e-column e-field="Id" e-headertext="Sales No" e-width="60"></div>
+                                <div e-column e-field="SalesDate" e-headertext="Sales Date" e-width="60" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="TransactionAmount" e-headertext="Amount (TRN)" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="BaseAmount" e-headertext="Amount (BC)" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="SourceType" e-headertext="Sales Type" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeSalesPopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
