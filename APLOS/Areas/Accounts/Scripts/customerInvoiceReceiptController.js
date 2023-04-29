@@ -1078,14 +1078,13 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         return true;
     };
 
-
-    $scope.delete = function (invoicewriteOffId,voucherId) {
+    $scope.delete = function (invoicewriteOffId, voucherId, deletedRemarks) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
                 "invoiceWriteOffId": invoicewriteOffId , /*, "voucherId": voucherId*/
-                "voucherId": voucherId  /*, "voucherId": voucherId*/
+                "voucherId": voucherId, "deletedRemarks": deletedRemarks /*, "voucherId": voucherId*/
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1094,6 +1093,8 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
             }
             else {
                 ShowResult(response.data.Message, "success");
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
                 $scope.getData();
                 $scope.Clear();
                 $scope.voucherId = null;
@@ -1105,13 +1106,17 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         return true;
     };
 
-    // $scope.customerReceivedId = null;
+    $scope.deletedRemarks = "";
+    $scope.invoiceWriteOffId = null;
     $scope.confirmDelete = function (invoicewriteOffId,voucherId) {
         // $scope.customerReceivedId = customerReceivedId;
         $scope.invoicewriteOffId = invoicewriteOffId;
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
-        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
     };
 
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
+    };
 }

@@ -1466,7 +1466,6 @@ function vendorPaymentController(bankService, accountService, cboService, common
         });
         return true;
     };
-
     $scope.delete = function (invoiceWriteOffId, voucherId, deletedRemarks) {
         $http({
             method: "POST",
