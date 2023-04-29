@@ -1078,7 +1078,6 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         return true;
     };
 
-    $scope.deletedRemarks = null;
     $scope.delete = function (invoicewriteOffId, voucherId, deletedRemarks) {
         $http({
             method: "POST",
@@ -1107,7 +1106,8 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         return true;
     };
 
-    // $scope.customerReceivedId = null;
+    $scope.deletedRemarks = "";
+    $scope.invoiceWriteOffId = null;
     $scope.confirmDelete = function (invoicewriteOffId,voucherId) {
         // $scope.customerReceivedId = customerReceivedId;
         $scope.invoicewriteOffId = invoicewriteOffId;
