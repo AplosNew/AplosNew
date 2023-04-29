@@ -1319,7 +1319,7 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, COL+2].Text = "Cost Center" + ": " + dtOrder.Rows[0]["CostCenter"].ToString(); 
                 sheet.Range[ROW, COL+3].Text = "Order Qty" + ": " + dtOrder.Rows[0]["SOQty"].ToString() + " " + dtOrder.Rows[0]["UoM"].ToString(); 
                 sheet.Range[ROW, COL+4].Text = "Plan %" + ": " + dtOrder.Rows[0]["PlanPercentage"].ToString() + "%"; 
-                sheet.Range[ROW, COL+5].Text = "Shade" + ": " + "";
+                sheet.Range[ROW, COL+5].Text = "Shade" + ": " + dtOrder.Rows[0]["Shade"].ToString();
                 sheet.Range[ROW, COL + 5].ColumnWidth = 14;
                 sheet.Range[ROW, COL+6].Text = "Approved Status: " + dtOrder.Rows[0]["AuthorizedByStatus"].ToString();
                 sheet.Range[ROW, COL + 7].ColumnWidth = 19;
@@ -1360,6 +1360,7 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet[ROW, colPackingType].Text = dtOrder.Rows[i]["PackingType"].ToString();
                     sheet[ROW, colMOI].Text = dtOrder.Rows[i]["MaterialMaster"].ToString();
                     sheet[ROW, colArticle].Text = dtOrder.Rows[i]["QBOQArticle"].ToString();
+                    sheet[ROW, colArticle].RowHeight = 20;
                     sheet[ROW, colAge].Text = dtOrder.Rows[i]["GrossConsumption"].ToString();
                     sheet[ROW, colVL].Text = dtOrder.Rows[i]["ValueLoss"].ToString();
                     sheet[ROW, colUoM].Text = dtOrder.Rows[i]["UOM"].ToString();
@@ -1376,10 +1377,11 @@ namespace Aplos.Areas.Materials.Controllers
                 #endregion
 
                 #region ReportHeader
-                IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
-                table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
-                sheet.UsedRange.WrapText = false;
+                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 

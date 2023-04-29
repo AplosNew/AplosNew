@@ -398,11 +398,19 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetMaterialSalesListForReturn(string column, string value)
+        public JsonResult GetPackingSalesListForReturn(string column, string value)
         {
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsSalesService.GetMaterialSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetPackingSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetSalesListForReturn(string column, string value)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsSalesService.GetSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

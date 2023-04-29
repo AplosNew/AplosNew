@@ -1078,13 +1078,12 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         return true;
     };
 
-    $scope.deletedRemarks = null;
-    $scope.delete = function (invoicewriteOffId, voucherId, deletedRemarks) {
+    $scope.delete = function (invoiceWriteOffId, voucherId, deletedRemarks) {
         $http({
             method: "POST",
             url: $scope.deleteUrl,
             data: {
-                "invoiceWriteOffId": invoicewriteOffId , /*, "voucherId": voucherId*/
+                "invoiceWriteOffId": invoiceWriteOffId , /*, "voucherId": voucherId*/
                 "voucherId": voucherId, "deletedRemarks": deletedRemarks /*, "voucherId": voucherId*/
             },
             dataType: "JSON"
@@ -1107,10 +1106,11 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         return true;
     };
 
-    // $scope.customerReceivedId = null;
+    $scope.deletedRemarks = "";
+    $scope.invoiceWriteOffId = null;
     $scope.confirmDelete = function (invoicewriteOffId,voucherId) {
         // $scope.customerReceivedId = customerReceivedId;
-        $scope.invoicewriteOffId = invoicewriteOffId;
+        $scope.invoiceWriteOffId = invoicewriteOffId;
         $scope.voucherId = voucherId;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("show");
