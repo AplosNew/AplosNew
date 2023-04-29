@@ -21,7 +21,7 @@ function TaskCloserMasterController($window, $timeout, cboService, commonMessage
     $scope.GetOpenTask = function () {
         
         if ($scope.ModelNew.TaskType == null) {
-            throw ShowResult("Please Select Task Type");
+            throw ShowResult("Please Select Task / Issue Type");
         }
         if ($scope.ModelNew.TaskType == "Task") {
             
@@ -110,6 +110,79 @@ function TaskCloserMasterController($window, $timeout, cboService, commonMessage
         }
            // #endregion Issue Block
        
-        
     }
+
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.XlsDailyAttendanceReport = function () {
+        var dataList = [];
+        var g = $("#Grid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+
+            dataList = $scope.OpenTaskList;
+        }
+        $scope.fileName = 'Open Task Detail.xlsx';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+
+                'data': dataList,
+                'reportFileName': $scope.fileName,
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    //$window.open($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
+
+    $scope.XlsNotCloseIssueReport = function () {
+        var dataList = [];
+        var g = $("#gridIssue").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+
+            dataList = $scope.OpenTaskList;
+        }
+        $scope.fileName = 'Open Issue Detail.xlsx';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+
+                'data': dataList,
+                'reportFileName': $scope.fileName,
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    //$window.open($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
 }

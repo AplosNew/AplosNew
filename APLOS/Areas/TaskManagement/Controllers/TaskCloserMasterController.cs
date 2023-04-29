@@ -185,7 +185,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         }
 
         #region Task Block
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult CloseOpenTask(List<Dictionary<string, object>> chkBgtList)
         {
             try
@@ -250,7 +250,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         #endregion Task Block
 
         #region Issue Block
-        [HttpPost]
+        [HttpPost, Authorize]
         public ActionResult CloseOpenIssue(List<Dictionary<string, object>> chkIssueList)
         {
             try

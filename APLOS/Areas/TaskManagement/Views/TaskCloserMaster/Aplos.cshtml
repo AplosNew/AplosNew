@@ -45,7 +45,7 @@
                 <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" name="User Group" ng-model="ModelNew.TaskType" ng-change="GetOpenTask();" required>
+                        <select class="form-control" name="User Group" ng-model="ModelNew.TaskType" required>
                             <option value="Task">Task</option>
                             <option value="Issue">Issue</option>
                         </select>
@@ -53,13 +53,19 @@
                 </div>
             </div>
         </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="GetOpenTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+
+            </ul>
+        </div>
         <div id="taskgrid" class="table-responsive" style="border:1px solid white">
-            <div ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit"
+            <div id="Grid" ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                    <div e-column e-headertext="Active / Inactive" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="100"></div>
+                    <div e-column e-headertext="Close Task" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="100"></div>
 
                     <div e-column e-field="Task" e-headertext="Task" e-width="250"></div>
                     <div e-column e-field="TaskType" e-headertext="Task Type" e-width="100"></div>
@@ -84,7 +90,8 @@
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="CloseOpenTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                    
+                    <li> <button ng-click="XlsDailyAttendanceReport()" class="btn" tabindex="9"><i class="glyphicon glyphicon-export"></i> Export to Excel</button></li>
+
                 </ul>
             </div>
         </div>
@@ -92,12 +99,12 @@
 
         @*Issue Grid*@
         <div id="issuegrid" class="table-responsive" style="border:1px solid white">
-            <div ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit"
+            <div id="gridIssue" ej-grid e-datasource="OpenTaskList" e-load="loadGridEdit"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                    <div e-column e-headertext="Active / Inactive" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>
+                    <div e-column e-headertext="Close Issue" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>
 
                     <div e-column e-field="Issue" e-headertext="Isse" e-width="250"></div>
                     <div e-column e-field="IssueDetail" e-headertext="Issue Detail" e-width="100"></div>
@@ -109,18 +116,19 @@
 
                     <div e-column e-field="AssignBy" e-headertext="Assign By" e-width="100"></div>
                     <div e-column e-field="AssignTo" e-headertext="Assign To" e-width="250"></div>
-                    
+
                 </div>
             </div>
             <script type="text/template" id="checkboxIssueTemplate">
-                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected"/>
+                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
             </script>
 
-           
+
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="CloseOpenTask();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionB}}</button></li>
-                    
+                    <li> <button ng-click="XlsNotCloseIssueReport()" class="btn" tabindex="9"><i class="glyphicon glyphicon-export"></i> Export to Excel</button></li>
+
                 </ul>
             </div>
         </div>
