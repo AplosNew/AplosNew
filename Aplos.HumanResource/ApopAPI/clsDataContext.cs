@@ -4458,7 +4458,7 @@ DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,D.Deployment,A.ToDayIN, Diffenence=A.ToDayIN-D.Deployment
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,A.ToDayIN, Diffenence=A.ToDayIN-MBGT.Deployment
 
 from AttdnProcessData apd 
 left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
@@ -4498,10 +4498,9 @@ left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDa
 left join LeaveType LTY on LTY.Id = LT.LTSystemID
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
-LEFT JOIN (Select SUM(Deployment)Deployment,ManpowerBudgetId from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId) D ON D.ManpowerBudgetId=MBGT.Id
 
 LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
-"where emp.employeecode is not null and emp.employeestatus = 'Active'" +
+"where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1" +
 "and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
 
                 if(locations != null)
