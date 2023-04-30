@@ -3000,8 +3000,10 @@ GROUP BY FAR.FABudgetMasterId
                         var materialMaster = _materialMasterRepository.Find(master.MaterialMasterId);
                         if (null == materialMaster)
                             throw new CustomException("Material Master is null.");
-                        var faTagData = _fixedAssetMasterBudgetTagRepository.Query().Select().FirstOrDefault();
-                        //var faTagData = _fixedAssetMasterBudgetTagRepository.Query(r => r.BudgetMasterId == materialMaster.BudgetMasterId).Select().FirstOrDefault();
+                        if (null == materialMaster.BudgetMasterId)
+                            throw new CustomException(materialMaster.UserName + " Budget Master not found.");
+                        //var faTagData = _fixedAssetMasterBudgetTagRepository.Query().Select().FirstOrDefault();
+                        var faTagData = _fixedAssetMasterBudgetTagRepository.Query(r => r.BudgetMasterId == materialMaster.BudgetMasterId).Select().FirstOrDefault();
                         if (null == faTagData)
                             throw new CustomException("Fixed Asset Master Tag data not found.");
 
@@ -3012,7 +3014,8 @@ GROUP BY FAR.FABudgetMasterId
                         {
                             if (checkACUD.AccumulatedDepreciationGLId == null)
                             {
-                                throw new CustomException(checkACUD.FixedAssetMaster.UserName + " is not configured with Accumulative Depreciation GL");
+                                //throw new CustomException(checkACUD.FixedAssetMaster.UserName + " is not configured with Accumulative Depreciation GL");
+                                throw new CustomException(materialMaster.UserName + " is not configured with Accumulative Depreciation GL");
                             }
                         }
                         if ((master.FABaseAmount * NumberOfQuantity + reFABaseAmountTotal) > opFABaseAmountTotal)
