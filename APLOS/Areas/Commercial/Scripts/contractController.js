@@ -163,6 +163,41 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     };
 
+    // #region checkbox all
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#Grid3").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                $scope.SalesOrderList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#Grid3").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    // #endregion checkbox all
 
     $scope.partyId = "";
     $scope.isAlternative = -1;
