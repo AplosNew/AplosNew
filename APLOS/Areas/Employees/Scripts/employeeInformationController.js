@@ -2138,6 +2138,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
                 else {
                     ShowResult(response.data.Message, "success");
                     $scope.savedisable = false;
+                    $scope.LoadReferenceData($scope.user);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
