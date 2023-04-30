@@ -8027,15 +8027,18 @@ namespace Library.Service.Invoices
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
-                var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().FirstOrDefault();
+                var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
 
                 if (bankCharges != null)
                 {
-                    var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE BankChargeId='" + bankCharges.Id + "'";
-                    rdBuilder.Append(builderSql);
-                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-                    _bankChargeRepository.Delete(bankCharges.Id);
+                    foreach (var item in bankCharges)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE BankChargeId='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        _bankChargeRepository.Delete(item.Id);
+                    }
                 }
                 foreach (var item in voucherdetail)
                 {
