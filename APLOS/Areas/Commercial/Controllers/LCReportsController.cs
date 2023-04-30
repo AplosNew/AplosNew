@@ -708,7 +708,8 @@ namespace Aplos.Areas.Commercial.Controllers
 													trn.MasterOrder XMO 
 													
 																left outer join trn.MasterOrderItem XMOI on XMO.Id=XMOI.MasterOrderId
-																inner join Contract XC on XC.Id=XMOI.ContractId
+																inner join trn.SalesOrder SO on SO.MasterOrderItemId=XMOI.Id
+																inner join Contract XC on XC.Id=SO.ContractId
 														left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
 															where C.Id=XC.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 																							,
