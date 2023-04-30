@@ -451,8 +451,8 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                         ShowResult(response.data.Message, 'failure');
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.getData();
                         $scope.Clear();
+                        $scope.getData();
                         $scope.newList = [];
                         $scope.productNew.Id = response.data.Id;
                     }
@@ -473,8 +473,9 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     function ClearFields() {
         $scope.Action = "Save";
         $scope.product = {};
-        $scope.productNew = { };
+        $scope.productNew = {};
         $scope.detailList = [];
+        $scope.newList = [];
         $scope.tempitemScanList = [];
         $scope.taxlist = [];
     }
