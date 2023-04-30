@@ -344,8 +344,12 @@
                             <div e-stackedheaderrow>
                                 <div e-stackedheadercolumns>
 
-                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
-                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>
+                                    @*<div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,BudgetrefNo,Budget,ActivityId,ActivityCode,Activity" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBudgetrefNo,CBUdget,CActivityId,CActivityCode,CActivity" textAlign='Center'></div>*@
+
+                                    <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="DrGL,DrBudget,DrActivity" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CrGL,CrBudget,CrActivity" textAlign='Center'></div>
+
                                 </div>
                             </div>
                         </div>
@@ -355,6 +359,7 @@
                             <div e-column e-field="SalesMaterialId" e-headertext="Sales Id" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="SalesNo" e-headertext="Sales No" e-width="100" textAlign='Left'></div>
                             <div e-column e-field="ItemType" e-headertext="Item Type" e-width="80" textAlign='Left'></div>
+                            <div e-column e-field="SalesType" e-headertext="Sales Type" e-width="80" textAlign='Left'></div>
                             <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                             <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
                             <div e-column e-field="PartyCode" e-headertext="Customer Code" e-width="100"></div>
@@ -415,6 +420,14 @@
                             <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="PartySubCategory" e-headertext="Party SubCategory" e-width="100" textAlign='Right'></div>
                             <div e-column e-field="PartyAccountGroup" e-headertext="Party AccountGroup" e-width="180"></div>
+
+                            <div e-column e-field="DrGL" e-headertext="GL" e-width="130"></div>
+                            <div e-column e-field="DrBudget" e-headertext="Budget" e-width="130"></div>
+                            <div e-column e-field="DrActivity" e-headertext="Activity" e-width="130"></div>
+
+                            <div e-column e-field="CrGL" e-headertext="GL" e-width="130"></div>
+                            <div e-column e-field="CrBudget" e-headertext="Budget" e-width="130"></div>
+                            <div e-column e-field="CrActivity" e-headertext="Activity" e-width="130"></div>
                         </div>
 
                     </div>
