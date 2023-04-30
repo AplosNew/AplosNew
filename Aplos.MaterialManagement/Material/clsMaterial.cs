@@ -144,7 +144,8 @@ LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId";
                 if (string.IsNullOrEmpty(column) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"select * from (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
+                string sql = @"SELECT * FROM (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage,ISNULL(D.TotalReqQty,0)TotalReqQty,ISNULL(ISU.IssuedQty,0)IssuedQty,Balance=D.TotalReqQty-ISNULL(ISU.IssuedQty,0)
+FROM [dbo].[MaterialIssueControlMaster] M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
 LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId
@@ -152,6 +153,15 @@ LEFT JOIN(Select distinct M.Id IssueId,D.MaterialIssueControlMasterId from TRN.I
 LEFT JOIN [dbo].[MaterialIssueControlDetail] D ON D.Id=IR.MaterialIssueControlDetailId
 LEFT JOIN TRN.IssueRequestMaster M ON M.Id=IR.IssueRequestMasterId
 ) DT ON DT.MaterialIssueControlMasterId=M.Id
+LEFT JOIN(Select SUM(TotalConsumption) TotalReqQty,MaterialIssueControlMasterId from [dbo].[MaterialIssueControlDetail] Group By MaterialIssueControlMasterId) D ON D.MaterialIssueControlMasterId=M.Id
+LEFT JOIN(
+SELECT isnull(sum(c.Qty), 0) IssuedQty,IR.IssueRequestMasterId
+                                	FROM trn.InventoryIssue a
+                                	LEFT JOIN trn.InventoryIssueDetail b ON b.InventoryIssueId = a.id
+                                	LEFT JOIN trn.InventoryIssueHistory c ON c.InventoryIssueDetailId = b.Id
+                                	LEFT JOIN trn.IssueRequest IR ON IR.Id = c.IssueRequestDetailId				
+                                	GROUP BY IR.IssueRequestMasterId
+) ISU ON ISU.IssueRequestMasterId=DT.IssueId
 ) AS TEMP WHERE " + strkey + " Order by AddedDate Desc";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
