@@ -56,7 +56,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult getAttendanceData(string pdate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
