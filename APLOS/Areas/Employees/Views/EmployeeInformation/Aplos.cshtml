@@ -1125,7 +1125,7 @@
                                     </div>
                                     <div class="common-btn">
                                         <ul class="list-inline text-right">
-                                            <li> <button ng-click="SaveReference();" ng-disabled="employeeInformation.SystemId===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                            <li> <button ng-click="SaveReference();" ng-disabled="employeeInformation.SystemId===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{empReferenceInformation.SystemID.length>0?'Update':'Save'}}</button></li>
                                         </ul>
                                     </div>
                                 </div>
