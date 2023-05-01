@@ -209,19 +209,20 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         });
     }
 
+    $scope.searchBy = "ContractNo"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'ContractNo', name: "ContractNo" }, { value: 'CustomerName', name: "Customer" }];
+
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Commercial/Contract/getlist")
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.contractList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+        $http({
+            method: 'POST',
+            url: "Commercial/contract/GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.contractList = response.data;
+        });
         angular.element(document.querySelector('#ContractPopUp')).modal('show');
     };
 

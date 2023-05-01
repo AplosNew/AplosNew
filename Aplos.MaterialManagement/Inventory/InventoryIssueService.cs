@@ -2119,12 +2119,15 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
-                parameters.CmdText = @"SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks, MS.UserName AS MaterialStorage,II.EntityId,E.UserName  EntityName,II.IssueType
+                parameters.CmdText = @"SELECT II.Id,II.Id IssueNo, II.IssueDate,II.Remarks,II.EntityId,E.UserName  EntityName,II.IssueType
                                     ,EI.EmployeeCode+' - '+EI.EmployeeName EmployeeName,SUM(IID.TransactionQty) Qty,SUM(IID.PolicyAmount) Amount
                                     ,ii.OrderRefNo, IsOrderSpecificy=  CASE WHEN ii.OrderRefNo <> '' THEN 1 ELSE 0 END,II.[Types]
 									,SourceNo=II.JWContractId,JW.ContractId,LC.LCRef,Customer=P.Code+' '+P.UserName 
+									,MaterialStorage= STUFF((select distinct ','+XPD.UserName from
+									[HKP].[MaterialStorage] XPD Left join TRN.inventoryIssueHistory AS XV ON XV.MaterialStorageId=XPD.Id
+									LEFT JOIN TRN.InventoryIssueDetail XIID ON XIID.Id=xv.InventoryIssueDetailId
+									where XIID.InventoryIssueId=II.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                     FROM [TRN].[InventoryIssue] AS II
-                                    JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId=MS.Id 
 							        JOIN TRN.InventoryIssueDetail AS IID ON IID.InventoryIssueId=II.Id
 								    left join dbo.EmployeeInformation AS EI ON EI.SystemId=II.EmployeeId
                                     left join org.Entity E ON E.Id=II.EntityId
@@ -2135,7 +2138,7 @@ namespace Library.MaterialManagement.Inventory
                             WHERE II.PlantId='" + plantId + @"' AND ISNULL(II.[Status],'')<>'Posting' 
                             AND Isnull(IID.IsAsset,0)=0 AND II.IsPostingRequired=1
                             GROUP BY II.Id, II.CompanyGroupId, II.CompanyId, II.PlantId, II.EntityId, II.MaterialStorageId
-	                                 , II.IssueDate, MS.UserName
+	                                 , II.IssueDate
 									 ,EI.EmployeeCode,EI.EmployeeName,II.Remarks,II.EntityId,E.UserName,II.IssueType
 									 , ii.OrderRefNo,II.[Types],II.JWContractId,JW.ContractId,LC.LCRef,P.Code,p.UserName";
                 return _sqlRepository.GetGridData(parameters);

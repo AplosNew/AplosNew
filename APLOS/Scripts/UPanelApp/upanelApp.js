@@ -135,6 +135,7 @@ upanelApp.controller("employeeDocumentAssignmentController", employeeDocumentAss
 upanelApp.controller("employeeExpenseBookingReportController", employeeExpenseBookingReportController);
 upanelApp.controller("employeeIdCardController", employeeIdCardController);
 upanelApp.controller("employeeInformationController", employeeInformationController);
+upanelApp.controller("SectionemployeeLeaveApplicationController ", SectionemployeeLeaveApplicationController);
 upanelApp.controller("employeeLeaveApplicationController", employeeLeaveApplicationController);
 upanelApp.controller("employeeLeaveBalanceController", employeeLeaveBalanceController);
 upanelApp.controller("employeeLeaveCarryForwardController", employeeLeaveCarryForwardController);

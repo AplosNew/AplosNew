@@ -8001,7 +8001,7 @@ namespace Library.Service.Invoices
             }
         }
 
-        public void DeleteWriteOff(string invoiceWriteOffId, string voucherId)
+        public void DeleteWriteOff(string invoiceWriteOffId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
@@ -8012,6 +8012,9 @@ namespace Library.Service.Invoices
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
+
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", "", invoiceWriteOffId, "", "", "", "", "", "", "", deletedRemarks);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
@@ -8024,15 +8027,18 @@ namespace Library.Service.Invoices
                 {
                     _voucherService.DeleteVoucherDetailCurrency(item.Id);
                 }
-                var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().FirstOrDefault();
+                var bankCharges = _bankChargeRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
 
                 if (bankCharges != null)
                 {
-                    var rdBuilder = new System.Text.StringBuilder();
-                    var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE BankChargeId='" + bankCharges.Id + "'";
-                    rdBuilder.Append(builderSql);
-                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-                    _bankChargeRepository.Delete(bankCharges.Id);
+                    foreach (var item in bankCharges)
+                    {
+                        var rdBuilder = new System.Text.StringBuilder();
+                        var builderSql = @"UPDATE [TRN].VoucherDetail SET BankChargeId=NULL WHERE BankChargeId='" + item.Id + "'";
+                        rdBuilder.Append(builderSql);
+                        _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                        _bankChargeRepository.Delete(item.Id);
+                    }
                 }
                 foreach (var item in voucherdetail)
                 {

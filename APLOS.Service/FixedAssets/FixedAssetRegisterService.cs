@@ -3000,19 +3000,23 @@ GROUP BY FAR.FABudgetMasterId
                         var materialMaster = _materialMasterRepository.Find(master.MaterialMasterId);
                         if (null == materialMaster)
                             throw new CustomException("Material Master is null.");
-                        var faTagData = _fixedAssetMasterBudgetTagRepository.Query().Select().FirstOrDefault();
-                        //var faTagData = _fixedAssetMasterBudgetTagRepository.Query(r => r.BudgetMasterId == materialMaster.BudgetMasterId).Select().FirstOrDefault();
+                        if (null == materialMaster.BudgetMasterId)
+                            throw new CustomException(materialMaster.UserName + " Budget Master not found.");
+                        //var faTagData = _fixedAssetMasterBudgetTagRepository.Query().Select().FirstOrDefault();
+                        var faTagData = _fixedAssetMasterBudgetTagRepository.Query(r => r.BudgetMasterId == materialMaster.BudgetMasterId).Select().FirstOrDefault();
                         if (null == faTagData)
                             throw new CustomException("Fixed Asset Master Tag data not found.");
 
-                        var checkACUD = _fixedAssetMasterGLepository.Query(r => r.FixedAssetMasterId == faTagData.FixedAssetMasterId).Select().FirstOrDefault();
+                        //var checkACUD = _fixedAssetMasterGLepository.Query(r => r.FixedAssetMasterId == faTagData.FixedAssetMasterId).Select().FirstOrDefault();
+                        var checkACUD = GetFixedAssetMasterGLData(faTagData.FixedAssetMasterId);
                         if (checkACUD == null)
                             throw new CustomException("This item is not configured with Accumulative Depreciation GL");
                         else
                         {
-                            if (checkACUD.AccumulatedDepreciationGLId == null)
+                            if (checkACUD["AccumulatedDepreciationGLId"].ToString() == null || checkACUD["AccumulatedDepreciationGLId"].ToString() == "")
                             {
-                                throw new CustomException(checkACUD.FixedAssetMaster.UserName + " is not configured with Accumulative Depreciation GL");
+                                //throw new CustomException(checkACUD.FixedAssetMaster.UserName + " is not configured with Accumulative Depreciation GL");
+                                throw new CustomException(checkACUD["FixedAssetMasterName"].ToString() + " is not configured with Accumulative Depreciation GL");
                             }
                         }
                         if ((master.FABaseAmount * NumberOfQuantity + reFABaseAmountTotal) > opFABaseAmountTotal)
@@ -3218,6 +3222,14 @@ GROUP BY FAR.FABudgetMasterId
                 if (flag)
                     _unitOfWork.Rollback();
             }
+        }
+        private Dictionary<string, object> GetFixedAssetMasterGLData(string FixedAssetMasterId)
+        {
+            var cmdText = @"select FAGL.*,FAM.UserName FixedAssetMasterName from
+                            [HKP].[FixedAssetMasterGL] FAGL
+                            LEFT JOIN [MST].[FixedAssetMaster] FAM ON FAM.Id=FAGL.FixedAssetMasterId
+                            where FAGL.FixedAssetMasterId = '" + FixedAssetMasterId.ToString() + @"'";
+            return _sqlRepository.GetData(cmdText);
         }
 
         #endregion
