@@ -11,15 +11,7 @@
                             <div class="select-style">
                                 <input e-change="GetFavouriteFilter" ng-model="ModelNew.Id"  ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-datasource="FavoriteFilterList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                             </div>
-                            @*<div class="select-style">
-                                <select class="form-control" ng-model="ModelNew.Id" ng-change="GetFavouriteFilter()" name="Process"
-                                        tabindex="2">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in FavoriteFilterList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-
-                            </div>*@
-
+                            
                         </div>
                     </div>
                 </div>
@@ -213,46 +205,7 @@
     @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_FavoritePopup.cshtml")
 </div>
 
-        
-
-
-        
-
-    
-   
-
-
-
-@*<div class="aplos-grid-toggle">
-    <div class="row">
-           
-            <div style="color:black;" id="Grid" ej-grid e-datasource="FavoriteList"
-                 e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-                 e-detailsdatabound="detailgrid">
-                <div e-columns>                    
-                    <div e-column e-field="Id" e-headertext="Medicine Receipt Id" e-visible="false" e-width="150"></div>
-                    <div e-column e-field="UserId" e-headertext="User Code" e-width="50"></div>
-                    <div e-column e-field="User" e-headertext="User" e-width="50"></div>
-                    <div e-column e-field="FavoriteName" e-headertext="Favorite Filter Name" e-width="50"></div>
-                    <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
-                    <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
-                    <div e-column e-field="InStatus" e-headertext="InStatus" e-width="50"></div>
-                    
-                </div>
-            </div>      
-       
-    </div>
-    
-</div>*@
-
 @Html.Partial("~/Areas/Productions/Views/Parameter/_ResponsiblePerson.cshtml")
 @Html.Partial("~/Areas/HumanResource/Views/DailyAttendanceStatusReport/_TeamLeader.cshtml")
 
-@*<style>
-    .inner-content {
-        width: 95vw;
-        margin: 15px -225px
-    }
-</style>*@
+

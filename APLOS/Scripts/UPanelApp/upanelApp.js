@@ -1166,6 +1166,7 @@ upanelApp.controller("WCWorkStationsControlReportController", WCWorkStationsCont
 upanelApp.controller("BudgetReportMasterController", BudgetReportMasterController)
 upanelApp.controller("WorkcenterWiseDetentionController", WorkcenterWiseDetentionController)
 upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
+upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
 
 
 upanelApp.config(AccessControllerConfig);
@@ -1204,6 +1205,7 @@ upanelApp.config(JobWorkConfig);
 upanelApp.config(OutsourcingConfig);
 upanelApp.config(PerformanceManagementConfig);
 upanelApp.config(MeetingManagementConfig);
+
 upanelApp.config(["$routeProvider", "$locationProvider", "$httpProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider) {
     $httpProvider.interceptors.push("errorInterceptor");
     $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";

@@ -1,0 +1,159 @@
+﻿@*<togglable name=" {{title}}"></togglable>*@
+<div><h4>{{title}}</h4></div>
+<hr/>
+<div class="form-elements" ng-form>
+    <div class="row form-horizontal">
+
+        <input type="hidden" ng-model="ModelNew.Id">
+
+        <div class="col-xs-12 col-sm-4 col-md-4">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Entity" ng-model="ModelNew.EntityId" ng-change="GetPurpose();" required>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="From" ng-model="ModelNew.FromLoc" ng-change="GetToLocation()" required>
+                            <option ng-repeat="option in FromLocationList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Grade" ng-model="ModelNew.Grade" required>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--Col - 2-->
+        <div class="col-xs-12 col-sm-4 col-md-4">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Purpose" ng-model="ModelNew.PurposeId" ng-change="GetFromLocation()" required>
+                            <option value="">Select Purpose</option>
+                            <option ng-repeat="option in PurposeList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="To" ng-model="ModelNew.LocMasterId" required>
+                            <option value="">Choose Location</option>
+                            <option ng-repeat="option in ToLocationList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+           
+            
+        </div>
+
+        <!--Col - 3-->
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Shift" ng-model="ModelNew.ShiftId" required>
+                            <option ng-repeat="option in ShiftList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label"> Date</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.WorkDate" datepicker class="form-control" required>
+                </div>
+            </div>
+
+            @*<div class="form-group">
+                <label class="col-sm-4 control-label">Time<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input id="timepicker1" e-value="ModelNew.Time" width="280" ej-timepicker name="Time" tabindex="4" required />
+                </div>
+            </div>*@
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@*Item scan Child*@
+
+<div class="form-elements" ng-form>
+    <div class="row form-horizontal">
+        <input type="hidden" ng-model="ModelNewISC.Id">
+        <div class="col-xs-12 col-sm-4 col-md-4"></div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="common-btn">
+                <button ng-click="BarCodeScan(this)" class="btn" tabindex="9"><i class="glyphicon"></i>Scanner</button>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="common-btn">
+                <button class="btn" tabindex="9"><i class="glyphicon"></i>Camera</button>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Parameter Setup</th>
+                    <th>Entity</th>
+                    <th>Remove</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in ParameterEntityList">
+                    <td>
+                        {{x.ParameterSetup}}
+                    </td>
+                    <td>
+                        {{x.Entity}}
+                    </td>
+
+                    <td><button ng-click="RemoveParticularRow(x)" class="btn" tabindex="9"><i class="glyphicon glyphicon-remove"></i></button></td>
+
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+@*18803  22757  18293106 23021587 24 60 62.1 2101781 C899P013*@

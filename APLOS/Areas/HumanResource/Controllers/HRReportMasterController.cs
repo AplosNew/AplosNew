@@ -42,11 +42,14 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        public ActionResult GetUserGroup()
+        public ActionResult GetUserGroup(string id)
         {
             try
             {
-                var sql = @"select Id, UserGroup, UserSubGroup from HKP.HRReportGroupMaster";
+                var sql = @"select GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup , UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
+                            from HKP.HRReportGroupMaster GM
+                            left join [TRN].[HRReportMasterBudgetUserGroup] UG on UG.UserGroupId = GM.Id
+                            where ISNULL(UG.HRReportMasterChildId, '') = '"+id+"'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -54,6 +57,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 throw e;
             }
         }
+
 
         public ActionResult GetUserSubGroup(string userId)
         {
@@ -200,6 +204,8 @@ where BGT.EntityId in (" + Entity + ") " +
             }
         }
 
+
+
         public ActionResult Save(Dictionary<string, object> datas)
         {
             try
@@ -320,15 +326,15 @@ where BGT.EntityId in (" + Entity + ") " +
             return 1;
         }
 
-        public ActionResult SaveBudgetCode(List<Dictionary<string, object>> chkBgtList, string headerId)
+        public ActionResult SaveBudgetCode(List<Dictionary<string, object>> chkBgtList, string headerId, List<Dictionary<string, object>> usergroup)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string TableNameChildA = "TRN.HRReportMasterChild";
+                string TableUserGroup = "TRN.HRReportMasterBudgetUserGroup";
 
-
-                DataSet dsChildA;
+                DataSet dsChildA, dsUserGroup;
 
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -336,8 +342,7 @@ where BGT.EntityId in (" + Entity + ") " +
                 string _Id = "";
                 #region CHILD 1
                 con.OpenDataSetThroughAdapter("select * from " + TableNameChildA + " where HRReportMasterId='" + headerId + "'", out dsChildA, false, "1");
-
-                //for (int i = 0; i < chkBgtList.Count; i++)
+               
                 foreach (var item in chkBgtList)
                 {
                     DataView dv = new DataView(dsChildA.Tables[0]);
@@ -345,33 +350,13 @@ where BGT.EntityId in (" + Entity + ") " +
                     if (dv.Count > 0)
                     {
                        
-
-                        //var jj = chkBgtList[i]["Id"];
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableNameChildA, out _Id);
-
-                        DataRow dr = dsChildA.Tables[0].NewRow();
-
-                        #region comment
-                        //dr["Id"] = _Id;
-                        //dr["HRReportMasterId"] = headerId;
-                        //dr["ManpowerBudgetId"] = chkBgtList[i]["ManpowerBudgetId"];
-                        //dr["UserGroupId"] = chkBgtList[i]["UserGroupId"];
-                        //dr["UserSubGroupId"] = chkBgtList[i]["UserSubGroupId"];
-                        //dr["Grade"] = chkBgtList[i]["Grade"];
-                        //dr["Active"] = chkBgtList[i]["isSelected"];
-                        //dr["ManpowerBudgetId"] = item["ManpowerBudgetId"];
-                        //dr["UserGroupId"] = item["UserGroupId"];
-                        //dr["UserSubGroupId"] = item["UserSubGroupId"];
-                        //dr["Grade"] = item["Grade"];
-                        #endregion comment
-
+                        DataRow dr = dv[0].Row;
                         dr["Active"] = 0;
-                        //dr["UpdatedBy"] = identity.Name;
-                        //dr["UpdatedDate"] = DateTime.Now.ToString();
-                        //dr["UpdatedFromIP"] = identity.IPAddress;
+                      
                         EditRow(dr, item);
-                        //dsChildA.Tables[0].Rows.Add(dr);
+                        
                     }
                     else
                     {
@@ -403,8 +388,38 @@ where BGT.EntityId in (" + Entity + ") " +
                 }
                 #endregion CHILD 1
 
+                #region UserGroup (From Pop Screen)
+                var id = "";
+                foreach (var item in chkBgtList)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                string _UserGroupId = "";
+                con.OpenDataSetThroughAdapter("select * from " + TableUserGroup + " where Id In (" + id + ")", out dsUserGroup, false, "1");
+                foreach (var item in usergroup)
+                {
+                        DataView dv = new DataView(dsUserGroup.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                   
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableUserGroup, out _UserGroupId);
+                        DataRow dr = dsChildA.Tables[0].NewRow();
+                        dr["Id"] = _Id;
+                        dr["HRReportMasterChildId"] = id;
+                        dr["Grade"] = item["Grade"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChildA.Tables[0].Rows.Add(dr);
+                    }
+
+                #endregion UserGroup (From Pop Screen)
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsChildA);
+                _info.SaveDataSets(dsChildA, dsUserGroup);
 
                 return Json(new { Data = chkBgtList, headerId, Message = AplosMessage.Insert }); 
             }
@@ -412,6 +427,90 @@ where BGT.EntityId in (" + Entity + ") " +
             {
                 return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        public void SaveData(Dictionary<string, object> chkBgtList, string headerId, out string contId, List<Dictionary<string, object>> usergroup)
+        {
+            string TableName = "TRN.HRReportMasterChild";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild;
+            
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
+            try
+            {
+
+                string sql = "SELECT * FROM [TRN].[HRReportMasterChild] WHERE HRReportMasterId='" + headerId + "'";
+                //objCon.OpenDataSetThroughAdapter("select * from " + TableName + " where HRReportMasterId='" + headerId + "'", out dsMaster, false, "1");
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    chkBgtList["Id"] = _Id;
+                    chkBgtList["HRReportMasterId"] = headerId;
+                    
+                    AddNewRow(dsMaster.Tables[0], chkBgtList);
+                    
+                }
+
+                contId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from TRN.HRReportMasterBudgetUserGroup  where HRReportMasterChildId = '" + contId + "'", out dsChild, false, "1");
+                foreach (var item in usergroup)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("TRN.HRReportMasterBudgetUserGroup", out _UserGroupId);
+                    DataRow dr = dsChild.Tables[0].NewRow();
+                    dr["Id"] = _UserGroupId;
+                    dr["HRReportMasterChildId"] = contId;
+                    dr["UserGroupId"] = item["UserGroupId"];
+                    dr["Grade"] = item["Grade"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsChild.Tables[0].Rows.Add(dr);
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsChild);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> chkBgtList, string headerId, List<Dictionary<string, object>> usergroup)
+        {
+            try
+            {
+               SaveData(chkBgtList, headerId, out string contractId, usergroup);
+
+
+                return Json(new { Id = contractId, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
         }
 
         public ActionResult UpdateBudgetCode(List<Dictionary<string, object>> unchkBgtList, string headerId)
@@ -653,6 +752,14 @@ where HR.Id = '" + headerId + "' ";
         }
 
         #endregion 2nd Tab
+
+    }
+
+   public class BudgetList
+    {
+        public string Id { get; set; }
+        public string HRReportMasterId { get; set; }
+        public string ManpowerBudgetId { get; set; }
 
     }
 }

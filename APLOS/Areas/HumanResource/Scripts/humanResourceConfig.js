@@ -892,5 +892,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/BudgetReportMaster/Aplos',
             controller: 'BudgetReportMasterController'
         })
+        .when('/web-packing', {
+            templateUrl: 'humanresource/WebBasedPacking/Aplos',
+            controller: 'WebBasedPackingController'
+        })
         ;
 }
