@@ -170,12 +170,9 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     };
 
     function CheckBoxSelectAllEmolyeeWise(e) {
-
-
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
-
         }
 
         var filtered = $("#Grid3").data("ejGrid").getFilteredRecords();
@@ -185,13 +182,9 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             }
         }
         else {
-
             for (var j = 0; j < filtered.length; j++) {
-
                 filtered[j].CheckBoxSelect = ChkOrUnchk;
             }
-
-
         }
         var gridObj = $("#Grid3").data("ejGrid");
         gridObj.refreshContent();

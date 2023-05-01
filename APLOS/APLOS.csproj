@@ -2044,6 +2044,7 @@
     <Content Include="Areas\Employees\Scripts\EmployeeCodeGenerationController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\SectionemployeeLeaveApplicationController .js" />
     <Content Include="Areas\Employees\Scripts\myappEmployeeLedgerReportController.js" />
     <Content Include="Areas\Employees\Scripts\multipleResignationApprovalNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />

@@ -343,8 +343,8 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             controller: 'BonusPolicyMonthlyRetainEligibleEmployeeController'
         })
         .when('/leave-apply', {
-            templateUrl: 'employees/leaveApplication/Leaveapply',
-            controller: 'employeeLeaveApplicationController'
+            templateUrl: 'employees/leaveApplication/LeaveApply',
+            controller: 'SectionemployeeLeaveApplicationController'
         })
         .when('/leave-app', {
             templateUrl: 'employees/leaveApplication/LeaveApp',
