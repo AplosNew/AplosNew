@@ -39,7 +39,7 @@ namespace Library.MaterialManagement.InventoryManagements
             if (!string.IsNullOrEmpty(ContractId) && string.IsNullOrEmpty(VendorId))
             {
                 tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
-                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '"+ ContractId + @"') ) ";
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(SO.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '" + ContractId + @"') ) ";
             }
             if (string.IsNullOrEmpty(ContractId) && !string.IsNullOrEmpty(VendorId))
             {
@@ -51,7 +51,7 @@ namespace Library.MaterialManagement.InventoryManagements
             {
                 tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
                                     JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId 
-                                    WHERE (isnull(MOI.ContractId, null) = '" + ContractId + @"')
+                                    WHERE (isnull(SO.ContractId, null) = '" + ContractId + @"')
                                     AND (isnull(b.VendorId,'')='" + VendorId + @"'))";
             }
             var sql = "";
@@ -142,7 +142,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
                         --left outer join mst.Destination DE ON DE.Id=so.DestinationId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT OUTER JOIN trn.SalesOrder AS SO ON SO.MasterOrderItemId=moi.Id
+						LEFT JOIN [dbo].[Contract] C ON C.Id=SO.ContractId
 						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
 						LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
