@@ -175,7 +175,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             ChkOrUnchk = true;
         }
 
-        var filtered = $("#Grid3").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridSO").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.SalesOrderList.length; i++) {
                 $scope.SalesOrderList[i].Active = ChkOrUnchk;
@@ -186,7 +186,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                 filtered[j].CheckBoxSelect = ChkOrUnchk;
             }
         }
-        var gridObj = $("#Grid3").data("ejGrid");
+        var gridObj = $("#GridSO").data("ejGrid");
         gridObj.refreshContent();
     };
 
