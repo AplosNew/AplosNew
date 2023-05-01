@@ -148,6 +148,21 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
     };
 
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        //if ($scope.MaterialID != e.data.ProductionGrouping + e.data.MaterialMasterId) {
+        //    $scope.isAlternative = $scope.isAlternative * -1;
+        //    $scope.MaterialID = e.data.ProductionGrouping + e.data.MaterialMasterId;
+        //}
+        //if ($scope.isAlternative > 0)
+        //    e.row.css("background-color", '#fff6b7');
+        //else
+        //    e.row.css("background-color", '#d1e5ff');
+
+
+    }
+
+
     $scope.MCFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'POId' },
         { 'name': 'SlipId', 'value': 'IssueId' },

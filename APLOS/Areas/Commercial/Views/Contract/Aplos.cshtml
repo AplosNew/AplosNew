@@ -278,32 +278,45 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
-                            <div style="color:black;" id="Grid3" ej-grid e-datasource="SalesOrderList" e-actioncomplete="actionCompleteSelected"
-                                 e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
-                                 e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
-                                <div e-columns>
-                                    <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
-                                    <div e-column e-field="SalesOrderId" e-headertext="SO NO" e-width="80"></div>
-                                    <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
-                                    <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
-                                    <div e-column e-field="ContractId" e-headertext="ContractId" e-width="80"></div>
-                                    <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                    <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
-                                    <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
-                                    <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
-                                    <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
-                                    <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                                    <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
-                                    <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
-                                    <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
-                                    <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
-                                    <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
-                                    <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
+                            <div class="row">
+                                <div id="Grid3" ej-grid e-datasource="SalesOrderList" e-templaterefresh="refreshTemplateemployee"
+                                     e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+
+                                    <div e-columns>
+                                        @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>*@
+                                        <div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>
+                                        <div e-column e-field="SalesOrderId" e-headertext="SO NO" e-width="80"></div>
+                                        <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
+                                        <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
+                                        <div e-column e-field="ContractId" e-headertext="ContractId" e-width="80"></div>
+                                        <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                                        <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                                        <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                                        <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                                        <div e-column e-field="PONumber" e-headertext="PONumber" e-width="80"></div>
+                                        <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
+                                        <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+                                        <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
+                                        <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
+                                        <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
+                                        <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                                        <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
+                                        <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
+                                    </div>
                                 </div>
+                              
+                                <script type="text/template" id="checkboxTemplateMaster">
+                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
+                                    </script>
+
+                                <script type="text/template" id="checkboxTemplate">
+                                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" e-value="data.Active" />
+                                </script>
+                                <script type="text/x-jsrender" id="headerTemplate">
+                                    <input type="checkbox" id="headchk" />
+                                </script>
                             </div>
-                            <script type="text/template" id="checkboxTemplateMaster">
-                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                            </script>
                         </div>
 
                     </div>
@@ -351,14 +364,14 @@
                                             <td><input type="text" class="form-control" ng-model="x.Remarks" ng-maxlength="50"></td>
                                         </tr>
                                         @*<tr>
-                                            <td><strong>Total:</strong></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td class="text-right"><strong>{{fundUtilizationList | sumByKey : 'Percentage'| setDecimal:2| number:2 }}</strong></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>*@
+                                                <td><strong>Total:</strong></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td class="text-right"><strong>{{fundUtilizationList | sumByKey : 'Percentage'| setDecimal:2| number:2 }}</strong></td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>*@
                                     </tbody>
                                 </table>
                             </div>
@@ -392,10 +405,10 @@
                                 <label class="col-sm-4 control-label">Opening Bank<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     @*<div class="select-style">
-                    <select name="Opening Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.OpeningBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="3">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>*@
+                                            <select name="Opening Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.OpeningBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="3">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>*@
                                     <input type="text" name="Opening Bank" ng-model="lcMasterNew.OpeningBank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" required tabindex="3" maxlength="50">
                                 </div>
                             </div>
@@ -403,10 +416,10 @@
                                 <label class="col-sm-4 control-label">Advising Bank</label>
                                 <div class="col-sm-8">
                                     @*<div class="select-style">
-                    <select name="Lein Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>*@
+                                            <select name="Lein Bank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" ng-model="lcMasterNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" required tabindex="5">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>*@
                                     <input type="text" name="Advising Bank" ng-model="lcMasterNew.LeinBank" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" class="form-control" tabindex="5" maxlength="50">
                                 </div>
                             </div>
@@ -428,7 +441,7 @@
                                     <input type="text" name="LC Shipment Date" ng-disabled="modelNew.IsLC===false && modelNew.UpdatedBy===null" ng-model="lcMasterNew.LCShipmentDate" datepicker class="form-control" required tabindex="9">
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
                                 <div class="col-sm-8">

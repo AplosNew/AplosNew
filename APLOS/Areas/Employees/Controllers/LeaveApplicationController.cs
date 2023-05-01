@@ -50,6 +50,7 @@ namespace Aplos.Areas.Employees.Controllers
             return View();
         }
 
+        
         public ActionResult LeaveApply()
         {
             return View();
