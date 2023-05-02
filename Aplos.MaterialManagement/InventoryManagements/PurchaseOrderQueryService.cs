@@ -1254,7 +1254,8 @@ namespace Library.MaterialManagement.InventoryManagements
 									trn.MasterOrder XMOI
 									LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 									LEFT JOIN trn.MasterOrderItem AS I ON I.MasterOrderId=XMOI.Id
-									where I.ContractId=C.Id for xml path('') ), 1, 1, ''
+									LEFT JOIN trn.SalesOrder SO ON SO.MasterOrderItemId=I.Id
+									where SO.ContractId=C.Id for xml path('') ), 1, 1, ''
 									)
 							FROM [dbo].[Contract] C
 							JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id
