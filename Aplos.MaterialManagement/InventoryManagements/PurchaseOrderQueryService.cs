@@ -39,7 +39,8 @@ namespace Library.MaterialManagement.InventoryManagements
             if (!string.IsNullOrEmpty(ContractId) && string.IsNullOrEmpty(VendorId))
             {
                 tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
-                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '"+ ContractId + @"') ) ";
+                                    --JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
+                                    WHERE(isnull(SO.ContractId, '') = '' OR isnull(SO.ContractId, null) = '"+ ContractId + @"') ) ";
             }
             if (string.IsNullOrEmpty(ContractId) && !string.IsNullOrEmpty(VendorId))
             {
@@ -50,8 +51,8 @@ namespace Library.MaterialManagement.InventoryManagements
             else
             {
                 tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
-                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId 
-                                    WHERE (isnull(MOI.ContractId, null) = '" + ContractId + @"')
+                                    --JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId 
+                                    WHERE (isnull(SO.ContractId, null) = '" + ContractId + @"')
                                     AND (isnull(b.VendorId,'')='" + VendorId + @"'))";
             }
             var sql = "";
@@ -133,7 +134,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN (Select DISTINCT SalesOrderId,CostingBOQMasterId,CostingItemId,OrderProcurementCostingDirectMaterialId from CostingBOQItems )CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId AND CBI.CostingItemId=b.CostingItemId --AND so.Id=CBI.SalesOrderId
 						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
 						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-
+                        LEFT JOIN TRN.SalesOrder SO ON SO.Id=CBI.SalesOrderId
 						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FGFirstCharacteristicsValueId
 						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.FGSecondCharacteristicsValueId
 						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.FGThirdCharacteristicsValueId
@@ -142,7 +143,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
                         --left outer join mst.Destination DE ON DE.Id=so.DestinationId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=SO.ContractId
 						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
 						LEFT JOIN hkp.Party AS TOUT ON tout.Id=moi.PartyId
@@ -192,10 +193,12 @@ namespace Library.MaterialManagement.InventoryManagements
             {
                 try
                 {
-                    string whereClause = @"WHERE moi.ContractId='" + ContractId + @"' --AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
+                    string whereClause = @"WHERE so.ContractId='" + ContractId + @"' --AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null)
                                 AND isnull(B.MasterOrderItemId,'') NOT IN (
                                 select isnull(MOI.Id,'') from trn.MasterOrderItem MOI
                                 join trn.MasterOrder MO ON MO.Id=moi.MasterOrderId 
+                                join trn.SalesOrder SO ON SO.MasterOrderItemId=moi.Id 
+
                                 WHERE MOI.Type='OutSource' and isnull(MOI.consignment,0)=0 AND MO.plantId='" + identity.PlantId + @"'
                             )";
                     //string whereClause = @"WHERE (b.VendorId='" + VendorId + @"' OR ISNULL(b.VendorId,'')='')
@@ -207,14 +210,14 @@ namespace Library.MaterialManagement.InventoryManagements
 
                     if (istradingPO)
                     {
-                        whereClause = @"WHERE moi.ContractId='" + ContractId + @"'
+                        whereClause = @"WHERE so.ContractId='" + ContractId + @"'
                                 AND isnull(B.Id,'') IN (
                                 select isnull(BOQ.Id,'') from BOQ
                             join trn.MasterOrderItem MOI on moi.id= BOQ.MasterOrderItemId
-
+                            join trn.SalesOrder SO ON SO.MasterOrderItemId=moi.Id 
                             join hkp.PartyPlant P on p.PartyId= boq.VendorId
 
-                            where P.PlantId= '" + identity.PlantId + @"' AND moi.ContractId='" + ContractId + @"'
+                            where P.PlantId= '" + identity.PlantId + @"' AND so.ContractId='" + ContractId + @"'
                        
                             )";
 
@@ -301,7 +304,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
                         left outer join mst.Destination DE ON DE.Id=so.DestinationId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty ,POD.TransactionUoMId 	
 									FROM [TRN].[POBOQMAP] POBOQMAP1
@@ -441,7 +444,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
 
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=SO.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 									FROM [TRN].[POBOQMAP] POBOQMAP1
@@ -465,7 +468,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 						LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
-						WHERE moi.ContractId='" + ContractId + @"' AND b.VendorId<>'" + VendorId + @"' 
+						WHERE so.ContractId='" + ContractId + @"' AND b.VendorId<>'" + VendorId + @"' 
 						AND b.isParent=0 --and isChild=0
 						ORDER BY b.MaterialMasterId,b.SalesOrderId";
                     return _sqlRepository.GetDataCollection(sql);
@@ -537,7 +540,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
 
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 									FROM [TRN].[POBOQMAP] POBOQMAP1
@@ -555,7 +558,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
 						LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
-						WHERE moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null) AND b.isParent=1 
+						WHERE so.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null) AND b.isParent=1 
 						ORDER BY b.MaterialMasterId,b.SalesOrderId";
                     return _sqlRepository.GetDataCollection(sql);
                 }
@@ -643,7 +646,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
                                     LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
 
-                                    LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+                                    LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId
                                     LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty 
 			                                     FROM [TRN].[POBOQMAP] POBOQMAP1
 			                                    LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=POBOQMAP1.PODetailId
@@ -746,7 +749,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
 
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId
 						--LEFT JOIN(Select  BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty ,POD.TransactionUoMId 	
 									FROM [TRN].[POBOQMAP] POBOQMAP1
@@ -765,7 +768,7 @@ namespace Library.MaterialManagement.InventoryManagements
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
                         --LEFT JOIN MST.MaterialMasterAlternativeUOM AUOM ON AUOM.MaterialMasterId=mm.Id 
 						--LEFT OUTER JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=AUOM.AlternativeUOMId
-						WHERE --moi.ContractId='" + ContractId + @"' AND 
+						WHERE --so.ContractId='" + ContractId + @"' AND 
 						(b.VendorId='" + VendorId + @"' OR b.VendorId is null) " + CostingItemIds + @"
 						--AND b.isParent=0 --and isChild=0
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
@@ -873,7 +876,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId
 						--LEFT JOIN(Select  PODetailId,BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId,PODetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.PODetailId,POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty ,sum(POD.TransactionRate) TransactionRate,REPLACE(CONVERT(CHAR(11), POD.DeliveryDate, 106),' ','-') AS DeliveryDate ,POD.TransactionUoMId
 									FROM [TRN].[POBOQMAP] POBOQMAP1
@@ -941,7 +944,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId	
+						LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId	
                         LEFT JOIN [TRN].[POBOQMAP] a ON a.BOQDetailId=b.Id
 						where (b.VendorId='" + VendorId + @"' OR b.VendorId is null) AND mm.Id='" + MaterialMasterId + @"' AND mma.Id='" + ArticleId + @"' AND ISNULL(b.FirstCharacteristicsValueId,'')='" + FirstCharacteristicsValueId + @"' AND ISNULL(b.SecondCharacteristicsValueId,'')='" + SecondCharacteristicsValueId + @"' AND ISNULL(b.ThirdCharacteristicsValueId,'')='" + ThirdCharacteristicsValueId + @"' AND b.Id not in(select a.Id FROM [TRN].[POBOQMAP] b join BOQ a on a.Id=b.BOQDetailId where b.PODetailId='" + inveReveiveId + @"') --AND b.Id not in(select BOQDetailId  FROM [TRN].[POBOQMAP]) 
 						ORDER BY b.Sequence,map.Id DESC";// b.SalesOrderId
@@ -1073,7 +1076,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
+						LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId
 						--LEFT JOIN(Select  PODetailId,BOQDetailId,sum(TransactionQty) TransactionQty from [TRN].[POBOQMAP] group by BOQDetailId,PODetailId)POMAP ON POMAP.BOQDetailId=b.Id
 						LEFT JOIN (SELECT  POBOQMAP1.PODetailId,POBOQMAP1.BOQDetailId,sum(POBOQMAP1.TransactionQty) TransactionQty ,sum(POD.TransactionRate) TransactionRate,REPLACE(CONVERT(CHAR(11), POD.DeliveryDate, 106),' ','-') AS DeliveryDate ,POD.TransactionUoMId
 									FROM [TRN].[POBOQMAP] POBOQMAP1
@@ -1161,7 +1164,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId	
+						LEFT JOIN [dbo].[Contract] C ON C.Id=so.ContractId	
                         --LEFT JOIN [TRN].[POBOQMAP] a ON a.BOQDetailId=b.Id
 
 						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
@@ -1177,7 +1180,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									where POM.Id !='" + inveReveiveMasterId + @"'
 									GROUP by POBOQMAP1.BOQDetailId--,POBOQMAP1.PODetailId
 								) OtherPOData ON OtherPOData.BOQDetailId=b.Id
-						where moi.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null) AND mm.Id='" + MaterialMasterId + @"' AND mma.Id='" + ArticleId + @"' AND ISNULL(b.FirstCharacteristicsValueId,'')='" + FirstCharacteristicsValueId + @"' AND ISNULL(b.SecondCharacteristicsValueId,'')='" + SecondCharacteristicsValueId + @"' AND ISNULL(b.ThirdCharacteristicsValueId,'')='" + ThirdCharacteristicsValueId + @"' AND b.Id not in(select a.Id FROM [TRN].[POBOQMAP] b join BOQ a on a.Id=b.BOQDetailId where b.PODetailId='" + inveReveiveId + @"') --AND b.Id not in(select BOQDetailId  FROM [TRN].[POBOQMAP]) 
+						where so.ContractId='" + ContractId + @"' AND (b.VendorId='" + VendorId + @"' OR b.VendorId is null) AND mm.Id='" + MaterialMasterId + @"' AND mma.Id='" + ArticleId + @"' AND ISNULL(b.FirstCharacteristicsValueId,'')='" + FirstCharacteristicsValueId + @"' AND ISNULL(b.SecondCharacteristicsValueId,'')='" + SecondCharacteristicsValueId + @"' AND ISNULL(b.ThirdCharacteristicsValueId,'')='" + ThirdCharacteristicsValueId + @"' AND b.Id not in(select a.Id FROM [TRN].[POBOQMAP] b join BOQ a on a.Id=b.BOQDetailId where b.PODetailId='" + inveReveiveId + @"') --AND b.Id not in(select BOQDetailId  FROM [TRN].[POBOQMAP]) 
 						ORDER BY b.Sequence,map.Id DESC";// b.SalesOrderId
                                                          //WHERE IM.MaterialMasterId='" + MaterialMasterId + "' and ArticleId='" + ArticleId + "' and IM.FirstCharacteristicsValueId='" + FirstCharacteristicsValueId + "' And IM.PORcvQty=0";
                 var Data = _sqlRepository.GetDataCollection(_sql);
@@ -5601,7 +5604,8 @@ namespace Library.MaterialManagement.InventoryManagements
                                     LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
                                      LEFT JOIN (select PODetailsId,InventoryReceiveId from TRN.InventoryReceiveDetail) IRD on IRD.PODetailsId=POD.Id and IRD.InventoryReceiveId=IR.Id
                                     LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
-                                    LEFT JOIN trn.MasterOrderItem MO on MO.ContractId=C.Id
+                                    LEFT JOIN TRN.SalesOrder SO ON SO.ContractId=C.Id
+                                    LEFT JOIN trn.MasterOrderItem MO on MO.Id=SO.MasterOrderItemId
                                     where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 									from trn.InventoryReceiveDetail IRD

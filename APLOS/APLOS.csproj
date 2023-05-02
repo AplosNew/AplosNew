@@ -304,6 +304,8 @@
     <Folder Include="Areas\IssueTracker\Views\IssueAudit\" />
     <Folder Include="Areas\Materials\Views\P\" />
     <Folder Include="Areas\MeetingManagement\Views\Shared\" />
+    <Folder Include="Areas\Packing\Controllers\" />
+    <Folder Include="Areas\Packing\Views\" />
     <Folder Include="Areas\Payrolls\Views\EmployeeServiceFixed\" />
     <Folder Include="Areas\PerformanceManagement\Views\Shared\" />
     <Folder Include="Areas\Products\Views\GateEntry\" />
@@ -543,6 +545,7 @@
     <Compile Include="Areas\HumanResource\Controllers\DesignationSetupController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\HRReportMasterController.cs" />
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -2044,6 +2047,7 @@
     <Content Include="Areas\Employees\Scripts\EmployeeCodeGenerationController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
+    <Content Include="Areas\Employees\Scripts\SectionemployeeLeaveApplicationController .js" />
     <Content Include="Areas\Employees\Scripts\myappEmployeeLedgerReportController.js" />
     <Content Include="Areas\Employees\Scripts\multipleResignationApprovalNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
@@ -2055,6 +2059,8 @@
     <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
+    <Content Include="Areas\Packing\Scripts\packingConfig.js" />
+    <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
     <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
@@ -4650,6 +4656,7 @@
     <Content Include="Areas\HumanResource\Views\BudgetReportMaster\_UserGroupPop.cshtml" />
     <Content Include="Areas\HumanResource\Views\HRReportMaster\_ResponsiblePerson.cshtml" />
     <Content Include="Areas\IE\Views\WorkcenterWiseDetention\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\WebBasedPacking\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -7818,6 +7825,7 @@
     <Content Include="Views\DailyAttendances\Dashboard.cshtml" />
     <Content Include="Views\DailyAttendances\PasswordChange.cshtml" />
     <Content Include="Views\DailyAttendances\DALayout.cshtml" />
+    <Content Include="Views\WebBasedPacking\Aplos.cshtml" />
     <None Include="Web.Debug.Config">
       <DependentUpon>Web.Config</DependentUpon>
     </None>

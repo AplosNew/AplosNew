@@ -510,7 +510,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
 
-                var sql = @"SELECT Active=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
+                var sql = @"SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
                             ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
                             FROM TRN.SalesOrder SO
@@ -537,7 +537,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
 
-                var sql = @"SELECT * FROM(SELECT Active=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
+                var sql = @"SELECT * FROM(SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
                             ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
                             FROM TRN.SalesOrder SO
@@ -552,7 +552,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
                             WHERE A.CompanyId='" + CompanyId+ @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId IS NULL 
 UNION 
-							SELECT Active=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
+							SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
                             ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
                             FROM TRN.SalesOrder SO
@@ -565,7 +565,7 @@ UNION
                             LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId='"+ contractId + "')A Order BY A.Active desc";
+                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId='"+ contractId + "')A Order BY A.Flags desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
