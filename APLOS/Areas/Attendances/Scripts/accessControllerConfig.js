@@ -434,5 +434,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/EOT/Aplos',
             controller: 'EOTController'
         })
+        .when('/good-work', {
+            templateUrl: 'Attendances/GoodWork/Aplos',
+            controller: 'GoodWorkController'
+        })
         ;
 } 
