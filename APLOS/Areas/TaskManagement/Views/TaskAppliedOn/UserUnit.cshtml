@@ -16,18 +16,22 @@
 
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group" show-errors>
+
+        <div class="form-group" show-errors ng-show="passwordShow">
             <label class="col-sm-4 control-label">Password<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Password" ng-model="ModelNew.Password" class="form-control" required tabindex="10" maxlength="10">
+                <input ng-keyup="compare(ModelNew.Password, ModelNew.RePassword)" tabindex="5" name="Password" type="password" ng-model="ModelNew.Password" class="form-control" id="pwd" required>
             </div>
         </div>
-        <div class="form-group" show-errors>
+
+        <div class="form-group" ng-show="passwordShow" show-errors>
             <label class="col-sm-4 control-label">Confirm Password<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Re Password" ng-model="ModelNew.RePassword" class="form-control" required tabindex="10" maxlength="10">
+                <input tabindex="6" type="password" name="Confirm Password" ng-model="ModelNew.RePassword" ng-keyup="compare(ModelNew.Password, ModelNew.RePassword)" class="form-control" id="Conpwd" required>
+                <p class="msg-error" ng-show="compareTo">Confirm passwords did not match with password!</p>
             </div>
         </div>
+
     </div>
 
     <ul class="col-md-6 common-btn list-inline text-left">
