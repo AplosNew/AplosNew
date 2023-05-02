@@ -55,13 +55,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#EmployeePop')).modal('show');
     }
 
-    $scope.ob = {};
-    $scope.OpenUserGroupPopUp = function () {
-        angular.element(document.querySelector('#UserGroupPop')).modal('show');
-        $scope.GetUserGroup();
-        //$scope.ob = x.data;
-        
-    }
+    
 
     // POP CLOSED
     $scope.closeEmpPopUp = function () {
@@ -202,7 +196,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.BudgetList = response.data;
-            $scope.GetUserGroup();
+            $scope.GetUserGroup($scope.obj.Id);
             $scope.GetUserSubGroup();
             $scope.GetGrade();
         });
@@ -236,6 +230,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+    // Header
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
 
@@ -334,6 +329,58 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
 
+
+    $scope.obj = {};
+    $scope.OpenUserGroupPopUp = function (data) {
+        
+            
+        
+        angular.element(document.querySelector('#UserGroupPop')).modal('show');
+        $scope.obj = data.data;
+        $scope.GetUserGroup($scope.obj.Id);
+
+ 
+    }
+
+    $scope.CheckedUserGroupList = [];
+    $scope.ClosePopupOnSelectAllField = function () {
+        
+        $scope.CheckedUserGroupList = [];
+        for (var i = 0; i < $scope.UserGroupList.length; i++) {
+
+            if ($scope.UserGroupList[i].isSelected) {
+                $scope.CheckedUserGroupList.push($scope.UserGroupList[i]);
+            }
+            $http({
+                method: 'POST',
+                url: $scope.path + 'Create',
+                data: {
+                    'chkBgtList': $scope.obj,                    
+                    'usergroup': $scope.CheckedUserGroupList,
+                    'headerid': $scope.ModelNew.Id
+                },
+                dataType: 'JSON',
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.obj.Id = response.data.Id;
+                    var gridObj = $("#bgtCodeGridId").data("ejGrid");
+                    gridObj.refreshContent(true);
+                    gridObj.refreshTemplate();
+                    $scope.UnchkOfCheckedItem();
+                }
+            });
+        }
+        angular.element(document.querySelector('#UserGroupPop')).modal('hide');
+        ShowResult("User Group Selected", 'success');
+
+    }
+
+    
+
     $scope.ActionB = 'SaveBudgetCode';
     $scope.CheckedBudgetCodeList = [];
     $scope.SaveBudgetCode = function () {
@@ -345,15 +392,15 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                     $scope.CheckedBudgetCodeList.push($scope.BudgetList[i]);
                 }
             }
-            if ($scope.ob.UserGroupId == null) {
-                throw ShowResult("Please Select User Group");
-            }
+            //if ($scope.ob.UserGroupId == null) {
+            //    throw ShowResult("Please Select User Group");
+            //}
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveBudgetCode',
                 data: {
                     'chkBgtList': $scope.CheckedBudgetCodeList,
-                    //'usersubgroup': $scope.UserSubGroupId,
+                    'usergroup': $scope.CheckedUserGroupList,
                     'headerid': $scope.ModelNew.Id
                 },
                 dataType: 'JSON',
@@ -484,11 +531,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         }
     }
 
-    $scope.ClosePopupOnSelectAllField = function () {
-            angular.element(document.querySelector('#UserGroupPop')).modal('hide');
-            ShowResult("User Group Selected", 'success');
-        
-    }
+    
     // #endregion First Tab
 
     // #region 2nd Tab
