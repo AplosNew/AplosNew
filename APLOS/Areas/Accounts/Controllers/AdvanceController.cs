@@ -2998,9 +2998,15 @@ namespace Aplos.Areas.Accounts.Controllers
             int COL = 1; int ROW = 5;
             int startCol = COL;
 
+            worksheet[ROW, COL].Text = "Employee Code";
+            int colEmployeeCode = COL;
+            worksheet[ROW, COL].ColumnWidth = 12;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
             worksheet[ROW, COL].Text = "Employee";
             int colEmployee = COL;
-            worksheet[ROW, COL].ColumnWidth = 15;
+            worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
@@ -3037,6 +3043,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
             for (int i = 0; i < data.Count; i++)
             {
+                worksheet[ROW, colEmployeeCode].Text = data[i]["EmployeeCode"].ToString();
                 worksheet[ROW, colEmployee].Text = data[i]["EmployeeName"].ToString();
                 worksheet[ROW, colCurrency].Text = data[i]["CurrencyCode"].ToString();
                 
