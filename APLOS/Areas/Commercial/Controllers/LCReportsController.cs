@@ -369,7 +369,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 worksheet[ROW, COL].ColumnWidth = 10;
                 COL++;
 
-                worksheet[ROW, COL].Text = "Percentage";
+                worksheet[ROW, COL].Text = "Percentage(%)";
                 int colPercentage = COL;
                 worksheet[ROW, COL].ColumnWidth = 21;
                 COL++;
@@ -541,11 +541,11 @@ namespace Aplos.Areas.Commercial.Controllers
                         StartRowGroup3 = ROW;
                         group3 = group2 + dsData.Rows[i]["PurchaseLCRefNo"].ToString();
 
-                        worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString());
-                        worksheet[ROW, colSalesOrderQty].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderQty"].ToString());
-                        worksheet[ROW, colSalesOrderValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderValue"].ToString());
+                        //worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString());
+                        //worksheet[ROW, colSalesOrderQty].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderQty"].ToString());
+                        //worksheet[ROW, colSalesOrderValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderValue"].ToString());
                         worksheet[ROW, colContractFundCommission].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "*" + (clsStaticInfo.dbl(dsData.Rows[i]["CommissionPercentage"].ToString())).ToString() + "%";
-                        worksheet[ROW, colContractFundUtilization].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colContractFundCommission) + ROW.ToString();
+                        //worksheet[ROW, colContractFundUtilization].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colContractFundCommission) + ROW.ToString();
 
                         worksheet[ROW, colPurchaseLCNo].Text = dsData.Rows[i]["PurchaseLCRefNo"].ToString();
 
