@@ -999,7 +999,7 @@ Where Q.MasterOrderItemId " + LineItemId + "";
         public IEnumerable<object> GetIssueSlipDataByPOIdList(string ProductionOrderId)
         {
             string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,IR.CostCenterId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
-,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty,TotalQty=IR.RequestedQty
+,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty,TotalQty=IR.RequestedQty,OT.UptodateOtherQty,OT.UptodateWasteQty
 FROM TRN.IssueRequest IR 
 LEFT JOIN TRN.IssueRequestMaster IRM ON IR.IssueRequestMasterId=IRM.Id
 LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -1011,8 +1011,13 @@ SELECT SUM(Qty)ActualIssueQty, H.IssueRequestDetailId
 FROM TRN.InventoryIssueHistory H
 LEFT JOIN TRN.InventoryIssueDetail ISD ON ISD.Id=H.InventoryIssueDetailId
 WHERE H.IssueRequestDetailId<>''
-GROUP BY H.IssueRequestDetailId,ISD.InventoryIssueId
+GROUP BY H.IssueRequestDetailId
 ) IRH ON IRH.IssueRequestDetailId=IR.Id
+LEFT JOIN(
+SELECT SUM(ID.OtherQty) UptodateOtherQty,SUM(ID.WasteQty)UptodateWasteQty,ID.IssueSlipRowId FROM dbo.InputConfirmationMaster IM
+LEFT  JOIN  dbo.InputConfirmationDetail ID ON ID.InputConfirmationMasterId=IM.Id
+Group BY ID.IssueSlipRowId
+)OT ON OT.IssueSlipRowId=IR.Id
 Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
