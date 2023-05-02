@@ -165,11 +165,11 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     // #region checkbox all
 
-    $scope.refreshTemplateemployee = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    $scope.refreshTemplateSO = function (args) {
+        $("#soheadchk").ejCheckBox({ "change": CheckBoxSelectAllSO});
     };
 
-    function CheckBoxSelectAllEmolyeeWise(e) {
+    function CheckBoxSelectAllSO(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
@@ -178,7 +178,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         var filtered = $("#GridSO").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.SalesOrderList.length; i++) {
-                $scope.SalesOrderList[i].Active = ChkOrUnchk;
+                $scope.SalesOrderList[i].Flags = ChkOrUnchk;
             }
         }
         else {
