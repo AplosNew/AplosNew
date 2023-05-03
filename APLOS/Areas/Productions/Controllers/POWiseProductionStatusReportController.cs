@@ -2295,7 +2295,7 @@ namespace Aplos.Areas.Productions.Controllers
                 //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignJustify;
                 //sheet.Range[1, 1, 6, endCol].RowHeight = 50;
                 //sheet.Range[1, 1, 6, endCol].WrapText = true;
-                //pivotSheet.UsedRange.WrapText = true;
+                 pivotSheet.UsedRange.WrapText = true;
                 
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;

@@ -707,7 +707,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                 throw "Select Sales Order.";
             } else {
                 for (var i = 0; i < $scope.SalesOrderList.length; i++) {
-                    if ($scope.SalesOrderList[i].Active) {
+                    if ($scope.SalesOrderList[i].Flags) {
                         $scope.selectedSalesOrderList.push($scope.SalesOrderList[i]);
                     }
 
