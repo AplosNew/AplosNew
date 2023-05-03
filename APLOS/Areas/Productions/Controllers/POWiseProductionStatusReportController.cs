@@ -1965,6 +1965,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
+                if (data == null)
+                {
+                    throw new Exception("No Data found.");
+                }
                 DataTable dt = new DataTable("DD");
                 foreach (string item in data[0].Keys)
                 {
@@ -2007,7 +2011,7 @@ namespace Aplos.Areas.Productions.Controllers
             var filePath = "";
             try
             {
-
+                
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
@@ -2032,6 +2036,10 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].Text = "SO Qty"; sheet[ROW, COL].ColumnWidth = 16; int colSOQty = COL; COL++;
                 sheet[ROW, COL].Text = "Base Proc Plan Percentage"; sheet[ROW, COL].ColumnWidth = 16; int colBaseProcPlanPercentage = COL; COL++;
                 sheet[ROW, COL].Text = "Actual Plan Schedule Qty"; sheet[ROW, COL].ColumnWidth = 16; int colActualPlanScheduleQty = COL; COL++;
+                sheet[ROW, COL].Text = "Requested Qty"; sheet[ROW, COL].ColumnWidth = 16; int colRequestedQty = COL; COL++;
+                sheet[ROW, COL].Text = "Issue Qty"; sheet[ROW, COL].ColumnWidth = 16; int colIssueQty = COL; COL++;
+                sheet[ROW, COL].Text = "Total Qty"; sheet[ROW, COL].ColumnWidth = 16; int colTotalQty = COL; COL++;
+                sheet[ROW, COL].Text = "First Process Book Qty"; sheet[ROW, COL].ColumnWidth = 16; int colFirstProcessProQty = COL; COL++;
                 sheet[ROW, COL].Text = "Should Be Base Process Planned Qty"; sheet[ROW, COL].ColumnWidth = 16; int colShouldBeBaseProcessPlannedQty = COL; COL++;
                 sheet[ROW, COL].Text = "Base Process Produce Qty"; sheet[ROW, COL].ColumnWidth = 16; int colBaseProcessProduceQty = COL; COL++;
                 sheet[ROW, COL].Text = "Base Process Remaining Qty"; sheet[ROW, COL].ColumnWidth = 16; int colBaseProcessRemainingQty = COL; COL++;
@@ -2110,6 +2118,10 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, colSOQty].Number = clsStaticInfo.dbl(data.Rows[i]["SOQty"].ToString());
                     sheet[ROW, colBaseProcPlanPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["BaseProcPlanPercentage"].ToString());
                     sheet[ROW, colActualPlanScheduleQty].Number = clsStaticInfo.dbl(data.Rows[i]["ActualPlanScheduleQty"].ToString());
+                    sheet[ROW, colRequestedQty].Number = clsStaticInfo.dbl(data.Rows[i]["RequestedQty"].ToString());
+                    sheet[ROW, colIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueQty"].ToString());
+                    sheet[ROW, colTotalQty].Number = clsStaticInfo.dbl(data.Rows[i]["TotalQty"].ToString());
+                    sheet[ROW, colFirstProcessProQty].Number = clsStaticInfo.dbl(data.Rows[i]["FirstProcessProQty"].ToString());
                     sheet[ROW, colShouldBeBaseProcessPlannedQty].Number = clsStaticInfo.dbl(data.Rows[i]["ShouldBeBaseProcessPlannedQty"].ToString());
                     sheet[ROW, colBaseProcessProduceQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseProcessProduceQty"].ToString());
                     sheet[ROW, colBaseProcessRemainingQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseProcessRemainingQty"].ToString());
@@ -2166,7 +2178,6 @@ namespace Aplos.Areas.Productions.Controllers
                 }
 
                 sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
-                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
@@ -2212,14 +2223,17 @@ namespace Aplos.Areas.Productions.Controllers
                 IWorksheet pivotSheet = workbook.Worksheets[0];
                 IPivotCache cache = workbook.PivotCaches.Add(workbook.Worksheets[1][startRow - 1, 1, ROW - 1, endCol]);
                 IPivotTable pivotTable = pivotSheet.PivotTables.Add("PivotTable1", pivotSheet["A6"], cache);
-
+                
                 pivotTable.Fields[colPOStatus - 1].Axis = PivotAxisTypes.Row;//1
+                
                 pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;//2
                 pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
+
                 pivotTable.Fields[colPONo - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOStartDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOCompletionDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOLatestProdBookDate - 1].Axis = PivotAxisTypes.Row;
+               // pivotSheet.Columns.
                 pivotTable.Fields[colSequence - 1].Axis = PivotAxisTypes.Row;//7
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;//8
                 pivotTable.Fields[colSONO - 1].Axis = PivotAxisTypes.Row;//9
@@ -2265,19 +2279,24 @@ namespace Aplos.Areas.Productions.Controllers
                         pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                     }
                 }
-
+                
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
                 pivotTable.Options.NullString = "";
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
                 sheet = workbook.Worksheets[0];
+                //sheet.Range[1, 1, 6, endCol].RowHeight = 50;
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "PO Wise Report", identity.CompanyId, identity.CompanyName, "");
 
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignJustify;
+                //sheet.Range[1, 1, 6, endCol].RowHeight = 50;
+                //sheet.Range[1, 1, 6, endCol].WrapText = true;
+                //pivotSheet.UsedRange.WrapText = true;
+                
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
