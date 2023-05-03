@@ -2226,6 +2226,7 @@ namespace Aplos.Areas.Productions.Controllers
                 
                 pivotTable.Fields[colPOStatus - 1].Axis = PivotAxisTypes.Row;//1
                 
+                //
                 pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;//2
                 pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
 
@@ -2233,7 +2234,7 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.Fields[colPOStartDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOCompletionDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPOLatestProdBookDate - 1].Axis = PivotAxisTypes.Row;
-               // pivotSheet.Columns.
+               
                 pivotTable.Fields[colSequence - 1].Axis = PivotAxisTypes.Row;//7
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Row;//8
                 pivotTable.Fields[colSONO - 1].Axis = PivotAxisTypes.Row;//9
@@ -2242,18 +2243,11 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.Fields[colProcessPlannedQty - 1].Axis = PivotAxisTypes.Row;//11
                 pivotTable.Fields[colProcProdQty - 1].Axis = PivotAxisTypes.Row;//12
                 pivotTable.Fields[colPreProcProdQty - 1].Axis = PivotAxisTypes.Row;//13
-
                 pivotTable.Fields[colWIP - 1].Axis = PivotAxisTypes.Row;//13
-
-                //IPivotField fieldWIP = pivotTable.Fields[colWIP - 1];//13A
-                //pivotTable.DataFields.Add(fieldWIP, "WIP", PivotSubtotalTypes.Sum);
-                //fieldWIP.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
                 pivotTable.Fields[colProcProdPercent - 1].Axis = PivotAxisTypes.Row;//14
                 pivotTable.Fields[colProceessProdQtyVsSOQty - 1].Axis = PivotAxisTypes.Row;//15
                 pivotTable.Fields[colProcessBalanceProd - 1].Axis = PivotAxisTypes.Row;//15
-                
-                
 
                 pivotTable.Fields[colIsBaseProcess - 1].Axis = PivotAxisTypes.Row;//16
                 pivotTable.Fields[colProcessLegDays - 1].Axis = PivotAxisTypes.Row;//17
@@ -2286,23 +2280,22 @@ namespace Aplos.Areas.Productions.Controllers
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
                 sheet = workbook.Worksheets[0];
-                //sheet.Range[1, 1, 6, endCol].RowHeight = 50;
                 reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "PO Wise Report", identity.CompanyId, identity.CompanyName, "");
 
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                
+
+
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignJustify;
-                //sheet.Range[1, 1, 6, endCol].RowHeight = 50;
-                //sheet.Range[1, 1, 6, endCol].WrapText = true;
-                 pivotSheet.UsedRange.WrapText = true;
-                
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
-                workbook.Worksheets[0].UsedRange["A7"].FreezePanes();
-
-
+           
+                pivotSheet.Range["A6"].RowHeight = 50;
+                pivotSheet.Range["A6"].WrapText = true;
+                pivotSheet.Range["A6"].VerticalAlignment = ExcelVAlign.VAlignTop;
                 #endregion PO Wise
 
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
