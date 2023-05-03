@@ -3,39 +3,35 @@
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
 
-        <div class="form-group">
-            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-            <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 15px;">
-                <span class="input-group-addon">{{ModelNew.UserId}}</span>
-                <input type="text" name="User Name" ng-model="ModelNew.FullName" class="form-control" required readonly>
-                <span class="input-group-btn">
-                    <button name="submit" class="btn single-small-btn" ng-click="popUp()" ng-disabled="ModelNew.Id!=null" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </span>
+        <div class="form-group" show-errors id="div_docDate">
+            <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
+            <div class="col-sm-6 show-message pdl3">
+                <input type="text" name="Date" ng-model="ModelNew.Date" datepicker class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
             </div>
         </div>
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Remarks</label>
+            <div class="col-sm-6 show-message">
+                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
-
-        <div class="form-group" show-errors ng-show="passwordShow">
-            <label class="col-sm-4 control-label">Password<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input ng-keyup="compare(ModelNew.Password, ModelNew.RePassword)" tabindex="5" name="Password" type="password" ng-model="ModelNew.Password" class="form-control" id="pwd" required>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Shift<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="input-group" tabindex="208">
+                    <input type="text" name="Shift" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" required readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
             </div>
         </div>
-
-        <div class="form-group" ng-show="passwordShow" show-errors>
-            <label class="col-sm-4 control-label">Confirm Password<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input tabindex="6" type="password" name="Confirm Password" ng-model="ModelNew.RePassword" ng-keyup="compare(ModelNew.Password, ModelNew.RePassword)" class="form-control" id="Conpwd" required>
-                <p class="msg-error" ng-show="compareTo">Confirm passwords did not match with password!</p>
-            </div>
-        </div>
-
     </div>
 
     <ul class="col-md-6 common-btn list-inline text-left">
-        <li><button ng-click="popUpHref();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Href</button></li>
+        <li><button ng-click="showEmployeeListPopUp();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Employee</button></li>
     </ul>
     <div class="clearfix"></div>
     <div class="table-responsive modal-table ">
@@ -161,7 +157,7 @@
                 Href <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-               
+
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
@@ -175,8 +171,8 @@
                             <tr dir-paginate="x in popUpHrefDataList|itemsPerPage:popUpHrefParameters.pageSize" total-items="popUpHrefParameters.total_count"
                                 ng-class="{selected : x.Id === hrefrowSelected}" ng-dblclick="setSelected(x, $index)" pagination-id="metaData.name + 'popUpHrefDataList'">
 
-                            @*<tr dir-paginate="x in popUpHrefDataList |itemsPerPage:popUpHrefParameters.pageSize" pagination-id="metaData.name + 'popUpList'" total-items="popUpHrefParameters.total_count"
-                                ng-dblclick="setSelected(x, $index)" ng-class="{selected : x.Id === hrefrowSelected}">*@
+                                @*<tr dir-paginate="x in popUpHrefDataList |itemsPerPage:popUpHrefParameters.pageSize" pagination-id="metaData.name + 'popUpList'" total-items="popUpHrefParameters.total_count"
+                                    ng-dblclick="setSelected(x, $index)" ng-class="{selected : x.Id === hrefrowSelected}">*@
 
                                 <td>{{x.Description}}</td>
                                 <td>{{x.Controller}}</td>
@@ -198,3 +194,93 @@
 </div>
 
 <confirm-modal></confirm-modal>
+
+<div class="modal fade site-modal in" id="ShiftPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Shift List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Shift</p>
+                        <div style="color:black;" id="GridShift" ej-grid e-datasource="ShiftList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleShift">
+                            <div e-columns>
+                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+
+                                <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
+                                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="50"></div>
+                                <div e-column e-field="ShiftDefination" e-headertext="Shift Defination" e-width="120"></div>
+                                <div e-column e-field="InTime" e-headertext="In Time" e-width="120"></div>
+                                <div e-column e-field="OutTime" e-headertext="Out Time" e-width="120"></div>
+                            </div>
+
+                        </div>
+                        @*
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                            </script>*@
+
+
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeShiftPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Employees/Views/Shared/_EmployeePopUp.cshtml")
+
+<div class="modal fade site-modal in" id="popUpEmpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Controller</th>
+                                <th>Href</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in popUpHrefDataList|itemsPerPage:popUpHrefParameters.pageSize" total-items="popUpHrefParameters.total_count"
+                                ng-class="{selected : x.Id === hrefrowSelected}" ng-dblclick="setSelected(x, $index)" pagination-id="metaData.name + 'popUpHrefDataList'">
+
+                                @*<tr dir-paginate="x in popUpHrefDataList |itemsPerPage:popUpHrefParameters.pageSize" pagination-id="metaData.name + 'popUpList'" total-items="popUpHrefParameters.total_count"
+                                    ng-dblclick="setSelected(x, $index)" ng-class="{selected : x.Id === hrefrowSelected}">*@
+
+                                <td>{{x.Description}}</td>
+                                <td>{{x.Controller}}</td>
+                                <td>{{x.Href}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'popUpList'" direction-links="true" boundary-links="true" on-page-change="getPopUpHrefData(newPageNo)"></dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="selectByButtonHref();" class="btn"><i class=""></i> Select</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closeHrefPopUp();">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
