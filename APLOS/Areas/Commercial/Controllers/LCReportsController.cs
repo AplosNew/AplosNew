@@ -271,14 +271,14 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 worksheet[ROW, COL].Text = "Master LC No.";
                 int colMasterLCRefNo = COL;
-                worksheet[ROW, COL].ColumnWidth = 13;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
 
                 worksheet[ROW, COL].Text = "LC Value";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colMasterLCAmount = COL;
-                worksheet[ROW, COL].ColumnWidth = 14;
+                worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Currency";
@@ -289,18 +289,18 @@ namespace Aplos.Areas.Commercial.Controllers
                 worksheet[ROW, COL].Text = "Contract Id";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 int colContractId = COL;
-                worksheet[ROW, COL].ColumnWidth = 11;
+                worksheet[ROW, COL].ColumnWidth = 10;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Contract No";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 int colContractNo = COL;
-                worksheet[ROW, COL].ColumnWidth = 11;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Buyer";
                 int colMasterLCCustomerId = COL;
-                worksheet[ROW, COL].ColumnWidth = 32;
+                worksheet[ROW, COL].ColumnWidth = 25;
                 COL++;
 
 
@@ -313,32 +313,32 @@ namespace Aplos.Areas.Commercial.Controllers
                 worksheet[ROW, COL].Text = "Contract SO Value";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colSalesOrderValue = COL;
-                worksheet[ROW, COL].ColumnWidth = 17;
+                worksheet[ROW, COL].ColumnWidth = 16;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Currency";
                 int colMasterOrderCurrencyId = COL;
-                worksheet[ROW, COL].ColumnWidth = 9;
+                worksheet[ROW, COL].ColumnWidth = 8;
                 COL++;
 
 
                 worksheet[ROW, COL].Text = "Commission";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colContractFundCommission = COL;
-                worksheet[ROW, COL].ColumnWidth = 17;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Fund Utilization";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colContractFundUtilization = COL;
-                worksheet[ROW, COL].ColumnWidth = 17;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
 
                 worksheet[ROW, COL].Text = "Purchase Margin";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colContractFundPercentage = COL;
-                worksheet[ROW, COL].ColumnWidth = 17;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
 
@@ -350,12 +350,12 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 worksheet[ROW, COL].Text = "Vendor";
                 int colPartyUserName = COL;
-                worksheet[ROW, COL].ColumnWidth = 30;
+                worksheet[ROW, COL].ColumnWidth = 35;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Opening Date";
                 int colPurchaseLCLCDate = COL;
-                worksheet[ROW, COL].ColumnWidth = 14;
+                worksheet[ROW, COL].ColumnWidth = 12;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Opening Value";
@@ -366,35 +366,35 @@ namespace Aplos.Areas.Commercial.Controllers
 
                 worksheet[ROW, COL].Text = "Currency";
                 int colPurchaseLCCurrencyId = COL;
-                worksheet[ROW, COL].ColumnWidth = 10;
+                worksheet[ROW, COL].ColumnWidth = 8;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Percentage(%)";
                 int colPercentage = COL;
-                worksheet[ROW, COL].ColumnWidth = 21;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
                 worksheet[ROW, COL].Text = "Present LC Value";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPresentLCValue = COL;
-                worksheet[ROW, COL].ColumnWidth = 17;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
 
                 worksheet[ROW, COL].Text = "LastAmendment Date";
                 int colLastAmendmentDate = COL;
-                worksheet[ROW, COL].ColumnWidth = 20;
+                worksheet[ROW, COL].ColumnWidth = 19;
                 COL++;
 
                 worksheet[ROW, COL].Text = "LC Utilization";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPurchaseOrderDetailTrnQtyRate = COL;
-                worksheet[ROW, COL].ColumnWidth = 16;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
                 worksheet[ROW, COL].Text = "LC Accepted Value";
                 int colLCAcceptedValue = COL;
-                worksheet[ROW, COL].ColumnWidth = 17;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 
                 int endCol = COL;
 
@@ -559,7 +559,9 @@ namespace Aplos.Areas.Commercial.Controllers
                         //var percentage = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLcOpeningValue"] + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"])) + "%";
                         //worksheet[ROW, colPercentage].Text = percentage;
 
-                        worksheet[ROW, colPercentage].Formula = clsStaticInfo.GetxlsCol(colPurchaseLCAmount) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colMasterLCAmount) + ROW.ToString() + "%";
+                        worksheet[ROW, colPercentage].Formula = clsStaticInfo.GetxlsCol(colPurchaseLCAmount) + ROW.ToString() + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString()) + "%";
+
+                        //worksheet[ROW, colPercentage].Formula = clsStaticInfo.GetxlsCol(colPurchaseLCAmount) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colMasterLCAmount) + ROW.ToString() + "%";
 
                         worksheet[ROW, colPresentLCValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["PresentLCValue"].ToString());
                         worksheet[ROW, colPurchaseLCLCDate].Text = dsData.Rows[i]["PurchaseLCOpeningDate"].ToString();
