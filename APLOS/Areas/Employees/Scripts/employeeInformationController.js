@@ -1747,9 +1747,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
         if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1Name)) {
             throw "Reference Employee is required.";
         }
-        if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1CellPhnNo)) {
-            throw "Reference Employee cell is required.";
-        }
+        //if ($scope.IsReferenceRequired === true && baseService.isUndefinedOrNull($scope.empReferenceInformation.Ref1CellPhnNo)) {
+        //    throw "Reference Employee Cell Phone No is required.";
+        //}
 
         if ($scope.IsResidenceGroupMandatory === true && baseService.isUndefinedOrNull($scope.employeeNew.ResidenceGroupId)) {
             throw "Residence Group is required.";

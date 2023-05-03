@@ -452,7 +452,8 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "IssueQty", dataMember: "IssueQty", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "OtherQty", dataMember: "OtherQty", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N2}" }
-            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "WasteQty", dataMember: "WasteQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "UptodateOtherQty", dataMember: "UptodateOtherQty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "UptodateWasteQty", dataMember: "UptodateWasteQty", format: "{0:N2}" }
             , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalQty", dataMember: "TotalQty", format: "{0:N2}" }
         ]
         , showCaptionSummary: true
