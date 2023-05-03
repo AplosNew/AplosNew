@@ -254,9 +254,19 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Description</th>
-                                <th>Controller</th>
-                                <th>Href</th>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>From Time</th>
+                                <th>To Time</th>
+                                <th>From Time</th>
+                                <th>Purpose</th>
+                                <th>Purpose Category</th>
+                                <th>Approved By</th>
+                                <th>Category</th>
+                                <th>Minute</th>
+                                <th>SubSection</th>
+                                <th>Section</th>
+                                <th>Department</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -264,11 +274,20 @@
                                 ng-class="{selected : x.Id === hrefrowSelected}" ng-dblclick="setSelected(x, $index)" pagination-id="metaData.name + 'popUpHrefDataList'">
 
                                 @*<tr dir-paginate="x in popUpHrefDataList |itemsPerPage:popUpHrefParameters.pageSize" pagination-id="metaData.name + 'popUpList'" total-items="popUpHrefParameters.total_count"
-                                    ng-dblclick="setSelected(x, $index)" ng-class="{selected : x.Id === hrefrowSelected}">*@
+        ng-dblclick="setSelected(x, $index)" ng-class="{selected : x.Id === hrefrowSelected}">*@
 
-                                <td>{{x.Description}}</td>
-                                <td>{{x.Controller}}</td>
-                                <td>{{x.Href}}</td>
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.FromTime}}</td>
+                                <td>{{x.ToTime}}</td>
+                                <td>{{x.Purpose}}</td>
+                                <td>{{x.PurposeCategory}}</td>
+                                <td>{{x.ApprovedBy}}</td>
+                                <td>{{x.Category}}</td>
+                                <td>{{x.Minute}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.Department}}</td>
                             </tr>
                         </tbody>
                     </table>
