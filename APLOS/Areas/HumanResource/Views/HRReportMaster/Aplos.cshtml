@@ -105,7 +105,7 @@
                                     </div>
                                 </div>
                                 <div class="table-responsive">
-                                    <div ej-grid e-datasource="BudgetList" e-load="loadGridEdit"
+                                    <div id="bgtCodeGridId" ej-grid e-datasource="BudgetList" e-load="loadGridEdit"
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                         <div e-columns>
@@ -136,7 +136,7 @@
                                     </script>
 
                                     <script type="text/template" id="userGroupId">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px; padding-top:1px; padding-bottom:1px; border-radius:0" class="btn"><i class="glyphicon glyphicon-menu-hamburger" title="Print Report" style="margin: -6px;" ng-click="$parent.OpenUserGroupPopUp()"></i></button>
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px; padding-top:1px; padding-bottom:1px; border-radius:0" class="btn"><i class="glyphicon glyphicon-menu-hamburger" title="Print Report" style="margin: -6px;" ng-click="$parent.OpenUserGroupPopUp(this)"></i></button>
 
                                     </script>
 

@@ -245,18 +245,16 @@
         <script type="text/template" id="QAdditionReductionTemplate">
             <div class="col-sm-10" style="padding:0px; width:80px;text-align:right;">
                 <input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.BoqCalculation(this)" e-width="80" style="text-align: right;" />
-                @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.BoqCalculation(this)" e-width="80" />*@
             </div>
         </script>
         <script type="text/template" id="CAdditionReductionTemplate">
             <div class="col-sm-10" style="padding:0px; width:80px;text-align:right;">
                 <input type="text" class="form-control" n-decimals="4" ng-model="data.AdditionReduction" ng-blur="$parent.CostCalculation(this)" e-width="80" style="text-align: right;" />
-                @*<input type="text" ej-numerictextbox e-decimalplaces="4" e-value="data.AdditionReduction" ng-blur="$parent.CostCalculation(this)" e-width="80" />*@
             </div>
         </script>
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" @*ng-disabled="ModelNew.Id!=null"*@ class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                 <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
@@ -291,8 +289,8 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Production Orders</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetSavedData();" href="" data-toggle="tab">Panding Data</a></li>
-                @*<li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)@*;GetSavedData();" href="" data-toggle="tab">Issue Data</a></li>*@
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetSavedData();" href="" data-toggle="tab">Pending Data</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetSavedData();" href="" data-toggle="tab">Issue Data</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -350,15 +348,15 @@
 
                         </div>
                         @*<script type="text/template" id="SOCount">
-                                <div class="text-left" style="width:100%">
-                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetSOItemList(data);">{{data.SOCount}}</a>
-                                </div>
-                            </script>
-                            <script type="text/template" id="ItemCount">
-                                <div class="text-left" style="width:100%">
-                                    <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetMOIItemList(data);">{{data.ItemCount}}</a>
-                                </div>
-                            </script>*@
+                        <div class="text-left" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetSOItemList(data);">{{data.SOCount}}</a>
+                        </div>
+                    </script>
+                    <script type="text/template" id="ItemCount">
+                        <div class="text-left" style="width:100%">
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.GetMOIItemList(data);">{{data.ItemCount}}</a>
+                        </div>
+                    </script>*@
                     </div>
                 </div>
             </div>
@@ -387,18 +385,19 @@
                 <div class="row">
                     <div class="col-xs-12" style="color:black;">
                         <div id="Gridunassigned" e-load="actionCompleteSearch" ej-grid e-datasource="savedList" e-recorddoubleclick="GetSaved"
-                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound" 
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-rowdatabound="rowDataBound"
                              e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
                              e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-headertext="Print" e-width="40">
+                                <div e-column e-headertext="Print" e-width="50">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
                                 <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
+                                <div e-column e-type="string" e-field="ProductionStatus" e-headertext="PrOStatus" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>
                                 <div e-column e-type="string" e-field="UserRef" e-headertext="User Ref" e-width="80"></div>
@@ -407,7 +406,40 @@
                                 <div e-column e-type="text" e-field="ByWhom" e-headertext="ByWhom" e-width="80" style="height: 20px;"></div>
                                 <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
                                 <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
-                                @*<div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="80"></div>*@
+                                <div e-column e-field="IssuedQty" e-headertext="IssuedQty" e-width="80"></div>
+                                <div e-column e-field="ApproveStatus" e-headertext="ApproveStatus" e-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                
+                <div class="row">
+                    <div class="col-xs-12" style="color:black;">
+                        <div id="GridIssuedata" ej-grid e-datasource="savedissueList"
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                             e-cellselected="cellSelected" e-selectiontype="single" e-actioncomplete="syncfusiongriddatabound"
+                             e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                             e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-headertext="Print" e-width="50">
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
+                                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
+                                </div>
+                                <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
+                                <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId" e-width="50"></div>
+                                <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
+                                <div e-column e-type="string" e-field="ProductionStatus" e-headertext="PrOStatus" e-width="100"></div>
+                                <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>
+                                <div e-column e-type="string" e-field="UserRef" e-headertext="User Ref" e-width="80"></div>
+                                <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                                <div e-column e-type="text" e-field="PlanPercentage" e-headertext="Plan  Percentage" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="text" e-field="ByWhom" e-headertext="ByWhom" e-width="80" style="height: 20px;"></div>
+                                <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
+                                <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
+                                <div e-column e-field="IssuedQty" e-headertext="IssuedQty" e-width="80"></div>
                             </div>
                         </div>
                     </div>
@@ -469,7 +501,7 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-allowselection="false" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
                         <div e-columns>
-                            <div e-column e-headertext="Select" @*e-headertemplateid="#headerTemplate"*@ e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-headertext="Select" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-type="string" e-field="SOId" e-headertext="SOId" e-width="80"></div>
                             <div e-column e-template="#LineItemId" e-headertext="LineItemId" e-width="100" style="height: 20px;"></div>
                             <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="180"></div>

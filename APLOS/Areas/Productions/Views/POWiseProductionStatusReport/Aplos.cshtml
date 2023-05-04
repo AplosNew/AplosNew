@@ -393,58 +393,62 @@
 
                                         <div e-columns>
                                             <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                                            <div e-column e-field="PONo" e-headertext="PO No" e-width="120"></div>
+                                            <div e-column e-field="PONo" e-headertext="PO No" e-width="50"></div>
                                             <div e-column e-field="Customer" e-headertext="Customer" e-width="120"></div>
                                             <div e-column e-field="Article" e-headertext="Article" e-width="120"></div>
-                                            <div e-column e-field="SONo" e-headertext="SO No" e-width="120"></div>
-                                            <div e-column e-field="POStatus" e-headertext="PO Status" e-width="150"></div>
+                                            <div e-column e-field="SONo" e-headertext="SO No" e-width="80"></div>
+                                            <div e-column e-field="POStatus" e-headertext="PO Status" e-width="50"></div>
                                             <div e-column e-field="AddedBy" e-headertext="Added By" e-width="80" textAlign='Left'></div>
                                             <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
                                             <div e-column e-field="UpdatedBy" e-headertext="Updated By" e-width="90"></div>
                                             <div e-column e-field="UpdatedDate" e-headertext="Updated Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                                            <div e-column e-field="SOQty" e-headertext="SO Qty" e-width="150"></div>
-                                            <div e-column e-field="BaseProcPlanPercentage" e-headertext="Base Proc Plan Percentage" e-width="150"></div>
-                                            <div e-column e-field="ActualPlanScheduleQty" e-headertext="ActualPlan/ScheduleQty" e-width="80"></div>
-                                            <div e-column e-field="ShouldBeBaseProcessPlannedQty" e-headertext="ShouldBe Base Process Planned Qty" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="SOQty" e-headertext="SO Qty" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcPlanPercentage" e-headertext="Base Proc Plan Percentage" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="ActualPlanScheduleQty" e-headertext="Actual Plan Schedule Qty" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="FirstProcessProQty" e-headertext="FirstProcessBookQty" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="RequestedQty" e-headertext="Requested Qty" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="IssueQty" e-headertext="Issue Qty" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"textAlign='Right'></div>
+                                            <div e-column e-field="ShouldBeBaseProcessPlannedQty" e-headertext="Should Be Base Process Planned Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="BaseProcessProduceQty" e-headertext="Base Process Produce Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="BaseProcessRemainingQty" e-headertext="Base Process Remaining Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="90" textAlign='Right'></div>
-                                            <div e-column e-field="Process" e-headertext="Process" e-width="90" textAlign='Right'></div>
+                                            <div e-column e-field="Process" e-headertext="Process" e-width="90" textAlign='Left'></div>
                                             <div e-column e-field="PercentQty" e-headertext="Percent Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="ProcessPlannedQty" e-headertext="Process Planned Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="ProcProdQty" e-headertext="Proc Prod Qty" e-width="90" textAlign='Right'></div>
                                             <div e-column e-field="PreProcProdQty" e-headertext="Pre Proc Prod Qty" e-width="90" textAlign='Right'></div>
-                                            <div e-column e-field="WIP" e-headertext="WIP" e-width="120" textAlign='Right'></div>
-                                            <div e-column e-field="ProcBalanceToProduce" e-headertext="Proc Balance To Produce" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="RelayProcess" e-headertext="Relay Process" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="IsBaseProcess" e-headertext="Base Process" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessLegDays" e-headertext="Process Leg Days" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="POFirstDelivery" e-headertext="PO First Delivery" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="POLastDelivery" e-headertext="PO Last Delivery" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="BaseProcProdStartDate" e-headertext="Base Proc Prod Start Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="BaseProcLatestProdDate" e-headertext="Base Proc Latest Prod Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="BaseProcPlanStartDate" e-headertext="Base Proc Plan Start Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="BaseProcPlanCompletionDate" e-headertext="Base Proc Plan Completion Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="POStartDate" e-headertext="PO Start Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="POCompletionDate" e-headertext="PO Completion Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="FirstProcessActualBookDate" e-headertext="First Process Actual Book Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="POFirstProdBookDate" e-headertext="PO First Prod Book Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="POLatestProdBookDate" e-headertext="PO Latest Prod Book Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ShouldBeProcessStartDate" e-headertext="ShouldBe Process Start Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ShouldBeProcessEndDate" e-headertext="ShouldBe Process End Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessFirstBookDate" e-headertext="Process First Book Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessLatestBookDate" e-headertext="Process Latest Book Date" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessStartDays" e-headertext="Process Start Days" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessEndDays" e-headertext="Process End Days" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessPlanPercent" e-headertext="Process Plan Percent" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessStatus" e-headertext="Process Status" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="WIP" e-headertext="WIP" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ProcBalanceToProduce" e-headertext="Proc Balance To Produce" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="RelayProcess" e-headertext="Relay Process" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="IsBaseProcess" e-headertext="Base Process" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessLegDays" e-headertext="Process Leg Days" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="POFirstDelivery" e-headertext="PO First Delivery" e-width="100" textAlign='Right'></div>
+                                            <div e-column e-field="POLastDelivery" e-headertext="PO Last Delivery" e-width="100" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcProdStartDate" e-headertext="Base Proc Prod Start Date" e-width="100" textAlign='Left'></div>
+                                            <div e-column e-field="BaseProcLatestProdDate" e-headertext="Base Proc Latest Prod Date" e-width="100" textAlign='Left'></div>
+                                            <div e-column e-field="BaseProcPlanStartDate" e-headertext="Base Proc Plan Start Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="BaseProcPlanCompletionDate" e-headertext="Base Proc Plan Completion Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="POStartDate" e-headertext="PO Start Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="POCompletionDate" e-headertext="PO Completion Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="FirstProcessActualBookDate" e-headertext="First Process Actual Book Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="POFirstProdBookDate" e-headertext="PO First Prod Book Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="POLatestProdBookDate" e-headertext="PO Latest Prod Book Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="ShouldBeProcessStartDate" e-headertext="ShouldBe Process Start Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="ShouldBeProcessEndDate" e-headertext="ShouldBe Process End Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="ProcessFirstBookDate" e-headertext="Process First Book Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="ProcessLatestBookDate" e-headertext="Process Latest Book Date" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="ProcessStartDays" e-headertext="Process Start Days" e-width="110" textAlign='Left'></div>
+                                            <div e-column e-field="ProcessEndDays" e-headertext="Process End Days" e-width="50" textAlign='Left'></div>
+                                            <div e-column e-field="ProcessPlanPercent" e-headertext="Process Plan Percent" e-width="50" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessStatus" e-headertext="Process Status" e-width="50" textAlign='Right'></div>
                                             <div e-column e-field="FirstProcessWC" e-headertext="First Process WC" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcLossPercent" e-headertext="Proc Loss Percent" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="BaseProcProdPerenct" e-headertext="Base Proc Prod Perenct" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcProdPercent" e-headertext="Proc Prod Percent" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="EntryCheck" e-headertext="Entry Check" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProceessProdQtyVsSOQty" e-headertext="ProceessProdQty Vs SOQty" e-width="110" textAlign='Right'></div>
-                                            <div e-column e-field="ProcessBalanceProd" e-headertext="Process Balance Production" e-width="110" textAlign='Right'></div>
+                                            <div e-column e-field="ProcLossPercent" e-headertext="Proc Loss Percent" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="BaseProcProdPerenct" e-headertext="Base Proc Prod Perenct" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ProcProdPercent" e-headertext="Proc Prod Percent" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="EntryCheck" e-headertext="Entry Check" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ProceessProdQtyVsSOQty" e-headertext="ProceessProdQty Vs SOQty" e-width="80" textAlign='Right'></div>
+                                            <div e-column e-field="ProcessBalanceProd" e-headertext="Process Balance Production" e-width="80" textAlign='Right'></div>
                                             <div e-column e-field="ProcessStatusRemark" e-headertext="Process Status Remark" e-width="110"></div>
                                             <div e-column e-field="POReviewStatus" e-headertext="PO Review Status" e-width="80"></div>
                                             <div e-column e-field="InputRecoveryPercentage" e-headertext="Input Recovery Percentage" e-width="80" textAlign='Right'></div>
