@@ -3270,7 +3270,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						 ,ISNULL(IRD.BooksCurrencyBaseRate,0) BooksCurrencyBaseRate
 						 ,ISNULL(IRD.TrnCurrencyBaseRate,0) TrnCurrencyBaseRate
 						 , IRD.MaterialTranRate, IRD.BooksCurrencyBaseRate, CU.Code AS TCurrency, IRD.MaterialTranAmount,IR.ToCurrencyRate
-                       , BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
+                       , BaseRate=TrnCurrencyBaseRate
                            , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
 							,(IRD.MaterialTranRate * IR.ToCurrencyRate) BaseCurrencyRate
 						    ,GL.UserName GLName,GL.Id GLGeneralInfoId,IRD.PostDrBudgetMasterId BudgetMasterId,B.UserName BudgetName,IRD.PostDrActivityId ActivityId,A.UserName ActivityName
