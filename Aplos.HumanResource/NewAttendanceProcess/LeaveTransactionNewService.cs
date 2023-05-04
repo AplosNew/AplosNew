@@ -517,9 +517,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     parameters = new GridParameter
                     {
                         ExportType = "DATASET",
-                        CmdText = @"SELECT	els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
-                                        FORMAT(ELS.FromDate,'dd-MMM-yyyy') AS FromDate, FORMAT(ELS.ToDate,'dd-MMM-yyyy') AS ToDate,
-										 els.Id SystemID,
+                        CmdText = @"SELECT	els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                                        ,FromDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.FromDate ELSE FORMAT(ELS.FromDate,'dd-MMM-yyyy') END
+										,ToDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.ToDate ELSE FORMAT(ELS.ToDate,'dd-MMM-yyyy') END
+										 ,els.Id SystemID,
                                          els.LeaveTypeId LTSystemID,
                                          els.EmployeeID,
 										 lt.UserName LeaveName,
@@ -609,8 +610,9 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
 LEFT JOIN
 											(
-										  select A.Opening,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataCurrent A
+										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 											)ALD ON ALD.EmployeeId=emp.SystemId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
@@ -690,9 +692,10 @@ LEFT JOIN
                     parameters = new GridParameter
                     {
                         ExportType = "DATASET",
-                        CmdText = @"SELECT	els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
-                                        FORMAT(ELS.FromDate,'dd-MMM-yyyy') AS FromDate, FORMAT(ELS.ToDate,'dd-MMM-yyyy') AS ToDate,
-										 els.Id SystemID,
+                        CmdText = @"SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                                        ,FromDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.FromDate ELSE FORMAT(ELS.FromDate,'dd-MMM-yyyy') END
+										,ToDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.ToDate ELSE FORMAT(ELS.ToDate,'dd-MMM-yyyy') END
+										 ,els.Id SystemID,
                                          els.LeaveTypeId LTSystemID,
                                          els.EmployeeID,
 										 lt.UserName LeaveName,
@@ -778,8 +781,9 @@ ELSE CONVERT(BIT,0) END  ---No
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
 LEFT JOIN
 											(
-										  select A.Opening,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataCurrent A
+										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
 										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
 											)ALD ON ALD.EmployeeId=els.EmployeeId AND lt.Id=ALD.LeaveTypeId
 
  LEFT JOIN
@@ -2422,7 +2426,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             DataView dvLocal = null;
             try
             {
-                var dsLvAllo = GetLeaveBalanceType(companyGroupId, plantId, employeeId, calanderYearId);
+                var dsLvAllo = GetLeaveBalanceTypeNew(companyGroupId, plantId, employeeId, calanderYearId);
 
                 dvLocal = new DataView();
                 dvLocal.Table = dsLvAllo.Tables[0];

@@ -4,6 +4,7 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Model.Biometrics;
 using Library.Model.HumanResources;
 using Library.Service.Biometrics;
@@ -25,16 +26,19 @@ namespace Aplos.Areas.Employees.Controllers
         private readonly ILeaveTransectionService _leaveTransactionService;
         private readonly IEmployeeProfileService _employeeProfileService;
         private readonly IMailSenderService _mailSenderService;
+        private readonly ILeaveTransactionNewService _leaveTransactionNewService;
 
         public EmployeeMyAppLeaveApplicationController(
             ISqlRepository sqlRepository,
              ILeaveTransectionService leaveTransactionService,
               IEmployeeProfileService employeeProfileService
              , IMailSenderService mailSenderService
+            , ILeaveTransactionNewService leaveTransactionNewService
             )
         {
             _sqlRepository = sqlRepository;
             _leaveTransactionService = leaveTransactionService;
+            _leaveTransactionNewService = leaveTransactionNewService;
             _employeeProfileService = employeeProfileService;
             _mailSenderService = mailSenderService;
         }
@@ -139,7 +143,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            return Json(_leaveTransactionService.LoadGrdAllocatedLvDetails(identity.CompanyGroupId, identity.PlantId, identity.EmployeeId, calanderYearId), JsonRequestBehavior.AllowGet);
+            return Json(_leaveTransactionNewService.LoadGrdAllocatedLvDetailsNew(identity.CompanyGroupId, identity.PlantId, identity.EmployeeId, calanderYearId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
