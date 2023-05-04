@@ -2393,8 +2393,8 @@ namespace Library.Accounting.Accounts
 		                        , IID.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IID.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
 		                        ,IRDUM.UserName GRNUoM, IID.TransactionUoMId, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.TransactionRate, IID.TransactionAmount
                                 ,II.ToCurrencyRate, II.DocRefNo, II.InvoiceDate , II.Narration
-                                ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,IID.BaseRate SalesRate,IID.BaseRate, IID.TransactionQty,0 OtherQty,(IID.TransactionQty) BalanceQty
-								,IID.NetAmount TotalAmount,IID.TaxAmount SalesTax,0 VerifiedQty,0 ReturnAmount,0 TaxAmount,IID.BaseRate,IID.BaseUoMFactor,NULL TaxList
+                                ,IRD.TransactionQty GRNQty,ISH.TotalBaseAmount InventoryAmount,IID.BaseRate SalesRate,IID.BaseRate, IID.TransactionQty,ISNULL(SRD.OtherReturnQty,0) OtherQty,(IID.TransactionQty-ISNULL(SRD.OtherReturnQty,0)) BalanceQty
+								,(IID.TransactionQty-ISNULL(SRD.OtherReturnQty,0)) CurrentBalanceQty,IID.NetAmount TotalAmount,IID.TaxAmount SalesTax,0 VerifiedQty,0 ReturnAmount,0 TaxAmount,IID.BaseRate,IID.BaseUoMFactor,NULL TaxList
                         FROM  [TRN].[SalesMaterial] AS IID
                         LEFT JOIN [TRN].[Sales] AS II ON IID.SalesId=II.Id
                         LEFT JOIN [MST].[MaterialMaster] AS MM ON IID.MaterialMasterId=MM.Id
@@ -2409,7 +2409,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN TRN.InventorySalesHistory ISH ON ISH.InventorySalesDetailId=IID.Id
 						LEFT JOIN [TRN].[InventoryReceiveDetail] IRD ON IRD.Id=ISH.InventoryReceiveDetailId
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS IRDUM ON IRD.BaseUOMId=IRDUM.Id
-                        LEFT JOIN (SELECT SUM(TransactionQty) ReturnQty,SalesMaterialId FROM TRN.SalesReturnDetail group by SalesMaterialId) SRD ON SRD.SalesMaterialId=IID.Id
+                        LEFT JOIN (SELECT SUM(TransactionQty) OtherReturnQty,SalesMaterialId FROM TRN.SalesReturnDetail group by SalesMaterialId) SRD ON SRD.SalesMaterialId=IID.Id
 						WHERE IID.SalesId='" + salesId + @"'";
 				return _sqlRepository.GetDataCollection(sql);
 			}
