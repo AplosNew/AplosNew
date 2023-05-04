@@ -692,9 +692,36 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         $scope.closeEmployeePopUp();
         angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
     };
+    $scope.closeEmployeeSalaryAdvancePopUp = function (obj) {
+        var data = obj;
+
+        $scope.advance.EmployeeId = data.EmployeeId;
+        $scope.advance.EmployeeName = data.EmployeeName;
+        $scope.advance.AdvanceAmount = data.Balance;
+        $scope.advance.VoucherNo = data.VoucherNo;
+        $scope.advance.CompanyId = data.CompanyId;
+        $scope.advance.PlantId = data.PlantId;
+        $scope.advance.CurrencyId = data.CurrencyId;
+        $scope.advance.AdvanceId = data.AdvanceId;
+        $scope.advance.AdvanceDetailId = data.AdvanceDetailId;
+        $scope.advance.PartyType = data.PartyType;
+        $scope.advancePostingDate = data.PostingDate;
+        $scope.advanceDocRefNo = data.DocRefNo;
+        $scope.advance.CrAmount = null;
+        $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.advance.BudgetMasterId = data.BudgetMasterId;
+        $scope.advance.ActivityId = data.ActivityId;
+        $scope.advance.JournalType = data.JournalType;
+        $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
+        $scope.closeEmployeePopUp();
+        angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
+    };
 
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#employeeTotalAdvancePopUp')).modal('hide');
+    };
+    $scope.closeEmployeeSalaryPopUp = function () {
+        angular.element(document.querySelector('#employeeAdvancePopUp')).modal('hide');
     };
 
 
