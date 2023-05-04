@@ -425,6 +425,7 @@
     <Compile Include="Areas\Attendances\Controllers\ManualOTUploadNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTManualNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\MonthlyLeaveBalanceController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\GoodWorkController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportOriginalController.cs" />
     <Compile Include="Areas\Attendances\Controllers\WeekOffHolidayOTReportController.cs" />
     <Compile Include="Areas\Attendances\Controllers\DailyAttendanceReportController.cs" />
@@ -1907,6 +1908,7 @@
     <Content Include="Areas\Attendances\Scripts\OTManualNewController.js" />
     <Content Include="Areas\Attendances\Scripts\MonthlyLeaveBalanceController.js" />
     <Content Include="Areas\Attendances\Scripts\SandwichProcessPlantWiseController.js" />
+    <Content Include="Areas\Attendances\Scripts\GoodWorkController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportOriginalController.js" />
     <Content Include="Areas\Attendances\Scripts\weekOffOTReportController.js" />
     <Content Include="Areas\Attendances\Scripts\AdditionalPayDayController.js" />
@@ -4657,6 +4659,7 @@
     <Content Include="Areas\HumanResource\Views\HRReportMaster\_ResponsiblePerson.cshtml" />
     <Content Include="Areas\IE\Views\WorkcenterWiseDetention\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\WebBasedPacking\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\GoodWork\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

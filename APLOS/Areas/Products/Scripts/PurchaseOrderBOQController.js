@@ -1366,7 +1366,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.UpdatepoBoqItemList = [];
     $scope.detailPopUp = function () {
         try {
-            $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode)
+            $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyId)
                 .then(
                     function successCallback(response) {
                         if (baseService.arrayLength(response.data) > 0) {

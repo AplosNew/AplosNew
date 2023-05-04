@@ -86,6 +86,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet2(1) }"><a ng-click="setTab2(1)" href="" data-toggle="tab">SODetail</a></li>
                 <li role="presentation" ng-class="{ active: isSet2(2) }"><a ng-click="setTab2(2);" href="" data-toggle="tab">Material Detail</a></li>
+                <li role="presentation" ng-class="{ active: isSet2(3) }"><a ng-click="setTab2(3);" href="" data-toggle="tab">Other Material</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -137,8 +138,10 @@
                         <div e-column e-type="string" e-field="UOM" e-headertext="UOM" e-width="40"></div>
                         <div e-column e-type="number" e-field="RequestedQty" e-headertext="RequestedQty" e-textalign="right" e-width="50"></div>
                         <div e-column e-type="number" e-field="IssueQty" e-headertext="IssueQty" e-textalign="right" e-width="50"></div>
-                        <div e-column e-type="number" e-template="#OtherQty" e-field="OtherQty" e-headertext="OtherQty" e-textalign="right" e-width="50"></div>
-                        <div e-column e-type="number" e-template="#WasteQty" e-field="WasteQty" e-headertext="WasteQty" e-textalign="right" e-width="50"></div>
+                        <div e-column e-type="number" e-template="#OtherQty" e-field="OtherQty" e-headertext="OtherQty" e-textalign="right" e-width="60"></div>
+                        <div e-column e-type="number" e-template="#WasteQty" e-field="WasteQty" e-headertext="WasteQty" e-textalign="right" e-width="60"></div>
+                        <div e-column e-type="number" e-field="UptodateOtherQty" e-headertext="UptodateOtherQty" e-textalign="right" e-width="50"></div>
+                        <div e-column e-type="number" e-field="UptodateWasteQty" e-headertext="UptodateWasteQty" e-textalign="right" e-width="50"></div>
                         <div e-column e-type="number" e-field="TotalQty" e-headertext="TotalQty" e-textalign="right" e-width="50"></div>
                     </div>
                 </div>
@@ -152,6 +155,13 @@
                         <input type="text" n-decimals="4" ng-model="data.WasteQty" ng-blur="$parent.GetTotalQty(this)"  style="color: black; width: 78px; text-align: right;" class="form-control" />
                     </div>
                 </script>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet2(3), active: isSet2(3) }">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button style="margin-left: 5px;" ng-click="AddOtherMaterial();" ng-disabled="ModelNew.POId===null" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i> Add Material</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="clearfix"></div>

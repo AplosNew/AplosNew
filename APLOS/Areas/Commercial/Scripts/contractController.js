@@ -434,9 +434,9 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.selectContract = function (obj) {
         $scope.modelNew = obj.data;
-        $scope.modelNew.SOQty = 0;
-        $scope.modelNew.Amount = 0;
-        $scope.modelNew.TotalQty = 0;
+        //$scope.modelNew.SOQty = 0;
+        //$scope.modelNew.Amount = 0;
+        //$scope.modelNew.TotalQty = 0;
         $scope.modelNew.Currency = null;
 
         //$scope.GetMasterOrderByContractList($scope.modelNew.Id);
@@ -707,13 +707,15 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                 throw "Select Sales Order.";
             } else {
                 for (var i = 0; i < $scope.SalesOrderList.length; i++) {
-                    if ($scope.SalesOrderList[i].Active) {
+                    if ($scope.SalesOrderList[i].Flags) {
                         $scope.selectedSalesOrderList.push($scope.SalesOrderList[i]);
+
+                        tq += $scope.SalesOrderList[i].TotalQty;
+                        amt += $scope.SalesOrderList[i].Amount;
+                        qt += $scope.SalesOrderList[i].Qty;
                     }
 
-                    tq += $scope.SalesOrderList[i].TotalQty;
-                    amt += $scope.SalesOrderList[i].Amount;
-                    qt += $scope.SalesOrderList[i].Qty;
+                    
                 }
             }
             $scope.modelNew.TotalQty = tq;

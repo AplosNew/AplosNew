@@ -144,12 +144,14 @@ LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId";
                 if (string.IsNullOrEmpty(column) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"SELECT * FROM (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage,ISNULL(D.TotalReqQty,0)TotalReqQty,ISNULL(ISU.IssuedQty,0)IssuedQty,Balance=D.TotalReqQty-ISNULL(ISU.IssuedQty,0)
+                string sql = @"SELECT * FROM (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage,ISNULL(D.TotalReqQty,0)TotalReqQty,ISNULL(ISU.IssuedQty,0)IssuedQty,Balance=D.TotalReqQty-ISNULL(ISU.IssuedQty,0),ISNULL(DT.AuthorizedByStatus,'')ApproveStatus,PS.UserName ProductionStatus
 FROM [dbo].[MaterialIssueControlMaster] M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN TRN.ProductionOrder PO ON PO.Id=M.POId
+LEFT JOIN HKP.ProductionStatus PS on PS.Id=PO.ProductionStatusId
 LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId
-LEFT JOIN(Select distinct M.Id IssueId,D.MaterialIssueControlMasterId from TRN.IssueRequest IR
+LEFT JOIN(SELECT distinct M.Id IssueId,D.MaterialIssueControlMasterId,M.AuthorizedByStatus FROM TRN.IssueRequest IR
 LEFT JOIN [dbo].[MaterialIssueControlDetail] D ON D.Id=IR.MaterialIssueControlDetailId
 LEFT JOIN TRN.IssueRequestMaster M ON M.Id=IR.IssueRequestMasterId
 ) DT ON DT.MaterialIssueControlMasterId=M.Id
@@ -997,7 +999,7 @@ Where Q.MasterOrderItemId " + LineItemId + "";
         public IEnumerable<object> GetIssueSlipDataByPOIdList(string ProductionOrderId)
         {
             string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,IR.CostCenterId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
-,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty,TotalQty=IR.RequestedQty
+,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty,TotalQty=IR.RequestedQty,OT.UptodateOtherQty,OT.UptodateWasteQty
 FROM TRN.IssueRequest IR 
 LEFT JOIN TRN.IssueRequestMaster IRM ON IR.IssueRequestMasterId=IRM.Id
 LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -1009,8 +1011,13 @@ SELECT SUM(Qty)ActualIssueQty, H.IssueRequestDetailId
 FROM TRN.InventoryIssueHistory H
 LEFT JOIN TRN.InventoryIssueDetail ISD ON ISD.Id=H.InventoryIssueDetailId
 WHERE H.IssueRequestDetailId<>''
-GROUP BY H.IssueRequestDetailId,ISD.InventoryIssueId
+GROUP BY H.IssueRequestDetailId
 ) IRH ON IRH.IssueRequestDetailId=IR.Id
+LEFT JOIN(
+SELECT SUM(ID.OtherQty) UptodateOtherQty,SUM(ID.WasteQty)UptodateWasteQty,ID.IssueSlipRowId FROM dbo.InputConfirmationMaster IM
+LEFT  JOIN  dbo.InputConfirmationDetail ID ON ID.InputConfirmationMasterId=IM.Id
+Group BY ID.IssueSlipRowId
+)OT ON OT.IssueSlipRowId=IR.Id
 Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
