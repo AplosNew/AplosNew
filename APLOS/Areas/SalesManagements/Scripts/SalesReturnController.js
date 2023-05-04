@@ -12,7 +12,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.ApprovedStockBeyondIssueDateList = [];
     $scope.UnApprovedStockList = [];
     $scope.ApprovedStockList = [];
-
+    $scope.IsSaveButtonDisable = false;
     $scope.partyType = "Customer";
     $scope.path1 = 'Products/PurchaseOrder/';
     $scope.path = 'Products/InventoryIssue/';
@@ -55,7 +55,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         , { value: 'DocDate', name: "Doc Date" }];
     $scope.approvedSalesList = [];
     $scope.getPopUpData = function () {
-        if ($scope.productNew.ReturnType == 'PackingSales') {
+        if ($scope.ReturnType == 'PackingSales') {
             $scope.SalesPopupUrl = 'SalesManagements/Sales/GetPackingSalesListForReturn'
         }
         else {
@@ -114,7 +114,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.materialStockList = [];
         $scope.specificStockList = [];
         getIssueDetailList($scope.product.SalesId, data.data.PackingId);
-        if ($scope.productNew.ReturnType == 'PackingSales') {
+        if ($scope.ReturnType == 'PackingSales') {
             getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
         }
         getInvTaxList();
@@ -124,6 +124,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.productNew.TaxOptionServiceModify = 'Yes';
         $scope.productNew.TaxOptionAddiTax = 'Yes';
         $scope.Action = 'Save';
+        $scope.IsSaveButtonDisable = false;
         $scope.closeSalesPopUp();
     };
 
@@ -413,6 +414,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.Validation = function () {
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
+            $scope.IsSaveButtonDisable = false;
             return true;
         }
         $scope.newList = [];
@@ -425,17 +427,20 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             for (var i = 0; i < $scope.newList.length; i++) {
                 if ($scope.newList[i].VerifiedQty > 0 && $scope.newList[i].VerifiedQty != $scope.newList[i].ReturnQty) {
                     ShowResult('Return Qty and VerifiedQty Qty is not equal !!!');
+                    $scope.IsSaveButtonDisable = false;
                     return true;
                 }
             }
         }
         return false;
     }
+    
     $scope.Save = function () {
+        $scope.IsSaveButtonDisable = true;
         $scope.Validation();
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.productNewForm.$valid && !$scope.Validation()) {
-            if ($scope.Action === "Save") {
+            if ($scope.Action === "Save" && $scope.productNew.Id==null) {
                 $http({
                     method: 'POST'
                     , url: $scope.saveUrl
@@ -446,21 +451,27 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                         , 'itemScanCildList': $scope.tempitemScanList
                     }
                     , dataType: 'JSON'
-                }).then(function (response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure');
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.Clear();
-                        $scope.getData();
-                        $scope.newList = [];
-                        $scope.productNew.Id = response.data.Id;
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
                     }
-                }), function (response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.detailList = [];
+                        $scope.newList = [];
+                        $scope.tempitemScanList = [];
+                        $scope.taxlist = [];
+                        $scope.productNew.Id = response.data.Id;
+                        $scope.IsSaveButtonDisable = false;
+                        $scope.getData();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
             }
         }
+        $scope.IsSaveButtonDisable = false;
     };
 
 
@@ -472,12 +483,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
     function ClearFields() {
         $scope.Action = "Save";
-        $scope.product = {};
-        $scope.productNew = {};
-        $scope.detailList = [];
-        $scope.newList = [];
-        $scope.tempitemScanList = [];
-        $scope.taxlist = [];
+        $scope.IsSaveButtonDisable = false;
     }
 
 
