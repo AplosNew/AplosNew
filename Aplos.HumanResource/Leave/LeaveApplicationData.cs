@@ -1832,32 +1832,22 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave,A.DayStatus,a.PlantID,dc.EmpTypeId,
 				dxc.LeavePolicyMasterId
 				from AttdnProcessData a left join EmployeeInformation ei on a.EmpSystemID=ei.SystemId
-				left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
-		        ei.LegalDesignationId
-				left join mst.DesignationMaster 
-				dm on dm.Id = ddm.DesignationMasterId
-				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id
-				and dxc.PlantId=ei.PlantId
-				left join DayStatusPlantChild 
-				dc on dc.EmpTypeId=dm.EmployeeCategoryId
-				and dc.PlantId=ei.PlantId
+				left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = ei.LegalDesignationId
+				left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id and dxc.PlantId=ei.PlantId
+				left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId and dc.PlantId=ei.PlantId
 				left join DayStatusHeader dh on dh.Id=dc.headerId
-				left join DayTypeWithValues dt on dt.HeaderId=dh.Id
-				and dt.DayType=a.DayStatus				
+				left join DayTypeWithValues dt on dt.HeaderId=dh.Id and dt.DayType=a.DayStatus				
 				where dt.HeaderId is not null and 
 				a.LvValue<>0 and ei.EmployeeStatus='Active'
-				and 
-				a.workdate between '"+From+@"' and '"+To+@"'
-				and ei.PlantId='"+PlantId+@"'
+				and a.workdate between '"+From+@"' and '"+To+@"' and ei.PlantId='"+PlantId+@"'
 				group by A.EmpSystemID,a.DayStatus,a.PlantID,dc.EmpTypeId,dxc.LeavePolicyMasterId) as Info
-				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId 
-				and Info.DayStatus=lt.Code
+				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId and Info.DayStatus=lt.Code
                 left join (SELECT EmpSystemID,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
 				FROM  EmployeeInformation AS ei 
                 JOIN AttdnProcessData AS apd ON apd.EmpSystemID=ei.SystemId
                 LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
-                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId
-                AND dmc.PlantId=ei.PlantId
+                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
                 LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
                 LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
                 left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
