@@ -315,17 +315,16 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
         });
     };
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
-            if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
-                ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
-                return;
-            }
-            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
-                ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
-                return;
-            }
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
+            ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
+            ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
+            return;
+        }
             else {
                 $scope.voucher.PartyName = party.Code + " - " + party.UserName;
                 $scope.voucher.PartyId = party.Id;
@@ -337,7 +336,7 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
                 //$scope.getPartyWiseOutstandingAdvance($scope.voucher.PartyId);
                 $scope.voucherDetailList = [];
             }
-        }
+        
         $scope.hidePartyPopUp();
     };
 
