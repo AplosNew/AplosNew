@@ -3,11 +3,13 @@
 using Aplos.Controllers;
 using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Setups;
+using Library.OrderManagement.Sales;
 using Library.Service.Enums;
 using Library.Service.Logs;
 using Library.Service.Setups;
@@ -27,16 +29,15 @@ namespace Aplos.Areas.Attendances.Controllers
 {
     public class GoodWorkController : BaseController
     {
-        //authentication for
-        //GetList Create
-
-
         #region Constructor
         string TableName = "HKP.TaskAppliedOn";
         private readonly ISqlRepository _sqlRepository;
-        public GoodWorkController(ISqlRepository R)
+        private readonly AccountVoucherReportService _accountVoucherReportService;
+        clsSales clsSales = new clsSales();
+        public GoodWorkController(ISqlRepository R, AccountVoucherReportService accountVoucherReportService)
         {
             _sqlRepository = R;
+            _accountVoucherReportService = accountVoucherReportService;
         }
 
         #endregion Constructor
@@ -46,6 +47,42 @@ namespace Aplos.Areas.Attendances.Controllers
             return View();
         }
 
+        //Good Work
+
+        [HttpGet, Authorize]
+        public JsonResult GetEmployeeListByPlant(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountVoucherReportService.EmployeeListByPayable(parameters, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetGoodWorkDataList(string empId)
+        {
+            string sql = @"SELECT Emp.SystemId,EMP.EmployeeName,EMP.EmployeeCode,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                            WHERE  EMP.SystemId= '" + empId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetAllActiveEmployeeData()
+        {
+            JsonResult json = Json(clsSales.GetAllEmployeeData(), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        //Good Work
         [HttpPost, Authorize]
         public ActionResult GetList()
         {
