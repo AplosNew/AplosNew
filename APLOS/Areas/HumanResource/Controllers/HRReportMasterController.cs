@@ -46,11 +46,13 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var sql = @"select GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup , UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
-                            from HKP.HRReportGroupMaster GM
-                            left join [TRN].[HRReportMasterBudgetUserGroup] UG on UG.UserGroupId = GM.Id
-                            ";
+                //var sql = @"select GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup , UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
+                //            from HKP.HRReportGroupMaster GM
+                //            left join [TRN].[HRReportMasterBudgetUserGroup] UG on UG.UserGroupId = GM.Id
+                //            ";
                 // where ISNULL(UG.HRReportMasterChildId, '') = '"+id+"'
+
+                var sql = @"select Id UserGroupId, UserGroup, UserSubGroup from HKP.HRReportGroupMaster";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
