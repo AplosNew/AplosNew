@@ -563,6 +563,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
     $scope.returnAmountCalculation = function (data) {
         data.Amount = Math.round((data.ReturnQty * data.TransactionRate) * 100 + Number.EPSILON) / 100
+        data.CurrentBalanceQty = data.BalanceQty - data.ReturnQty
         data.TaxAmount = 0;
         for (var j = 0; j < $scope.taxlist.length; j++) {
             if ($scope.taxlist[j].SalesMaterialId == data.SalesMaterialId) {

@@ -1169,6 +1169,7 @@ upanelApp.controller("WorkcenterWiseDetentionController", WorkcenterWiseDetentio
 upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
 upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
 upanelApp.controller("GoodWorkController", GoodWorkController)
+upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
 
 
 upanelApp.config(AccessControllerConfig);

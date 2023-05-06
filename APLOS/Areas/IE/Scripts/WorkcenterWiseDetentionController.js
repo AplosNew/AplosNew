@@ -15,7 +15,8 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         Id: null,
         EntityId: null,
         Entity: null,
-        
+        FromTime: null,
+        ToTime:null,
         Date: null,
         
         ProcessId: null,
@@ -111,4 +112,58 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         angular.element(document.querySelector('#ProcessPop')).modal('hide');
     }
     // #endregion Process
+
+    // #region Detention
+    $scope.DetentionList = [];
+    $scope.GetDetention = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetDetentionMaster',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DetentionList = resp.data;
+        });
+        
+    }
+    $scope.GetDetention();
+    // #endregion Detention
+
+    // #region CalcTime
+    $scope.getMinute = function () {
+        try {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime) && !baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
+                $scope.MinuteUrl = 'IE/MachineMasterTransaction/GetMinute/'
+                $http({
+                    method: 'POST',
+                    url: $scope.MinuteUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.ModelNew.Minute = response.data;
+                    //for (var i = 0; i < length; i++) {
+
+                    //}
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    // #endregion CalcTime
+
+    // #region Workcenter
+    $scope.WorkcenterList = [];
+    $scope.GetWorkcenter = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetWorkcenter',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.WorkcenterList = resp.data;
+        });
+    }
+    $scope.GetWorkcenter();
+    // #endregion Workcenter
 }

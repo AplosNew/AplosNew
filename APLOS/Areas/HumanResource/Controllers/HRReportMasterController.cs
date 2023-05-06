@@ -46,10 +46,13 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var sql = @"select GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup , UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
-                            from HKP.HRReportGroupMaster GM
-                            left join [TRN].[HRReportMasterBudgetUserGroup] UG on UG.UserGroupId = GM.Id
-                            where ISNULL(UG.HRReportMasterChildId, '') = '"+id+"'";
+                //var sql = @"select GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup , UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
+                //            from HKP.HRReportGroupMaster GM
+                //            left join [TRN].[HRReportMasterBudgetUserGroup] UG on UG.UserGroupId = GM.Id
+                //            ";
+                // where ISNULL(UG.HRReportMasterChildId, '') = '"+id+"'
+
+                var sql = @"select Id UserGroupId, UserGroup, UserSubGroup from HKP.HRReportGroupMaster";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -216,6 +219,8 @@ where BGT.EntityId in (" + Entity + ") " +
 
                
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
 
@@ -694,6 +699,14 @@ where HR.Id = '" + headerId + "' ";
 
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserGroup='" + datas["UserGroup"] + "' AND  Id<>'" + datas["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Group Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserSubGroup='" + datas["UserSubGroup"] + "' AND  Id<>'" + datas["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Sub Group Name already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
 

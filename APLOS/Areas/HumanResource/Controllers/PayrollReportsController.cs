@@ -133,6 +133,11 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         {
             return View();
         }
+
+        public ActionResult SalaryProcessedReportCom()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations

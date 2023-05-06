@@ -45,5 +45,18 @@ namespace Aplos.Areas.IE.Controllers
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpPost]
+        public ActionResult GetDetentionMaster()
+        {
+            string str = @"Select DetentionUserName As Text, Id As Value from DetentionMaster";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetWorkcenter()
+        {
+            string str = @"SELECT StandardName FROM SCS.WorkCenterMaster";
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
     }
 }
