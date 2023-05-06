@@ -1,5 +1,6 @@
 ﻿<togglable name="{{FormTitle}}"></togglable>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-3 col-md-3 my-2">
 
@@ -12,6 +13,19 @@
                 </span>
             </div>
         </div>
+
+        <div class="mb-3 form-group" style="margin-right:4px" show-errors>
+            <label class="control-label">Detention<sup>*</sup></label>
+
+            <div class="select-style">
+                <select class="form-control" ng-model="ModelNew.DetentionId" name="Detention"
+                        tabindex="2">
+                    <option value="">--Select--</option>
+                    <option ng-repeat="option in DetentionList" value="{{option.Value}}">{{option.Text}}</option>
+                </select>
+            </div>
+
+        </div>
     </div>
 
     <div class="col-xs-12 col-sm-3 col-md-3">
@@ -21,6 +35,15 @@
                 <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
             </div>
         </div>
+
+        <div class="mb-3 form-group" style="margin-right:4px" show-errors>
+            <label class="control-label">From Time<sup>*</sup></label>
+            <div class="show-message">
+                <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker name="Time" tabindex="4" required />
+            </div>
+        </div>
+
+
     </div>
 
     <div class="col-xs-12 col-sm-3 col-md-3">
@@ -33,6 +56,12 @@
                         <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
+            </div>
+        </div>
+        <div class="mb-3 form-group" style="margin-right:4px" show-errors>
+            <label class="control-label">To Time<sup>*</sup></label>
+            <div class="show-message">
+                <input id="timepicker2" e-value="ModelNew.ToTime" width="328" ej-timepicker name="Time" tabindex="4" required />
             </div>
         </div>
     </div>
@@ -50,45 +79,31 @@
             </div>
         </div>
     </div>
+    </div>
+        <div class="table-responsive" style="border:1px solid #fff">
+        <div ej-grid e-datasource="WorkcenterList" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                <div e-column e-headertext="Check / UnCheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
 
+                <div e-column e-field="StandardName" e-headertext="Workcenter" e-width="100"></div>
+                <div e-column e-headertext="Calculated Time" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
+            </div>
+        </div>
+        
+        <script type="text/template" id="calculatedTime">
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+        </script>
 
-
+    </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="CalculateDetention();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
-    </div>
-    <div class="table-responsive">
-        <div ej-grid e-datasource="BudgetList" e-load="loadGridEdit"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                <div e-column e-headertext="Active / Inactive" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
-
-                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                <div e-column e-field="Division" e-headertext="Division" e-width="100"></div>
-                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-
-                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-                <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
-
-
-                <div e-column e-field="Shift" e-headertext="Shift" e-width="150"></div>
-                <div e-column e-field="PositionCode" e-headertext="PositionCode" e-width="100"></div>
-
-                <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="100"></div>
-
-                <div e-column e-headertext="User Group" e-template="#userGroupId" e-textalign="center" e-width="100"></div>
-            </div>
-        </div>
-        <script type="text/template" id="checkboxUnallocationTemplate">
-            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
-        </script>
-
     </div>
 </div>
 
