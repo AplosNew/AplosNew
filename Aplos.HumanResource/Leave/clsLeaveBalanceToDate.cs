@@ -929,12 +929,13 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                         _ToDate = dtCalendar.Rows[0]["ToDate"].ToString();
                     }
                 }
-                string _sql = @"
-                                SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
-                                DEPT.UserName AS Department,ct.UserName AS EmployeeCategory,LT.UserName AS LeaveName,
-                                B.CurrentYearAllocation, B.BroughtForward, B.CarryForwardOpeningBalance, B.DaysCanBeSanctioned, B.AppliedDays,
+                string _sql = @"SELECT ei.SystemId,B.LeaveTypeId, ei.EmployeeCode,ei.EmployeeName,FORMAT(ei.DOJ,'dd-MMM-yyyy') AS DOJ,p.UserName AS PlantName,D.UserName AS Designation,
+                                DEPT.UserName AS Department,ct.UserName AS EmployeeCategory,LT.UserName AS LeaveName,B.CurrentYearAllocation								
+								, BroughtForward= CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END								
+								, B.CarryForwardOpeningBalance, B.DaysCanBeSanctioned, B.AppliedDays,
                                 B.AvailedDays, B.YearEndEncash,isnull(APL.LeaveDuration,0) AS AppliedLeave,APP.LeaveDuration AS AllFutureAppliedLeave,
-                                isnull(B.CarryForwardOpeningBalance,0)+isnull(B.BroughtForward,0)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
+                                --isnull(B.CarryForwardOpeningBalance,0)+isnull(B.BroughtForward,0)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
+                                ClosingBalance=B.DaysCanBeSanctioned+(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END)-APL.LeaveDuration
                             FROM (		SELECT BAL.EmployeeId, BAL.LeaveTypeId,
 								       SUM(BAL.CurrentYearAllocation) AS CurrentYearAllocation,
 								        SUM(BAL.BroughtForward) AS BroughtForward,SUM(BAL.CarryForwardOpeningBalance) AS CarryForwardOpeningBalance,   SUM(BAL.DaysCanBeSanctioned) AS DaysCanBeSanctioned,
@@ -985,17 +986,30 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                     LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                     LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
                     LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id         
+LEFT JOIN
+											(
+										  select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+											)ALD ON ALD.EmployeeId=ei.SystemId AND lt.Id=ALD.LeaveTypeId
+
+ LEFT JOIN
+											(
+										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+											)AL ON AL.EmployeeId=ei.SystemId AND lt.Id=AL.LeaveTypeId
+
 
                     LEFT JOIN (
                                 SELECT T.EmpSystemID,T.LTSystemID,SUM(D.LeaveDuration) AS LeaveDuration FROM LeaveTransaction AS T
                                 JOIN LeaveTransactionDetails AS D ON d.LvTrnsSystemID=t.SystemID
-                                WHERE D.WorkDate>GETDATE() AND D.WorkDate<='" + _ToDate + @"'
+                                WHERE D.WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"' and D.IsAvailed=1
                                 AND T.IsApproved=1 GROUP BY  T.EmpSystemID,T.LTSystemID
                     ) APL ON apl.EmpSystemID=B.EmployeeId AND apl.LTSystemID=B.LeaveTypeId
                     LEFT JOIN (
                                 SELECT T.EmpSystemID,T.LTSystemID,SUM(D.LeaveDuration) AS LeaveDuration FROM LeaveTransaction AS T
                                 JOIN LeaveTransactionDetails AS D ON d.LvTrnsSystemID=t.SystemID
-                                WHERE D.WorkDate>GETDATE()
+                                WHERE D.WorkDate between '" + _FromDate + @"' and '" + _ToDate + @"'
                                 GROUP BY  T.EmpSystemID,T.LTSystemID
                     ) APP ON APP.EmpSystemID=B.EmployeeId AND APP.LTSystemID=B.LeaveTypeId
                     where LT.UserName NOT LIKE '%Maternity%'

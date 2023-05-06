@@ -5,7 +5,7 @@
             <label class="col-sm-2 control-label">Retrun Type</label>
             <div class="col-sm-4 show-message">
                 <div class="select-style">
-                    <select name="voucherType" ng-model="productNew.ReturnType" class="col-sm-3 form-control">
+                    <select name="voucherType" ng-model="ReturnType" class="col-sm-3 form-control">
                         <option value="PackingSales">PackingSales</option>
                         <option value="Sales">Sales</option>
                     </select>
@@ -21,7 +21,7 @@
                 <div class="input-group">
                     <input type="text" ng-model="productNew.SalesId" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="popUp();" ng-disabled="productNew.ReturnType==null" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="popUp();" ng-disabled="ReturnType==null" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
@@ -203,7 +203,7 @@
                                     <th>Total Sales Amount</th>
                                     <th>Sales Rate</th>
                                     <th>Sales Qty</th>
-                                    <th>Other Qty</th>
+                                    <th>Other Return Qty</th>
                                     <th>Balance Qty</th>
                                     <th style="width:100px">Return_Qty</th>
                                     <th style="width:100px" ng-show="productNew.SourceType == 'Packing'">Verified_Qty</th>
@@ -252,18 +252,17 @@
                                 </tr>
                                 <tr>
                                     <td colspan="6" class="text-right"><strong>Total : </strong></td>
-                                    @*<td class="text-right"><strong>{{detailList | sumByKey : 'GRNQty'| setDecimal:2| number }}</strong></td>*@
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'InventoryAmount'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionAmount'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'SalesTax'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TransactionQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'OtherQty'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'TotalAmount'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'SalesTaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'BalanceQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right" ng-show="productNew.SourceType == 'Packing'"><strong>{{detailList | sumByKey : 'VerifiedQty'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'CurrentBalanceQty'| setDecimal:2| number }}</strong></td>
-                                    <td class="text-right"><strong>{{detailList | sumByKey : 'ReturnAmount'| setDecimal:2| number }}</strong></td>
+                                    <td class="text-right"><strong>{{detailList | sumByKey : 'Amount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"><strong>{{detailList | sumByKey : 'TaxAmount'| setDecimal:2| number }}</strong></td>
                                     <td class="text-right"></td>
                                 </tr>
@@ -273,7 +272,7 @@
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <ul class="common-btn list-inline text-right">
-                            <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                            <li><button ng-click="Save();" ng-disabled="IsSaveButtonDisable" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
                             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
@@ -1136,8 +1135,9 @@
 
                                 <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
                                 <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="ReturnQty" e-headertext="ReturnQty" e-width="80" textAlign='Right'></div>
                                 <div e-column e-field="TransactionAmount" e-headertext="Amount (TRN)" e-width="80" textAlign='Right'></div>
-                                <div e-column e-field="BaseAmount" e-headertext="Amount (BC)" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="BooksCurrencyTransactionAmount" e-headertext="Amount (BC)" e-width="80" textAlign='Right'></div>
                                 <div e-column e-field="SourceType" e-headertext="Sales Type" e-width="80" textAlign='Right'></div>
                             </div>
                         </div>
