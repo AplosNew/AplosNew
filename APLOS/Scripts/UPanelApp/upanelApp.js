@@ -135,7 +135,7 @@ upanelApp.controller("employeeDocumentAssignmentController", employeeDocumentAss
 upanelApp.controller("employeeExpenseBookingReportController", employeeExpenseBookingReportController);
 upanelApp.controller("employeeIdCardController", employeeIdCardController);
 upanelApp.controller("employeeInformationController", employeeInformationController);
-upanelApp.controller("SectionemployeeLeaveApplicationController ", SectionemployeeLeaveApplicationController);
+upanelApp.controller("SectionemployeeLeaveApplicationController", SectionemployeeLeaveApplicationController);
 upanelApp.controller("employeeLeaveApplicationController", employeeLeaveApplicationController);
 upanelApp.controller("employeeLeaveBalanceController", employeeLeaveBalanceController);
 upanelApp.controller("employeeLeaveCarryForwardController", employeeLeaveCarryForwardController);
@@ -1168,6 +1168,7 @@ upanelApp.controller("BudgetReportMasterController", BudgetReportMasterControlle
 upanelApp.controller("WorkcenterWiseDetentionController", WorkcenterWiseDetentionController)
 upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
 upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
+upanelApp.controller("GoodWorkController", GoodWorkController)
 
 
 upanelApp.config(AccessControllerConfig);

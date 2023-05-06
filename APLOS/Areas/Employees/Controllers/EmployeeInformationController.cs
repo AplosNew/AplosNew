@@ -965,7 +965,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(new { EmployeeInformation = employeeInformation, Message = AplosMessage.Updated });
         }
 
-        [HttpPost, ChaildAction(ParentActionName = nameof(Create))]
+        [HttpPost]
         public JsonResult CreateReference(EmpReferenceInformation empReferenceInformation)
         {
             _empReferenceInformationService.InsertOrUpdate(empReferenceInformation);

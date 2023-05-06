@@ -165,11 +165,11 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     // #region checkbox all
 
-    $scope.refreshTemplateemployee = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    $scope.refreshTemplateSO = function (args) {
+        $("#soheadchk").ejCheckBox({ "change": CheckBoxSelectAllSO});
     };
 
-    function CheckBoxSelectAllEmolyeeWise(e) {
+    function CheckBoxSelectAllSO(e) {
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
@@ -178,7 +178,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         var filtered = $("#GridSO").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
             for (var i = 0; i < $scope.SalesOrderList.length; i++) {
-                $scope.SalesOrderList[i].Active = ChkOrUnchk;
+                $scope.SalesOrderList[i].Flags = ChkOrUnchk;
             }
         }
         else {
@@ -434,9 +434,9 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.selectContract = function (obj) {
         $scope.modelNew = obj.data;
-        $scope.modelNew.SOQty = 0;
-        $scope.modelNew.Amount = 0;
-        $scope.modelNew.TotalQty = 0;
+        //$scope.modelNew.SOQty = 0;
+        //$scope.modelNew.Amount = 0;
+        //$scope.modelNew.TotalQty = 0;
         $scope.modelNew.Currency = null;
 
         //$scope.GetMasterOrderByContractList($scope.modelNew.Id);
@@ -707,13 +707,15 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                 throw "Select Sales Order.";
             } else {
                 for (var i = 0; i < $scope.SalesOrderList.length; i++) {
-                    if ($scope.SalesOrderList[i].Active) {
+                    if ($scope.SalesOrderList[i].Flags) {
                         $scope.selectedSalesOrderList.push($scope.SalesOrderList[i]);
+
+                        tq += $scope.SalesOrderList[i].TotalQty;
+                        amt += $scope.SalesOrderList[i].Amount;
+                        qt += $scope.SalesOrderList[i].Qty;
                     }
 
-                    tq += $scope.SalesOrderList[i].TotalQty;
-                    amt += $scope.SalesOrderList[i].Amount;
-                    qt += $scope.SalesOrderList[i].Qty;
+                    
                 }
             }
             $scope.modelNew.TotalQty = tq;

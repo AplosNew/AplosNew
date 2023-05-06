@@ -289,7 +289,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Production Orders</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetSavedData();" href="" data-toggle="tab">Panding Data</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetSavedData();" href="" data-toggle="tab">Pending Data</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);GetSavedData();" href="" data-toggle="tab">Issue Data</a></li>
             </ul>
         </div>
@@ -390,13 +390,14 @@
                              e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-headertext="Print" e-width="40">
+                                <div e-column e-headertext="Print" e-width="50">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
                                 <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
+                                <div e-column e-type="string" e-field="ProductionStatus" e-headertext="PrOStatus" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>
                                 <div e-column e-type="string" e-field="UserRef" e-headertext="User Ref" e-width="80"></div>
@@ -406,6 +407,7 @@
                                 <div e-column e-type="string" e-field="Level" e-headertext="Level" e-width="80"></div>
                                 <div e-column e-type="string" e-field="LotNo" e-headertext="LotNo" e-width="80"></div>
                                 <div e-column e-field="IssuedQty" e-headertext="IssuedQty" e-width="80"></div>
+                                <div e-column e-field="ApproveStatus" e-headertext="ApproveStatus" e-width="80"></div>
                             </div>
                         </div>
                     </div>
@@ -421,13 +423,14 @@
                              e-allowscrolling="true" e-minwidth="450" e-minheight="400"
                              e-allowselection="false" e-filtersettings-filterType="excel">
                             <div e-columns>
-                                <div e-column e-headertext="Print" e-width="40">
+                                <div e-column e-headertext="Print" e-width="50">
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint(this);" style="margin: -6px;"></i></button>
                                     <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.PrintData(this);" style="margin: -6px;"></i></button>
                                 </div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ID" e-visible="false" e-width="50"></div>
                                 <div e-column e-type="string" e-field="IssueId" e-headertext="SlipId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="POId" e-headertext="POId" e-width="100"></div>
+                                <div e-column e-type="string" e-field="ProductionStatus" e-headertext="PrOStatus" e-width="100"></div>
                                 <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UserCode" e-headertext="User Code" e-width="50"></div>
                                 <div e-column e-type="string" e-field="UserRef" e-headertext="User Ref" e-width="80"></div>

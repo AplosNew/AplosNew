@@ -392,15 +392,34 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         // #endregion
 
         $scope.ProcArr = [];
-        for (var i = 0; i < $scope.LoadedData.length; i++) {
+
+        var dataList = [];
+        var g = $("#LeaveDataGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.LoadedData;
+        }
+        for (var i = 0; i < dataList.length; i++) {
             $scope.ProcArr.push({
-                'EmpId': $scope.LoadedData[i].EmpId,
-                'LeaveTypeId': $scope.LoadedData[i].LeaveTypeId, 'Opening': $scope.LoadedData[i].Opening,
-                'Earned': $scope.LoadedData[i].Earned, 'RegularEncashment': $scope.LoadedData[i].RegularEncashment,
-                'Availed': $scope.LoadedData[i].Availed, 'Closing': $scope.LoadedData[i].Closing,
-                'Adjustment': $scope.LoadedData[i].Adjustment
+                'EmpId': dataList[i].EmpId,
+                'LeaveTypeId': dataList[i].LeaveTypeId, 'Opening': dataList[i].Opening,
+                'Earned': dataList[i].Earned, 'RegularEncashment': dataList[i].RegularEncashment,
+                'Availed': dataList[i].Availed, 'Closing': dataList[i].Closing,
+                'Adjustment': dataList[i].Adjustment
             });
         }
+
+
+        //for (var i = 0; i < $scope.LoadedData.length; i++) {
+        //    $scope.ProcArr.push({
+        //        'EmpId': $scope.LoadedData[i].EmpId,
+        //        'LeaveTypeId': $scope.LoadedData[i].LeaveTypeId, 'Opening': $scope.LoadedData[i].Opening,
+        //        'Earned': $scope.LoadedData[i].Earned, 'RegularEncashment': $scope.LoadedData[i].RegularEncashment,
+        //        'Availed': $scope.LoadedData[i].Availed, 'Closing': $scope.LoadedData[i].Closing,
+        //        'Adjustment': $scope.LoadedData[i].Adjustment
+        //    });
+        //}
 
 
         $scope.Proc = JSON.stringify($scope.ProcArr);

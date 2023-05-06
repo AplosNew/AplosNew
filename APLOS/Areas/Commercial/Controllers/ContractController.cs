@@ -1035,7 +1035,7 @@ namespace Aplos.Areas.Commercial.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strUSQL = "Update TRN.MasterOrderItem set ContractId=NULL Where ContractId='" + Id + "'";
+                strUSQL = "Update TRN.SalesOrder set ContractId=NULL Where ContractId='" + Id + "'";
                 strCFSQL = "delete from dbo.ContractFund Where ContractId='" + Id + "'";
                 strCNFSQL = "delete from dbo.ContractTermsAndConditions Where ContractId='" + Id + "'";
                 strSQL = "delete from dbo.Contract Where Id='" + Id + "'";

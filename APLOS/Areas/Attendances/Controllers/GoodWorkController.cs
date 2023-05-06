@@ -23,9 +23,9 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.TaskManagement.Controllers
+namespace Aplos.Areas.Attendances.Controllers
 {
-    public class TaskAppliedOnController : BaseController
+    public class GoodWorkController : BaseController
     {
         //authentication for
         //GetList Create
@@ -34,7 +34,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         #region Constructor
         string TableName = "HKP.TaskAppliedOn";
         private readonly ISqlRepository _sqlRepository;
-        public TaskAppliedOnController(ISqlRepository R)
+        public GoodWorkController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -42,11 +42,6 @@ namespace Aplos.Areas.TaskManagement.Controllers
         #endregion Constructor
 
         public ActionResult Aplos()
-        {
-            return View();
-        }
-
-        public ActionResult UserUnit()
         {
             return View();
         }
