@@ -97,6 +97,7 @@ namespace Library.Service.Finances
                     PartyType = voucherVM.PartyType,
                     PostingDate = voucherVM.PostingDate,
                     DocDate = voucherVM.DocDate,
+                    //ExpectedCloseDate = voucherVM.ExpectedCloseDate,
                     DocRefNo = voucherVM.DocRefNo,
                     Narration = voucherVM.Narration,
                     SourceType = voucherVM.SourceType,
