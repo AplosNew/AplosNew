@@ -139,10 +139,11 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                     data: { 'data': $scope.ModelNew },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
-                    $scope.ModelNew.Minute = response.data;
-                    //for (var i = 0; i < length; i++) {
-
-                    //}
+                    
+                    for (var i = 0; i < $scope.WorkcenterList.length; i++) {
+                        $scope.WorkcenterList[i].CalculatedTime = response.data;
+                    }
+                    
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
