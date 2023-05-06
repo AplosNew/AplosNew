@@ -32,6 +32,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         VoucherDate: $filter("dateFiltering")(Date.now()),
         PostingDate: null,
         DocDate: null,
+        ExpectedCloseDate: null,
         DocRefNo: null,
         Amount: "",
         DownPaymentAmount:"",
@@ -412,6 +413,17 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         }
         else $scope.invalidDocDate = false;
         return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+    };
+
+    $scope.invalidExpectedCloseDate = false;
+    $scope.checkExpectedCloseDate = function () {
+        var msg = "";
+        if (new Date($scope.voucher.ExpectedCloseDate) < new Date()) {
+            $scope.invalidExpectedCloseDate = true;
+            msg = "Expected Close Date must be above to current Date!";
+        }
+        else $scope.invalidExpectedCloseDate = false;
+        return manualValidation("div_ExpectedCloseDate", $scope.invalidExpectedCloseDate, msg);
     };
 
     $scope.invalidPostingDate = false;

@@ -52,7 +52,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 //            ";
                 // where ISNULL(UG.HRReportMasterChildId, '') = '"+id+"'
 
-                var sql = @"select Id UserGroupId, UserGroup, UserSubGroup from HKP.HRReportGroupMaster";
+                var sql = @"select '' Id, Id UserGroupId, UserGroup, UserSubGroup from HKP.HRReportGroupMaster";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -463,6 +463,8 @@ where BGT.EntityId in (" + Entity + ") " +
 
                     chkBgtList["Id"] = _Id;
                     chkBgtList["HRReportMasterId"] = headerId;
+                    chkBgtList["Active"] = chkBgtList["isSelected"];
+
                     
                     AddNewRow(dsMaster.Tables[0], chkBgtList);
                     
