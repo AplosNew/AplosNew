@@ -229,7 +229,7 @@
                                     <td class="text-right">{{x.OtherQty}}</td>
                                     <td class="text-right">{{x.BalanceQty}}</td>
                                     <td class="text-right">
-                                        <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-change="returnAmountCalculation(x);" class="form-control text-right">
+                                        <input type="text" n-decimals="2" ng-model=" x.ReturnQty" ng-change="returnAmountCalculation(x);" ng-disabled="productNew.SourceType == 'Packing'" class="form-control text-right">
                                     </td>
                                     <td class="text-right" ng-show="productNew.SourceType == 'Packing'">
                                         <div class="input-group">
