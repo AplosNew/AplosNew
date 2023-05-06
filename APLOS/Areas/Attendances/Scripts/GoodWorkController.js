@@ -1,6 +1,6 @@
 ﻿'use strict';
-GoodWorkController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+GoodWorkController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', "$controller"];
+function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Good Work';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWork/';
@@ -10,11 +10,11 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     //$scope.deleteUrl = $scope.path + 'delete/';
     $scope.deleteChildUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    //$scope.searchBy = "UserName"; $scope.search = "";
+    //$scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
     $scope.Action = 'Save';
     $scope.passwordShow = true;
-
+    $controller("employeeBaseController", { $scope: $scope, $http: $http });
     //***********************************Good Work ********************************************************//
 
     $scope.ModelTemp = {
@@ -26,6 +26,21 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+
+    $scope.ModelEmpTemp = {
+        Id: null,
+        EmployeeCode: null,
+        EmployeeName: null,
+        FromTime: null,
+        ToTime: null,
+        Minute: null,
+        Purpose: null,
+        PurposeCategory: null,
+        ApprovedByName: null,
+        Remarks: null,
+        ToTime: Minute
+    };
+    $scope.ModelEmpNew = Object.assign({}, $scope.ModelEmpTemp);
 
     $scope.selectShift = function () {
         $scope.getsS();
@@ -58,7 +73,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         $scope.getEmployeeData = function (pageno) {
             var url = null;
             if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
-                url = 'accounts/EmployeePayable/GetEmployeeListByPlant';
+                url = 'Attendances/GoodWork/GetEmployeeListByPlant';
             }
             else {
                 url = $scope.employeeUrl;
@@ -76,15 +91,14 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         $scope.getEmployeeData();
     };
 
-
     $scope.closeEmployeePopUp = function () {
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
-            $scope.voucher.EmployeeName = employee.EmployeeName;
-            $scope.voucher.EmployeeId = employee.SystemId;
-            $scope.voucher.EntityId = employee.EntityId;
-            $scope.GetEmployeeTransactionNo($scope.voucher.EmployeeId);
-            $scope.getEmployeeWiseOutstandingAdvance($scope.voucher.EmployeeId);
+            $scope.EmployeeId = employee.SystemId;
+            $scope.EmployeeCode = employee.EmployeeCode;
+            $scope.EmployeeName = employee.EmployeeName;
+            $scope.getGoodWorkEmpList($scope.EmployeeId);
+            //$scope.getEmployeeWiseOutstandingAdvance($scope.voucher.EmployeeId);
         }
         $scope.hideEmployeePopUp();
     };
@@ -92,6 +106,51 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.hideEmployeePopUp = function () {
         angular.element(document.querySelector("#employeePopUp")).modal("hide");
     };
+
+    $scope.GoodWorkList = [];
+    $scope.getGoodWorkEmpList = function (employeeId) {
+        $http({
+            method: "get",
+            url: "Attendances/GoodWork/GetGoodWorkDataList?empId=" + employeeId
+        }).then(function successCallback(response) {
+            $scope.GoodWorkList = response.data;
+        });
+    };
+    $scope.getGoodWorkEmpList();
+
+    $scope.popUpDataList = [];
+    $scope.showByWhomEmployeeListPopUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'Attendances/GoodWork/GetAllActiveEmployeeData'
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SelectEmployee = function (arg) {
+        $scope.ApprovedById = arg.data.SystemId;
+        $scope.ApprovedByCode = arg.data.EmployeeCode;
+        $scope.ApprovedByName = arg.data.EmployeeName;
+        $scope.closePopUp();
+    }
+
+
+    $scope.clearEmp = function () {
+        $scope.ApprovedById = null;
+        $scope.ApprovedByCode = null;
+        $scope.ApprovedByName = null;
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    }
 
     ////***********************************User ********************************************************//
     //$scope.removeRow = function (data) {
