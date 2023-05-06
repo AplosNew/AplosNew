@@ -129,7 +129,28 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     // #endregion Detention
 
     // #region CalcTime
-    
+    $scope.getMinute = function () {
+        try {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.FromTime) && !baseService.isUndefinedOrNull($scope.ModelNew.ToTime)) {
+                $scope.MinuteUrl = 'IE/MachineMasterTransaction/GetMinute/'
+                $http({
+                    method: 'POST',
+                    url: $scope.MinuteUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.ModelNew.Minute = response.data;
+                    //for (var i = 0; i < length; i++) {
+
+                    //}
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
     // #endregion CalcTime
 
     // #region Workcenter
