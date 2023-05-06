@@ -110,7 +110,7 @@
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                         <div e-columns>
                                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                                            <div e-column e-headertext="Active / Inactive" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
+                                            <div e-column e-headertext="Check / Uncheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
 
                                             <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
                                             <div e-column e-field="Division" e-headertext="Division" e-width="100"></div>
@@ -144,13 +144,13 @@
                                 </div>
                                 @Html.Partial("~/Areas/HumanResource/Views/HRReportMaster/_UserGroupPop.cshtml")
 
-                                <div class="common-btn">
+                                @*<div class="common-btn">
                                     <ul class="list-inline text-right">
                                         <li> <button ng-click="SaveBudgetCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionB}}</button></li>
                                        
                                     </ul>
 
-                                </div>
+                                </div>*@
                             </div>
                             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                                 <div ng-form>

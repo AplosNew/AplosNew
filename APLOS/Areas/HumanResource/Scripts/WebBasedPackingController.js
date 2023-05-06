@@ -6,7 +6,7 @@ function WebBasedPackingController(commonMessage, $scope, $rootScope, baseServic
     $scope.path = 'HumanResource/WebBasedPacking/';
     var currentDate = new Date();
     var time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
-    //var getCurrenttime = () => {}
+    
     $scope.ModelTemp = {
         Id: null,
         EntityId: null,
@@ -111,14 +111,11 @@ function WebBasedPackingController(commonMessage, $scope, $rootScope, baseServic
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
-        }
-
-        /*}*/
+        }      
     };
 
     $scope.ScannedData = [];
-    $scope.BarCodeScan = function () {
-      //  console.log(sender);
+    $scope.BarCodeScan = function () {      
         $http({
             method: 'POST',
             url: $scope.path + 'Scanner_Clicked',

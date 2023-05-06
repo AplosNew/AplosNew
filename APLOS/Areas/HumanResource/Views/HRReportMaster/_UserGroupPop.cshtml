@@ -10,7 +10,7 @@
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                            <div e-column e-headertext="Active / Inactive" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>
+                            <div e-column e-headertext="Check / Uncheck" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>
 
                             <div e-column e-field="UserGroup" e-headertext="User Group" e-width="100"></div>
                             <div e-column e-field="UserSubGroup" e-headertext="User Sub Group" e-width="100"></div>
@@ -35,7 +35,7 @@
 
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="ClosePopupOnSelectAllField(this);" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Select Groups </button></li>
+                            <li> <button ng-click="ClosePopupOnSelectAllField(this);" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
 
                         </ul>
                     </div>
