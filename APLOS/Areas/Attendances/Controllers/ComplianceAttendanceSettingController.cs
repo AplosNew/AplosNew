@@ -469,7 +469,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                 WHERE E.SystemID in (" + EmpIdLoop + @")
                                     AND AR.WorkDate BETWEEN '" + FromDate + @"'
-                                        AND '" + ToDate + @"' AND (EmployeeStatus = 'Active' OR COnvert(date,DOS) >= Convert(Date,'" + FromDate + @"'))
+                                        AND '" + ToDate + @"' AND (EmployeeStatus = 'Active' OR Convert(date,DOS) >= Convert(Date,'" + FromDate + @"'))
                                 ) A
                            
                             ORDER BY A.EmployeeCode
