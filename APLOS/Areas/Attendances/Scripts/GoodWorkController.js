@@ -33,12 +33,15 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         EmployeeName: null,
         FromTime: null,
         ToTime: null,
-        Minute: null,
+        CalculatedTime: null,
         Purpose: null,
         PurposeCategory: null,
+        ApprovedById: null,
         ApprovedByName: null,
         Remarks: null,
-        ToTime: Minute
+        SubSection: null,
+        Section: null,
+        Department: null
     };
     $scope.ModelEmpNew = Object.assign({}, $scope.ModelEmpTemp);
 
@@ -94,10 +97,10 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.closeEmployeePopUp = function () {
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
-            $scope.EmployeeId = employee.SystemId;
-            $scope.EmployeeCode = employee.EmployeeCode;
-            $scope.EmployeeName = employee.EmployeeName;
-            $scope.getGoodWorkEmpList($scope.EmployeeId);
+            $scope.ModelEmpNew.EmployeeId = employee.SystemId;
+            $scope.ModelEmpNew.EmployeeCode = employee.EmployeeCode;
+            $scope.ModelEmpNew.EmployeeName = employee.EmployeeName;
+            $scope.getGoodWorkEmpList($scope.ModelEmpNew.EmployeeId);
             //$scope.getEmployeeWiseOutstandingAdvance($scope.voucher.EmployeeId);
         }
         $scope.hideEmployeePopUp();
@@ -119,8 +122,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.getGoodWorkEmpList();
 
     $scope.popUpDataList = [];
-    $scope.showByWhomEmployeeListPopUp = function () {
+    $scope.showByWhomEmployeeListPopUp = function (index) {
         try {
+            $scope.tempIndex = index;
             $scope.popUpDataList = [];
             $http({
                 method: 'GET',
@@ -135,23 +139,61 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     };
 
     $scope.SelectEmployee = function (arg) {
-        $scope.ApprovedById = arg.data.SystemId;
-        $scope.ApprovedByCode = arg.data.EmployeeCode;
-        $scope.ApprovedByName = arg.data.EmployeeName;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedById = arg.data.SystemId;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedByCode = arg.data.EmployeeCode;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedByName = arg.data.EmployeeName;
         $scope.closePopUp();
     }
 
 
     $scope.clearEmp = function () {
-        $scope.ApprovedById = null;
-        $scope.ApprovedByCode = null;
-        $scope.ApprovedByName = null;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedById =null;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedByCode= null;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedByName =null;
     }
 
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#popUp')).modal('hide');
     }
 
+    // #region CalcTime
+    $scope.obj = {};
+    $scope.getMinute = function (data,index) {
+        try {
+            if (!baseService.isUndefinedOrNull(data.FromTime) && !baseService.isUndefinedOrNull(data.ToTime)) {
+                $scope.obj = data.data;
+                $scope.MinuteUrl = 'Attendances/GoodWork/GetMinute'
+                $http({
+                    method: 'POST',
+                    url: $scope.MinuteUrl,
+                    data: { 'data': data },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+
+                    /*data.CalculatedTime = response.data;*/
+                    $scope.GoodWorkList[index].CalculatedTime = response.data;
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    //$scope.GoodWorkEmployeeList = [];
+    //$scope.GetGoodWorkcenter = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'GetGoodWorkcenter',
+    //        dataType: 'JSON'
+    //    }).then(function succ(resp) {
+    //        $scope.GoodWorkEmployeeList = resp.data;
+    //    });
+    //}
+    //$scope.GetGoodWorkcenter();
+
+    // #endregion CalcTime
     ////***********************************User ********************************************************//
     //$scope.removeRow = function (data) {
     //    /* $scope.HrefDataList.splice(index, 1);*/
@@ -267,7 +309,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     //$scope.Save = function () {
     //    try {
     //        $scope.$broadcast('show-errors-check-validity');
-       
+
     //        if ($scope.ModelNewForm.$valid) {
     //            if ($scope.ModelNew.Password == $scope.ModelNew.RePassword) {
 
