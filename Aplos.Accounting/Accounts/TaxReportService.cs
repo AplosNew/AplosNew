@@ -10863,7 +10863,7 @@ UNION ALL
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40;
                 xlsCol++;
 
-                sheet1[xlsRow, xlsCol].Text = "Pen No";
+                sheet1[xlsRow, xlsCol].Text = "PAN No";
                 int colPenNO = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -11068,7 +11068,7 @@ UNION ALL
 
                         sheet1.Range[xlsRow, colPenNO].Text = dtRCMPayable.Rows[i]["PanNo"].ToString();
                         sheet1.Range[xlsRow, iInvoiceVoucherNo].Text = dtRCMPayable.Rows[i]["InvoiceVoucherNo"].ToString();
-                        sheet1.Range[xlsRow, iInvoicePostingDate].DateTime =Convert.ToDateTime(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
+                        sheet1.Range[xlsRow, iInvoicePostingDate].DateTime = Convert.ToDateTime(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
                         //sheet1.Range[xlsRow, iInvoicePostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
                         sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
                         sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
@@ -11317,7 +11317,7 @@ UNION ALL
 						                when V.SourceType='CreditNoteSetOff' then 'Credit Note SetOff'
 						                when V.SourceType='InventoryPayable' then 'Purchase' else '' end
                 ,IWD.VoucherNo InvoiceVoucherNo,IWD.InventoryReceiveId
-				,format( IWD.PostingDate, 'dd/MM/yyyy') InvoicePostingDate,iwd.DocRefNo InvoieDocRefNo,format( IWD.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
+				,format( IWD.PostingDate, 'MM/dd/yyyy') InvoicePostingDate,iwd.DocRefNo InvoieDocRefNo,format( IWD.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
 				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
                 ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
 				                   when v.SourceType='VendorInvoice' then 'GL'
@@ -11348,7 +11348,7 @@ UNION ALL
 				--,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
 				--,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
 				--,HSNP.[Percentage],MM.HSNCodeId,MM.UserName Material
-                ,P.VATResistrationNo PanNo,TXC.UserName TDSPer
+                ,P.VATResistrationNo PanNo,TXC.UserName TDSPer,TXC.Code Section
 
                 from TRN.InvoiceTax IT 
                 left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
@@ -11360,7 +11360,7 @@ UNION ALL
 				LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId AND TC.TaxCategoryType='TDS'
                 LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
 	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
-	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") AND TaxCodeYearId=TAY.TaxYearId) TAXC ON TAXC.Id=IT.TaxCodeId
+	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") AND TACD.TaxCodeYearId=TAY.Id) TAXC ON TAXC.Id=IT.TaxCodeId
                 LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
                 LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId=IR.Id --AND IRT.TaxCategoryId=IT.TaxCategoryId
                 LEFT JOIN MST.HSNTaxPercentage HSNP ON  IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId 
