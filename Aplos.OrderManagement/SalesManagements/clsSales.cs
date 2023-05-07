@@ -1514,7 +1514,7 @@ WHERE sm.Id IN(" + Ids + ")";
                                     ,P.UserName Plant
 									,SS.UserName SubSection
                                     ,E.EmployeeCodeNumeric
-                                    ,C.UserName Company
+                                    ,C.UserName Company, '' CalculatedTime
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
