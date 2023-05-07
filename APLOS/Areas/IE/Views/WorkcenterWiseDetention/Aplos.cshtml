@@ -39,17 +39,19 @@
                         <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
                     </div>
                 </div>
-
                 <div class="mb-3 form-group" style="margin-right:4px" show-errors>
-                    <label class="control-label">From Time<sup>*</sup></label>
-                    @*<div class="show-message">
-                            <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
-                        </div>*@
-                    <div class="input-group bootstrap-timepicker timepicker" style="float:right">
-                        <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" style="margin-left:-10%; width:94%" tabindex="7">
-                        <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
+                    <label class="control-label">Responsible Person<sup>*</sup></label>
+                    <div class="show-message">
+                        <div class="input-group">
+                            <span class="input-group-addon">{{ModelNew.ResponsiblePersonCode}}</span>
+                            <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePerson" class="form-control" required readonly>
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
                     </div>
                 </div>
+                
 
 
             </div>
@@ -67,15 +69,16 @@
                     </div>
                 </div>
                 <div class="mb-3 form-group" style="margin-right:4px" show-errors>
-                    <label class="control-label">To Time<sup>*</sup></label>
+                    <label class="control-label">From Time<sup>*</sup></label>
                     @*<div class="show-message">
-                            <input id="timepicker2" e-value="ModelNew.ToTime" width="328" ej-timepicker name="Time" e-change="getMinute()" tabindex="4" required />
-                        </div>*@
-                    <div class="input-group bootstrap-timepicker timepicker" style="float:right">
-                        <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" style="margin-left:-10%; width:94%" tabindex="7">
-                        <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
+                <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
+            </div>*@
+                    <div class="input-group bootstrap-timepicker timepicker">
+                        <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="7">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                     </div>
                 </div>
+                
             </div>
 
             <div class="col-xs-12 col-sm-3 col-md-3">
@@ -90,6 +93,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="mb-3 form-group" style="margin-right:4px" show-errors>
+                    <label class="control-label">To Time<sup>*</sup></label>
+                    @*<div class="show-message">
+                <input id="timepicker2" e-value="ModelNew.ToTime" width="328" ej-timepicker name="Time" e-change="getMinute()" tabindex="4" required />
+            </div>*@
+
+                    <div class="input-group bootstrap-timepicker timepicker">
+
+                        <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="7">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -102,14 +118,22 @@
             <div e-column e-headertext="Check / UnCheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
 
             <div e-column e-field="StandardName" e-headertext="Workcenter" e-width="100"></div>
+            <div e-column e-headertext="Detention" e-template="#Detention" e-textalign="center" e-width="100"></div>
+            <div e-column e-headertext="Responsible Person" e-template="#Responsibleperson" e-textalign="center" e-width="100"></div>
             <div e-column e-headertext="Calculated Time" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
         </div>
     </div>
     <script type="text/template" id="checkboxUnallocationTemplate">
         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
     </script>
+    <script type="text/template" id="Detention">
+        <input type="text" class="form-control" name="Detention" ng-model="data.Detention" e-width="100" />
+    </script>
+    <script type="text/template" id="Responsibleperson">
+        <input type="text" class="form-control" name="Responsible Person" ng-model="data.Responsible" e-width="100" />
+    </script>
     <script type="text/template" id="calculatedTime">
-        <input type="text" class="form-control" name="CalculatedTime" e-width="100" />
+        <input type="text" class="form-control" name="CalculatedTime" ng-model="data.CalculatedTime" e-width="100" />
     </script>
 
 

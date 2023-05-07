@@ -2442,7 +2442,8 @@ namespace Library.Accounting.Accounts
 			,TC.Id ThirdCharacteristicsId
 			,TC.CharacteristicsValueId ThirdCharacteristicsValueId
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
-			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,(ISC.ReturnNetWeight * SM.TransactionRate) Amount,0 TaxAmount,ISC.ReturnNetWeight VerifiedQty
+			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,(ISC.ReturnNetWeight * SM.TransactionRate) Amount
+			, TaxAmount=(SM.TaxAmount/SM.BaseAmount)*(ISC.ReturnNetWeight * SM.TransactionRate),ISC.ReturnNetWeight VerifiedQty
            ,SM.TransactionQty SalesQty
                 ,SM.TransactionQty 
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
@@ -2450,12 +2451,13 @@ namespace Library.Accounting.Accounts
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 			LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=SA.Id
-			LEFT JOIN (SELECT isc.SalesId,pli.PackingId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
+			LEFT JOIN (SELECT isc.SalesId,pli.PackingId,isc.Booked,pli.SOId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
 					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
 					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
+					left join [TRN].[SalesOrder] SO ON SO.id=pli.SOId
 					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
-					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId) ISC ON ISC.PackingId=sp.PackingId
-            LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId,isc.Booked,pli.SOId) ISC ON ISC.PackingId=sp.PackingId
+             JOIN [TRN].[SalesOrder] AS SO ON ISC.SOId=SO.Id and SO.Id=sm.SalesOrderId
             JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 			LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id

@@ -55,7 +55,7 @@ namespace Aplos.Areas.IE.Controllers
 
         public ActionResult GetWorkcenter()
         {
-            string str = @"SELECT StandardName FROM SCS.WorkCenterMaster";
+            string str = @"SELECT StandardName, '' CalculatedTime FROM SCS.WorkCenterMaster";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
     }

@@ -4154,13 +4154,13 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _accountsCommonService.InsertVoucherLogDeleted(voucherId,voucher.VoucherNo,"","",invoiceId,"","","","", "","","", "", deletedRemarks);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
@@ -4770,7 +4770,7 @@ namespace Library.Service.Invoices
         #endregion
 
         #region Inventory Payable
-        public void DeleteInventoryPayable(string grnId, string invoiceId, string voucherId)
+        public void DeleteInventoryPayable(string grnId, string invoiceId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
@@ -4783,6 +4783,9 @@ namespace Library.Service.Invoices
                     var voucher = _voucherService.FindVoucher(voucherId);
                     if (voucher.IsPark == false)
                         throw new CustomException("Delete is not allow after post ! ");
+
+                    AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                    _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", invoiceId, "", "", "", "", "", "", "", "", deletedRemarks);
 
                     var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                     var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
