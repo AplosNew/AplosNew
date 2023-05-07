@@ -5860,7 +5860,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "TOTAL GROSS")
                                                 {
                                                     sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus;
-                                                    sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus;
+                                                    if (ctccol!=0)
+                                                    {
+                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus; 
+                                                    }
 
                                                 }
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "CTC")
