@@ -10918,8 +10918,18 @@ UNION ALL
                 xlsCol++;
 
                 int iTDSPer = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "TDS Percentage";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].Text = "TDS Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int iPercentage = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Percentage";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
+                xlsCol++;
+
+                int iSection = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Section";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
                 xlsCol++;
 
                 int iInvoiceAmount = xlsCol;
@@ -11076,6 +11086,11 @@ UNION ALL
 
                         sheet1.Range[xlsRow, iTDSPer].Text = dtRCMPayable.Rows[i]["TDSPer"].ToString();//TaxableAmount
                         //sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                        
+                        sheet1.Range[xlsRow, iPercentage].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["ValueOfFixed"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, iPercentage].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        sheet1.Range[xlsRow, iSection].Text = dtRCMPayable.Rows[i]["Section"].ToString();//TaxableAmount
 
                         sheet1.Range[xlsRow, iInvoiceAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["InvoiceAmount"].ToString());//TaxableAmount
                         sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
