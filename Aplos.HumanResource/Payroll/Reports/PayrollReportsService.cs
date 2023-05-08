@@ -6126,6 +6126,12 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                         double absentAmount = 0;
                         double otherAmount = 0;
                         double advanceAmount = 0;
+                        double mobilelAmount = 0;
+                        double convenAmount = 0;
+                        double enterAmount = 0;
+                        double InTaxAmount = 0;
+                        double OtherDedAmount = 0;
+                        double BazarAmount = 0;
 
                         #region ------------------------------------Salary Sheet----------------------------------
                         if (dicEmpSalry.ContainsKey(dtEmployees.Rows[i]["EmpSystemID"].ToString()))
@@ -6140,7 +6146,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                     if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
                                     {
-                                        double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
+                                        double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount+ mobilelAmount+ convenAmount+ enterAmount+ InTaxAmount+ OtherDedAmount+ BazarAmount);
                                         sheet1.Range[xlsRow, npstruct].Number = netPay;
                                         //sheet1.Range[xlsRow, npstruct].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                         continue;
@@ -6156,23 +6162,36 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                                 {
                                                     stampAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
 
                                                 if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "ABSENTEEISM")
                                                 {
                                                     absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
+
+                                                if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "BAZAR")
+                                                {
+                                                    absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
+                                                if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "TAX")
+                                                {
+                                                    absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
+                                                if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "OTHERS DEDUCTION")
+                                                {
+                                                    absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
                                                 if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "ADVANCE")
                                                 {
                                                     advanceAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
                                                 sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString()) * (-1);
                                             }
@@ -6183,49 +6202,62 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                                 {
                                                     sheet1.Range[xlsRow, xx.XLColIndex].Number = otAmount;
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "GROSS")
                                                 {
                                                     gross = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                                     sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "ATTENDANCE BONUS")
                                                 {
                                                     AttdnBonus = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                                     sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "TOTAL GROSS")
                                                 {
                                                     gccol = xx.XLColIndex;
-                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus + otherAmount;
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
                                                     if (ctccol != 0)
                                                     {
-                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus + otherAmount;
+                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
                                                     }
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "CTC")
                                                 {
                                                     ctccol = xx.XLColIndex;
-                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus + otherAmount;
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
                                                     if (gccol != 0)
                                                     {
-                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus + otherAmount;
+                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
                                                     }
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
+
+                                                else if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "MOBILE ALLOWANCE")
+                                                {
+                                                    mobilelAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                    
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "CONVEYANCE ALLOWANCE")
+                                                {
+                                                    convenAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                   
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "ENTERTAINMENT ALLOWANCE")
+                                                {
+                                                    enterAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                 
+                                                }
+
                                                 else
                                                 {
                                                     if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "OTHERS EARNING")
@@ -6235,10 +6267,12 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                     sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
 
-                                                    double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount);
-                                                    sheet1.Range[xlsRow, npstruct].Number = netPay;
                                                 }
                                             }
+
+
+                                            double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount + mobilelAmount + convenAmount + enterAmount + InTaxAmount + OtherDedAmount + BazarAmount);
+                                            sheet1.Range[xlsRow, npstruct].Number = netPay;
 
                                             sheet1.Range[xlsRow, xx.XLColIndex].NumberFormat = oRU.NumberFormatInt();
                                             sheet1.Range[xlsRow, xx.XLColIndex].HorizontalAlignment = ExcelHAlign.HAlignRight;
