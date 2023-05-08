@@ -117,7 +117,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         if ($scope.ReturnType == 'PackingSales') {
             getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
         }
-        getInvTaxList();
+
         $scope.productNew.TaxOption = 'Yes';
         $scope.productNew.TaxOptionMat = 'Yes';
         $scope.productNew.TaxOptionService = 'Yes';
@@ -131,9 +131,9 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
     $scope.closeSalesPopUp = function () {
         $scope.valueData = '';
+
         angular.element(document.querySelector('#SalespopUp')).modal('hide');
     };
-
 
     $scope.GridInventorySalesdata = [];
     $scope.getdataInventorySales = function () {
@@ -359,6 +359,11 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.LoadTaxButtonClick();
         $scope.filterSalesMaterialId = data.SalesMaterialId;
         $scope.taxAbleAmnt = $scope.detailList[index].TotalAmount;
+        if ($scope.ReturnType == 'PackingSales') {
+            for (var i = 0; i < $scope.taxlist.length; i++) {
+                $scope.taxlist[i].Amount = ($scope.detailList[index].Amount * $scope.taxlist[i].Percentage) / 100
+            }
+        }
         $scope.indexRow = index;
         $scope.index = index;
         $scope.HSNCode = $scope.taxlist[0].HSNCode;
@@ -409,8 +414,18 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         e.detailsElement.find(".tabcontrol").ejTab();
     }
 
+    function checkLCExist(list, InvoiceId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].InvoiceId === InvoiceId) {
+
+                return true;
+            }
+        }
+        return false;
+    }
     //#endregion
     $scope.newList = [];
+    $scope.newtaxList = [];
     $scope.Validation = function () {
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
@@ -418,9 +433,16 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             return true;
         }
         $scope.newList = [];
+        $scope.newtaxList = [];
         for (var i = 0; i < $scope.detailList.length; i++) {
             if ($scope.detailList[i].ReturnQty > 0) {
                 $scope.newList.push($scope.detailList[i])
+                angular.forEach($scope.taxlist, function (a) {
+                    if (a.SalesMaterialId == $scope.detailList[i].SalesMaterialId) {
+                        a.Amount = ($scope.detailList[i].Amount * a.Percentage) / 100
+                        $scope.newtaxList.push(a);
+                    }
+                });
             }
         }
         if ($scope.productNew.SourceType == 'Packing') {
@@ -434,20 +456,20 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         }
         return false;
     }
-    
+
     $scope.Save = function () {
         $scope.IsSaveButtonDisable = true;
         $scope.Validation();
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.productNewForm.$valid && !$scope.Validation()) {
-            if ($scope.Action === "Save" && $scope.productNew.Id==null) {
+            if ($scope.Action === "Save" && $scope.productNew.Id == null) {
                 $http({
                     method: 'POST'
                     , url: $scope.saveUrl
                     , data: {
                         'data': $scope.productNew
                         , 'detaildataList': $scope.newList
-                        , 'taxList': $scope.taxlist
+                        , 'taxList': $scope.newtaxList
                         , 'itemScanCildList': $scope.tempitemScanList
                     }
                     , dataType: 'JSON'
@@ -487,7 +509,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     }
 
 
-    function getIssueDetailList(salesId,packingId) {
+    function getIssueDetailList(salesId, packingId) {
         if ($scope.productNew.SourceType == 'Packing') {
             $scope.returnDetailurl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales?salesId=' + salesId + '&packingid=' + packingId
         } else {
@@ -496,6 +518,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $http.get($scope.returnDetailurl)
             .then(function (response) {
                 $scope.detailList = response.data;
+                getInvTaxList();
             });
     }
 
@@ -522,8 +545,25 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             url: $scope.returnTaxurl
         }).then(function successCallback(response) {
             $scope.taxlist = response.data;
+            //taxProcess();
         });
     }
+    function taxProcess() {
+        for (var i = 0; i < $scope.taxlist.length; i++) {
+            $scope.taxlist[i].Amount = valueCheckInList($scope.detailList, $scope.taxlist[i].SalesMaterialId, $scope.taxlist[i].Percentage);
+        }
+    }
+
+    function valueCheckInList(list, fildName, value) {
+        for (var j = 0; j < list.length; j++) {
+            if (list[j].SalesMaterialId === fildName) {
+                (list[j].Amount * value) / 100
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.itemScanChildList = [];
     $scope.tempData = {};
     $scope.getItemScanChildPopUp = function (data) {
@@ -546,7 +586,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             if ($scope.itemScanChildList[i].Active) {
                 $scope.tempitemScanList.push($scope.itemScanChildList[i])
                 $scope.tempData.VerifiedQty = parseFloat($scope.tempData.VerifiedQty.toFixed(4))
-                $scope.tempData.VerifiedQty = parseFloat(($scope.tempData.VerifiedQty+Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
+                $scope.tempData.VerifiedQty = parseFloat(($scope.tempData.VerifiedQty + Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
                 //$scope.tempData.VerifiedQty += parseFloat((Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
                 //$scope.tempData.Amount += Math.round(($scope.itemScanChildList[i].NetWeight * $scope.tempData.TransactionRate) * 100 + Number.EPSILON) / 100
             }
