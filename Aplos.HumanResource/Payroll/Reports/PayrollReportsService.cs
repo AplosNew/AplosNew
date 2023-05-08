@@ -5804,6 +5804,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                         double AttdnBonus = 0;
                         double stampAmount = 0;
                         double absentAmount = 0;
+                        double otherAmount = 0;
+                        double advanceAmount = 0;
                         
                         #region ------------------------------------Salary Sheet----------------------------------
                         if (dicEmpSalry.ContainsKey(dtEmployees.Rows[i]["EmpSystemID"].ToString()))
@@ -5812,12 +5814,13 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                             if (drSalaryHeadCollection.Count > 0)
                             {
                                 int ctccol = 0;
+                                int gccol = 0;
                                 for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
                                 {
                                     
                                     if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
                                     {
-                                        double netPay=Math.Round(gross + otAmount + AttdnBonus + stampAmount + absentAmount);
+                                        double netPay=Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount+ advanceAmount);
                                         sheet1.Range[xlsRow, npstruct].Number = netPay;
                                         //sheet1.Range[xlsRow, npstruct].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                         continue;
@@ -5834,9 +5837,13 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                                     stampAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                                 }
 
-                                                if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "Absenteeism")
+                                                if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "ABSENTEEISM")
                                                 {
                                                     absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                }
+                                                if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "ADVANCE")
+                                                {
+                                                    advanceAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                                 }
                                                 sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString()) * (-1);
                                             }
@@ -5859,21 +5866,30 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                                 }
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "TOTAL GROSS")
                                                 {
-                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus;
+                                                    gccol = xx.XLColIndex;
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus + otherAmount;
                                                     if (ctccol!=0)
                                                     {
-                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus; 
+                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus+ otherAmount; 
                                                     }
 
                                                 }
                                                 else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "CTC")
                                                 {
                                                     ctccol = xx.XLColIndex;
-                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus;
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus+ otherAmount;
+                                                    if (gccol != 0)
+                                                    {
+                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus + otherAmount;
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    
+                                                    if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "OTHERS EARNING")
+                                                    {
+                                                        otherAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                    }
+
                                                     sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                                 }
                                             }
