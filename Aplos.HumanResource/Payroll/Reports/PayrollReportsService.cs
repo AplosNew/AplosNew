@@ -5312,7 +5312,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 }
 
 
-                
+
 
                 dvSlrSheet = new DataView();
 
@@ -5541,7 +5541,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 #region ----------------------Data-----------------------
                 var SrNo = 0;
                 var x = "";
-
+                double OtInMin = 0;
+                double OtRate = 0;
                 var oRU = new ReportUtility();
 
                 xlsRow = RowIndex;
@@ -5720,75 +5721,417 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                         dtBioDvAC = dsBioDvAC.Tables[0];
                         dvBioDvAC = new DataView();
                         dvBioDvAC.Table = dtBioDvAC;
-
+                        ReportUtility oru = new ReportUtility();
                         double OTOverstay1 = 0;
+                        var OTOverstay2 = 0.00;
+                        //for (int j = 0; j < dvBioDvAC.Count; j++)
+                        //{
+                        //    if (dvBioDvAC[j]["OutTimeShow"].ToString() != "")
+                        //    {
+
+                        //        DateTime NewRealOutTime;
+                        //        string TakeDate = Convert.ToDateTime(dvBioDvAC[j]["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                        //        string ot = Convert.ToDateTime(dvBioDvAC[j]["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
+
+                        //        //check night shift
+                        //        string _sOUTtime = TakeDate + " " + ot;
+                        //        string _sINtime = TakeDate + " " + Convert.ToDateTime(dvBioDvAC[j]["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
+                        //        if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                        //        {
+                        //            TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                        //        }
+
+                        //        string TateandTime = TakeDate + " " + ot;
+                        //        int minutesadd = Convert.ToInt32(dvBioDvAC[j]["MaxOTPerDay"].ToString().Trim());
+                        //        DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
+                        //        DateTime RealOutTime = Convert.ToDateTime(dvBioDvAC[j]["OutTimeShow"].ToString().Trim());
+                        //        double totalMinutes;
+
+
+                        //        if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime) && dvBioDvAC[j]["OriginalDayType"].ToString() != "H" && dvBioDvAC[j]["OriginalDayType"].ToString() != "W")
+                        //        {
+
+                        //            if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                        //            {
+                        //                OTOverstay1 += 0.00;
+
+                        //            }
+                        //            else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                        //            {
+                        //                OTOverstay1 += 0.00;
+
+
+                        //            }
+                        //            else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                        //            {
+                        //                OTOverstay1 += 0.00;
+
+
+                        //            }
+                        //            else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                        //            {
+                        //                OTOverstay1 += 0.00;
+
+                        //            }
+
+                        //            else if (dvBioDvAC[j]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CW" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
+                        //            {
+                        //                OTOverstay1 += 0.00;
+                        //            }
+                        //            else
+                        //            {
+                        //                OTOverstay1 += clsStaticInfo.dbl(minutesadd);
+
+                        //            }
+
+                        //        }
+
+                        //    }
+                        //}
+
+
+                        double tothr = 0;
+
                         for (int j = 0; j < dvBioDvAC.Count; j++)
-                        {
-                            int minutesadd = Convert.ToInt32(dvBioDvAC[j]["MaxOTPerDay"].ToString().Trim());
-
-                            //if (dvBioDvAC[j]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CW" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
-                            //{
-                            //    OTOverstay1 += 0.00;
-                            //}
-                            //else
-                            //{
-                            //    OTOverstay1 += clsStaticInfo.dbl(minutesadd);
-
-                            //}
-
-
-                            if (dvBioDvAC[j]["OriginalDayType"].ToString() != "H" && dvBioDvAC[j]["OriginalDayType"].ToString() != "W")
                             {
-                                
-                                if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                try
                                 {
-                                    OTOverstay1 += 0.00;
+                                    if (dvBioDvAC[j]["PDate"].ToString() == "A")
+                                    {
+
+                                    }
+                                    //if (dvBioDvAC[j]["DayStatus"].ToString().Trim() == "L")
+                                    //{
+                                    //    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(dvBioDvAC[j]["D"].ToString())].Text = "P";
+                                    //}
+                                    //else
+                                    //{
+                                    //    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(dvBioDvAC[j]["D"].ToString())].Text = dvBioDvAC[j]["DayStatus"].ToString();
+                                    //}
+
+
+                                    #region -- OUT TIME NCE JOB CARD--
+
+                                    if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                    {
+                                        
+
+                                    }
+                                    else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                    {
+                                        
+
+                                    }
+                                    else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                    {
+                                        
+                                    }
+                                    else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                    {
+                                       
+                                    }
+
+                                    else if (dvBioDvAC[j]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "W")
+                                    {
+                                       
+                                    }
+                                   
+                                    else
+                                    {
+
+                                        if (dvBioDvAC[j]["OutTimeShow"].ToString() != "")
+                                        {
+                                            DateTime NewRealOutTime;
+                                            string TakeDate = Convert.ToDateTime(dvBioDvAC[j]["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                                            string ot = Convert.ToDateTime(dvBioDvAC[j]["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
+
+                                            //check night shift
+                                            string _sOUTtime = TakeDate + " " + ot;
+                                            string _sINtime = TakeDate + " " + Convert.ToDateTime(dvBioDvAC[j]["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
+                                            if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                                            {
+                                                TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                                            }
+
+                                            string TateandTime = TakeDate + " " + ot;
+                                            int minutesadd = Convert.ToInt32(dvBioDvAC[j]["MaxOTPerDay"].ToString().Trim());
+                                            DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
+                                            DateTime RealOutTime = Convert.ToDateTime(dvBioDvAC[j]["OutTimeShow"].ToString().Trim());
+
+                                            if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime))
+                                            {
+                                                //long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(dvBioDvAC[j]["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
+                                                //int EmployeeSystemId = (int)Convert.ToInt64(dvBioDvAC[j]["SystemId"].ToString());
+
+                                                long WorkDateTickCount = Convert.ToInt64(Convert.ToDateTime(dvBioDvAC[j]["WDate"].ToString()).ToString("yyMMddHHmmss"));
+                                                int EmployeeSystemId = (int)Convert.ToInt64(dvBioDvAC[j]["EmployeeCodeNumeric"].ToString());
+
+                                                WorkDateTickCount += EmployeeSystemId;
+
+                                                Random rnd = new Random((int)(WorkDateTickCount));
+                                                int RandomMinutes = rnd.Next(0, 15);
+                                                NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
+                                            }
+
+                                            else
+                                            {
+                                                NewRealOutTime = Convert.ToDateTime(dvBioDvAC[j]["OutTimeShow"].ToString().Trim());
+                                            }
+                                            DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
+                                            DateTime ShiftTime = Convert.ToDateTime(TateandTime);
+                                            TimeSpan span = RandomTime - ShiftTime;
+                                            double totalMinutes = span.TotalMinutes;
+
+                                            if (dvBioDvAC[j]["DayStatus"].ToString().Trim() != "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() != "WP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
+                                            {
+                                            
+                                            }
+                                            else
+                                            {
+                                               
+                                            }
+
+                                            //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                            //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                        }
+                                        if (dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL")
+                                        {
+                                          
+                                        }
+                                        else if (dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
+                                        {
+                                          
+                                        }
+                                        else
+                                        {
+                                           
+
+                                        }
+                                        //if (bplib.clsWebLib.GetBoolData(dvBioDvAC[j]["IsManualOutTime"].ToString().Trim()))
+                                        //{
+                                        //    sheet1.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
+                                        //}
+                                    }
+
+                                    #endregion
+
+                                    //sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(dvBioDvAC[j]["D"].ToString())].Text = dvBioDvAC[j]["OutTime"].ToString();
+
+                                    #region -- OT NCE JOB CARD --
+
+                                    string yot = string.Empty;//OTConsiderOn
+                                    string overstay = string.Empty;
+                                    if (bplib.clsWebLib.GetBoolData(dvBioDvAC[j]["IsOTEntitled"].ToString()) == true)
+                                    {
+
+                                        if (!string.IsNullOrEmpty(dvBioDvAC[j]["DayCategory"].ToString()))
+                                        {
+                                            if (dvBioDvAC[j]["DayCategory"].ToString() == "Present" || dvBioDvAC[j]["DayCategory"].ToString() == "Late")
+                                            {
+
+                                                if (dvBioDvAC[j]["OutTimeShow"].ToString() != "")
+                                                {
+                                                    DateTime NewRealOutTime;
+                                                    string TakeDate = Convert.ToDateTime(dvBioDvAC[j]["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                                                    string ot = Convert.ToDateTime(dvBioDvAC[j]["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
+
+                                                    //check night shift
+                                                    string _sOUTtime = TakeDate + " " + ot;
+                                                    string _sINtime = TakeDate + " " + Convert.ToDateTime(dvBioDvAC[j]["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
+                                                    if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                                                    {
+                                                        TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                                                    }
+
+                                                    string TateandTime = TakeDate + " " + ot;
+                                                    int minutesadd = Convert.ToInt32(dvBioDvAC[j]["MaxOTPerDay"].ToString().Trim());
+                                                    DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
+                                                    DateTime RealOutTime = Convert.ToDateTime(dvBioDvAC[j]["OutTimeShow"].ToString().Trim());
+                                                    double totalMinutes;
+
+                                                    if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime) && (dvBioDvAC[j]["OriginalDayType"].ToString() != "H" && dvBioDvAC[j]["OriginalDayType"].ToString() != "W"))
+                                                    {
+                                                        long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(dvBioDvAC[j]["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
+                                                        int EmployeeSystemId = (int)Convert.ToInt64(dvBioDvAC[j]["SystemId"].ToString());
+                                                        WorkDateTickCount += EmployeeSystemId;
+
+                                                        Random rnd = new Random((int)(WorkDateTickCount));
+                                                        int RandomMinutes = rnd.Next(0, 15);
+                                                        NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
+                                                        DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
+                                                        DateTime ShiftTime = Convert.ToDateTime(TateandTime);
+                                                        TimeSpan span = RandomTime - ShiftTime;
+                                                        totalMinutes = span.TotalMinutes;
+                                                        oru.GetOT(dvBioDvAC[j]["OTConsiderOn"].ToString(), minutesadd.ToString(), out overstay);
+                                                        if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay1 += 0.00;
+
+                                                        }
+                                                        else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay1 += 0.00;
+
+
+                                                        }
+                                                        else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay1 += 0.00;
+
+
+                                                        }
+                                                        else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay1 += 0.00;
+
+                                                        }
+
+                                                        else if (dvBioDvAC[j]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
+                                                        {
+                                                            OTOverstay1 += 0.00;
+                                                        }
+                                                        else
+                                                        {
+                                                            OTOverstay1 += clsStaticInfo.dbl(minutesadd);
+
+                                                        }
+
+                                                    }
+                                                    else
+                                                    {
+                                                        NewRealOutTime = Convert.ToDateTime(dvBioDvAC[j]["OutTimeShow"].ToString().Trim());
+                                                        oru.GetOT(dvBioDvAC[j]["OTConsiderOn"].ToString(), dvBioDvAC[j]["OverStay"].ToString(), out overstay);
+                                                        if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay2 += 0.00;
+
+                                                        }
+                                                        else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay2 += 0.00;
+
+
+                                                        }
+                                                        else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay2 += 0.00;
+
+
+                                                        }
+                                                        else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                        {
+                                                            overstay = "";
+                                                            OTOverstay2 += 0.00;
+
+                                                        }
+
+                                                        else if (dvBioDvAC[j]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
+                                                        {
+                                                            OTOverstay2 += 0.00;
+                                                        }
+                                                        else
+                                                        {
+                                                            OTOverstay2 += clsStaticInfo.dbl(dvBioDvAC[j]["OverStay"].ToString());
+
+
+                                                        }
+
+
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                    {
+                                        overstay = "";
+
+
+                                    }
+                                    else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                    {
+                                        overstay = "";
+
+
+
+                                    }
+                                    else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                    {
+                                        overstay = "";
+
+
+
+                                    }
+                                    else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                    {
+                                        overstay = "";
+
+
+                                    }
+
+                                    else if (dvBioDvAC[j]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+                                        overstay = "";
+
+                                    }
+
+
+                                    tothr += clsStaticInfo.dbl(overstay);
+
+
+                                    //sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    #endregion
+
+                                 
 
                                 }
-                                else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                catch
                                 {
-                                    OTOverstay1 += 0.00;
 
 
                                 }
-                                else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == false)
-                                {
-                                    OTOverstay1 += 0.00;
-
-
-                                }
-                                else if (dvBioDvAC[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[j]["IsOTEntitled"].ToString().Trim()) == true)
-                                {
-                                    OTOverstay1 += 0.00;
-
-                                }
-
-                                else if (dvBioDvAC[j]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CW" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "CWL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "WL" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HP" || dvBioDvAC[j]["DayStatus"].ToString().Trim() == "HL")
-                                {
-                                    OTOverstay1 += 0.00;
-                                }
-                                else
-                                {
-                                    OTOverstay1 += clsStaticInfo.dbl(minutesadd);
-
-                                }
-
                             }
 
-
-
-                        }
                         
 
 
+
                         //SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(dtEmployees.Rows[i]["TotalOTHr"].ToString()) / 60);
-                        SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, clsStaticInfo.dbl(OTOverstay1.ToString()) / 60);
+
+                        OtInMin = clsStaticInfo.dbl(tothr);
+                        //OtInMin = clsStaticInfo.dbl(OTOverstay1.ToString()) / 60;
+                        //SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, OtInMin);
+                        SetCellTextAttdn(sheet1, xlsRow, ColTotalOTHR, OtInMin);
 
                         //}
                         #endregion
 
 
                         //var _total_head_count_body = 0;
+                        double gross = 0;
+                        double otAmount = OtInMin * Convert.ToDouble(dtEmployees.Rows[i]["OTRate"].ToString());
+                        double AttdnBonus = 0;
+                        double stampAmount = 0;
+                        double absentAmount = 0;
+                        double otherAmount = 0;
+                        double advanceAmount = 0;
+                        double mobilelAmount = 0;
+                        double convenAmount = 0;
+                        double enterAmount = 0;
+                        double InTaxAmount = 0;
+                        double OtherDedAmount = 0;
+                        double BazarAmount = 0;
 
                         #region ------------------------------------Salary Sheet----------------------------------
                         if (dicEmpSalry.ContainsKey(dtEmployees.Rows[i]["EmpSystemID"].ToString()))
@@ -5796,11 +6139,16 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                             List<DataRow> drSalaryHeadCollection = dicEmpSalry[dtEmployees.Rows[i]["EmpSystemID"].ToString()];
                             if (drSalaryHeadCollection.Count > 0)
                             {
+                                int ctccol = 0;
+                                int gccol = 0;
                                 for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
                                 {
+
                                     if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
                                     {
-                                        sheet1.Range[xlsRow, npstruct].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                        double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount+ mobilelAmount+ convenAmount+ enterAmount+ InTaxAmount+ OtherDedAmount+ BazarAmount);
+                                        sheet1.Range[xlsRow, npstruct].Number = netPay;
+                                        //sheet1.Range[xlsRow, npstruct].Number = Convert.ToDouble(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
                                         continue;
                                     }
                                     try
@@ -5810,14 +6158,121 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         {
                                             if (drSalaryHeadCollection[CI]["HeadType"].ToString() == "D")
                                             {
+                                                if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "STAMP")
+                                                {
+                                                    stampAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
+                                                if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "ABSENTEEISM")
+                                                {
+                                                    absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
+                                                if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "BAZAR")
+                                                {
+                                                    absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
+                                                if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "TAX")
+                                                {
+                                                    absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
+                                                if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "OTHERS DEDUCTION")
+                                                {
+                                                    absentAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+
+                                                if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "ADVANCE")
+                                                {
+                                                    advanceAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
                                                 sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString()) * (-1);
                                             }
 
                                             else
                                             {
+                                                if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "OVERTIME")
+                                                {
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = otAmount;
 
-                                                sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "GROSS")
+                                                {
+                                                    gross = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "ATTENDANCE BONUS")
+                                                {
+                                                    AttdnBonus = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "TOTAL GROSS")
+                                                {
+                                                    gccol = xx.XLColIndex;
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
+                                                    if (ctccol != 0)
+                                                    {
+                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
+                                                    }
+
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "CTC")
+                                                {
+                                                    ctccol = xx.XLColIndex;
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
+                                                    if (gccol != 0)
+                                                    {
+                                                        sheet1.Range[xlsRow, ctccol].Number = gross + otAmount + AttdnBonus + otherAmount + mobilelAmount + convenAmount + enterAmount;
+                                                    }
+
+                                                }
+
+                                                else if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "MOBILE ALLOWANCE")
+                                                {
+                                                    mobilelAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                    
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "CONVEYANCE ALLOWANCE")
+                                                {
+                                                    convenAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                   
+                                                }
+                                                else if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "ENTERTAINMENT ALLOWANCE")
+                                                {
+                                                    enterAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                 
+                                                }
+
+                                                else
+                                                {
+                                                    if (drSalaryHeadCollection[CI]["SalaryHead"].ToString().ToUpper() == "OTHERS EARNING")
+                                                    {
+                                                        otherAmount = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+                                                    }
+
+                                                    sheet1.Range[xlsRow, xx.XLColIndex].Number = clsStaticInfo.dbl(drSalaryHeadCollection[CI]["DisbusmentAmount"].ToString());
+
+                                                }
                                             }
+
+
+                                            double netPay = Math.Round(gross + otAmount + AttdnBonus + otherAmount + stampAmount + absentAmount + advanceAmount + mobilelAmount + convenAmount + enterAmount + InTaxAmount + OtherDedAmount + BazarAmount);
+                                            sheet1.Range[xlsRow, npstruct].Number = netPay;
 
                                             sheet1.Range[xlsRow, xx.XLColIndex].NumberFormat = oRU.NumberFormatInt();
                                             sheet1.Range[xlsRow, xx.XLColIndex].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -21786,7 +22241,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                     langID = tempId;
                     var dtLangName = getLanguageName(langID);
                     tempId = dtLangName.Rows[0]["UserName"].ToString();
-                 
+
                 };
 
                 fileName = "LeaveRegisterForm" + plantId + ".docx";
@@ -21796,7 +22251,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 {
                     throw new CustomException("File <" + fileName + "> Not Found.");
                 }
-               
+
                 if (!string.IsNullOrEmpty(fileName))
                 {
                     strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), fileName);
@@ -21948,7 +22403,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 #endregion
 
                 string fileNames = "Leave Register Form.docx";
-                
+
                 document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
             }
@@ -22722,7 +23177,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
         #endregion Accounting Integration With Third party
 
-       
+
     }
 
 
