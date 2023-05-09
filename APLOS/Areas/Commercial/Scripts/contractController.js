@@ -27,6 +27,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         SOQty: 0,
         Amount: 0,
         UDNo: null,
+        FileNo: null,
         IsPrint: false,
         IsMarketingCommisssionApplicable: false,
         MarketingCommisssionId: null,

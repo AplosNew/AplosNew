@@ -307,10 +307,10 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
             .then(
                 function successCallback(response) {
 
-                    for (var i = 0; i < response.data.length; i++) {
-                        response.data[i]["LCDate"] = new Date(response.data[i]["LCDate"]);
-                        response.data[i]["AmendmentDate"] = new Date(response.data[i]["AmendmentDate"]);
-                    }
+                    //for (var i = 0; i < response.data.length; i++) {
+                    //    response.data[i]["LCDate"] = new Date(response.data[i]["LCDate"]);
+                    //    response.data[i]["AmendmentDate"] = new Date(response.data[i]["AmendmentDate"]);
+                    //}
                     $scope.purchaseLCList = response.data;
 
                 },

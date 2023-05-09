@@ -4,7 +4,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $rootScope.title = 'Good Work';
     $scope.ModelList = [];
     $scope.path = 'Attendances/GoodWork/';
-    $scope.saveUrl = $scope.path + 'CreateUserEditControl';
+    $scope.saveUrl = $scope.path + 'CreateGoodWork';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     //$scope.deleteUrl = $scope.path + 'delete/';
@@ -19,7 +19,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
     $scope.ModelTemp = {
         Id: null,
-        Date: null,
+        WorkDate: null,
         ShiftId: null,
         Shift: null,
         Remarks: null
@@ -39,9 +39,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         ApprovedById: null,
         ApprovedByName: null,
         Remarks: null,
-        SubSection: null,
-        Section: null,
-        Department: null
+        Remarks: null
     };
     $scope.ModelEmpNew = Object.assign({}, $scope.ModelEmpTemp);
 
@@ -110,16 +108,16 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         angular.element(document.querySelector("#employeePopUp")).modal("hide");
     };
 
-    $scope.GoodWorkList = [];
-    $scope.getGoodWorkEmpList = function (employeeId) {
-        $http({
-            method: "get",
-            url: "Attendances/GoodWork/GetGoodWorkDataList?empId=" + employeeId
-        }).then(function successCallback(response) {
-            $scope.GoodWorkList = response.data;
-        });
-    };
-    $scope.getGoodWorkEmpList();
+    //$scope.GoodWorkList = [];
+    //$scope.getGoodWorkEmpList = function (employeeId) {
+    //    $http({
+    //        method: "get",
+    //        url: "Attendances/GoodWork/GetGoodWorkDataList?empId=" + employeeId
+    //    }).then(function successCallback(response) {
+    //        $scope.GoodWorkList = response.data;
+    //    });
+    //};
+    //$scope.getGoodWorkEmpList();
 
     $scope.popUpDataList = [];
     $scope.showByWhomEmployeeListPopUp = function (index) {
@@ -147,9 +145,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
 
 
     $scope.clearEmp = function () {
-        $scope.GoodWorkList[$scope.tempIndex].ApprovedById =null;
-        $scope.GoodWorkList[$scope.tempIndex].ApprovedByCode= null;
-        $scope.GoodWorkList[$scope.tempIndex].ApprovedByName =null;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedById = null;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedByCode = null;
+        $scope.GoodWorkList[$scope.tempIndex].ApprovedByName = null;
     }
 
     $scope.closePopUp = function () {
@@ -157,11 +155,9 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     }
 
     // #region CalcTime
-    $scope.obj = {};
-    $scope.getMinute = function (data,index) {
+    $scope.getMinute = function (data, index) {
         try {
             if (!baseService.isUndefinedOrNull(data.FromTime) && !baseService.isUndefinedOrNull(data.ToTime)) {
-                $scope.obj = data.data;
                 $scope.MinuteUrl = 'Attendances/GoodWork/GetMinute'
                 $http({
                     method: 'POST',
@@ -181,40 +177,92 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         }
     }
 
-    //$scope.GoodWorkEmployeeList = [];
-    //$scope.GetGoodWorkcenter = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'GetGoodWorkcenter',
-    //        dataType: 'JSON'
-    //    }).then(function succ(resp) {
-    //        $scope.GoodWorkEmployeeList = resp.data;
-    //    });
-    //}
-    //$scope.GetGoodWorkcenter();
+    $scope.removeRow = function (data) {
+        $http({
+            method: 'GET',
+            url: 'Attendances/GoodWork/DeleteChildUrl?Id=' + data.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getGoodWorkEmpList();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.Save = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ModelNew, 'goodWorkDetail': $scope.GoodWorkList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Clear();
+                    $scope.getData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.Clear = function () {
+        $scope.Action = 'Save';
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.GoodWorkList = [];
+        return true;
+    };
+    $scope.getData = function () {
+        $http({
+            method: 'Get',
+            url: $scope.path + "GetGoodWorkList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+        });
+    }
+    $scope.getData();
+
+     $scope.GetDblClick = function (args) {
+         $scope.ModelNew = Object.assign({}, args.data);
+         $scope.GetGoodWorkDetailCenter();
+        /* $scope.getGoodWorkEmpList();*/
+         //$scope.showByWhomEmployeeListPopUp();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.GoodWorkList = [];
+    $scope.GetGoodWorkDetailCenter = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetGoodWorkDetailCenter?goodWorkId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.GoodWorkList = resp.data;
+        });
+    }
+    //$scope.GetGoodWorkDetailCenter();
 
     // #endregion CalcTime
     ////***********************************User ********************************************************//
-    //$scope.removeRow = function (data) {
-    //    /* $scope.HrefDataList.splice(index, 1);*/
-
-    //    $http({
-    //        method: 'GET',
-    //        url: 'TaskManagement/TaskAppliedOn/DeleteChildUrl?Id=' + data.Id,
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, 'success');
-    //            $scope.getHrefList();
-    //        }
-    //        function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //    });
-    //};
 
     //$scope.HrefDataList = [];
     //$scope.getHrefList = function () {
@@ -306,55 +354,10 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     ////***********************************Href ********************************************************//
 
 
-    //$scope.Save = function () {
-    //    try {
-    //        $scope.$broadcast('show-errors-check-validity');
-
-    //        if ($scope.ModelNewForm.$valid) {
-    //            if ($scope.ModelNew.Password == $scope.ModelNew.RePassword) {
-
-    //                $http({
-    //                    method: 'POST',
-    //                    url: $scope.saveUrl,
-    //                    data: {
-    //                        'data': $scope.ModelNew
-    //                        , 'userECDetail': $scope.HrefDataList
-    //                    },
-    //                    dataType: 'JSON'
-    //                }).then(function successCallback(response) {
-    //                    if (response.data.Error === true) {
-    //                        ShowResult(response.data.Message, 'failure');
-    //                    }
-    //                    else {
-    //                        ShowResult(response.data.Message, 'success');
-    //                        $scope.Clear();
-    //                        $scope.getData();
-    //                    }
-    //                }), function errorCallBack(response) {
-    //                    ShowResult(response.data.Message, 'failure');
-    //                }
-    //            }
-    //            else {
-    //                ShowResult('Password and Confirm Password does not match!', 'failure');
-    //            }
-    //        }
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //};
 
 
-    //$scope.getData = function () {
-    //    $http({
-    //        method: 'Get',
-    //        url: $scope.path + "GetUserEditControlList",
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        $scope.ModelList = response.data;
-    //    });
-    //}
-    //$scope.getData();
+
+
 
     //$scope.ModelDetailList = [];
     //$scope.GetUserEditControlDetailData = function () {
@@ -368,17 +371,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     //}
     ////$scope.getUserEditControlDetailData();
 
-    //$scope.GetDblClick = function (args) {
-    //    $scope.ModelNew = Object.assign({}, args.data);
-    //    $scope.ModelNew.RePassword = args.data.Password;
-    //    $scope.getData();
-    //    $scope.getHrefList();
-    //    //$scope.GetUserEditControlDetailData($scope.ModelNew.Id);
-    //    $scope.Action = 'Update';
-    //    if (!$rootScope.isCollapsed) {
-    //        $rootScope.toggle();
-    //    }
-    //};
+   
 
     //$scope.Delete = function () {
     //    if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -403,13 +396,6 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     //    }
     //};
 
-    //$scope.Clear = function () {
-    //    $scope.Action = 'Save';
-    //    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    //    $scope.HrefDataList = [];
-    //    //$scope.getHrefList = [];
-    //    return true;
-    //};
 
 
 }
