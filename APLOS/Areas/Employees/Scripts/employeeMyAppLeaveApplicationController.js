@@ -213,6 +213,34 @@ function employeeMyAppLeaveApplicationController(commonMessage, $scope, $rootSco
         }
     }
 
+    //$('.datepicker').datepicker({
+    //    startDate: '-36m',
+    //    endDate: '-0d',
+    //    datesDisabled: $scope.DisabledDates,
+    //    format: 'dd-M-yyyy',
+    //    todayHighlight: true,
+    //    //minDate: 0,
+    //    autoclose: true,
+    //    inline: true,
+    //    changeMonth: true,
+       
+    //    beforeShowDay: function (date) {
+    //        var eventDates = {};
+    //        eventDates[new Date('12/04/2014')] = new Date('12/04/2014');
+    //        eventDates[new Date('12/06/2014')] = new Date('12/06/2014');
+    //        eventDates[new Date('12/20/2014')] = new Date('12/20/2014');
+
+    //        var highlight = eventDates[date];
+    //        if (highlight) {
+    //            return [true, "event", highlight];
+    //        } else {
+    //            return [true, '', ''];
+    //        }
+    //    }
+
+    //});
+
+
     $scope.Save = function () {
         try {
             ValidationLeave();

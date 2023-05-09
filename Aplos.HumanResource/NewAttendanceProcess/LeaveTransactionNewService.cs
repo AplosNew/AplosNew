@@ -674,14 +674,7 @@ LEFT JOIN
                                                      SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
                                     LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
                                     WHERE DC.PlantId='" + sPlantID + @"') DM
-                                                     WHERE DM.DesignationId IN (
-                                                      SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'
-                                                      )
-                                                    )
-
-                                            				                                    )--IN
-
-"
+                                                     WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'))) AND LT.UserName NOT LIKE '%Maternity%'"
                     };
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
@@ -831,7 +824,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                 WHERE els.EmployeeID = '" + EmpSystemID + @"'                                             
                                               --AND CalanderYearID = '" + calYearId + @"'
                                               AND els.LeaveTypeId not IN 
-                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND lt.LeaveType <>'Maternity'"
+                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%'"
                     };
                     parameters.sort = "LeaveName";
                     parameters.order = "ASC";
