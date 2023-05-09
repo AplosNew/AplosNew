@@ -157,12 +157,11 @@ namespace Library.Accounting.Accounts
             {
                 string taxYearId = "";
                 var sql = @"SELECT DISTINCT TY.Id TaxCodeYearId
-FROM [MST].[TaxCodeYear] AS TCY
-LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
-LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
-WHERE (Month(TYP.StartDate) between Month('" + fromDate.ToDbDate() + "') and Month('" + toDate.ToDbDate() + @"'))
-and (Year(TYP.StartDate) between Year('" + fromDate.ToDbDate() + "') and Year('" + toDate.ToDbDate() + @"'))
---WHERE (Month(TYP.StartDate) >= Month('" + fromDate.ToDbDate() + "') AND Year(TYP.StartDate) >= Year('" + fromDate.ToDbDate() + "')) AND (Month(TYP.EndDate) <= Month('" + toDate.ToDbDate() + "') and Year(TYP.EndDate) <= Year('" + toDate.ToDbDate() + @"'))";
+                        FROM [MST].[TaxCodeYear] AS TCY
+                        LEFT JOIN [SCS].[TaxYear] AS TY ON TY.Id=TCY.TaxYearId
+                        LEFT JOIN [SCS].[TaxYearPeriod] AS TYP ON TYP.TaxYearId=TY.Id
+                        WHERE (Year(TYP.StartDate) = Year('"+ fromDate + @"')  and Month(TYP.StartDate) = Month('"+ fromDate + @"')) or
+                        (Year(TYP.EndDate) = Year('" + toDate + @"')  and Month(TYP.EndDate) = Month('"+ toDate + @"'))";
                 DataTable dtTax = _sqlRepository.GetDataTable(sql);
                 taxYearId = "''";
                 if (dtTax.Rows.Count > 0)

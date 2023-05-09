@@ -432,23 +432,46 @@
             </ul>
         </div>
         <div class="clearfix"></div>
-        <fieldset class="scheduler-border">
-            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-
-            <!--Create a tag which acts as a container for PivotGrid-->
-            <div id="PivotGrid1" style="width: 60%; height: 670px; overflow: scroll; float: left;"></div>
-            <button id="Button1">Apply formatting</button>
-            @*<button id="btnExport" ng-click="PrintPurchaseRegister1()">Export</button>*@
-            <button id="btnExport">Export</button>
-
-
-            <!--Create a tag which acts as a container for PivotTable Field List-->
-            <div id="PivotSchemaDesigner1" style="height:650px;width:40%;"></div>
-        </fieldset>
-
-
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Other Purchase Register</legend>
+                    <div class="clearfix"></div>
+                    <div class="form-group" show-errors id="div_FromDate">
+                        <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <input type="text" name="Form Date" ng-model="report.OtherFromDate" datepicker tabindex="2" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors id="div_ToDate">
+                        <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
+                        <div class="col-sm-9  show-message">
+                            <input type="text" name="To Date" ng-model="report.OtherToDate" datepicker tabindex="3" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors id="div_ToDate">
+                        <label class="col-sm-3 control-label">Report Type<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <div class="select-style">
+                                <select name="ReportType" ng-model="report.OtherReportType" class="col-sm-3 form-control">
+                                    <option value="PartyWise">Party Wise</option>
+                                    <option value="GRNWise">Invoice Wise</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="getOtherPurchaseRegisterReport();" ng-disabled="report.OtherReportType==null" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                        </ul>
+                    </div>
+                </fieldset>
+            </div>
+            
+        </div>
     </div>
 </div>
+
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 <div class="modal fade site-modal in" id="ListOfPendingGRNList" role="dialog" data-backdrop="static">
 	<div class="modal-dialog modal-lg modellgModify">

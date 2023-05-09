@@ -413,17 +413,17 @@
 </div>
 <div class="table-responsive modal-table aplos-grid-toggle">
     <div style="color:black;" ng-init="chkinit()" id="GridPurchaseLC" ej-grid e-datasource="purchaseLCList"
-         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
-         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-gridlines="vertical"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-enabletouch="false">
         <div e-columns>
             <div e-column e-headertext="Actions" e-template="#ShowActionButtonsBOM" e-width="40"></div>
             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="20" e-visible="false"></div>
             <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="120"></div>
             <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="150"></div>
             <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="50"></div>
-            <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="LCDate" e-headertext="Opening Date" e-width="80"></div>
+            <div e-column e-type="string" e-format="{0:dd-MMM-yyyy}" e-field="LCDate" e-headertext="Opening Date" e-width="80"></div>
             <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="60" e-textalign="right"></div>
-            <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="80"></div>
+            <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="string" e-width="80"></div>
             <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="60" e-textalign="right"></div>
             <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
             <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="150"></div>
