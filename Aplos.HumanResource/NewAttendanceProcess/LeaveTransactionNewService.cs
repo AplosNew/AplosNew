@@ -539,7 +539,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                         ,els.EncashedInbetween
                                         ,ltd.IsAvailExceptionAllowedOnSpecialAppeal,
 										 0.00 Balance,
-                                        CurrentAllocation=CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,
+                                        CurrentAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,0),
                                         ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
 										 --all carry forward
                                          --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
@@ -551,7 +551,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
 
 
-                                         LeaveDays=CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,
+                                         LeaveDays=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0),
 										 --applied +applied ob
                                          ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
 										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
@@ -674,14 +674,7 @@ LEFT JOIN
                                                      SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
                                     LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
                                     WHERE DC.PlantId='" + sPlantID + @"') DM
-                                                     WHERE DM.DesignationId IN (
-                                                      SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'
-                                                      )
-                                                    )
-
-                                            				                                    )--IN
-
-"
+                                                     WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'))) AND LT.UserName NOT LIKE '%Maternity%'"
                     };
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
@@ -713,7 +706,7 @@ LEFT JOIN
 
                                         ,ISNULL(ltd.IsAvailExceptionAllowedOnSpecialAppeal,0)IsAvailExceptionAllowedOnSpecialAppeal,
 										 0.00 Balance,
-                                        CurrentAllocation=CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,
+                                        CurrentAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,0),
                                          --ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
 										 --all carry forward
                                          --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
@@ -726,7 +719,7 @@ LEFT JOIN
 
 
                                          --,ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
- LeaveDays=CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,
+ LeaveDays=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0),
 										 --applied +applied ob
                                          ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
 										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
@@ -831,7 +824,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                 WHERE els.EmployeeID = '" + EmpSystemID + @"'                                             
                                               --AND CalanderYearID = '" + calYearId + @"'
                                               AND els.LeaveTypeId not IN 
-                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND lt.LeaveType <>'Maternity'"
+                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%'"
                     };
                     parameters.sort = "LeaveName";
                     parameters.order = "ASC";

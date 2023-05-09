@@ -16679,16 +16679,13 @@ where h.HeadCategory='GROSS'
 											LEFT JOIN 
 											(SELECT SUM(TOT) TotalOTHr,EmpSystemID,PlantID FROM (
                                             SELECT 
-                                            CASE " + OTCase + @"
-                            WHEN FOT.TotalOTHr > CAS.MaxOTPerDay then CAS.MaxOTPerDay 
-                                            
-                                                else FOT.TotalOTHr end TOT
+                                            CASE WHEN FOT.TotalOTHr > CAS.MaxOTPerDay then CAS.MaxOTPerDay else FOT.TotalOTHr end TOT
                                             ,FOT.EmpSystemID,FOT.WorkDate,FOT.PlantID,FOT.TotalOTHr
                                              FROM FinalOT FOT LEFT JOIN 
                                             ComplianceAttendanceSetting CAS ON CAS.CompanyGroupId = FOT.GroupID  AND CAS.PlantID = '" + plantId + @"'
 	                                        LEFT JOIN AttdnProcessData APD  ON APD.WorkDate = FOT.WorkDate and apd.EmpSystemID = FOT.EmpSystemID
 											LEFT JOIN DayType DT  ON DT.DayType = APD.DayStatus 
-                                            where " + wcBasedOnSetting + @"
+                                             WHERE 1 = 1 AND APD.DayStatus='P'
                                             ) dd
                                             WHERE WorkDate BETWEEN '" + fromDate + @"' and '" + toDate + @"' and PlantID = '" + plantId + @"'
                                             GROUP BY EmpSystemID,PlantID ) OT ON OT.EmpSystemID = MMDSA.EmpSystemID

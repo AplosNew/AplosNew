@@ -2442,25 +2442,27 @@ namespace Library.Accounting.Accounts
 			,TC.Id ThirdCharacteristicsId
 			,TC.CharacteristicsValueId ThirdCharacteristicsValueId
             ,MO.Id MasterOrderId,SO.Id SONo,po.PONumber, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate,DT.UserName DestinationName
-			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,(ISC.ReturnNetWeight * SM.TransactionRate) Amount,0 TaxAmount,ISC.ReturnNetWeight VerifiedQty
+			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,(ISC.ReturnNetWeight * SM.TransactionRate) Amount
+			, TaxAmount=(SM.TaxAmount/SM.BaseAmount)*(ISC.ReturnNetWeight * SM.TransactionRate),ISC.ReturnNetWeight VerifiedQty
            ,SM.TransactionQty SalesQty
-                ,SM.TransactionQty 
+                ,SM.TransactionQty ,OtherQty=ISNULL(SRD.OtherReturnQty,0),BalanceQty=SM.TransactionQty-ISNULL(SRD.OtherReturnQty,0),CurrentBalanceQty=SM.TransactionQty-ISC.ReturnNetWeight
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
 	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount,ISNULL(MM.HSNCodeId,ART.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode
             FROM TRN.SalesMaterial AS SM 
             LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 			LEFT JOIN dbo.SalesPacking SP ON SP.SalesId=SA.Id
-			LEFT JOIN (SELECT isc.SalesId,pli.PackingId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
+			LEFT JOIN (SELECT isc.SalesId,pli.PackingId,isc.Booked,pli.SOId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
 					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
 					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
+					left join [TRN].[SalesOrder] SO ON SO.id=pli.SOId
 					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
-					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId) ISC ON ISC.PackingId=sp.PackingId
-            LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId,isc.Booked,pli.SOId) ISC ON ISC.PackingId=sp.PackingId
+             JOIN [TRN].[SalesOrder] AS SO ON ISC.SOId=SO.Id and SO.Id=sm.SalesOrderId
             JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 			LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 			LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
-
+			LEFT JOIN (SELECT SalesMaterialId,SUM(TransactionQty) OtherReturnQty FROM TRN.SalesReturnDetail GROUP BY SalesMaterialId) SRD ON SRD.SalesMaterialId=SM.Id
             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
             LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
@@ -2493,7 +2495,7 @@ namespace Library.Accounting.Accounts
 				string sql = @"SELECT   '' Id,A.SalesId,a.SalesMaterialId,A.TaxCategoryId,A.HSNCodeId
 								,A.[Percentage],0 Amount ,0 TaxAmount,B.Code HSNCode,B.[Description]
                                 FROM TRN.SalesTax A
-                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
+                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id 
                                 where A.SalesId='" + salesId + "' and A.SalesServiceId is null";
 				return _sqlRepository.GetDataCollection(sql);
 			}
