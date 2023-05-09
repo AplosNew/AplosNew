@@ -2445,7 +2445,7 @@ namespace Library.Accounting.Accounts
 			, SO.SOType,SO.Rate,ISC.ReturnNetWeight ReturnQty,(ISC.ReturnNetWeight * SM.TransactionRate) Amount
 			, TaxAmount=(SM.TaxAmount/SM.BaseAmount)*(ISC.ReturnNetWeight * SM.TransactionRate),ISC.ReturnNetWeight VerifiedQty
            ,SM.TransactionQty SalesQty
-                ,SM.TransactionQty 
+                ,SM.TransactionQty ,OtherQty=ISNULL(SRD.OtherReturnQty,0),BalanceQty=SM.TransactionQty-ISNULL(SRD.OtherReturnQty,0),CurrentBalanceQty=SM.TransactionQty-ISC.ReturnNetWeight
                 ,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
 	           ,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount,ISNULL(MM.HSNCodeId,ART.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode
             FROM TRN.SalesMaterial AS SM 
@@ -2462,7 +2462,7 @@ namespace Library.Accounting.Accounts
 			JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 			LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 			LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
-
+			LEFT JOIN (SELECT SalesMaterialId,SUM(TransactionQty) OtherReturnQty FROM TRN.SalesReturnDetail GROUP BY SalesMaterialId) SRD ON SRD.SalesMaterialId=SM.Id
             LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
             LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
@@ -2495,7 +2495,7 @@ namespace Library.Accounting.Accounts
 				string sql = @"SELECT   '' Id,A.SalesId,a.SalesMaterialId,A.TaxCategoryId,A.HSNCodeId
 								,A.[Percentage],0 Amount ,0 TaxAmount,B.Code HSNCode,B.[Description]
                                 FROM TRN.SalesTax A
-                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id   
+                                Left JOIN [HKP].[HSNCode] B On A.HSNCodeId=B.Id 
                                 where A.SalesId='" + salesId + "' and A.SalesServiceId is null";
 				return _sqlRepository.GetDataCollection(sql);
 			}
