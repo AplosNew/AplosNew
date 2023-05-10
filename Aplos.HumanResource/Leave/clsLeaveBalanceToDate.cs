@@ -934,8 +934,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 								, BroughtForward= CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END								
 								, B.CarryForwardOpeningBalance, B.DaysCanBeSanctioned, B.AppliedDays,
                                 B.AvailedDays, B.YearEndEncash,isnull(APL.LeaveDuration,0) AS AppliedLeave,APP.LeaveDuration AS AllFutureAppliedLeave,
-                                --isnull(B.CarryForwardOpeningBalance,0)+isnull(B.BroughtForward,0)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
-                                ClosingBalance=B.DaysCanBeSanctioned+(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END)-APL.LeaveDuration
+                                isnull(B.CarryForwardOpeningBalance,0)+(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
                             FROM (		SELECT BAL.EmployeeId, BAL.LeaveTypeId,
 								       SUM(BAL.CurrentYearAllocation) AS CurrentYearAllocation,
 								        SUM(BAL.BroughtForward) AS BroughtForward,SUM(BAL.CarryForwardOpeningBalance) AS CarryForwardOpeningBalance,   SUM(BAL.DaysCanBeSanctioned) AS DaysCanBeSanctioned,
@@ -974,7 +973,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                  JOIN LeavePolicyDetail AS lpd ON lpd.LPMSystemID=apd.LeavePolicyMasterId AND lpd.LTSystemID=l.LeaveTypeId
                                 WHERE 
                                 apd.WorkDate BETWEEN '" + _FromDate + @"' AND '" + _ToDate + @"'
-                                AND ei.SystemId='" + EmployeeSystemId + @"' AND lpd.EncashmentBasis='CalanderYear'
+                                AND ei.SystemId='" + EmployeeSystemId + @"' 
 								) AS BAL
 								GROUP BY BAL.EmployeeId, BAL.LeaveTypeId
 								
