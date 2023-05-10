@@ -2,31 +2,22 @@
 
 using Aplos.Controllers;
 using Aplos.Properties;
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Enums;
-using Library.Model.Materials;
 using Library.Service.Helpers;
 using Library.MaterialManagement.Inventory;
 using Library.Service.Materials;
-using Library.ViewModel.Materials;
-using Newtonsoft.Json;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
 using Aplos.MaterialManagement;
-using Syncfusion.ExcelToPdfConverter;
-using Syncfusion.Pdf;
 
 
 
@@ -38,33 +29,15 @@ namespace Aplos.Areas.Materials.Controllers
     public class MaterialLedgerController : BaseController
     {
         #region -- Constructor
-        //private readonly IPurchaseOrderService _inventoryReveiveService;
         private readonly IMaterialMasterService _materialMasterService;
         private readonly IInventoryReceiveService _inventoryReceiveService;
         private readonly ISqlRepository _sqlRepository;
-
-        private readonly IMaterialMasterAlternativeUOMService _materialMasterAlternativeUOMService;
-        private readonly IMaterialMasterProcessRoutingService _materialMasterProcessRoutingService;
-        private readonly IMaterialMasterUsageService _materialMasterUsageService;
-        private readonly IMaterialMasterAttributeValueService _materialMasterAttributeValueService;
-        private readonly IMaterialAttributeValueService _materialValueService;
-        private readonly IMaterialMasterCharacteristicsValueService _materialMasterCharacteristicsValueService;
-        private readonly IMaterialMasterProcessSetService _materialMasterProcessService;
-        private readonly IMaterialMasterMachineProcessService _assetItemProcessService;
-        //private readonly IInventoryReceiveService _inventoryReceiveService;
 
         public MaterialLedgerController(
               ISqlRepository sqlRepository,
               IInventoryReceiveService inventoryReceiveService
              , IMaterialMasterService materialMasterService
-            , IMaterialMasterAlternativeUOMService materialMasterAlternativeUOMService
-            , IMaterialMasterProcessRoutingService materialMasterProcessRoutingService
-            , IMaterialMasterUsageService materialMasterUsageService
-            , IMaterialMasterAttributeValueService materialMasterAttributeValueService
-            , IMaterialMasterCharacteristicsValueService materialMasterCharacteristicsValueService
-            , IMaterialMasterProcessSetService materialMasterProcessService
-            , IMaterialMasterMachineProcessService assetItemProcessService
-            , IMaterialAttributeValueService materialValueService
+          
         
             )
         {
@@ -72,16 +45,6 @@ namespace Aplos.Areas.Materials.Controllers
             _sqlRepository = sqlRepository;
              _inventoryReceiveService = inventoryReceiveService;
             _materialMasterService = materialMasterService;
-            _materialMasterAlternativeUOMService = materialMasterAlternativeUOMService;
-            _materialMasterProcessRoutingService = materialMasterProcessRoutingService;
-            _materialMasterUsageService = materialMasterUsageService;
-            _materialMasterAttributeValueService = materialMasterAttributeValueService;
-            _materialMasterCharacteristicsValueService = materialMasterCharacteristicsValueService;
-            _materialMasterProcessService = materialMasterProcessService;
-            _assetItemProcessService = assetItemProcessService;
-            _materialValueService = materialValueService;
-    
-
         }
 
         #endregion -- Constructor
@@ -439,6 +402,84 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetOtherPurchaseRegisterInvoiceData(string PlantId, string ToDate, string FromDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetOtherPurchaseRegisterInvoiceWiseData(identity.CompanyId, identity.PlantId, FromDate, ToDate, null, false));
+                var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+       
+
+        [HttpPost, Authorize]
+        public ActionResult OtherPurchaseRegisterInvoieWiseReport(string PlantId, string ToDate, string FromDate, string GRNNo, string SheetName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+
+                string fileName = "";
+                fileName = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, GRNNo, "Purchase Register Report GRN Wise " + FromDate + " To " + ToDate + "");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        [HttpPost, Authorize]
+        public JsonResult GetOtherPurchaseRegisterPartyWiseData(string fromDate, string toDate, string Type)
+        {
+
+            DateTime fDate = DateTime.Parse(fromDate);
+            DateTime tDate = DateTime.Parse(toDate);
+            if (fromDate == null || fromDate == "")
+            {
+                throw new CustomException("Select From Date");
+            }
+            else if (toDate == null || toDate == "")
+            {
+                throw new CustomException("Select To Date");
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterPartyWiseData(identity.CompanyId, identity.PlantId, fromDate, toDate, null, false));
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult OtherPurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate, string PartyId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+
+                string fileName = "";
+                fileName = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Purchase Report Register Party Wise" + FromDate + " To " + ToDate + "");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
 
 
         [Authorize, HttpGet]
