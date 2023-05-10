@@ -1389,7 +1389,7 @@ namespace Aplos.Areas.Materials.Controllers
                 int edCRow = ROW;
                 sheet.Range[edCRow, 5].Text = "TOTAL";
                 sheet.Range[edCRow, 5].CellStyle.Font.Bold = true;
-
+                sheet.Range[edCRow, 1, edCRow, 5].Merge();
                 sheet.Range[edCRow, 6].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(GrossConsumption)", null)); ;
                 sheet.Range[edCRow, 6].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 6].CellStyle.Font.Bold = true;
