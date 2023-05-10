@@ -102,7 +102,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         //$scope.ActionC = 'Update Responsible Person'
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            $scope.GetBudget(args.data.HRReportMasterChildId);
+            $scope.GetBudget($scope.ModelNew.Id);
             //$scope.GetAllSavedBudgetCode();
            // $scope.GetSavedResponsiblePerson();
         }
@@ -143,7 +143,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             url: $scope.path + "GetBudgetCode",
             data: {
                 'EntityId': EntityId,
-                'id': $scope.ModelNew.HRReportMasterChildId
+                'id': $scope.ModelNew.Id
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -229,7 +229,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         Code: null,
         Active: true,
         Remarks: null,
-        HRReportMasterChildId:null
+        
         
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
