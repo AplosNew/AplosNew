@@ -1297,7 +1297,7 @@ namespace Aplos.Areas.Materials.Controllers
                 {
                     throw new Exception("No Data Found.");
                 }
-                int ROW = 4; int COL = 1;
+                int ROW = 5; int COL = 1;
                 sheet.Range[ROW, COL].Text = "SlipNo. :";
                 sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["IssueSlipId"].ToString();
                 sheet.Range[ROW, COL + 2].Text = "Date" + ": " + dtOrder.Rows[0]["AddedDate"].ToString();
@@ -1315,7 +1315,7 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, 1, ROW + 1, 10].BorderInside(ExcelLineStyle.Hair);
 
 
-                ROW = 5; COL = 1;
+                ROW = 6; COL = 1;
                 sheet.Range[ROW, COL].Text = "PO No. :";
                 sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["POId"].ToString();
                 sheet.Range[ROW, COL + 2].Text = "Cost Center" + ": " + dtOrder.Rows[0]["CostCenter"].ToString();
@@ -1331,8 +1331,8 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, 1, ROW + 1, 10].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW + 1, 10].BorderInside(ExcelLineStyle.Hair);
 
-                sheet.Range[6, 1, 6, COL + 10].Merge();
-                ROW = 6; COL = 1;
+                sheet.Range[7, 1, 7, COL + 10].Merge();
+                ROW = 7; COL = 1;
                 ROW++;
                 #region ColumnsHeader
 
@@ -1343,7 +1343,7 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].Text = "Article"; sheet[ROW, COL].ColumnWidth = 30; int colArticle = COL; COL++;
                 sheet[ROW, COL].Text = "%Age"; sheet[ROW, COL].ColumnWidth = 14; int colAge = COL; COL++;
                 sheet[ROW, COL].Text = "Value Loss"; sheet[ROW, COL].ColumnWidth = 19; int colVL = COL; COL++;
-                sheet[ROW, COL].Text = "UOM"; sheet[ROW, COL].ColumnWidth = 20; int colUoM = COL; COL++;
+                sheet[ROW, COL].Text = "UOM"; sheet[ROW, COL].ColumnWidth = 8; int colUoM = COL; COL++;
                 sheet[ROW, COL].Text = "Total Qty"; sheet[ROW, COL].ColumnWidth = 8; int colTQ = COL; COL++;
                 sheet[ROW, COL].Text = "Issue Qty"; sheet[ROW, COL].ColumnWidth = 8; int colIQ = COL;
 
@@ -1387,8 +1387,8 @@ namespace Aplos.Areas.Materials.Controllers
                 }
                 #endregion
                 int edCRow = ROW;
-                sheet.Range[edCRow, 1].Text = "TOTAL";
-                sheet.Range[edCRow, 1].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 5].Text = "TOTAL";
+                sheet.Range[edCRow, 5].CellStyle.Font.Bold = true;
 
                 sheet.Range[edCRow, 6].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(GrossConsumption)", null)); ;
                 sheet.Range[edCRow, 6].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
@@ -1427,7 +1427,8 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet["A" + startRow.ToString()].FreezePanes();
 
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
+                //reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
+                reportUtility.CompanyHeader(ref sheet, endCol, "Material Issue Report", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
