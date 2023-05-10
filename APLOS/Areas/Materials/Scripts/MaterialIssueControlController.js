@@ -786,7 +786,7 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             $scope.fileName = "MaterialIssueReport.xls";
 
           
-           // $scope.ReportFormat = 'Excel';
+            //$scope.ReportFormat = 'Excel';
             $scope.ReportFormat = 'Pdf';
             var url = 'Materials/MaterialIssueControl/GetMaterialIssueReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
             $rootScope.report(url);
