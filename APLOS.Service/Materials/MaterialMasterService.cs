@@ -682,6 +682,8 @@ namespace Library.Service.Materials
                         data.IsFreeField = item.IsFreeField;
                         data.IsPreDefinedField = item.IsPreDefinedField;
                         data.IsMandatory = item.IsMandatory;
+                        data.JoiningSequence = item.JoiningSequence;
+                        data.JoiningParameter = item.JoiningParameter;
                         AuditService.UpdatedLog(data);
                         _attributeRepository.Update(data);
 
@@ -721,7 +723,7 @@ namespace Library.Service.Materials
                                  A.MaterialAttributeId, A.[Sequence], A.Active, A.Archive
 	                             , B. Code, B.ShortName, B.StandardName, B.UserName, B.Remarks, B.[Description], B.CreationLevel
 	                             , A.IsFreeField, A.IsPreDefinedField, A.IsMandatory, B.ValueAssignmentLevel, B.UserName, B.AttributeProperty, B.IsFixedNoOfCharacter, B.NoOfCharacter
-	                             , '' AS MaterialMasterAttributeValues
+	                             , '' AS MaterialMasterAttributeValues,A.JoiningSequence,A.JoiningParameter
                     FROM [MST].[MaterialMasterAttribute] AS A
                     INNER JOIN [HKP].[MaterialAttribute] AS B ON A.MaterialAttributeId=B.Id
                     WHERE A.MaterialMasterId='" + masterId + "' ORDER BY A.Sequence";
