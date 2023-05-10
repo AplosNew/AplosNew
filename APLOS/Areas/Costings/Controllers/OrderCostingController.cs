@@ -147,12 +147,14 @@ namespace Aplos.Areas.Costings.Controllers
             string sql = @"select top 100 * from (SELECT im.Id,FORMAT( im.AddedDate,'dd-MMM-yyyy') AS MasterOrderDate, 
 im.OrderYear,im.TotalQty,uom.UserName AS UOM,p.UserName AS Party,b.UserName AS Buyer,
 bb.UserName AS BuyerBrand,bd.UserName AS BuyerDivision,
-ContractNo=STUFF((select distinct ','+cx.ContractNo from  trn.MasterOrderItem XMOI
-								                                INNER JOIN [Contract] AS cx ON cx.Id=XMOI.ContractId                                               
+ContractNo=STUFF((select distinct ','+cx.ContractNo from  trn.SalesOrder SO
+																INNER JOIN trn.MasterOrderItem XMOI ON SO.MasterOrderItemId=XMOI.Id
+								                                INNER JOIN [Contract] AS cx ON cx.Id=SO.ContractId                                               
 							                                where XMOI.masterOrderId=IM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
 
-LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
-								                                INNER JOIN [Contract] AS cx ON cx.Id=XMOI.ContractId 
+LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.SalesOrder SO
+																INNER JOIN trn.MasterOrderItem XMOI ON SO.MasterOrderItemId=XMOI.Id
+								                                INNER JOIN [Contract] AS cx ON cx.Id=SO.ContractId 
 								                                INNER JOIN MasterLC AS mlx ON mlx.Id=cx.MasterLCId                                              
 							                                where XMOI.masterOrderId=IM.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
     bd2.UserName AS BuyerDepartment,s.UserName AS Season,ei.EmployeeName AS ResponsiblePerson,im.ResponsiblePersonId
@@ -187,12 +189,13 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId,ISNULL(c.ContractNo,'')ContractNo,ml.LCRef
                                        ,ii.[Type]
                                   FROM trn.MasterOrderItem AS ii
+                                LEFT JOIN trn.SalesOrder SO ON SO.MasterOrderItemId=ii.Id
                                 LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=ii.MaterialMasterId
                                 LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ii.ArticleId
                                 LEFT JOIN [TRN].[ProductDefinition] PD ON pd.MaterialMasterId=mm.Id
                                 LEFT JOIN mst.ProductMaster AS pm ON pm.Id=pd.ProductMasterId
                                 LEFT JOIN hkp.Product AS p ON p.Id=pm.ProductId
-                                LEFT JOIN [Contract] AS c ON c.Id=ii.ContractId
+                                LEFT JOIN [Contract] AS c ON c.Id=SO.ContractId
                                 LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
 
                                 WHERE ii.MasterOrderId='" + Id + "'";
