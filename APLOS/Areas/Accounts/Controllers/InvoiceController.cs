@@ -488,15 +488,17 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId,string type, string tDSTaxVoucherId, string tDSVoucherNo)
+        public ActionResult DeleteInventoryPayable(string grnId, string voucherId, string invoiceId,string type, string tDSTaxVoucherId, string tDSVoucherNo, string deletedRemarks)
         {
-            if(tDSTaxVoucherId != null)
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
+            if (tDSTaxVoucherId != null)
                 throw new CustomException("TDS voucher no  "+ tDSVoucherNo + "need to delete first!");
 
             if (type == NewBeneficiaryType.Vendor.ToString())
-                _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId);
+                _invoiceService.DeleteInventoryPayable(grnId, invoiceId, voucherId, deletedRemarks);
             if (type == NewBeneficiaryType.Employee.ToString())
-                _employeePayableService.DeleteGRNBeneficiaryEmployee(grnId, invoiceId, voucherId);
+                _employeePayableService.DeleteGRNBeneficiaryEmployee(grnId, invoiceId, voucherId, deletedRemarks);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
@@ -1050,6 +1052,24 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _accInvoiceReportService.GetCustomerInvoiceReceiptBanksReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, invoiceWriteOffGroupNo, SourceType.CustomerBanksReceipt.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult CustomerInvoiceDetailsReceiptBanksReport(ReportFormat reportFormat, string invoiceWriteOffGroupNo)
+        {
+            AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accInvoiceReportService.GetCustomerInvoiceDetailsReceiptBanksReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, invoiceWriteOffGroupNo, SourceType.CustomerBanksReceipt.ToString());
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

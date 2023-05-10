@@ -275,7 +275,7 @@ function salaryProcessedReportComController(commonMessage, $scope, $rootScope, b
             $http({
                 method: 'POST',
                 //url: 'humanresource/PayrollReports/GetEmployeeSalaryProcessedReportSalLogWise',
-                url: 'humanresource/PayrollReports/GetEmployeeSalaryProcessedReportSalLogWiseRpt',
+                url: 'humanresource/PayrollReports/GetEmployeeSalaryProcessedReportSalLogWiseRptCom',
                 data: {
                     'month': $scope.month,
                     'year': $scope.year,

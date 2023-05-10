@@ -11,6 +11,12 @@
                             <input type="number" name="Sequence" ng-model="materialAttributeMasterNew.Sequence" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_1','Sequence', materialAttributeMasterNew);" tabindex="51">
                         </div>
                     </div>
+                    @*<div id="div_attr_1" class="form-group">
+                        <label class="col-sm-4 control-label">Joining Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Sequence" ng-model="materialAttributeMasterNew.JoiningSequence" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_1','JoiningSequence', materialAttributeMasterNew);" tabindex="51">
+                        </div>
+                    </div>*@
                     <div id="div_attr_3" class="form-group">
                         <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
@@ -24,14 +30,14 @@
                         </div>
                     </div>
                     @*<div id="div_attr_7" class="form-group">
-                            <label class="col-sm-4 control-label">Value Assignment Level<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select ng-model="materialAttributeMasterNew.ValueAssignmentLevel" class="form-control" name="Value Assignment" ng-change="manualValidationAddRemove('div_attr_7','ValueAssignmentLevel', materialAttributeMasterNew);"
-                                            ng-options="item.Value as item.Text for item in valueAssignmentList| filter:{ Value: '!FreeText'}" tabindex="57"></select>
-                                </div>
-                            </div>
-                        </div>*@
+            <label class="col-sm-4 control-label">Value Assignment Level<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-model="materialAttributeMasterNew.ValueAssignmentLevel" class="form-control" name="Value Assignment" ng-change="manualValidationAddRemove('div_attr_7','ValueAssignmentLevel', materialAttributeMasterNew);"
+                            ng-options="item.Value as item.Text for item in valueAssignmentList| filter:{ Value: '!FreeText'}" tabindex="57"></select>
+                </div>
+            </div>
+        </div>*@
                     <div class="form-group" style="border: 1px solid #d8d7d7;margin-right: 0px;">
                         <label class="col-sm-2 control-label">Free Field</label>
                         <div class="col-sm-1">
