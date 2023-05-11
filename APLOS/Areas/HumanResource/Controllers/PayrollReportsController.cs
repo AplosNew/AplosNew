@@ -706,7 +706,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 Plant = "'" + identity.PlantId + "'";
             }
 
-            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessedWithExc(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
