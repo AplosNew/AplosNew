@@ -429,9 +429,9 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         }).then(function successCallback(response) {
             if ($scope.report.OtherReportType == 'InvoiceWise') {
                 $scope.OtherPurchaseRegisterList = response.data.NewData;
-                for (var i = 0; i < $scope.OtherPurchaseRegisterList.length; i++) {
-                    response.data[i].InvoiceEntryDate = new Date($scope.OtherPurchaseRegisterList[i].InvoiceEntryDate);
-                }
+            //    for (var i = 0; i < $scope.OtherPurchaseRegisterList.length; i++) {
+            //        response.data[i].InvoiceEntryDate = new Date($scope.OtherPurchaseRegisterList[i].InvoiceEntryDate);
+            //    }
             }
             else if ($scope.report.OtherReportType == 'PartyWise') {
                 $scope.PurchaseRegisterPartyWiseList = response.data.NewData;
@@ -445,130 +445,39 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 
     };
 
-    $scope.otherDownloadReport = function () {
-        if ($scope.report.ReportType == 'InvoiceWise') {
-            $scope.PurchaseOrderGRNWiseReportExcel();
+    $scope.OtherdownloadReport = function () {
+        if ($scope.report.OtherReportType == 'InvoiceWise') {
+            $scope.OtherPurchaseOrderInvoiceWiseReportExcel();
         }
-        else if ($scope.report.ReportType == 'PartyWise') {
+        else {
             $scope.PurchaseOrderPartyWiseReportExcel();
         }
-        else if ($scope.report.ReportType == 'ItemWise') {
-            $scope.PurchaseOrderItemReportExcel();
-        }
     }
-    $scope.OtherPurchaseOrderGRNWiseReportExcel = function () {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+
+    $scope.OtherPurchaseOrderInvoiceWiseReportExcel = function () {
+        if ($scope.report.OtherFromDate === "" || $scope.report.OtherFromDate === null || $scope.report.OtherFromDate === undefined) {
             ShowResult('Select From Date', 'failure');
             return false;
         }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+        if ($scope.report.OtherToDate === "" || $scope.report.OtherToDate === null || $scope.report.OtherToDate === undefined) {
             ShowResult('Select To Date', 'failure');
             return false;
         }
 
         var dataList = [];
-        var g = $("#GridGRNWise").data("ejGrid");
+        var g = $("#GridInvoiceWise").data("ejGrid");
         dataList = g.getFilteredRecords();
 
         if (dataList.length == 0) {
-            dataList = $scope.PurchaseRegisterList;
+            dataList = $scope.OtherPurchaseRegisterList;
         }
-
-        var ids = "";
-        if (baseService.arrayLength(dataList) > 0) {
-            for (var i = 0; i < dataList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + dataList[i].GRNNo + "'";
-                }
-                else {
-                    ids += ",'" + dataList[i].GRNNo + "'";
-                }
-            }
-        }
-        else {
-            for (var i = 0; i < $scope.PurchaseRegisterList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + $scope.PurchaseRegisterList[i].GRNNo + "'";
-                }
-                else {
-                    ids += ",'" + $scope.PurchaseRegisterList[i].GRNNo + "'";
-                }
-            }
-        }
-        $scope.fileName = 'PurchaseRegisterGRNWise.xlsx';
+        $scope.fileName = 'Other Purchase Register Invoice Wise.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
         $http({
             method: 'POST',
-            url: $scope.path + "PurchaseRegisterGRNWiseReport",
-            data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate,
-                'GRNNo': ids,
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
-    $scope.OtherPurchaseOrderGRNWiseReportExcel = function () {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-
-        var dataList = [];
-        var g = $("#GridGRNWise").data("ejGrid");
-        dataList = g.getFilteredRecords();
-
-        if (dataList.length == 0) {
-            dataList = $scope.PurchaseRegisterList;
-        }
-
-        var ids = "";
-        if (baseService.arrayLength(dataList) > 0) {
-            for (var i = 0; i < dataList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + dataList[i].GRNNo + "'";
-                }
-                else {
-                    ids += ",'" + dataList[i].GRNNo + "'";
-                }
-            }
-        }
-        else {
-            for (var i = 0; i < $scope.PurchaseRegisterList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + $scope.PurchaseRegisterList[i].GRNNo + "'";
-                }
-                else {
-                    ids += ",'" + $scope.PurchaseRegisterList[i].GRNNo + "'";
-                }
-            }
-        }
-        $scope.fileName = 'PurchaseRegisterGRNWise.xlsx';
-        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-
-        $http({
-            method: 'POST',
-            url: $scope.path + "PurchaseRegisterGRNWiseReport",
-            data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate,
-                'GRNNo': ids,
-            },
+            url: $scope.path + "OtherPurchaseRegisterInvoiceSummaryDataXls",
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

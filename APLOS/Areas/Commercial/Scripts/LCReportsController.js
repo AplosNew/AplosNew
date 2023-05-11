@@ -23,62 +23,107 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
             if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
                 throw 'Please enter to date';
 
-              $http({
-                    method: 'POST',
-                  url: $scope.path + "GetMasterLCList",
-                  data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate, lcType: $scope.reportParameters.LCType },
-                    dataType: 'JSON'
+            //if ($scope.reportParameters.LCType == 'contract') {
+            //    $scope.gridDataURL = 'Commercial/LCReports/GetContractData'
+            //}
+            //else if ($scope.reportParameters.LCType == 'masterLC') {
+            //    $scope.gridDataURL = 'Commercial/LCReports/GetMasterLCData'
+            //}
+            //else  {
+            //    $scope.gridDataURL = 'Commercial/LCReports/GetPurchaseLCData'
+            //}
 
-              }).then(function successCallback(response) {
-                  if (response.data.Error == false) {
-                      for (var i = 0; i < response.data.DATA.length; i++) {
-                          response.data.DATA[i].LCOpeningDate = new Date(response.data.DATA[i].LCOpeningDate);
-                          response.data.DATA[i].ExpiryDate = new Date(response.data.DATA[i].ExpiryDate);
-                      }
-                      $scope.MasterLCList = response.data.DATA;
-                  }
-                  else {
-                      ShowResult(response.data.Message, 'failure');
-                  }
-           
-              }),
-                  function errorCallBack(response) {
-                   ShowResult(response.data.Message, 'failure');
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetMasterLCList",
+                data: { FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate, lcType: $scope.reportParameters.LCType },
+                dataType: 'JSON'
 
-                  }
-        }
-         catch (e) {
-
-         }
-    }
-
-
-    $scope.MasterLCReport = function () {
-
-        try {
-
-            if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
-                throw 'Please enter from date';
-
-            if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
-                throw 'Please enter to date';
-
-            var MasterLCList = "";
-            for (var i = 0; i < $scope.MasterLCList.length; i++) {
-                if ($scope.MasterLCList[i].isSelected == true) {
-                    if (MasterLCList == "")
-                        MasterLCList = "'" + $scope.MasterLCList[i].MasterLCNo + "'";
-                    else
-                        MasterLCList += ",'" + $scope.MasterLCList[i].MasterLCNo + "'";
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    for (var i = 0; i < response.data.DATA.length; i++) {
+                        response.data.DATA[i].LCOpeningDate = new Date(response.data.DATA[i].LCOpeningDate);
+                        response.data.DATA[i].ExpiryDate = new Date(response.data.DATA[i].ExpiryDate);
+                    }
+                    $scope.MasterLCList = response.data.DATA;
                 }
-            }
-            var file_src = $scope.path + "MasterLCReport?MasterLCList=" + MasterLCList; 
-            $rootScope.report(file_src);
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
 
-        } catch (e) {
-            ShowResult(e, 'failure');
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+
+                }
+        }
+        catch (e) {
+
         }
     }
+
+
+    //$scope.MasterLCReport = function () {
+
+    //    try {
+
+    //        if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
+    //            throw 'Please enter from date';
+
+    //        if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
+    //            throw 'Please enter to date';
+
+    //        var MasterLCId = "";
+    //        var ContractId = "";
+    //        var PurchaseLCId = "";
+    //        for (var i = 0; i < $scope.MasterLCList.length; i++) {
+    //            if ($scope.MasterLCList[i].isSelected == true) {
+    //                if (MasterLCId == "") {
+
+    //                    MasterLCId = "'" + $scope.MasterLCList[i].MasterLCNo + "'";
+    //                    ContractId = "'" + $scope.MasterLCList[i].ContractId + "'";
+    //                    PurchaseLCId = "'" + $scope.MasterLCList[i].PurchaseLCId + "'";
+    //                }
+    //                else
+    //                    MasterLCId += ",'" + $scope.MasterLCList[i].MasterLCNo + "'";
+    //            }
+    //        }
+    //        var file_src = 'Commercial/LCReports/MasterLCReport?MasterLCId=' + MasterLCId + '&ContractId=' + ContractId + '&PLCId=' + PurchaseLCId;
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
+
+    $scope.MasterLCReport = function () {        
+        var dataList = [];
+        var g = $("#GridMasterLC").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.MasterLCList;
+        }
+        $scope.fileName = 'Master LC Report.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "MasterLCDataXls",
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
 
     //$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
@@ -121,7 +166,7 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
 
         //var MasterOrderId = "1935";
         try {
-            var file_src = $scope.path + "MasterOrderReport?MasterOrderId=1935" ;
+            var file_src = $scope.path + "MasterOrderReport?MasterOrderId=1935";
             $rootScope.report(file_src);
 
 
@@ -130,10 +175,10 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
         }
     }
 
-    
 
-   //get data from MasterLC
-    
+
+    //get data from MasterLC
+
     //$scope.GetMasterLCList = function () {
     //    try {
     //        if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))

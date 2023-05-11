@@ -99,10 +99,10 @@
             <label class="col-sm-4 control-label">Benificiary Bank<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 @*<div class="select-style">
-                        <select name="Benificiary Bank" class="form-control" ng-model="purchaseLCNew.BenificiaryBank" ng-options="item.Value as item.Text for item in bankList" required tabindex="1">
-                            <option value="">--Select--</option>
-                        </select>
-                    </div>*@
+                    <select name="Benificiary Bank" class="form-control" ng-model="purchaseLCNew.BenificiaryBank" ng-options="item.Value as item.Text for item in bankList" required tabindex="1">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>*@
                 <input type="text" name="Benificiary Bank" ng-model="purchaseLCNew.BenificiaryBank" class="form-control" required tabindex="3" maxlength="50">
             </div>
         </div>
@@ -110,10 +110,10 @@
             <label class="col-sm-4 control-label" title="On behalf of Purchaser">Lein Bank/At Confirm</label>
             <div class="col-sm-8">
                 @*<div class="select-style">
-                        <select name="Lein Bank" class="form-control" ng-model="purchaseLCNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" tabindex="5">
-                            <option value="">--Select--</option>
-                        </select>
-                    </div>*@
+                    <select name="Lein Bank" class="form-control" ng-model="purchaseLCNew.LeinBankId" ng-options="item.Value as item.Text for item in bankList" tabindex="5">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>*@
                 <input type="text" name="Lein Bank" ng-model="purchaseLCNew.LeinBank" class="form-control" tabindex="6" maxlength="50">
             </div>
         </div>
@@ -124,6 +124,14 @@
                 <input type="text" name="LC Opening Date" ng-model="purchaseLCNew.LCDate" datepicker class="form-control" required tabindex="9">
             </div>
         </div>
+
+        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Acceptance Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Acceptance Date" ng-model="purchaseLCNew.AcceptanceDate" datepicker class="form-control" required tabindex="9">
+            </div>
+        </div>*@
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Amount<sup>*</sup></label>
             <div class="col-sm-3 show-message">
@@ -215,6 +223,14 @@
                 <input type="text" name="Expiry Date" ng-model="purchaseLCNew.ExpiryDate" datepicker class="form-control" required tabindex="10">
             </div>
         </div>
+
+        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Maturity Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Maturity Date" ng-model="purchaseLCNew.MaturityDate" datepicker class="form-control" required tabindex="10">
+            </div>
+        </div>*@
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">LC Type<sup>*</sup></label>
             <div class="col-sm-4 show-message">
@@ -252,11 +268,11 @@
             <div class="col-sm-8 show-message">
                 <div class="select-style">
                     @*<select class="form-control" ng-model="purchaseLCNew.Status" name="Status" tabindex="18" required>
-                            <option value="Active">Active</option>
-                            <option value="Hold">Hold</option>
-                            <option value="Cancel">Cancel</option>
-                            <option value="Close">Close</option>
-                        </select>*@
+                        <option value="Active">Active</option>
+                        <option value="Hold">Hold</option>
+                        <option value="Cancel">Cancel</option>
+                        <option value="Close">Close</option>
+                    </select>*@
                     <select name="Status" class="form-control" ng-model="purchaseLCNew.Status" ng-options="item.Value as item.Text for item in StatusList" tabindex="18">
                         <option value=""></option>
                     </select>
@@ -293,6 +309,14 @@
                 <input type="text" name="Shipment Date" ng-model="purchaseLCNew.ShipmentDate" datepicker class="form-control" required tabindex="11">
             </div>
         </div>
+
+        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Payment Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Payment Date" ng-model="purchaseLCNew.PaymentDate" datepicker class="form-control" required tabindex="11">
+            </div>
+        </div>*@
+
         <div class="form-group">
             <label class="col-sm-4 control-label">LIBOUR</label>
             <div class="col-sm-8 show-message">
@@ -303,10 +327,10 @@
             <label class="col-sm-4 control-label">Final Destination<sup>*</sup></label>
             <div class="col-sm-8">
                 @*<div class="select-style">
-                        <select name="Destination" class="form-control" ng-model="purchaseLCNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="11">
-                            <option value=""></option>
-                        </select>
-                    </div>*@
+                    <select name="Destination" class="form-control" ng-model="purchaseLCNew.FinalDestinationId" ng-options="item.Value as item.Text for item in destinationList" tabindex="11">
+                        <option value=""></option>
+                    </select>
+                </div>*@
                 <input type="text" name="Final Destination" ng-model="purchaseLCNew.FinalDestination" class="form-control" required tabindex="17" maxlength="50">
             </div>
         </div>
