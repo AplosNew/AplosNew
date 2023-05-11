@@ -492,6 +492,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.articleNew.Code = data.Code;
         $scope.articleNew.ShortName = data.ShortName;
         $scope.articleNew.StandardName = data.StandardName;
+        $scope.articleNew.UserName = data.UserName;
         if (baseService.isUndefinedOrNull(data.HSNCodeId))
             $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
         else
@@ -539,6 +540,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             $scope.articleList[$scope.index].Code = $scope.articleNew.Code;
             $scope.articleList[$scope.index].ShortName = $scope.articleNew.ShortName;
             $scope.articleList[$scope.index].StandardName = $scope.articleNew.StandardName;
+            $scope.articleList[$scope.index].UserName = $scope.articleNew.UserName;
             $scope.articleList[$scope.index].HSNCodeId = $scope.articleNew.HSNCodeId;
 
             for (var i = 0; i < $scope.attributeList.length; i++) {
@@ -648,7 +650,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     };
 
     $scope.Generate = function () {
-
+        var un = "";
         for (var i = 0; i < $scope.attributeList.length; i++) {
             if (i === 0) {
                 $scope.srtName = $scope.attributeList[i].MaterialAttributeValueFreeText;
@@ -656,8 +658,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             else {
                 $scope.stndName = $scope.attributeList[i].MaterialAttributeValueFreeText;
             }
+           
+            un += $scope.attributeList[i].JoiningSequence + "" +$scope.attributeList[i].JoiningParameter;
         }
-
         if (baseService.isUndefinedOrNull($scope.stndName)) {
             $scope.articleNew.ShortName = $scope.srtName;
             $scope.articleNew.StandardName = $scope.srtName;
@@ -666,6 +669,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             $scope.articleNew.ShortName = $scope.srtName + "-" + $scope.stndName;
             $scope.articleNew.StandardName = $scope.srtName + "-" + $scope.stndName;
         }
+        $scope.articleNew.UserName = un;
     }
 
     $scope.materialAttributeValueClear = function (index) {
