@@ -1493,11 +1493,11 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
 
     // #region Material Master Attribute
     $scope.joiningParameterList = [
-        { Value: ", ", Text: ", " },
-        { Value: " ", Text: " " },
-        { Value: "/", Text: "/" },
-        { Value: "-", Text: "-" },
-        { Value: ":", Text: ":" }
+        { Value: ", ", Text: "Comma(,)" },
+        { Value: " ", Text: "Space()" },
+        { Value: "/", Text: "Slash(/)" },
+        { Value: "-", Text: "Hyphen(-)" },
+        { Value: ":", Text: "Colon(:)" }
     ];
 
     $scope.materialAttributeMasters = [];
