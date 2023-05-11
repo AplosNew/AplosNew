@@ -4455,6 +4455,11 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
                 #region Sql
                 strSQL1 = @"select distinct LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
+case when apd.WeeklyStatus = 'W' then 'W'
+when (select top 1 rw.PTime from AttdnRawData rw
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+order by rw.PTime asc) is null then 'IM'
+else 'IN' end as RawDayStatus ,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
@@ -4505,18 +4510,14 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
                 if(locations != null)
                 {
-                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "' and ";
+                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "'";
                 }
 
-                if (inmis ==  "IN" || inmis == "IM")
+                if (inmis ==  "IN" || inmis == "IM" || inmis == "W")
                 {
-                    strSQL = strSQL1 + " and apd.InStatus = '" + inmis + "' order by Diffenence Asc";
+                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis +"' order by Diffenence Asc";
                 }
-                if (inmis == "W")
-                {
-                    strSQL = strSQL1 + " and apd.WeeklyStatus = 'W' order by Diffenence Asc";
-                }
-
+               
                 #endregion Sql
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -4553,6 +4554,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
                         ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
                         Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
+                        RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
                        
                     });
                 }
@@ -5342,6 +5344,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
         public string Deployment { get; set; }
         public string ToDayIN { get; set; }
         public string Diffenence { get; set; }
+        public string RawDayStatus { get; set; }
        
     }
 
