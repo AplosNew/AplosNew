@@ -310,6 +310,7 @@
     <Folder Include="Areas\PerformanceManagement\Views\Shared\" />
     <Folder Include="Areas\Products\Views\GateEntry\" />
     <Folder Include="Areas\Products\Views\IssueSlip\" />
+    <Folder Include="Areas\QMS\Views\QualityMasterSetup\" />
     <Folder Include="Areas\QMS\Views\Shared\" />
     <Folder Include="DOC\" />
     <Folder Include="PDF\" />
@@ -1187,6 +1188,7 @@
     <Compile Include="Areas\Products\Controllers\SFGInventoryController.cs" />
     <Compile Include="Areas\Products\Controllers\SFGMovementController.cs" />
     <Compile Include="Areas\QMS\Controllers\ActivityMasterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\QualityMasterSetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityProcessController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentLocationController.cs" />
     <Compile Include="Areas\QMS\Controllers\DefectZoneController.cs" />
