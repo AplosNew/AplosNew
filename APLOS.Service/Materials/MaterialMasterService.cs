@@ -752,6 +752,7 @@ namespace Library.Service.Materials
                                     , NULL AS MaterialMasterArticleId
 		                            , MAV.Id AS MaterialAttributeValueId
 		                            , MaterialAttributeValueFreeText =CASE WHEN (MAV.IsDefault = 1) THEN MAV.UserName ELSE NULL END
+                                    ,MMA.JoiningSequence, MMA.JoiningParameter
                             FROM MST.MaterialMasterAttribute AS MMA
                             LEFT JOIN HKP.MaterialAttribute AS MA ON MMA.MaterialAttributeId = MA.Id
                             LEFT JOIN (SELECT * FROM HKP.MaterialAttributeValue WHERE Active = 1 AND IsDefault = 1) AS MAV ON MAV.MaterialAttributeId=MMA.MaterialAttributeId AND MAV.SourceType=MA.ValueAssignmentLevel
