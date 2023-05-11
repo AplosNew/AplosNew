@@ -102,7 +102,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         //$scope.ActionC = 'Update Responsible Person'
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            $scope.GetBudget(args.data.HRReportMasterChildId);
+            $scope.GetBudget($scope.ModelNew.Id);
             //$scope.GetAllSavedBudgetCode();
            // $scope.GetSavedResponsiblePerson();
         }
@@ -143,7 +143,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             url: $scope.path + "GetBudgetCode",
             data: {
                 'EntityId': EntityId,
-                'id': $scope.ModelNew.HRReportMasterChildId
+                'id': $scope.ModelNew.Id
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -154,11 +154,11 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
 
     
-    $scope.GetUserGroup = function () {
+    $scope.GetUserGroup = function (masterId) {
         $http({
             method: 'POST',
             url: $scope.path + "GetUserGroup",
-            //data: { 'headerId': $scope.ModelNew.Id },
+            data: { 'id': masterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.UserGroupList = response.data;
@@ -229,7 +229,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         Code: null,
         Active: true,
         Remarks: null,
-        HRReportMasterChildId:null
+        
         
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -253,7 +253,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.ModelNew.Id = response.data.Id
+                    $scope.ModelNew.Id = response.data.Id;
                     //ClearFields(response.data.Sequence);
                     $scope.getData();
 
@@ -357,29 +357,31 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             if ($scope.UserGroupList[i].isSelected) {
                 $scope.CheckedUserGroupList.push($scope.UserGroupList[i]);
             }
-            $http({
-                method: 'POST',
-                url: $scope.path + 'Create',
-                data: {
-                    'chkBgtList': $scope.obj,                    
-                    'usergroup': $scope.CheckedUserGroupList,
-                    'headerid': $scope.ModelNew.Id
-                },
-                dataType: 'JSON',
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.obj.Id = response.data.Id;
-                    var gridObj = $("#bgtCodeGridId").data("ejGrid");
-                    gridObj.refreshContent(true);
-                    gridObj.refreshTemplate();
-                    $scope.UnchkOfCheckedItem();
-                }
-            });
+            
         }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Create',
+            data: {
+                'chkBgtList': $scope.obj,
+                'usergroup': $scope.CheckedUserGroupList,
+                'headerid': $scope.ModelNew.Id
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.obj.Id = response.data.Id;
+                var gridObj = $("#bgtCodeGridId").data("ejGrid");
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $scope.UnchkOfCheckedItem();
+            }
+        });
+
         angular.element(document.querySelector('#UserGroupPop')).modal('hide');
         ShowResult("User Group Selected", 'success');
 

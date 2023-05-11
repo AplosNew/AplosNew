@@ -760,7 +760,7 @@
         </div>
     </div>
     <div class="aplos-grid-toggle">
-        <div class="row text-right">
+        @*<div class="row text-right">
             <div class="col-xs-12 col-sm-12 col-sm-12">
                 <div class="search-form">
                     <div class="row">
@@ -780,8 +780,72 @@
                     </div>
                 </div>
             </div>
+        </div>*@
+        <div class="row text-right">
+            <div class="col-xs-12 col-sm-12 col-sm-12">
+                <div class="search-form">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="select-style">
+                                <select ng-model="SearchColumn">
+                                    <option ng-repeat="option in modelFilterByList" value="{{option.value}}">{{option.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-7 col-md-7">
+                            <input type="text" class="form-control" placeholder="Search" ng-model="SearchValue" ng-enter="getData()">
+                        </div>
+                        <div class="col-xs-12 col-sm-2 col-md-2">
+                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="table-responsive modal-table">
+           
+                <div style="color:black;" id="Grid" ej-grid e-datasource="files" e-recorddoubleclick="Get"
+                     e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                     e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-headertext="Print" e-template="#Print" e-width="40"></div>
+                        <div e-column e-type="string" e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                        <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="CreationDate" e-headertext="Creation Date" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-type="string" e-field="MasterOrderNo" e-headertext="Master Order No" e-width="80"></div>
+                        <div e-column e-type="string" e-field="UserName" e-headertext="Plant" e-width="100"></div>
+                        <div e-column e-type="string" e-field="OrderYear" e-headertext="Order Year" e-width="80"></div>
+                        <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="100"></div>
+                        <div e-column e-type="string" e-field="OwnReferenceNo" e-headertext="Own Order#" e-width="100"></div>
+                        <div e-column e-type="string" e-field="TotalQty" e-headertext="Total Quantity" e-width="80"></div>
+                        <div e-column e-type="string" e-field="OrderType" e-headertext="Order Type" e-width="80"></div>
+                        <div e-column e-type="string" e-field="OrderStatusId" e-headertext="Order Status" e-width="80"></div>
+                        <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="180"></div>
+                        <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="180"></div>
+                        <div e-column e-type="string" e-field="NoOfLineItem" e-headertext="Line Item No" e-width="50"></div>
+                        <div e-column e-type="string" e-field="OrderCategory" e-headertext="Order Category" e-width="80"></div>
+                        <div e-column e-type="string" e-field="ResponsiblePersonName" e-headertext="Responsible Person" e-width="180"></div>
+                        <div e-column e-type="string" e-field="InvoicingPartyPlant" e-headertext="Bill To" e-width="180"></div>
+                        <div e-column e-type="string" e-field="DeliveryPartyPlant" e-headertext="Ship To" e-width="180"></div>
+                        <div e-column e-type="string" e-field="BuyerReferenceNoItem" e-headertext="Buyer Ref. No-Item" e-width="100"></div>
+                        <div e-column e-type="string" e-field="OwnItem" e-headertext="Own Item#" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ContractNo" e-headertext="ContractNo" e-width="100"></div>
+                        <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="100"></div>
+                        <div e-column e-type="string" e-field="AddedBy" e-headertext="Created By" e-width="100"></div>
+                    </div>
+
+                </div>
+                <script type="text/template" id="Print">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li>
+                                <a class="btn btn-action" href="OrderManagements/MasterOrder/GetMasterOrderReport?masterOrderId={{x.Id}}" target="_blank"><i class="glyphicon glyphicon-print"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </script>
+        </div>
+        @*<div class="table-responsive modal-table">
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -855,7 +919,7 @@
                                  direction-links="true"
                                  boundary-links="true"
                                  on-page-change="loadMasterData(newPageNumber)">
-        </dir-pagination-controls>
+        </dir-pagination-controls>*@
     </div>
 </div>
 <ej-dialog id="dialogExchangeCurrency" title="Exchange Rate" e-enablemodal="true" e-position-y="0" e-target="#AplosCurrencyContainer" e-showoninit="false" e-close="onDialogClose" e-minwidth="400px" e-open="enableBtn">

@@ -11,12 +11,12 @@
                             <input type="number" name="Sequence" ng-model="materialAttributeMasterNew.Sequence" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_1','Sequence', materialAttributeMasterNew);" tabindex="51">
                         </div>
                     </div>
-                    @*<div id="div_attr_1" class="form-group">
+                    <div id="div_attr_1" class="form-group">
                         <label class="col-sm-4 control-label">Joining Sequence<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="number" name="Sequence" ng-model="materialAttributeMasterNew.JoiningSequence" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_1','JoiningSequence', materialAttributeMasterNew);" tabindex="51">
                         </div>
-                    </div>*@
+                    </div>
                     <div id="div_attr_3" class="form-group">
                         <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
@@ -29,6 +29,7 @@
                             <input type="text" name="User Name" maxlength="50" ng-model="materialAttributeMasterNew.UserName" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_5','User Name', materialAttributeMasterNew);" tabindex="55">
                         </div>
                     </div>
+                    
                     @*<div id="div_attr_7" class="form-group">
             <label class="col-sm-4 control-label">Value Assignment Level<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -96,12 +97,24 @@
                             <input type="text" name="Code" maxlength="10" ng-model="materialAttributeMasterNew.Code" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_2','Code', materialAttributeMasterNew);" tabindex="52">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Joining Parameter</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select name="Type" class="form-control" ng-model="materialAttributeMasterNew.JoiningParameter"
+                                        ng-options="item.Value as item.Text for item in joiningParameterList">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div id="div_attr_4" class="form-group">
                         <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Standard Name" maxlength="50" ng-model="materialAttributeMasterNew.StandardName" class="form-control" ng-keyup="manualValidationAddRemove('div_attr_4','Standard Name', materialAttributeMasterNew);" tabindex="54">
                         </div>
                     </div>
+
                     <div id="div_attr_6" class="form-group">
                         <label class="col-sm-4 control-label">Property<sup>*</sup></label>
                         <div class="col-sm-8 show-message">

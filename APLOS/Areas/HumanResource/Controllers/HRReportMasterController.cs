@@ -46,13 +46,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                //var sql = @"select GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup , UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
-                //            from HKP.HRReportGroupMaster GM
-                //            left join [TRN].[HRReportMasterBudgetUserGroup] UG on UG.UserGroupId = GM.Id
-                //            ";
-                // where ISNULL(UG.HRReportMasterChildId, '') = '"+id+"'
+                var sql = @"select isSelected=CAST (CASE WHEN UG.Id IS NULL THEN 0 ELSE 1 END AS bit), GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup, UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
+                           from HKP.HRReportGroupMaster GM
+                            outer apply (select * from  [TRN].[HRReportMasterBudgetUserGroup] where UserGroupId=GM.Id AND  HRReportMasterChildId = '"+ id + @"') UG";
 
-                var sql = @"select '' Id, Id UserGroupId, UserGroup, UserSubGroup from HKP.HRReportGroupMaster";
+                
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -93,8 +91,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                string sql = @"select HRM.*, HRC.Id HRReportMasterChildId from HKP.HRReportMaster HRM
-left join TRN.HRReportMasterChild HRC on HRC.HRReportMasterId = HRM.Id
+                string sql = @"select HRM.* from HKP.HRReportMaster HRM
+
 order by Sequence
 ";
 
@@ -112,7 +110,7 @@ order by Sequence
             return Json(_sqlRepository.GetDataCollection(entityQry), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetBudgetCode(string EntityId, string id, string HRReportMasterChildId)
+        public ActionResult GetBudgetCode(string EntityId, string id)
         {
             string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
             string whereClause = "";
@@ -124,11 +122,11 @@ order by Sequence
             }
             else if(EntityId == "NaN,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined" && (id != null || id != ""))
             {
-                whereClause = $"where HMC.Id = '{id}'"; 
+                whereClause = $"where HMC.HRReportMasterId = '{id}'"; 
             }
             else if((EntityId != "NaN,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined,undefined") && (id != null || id != ""))
             {
-                whereClause = $"where BGT.EntityId = ({Entity}) or HMC.Id = '{id}'";
+                whereClause = $"where BGT.EntityId = ({Entity}) or HMC.HRReportMasterId = '{id}'";
             }
 
             #region comment
@@ -151,9 +149,9 @@ order by Sequence
             //"order by BGT2.Code desc";
             #endregion comment
 
-            bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active,  HMC.Active isSelected ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
-, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected = case when BGT.Id = HMC.ManpowerBudgetId then  1 else 0 end
+, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
 from  [TRN].[HRReportMasterChild] HMC
 full join MST.ManpowerBudget BGT on BGT.Id = HMC.ManpowerBudgetId
 left join ORG.Entity E on E.Id = BGT.EntityId
@@ -367,6 +365,7 @@ order by HMC.ManpowerBudgetId DESC";
             return 1;
         }
 
+        #region Unused Fun
         public ActionResult SaveBudgetCode(List<Dictionary<string, object>> chkBgtList, string headerId, List<Dictionary<string, object>> usergroup)
         {
             try
@@ -383,21 +382,21 @@ order by HMC.ManpowerBudgetId DESC";
                 string _Id = "";
                 #region CHILD 1
                 con.OpenDataSetThroughAdapter("select * from " + TableNameChildA + " where HRReportMasterId='" + headerId + "'", out dsChildA, false, "1");
-               
+
                 foreach (var item in chkBgtList)
                 {
                     DataView dv = new DataView(dsChildA.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
                     if (dv.Count > 0)
                     {
-                       
+
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableNameChildA, out _Id);
                         DataRow dr = dv[0].Row;
                         dr["Active"] = 0;
-                      
+
                         EditRow(dr, item);
-                        
+
                     }
                     else
                     {
@@ -407,13 +406,7 @@ order by HMC.ManpowerBudgetId DESC";
                         DataRow dr = dsChildA.Tables[0].NewRow();
                         dr["Id"] = _Id;
                         dr["HRReportMasterId"] = headerId;
-                        #region comment
-                        //dr["ManpowerBudgetId"] = chkBgtList[i]["ManpowerBudgetId"];
-                        //dr["UserGroupId"] = chkBgtList[i]["UserGroupId"];
-                        //dr["UserSubGroupId"] = chkBgtList[i]["UserSubGroupId"];
-                        //dr["Grade"] = chkBgtList[i]["Grade"];
-                        //dr["Active"] = chkBgtList[i]["isSelected"];
-                        #endregion comment
+                        
                         dr["ManpowerBudgetId"] = item["ManpowerBudgetId"];
                         dr["UserGroupId"] = item["UserGroupId"];
                         dr["UserSubGroupId"] = item["UserSubGroupId"];
@@ -424,7 +417,7 @@ order by HMC.ManpowerBudgetId DESC";
                         dr["AddedFromIP"] = identity.IPAddress;
                         dsChildA.Tables[0].Rows.Add(dr);
                     }
-                    
+
 
                 }
                 #endregion CHILD 1
@@ -442,73 +435,74 @@ order by HMC.ManpowerBudgetId DESC";
                 con.OpenDataSetThroughAdapter("select * from " + TableUserGroup + " where Id In (" + id + ")", out dsUserGroup, false, "1");
                 foreach (var item in usergroup)
                 {
-                        DataView dv = new DataView(dsUserGroup.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-                   
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableUserGroup, out _UserGroupId);
-                        DataRow dr = dsChildA.Tables[0].NewRow();
-                        dr["Id"] = _Id;
-                        dr["HRReportMasterChildId"] = id;
-                        dr["Grade"] = item["Grade"];
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dsChildA.Tables[0].Rows.Add(dr);
-                    }
+                    DataView dv = new DataView(dsUserGroup.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableUserGroup, out _UserGroupId);
+                    DataRow dr = dsChildA.Tables[0].NewRow();
+                    dr["Id"] = _Id;
+                    dr["HRReportMasterChildId"] = id;
+                    dr["Grade"] = item["Grade"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsChildA.Tables[0].Rows.Add(dr);
+                }
 
                 #endregion UserGroup (From Pop Screen)
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsChildA, dsUserGroup);
 
-                return Json(new { Data = chkBgtList, headerId, Message = AplosMessage.Insert }); 
+                return Json(new { Data = chkBgtList, headerId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
+        #endregion Unused Fun
         public void SaveData(Dictionary<string, object> chkBgtList, string headerId, out string contId, List<Dictionary<string, object>> usergroup)
         {
             string TableName = "TRN.HRReportMasterChild";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
+
             DataSet dsMaster, dsChild;
             
-            string id = string.Empty;
-
-            string _Id = "";
-            string _UserGroupId = string.Empty;
+            
             try
             {
 
-                string sql = "SELECT * FROM [TRN].[HRReportMasterChild] WHERE HRReportMasterId='" + headerId + "'";
-                //objCon.OpenDataSetThroughAdapter("select * from " + TableName + " where HRReportMasterId='" + headerId + "'", out dsMaster, false, "1");
+                string sql = "SELECT * FROM [TRN].[HRReportMasterChild] WHERE Id='" + chkBgtList["Id"] + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
+                string id = string.Empty;
+
+                string _Id = "";
+                string _UserGroupId = string.Empty;
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
-                {
+                    {
 
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
 
-                    chkBgtList["Id"] = _Id;
-                    chkBgtList["HRReportMasterId"] = headerId;
-                    chkBgtList["Active"] = chkBgtList["isSelected"];
+                        chkBgtList["Id"] = _Id;
+                        chkBgtList["HRReportMasterId"] = headerId;
+                        chkBgtList["Active"] = chkBgtList["isSelected"];
 
-                    
-                    AddNewRow(dsMaster.Tables[0], chkBgtList);
-                    
-                }
 
+                        AddNewRow(dsMaster.Tables[0], chkBgtList);
+
+                    }
+               
                 contId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
 
                 objCon.OpenDataSetThroughAdapter("select * from TRN.HRReportMasterBudgetUserGroup  where HRReportMasterChildId = '" + contId + "'", out dsChild, false, "1");
                 foreach (var item in usergroup)
