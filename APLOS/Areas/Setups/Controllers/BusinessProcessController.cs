@@ -429,7 +429,6 @@ namespace Aplos.Areas.Setups.Controllers
             , SKU1
             , SKU2
             , SKU1SKU2
-
         }
 
         [HttpGet, Authorize]
