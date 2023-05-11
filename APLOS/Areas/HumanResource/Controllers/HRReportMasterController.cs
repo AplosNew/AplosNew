@@ -149,9 +149,9 @@ order by Sequence
             //"order by BGT2.Code desc";
             #endregion comment
 
-            bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active,  HMC.Active isSelected ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
-, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected = case when BGT.Id = HMC.ManpowerBudgetId then  1 else 0 end
+, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
 from  [TRN].[HRReportMasterChild] HMC
 full join MST.ManpowerBudget BGT on BGT.Id = HMC.ManpowerBudgetId
 left join ORG.Entity E on E.Id = BGT.EntityId
