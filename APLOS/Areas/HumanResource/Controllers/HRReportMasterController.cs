@@ -48,7 +48,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 var sql = @"select isSelected=CAST (CASE WHEN UG.Id IS NULL THEN 0 ELSE 1 END AS bit), GM.Id UserGroupId, GM.UserGroup, GM.UserSubGroup, UG.Id, ug.HRReportMasterChildId, ug.Grade, ug.AddedBy, UG.AddedFromIP, UG.AddedDate, UG.UpdatedBy, UG.UpdatedFromIP, UG.UpdatedDate
                            from HKP.HRReportGroupMaster GM
-                            outer apply (select * from  [TRN].[HRReportMasterBudgetUserGroup] where UserGroupId=GM.Id AND  HRReportMasterChildId = '68') UG";
+                            outer apply (select * from  [TRN].[HRReportMasterBudgetUserGroup] where UserGroupId=GM.Id AND  HRReportMasterChildId = '"+ id + @"') UG";
 
                 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -475,7 +475,7 @@ order by HMC.ManpowerBudgetId DESC";
             try
             {
 
-                string sql = "SELECT * FROM [TRN].[HRReportMasterChild] WHERE HRReportMasterId='" + headerId + "'";
+                string sql = "SELECT * FROM [TRN].[HRReportMasterChild] WHERE Id='" + chkBgtList["Id"] + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                  objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");

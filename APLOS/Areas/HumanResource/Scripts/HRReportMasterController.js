@@ -154,11 +154,11 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     }
 
     
-    $scope.GetUserGroup = function () {
+    $scope.GetUserGroup = function (masterId) {
         $http({
             method: 'POST',
             url: $scope.path + "GetUserGroup",
-            //data: { 'headerId': $scope.ModelNew.Id },
+            data: { 'id': masterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.UserGroupList = response.data;
