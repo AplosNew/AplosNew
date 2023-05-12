@@ -24,6 +24,9 @@ namespace Library.Model.Commercial
         public DateTime? ShipmentDate { get; set; }
         public DateTime? AmendmentDate { get; set; }
         public DateTime? ExpiryDate { get; set; }
+        //public DateTime? AcceptanceDate { get; set; }
+        //public DateTime? MaturityDate { get; set; }
+        //public DateTime? PaymentDate { get; set; }
         public decimal Amount { get; set; }
         public string Type { get; set; }
         public int Tenure { get; set; }

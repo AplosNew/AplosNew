@@ -563,6 +563,9 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCDate"] = data.LCDate;
                     dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
                     dr["ExpiryDate"] = data.ExpiryDate;
+                    //dr["AcceptanceDate"] = data.AcceptanceDate;
+                    //dr["MaturityDate"] = data.MaturityDate;
+                    //dr["PaymentDate"] = data.PaymentDate;
                     dr["Amount"] = data.Amount;
                     dr["Type"] = data.Type;
                     dr["Tenure"] = data.Tenure;
@@ -610,6 +613,9 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["LCDate"] = data.LCDate;
                     dr["AmendmentDate"] = data.AmendmentDate == null ? System.DBNull.Value : (object)data.AmendmentDate;
                     dr["ExpiryDate"] = data.ExpiryDate;
+                    //dr["AcceptanceDate"] = data.AcceptanceDate;
+                    //dr["MaturityDate"] = data.MaturityDate;
+                    //dr["PaymentDate"] = data.PaymentDate;
                     dr["Amount"] = data.Amount;
                     dr["Type"] = data.Type;
                     dr["Tenure"] = data.Tenure;
