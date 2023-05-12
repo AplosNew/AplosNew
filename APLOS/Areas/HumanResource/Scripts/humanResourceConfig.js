@@ -901,5 +901,11 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportCom',
                 controller: 'salaryProcessedReportComController'
             })
+        .when('/vehicle-movement-master',
+            {
+                templateUrl: 'humanresource/VehicleMovementMaster/Aplos',
+                controller: 'VehicleMovementMasterController'
+            })
+
         ;
 }
