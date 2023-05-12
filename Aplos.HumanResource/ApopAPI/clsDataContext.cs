@@ -4657,10 +4657,11 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
 
                         dr["Id"] =  _Id;
-                        dr["EntityId"] = item.PhoneNumber;
-                        dr["ProcessId"] = item.Email;
-                        dr["ShiftId"] = item.Password;
-                        dr["ResponsiblePerson"] = item.BloodGroup;
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
                         dr["Status"] = item.Status;
 
 
@@ -4672,10 +4673,11 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["EntityId"] = item.PhoneNumber;
-                        dr["ProcessId"] = item.Email;
-                        dr["ShiftId"] = item.Password;
-                        dr["ResponsiblePerson"] = item.BloodGroup;
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
                         dr["Status"] = item.Status;
 
                         dr.EndEdit();
