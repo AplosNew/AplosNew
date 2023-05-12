@@ -1170,6 +1170,7 @@ upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
 upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
 upanelApp.controller("GoodWorkController", GoodWorkController)
 upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
+upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterController)
 
 
 upanelApp.config(AccessControllerConfig);
