@@ -541,6 +541,7 @@
                                 <th>Free Field</th>
                                 <th>Pre-Defined Field</th>
                                 <th>Mandatory</th>
+                                <th>Joining Seq-Parameter</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -578,6 +579,7 @@
                                         </label>
                                     </div>
                                 </td>
+                                <td>{{x.JoiningSequence}} {{x.JoiningParameter}}</td>
                                 <td>
                                     <ul class="list-inline action-list">
                                         <li><button ng-click="editAttribute($index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" ng-disabled="x.ValueAssignmentLevel=='General'"><i class="glyphicon glyphicon-edit"></i></button></li>

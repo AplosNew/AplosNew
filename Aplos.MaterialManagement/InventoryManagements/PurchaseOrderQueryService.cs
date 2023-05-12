@@ -105,7 +105,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         , BalanceTrnUOMQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
-                        ,0 Tolerance
+                        ,0 Tolerance,0 TrnAmount
 						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
 						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
         					  CONCAT(POWN.UserName,'(',EOWN.UserName,')')	          

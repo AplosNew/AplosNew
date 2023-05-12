@@ -35,6 +35,7 @@ namespace Library.Service.OrderManagements
        // IEnumerable<object> GetDepartmentPersonCbo(string plantId, string partyAccountGroupId, string partyId);
 
         GridModel Query(GridParameter parameters, string companyId);
+        IEnumerable<object> GetList(string companyId, string column, string value);
         IEnumerable<object> GetMasterOrderList(string companyId, string plantId);
         //IEnumerable<object> GetDepartmentPersonList(string plantId, string partyAccountGroupId, string partyId, bool flag);
 

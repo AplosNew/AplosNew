@@ -2902,8 +2902,12 @@ namespace Library.MaterialManagement.Inventory
                             // insert in receive tax
                             //var list =
                             BOQQueryService purchaseOrderBOQQueryService = new BOQQueryService(_sqlRepository);
-                            var list = purchaseOrderBOQQueryService.GetPOBOQTaxCategoryList(entity.CompanyGroupId, entity.InvoicingPartyPlantId, entity.PlantId, itemDetail.HSNCodeId);
+                            var list = purchaseOrderBOQQueryService.GetPOBOQTaxCategoryList(entity.CompanyGroupId, entity.InvoicingPartyPlantId, entity.PlantId, itemDetail.HSNCodeId) ;
 
+                            if (receiveDetail.TotalTaxAmount == 0 && list.Count()>0)
+                            {
+                                receiveDetail.TotalTaxAmount = receiveDetail.TransactionAmount * (list.Sum(r=>r.Percentage)) / 100; 
+                            }
                             if (list.IsNotNull())
                             {
                                 var currentIdTax = _receiveTaxRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseOrderTax] WHERE InventoryReceiveDetailId='{itemDetail.InventoryReceiveDetailId}'").First();

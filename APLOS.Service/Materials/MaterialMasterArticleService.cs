@@ -53,7 +53,7 @@ namespace Library.Service.Materials
         {
             try
             {
-                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM,           MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
+                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName, MMA.UserName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM,           MMA.MachineAllowance,MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster,MMA.OrderLevel
                             ,MMA.IsMachineApplicable
 							,MMA.IsWorkCenterApplicable
 
@@ -326,6 +326,7 @@ namespace Library.Service.Materials
                         art.Code = item.Code;
                         art.ShortName = item.ShortName;
                         art.StandardName = item.StandardName;
+                        art.UserName = item.UserName;
                         art.HSNCodeId = item.HSNCodeId;
                         art.UpdatedBy = item.UpdatedBy;
                         art.UpdatedDate = item.UpdatedDate;
@@ -815,6 +816,7 @@ namespace Library.Service.Materials
         public int RPM { get; set; }
         public string StandardName { get; set; }
         public string ShortName { get; set; }
+        public string UserName { get; set; }
         public string Code { get; set; }
         public string HSNCodeId { get; set; }
         public string Id { get; set; }
