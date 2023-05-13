@@ -414,6 +414,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["Amount"] = data.Amount;
                     dr["TotalQty"] = data.TotalQty;
                     dr["UDNo"] = data.UDNo;
+                    dr["FileNo"] = data.FileNo;
                     if (data.UDDate == null)
                         dr["UDDate"] = DBNull.Value;
                     else
@@ -463,6 +464,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["TotalQty"] = data.TotalQty;
                     dr["SOQty"] = data.SOQty;
                     dr["UDNo"] = data.UDNo;
+                    dr["FileNo"] = data.FileNo;
                     if (data.UDDate == null)
                         dr["UDDate"] = DBNull.Value;
                     else
@@ -3256,6 +3258,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string ContractNo { get; set; }
         public string CustomerId { get; set; }
         public string UDNo { get; set; }
+        public string FileNo { get; set; }
         public string MasterLCId { get; set; }
         public string Description { get; set; }
         public string Remarks { get; set; }

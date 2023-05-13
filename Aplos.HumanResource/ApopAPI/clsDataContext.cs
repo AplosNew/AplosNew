@@ -4455,6 +4455,11 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
                 #region Sql
                 strSQL1 = @"select distinct LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
+case when apd.WeeklyStatus = 'W' then 'W'
+when (select top 1 rw.PTime from AttdnRawData rw
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+order by rw.PTime asc) is null then 'IM'
+else 'IN' end as RawDayStatus ,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
@@ -4493,7 +4498,8 @@ left join scs.[State] ST on ST.Id = EMP.ParmStateId
 left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
 left join dbo.AttdnRawData Ard on Ard.LogDownLoadNum = EMP.SystemId and Ard.PDate = apd.WorkDate
 left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
-left join HKP.HRReportGroupMaster Hg on Hg.Id = Hrg.UserGroupId
+left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
+left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
 left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
 left join LeaveType LTY on LTY.Id = LT.LTSystemID
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
@@ -4505,18 +4511,14 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
                 if(locations != null)
                 {
-                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "' and ";
+                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "'";
                 }
 
-                if (inmis ==  "IN" || inmis == "IM")
+                if (inmis ==  "IN" || inmis == "IM" || inmis == "W")
                 {
-                    strSQL = strSQL1 + " and apd.InStatus = '" + inmis + "' order by Diffenence Asc";
+                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis +"' order by Diffenence Asc";
                 }
-                if (inmis == "W")
-                {
-                    strSQL = strSQL1 + " and apd.WeeklyStatus = 'W' order by Diffenence Asc";
-                }
-
+               
                 #endregion Sql
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -4553,6 +4555,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
                         ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
                         Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
+                        RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
                        
                     });
                 }
@@ -4654,10 +4657,11 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
 
                         dr["Id"] =  _Id;
-                        dr["EntityId"] = item.PhoneNumber;
-                        dr["ProcessId"] = item.Email;
-                        dr["ShiftId"] = item.Password;
-                        dr["ResponsiblePerson"] = item.BloodGroup;
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
                         dr["Status"] = item.Status;
 
 
@@ -4669,10 +4673,11 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["EntityId"] = item.PhoneNumber;
-                        dr["ProcessId"] = item.Email;
-                        dr["ShiftId"] = item.Password;
-                        dr["ResponsiblePerson"] = item.BloodGroup;
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
                         dr["Status"] = item.Status;
 
                         dr.EndEdit();
@@ -5342,6 +5347,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
         public string Deployment { get; set; }
         public string ToDayIN { get; set; }
         public string Diffenence { get; set; }
+        public string RawDayStatus { get; set; }
        
     }
 

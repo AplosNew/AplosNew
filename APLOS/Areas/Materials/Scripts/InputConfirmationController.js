@@ -10,6 +10,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'Update';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
     $scope.modelFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'Id' },
@@ -313,10 +314,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
 
                 $scope.$broadcast('show-errors-check-validity');
                 if ($scope.ModelNewForm.$valid) {
-                    //if (baseService.isUndefinedOrNull($scope.ModelNew.ByWhom)) {
-                    //    throw "Select By Whom Employee.";
-                    //}
-
+                    
                     $http({
                         method: 'POST',
                         url: $scope.saveUrl,
@@ -340,34 +338,31 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                     };
                 }
             }
-           
+            else {
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl,
+                    data: {
+                        'model': $scope.ModelNew
+                        , 'dataList': $scope.IssueSlipDataList
+                    },
+                    dataType: 'JSON'
+                    , contentType: "application/json charset=utf-8"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.Clear();
+                        $scope.GetSavedData();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
         } catch (e) {
             ShowResult(e, "failure");
-        }
-    };
-
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl,
-                data: {
-                    'id': $scope.ModelNew.Id
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.Clear();
-                    $scope.GetSavedData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
         }
     };
 

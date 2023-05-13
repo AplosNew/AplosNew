@@ -38,6 +38,7 @@
                                 <div e-column e-headertext="Actions" e-template="#SalesAdd" e-width="160"></div>
                                 <div e-column e-type="string" e-field="Id" e-headertext="ContractId" e-width="50"></div>
                                 <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                                <div e-column e-type="string" e-field="FileNo" e-headertext="File No" e-width="100"></div>
                                 <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLC RefNo" e-width="100"></div>
                                 <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CreationDate" e-headertext="Creation Date" e-width="100"></div>
                                 <div e-column e-type="string" e-field="UDNo" e-headertext="UD No" e-width="100"></div>
@@ -239,6 +240,12 @@
                             </div>
                             <div class="col-xs-4">
                                 <div class="form-group">
+                                    <label class="col-sm-4 control-label">File No</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" ng-model="modelNew.FileNo" title="File No" class="form-control" maxlength="100" tabindex="4">
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="col-sm-4 control-label">Description</label>
                                     <div class="col-sm-8">
                                         <textarea class="form-control" rows="2" ng-model="modelNew.Description" tabindex="3" maxlength="250"></textarea>
@@ -278,13 +285,18 @@
                             </div>
                         </div>
                         <div class="col-sm-12">
+                            <div class="common-btn">
+                                <ul class="list-inline text-left">
+                                    <li><button style="margin-left: 5px;" ng-click="GetSalesOrderList();" class="btn"><i class="glyphicon glyphicon-plus" style="top: 1px;"></i>Sales Order</button></li>
+                                </ul>
+                            </div>
                             <div class="row">
-                                <div id="GridSO" ej-grid e-datasource="SalesOrderList" e-templaterefresh="refreshTemplateSO"
+                                <div id="GridSelectedSO" ej-grid e-datasource="SelectedSalesOrderList" 
                                      e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
                                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
 
                                     <div e-columns>
-                                        <div e-column e-headertext="" e-headertemplateid="#soheaderTemplate" e-template="#socheckboxTemplate" e-textalign="center" e-width="30"></div>
+                                        @*<div e-column e-headertext="" e-headertemplateid="#soheaderTemplate" e-template="#socheckboxTemplate" e-textalign="center" e-width="30"></div>*@
                                         @*<div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>*@
                                         <div e-column e-field="SalesOrderId" e-headertext="SO NO" e-width="80"></div>
                                         <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
@@ -305,17 +317,12 @@
                                         <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
                                     </div>
                                 </div>
-                              
-                                @*<script type="text/template" id="checkboxTemplateMaster">
-                                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Flags" e-checked="data.Flags" />
-                                    </script>*@
-
-                                <script type="text/template" id="socheckboxTemplate">
+                                @*<script type="text/template" id="socheckboxTemplate">
                                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flags" e-value="data.Flags" />
                                 </script>
                                 <script type="text/x-jsrender" id="soheaderTemplate">
                                     <input type="checkbox" id="soheadchk" />
-                                </script>
+                                </script>*@
                             </div>
                         </div>
 
@@ -833,69 +840,46 @@
     </div>
 </ej-dialog>
 
-<div class="modal fade site-modal in" id="masterOrderPopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="salesOrderPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header"> Master Order Item<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-
+            <div class="modal-header"> Sales Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-                <label style="color:cornflowerblue">Select Same Customer.</label>
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GridOperation" ej-grid e-datasource="masterOrderDataList"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowResizing="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-templaterefresh="refreshTemplateemployee"
-                             e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
-
-                            <div e-columns>
-                                @*<div e-column e-template="#checkboxTemplateMaster" e-textalign="center" e-width="30"></div>*@
-                                <div e-column e-headertext="" e-headertemplateid="" e-template="#checkboxTemplateMO" e-textalign="center" e-width="30"></div>
-                                @*<div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
-                                    <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
-                                    <div e-column e-field="StyleNo" e-headertext="Buyer Item#" e-width="150"></div>
-                                    <div e-column e-field="OwnStyleNo" e-headertext="Own Item#" e-width="150"></div>*@
-                                <div e-column e-field="MasterOrderId" e-headertext="Master OrderNo" e-width="80"></div>
-                                <div e-column e-field="MasterOrderItemId" e-headertext="Master Order ItemNo" e-width="80"></div>
-                                <div e-column e-field="ContractNo" e-headertext="ContractNo" e-width="150"></div>
-                                <div e-column e-field="LCRef" e-headertext="Master LCNo" e-width="100"></div>
-                                <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
-                                <div e-column e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
-                                <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
-                                <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
-                                <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
-                                <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-                                <div e-column e-field="Rate" e-headertext="Rate" e-width="80"></div>
-                                <div e-column e-field="Amount" e-headertext="Amount" e-width="80"></div>
-                                <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
-                                <div e-column e-template="#BuyerItemRef" e-headertext="Buyer Item#" e-width="80" style="height: 20px;"></div>
-                                <div e-column e-template="#OwnItemRef" e-headertext="Own Item#" e-width="80" style="height: 20px;"></div>
-                            </div>
+                <div class="row">
+                    <div id="GridSO" ej-grid e-datasource="SalesOrderList" e-templaterefresh="refreshTemplateSO"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="false"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true" e-allowResizing="true">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#soheaderTemplate" e-template="#socheckboxTemplate" e-textalign="center" e-width="30"></div>
+                            <div e-column e-field="SalesOrderId" e-headertext="SO NO" e-width="80"></div>
+                            <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="80"></div>
+                            <div e-column e-field="MasterOrderItemId" e-headertext="Item No" e-width="80"></div>
+                            <div e-column e-field="ContractId" e-headertext="ContractId" e-width="80"></div>
+                            <div e-column e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
+                            <div e-column e-field="Buyer" e-headertext="Buyer" e-headertext-color="black" e-textalign="left" e-width="75"></div>
+                            <div e-column e-field="BuyerItem" e-headertext="Buyer Item#" e-width="80"></div>
+                            <div e-column e-field="OwnItem" e-headertext="Own Item#" e-width="80"></div>
+                            <div e-column e-field="PONumber" e-headertext="PONumber" e-width="80"></div>
+                            <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="150"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="150"></div>
+                            <div e-column e-field="TotalQty" e-headertext="Total Qty" e-width="80"></div>
+                            <div e-column e-field="Qty" e-headertext="SO Qty" e-width="80"></div>
+                            <div e-column e-field="Amount" e-headertext="SO Amount" e-width="80"></div>
+                            <div e-column e-field="Currency" e-headertext="Currency" e-width="80"></div>
+                            <div e-column e-field="BuyerReferenceNo" e-headertext="Buyer Ord#" e-width="80"></div>
+                            <div e-column e-field="OwnReferenceNo" e-headertext="Own Ord#" e-width="80"></div>
                         </div>
-                        @*<script type="text/template" id="checkboxTemplateMaster">
-                                <input type="checkbox" ej-checkbox class="nodetext" e-value="data.Active" e-checked="data.Active" />
-                            </script>*@
-
-                        <script type="text/template" id="checkboxTemplateMO">
-                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
-                        </script>
-                        @*<script type="text/x-jsrender" id="headerTemplateMO">
-                                <input type="checkbox" id="headchk" />
-                            </script>*@
-                        <script type="text/template" id="BuyerItemRef">
-                            <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.BuyerItemRef" ng-maxlength="50" style="color:black;" class="form-control" />
-                            </div>
-                        </script>
-                        <script type="text/template" id="OwnItemRef">
-                            <div class="col-sm-10" style="padding:0px; width:70px;">
-                                <input type="text" ng-model="data.OwnItemRef" ng-maxlength="50" style="color:black;" class="form-control" />
-                            </div>
-                        </script>
                     </div>
+                    <script type="text/template" id="socheckboxTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flags" e-value="data.Flags" />
+                    </script>
+                    <script type="text/x-jsrender" id="soheaderTemplate">
+                        <input type="checkbox" id="soheadchk" />
+                    </script>
                 </div>
                 <div class="common-btn" style="padding-right: 15px;">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="CloseMasterOrderPopUp();" class="btn">Apply</button></li>
+                        <li> <button ng-click="CloseSOPopUp();" class="btn">Apply</button></li>
                     </ul>
                 </div>
             </div>

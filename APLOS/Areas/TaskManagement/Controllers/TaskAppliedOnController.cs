@@ -254,7 +254,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             drmo.BeginEdit();
                             drmo["Id"] = detailid;
                             drmo["UserEditControlId"] = _MasterId;
-                            drmo["Href"] = item["Href"]; ;
+                            drmo["Href"] = item["Href"];
                             drmo.EndEdit();
 
                         }

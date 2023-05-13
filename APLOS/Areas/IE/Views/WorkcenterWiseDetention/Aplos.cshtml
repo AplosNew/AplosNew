@@ -1,7 +1,11 @@
 ﻿<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
 <script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
-<togglable name="{{FormTitle}}"></togglable>
+@*<togglable name="{{FormTitle}}"></togglable>*@
+<div>
+    <h4>{{FormTitle}}</h4>
+    <hr/>
+</div>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="container-fluid">
         <div class="row">
@@ -22,13 +26,21 @@
                     <label class="control-label">Detention<sup>*</sup></label>
 
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.DetentionId" name="Detention"
+                        <select class="form-control" ng-model="ModelNew.DetentionId" name="Detention" ng-change="SelectedDetentionInGrid();"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in DetentionList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
 
+                </div>
+
+                <div class="mb-3 form-group" style="margin-right:4px" show-errors>
+                    <label class="control-label">Remarks</label>
+                    <div class="show-message">
+                        <textarea type="text" name="Remark" ng-model="ModelNew.Remark" row="2" class="form-control" autocomplete="off" tabindex="4" maxlength="250"></textarea>
+
+                    </div>
                 </div>
             </div>
 
@@ -130,46 +142,40 @@
         <input type="text" class="form-control" name="Detention" ng-model="data.Detention" e-width="100" />
     </script>
     <script type="text/template" id="Responsibleperson">
-        <input type="text" class="form-control" name="Responsible Person" ng-model="data.Responsible" e-width="100" />
+        <input type="text" class="form-control" name="Responsible Person" ng-model="data.ResponsiblePerson" e-width="100" />
     </script>
     <script type="text/template" id="calculatedTime">
-        <input type="text" class="form-control" name="CalculatedTime" ng-model="data.CalculatedTime" e-width="100" />
+        <input type="text" class="form-control" name="Minute" ng-model="data.Minute" e-width="100" />
     </script>
 
 
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="CalculateDetention();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
 </div>
 
-<div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-recorddoubleclick="Get" e-load="loadGridEdit"
+@*<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-recorddoubleclick="Get" e-load="loadGridEdit" e-datasource="GriddataMachineMasterData"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Entity" e-headertext="Entity" e-width="12"></div>
-            <div e-column e-field="Department" e-headertext="Department" e-width="13"></div>
-            <div e-column e-field="DetentionCode" e-headertext="Detention" e-width="13"></div>
-            <div e-column e-field="Detention" e-headertext="Detention" e-width="13"></div>
-            <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="13"></div>
-            <div e-column e-field="Date" e-headertext="Date" e-width="13"></div>
-            <div e-column e-field="MachineMaster" e-headertext="Machine" e-width="15"></div>
+            <div e-column e-field="Detention" e-headertext="Detention" e-width="13"></div>          
+            <div e-column e-field="Date" e-headertext="Date" e-width="13"></div>           
             <div e-column e-field="Process" e-headertext="Process" e-width="15"></div>
             <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="15"></div>
             <div e-column e-field="FromTime" e-headertext="From Time" e-width="15"></div>
             <div e-column e-field="ToTime" e-headertext="To Time" e-width="15"></div>
             <div e-column e-field="Minute" e-headertext="Minute" e-width="15"></div>
-            <div e-column e-field="Shift" e-headertext="Shift" e-width="15"></div>
-            <div e-column e-field="Asset" e-headertext="Asset" e-width="15"></div>
-            <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="15"></div>
+            <div e-column e-field="Shift" e-headertext="Shift" e-width="15"></div>          
             <div e-column e-field="Remark" e-headertext="Remark" e-width="15"></div>
         </div>
     </div>
-</div>
+</div>*@
 
 @* #<!-- #region name -->*@
 
@@ -224,7 +230,7 @@
                                 @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
 
                                 <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
-                                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="50"></div>
+                                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="120"></div>
                                 <div e-column e-field="ShiftDefination" e-headertext="Shift Defination" e-width="120"></div>
                                 <div e-column e-field="InTime" e-headertext="In Time" e-width="120"></div>
                                 <div e-column e-field="OutTime" e-headertext="Out Time" e-width="120"></div>
@@ -291,62 +297,86 @@
         </div>
     </div>
 </div>
-@*  #endregion    *@
-@*<div class="form-group" show-errors>
 
-        <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-        <div class="col-sm-8 show-message">
-            <div class="input-group">
-                <input type="text" name="Entity" ng-model="ModelNew.Entity" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
-                <span class="input-group-btn">
-                    <button ng-click="selectEntity()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                </span>
+@*Employee Popup*@
+<div class="modal fade site-modal in" id="employeePopUps" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-dblclick="selectEmployeePopUp($index, x)" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
             </div>
         </div>
-    </div>*@
-@*<div class="form-group" show-errors>
-        <label class="col-sm-4 control-label">Date<sup>*</sup></label>
-        <div class="col-sm-8 show-message">
-            <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
-        </div>
-    </div>*@
-
-
-@*<div class="col-xs-12 col-sm-6 col-md-6">*@
-
-@*<div class="form-group" show-errors>
-        <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
-        <div class="col-sm-8 show-message">
-            <div class="input-group">
-                <input type="text" name="Entity" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
-                <span class="input-group-btn">
-                    <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>
-        </div>
-    </div>*@
-@*<div class="form-group" show-errors>
-        <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-        <div class="col-sm-8 show-message">
-            <div class="input-group">
-                <input type="text" name="Process" ng-model="ModelNew.Process" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
-                <span class="input-group-btn">
-                    <button ng-click="selectProcess()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-            </div>
-        </div>
-    </div>*@
-@*</div>*@
-
-@*<div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="CalculateDetention();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-        </ul>
-    </div>*@
-@*</div>*@
-
+    </div>
+</div>
+<confirm-modal></confirm-modal>
 <script type="text/javascript">
     $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
         var hours = e.time.hours, //Returns a string

@@ -65,6 +65,7 @@
                     <th>Code</th>
                     <th>Short Name</th>
                     <th>Standard Name</th>
+                    <th>User Name</th>
                     <th>HSN Code</th>
                     <th>Machine</th>
                     <th>Work Center</th>
@@ -84,6 +85,7 @@
                     <td>{{x.Code}}</td>
                     <td>{{x.ShortName}}</td>
                     <td>{{x.StandardName}}</td>
+                    <td>{{x.UserName}}</td>
                     <td>{{x.HSNCode}}</td>
                     <td>{{x.IsMachineApplicable?'Yes':'No'}}</td>
                     <td>{{x.IsWorkCenterApplicable?'Yes':'No'}}</td>
@@ -190,7 +192,7 @@
                             <label class="col-sm-2 control-label">Code<sup>*</sup></label>
                             <label class="col-sm-3 control-label">Short Name<sup>*</sup></label>
                             <label class="col-sm-3 control-label">Standard Name<sup>*</sup></label>
-                            <label class="col-sm-2 control-label">HSN Code</label>
+                            <label class="col-sm-2 control-label">User Name</label>
                             <label class="col-sm-2 control-label"></label>
                         </div>
                     </div>
@@ -206,11 +208,7 @@
                                 <input type="text" ng-model="articleNew.StandardName" class="form-control" maxlength="200">
                             </div>
                             <div class="col-sm-2">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="articleNew.HSNCodeId" ng-options="item.Value as item.Text for item in hsnCodeList">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
+                                <input type="text" ng-model="articleNew.UserName" disabled class="form-control" maxlength="200">
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-2">
@@ -221,87 +219,60 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-2 col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
-                        <div class="form-group">
-                            <label class="col-sm-8 control-label">Work Center</label>
-                            <div class="col-sm-4">
-                                <div class="checkbox-site">
-                                    <label class="control-label">
-                                        <input type="checkbox" ng-model="articleNew.IsWorkCenterApplicable" tabindex="8">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
+                    <div class="col-xs-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                        <div class="col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Work Center</label>
+                                <div class="col-sm-4">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-model="articleNew.IsWorkCenterApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-8 control-label">Machine</label>
+                                <div class="col-sm-4">
+                                    <div class="checkbox-site">
+                                        <label class="control-label">
+                                            <input type="checkbox" ng-model="articleNew.IsMachineApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Order Level</label>
+                                <div class="col-sm-7">
+                                    <div class="select-style">
+                                        <select id="OrderLevelId" class="form-control" ng-model="articleNew.OrderLevel" name="Order Level"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">HSN Code</label>
+                                <div class="col-sm-7">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="articleNew.HSNCodeId" ng-options="item.Value as item.Text for item in hsnCodeList">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-3 col-md-3 form-element-ctrl form-horizontal" style="padding-left:0px;">
-                        <div class="form-group">
-                            <label class="col-sm-8 control-label">Machine</label>
-                            <div class="col-sm-4">
-                                <div class="checkbox-site">
-                                    <label class="control-label">
-                                        <input type="checkbox" ng-model="articleNew.IsMachineApplicable" tabindex="8">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-4 col-md-4 form-element-ctrl form-horizontal" style="padding-left:0px;">
-                        <div class="form-group">
-                            <label class="col-sm-5 control-label">Order Level</label>
-                            <div class="col-sm-7">
-                                <div class="select-style">
-                                    <select id="OrderLevelId" class="form-control" ng-model="articleNew.OrderLevel" name="Order Level"
-                                            tabindex="2">
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @*<div class="col-xs-12 col-sm-2 col-md-2 form-element-ctrl form-horizontal" style="padding-left:0px;">
-            <div class="form-group">
-                <ul class="list-inline text-left">
-                    <li>
-                        <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="articleNew.IsWorkCenterApplicable" tabindex="8">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <div class="checkbox-site">
-                                <label>
-                                    <input type="checkbox" ng-model="articleNew.IsMachineApplicable" tabindex="8">
-                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                </label>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <label class="col-sm-4 control-label">Order Level<sup>*</sup></label>
-                        <div class="col-sm-8">
-                            <div class="select-style">
-                                <select id="OrderLevelId" class="form-control" ng-model="articleNew.OrderLevel" name="Order Level"
-                                        tabindex="2">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in EnumList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>*@
-
                 </div>
                     <div class="col-xs-12 col-sm-12 col-md-12" ng-show="attributeList.length>0">
                         <div class="table-responsive modal-table">

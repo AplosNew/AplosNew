@@ -5758,6 +5758,309 @@ namespace Aplos.MaterialManagement
 			}
 		}
 
+		public DataTable GetOtherPurchaseRegisterInvoiceWiseData(string CompanyId, string PlantId, string FromDate, string ToDate, string GRNNo, bool isreport)
+		{
+			try
+			{
+				var str = @"SELECT   IR.Id InvoiceNo,REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS InvoiceEntryDate,
+							NULL GateEntryNo,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo
+						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.CompanyCurrencyRate,0),2) MaterialTranAmount
+						   ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.CompanyCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalMaterialBaseAmount
+						   ,SUM(ROUND(ISNULL(IR.WrittenOffAmount*IR.CompanyCurrencyRate,0),4)) as Payment
+						   ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.CompanyCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(IR.WrittenOffAmount*IR.CompanyCurrencyRate,0),4))) as Balance
+						   ,VoucherNo= V.VoucherNo
+						   ,PostingDate=  REPLACE(CONVERT(CHAR(11), IR.PostingDate, 106),' ','-')  
+						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
+						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+						    ,'' DocRefDate,'' GrnDocDateDifference,'' GateName,PP.UserName InvoicingPartyPlant,PPD.UserName DeliveryPartyPlant,EI.EmployeeName Employee
+					from [TRN].[Invoice] AS IR
+					left jOIN (select InvoiceId,0 TransactionQty,Sum(Amount)MaterialTranAmount
+						,Sum(Amount)TotalMaterialTranAmount,Sum(Amount)TotalMaterialBooksCurrencyAmount
+						,SUM(TaxAmount) TotalTaxAmount,0 ChargesTaxTranAmount
+						FROM [TRN].[InvoiceDetail]
+					group by InvoiceId ) AS IRD ON IR.Id=IRD.InvoiceId 
+					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
+					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
+					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
+					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.PartyPlantId  
+					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+					left join trn.Voucher V on V.Id=IR.VoucherId
+					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.PostingDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+                    AND IR.SourceType IN('VendorInvoice')
+
+					group by IR.PostingDate,IR.AddedDate,IR.Id,p.UserName,PP.UserName,PPD.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
+					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
+					,PC.UserName,PSC.UserName,PG.UserName,IR.CompanyCurrencyRate,EI.EmployeeName";
+
+				if (isreport)
+				{
+
+					var newsql = "select * from(" + str + ") y where y.GRNNo in (" + GRNNo + @")";
+					return _sqlRepository.GetDataTable(newsql);
+
+				}
+				else
+				{
+					str += "";
+					return _sqlRepository.GetDataTable(str);
+				}
+
+
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
+		}
+		public string CreateOtherPurchaseRegisterInvoiceWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate, string GRNNo, string SheetName)
+		{
+			var excelEngine = new ExcelEngine();
+			var report = new ReportUtility();
+			var workbook = report.GetWorkbook(ref excelEngine, 1);
+			workbook.Version = ExcelVersion.Excel2016;
+
+			var data = GetOtherPurchaseRegisterInvoiceWiseData(CompanyId, PlantId, FromDate, ToDate, GRNNo, true);
+
+			var sheet = workbook.Worksheets[0];
+
+			#region sheet1
+			sheet.Name = "PurchaseRegisterInvoiceWise";
+
+			int ROW = 7;
+			int endCol = 1;
+			int COL = 1;
+
+			#region Grid Headers
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 25, ExcelHAlign.HAlignLeft);
+			int ColPartyName = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Invoicing Party Plant", 18, ExcelHAlign.HAlignLeft);
+			int ColInvoicingPartyPlant = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Delivery Party Plant", 18, ExcelHAlign.HAlignLeft);
+			int ColDeliveryPartyPlant = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyCode = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Tax ID", 15, ExcelHAlign.HAlignLeft);
+			int ColTaxID = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Employee", 18, ExcelHAlign.HAlignLeft);
+			int ColEmployee = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "InvoiceNo", 10, ExcelHAlign.HAlignLeft);
+			int ColGRNNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Date", 10, ExcelHAlign.HAlignLeft);
+			int ColGRNEntryDate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Voucher No", 12, ExcelHAlign.HAlignLeft);
+			int ColVoucherNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 12, ExcelHAlign.HAlignLeft);
+			int ColPostingDate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 10, ExcelHAlign.HAlignLeft);
+			int ColDocRefNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 11, ExcelHAlign.HAlignLeft);
+			int ColDocRefDate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Invoice Doc Date Difference", 20, ExcelHAlign.HAlignLeft);
+			int ColGrnDocDateDifference = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 12, ExcelHAlign.HAlignLeft);
+			int ColGateEntryNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Gate Name", 13, ExcelHAlign.HAlignLeft);
+			int ColGateName = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Currency", 12, ExcelHAlign.HAlignLeft);
+			int ColBaseCurrency = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignRight);
+			//sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			int ColMaterialTranAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Tax Amount", 15, ExcelHAlign.HAlignRight);
+			int ColTotalTaxAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 16, ExcelHAlign.HAlignRight);
+			int ColTotalMaterialBaseAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Payment", 13, ExcelHAlign.HAlignRight);
+			int ColPayment = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Balance", 13, ExcelHAlign.HAlignRight);
+			int ColBalance = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 10, ExcelHAlign.HAlignRight);
+			int ColPartyGroup = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignRight);
+			int ColPartyCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 16, ExcelHAlign.HAlignRight);
+			int ColPartySubCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 10, ExcelHAlign.HAlignRight);
+			int ColPartyType = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 18, ExcelHAlign.HAlignLeft);
+			int ColPartyAccountGroup = COL;
+
+			endCol = COL;
+			#endregion Headers
+
+
+			sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+			ROW++;
+			var startRow = 0;
+			var endRow = 0;
+			int RowIndex = ROW;
+			startRow = ROW;
+
+			for (int i = 0; i < data.Rows.Count; i++)
+			{
+				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+				sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
+				sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
+				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+				sheet[ROW, ColTaxID].Text = data.Rows[i]["GSTINNo"].ToString();
+				sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
+				sheet[ROW, ColGRNNo].Text = data.Rows[i]["InvoiceNo"].ToString();
+				sheet[ROW, ColGRNEntryDate].Text = data.Rows[i]["GRNEntryDate"].ToString();
+				sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+				sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+				sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+				sheet[ROW, ColDocRefDate].Text = data.Rows[i]["DocRefDate"].ToString();
+				sheet[ROW, ColGrnDocDateDifference].Text = data.Rows[i]["GrnDocDateDifference"].ToString();
+				sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["InvoiceEntryNo"].ToString();
+				sheet[ROW, ColGateName].Text = data.Rows[i]["GateName"].ToString();
+				sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
+				sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
+				sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
+				sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
+				sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
+				sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+				sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
+				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
+				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
+				sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+
+
+				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+				ROW++;
+			}
+
+			//ROW++;
+
+			if (FromDate != "" && ToDate != "")
+			{
+
+
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, "Total");
+				sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount) - 1].CellStyle.Font.Bold = true;
+				//sheet.Range[1, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, ROW].Merge();
+				object sumObject;
+
+				//sumObject = data.Compute("Sum(MaterialTranAmount)", "");
+				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].CellStyle.Font.Bold = true;
+				//report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(TotalMaterialBaseAmount)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalMaterialBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(Payment)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(Balance)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+			}
+
+			endRow = ROW - 1;
+			endRow = ROW - 1;
+
+			#endregion sheet
+
+
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+			sheet.UsedRange.CellStyle.Font.Size = 8;
+
+
+
+			ReportUtility reportUtility = new ReportUtility();
+			//reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
+
+			sheet.Name = SheetName;
+			sheet.UsedRange.WrapText = true;
+			sheet.IsGridLinesVisible = false;
+			report.PlantHeader(ref sheet, COL, SheetName, PlantId);
+			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
+
+		}
+
 		public IEnumerable<object> GetFiltersPurchaseconfirmationData(string PlantId, string fromDate, string todate)
 		{
 			try
@@ -6231,5 +6534,478 @@ namespace Aplos.MaterialManagement
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+
+		public string OtherPurchaseRegisterInvoiceSummaryReport(DataTable data, string ReportHeader, string reportFileName)
+		{
+			ExcelEngine excelEngine = null;
+			IApplication application = null;
+			IWorkbook workbook = null;
+			IWorksheet sheet = null;
+			var filePath = "";
+			try
+			{
+				excelEngine = new ExcelEngine();
+				application = excelEngine.Excel;
+				workbook = application.Workbooks.Create(1);
+				workbook.Worksheets[0].Name = "Other Purchase Register Invoice Report";
+				sheet = workbook.Worksheets[0];
+
+				int ROW = 6; int COL = 1;
+				#region columns
+
+				sheet[ROW, COL].Text = "Invoice No.";
+				sheet[ROW, COL].ColumnWidth = 14;
+				int colInvoiceNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Invoice Date";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colInvoiceEntryDate = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Voucher No.";
+				sheet[ROW, COL].ColumnWidth = 15;
+				int colVoucherNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Posting Date";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colPostingDate = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Doc Ref No.";
+				sheet[ROW, COL].ColumnWidth = 16;
+				int colDocRefNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Gate Entry No";
+				sheet[ROW, COL].ColumnWidth = 15;
+				int colGateEntryNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Party Code";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colPartyCode = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Party";
+				sheet[ROW, COL].ColumnWidth = 28;
+				int colPartyName = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "GSTIN No.";
+				sheet[ROW, COL].ColumnWidth = 14;
+				int colGSTINNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Base Amount";
+				sheet[ROW, COL].ColumnWidth = 12;
+				int colMaterialTranAmount = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Total Tax Amount";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colTotalTaxAmount = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Total Base Amount";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colTotalMaterialBaseAmount = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Payment";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colPayment = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Balance";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colBalance = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Party Group";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colPartyGroup = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Party Category";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colPartyCategory = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Party SubCategory";
+				sheet[ROW, COL].ColumnWidth = 12;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colPartySubCategory = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Party Type";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colPartyType = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Party Account Group";
+				sheet[ROW, COL].ColumnWidth = 14;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colPartyAccountGroup = COL;
+
+				#endregion columns
+				int endCol = COL;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+				sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+				ROW++;
+				int startRow = ROW;
+				int LastRow = ROW + (data.Rows.Count - 1);
+
+				for (int i = 0; i < data.Rows.Count; i++)
+				{
+					sheet[ROW, colInvoiceNo].Text = data.Rows[i]["InvoiceNo"].ToString();
+					sheet[ROW, colInvoiceEntryDate].Text = data.Rows[i]["InvoiceEntryDate"].ToString();
+					sheet[ROW, colVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+					sheet[ROW, colPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+					sheet[ROW, colDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+					sheet[ROW, colGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
+					sheet[ROW, colPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+					sheet[ROW, colPartyName].Text = data.Rows[i]["PartyName"].ToString();
+					sheet[ROW, colGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
+					sheet[ROW, colMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
+					sheet[ROW, colTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
+					sheet[ROW, colTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
+					sheet[ROW, colPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
+					sheet[ROW, colBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+					sheet[ROW, colPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
+					sheet[ROW, colPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+					sheet[ROW, colPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();					
+					sheet[ROW, colPartyType].Text = data.Rows[i]["PartyType"].ToString();
+					sheet[ROW, colPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+
+					sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+					sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+					sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+					ROW++;
+				}
+				sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+				sheet.UsedRange.WrapText = true;
+				sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+				sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+				sheet["A" + startRow.ToString()].FreezePanes();
+
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				ReportUtility reportUtility = new ReportUtility();
+				reportUtility.PlantHeader(ref sheet, endCol, "Other Purchase Register Invoice Wise Report", identity.PlantId);
+				reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+				sheet.UsedRange.WrapText = true;
+				sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+				sheet.IsGridLinesVisible = false;
+
+				//#endregion ******************Report Header******************
+				sheet.PageSetup.TopMargin = 0.2;
+				sheet.PageSetup.BottomMargin = 0.8;
+				//sheet.PageSetup.PrintTitleRows = "$1:$6";
+				sheet.PageSetup.LeftMargin = 0.2;
+				sheet.PageSetup.RightMargin = 0.2;
+				sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+				sheet.PageSetup.FitToPagesTall = 0;
+				sheet.PageSetup.FitToPagesWide = 1;
+				sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+				sheet.PageSetup.CenterHorizontally = true;
+
+				filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+				workbook.SaveAs(filePath);
+				workbook.Close();
+				excelEngine.Dispose();
+				return filePath;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
+		public string MasterLCDataXlsReport(DataTable data, string ReportHeader, string reportFileName)
+		{
+			ExcelEngine excelEngine = null;
+			IApplication application = null;
+			IWorkbook workbook = null;
+			IWorksheet sheet = null;
+			var filePath = "";
+			try
+			{
+				excelEngine = new ExcelEngine();
+				application = excelEngine.Excel;
+				workbook = application.Workbooks.Create(1);
+				workbook.Worksheets[0].Name = "Master LC Report";
+				sheet = workbook.Worksheets[0];
+
+				int ROW = 6; int COL = 1;
+				#region columns
+
+				sheet[ROW, COL].Text = "Master LC No.";
+				sheet[ROW, COL].ColumnWidth = 14;
+				int colMasterLCNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Vendor";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colVendor = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Purchase LC Id";
+				sheet[ROW, COL].ColumnWidth = 15;
+				int colPurchaseLCId = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Purchase LC Ref.";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colPurchaseLCRef = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "LC Opening Date";
+				sheet[ROW, COL].ColumnWidth = 16;
+				int colLCOpeningDate = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Expiry Date";
+				sheet[ROW, COL].ColumnWidth = 15;
+				int colExpiryDate = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Currency";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colPurCurrencyCode = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Contract No";
+				sheet[ROW, COL].ColumnWidth = 28;
+				int colContractNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Customer";
+				sheet[ROW, COL].ColumnWidth = 14;
+				int colCustomer = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Master LC Ref No.";
+				sheet[ROW, COL].ColumnWidth = 12;
+				int colMasterLCRefNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Purchase LC Amount";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colPurchaseLCAmount = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Rate";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colRate = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Type";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colType = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Tenure";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colTenure = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Opening Bank";
+				sheet[ROW, COL].ColumnWidth = 10;
+				int colOpeningBank = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Benificiary Bank";
+				sheet[ROW, COL].ColumnWidth = 13;
+				int colBenificiaryBank = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Benif. Bank Descrip.";
+				sheet[ROW, COL].ColumnWidth = 12;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colBenificiaryBankDescription = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Lein Bank";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colLeinBank = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Lein Bank Descrip.";
+				sheet[ROW, COL].ColumnWidth = 14;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colLeinBankDescription = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Port Of Loading";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colPortOfLoading = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Final Destination";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colFinalDestination = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Status";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colStatus = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "LCA No";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colLCANo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Payment Based On";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colPaymentBasedOn = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Shipment Date";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colShipmentDate = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "PI No.";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colPINo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "UD No.";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colUDNo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "PO No.";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colPONo = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "Order Specific";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colOrderSpecific = COL;
+				COL++;
+
+				sheet[ROW, COL].Text = "GRN No.";
+				sheet[ROW, COL].ColumnWidth = 9;
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colGRNNo = COL;
+
+
+				#endregion columns
+				int endCol = COL;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+				sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+				sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+				ROW++;
+				int startRow = ROW;
+				int LastRow = ROW + (data.Rows.Count - 1);
+
+				for (int i = 0; i < data.Rows.Count; i++)
+				{
+					sheet[ROW, colMasterLCNo].Text = data.Rows[i]["MasterLCNo"].ToString();
+					sheet[ROW, colVendor].Text = data.Rows[i]["Vendor"].ToString();
+					sheet[ROW, colPurchaseLCId].Text = data.Rows[i]["PurchaseLCId"].ToString();
+					sheet[ROW, colPurchaseLCRef].Text = data.Rows[i]["PurchaseLCRef"].ToString();
+					sheet[ROW, colLCOpeningDate].Text = data.Rows[i]["LCOpeningDate"].ToString();
+					sheet[ROW, colExpiryDate].Text = data.Rows[i]["ExpiryDate"].ToString();
+					sheet[ROW, colContractNo].Text = data.Rows[i]["ContractNo"].ToString();
+					sheet[ROW, colPurCurrencyCode].Text = data.Rows[i]["PurCurrencyCode"].ToString();
+					sheet[ROW, colContractNo].Text = data.Rows[i]["ContractNo"].ToString();
+					sheet[ROW, colCustomer].Text = data.Rows[i]["Customer"].ToString();
+					sheet[ROW, colMasterLCRefNo].Text = data.Rows[i]["MasterLCRefNo"].ToString();
+					sheet[ROW, colPurchaseLCAmount].Number = clsStaticInfo.dbl(data.Rows[i]["PurchaseLCAmount"].ToString());
+					sheet[ROW, colRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+					sheet[ROW, colType].Text = data.Rows[i]["Type"].ToString();
+					sheet[ROW, colTenure].Number = clsStaticInfo.dbl(data.Rows[i]["Tenure"].ToString());
+					sheet[ROW, colOpeningBank].Text = data.Rows[i]["OpeningBank"].ToString();
+					sheet[ROW, colBenificiaryBank].Text = data.Rows[i]["BenificiaryBank"].ToString();
+					sheet[ROW, colBenificiaryBankDescription].Text = data.Rows[i]["BenificiaryBankDescription"].ToString();
+					sheet[ROW, colLeinBank].Number = clsStaticInfo.dbl(data.Rows[i]["LeinBank"].ToString());
+					sheet[ROW, colLeinBankDescription].Number = clsStaticInfo.dbl(data.Rows[i]["Lein Bank Descrip."].ToString());
+					sheet[ROW, colPortOfLoading].Text = data.Rows[i]["PortOfLoading"].ToString();
+					sheet[ROW, colFinalDestination].Text = data.Rows[i]["FinalDestination"].ToString();
+					sheet[ROW, colStatus].Text = data.Rows[i]["Status"].ToString();
+					sheet[ROW, colLCANo].Text = data.Rows[i]["LCANo"].ToString();
+					sheet[ROW, colPaymentBasedOn].Text = data.Rows[i]["PaymentBasedOn"].ToString();
+					sheet[ROW, colShipmentDate].Text = data.Rows[i]["ShipmentDate"].ToString();
+					sheet[ROW, colLCANo].Text = data.Rows[i]["LCANo"].ToString();
+					sheet[ROW, colPINo].Text = data.Rows[i]["PINo"].ToString();
+					sheet[ROW, colUDNo].Text = data.Rows[i]["UDNo"].ToString();
+					sheet[ROW, colPONo].Text = data.Rows[i]["PONo"].ToString();
+					sheet[ROW, colGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
+					sheet[ROW, colOrderSpecific].Text = data.Rows[i]["OrderSpecific"].ToString();
+
+					sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+					sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+					sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+					ROW++;
+				}
+				sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+				sheet.UsedRange.WrapText = true;
+				sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+				sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+				sheet["A" + startRow.ToString()].FreezePanes();
+
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				ReportUtility reportUtility = new ReportUtility();
+				reportUtility.PlantHeader(ref sheet, endCol, "LC Reports", identity.PlantId);
+				reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+				sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+				sheet.UsedRange.WrapText = true;
+				sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+				sheet.IsGridLinesVisible = false;
+
+				//#endregion ******************Report Header******************
+				sheet.PageSetup.TopMargin = 0.2;
+				sheet.PageSetup.BottomMargin = 0.8;
+				//sheet.PageSetup.PrintTitleRows = "$1:$6";
+				sheet.PageSetup.LeftMargin = 0.2;
+				sheet.PageSetup.RightMargin = 0.2;
+				sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+				sheet.PageSetup.FitToPagesTall = 0;
+				sheet.PageSetup.FitToPagesWide = 1;
+				sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+				sheet.PageSetup.CenterHorizontally = true;
+
+				filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+				workbook.SaveAs(filePath);
+				workbook.Close();
+				excelEngine.Dispose();
+				return filePath;
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+
 	}
 }
