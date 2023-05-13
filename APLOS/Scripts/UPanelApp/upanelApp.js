@@ -37,6 +37,7 @@ upanelApp.controller("attendanceSlipController", attendanceSlipController);
 upanelApp.controller("balanceSheetDetailsReportController", BalanceSheetDetailsReportController);
 upanelApp.controller("balanceSheetOpeningBalanceReportController", BalanceSheetOpeningBalanceReportController);
 upanelApp.controller("balanceSheetReportController", balanceSheetReportController);
+upanelApp.controller("balanceSheetReportTreeViewController", balanceSheetReportTreeViewController);
 upanelApp.controller("bankBaseController", bankBaseController);
 upanelApp.controller("bankBookReportController", bankBookReportController);
 upanelApp.controller("bankJournalController", bankJournalController);
