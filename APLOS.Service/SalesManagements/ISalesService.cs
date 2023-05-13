@@ -41,6 +41,6 @@ namespace Library.Service.SalesManagements
 
 
         void DeleteSale(string invoiceId, string voucherId);
-        void DeleteMasterOrderSalePost(string companyId, string plantId, string salesId, string voucherId);
+        void DeleteMasterOrderSalePost(string companyId, string plantId, string salesId, string voucherId, string deletedRemarks);
     }
 }

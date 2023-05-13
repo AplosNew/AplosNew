@@ -241,6 +241,62 @@ namespace Library.Service.OrderManagements
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
+
+        public IEnumerable<object> GetList(string companyId, string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false)
+                strkey = column + " like '%" + value + "%'";
+
+
+            string sql = @"select * from (SELECT A.Id, A.CompanyId, A.CommitmentId, A.PlantId, A.EntityId, EN.UserName Entity,FORMAT(A.AddedDate,'dd-MMM-yyyy') AS CreationDate,a.AddedBy AS CreatedBy
+                                    , A.OrderType, A.PartyId, P.UserName AS CustomerName, A.BuyerId,B.UserName Buyer
+                                    , A.BuyerBrandId, A.BuyerDivisionId, A.TestingStandardId, A.MasterOrderNo, A.OrderStatusId	
+                                    , A.OrderCategoryId,OC.UserName AS OrderCategory, A.SeasonId, A.OrderYear, A.CurrencyId, A.TotalQty	
+                                    , A.NoOfLineItem, A.ResponsiblePersonId, EI.EmployeeName AS ResponsiblePersonName
+                                    , A.InvoicingPartyPlantId, InvPP.UserName AS InvoicingPartyPlant, A.InvoicingByAddress
+		                            , A.DeliveryPartyPlantId, DeliPP.UserName AS DeliveryPartyPlant, A.DeliveryByAddress
+		                            , PartyAccountGroupId=(SELECT DISTINCT PartyAccountGroupId FROM [HKP].[CompanyParty] WHERE CompanyId=A.CompanyId
+								                            AND PartyId=A.PartyId AND PartyType='Customer' AND PlantId=A.PlantId)
+								    ,A.OrderWastagePercentage
+								    ,A.ExtraOrderPercentage,A.BuyerDepartmentId
+								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,A.SpecialTaxId,A.IsExtraOrderPercentage,PM.UserName ProductMaster,OS.UserName OrderStatus,A.AddedDate,A.AddedBy
+                                       ,A.OwnReferenceNo,A.BuyerReferenceNo
+									   ,[BuyerReferenceNoItem]=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                                     [OwnItem]=STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									  ,A.PaymentTermId,A.PaymentTermDays,A.ExceptionalProcessId,A.ExceptionalSubProcessId
+                                   
+                                   ,ContractNo=STUFF((select distinct ','+CNT.ContractNo from dbo.Contract CNT
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+									MasterLCNo=STUFF((select distinct ','+MLC.LCRef from dbo.Contract CNT
+															INNER JOIN trn.SalesOrder XSO  ON XSO.ContractId=CNT.Id	  
+															INNER JOIN trn.MasterOrderItem XMOI  ON XMOI.Id=XSO.MasterOrderItemId
+															LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId	  
+							                                where XMOI.MasterOrderId=A.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            FROM [TRN].[MasterOrder] AS A
+                            JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
+                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS InvPP ON A.InvoicingPartyPlantId=InvPP.Id
+                            LEFT JOIN [HKP].[PartyPlant] AS DeliPP ON A.DeliveryPartyPlantId=DeliPP.Id
+                            LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
+                            LEFT JOIN TRN.Commitment COM ON COM.Id=A.CommitmentId
+							LEFT JOIN [MST].[ProductMaster] PM ON COM.ProductMasterId=PM.Id
+                            LEFT JOIN HKP.OrderStatus OS ON OS.Id=A.OrderStatusId
+                            LEFT JOIN hkp.OrderCategory AS oc ON oc.Id=a.OrderCategoryId
+                            LEFT JOIN HKP.Buyer B ON B.Id=A.BuyerId
+                            LEFT JOIN ORG.Entity EN ON EN.Id=A.EntityId
+                            WHERE A.CompanyId='" + companyId + "') AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
         public GridModel QueryIdependent(GridParameter parameters, string companyId)
         {
             try
@@ -290,7 +346,7 @@ namespace Library.Service.OrderManagements
 								    ,A.TotalQtyUOMId,PL.UserName,A.IsReplacement,A.Type,C.Code Currency,0 Active
                                     ,ISNULL(CNT.ContractNo,'')ContractNo,ISNULL(MLC.LCRef,'')LCRef
 									,B.UserName Buyer,ISNULL(A.BuyerReferenceNo,'')BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'')OwnReferenceNo,ISNULL(MOI.BuyerReferenceNo,'') StyleNo,ISNULL(MOI.OwnReferenceNo,'') OwnStyleNo
-                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,MOI.ContractId
+                                    ,MM.UserName MaterialMaster,MMA.StandardName Article,MOI.TotalQty ItemQty,SO.ContractId
                                     , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
                                     ,PONumber=  REPLACE(REPLACE(
 										            STUFF((SELECT DISTINCT ','+CPO.PONumber from 
@@ -312,7 +368,8 @@ namespace Library.Service.OrderManagements
                             LEFT JOIN EmployeeInformation AS EI ON A.ResponsiblePersonId=EI.SystemId
                             LEFT JOIN HKP.Buyer AS B ON B.Id=A.BuyerId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN dbo.Contract CNT ON CNT.Id=MOI.ContractId
+							LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
+                         LEFT JOIN dbo.[Contract]  CNT on CNT.Id = SO.ContractId
 							LEFT JOIN dbo.MasterLC MLC ON MLC.Id=CNT.MasterLCId
                             LEFT JOIN MST.MaterialMaster MM ON MM.Id=MOI.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=MOI.ArticleId

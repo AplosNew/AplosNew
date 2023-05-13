@@ -231,7 +231,7 @@ namespace Library.OrderManagement.Sales
         {
             try
             {
-                string sql = @"Select * from [dbo].[SalesAdditionalInfo] Where SalesId='"+ salesId + "'";
+                string sql = @"Select * from [dbo].[SalesAdditionalInfo] Where SalesId='" + salesId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1296,7 +1296,14 @@ WHERE sm.Id IN(" + Ids + ")";
                     //sheet1.Range[xlsRow, colGSTRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colIgstAmt].Text = dtdata.Rows[i]["IgstAmt"].ToString();
                     IgstAmt = clsStaticInfo.dbl(dtdata.Compute("SUM(IgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'"));
-                    sheet1.Range[xlsRow, colIgstAmts].Text = Convert.ToString(IgstAmt);
+                    if (IgstAmt!=0)
+                    {
+                        sheet1.Range[xlsRow, colIgstAmts].Text = Convert.ToString(IgstAmt);
+                    }
+                    else
+                    {
+                        sheet1.Range[xlsRow, colIgstAmts].Text = null;
+                    }
                     sheet1.Range[xlsRow, colSgstAmt].Text = dtdata.Rows[i]["SgstAmt"].ToString();
                     sheet1.Range[xlsRow, colSgstAmts].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(SgstAmt)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     sheet1.Range[xlsRow, colCgstAmt].Text = dtdata.Rows[i]["CgstAmt"].ToString();
@@ -1310,13 +1317,14 @@ WHERE sm.Id IN(" + Ids + ")";
                     sheet1.Range[xlsRow, colStateCessAdvalAmt].Text = dtdata.Rows[i]["StateCessAdvalAmt"].ToString();
                     sheet1.Range[xlsRow, colStateCessNonAdvalAmt].Text = dtdata.Rows[i]["StateCessNonAdvalAmt"].ToString();
                     sheet1.Range[xlsRow, colOtherCharges].Text = dtdata.Rows[i]["OtherCharges"].ToString();
-                    sheet1.Range[xlsRow, colOtherChargess].Text = dtdata.Rows[i]["OtherCharges"].ToString();
+                    //sheet1.Range[xlsRow, colOtherChargess].Text = dtdata.Rows[i]["OtherCharges"].ToString();
+                    sheet1.Range[xlsRow, colOtherChargess].Text = null;
                     sheet1.Range[xlsRow, colItemTotal].Text = dtdata.Rows[i]["ItemTotal"].ToString();
                     sheet1.Range[xlsRow, colTotalInvoicevalues].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(ItemTotal)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     sheet1.Range[xlsRow, colBatchName].Text = dtdata.Rows[i]["BatchName"].ToString();
                     sheet1.Range[xlsRow, colBatchExpiryDt].Text = dtdata.Rows[i]["BatchExpiryDt"].ToString();
                     sheet1.Range[xlsRow, colWarrantyDt].Text = dtdata.Rows[i]["WarrantyDt"].ToString();
-                    sheet1.Range[xlsRow, colTotalInvoicevalue].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(Taxablevalue)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'"))); 
+                    sheet1.Range[xlsRow, colTotalInvoicevalue].Text = Convert.ToString(clsStaticInfo.dbl(dtdata.Compute("SUM(Taxablevalue)", "DocumentNumber='" + dtdata.Rows[i]["DocumentNumber"].ToString() + "'")));
                     //sheet1.Range[xlsRow, colTotalInvoicevalue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colShippingBillNo].Text = dtdata.Rows[i]["ShippingBillNo"].ToString();
                     sheet1.Range[xlsRow, colShippingBillDt].Text = dtdata.Rows[i]["ShippingBillDt"].ToString();
@@ -1506,7 +1514,7 @@ WHERE sm.Id IN(" + Ids + ")";
                                     ,P.UserName Plant
 									,SS.UserName SubSection
                                     ,E.EmployeeCodeNumeric
-                                    ,C.UserName Company
+                                    ,C.UserName Company, '' CalculatedTime
 							    FROM EmployeeInformation E
 							    LEFT JOIN MST.ManpowerBudget PMB ON E.BudgetCode = PMB.Id
 							    LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
@@ -1860,25 +1868,25 @@ Order by P.Sequence";
             }
         }
 
-		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type, string partyId)
-		{
+        public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type, string partyId)
+        {
 
-			var CusAll = "";
-			if (partyId != "null")
-			{
-				CusAll = "where x.PartyId = '" + partyId + @"'";
-			}
+            var CusAll = "";
+            if (partyId != "null")
+            {
+                CusAll = "where x.PartyId = '" + partyId + @"'";
+            }
 
-			var sql = "";
-			try
-			{
-				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				if (Summary == "Details")
-				{
+            var sql = "";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (Summary == "Details")
+                {
 
-					if (Type == "ForThePeriod")
-					{
-						sql = @"Select * from(
+                    if (Type == "ForThePeriod")
+                    {
+                        sql = @"Select * from(
 								SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
 								,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
@@ -2022,7 +2030,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.Id = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
@@ -2252,7 +2260,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.ID = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=SO.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
@@ -2638,11 +2646,11 @@ Order by P.Sequence";
 								WHERE  IR.PlantId='" + identity.PlantId + @"' 
 								AND convert(Date,IR.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"')x
 								 " + CusAll + "";
-						return _sqlRepository.GetDataTable(sql);
-					}
-					else
-					{
-						sql = @"Select * from( 
+                        return _sqlRepository.GetDataTable(sql);
+                    }
+                    else
+                    {
+                        sql = @"Select * from( 
 								SELECT 
 								ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
 								,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
@@ -2781,7 +2789,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.Id = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
@@ -2865,7 +2873,7 @@ Order by P.Sequence";
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 						WHERE SA.PlantId='" + identity.PlantId + "' " +
-						"AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'
+                        "AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'
 						UNION ALL
 						
 						Select                  
@@ -3006,7 +3014,7 @@ Order by P.Sequence";
 									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 									left outer join dbo.ProductLibrary pll on pll.ID = moi.ProductLibraryId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
@@ -3068,7 +3076,7 @@ Order by P.Sequence";
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
 								WHERE IR.PlantId='" + identity.PlantId + "' " +
-								"AND convert(Date,IR.InvoiceDate) <= '" + toDate + @"'
+                                "AND convert(Date,IR.InvoiceDate) <= '" + toDate + @"'
 								UNION ALL
 
 								SELECT 
@@ -3237,7 +3245,7 @@ Order by P.Sequence";
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
 						WHERE II.PlantId='" + identity.PlantId + "' " +
-						"AND convert(Date,II.SalesDate) <= '" + toDate + @"'
+                        "AND convert(Date,II.SalesDate) <= '" + toDate + @"'
 						
 						UNION ALL
 						Select                  
@@ -3383,16 +3391,16 @@ Order by P.Sequence";
                                     Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 						WHERE IR.PlantId='" + identity.PlantId + "' " +
-						"AND convert(Date,IR.SalesDate) <= '" + toDate + @"')x
+                        "AND convert(Date,IR.SalesDate) <= '" + toDate + @"')x
 						 " + CusAll + "";
-						return _sqlRepository.GetDataTable(sql);
-					}
-				}
-				else
-				{
-					if (Type == "ForThePeriod")
-					{
-						sql = @"Select * from(
+                        return _sqlRepository.GetDataTable(sql);
+                    }
+                }
+                else
+                {
+                    if (Type == "ForThePeriod")
+                    {
+                        sql = @"Select * from(
 									SELECT 
 									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 									,SA.Id SalesId
@@ -3505,7 +3513,7 @@ Order by P.Sequence";
 									from TRN.SalesMaterial SM 
 									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
 									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
+									left outer join [Contract] CON on CON.Id=so.ContractId
 									left outer join PurchaseLC PL on PL.ContractId=CON.Id
 									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 
@@ -3772,11 +3780,11 @@ Order by P.Sequence";
 								,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName 
 								,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,II.VoucherId,I.Amount,I.WrittenOffAmount)x
 								 " + CusAll + "";
-						return _sqlRepository.GetDataTable(sql);
-					}
-					else
-					{
-						sql = @"SELECT * FROM(
+                        return _sqlRepository.GetDataTable(sql);
+                    }
+                    else
+                    {
+                        sql = @"SELECT * FROM(
 									SELECT ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 									,SA.Id SalesId
 									,SA.SourceType,SMD.BooksCurrencyBaseRate
@@ -3932,7 +3940,7 @@ Order by P.Sequence";
 											)ServiceData on ServiceData.SalesId=SA.Id
 									LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
 									WHERE SA.PlantId='" + identity.PlantId + "' " +
-									"AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'-- and sm.SalesId='202110'
+                                    "AND convert(Date,SA.InvoiceDate) <= '" + toDate + @"'-- and sm.SalesId='202110'
 									Group By SA.PartyId,p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,SMD.BooksCurrencyBaseRate
 								UNION ALL
 								SELECT 
@@ -4078,19 +4086,19 @@ Order by P.Sequence";
 								AND convert(Date,II.SalesDate) <= '" + toDate + @"'
 								GROUP BY II.CustomerId,p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy)x
 							 " + CusAll + "";
-						return _sqlRepository.GetDataTable(sql);
-					}
-				}
+                        return _sqlRepository.GetDataTable(sql);
+                    }
+                }
 
-			}
+            }
 
-			catch (Exception ex)
-			{
-				throw ex;
-			}
-		}
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-	}
+    }
 
 
 }

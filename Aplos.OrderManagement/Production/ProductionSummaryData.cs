@@ -5270,20 +5270,20 @@ Order by PV.ProductionSummaryId,PB.Sequence";
             try
             {
                 var str = @"DECLARE @POCreationDate varchar(100)=DATEADD(day,-180,GETDate())
-                            SELECT x.ProcessIndex,X.EntityId,X.Entity,X.Customer,X.Article,X.SONo,X.POId PONo,X.POStatusId,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,X.ActualPlanScheduleQty,X.ShouldBeBaseProcessPlannedQty
-                            ,X.BaseProcessProduceQty,X.BaseProcessRemainingQty,X.Sequence,X.ProcessId,X.Process,X.PercentQty,X.ProcessPlannedQty,X.ProcProdQty,X.PreProcProdQty,X.WIP,X.ProcBalanceToProduce,X.RelayProcess,X.IsBaseProcess
-                            ,X.ProcessLegDays,X.POFirstDelivery,X.POLastDelivery,X.BaseProcProdStartDate,X.BaseProcLatestProdDate,X.BaseProcPlanStartDate,X.BaseProcPlanCompletionDate
-                            ,X.POStartDate,X.POCompletionDate,X.FirstProcessActualBookDate,X.POFirstProdBookDate,X.POLatestProdBookDate,X.ShouldBeProcessStartDate,X.ShouldBeProcessEndDate
-                            ,ISNULL(X.ProcessFirstBookDate,'-')ProcessFirstBookDate,ISNULL(X.ProcessLatestBookDate,'-')ProcessLatestBookDate,X.ProcessStartDays,X.ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
+                            SELECT x.ProcessIndex,X.EntityId,X.Entity,X.Customer,X.Article,X.SONo,X.POId PONo,X.POStatusId,X.POStatus,X.AddedBy,X.AddedDate,X.UpdatedBy,X.UpdatedDate,X.SOQty,X.BaseProcPlanPercentage,ISNULL(X.ActualPlanScheduleQty,0)ActualPlanScheduleQty,ISNULL(X.ShouldBeBaseProcessPlannedQty,0)ShouldBeBaseProcessPlannedQty
+                            ,X.BaseProcessProduceQty,ISNULL(X.BaseProcessRemainingQty,0)BaseProcessRemainingQty,X.Sequence,X.ProcessId,X.Process,X.PercentQty,ISNULL(X.ProcessPlannedQty,0)ProcessPlannedQty,X.ProcProdQty,X.PreProcProdQty,X.WIP,X.ProcBalanceToProduce,X.RelayProcess,X.IsBaseProcess
+                            ,X.ProcessLegDays,X.POFirstDelivery,X.POLastDelivery,ISNULL(X.BaseProcProdStartDate,'-')BaseProcProdStartDate,ISNULL(X.BaseProcLatestProdDate,'-')BaseProcLatestProdDate,X.BaseProcPlanStartDate,X.BaseProcPlanCompletionDate
+                            ,ISNULL(X.POStartDate,'-')POStartDate,ISNULL(X.POCompletionDate,'-')POCompletionDate,ISNULL(X.FirstProcessActualBookDate,'-')FirstProcessActualBookDate,ISNULL(X.POFirstProdBookDate,'-')POFirstProdBookDate,ISNULL(X.POLatestProdBookDate,'-')POLatestProdBookDate,ISNULL(X.ShouldBeProcessStartDate,'-')ShouldBeProcessStartDate,ISNULL(X.ShouldBeProcessEndDate,'-')ShouldBeProcessEndDate
+                            ,ISNULL(X.ProcessFirstBookDate,'-')ProcessFirstBookDate,ISNULL(X.ProcessLatestBookDate,'-')ProcessLatestBookDate,ISNULL(X.ProcessStartDays,'-')ProcessStartDays,ISNULL(X.ProcessEndDays,0)ProcessEndDays,X.ProcessPlanPercent,X.ProcessStatus,X.FirstProcessWC,X.ProcLossPercent,X.ProcLossQty,X.BaseProcProdPerenct
                             ,ROUND(X.ProcProdPercent*100,0)ProcProdPercent,X.EntryCheck,ROUND(X.ProceessProdQtyVsSOQty*100,0)ProceessProdQtyVsSOQty,ISNULL(X.Remarks,'-') ProcessStatusRemark--,X.ProcessProdBookDate
                             ,POReviewStatus=CASE WHEN CONVERT(datetime,X.ProcessLatestBookDate)< (GETDATE()-2) THEN 'To Review' ELSE X.POStatus END
-                            
+							,X.FirstProcessProQty,ISNULL(X.RequestedQty,0)RequestedQty,ISNULL(X.IssueQty,0)IssueQty,ISNULL(X.TotalQty,0)TotalQty
                             ,LotNoQty=ISNULL(STUFF((select distinct ', '+xp.LotNumber+'-'+CONVERT(varchar(100),X.ProcProdQty) from
                             TRN.ProductionSummary AS xp
                             where X.POId=xp.ProductionOrderId for xml path('') ), 1, 1, ''),'-')
-                            ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ROUND((X.FirstProcessProQty/NULLIF(X.BaseProcessProduceQty,0))*100,0)
-,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
-,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END,ProcessBalanceProd=X.ProcessPlannedQty-X.ProcProdQty
+                            ,ISNULL(X.InputRecoveryPercentage,0)InputRecoveryPercentage,ActualInputPlanPercentage=ISNULL(ROUND((X.FirstProcessProQty/NULLIF(X.ActualPlanScheduleQty,0))*100,0),0)
+                            ,LatestProcessProdBookDays=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE()) IS NULL THEN 'Entry Missing' ELSE CONVERT(Varchar(100),DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())) END
+                            ,ProcessReviewStatus=CASE WHEN DATEDIFF(day,X.ProcessLatestBookDate,GETDATE())>2 THEN 'To Review' ELSE  'NA' END,ProcessBalanceProd=ISNULL(X.ProcessPlannedQty-X.ProcProdQty,0)
                             FROM(
                             SELECT 
                             T1.*,ISNULL(T2.ProcProdQty,0) PreProcProdQty,WIP=case when T1.Sequence=1 then 0 else ISNULL(ISNULL(T2.ProcProdQty,0)-ISNULL(T1.ProcProdQty,0),0) end, ProcLossPercent=ISNULL(t2.PercentQty-t1.PercentQty,0)
@@ -5365,8 +5365,8 @@ Order by PV.ProductionSummaryId,PB.Sequence";
 		                                      trn.SalesOrder XSO 
 		                                      JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id		                                      
 		                                      where P.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                            from TRN.ProductionOrder P
+                            ,IC.RequestedQty,IC.IssueQty,IC.TotalQty
+                            FROM TRN.ProductionOrder P
                             Left JOIN ORG.Entity E ON E.Id=P.EntityId
                             LEFT JOIN TRN.ProductionOrderProcessSet PSQ ON PSQ.ProductionOrderId=P.Id
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = P.Id
@@ -5385,11 +5385,18 @@ Order by PV.ProductionSummaryId,PB.Sequence";
                             left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.IsBaseProcess=1 Group BY B.ProductionOrderId) PS ON P.Id=PS.ProductionOrderId
                             LEFT JOIN (Select SUM(Quantity)ProcProdQty, MIN(ProductionDate)ProcessFirstBookDate,MAX(ProductionDate)ProcessLatestBookDate ,ProductionOrderId,ProcessId from TRN.ProductionSummary Group BY ProductionOrderId,ProcessId) PBQ ON P.Id=PBQ.ProductionOrderId AND PBQ.ProcessId=PRO.Id
                             LEFT JOIN(Select B.ProductionOrderId,SUM(Quantity)Quantity from TRN.ProductionSummary B
-                            left join TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.Sequence=1 Group BY B.ProductionOrderId) FPSQ ON P.Id=FPSQ.ProductionOrderId
+                            LEFT JOIN TRN.ProductionOrderProcessSet A ON A.ProductionOrderId=B.ProductionOrderId AND B.ProcessId=A.ProcessId Where A.Sequence=1 Group BY B.ProductionOrderId) FPSQ ON P.Id=FPSQ.ProductionOrderId
+                            LEFT JOIN(
+							SELECT SUM(ID.RequestedQty) RequestedQty,SUM(ID.IssueQty)IssueQty,SUM(ID.TotalQty)TotalQty,IM.POId FROM dbo.InputConfirmationMaster IM
+							LEFT JOIN dbo.InputConfirmationDetail ID ON ID.InputConfirmationMasterId=IM.Id
+							Group BY IM.POId
+							) IC ON IC.POId=P.Id                           
+
                             Where P.AddedDate>= @POCreationDate 
                             GROUP BY E.Id,E.UserName,P.Id,PSQ.Sequence,PRO.Id,PRO.UserName,P.PlannedQty,P.Qty,PSQ.Qty,PRS.Id,PRS.UserName,P.AddedBy,P.AddedDate,P.UpdatedBy,P.UpdatedDate,PQ.Qty,PBQ.ProcProdQty,PSQ.IsCompleted,PSQ.IsBaseProcess
                             ,PSQ.Days,PSQ.Symbol,POD.POFirstDelivery,POD.POLastDelivery,BASEP.BaseProcProdStartDate,BASEP.BaseProcLatestProdDate,BASEP.BaseProcLatestProdDate,Type1.BaseProcPlanStartDate
                             ,Type1.BaseProcPlanCompletionDate,Type1.BaseProcPlanStartDate,FBPPD.POFirstProdBookDate,FBPPD.POLatestProdBookDate,PBQ.ProcessFirstBookDate,PBQ.ProcessLatestBookDate,PS.Quantity,PSQ.Remarks,FPSQ.Quantity--,BPP.ProcessPlannedQty 
+                            ,IC.RequestedQty,IC.IssueQty,IC.TotalQty
                             ) A )T1
                             LEFT JOIN (Select ROW_NUMBER() OVER(partition by A.POId ORDER BY A.Sequence)+1 ProcessIndex,A.*
                             from (select 

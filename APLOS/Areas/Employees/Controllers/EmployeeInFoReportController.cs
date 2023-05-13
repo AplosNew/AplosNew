@@ -252,6 +252,8 @@ namespace Aplos.Areas.Employees.Controllers
                 int cSingleOperation = 0;
                 int cTenureMonth = 0;
                 //int cCTC = 0;
+                int cREN = 0;
+                int cREC = 0;
                 #endregion variable
 
                 int endXlsCol = 0;
@@ -320,6 +322,8 @@ namespace Aplos.Areas.Employees.Controllers
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Legal/Given Designation", 25); cLD = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Std. Designation Group", 25); cGivenDesignationGroup = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp. Category"); cEC = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Ref Emp Code"); cREC = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Ref Emp Name"); cREN = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Operation Code", 15); cSingleOperation = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Multiple Operation Code", 15); cMultipleOperation = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Salary Rule", 25); cSalaryRule = xlsCol; xlsCol++;
@@ -461,6 +465,8 @@ namespace Aplos.Areas.Employees.Controllers
                     oRU.SetText(ref sheet1, xlsRow, cPM, dsEmpInfo.Tables[0].Rows[i]["PaymentMode"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cBN, dsEmpInfo.Tables[0].Rows[i]["BankName"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cB, dsEmpInfo.Tables[0].Rows[i]["BankAccNo"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, cREC, dsEmpInfo.Tables[0].Rows[i]["RefEmpCode"].ToString());
+                    oRU.SetText(ref sheet1, xlsRow, cREN, dsEmpInfo.Tables[0].Rows[i]["Ref1Name"].ToString());
 
                     oRU.SetText(ref sheet1, xlsRow, cDirectManpowerCost, dsEmpInfo.Tables[0].Rows[i]["DirectManpowerCost"].ToString());
                     oRU.SetText(ref sheet1, xlsRow, cDirect, dsEmpInfo.Tables[0].Rows[i]["Direct"].ToString());
@@ -803,7 +809,7 @@ namespace Aplos.Areas.Employees.Controllers
                                         WHERE E.SystemId=BTP.EmpSystemId order by BTP.Sequence for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                         , PF.DocNumber PFNumber, ESIC.DocNumber ESICNumber, PF = CASE WHEN PFE.EmpSystemID IS NULL THEN '' WHEN PFE.IsEligible = 1 THEN 'YES' ELSE 'NO' END
                         , ESIC = CASE WHEN ESICE.EmpSystemID IS NULL THEN 'NO' WHEN ESICE.IsEligible = 1 THEN 'YES' ELSE 'NO' END,  IsPositionCodeApplicable=1
-                        ,TenureMonth=DATEDIFF(month, FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy'))
+                        ,TenureMonth=DATEDIFF(month, FORMAT(DOJ,'dd-MMM-yyyy'), FORMAT(GETDATE(),'dd-MMM-yyyy')),Ref.RefEmpCode,REF.Ref1Name,REF.Ref1CellPhnNo
                             FROM EmployeeInformation e
 							LEFT JOIN MST.ManpowerBudget mpb ON mpb.Id = e.BudgetCode
                             LEFT JOIN ORG.Company C ON C.Id = E.CompanyId
@@ -932,6 +938,7 @@ namespace Aplos.Areas.Employees.Controllers
 	                            WHERE SalaryHeadEnum = 'ESIC' AND IsEligible = 1
 	                            ) ESICE ON ESICE.EmpSystemID = E.SystemId
                             LEFT JOIN PlantWiseHRMSSetting hs ON hs.PlantID = e.PlantId
+LEFT JOIN (SELECT R.EmpSystemID,B.EmployeeCode RefEmpCode,R.Ref1Name,R.Ref1CellPhnNo FROM [dbo].[EmpReferenceInformation] R LEFT JOIN dbo.EmployeeInformation B ON B.SystemId=R.RefEmpSystemID) REF ON REF.EmpSystemID=E.SystemId
                             WHERE E.EmpType <> 'Guest' " + wc + @" " + CS + @" " + plant + @"
                             ORDER BY ISNULL(e.EmployeeCodePreFix,''), e.EmployeeCodeNumeric";
 

@@ -144,14 +144,26 @@ LEFT JOIN HKP.ProductionStatus PS ON PS.Id=PO.ProductionStatusId";
                 if (string.IsNullOrEmpty(column) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"select * from (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage FROM [dbo].[MaterialIssueControlMaster] M
+                string sql = @"SELECT * FROM (SELECT DT.IssueId,M.*,E.EmployeeName ByWhom,EN.UserName Entity,MS.UserName MaterialStorage,ISNULL(D.TotalReqQty,0)TotalReqQty,ISNULL(ISU.IssuedQty,0)IssuedQty,Balance=D.TotalReqQty-ISNULL(ISU.IssuedQty,0),ISNULL(DT.AuthorizedByStatus,'')ApproveStatus,PS.UserName ProductionStatus
+FROM [dbo].[MaterialIssueControlMaster] M
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=M.ByWhomId
 LEFT JOIN ORG.Entity EN ON EN.Id=M.EntityId
+LEFT JOIN TRN.ProductionOrder PO ON PO.Id=M.POId
+LEFT JOIN HKP.ProductionStatus PS on PS.Id=PO.ProductionStatusId
 LEFT JOIN HKP.MaterialStorage MS ON MS.Id=M.MaterialStorageId
-LEFT JOIN(Select distinct M.Id IssueId,D.MaterialIssueControlMasterId from TRN.IssueRequest IR
+LEFT JOIN(SELECT distinct M.Id IssueId,D.MaterialIssueControlMasterId,M.AuthorizedByStatus FROM TRN.IssueRequest IR
 LEFT JOIN [dbo].[MaterialIssueControlDetail] D ON D.Id=IR.MaterialIssueControlDetailId
 LEFT JOIN TRN.IssueRequestMaster M ON M.Id=IR.IssueRequestMasterId
 ) DT ON DT.MaterialIssueControlMasterId=M.Id
+LEFT JOIN(Select SUM(TotalConsumption) TotalReqQty,MaterialIssueControlMasterId from [dbo].[MaterialIssueControlDetail] Group By MaterialIssueControlMasterId) D ON D.MaterialIssueControlMasterId=M.Id
+LEFT JOIN(
+SELECT isnull(sum(c.Qty), 0) IssuedQty,IR.IssueRequestMasterId
+                                	FROM trn.InventoryIssue a
+                                	LEFT JOIN trn.InventoryIssueDetail b ON b.InventoryIssueId = a.id
+                                	LEFT JOIN trn.InventoryIssueHistory c ON c.InventoryIssueDetailId = b.Id
+                                	LEFT JOIN trn.IssueRequest IR ON IR.Id = c.IssueRequestDetailId				
+                                	GROUP BY IR.IssueRequestMasterId
+) ISU ON ISU.IssueRequestMasterId=DT.IssueId
 ) AS TEMP WHERE " + strkey + " Order by AddedDate Desc";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -987,7 +999,7 @@ Where Q.MasterOrderItemId " + LineItemId + "";
         public IEnumerable<object> GetIssueSlipDataByPOIdList(string ProductionOrderId)
         {
             string CmdText = @"Select ''Id,IR.IssueRequestMasterId IssueSlipId,IR.Id IssueSlipRowId,IR.CostCenterId,CC.UserName AS CostCenter,MM.UserName MaterialMaster
-,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty,TotalQty=IR.RequestedQty
+,IR.ArticleId,ART.StandardName Article,TUoM.Id UOMId,TUoM.Code AS UOM,IR.RequestedQty,ISNULL(IRH.ActualIssueQty,0) IssueQty,0 OtherQty,0 WasteQty,TotalQty=IR.RequestedQty,OT.UptodateOtherQty,OT.UptodateWasteQty
 FROM TRN.IssueRequest IR 
 LEFT JOIN TRN.IssueRequestMaster IRM ON IR.IssueRequestMasterId=IRM.Id
 LEFT JOIN [ORG].[CostCenter] CC On CC.Id=IR.CostCenterId
@@ -999,8 +1011,13 @@ SELECT SUM(Qty)ActualIssueQty, H.IssueRequestDetailId
 FROM TRN.InventoryIssueHistory H
 LEFT JOIN TRN.InventoryIssueDetail ISD ON ISD.Id=H.InventoryIssueDetailId
 WHERE H.IssueRequestDetailId<>''
-GROUP BY H.IssueRequestDetailId,ISD.InventoryIssueId
+GROUP BY H.IssueRequestDetailId
 ) IRH ON IRH.IssueRequestDetailId=IR.Id
+LEFT JOIN(
+SELECT SUM(ID.OtherQty) UptodateOtherQty,SUM(ID.WasteQty)UptodateWasteQty,ID.IssueSlipRowId FROM dbo.InputConfirmationMaster IM
+LEFT  JOIN  dbo.InputConfirmationDetail ID ON ID.InputConfirmationMasterId=IM.Id
+Group BY ID.IssueSlipRowId
+)OT ON OT.IssueSlipRowId=IR.Id
 Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
@@ -1339,7 +1356,7 @@ Left Join [ORG].[CostCenter] CC On CC.Id=D.CostCenterId
             {
                 string sql = @"SELECT B.Id Value, B.UserName Text FROM TRN.ProductionOrderProcessSet A
 LEFT JOIN HKP.Process B ON B.Id=A.ProcessId
-Where A.ProductionOrderId='"+ ProductionOrderId + "' AND A.Sequence=1";
+Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1347,6 +1364,49 @@ Where A.ProductionOrderId='"+ ProductionOrderId + "' AND A.Sequence=1";
                 throw ex;
             }
         }
+
+        public void GetMaterialIssueReportData(string masterId, out DataTable dtOrder)
+        {
+            try
+            {
+                string strSql = string.Empty;
+                strSql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,MS.PlanPercentage,FORMAT(MS.AddedDate,'dd-MMM-yyyy')AddedDate
+                ,D.ValueLoss,D.GrossConsumption*100 GrossConsumption,D.TotalConsumption
+				,D.PlanConsumption,ISNULL(IR.IssueQty,0) IssueQty,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks
+				,I.UserName Item,A.StandardName QBOQArticle
+                ,M.UserName MaterialMaster,um.Code as UoM,IRM.CheckedByStatus,IRM.AuthorizedByStatus,MS.POId,IRM.Id IssueSlipId,CC.UserName CostCenter
+				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
+                ,Shade=STUFF((select distinct ','+PLA.AttributeValue from ProductLibraryAttribute PLA                                               
+							                                where PLA.ProductLibraryId=PL.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                FROM dbo.MaterialIssueControlDetail D 
+				INNER JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
+				INNER JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
+				INNER JOIN TRN.SalesOrder SO ON SO.Id=MSO.SOId
+				INNER JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
+				INNER JOIN TRN.MasterOrderItem MOI ON MOI.Id=MSO.LineItemId
+				INNER JOIN dbo.ProductLibrary PL ON PL.Id=MOI.ProductLibraryId
+				LEFT JOIN HKP.Party P ON P.Id=MSO.CustomerId
+				Left Join [ORG].[CostCenter] CC On CC.Id=MS.CostCenterId
+                INNER JOIN HKP.CostingItem I on i.Id=D.CostingItemId
+                left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
+                LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
+                LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
+				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId
+							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId)IR ON IR.MaterialIssueControlDetailId=D.Id
+				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId
+                WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
+
+                dtOrder = _sqlRepository.GetDataTable(strSql);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                
+            }
+        }//End Function
 
         #endregion
 

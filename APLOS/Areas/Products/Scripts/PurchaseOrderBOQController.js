@@ -1366,7 +1366,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.UpdatepoBoqItemList = [];
     $scope.detailPopUp = function () {
         try {
-            $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode)
+            $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyId)
                 .then(
                     function successCallback(response) {
                         if (baseService.arrayLength(response.data) > 0) {
@@ -1430,6 +1430,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         }
                         else {
                             $scope.UpdatepoBoqItemList[i].Id = null;
+                            $scope.UpdatepoBoqItemList[i].TrnAmount = Math.round(($scope.UpdatepoBoqItemList[i].TransactionQty * $scope.UpdatepoBoqItemList[i].TransactionRate) * 100 + Number.EPSILON) / 100
                             $scope.poBoqItemListNew.push($scope.UpdatepoBoqItemList[i]);
                             Done = 1;
                             var getRow = $filter("filter")($scope.tempList, {

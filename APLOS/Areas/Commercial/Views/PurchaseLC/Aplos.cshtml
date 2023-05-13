@@ -41,7 +41,7 @@
                             <option value="">--Select--</option>
                         </select>
                     </div>*@
-                <input type="text" name="Benificiary Bank" ng-model="purchaseLCNew.BenificiaryBank" class="form-control" required tabindex="3" maxlength="100">
+                <input type="text" name="Benificiary Bank" ng-model="purchaseLCNew.BenificiaryBank" class="form-control" required tabindex="3" maxlength="50">
             </div>
         </div>
         <div class="form-group">
@@ -208,7 +208,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">PI No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="PINo" ng-model="purchaseLCNew.PINo" class="form-control" maxlength="50" required tabindex="2">
+                <input type="text" name="PINo" ng-model="purchaseLCNew.PINo" class="form-control" maxlength="150" required tabindex="2">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -220,7 +220,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">LCA No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="LCA No" ng-model="purchaseLCNew.LCANo" maxlength="50" class="form-control" required tabindex="8">
+                <input type="text" name="LCA No" ng-model="purchaseLCNew.LCANo" maxlength="20" class="form-control" required tabindex="8">
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -358,13 +358,13 @@
                 <div e-column e-type="string" e-field="LCRef" e-headertext="LC No" e-width="100"></div>
                 <div e-column e-type="string" e-field="PINo" e-headertext="PINo" e-width="80"></div>
                 <div e-column e-type="string" e-field="Version" e-headertext="Last Version" e-width="20"></div>
-                <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
-                <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="40" e-textalign="right"></div>
-                <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="date" e-width="40"></div>
+                <div e-column e-field="LCDate" e-headertext="Opening Date" e-format="{0:dd-MMM-yyyy}" e-type="string" e-width="80"></div>
+                <div e-column e-type="number" e-field="Amount" e-headertext="Opening Value" e-width="60" e-textalign="right"></div>
+                <div e-column e-field="AmendmentDate" e-headertext="Amendment Date" e-format="{0:dd-MMM-yyyy}" e-type="string" e-width="80"></div>
                 <div e-column e-type="number" e-field="AmendmentAmount" e-headertext="Amendment Value" e-width="40" e-textalign="right"></div>
                 <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="30"></div>
-                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="60"></div>
-                <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="60"></div>
+                <div e-column e-type="string" e-field="PartyName" e-headertext="Vendor" e-width="100"></div>
+                <div e-column e-type="string" e-field="OpeningBank" e-headertext="Opening Bank" e-width="80"></div>
                 <div e-column e-type="string" e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
                 <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="60"></div>
                 <div e-column e-type="string" e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="50"></div>
@@ -402,6 +402,7 @@
             </div>
             <div class="modal-body">
                 <div class="row">
+
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <div style="color:black;" id="Grid" ej-grid e-datasource="contractList" e-recorddoubleclick="SelectedContract"
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"

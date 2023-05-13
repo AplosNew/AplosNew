@@ -517,9 +517,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     parameters = new GridParameter
                     {
                         ExportType = "DATASET",
-                        CmdText = @"SELECT	els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
-                                        FORMAT(ELS.FromDate,'dd-MMM-yyyy') AS FromDate, FORMAT(ELS.ToDate,'dd-MMM-yyyy') AS ToDate,
-										 els.Id SystemID,
+                        CmdText = @"SELECT	els.CalanderYearID,ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                                        ,FromDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.FromDate ELSE FORMAT(ELS.FromDate,'dd-MMM-yyyy') END
+										,ToDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.ToDate ELSE FORMAT(ELS.ToDate,'dd-MMM-yyyy') END
+										 ,els.Id SystemID,
                                          els.LeaveTypeId LTSystemID,
                                          els.EmployeeID,
 										 lt.UserName LeaveName,
@@ -538,21 +539,19 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                         ,els.EncashedInbetween
                                         ,ltd.IsAvailExceptionAllowedOnSpecialAppeal,
 										 0.00 Balance,
-                                        ISNULL(els.CurrentYearAllocation, 0) CurrentAllocation,
+                                        CurrentAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,0),
                                         ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
 										 --all carry forward
                                          --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
                                          ---BroughtForward=CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
-                                         BroughtForward=
-										 CASE WHEN LT.LeaveType='Earn' THEN
-										 
+                                         BroughtForward=CASE WHEN LT.LeaveType='Earn' THEN	
+												ISNULL(ALP.PBroughtForward, 
 												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
-												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END
-										 
-										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END
+												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)													   
+										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
 
 
-                                         ,ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
+                                         LeaveDays=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0),
 										 --applied +applied ob
                                          ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
 										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
@@ -607,6 +606,20 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                         where S.EmployeeId ='" + EmpSystemID + @"' AND lp.EncashmentBasis<>'CalanderYear' ) els
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
                                         LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
+
+LEFT JOIN
+											(
+										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+											)ALD ON ALD.EmployeeId=emp.SystemId AND lt.Id=ALD.LeaveTypeId
+
+ LEFT JOIN
+											(
+										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+											)ALP ON ALP.EmployeeId=emp.SystemId AND lt.Id=ALP.LeaveTypeId
+
 										 left outer join (
 															Select Sum(LTD.LeaveDuration) ldays,LT.EmpSystemID,LT.LTSystemID  from LeaveTransaction LT
 															Left Join LeaveTransactionDetails LTD on LT.SystemID=LTD.LvTrnsSystemID
@@ -661,14 +674,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                      SELECT DM.ESICPolicyMasterID FROM (SELECT DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
                                     LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
                                     WHERE DC.PlantId='" + sPlantID + @"') DM
-                                                     WHERE DM.DesignationId IN (
-                                                      SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'
-                                                      )
-                                                    )
-
-                                            				                                    )--IN
-
-"
+                                                     WHERE DM.DesignationId IN (SELECT GivenDesignationId FROM dbo.EmployeeInformation WHERE SystemID='" + EmpSystemID + @"'))) AND LT.UserName NOT LIKE '%Maternity%'"
                     };
                     return _sqlRepository.GetGridData(parameters).Source;
                 }
@@ -678,9 +684,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     parameters = new GridParameter
                     {
                         ExportType = "DATASET",
-                        CmdText = @"SELECT	els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed,
-                                        FORMAT(ELS.FromDate,'dd-MMM-yyyy') AS FromDate, FORMAT(ELS.ToDate,'dd-MMM-yyyy') AS ToDate,
-										 els.Id SystemID,
+                        CmdText = @"SELECT els.CalanderYearID, ISNULL(ltd.IsExceptionAllowed,0) IsExceptionAllowed
+                                        ,FromDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.FromDate ELSE FORMAT(ELS.FromDate,'dd-MMM-yyyy') END
+										,ToDate=CASE WHEN LT.LeaveType='Earn' THEN ALD.ToDate ELSE FORMAT(ELS.ToDate,'dd-MMM-yyyy') END
+										 ,els.Id SystemID,
                                          els.LeaveTypeId LTSystemID,
                                          els.EmployeeID,
 										 lt.UserName LeaveName,
@@ -699,21 +706,20 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                                         ,ISNULL(ltd.IsAvailExceptionAllowedOnSpecialAppeal,0)IsAvailExceptionAllowedOnSpecialAppeal,
 										 0.00 Balance,
-                                        ISNULL(els.CurrentYearAllocation, 0) CurrentAllocation,
+                                        CurrentAllocation=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.CurrentYearAllocation, 0) END,0),
                                          --ISNULL(els.PreviousYearCarryForward, 0) PreviousYearCarryForward,
 										 --all carry forward
                                          --ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) BroughtForward,
                                          ---BroughtForward=CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
-                                         BroughtForward=
-										 CASE WHEN LT.LeaveType='Earn' THEN
-										 
+                                         BroughtForward=CASE WHEN LT.LeaveType='Earn' THEN	
+												ISNULL(ALP.PBroughtForward, 
 												 CASE WHEN els.IsEncashed =1 THEN ISNULL(els.CarryForward, 0)+ISNULL(els.EncashedInbetween, 0) 
-												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END
-										 
-										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END
+												 ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END)													   
+										  ELSE ISNULL(els.BroughtForward, 0)+isnull(els.CarryForwardOpeningBalance,0) END,
 
 
-                                         ,ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
+                                         --,ISNULL(els.DaysCanBeSanctioned, 0) LeaveDays,
+ LeaveDays=ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(els.DaysCanBeSanctioned, 0) END,0),
 										 --applied +applied ob
                                          ISNULL(ltrn.ldays, 0)+isnull(CurrentYearAvailedOpeningBalance,0) Applied,
 										 --(ISNULL(tav.av, 0)+ ISNULL(acApl.ldays,0)) Applied,
@@ -764,6 +770,18 @@ ELSE CONVERT(BIT,0) END  ---No
                                                         LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
                                                         where S.EmployeeId ='" + EmpSystemID + @"' AND lp.EncashmentBasis<>'CalanderYear' ) els
 										 left outer join dbo.LeaveType lt on lt.Id = els.LeaveTypeId
+LEFT JOIN
+											(
+										   select A.Opening,A.EmployeeId,A.LeaveTypeId,FORMAT(LY.FromDate,'dd-MMM-yyyy')FromDate,FORMAT(LY.ToDate,'dd-MMM-yyyy')ToDate from dbo.AnnualLeaveDataCurrent A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+										  LEFT JOIN dbo.LeaveYearDefination LY  ON LY.Id=A.LeaveYearId
+											)ALD ON ALD.EmployeeId=els.EmployeeId AND lt.Id=ALD.LeaveTypeId
+
+ LEFT JOIN
+											(
+										  select PBroughtForward=CASE WHEN A.Opening=0 THEN A.Adjustment ELSE A.Opening END,A.EmployeeId,A.LeaveTypeId from dbo.AnnualLeaveDataPast A
+										left outer join dbo.LeaveType lt on lt.Id = A.LeaveTypeId AND LeaveType='Earn'
+											)ALP ON ALP.EmployeeId=els.EmployeeId AND lt.Id=ALP.LeaveTypeId
 										 left outer join (
 															select sum(m.LeaveDays) ldays,m.EmpSystemID,m.LTSystemID from dbo.LeaveTransaction m
                             where  (FromDate between '" + _FromDate + @"' and '" + _ToDate + @"') and (ToDate between '" + _FromDate + @"' and '" + _ToDate + @"')
@@ -806,7 +824,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                                                 WHERE els.EmployeeID = '" + EmpSystemID + @"'                                             
                                               --AND CalanderYearID = '" + calYearId + @"'
                                               AND els.LeaveTypeId not IN 
-                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND lt.LeaveType <>'Maternity'"
+                                            (select id from LeaveType where IsESIC=1 and IsGeneral=0) AND LT.UserName NOT LIKE '%Maternity%'"
                     };
                     parameters.sort = "LeaveName";
                     parameters.order = "ASC";
@@ -2399,7 +2417,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
             DataView dvLocal = null;
             try
             {
-                var dsLvAllo = GetLeaveBalanceType(companyGroupId, plantId, employeeId, calanderYearId);
+                var dsLvAllo = GetLeaveBalanceTypeNew(companyGroupId, plantId, employeeId, calanderYearId);
 
                 dvLocal = new DataView();
                 dvLocal.Table = dsLvAllo.Tables[0];
@@ -2605,7 +2623,8 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                         else
                         {
                             drLocal["LeaveDays"] = TotalEarn;
-                            drLocal["Balance"] = TotalEarn - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim()) - EncashedInbetween;
+                            //drLocal["Balance"] = TotalEarn - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim()) - EncashedInbetween;
+                            drLocal["Balance"] = TotalEarn - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Availed"].ToString().Trim()) - EncashedInbetween;
 
                         }
 

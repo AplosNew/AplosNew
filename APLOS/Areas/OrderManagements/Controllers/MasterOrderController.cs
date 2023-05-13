@@ -613,6 +613,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(_masterOrderService.Query(parameters, companyId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetList(string companyId, string column, string value)
+        {
+            var jsondata = Json(_masterOrderService.GetList(companyId, column, value), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetIdependentList(GridParameter parameters, string companyId)
         {

@@ -138,6 +138,22 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, ex.Message });
             }
         }
+        [HttpPost]
+        public JsonResult Update(Dictionary<string, object> model, List<Dictionary<string, object>> dataList)
+        {
+            try
+            {
+                SaveData(model, dataList);
+
+                return Json(new { Data = model, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+        [Authorize]
         private void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> dataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -250,53 +266,6 @@ namespace Aplos.Areas.Materials.Controllers
             dr.EndEdit();
         }
 
-        [HttpPost]
-        public JsonResult Delete(string id)
-        {
-            DeleteData(id);
-            return Json(new { Message = AplosMessage.Deleted });
-        }
-
-        public void DeleteData(string Id)
-        {
-            DataSet dsIssue=null;
-            string strSQL, strMDSQL;
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                ConnectionManager.DAL.ConManager Con = new ConnectionManager.DAL.ConManager("1");
-
-                strMDSQL = @"delete from InputConfirmationDetail Where InputConfirmationMasterId IN(select Id from InputConfirmationMaster Where Id ='" + Id + "')";
-                strSQL = @"delete from InputConfirmationMaster Where Id ='" + Id + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-
-                
-
-                objCon.ExecuteNonQueryWrapper(strMDSQL, true, "1");
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    objCon.RollBack();
-                    objCon.CloseConnection();
-                    throw (ex);
-                }
-                catch (Exception)
-                {
-                    throw ex;
-                }
-            }
-            finally
-            {
-
-                objCon = null;
-            }
-        }//End of function
 
         #endregion
     }

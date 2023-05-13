@@ -7,7 +7,7 @@
                 <div class="input-group">
                     <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Customer.ToString()" ng-model="voucher.PartyName" class="form-control" readonly required>
                     <span class="input-group-btn">
-                        <button ng-click="showPartyPopUp();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="2"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
@@ -455,6 +455,7 @@
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.InvoiceWriteOffGroupNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
 
                         <li><a class="btn btn-action" href="Accounts/invoice/CustomerInvoiceReceiptBanksReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&invoiceWriteOffGroupNo={{x.InvoiceWriteOffGroupNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/invoice/CustomerInvoiceDetailsReceiptBanksReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&invoiceWriteOffGroupNo={{x.InvoiceWriteOffGroupNo}}" target="_blank"><i class="fa fa-file-excel-o" style="color:yellow"></i></a></li>
                     </ul>
                 </td>
             </tr>
@@ -469,9 +470,9 @@
 
 @Html.Partial("~/Areas/Banks/Views/_CashPopUp.cshtml")
 @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
-
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PartyAdvanceAmountPopUp.cshtml")
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
+@*@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")*@
 @Html.Partial("~/Areas/Accounts/Views/Loan/_LoanListPopUp.cshtml")
 <div class="modal fade site-modal in" id="customerInvoicePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">

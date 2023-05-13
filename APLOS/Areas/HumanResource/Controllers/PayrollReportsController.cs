@@ -133,6 +133,11 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
         {
             return View();
         }
+
+        public ActionResult SalaryProcessedReportCom()
+        {
+            return View();
+        }
         #endregion -- Pages
 
         #region -- Operations
@@ -328,6 +333,32 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 workbook.SaveAs(fullPath);
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeSalaryProcessedReportSalLogWiseRptCom(string month, string year, string salaryProcessId, string payRollGroup, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = month + "-" + year + "SalarySheet" + DateTime.Now.ToString("yyMMdd") + identity.Name + ".xls";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+
+                var workbook = _payrollReportsService.GetEmployeeSalaryProcessedReportSalaryLogWiseRptCom(out int xlsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, month, year, salaryProcessId, payRollGroup, parameters, isActive, isSeperated, isMaternity, false, identity.Name);
+                //workbook.Version = ExcelVersion.Excel97to2003;
+                //workbook.SaveAs(fullPath);
+                //return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+                return Json(new { FullPath = workbook, FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -675,7 +706,7 @@ IEmployeeProfileService employeeProfileService, ISqlRepository sqlRepository
                 Plant = "'" + identity.PlantId + "'";
             }
 
-            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessed(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(_payrollReportsService.GetEmpInfoSalaryPorcessedWithExc(identity.CompanyGroupId, Plant, effectiveDate, salaryProcessId, identity.IsSysAdmin, identity.IsControlAdmin, identity.UserId, isActive, isSeperated, isMaternity), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

@@ -592,7 +592,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/emp-job-location', {
             templateUrl: 'humanresource/EmployeeJobLocation/Aplos',
             controller: 'EmployeeJobLocationController'
-        })            
+        })
         .when('/roster-updates', {
             templateUrl: 'humanresource/RosterUpdates/Aplos',
             controller: 'RosterUpdatesController'
@@ -606,8 +606,8 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             controller: 'AttendanceSourceConfigController'
         })
         .when('/daily-in-status', {
-               templateUrl: 'humanresource/NewAttdnDashboard/Aplos',
-               controller: 'NewAttdnDashboardController'
+            templateUrl: 'humanresource/NewAttdnDashboard/Aplos',
+            controller: 'NewAttdnDashboardController'
         })
         .when('/admin-attdn-control', {
             templateUrl: 'humanresource/AdminAttendanceControl/',
@@ -620,7 +620,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/new-attdnprocess-lock', {
             templateUrl: 'humanresource/NewAttdnProcessLock/Aplos',
             controller: 'NewAttdnProcessLockController'
-        })    
+        })
         .when('/new-HRDashboard', {
             templateUrl: 'humanresource/NewHRDashboard/Aplos',
             controller: 'NewHRDashboardController'
@@ -665,7 +665,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 templateUrl: 'humanresource/PayrollReports/SalaryIntegrationWithThirdParty',
                 controller: 'SalaryIntegrationWithThirdPartyController'
             })
-    
+
         .when('/leave-delete-new', {
             templateUrl: 'humanresource/LeaveApplicationNew/LeaveDelete',
             controller: 'employeeLeaveDeleteApplicationNewController'
@@ -724,7 +724,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/performance-grade-master', {
             templateUrl: 'humanResource/PerformanceGradeMaster/Aplos',
             controller: 'PerformanceGradeMasterController'
-        })      
+        })
         .when('/goal-setting-approval', {
             templateUrl: 'humanResource/GoalSettingApproval/Aplos',
             controller: 'GoalSettingApprovalController'
@@ -753,7 +753,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/training-master', {
             templateUrl: 'humanResource/TrainingMaster/Aplos',
             controller: 'TrainingMasterController'
-        }) 
+        })
         .when('/manpower-control-report', {
             templateUrl: 'humanResource/ManpowerControlReport/Aplos',
             controller: 'ManpowerControlReportsController'
@@ -888,5 +888,24 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanresource/BudgetCodeWiseHRReport/Aplos',
             controller: 'BudgetCodeWiseHRReportController'
         })
+        .when('/bgt-report-master', {
+            templateUrl: 'humanresource/BudgetReportMaster/Aplos',
+            controller: 'BudgetReportMasterController'
+        })
+        .when('/web-packing', {
+            templateUrl: 'humanresource/WebBasedPacking/Aplos',
+            controller: 'WebBasedPackingController'
+        })
+        .when('/salary-Processed-report-com',
+            {
+                templateUrl: 'humanresource/PayrollReports/SalaryProcessedReportCom',
+                controller: 'salaryProcessedReportComController'
+            })
+        .when('/vehicle-movement-master',
+            {
+                templateUrl: 'humanresource/VehicleMovementMaster/Aplos',
+                controller: 'VehicleMovementMasterController'
+            })
+
         ;
 }

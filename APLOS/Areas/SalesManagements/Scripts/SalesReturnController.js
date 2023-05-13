@@ -12,7 +12,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.ApprovedStockBeyondIssueDateList = [];
     $scope.UnApprovedStockList = [];
     $scope.ApprovedStockList = [];
-
+    $scope.IsSaveButtonDisable = false;
     $scope.partyType = "Customer";
     $scope.path1 = 'Products/PurchaseOrder/';
     $scope.path = 'Products/InventoryIssue/';
@@ -48,18 +48,23 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     };
     $scope.getData();
 
-    $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
-    $scope.searchByPostedGRNList = [{ value: 'Id', name: "Sales No" }, { value: 'SalesDate', name: "Sales Date" }
-        , { value: 'Tracenent', name: "Tracenent" }
+    $scope.searchBySales = "Id"; $scope.searchSales = "";
+    $scope.searchBySalesList = [{ value: 'Id', name: "Sales No" }, { value: 'SalesDate', name: "Sales Date" }
         , { value: 'PartyName', name: "Party" }
-        , { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'DocRefNo', name: "DocRef No" }
         , { value: 'DocDate', name: "Doc Date" }];
     $scope.approvedSalesList = [];
     $scope.getPopUpData = function () {
+        if ($scope.ReturnType == 'PackingSales') {
+            $scope.SalesPopupUrl = 'SalesManagements/Sales/GetPackingSalesListForReturn'
+        }
+        else {
+            $scope.SalesPopupUrl = 'SalesManagements/Sales/GetSalesListForReturn'
+        }
         $http({
             method: 'POST',
-            url: 'SalesManagements/Sales/GetMaterialSalesListForReturn',
-            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            url: $scope.SalesPopupUrl,
+            data: { column: $scope.searchBySales, value: $scope.searchSales },
         }).then(function successCallback(response) {
             $scope.approvedSalesList = response.data;
             for (var i = 0; i < $scope.approvedSalesList.length; i++) {
@@ -69,7 +74,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     };
     $scope.popUp = function () {
         $scope.getPopUpData();
-        angular.element(document.querySelector('#GRNpopUp')).modal('show');
+        angular.element(document.querySelector('#SalespopUp')).modal('show');
     };
 
     //$scope.getUpdateData = function (data) {
@@ -109,23 +114,26 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.materialStockList = [];
         $scope.specificStockList = [];
         getIssueDetailList($scope.product.SalesId, data.data.PackingId);
-        getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
-        getInvTaxList();
+        if ($scope.ReturnType == 'PackingSales') {
+            getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
+        }
+
         $scope.productNew.TaxOption = 'Yes';
         $scope.productNew.TaxOptionMat = 'Yes';
         $scope.productNew.TaxOptionService = 'Yes';
         $scope.productNew.TaxOptionServiceModify = 'Yes';
         $scope.productNew.TaxOptionAddiTax = 'Yes';
         $scope.Action = 'Save';
-        $scope.closeGRNPopUp();
+        $scope.IsSaveButtonDisable = false;
+        $scope.closeSalesPopUp();
     };
 
 
-    $scope.closeGRNPopUp = function () {
+    $scope.closeSalesPopUp = function () {
         $scope.valueData = '';
-        angular.element(document.querySelector('#GRNpopUp')).modal('hide');
-    };
 
+        angular.element(document.querySelector('#SalespopUp')).modal('hide');
+    };
 
     $scope.GridInventorySalesdata = [];
     $scope.getdataInventorySales = function () {
@@ -351,6 +359,11 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.LoadTaxButtonClick();
         $scope.filterSalesMaterialId = data.SalesMaterialId;
         $scope.taxAbleAmnt = $scope.detailList[index].TotalAmount;
+        if ($scope.ReturnType == 'PackingSales') {
+            for (var i = 0; i < $scope.taxlist.length; i++) {
+                $scope.taxlist[i].Amount = ($scope.detailList[index].Amount * $scope.taxlist[i].Percentage) / 100
+            }
+        }
         $scope.indexRow = index;
         $scope.index = index;
         $scope.HSNCode = $scope.taxlist[0].HSNCode;
@@ -401,59 +414,86 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         e.detailsElement.find(".tabcontrol").ejTab();
     }
 
+    function checkLCExist(list, InvoiceId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].InvoiceId === InvoiceId) {
+
+                return true;
+            }
+        }
+        return false;
+    }
     //#endregion
     $scope.newList = [];
+    $scope.newtaxList = [];
     $scope.Validation = function () {
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
+            $scope.IsSaveButtonDisable = false;
             return true;
         }
         $scope.newList = [];
+        $scope.newtaxList = [];
         for (var i = 0; i < $scope.detailList.length; i++) {
             if ($scope.detailList[i].ReturnQty > 0) {
                 $scope.newList.push($scope.detailList[i])
+                angular.forEach($scope.taxlist, function (a) {
+                    if (a.SalesMaterialId == $scope.detailList[i].SalesMaterialId) {
+                        a.Amount = ($scope.detailList[i].Amount * a.Percentage) / 100
+                        $scope.newtaxList.push(a);
+                    }
+                });
             }
         }
         if ($scope.productNew.SourceType == 'Packing') {
             for (var i = 0; i < $scope.newList.length; i++) {
                 if ($scope.newList[i].VerifiedQty > 0 && $scope.newList[i].VerifiedQty != $scope.newList[i].ReturnQty) {
                     ShowResult('Return Qty and VerifiedQty Qty is not equal !!!');
+                    $scope.IsSaveButtonDisable = false;
                     return true;
                 }
             }
         }
         return false;
     }
+
     $scope.Save = function () {
+        $scope.IsSaveButtonDisable = true;
         $scope.Validation();
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.productNewForm.$valid && !$scope.Validation()) {
-            if ($scope.Action === "Save") {
+            if ($scope.Action === "Save" && $scope.productNew.Id == null) {
                 $http({
                     method: 'POST'
                     , url: $scope.saveUrl
                     , data: {
                         'data': $scope.productNew
                         , 'detaildataList': $scope.newList
-                        , 'taxList': $scope.taxlist
+                        , 'taxList': $scope.newtaxList
                         , 'itemScanCildList': $scope.tempitemScanList
                     }
                     , dataType: 'JSON'
-                }).then(function (response) {
-                    if (response.data.Error === true)
-                        ShowResult(response.data.Message, 'failure');
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.getData();
-                        $scope.Clear();
-                        $scope.newList = [];
-                        $scope.productNew.Id = response.data.Id;
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
                     }
-                }), function (response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.detailList = [];
+                        $scope.newList = [];
+                        $scope.tempitemScanList = [];
+                        $scope.taxlist = [];
+                        $scope.productNew.Id = response.data.Id;
+                        $scope.IsSaveButtonDisable = false;
+                        $scope.getData();
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
             }
         }
+        $scope.IsSaveButtonDisable = false;
     };
 
 
@@ -465,15 +505,11 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
     function ClearFields() {
         $scope.Action = "Save";
-        $scope.product = {};
-        $scope.productNew = { };
-        $scope.detailList = [];
-        $scope.tempitemScanList = [];
-        $scope.taxlist = [];
+        $scope.IsSaveButtonDisable = false;
     }
 
 
-    function getIssueDetailList(salesId,packingId) {
+    function getIssueDetailList(salesId, packingId) {
         if ($scope.productNew.SourceType == 'Packing') {
             $scope.returnDetailurl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales?salesId=' + salesId + '&packingid=' + packingId
         } else {
@@ -482,6 +518,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $http.get($scope.returnDetailurl)
             .then(function (response) {
                 $scope.detailList = response.data;
+                getInvTaxList();
             });
     }
 
@@ -508,8 +545,25 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             url: $scope.returnTaxurl
         }).then(function successCallback(response) {
             $scope.taxlist = response.data;
+            //taxProcess();
         });
     }
+    function taxProcess() {
+        for (var i = 0; i < $scope.taxlist.length; i++) {
+            $scope.taxlist[i].Amount = valueCheckInList($scope.detailList, $scope.taxlist[i].SalesMaterialId, $scope.taxlist[i].Percentage);
+        }
+    }
+
+    function valueCheckInList(list, fildName, value) {
+        for (var j = 0; j < list.length; j++) {
+            if (list[j].SalesMaterialId === fildName) {
+                (list[j].Amount * value) / 100
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.itemScanChildList = [];
     $scope.tempData = {};
     $scope.getItemScanChildPopUp = function (data) {
@@ -532,7 +586,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             if ($scope.itemScanChildList[i].Active) {
                 $scope.tempitemScanList.push($scope.itemScanChildList[i])
                 $scope.tempData.VerifiedQty = parseFloat($scope.tempData.VerifiedQty.toFixed(4))
-                $scope.tempData.VerifiedQty = parseFloat(($scope.tempData.VerifiedQty+Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
+                $scope.tempData.VerifiedQty = parseFloat(($scope.tempData.VerifiedQty + Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
                 //$scope.tempData.VerifiedQty += parseFloat((Math.round(($scope.itemScanChildList[i].ReturnNetWeight) * 100 + Number.EPSILON) / 100).toFixed(4))
                 //$scope.tempData.Amount += Math.round(($scope.itemScanChildList[i].NetWeight * $scope.tempData.TransactionRate) * 100 + Number.EPSILON) / 100
             }
@@ -549,6 +603,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
 
     $scope.returnAmountCalculation = function (data) {
         data.Amount = Math.round((data.ReturnQty * data.TransactionRate) * 100 + Number.EPSILON) / 100
+        data.CurrentBalanceQty = data.BalanceQty - data.ReturnQty
         data.TaxAmount = 0;
         for (var j = 0; j < $scope.taxlist.length; j++) {
             if ($scope.taxlist[j].SalesMaterialId == data.SalesMaterialId) {
@@ -575,6 +630,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     };
 
     $scope.LocalTaxInvoiceReport = function (data) {
-        location.href = "Sales/LocalTaxInvoice?salesId=" + data.Id;
+        location.href = "Sales/SalesReturnReport?salesReturnId=" + data.Id;
     };
 }

@@ -36,7 +36,7 @@ namespace Library.General.Commercial
                     strkey = column + " like '%" + value + "%'";
 
                 string sql = @"select top 100 * from (SELECT C.Id, C.CustomerId, C.IsLC, C.AddedBy, C.AddedDate, C.AddedFromIP, C.UpdatedBy, C.UpdatedDate, C.UpdatedFromIP, C.MasterLCId, 
-isnull(C.ContractNo,'')ContractNo, C.TotalQty, C.SOQty, C.Amount, C.Description, isnull(C.UDNo,'')UDNo, C.UDDate, C.ContractDate, C.IsPrint,C. IsMarketingCommisssionApplicable, 
+isnull(C.ContractNo,'')ContractNo, C.TotalQty, C.SOQty, C.Amount, C.Description, isnull(C.UDNo,'')UDNo,C.FileNo, C.UDDate, C.ContractDate, C.IsPrint,C. IsMarketingCommisssionApplicable, 
 C.MarketingCommisssionId, C.IsBusinessDevelopmentChargesApplicable, C.BusinessDevelopmentCharge, C.BusinessDevelopmentChargeValue, 
 C.InvoicingPartyPlantId, C.DeliveryPartyPlantId, C.InvoicingByAddress, C.DeliveryByAddress, C.MarketingCommisssionCharge, 
 C.MarketingCommisssionValue,  isnull(C.Remarks,'')Remarks, C.PlantId, isnull(P.UserName,'') CustomerName,PM.UserName MarketingCommisssion,LC.LCRef MasterLCNo,FORMAT(C.AddedDate,'dd-MMM-yyyy') CreationDate
@@ -510,14 +510,15 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
 
-                var sql = @"SELECT Active=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
+                var sql = @"SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article
+                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
                             FROM TRN.SalesOrder SO
 							INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN TRN.CustomerPO PO ON PO.Id=SO.CustomerPOId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                             LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
@@ -536,33 +537,20 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             try
             {
 
-                var sql = @"SELECT * FROM(SELECT Active=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
+                var sql = @"SELECT * FROM(SELECT Flags=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article
+                            ,MM.UserName MaterialMaster,MMA.ShortName Article,po.PONumber
                             FROM TRN.SalesOrder SO
 								INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
 							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
                             INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
                             LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
+                            LEFT JOIN TRN.CustomerPO PO ON PO.Id=SO.CustomerPOId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
                             LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                            WHERE A.CompanyId='" + CompanyId+ @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId IS NULL 
-UNION 
-							SELECT Active=CAST(CASE WHEN SO.ContractId IS NULL THEN 0 ELSE 1 END AS BIT),SO.Id SalesOrderId,SO.ContractId,A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SO.Qty TotalQty	
-                            ,A.TotalQtyUOMId,PL.UserName,C.Code Currency,B.UserName Buyer, (SO.Qty*SO.Rate)Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
-                            ,MM.UserName MaterialMaster,MMA.ShortName Article
-                            FROM TRN.SalesOrder SO
-								INNER JOIN [TRN].[MasterOrderItem] AS I ON I.Id=SO.MasterOrderItemId
-							INNER JOIN [TRN].[MasterOrder] AS A ON A.Id=I.MasterOrderId
-                            INNER JOIN [HKP].[Party] AS P ON A.PartyId=P.Id
-                            LEFT JOIN ORG.Plant AS PL ON A.PlantId=PL.Id
-                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=A.CurrencyId
-                            LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
-							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
-							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId='"+ contractId + "')A Order BY A.Active desc";
+                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId='"+ contractId + "')A Order BY A.Flags desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

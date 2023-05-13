@@ -148,16 +148,26 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
         }
     };
 
+    $scope.rowDataBound = function rowDataBound(e) {
+        if (e.data.Balance!=0) {
+            e.row.css("background-color", '#FFFF00')
+        }
+        
+    }
+
+
     $scope.MCFilterByList = [
         { 'name': 'Prod. Order#', 'value': 'POId' },
-        { 'name': 'IssueId', 'value': 'IssueId' },
+        { 'name': 'SlipId', 'value': 'IssueId' },
     ];
 
     $scope.MCSearchColumn = 'POId';
     $scope.MCSearchValue = null;
     $scope.savedList = [];
+    $scope.savedissueList = [];
     $scope.GetSavedData = function () {
         $scope.savedList = [];
+        $scope.savedissueList = [];
         $http({
             method: 'POST',
             data: {
@@ -165,7 +175,18 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
             },
             url: 'Materials/MaterialIssueControl/GetApprovedData'
         }).then(function successCallback(response) {
-            $scope.savedList = response.data;
+            if (baseService.arrayLength(response.data)>0) {
+                for (var i = 0; i < response.data.length; i++) {
+                    if (response.data[i].IssuedQty != 0) {
+                        $scope.savedissueList.push(response.data[i]);
+                    }
+                    if (response.data[i].Balance != 0) {
+                        $scope.savedList.push(response.data[i]);
+                    }
+                }
+            }
+           
+
         });
     };
     $scope.GetSavedData();
@@ -760,6 +781,19 @@ function MaterialIssueControlController(cboService, commonMessage, $scope, $root
 
     }
 
+    $scope.PrintData = function (data) {
+        try {
+            $scope.fileName = "MaterialIssueReport.xls";
 
+          
+            //$scope.ReportFormat = 'Excel';
+            $scope.ReportFormat = 'Pdf';
+            var url = 'Materials/MaterialIssueControl/GetMaterialIssueReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
+            $rootScope.report(url);
+           
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 }

@@ -27,6 +27,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         SOQty: 0,
         Amount: 0,
         UDNo: null,
+        FileNo: null,
         IsPrint: false,
         IsMarketingCommisssionApplicable: false,
         MarketingCommisssionId: null,
@@ -70,7 +71,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     $scope.ShowCustomerPopUpNew = function () {
         $scope.partyType = "Customer";
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
-       
+
         $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
 
         $http({
@@ -88,9 +89,9 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         var party = obj.data;
         $scope.modelNew.CustomerName = party.UserName;
         $scope.modelNew.CustomerId = party.Id;
-       
-        $scope.GetSalesOrderList();
-       
+
+        getPartyPlantList();
+
         angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
         $scope.searchParty = '';
         $scope.partyType = "Customer";
@@ -98,7 +99,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     function getPartyPlantList() {
         $scope.partyPlantList = [];
-        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.fileNew.PartyId).then(function (response) {
+        $http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.modelNew.CustomerId).then(function (response) {
             angular.forEach(response.data, function (item) {
                 $scope.partyPlantList.push(item);
                 if (item.IsDefault) {
@@ -159,9 +160,58 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             url: "Commercial/Contract/GetSalesOrderList?customerId=" + $scope.modelNew.CustomerId
         }).then(function (response) {
             $scope.SalesOrderList = response.data;
-            getPartyPlantList();
+            angular.element(document.querySelector("#salesOrderPopUp")).modal("show");
         });
     };
+
+    // #region checkbox all SO
+
+    $scope.refreshTemplateSO = function (args) {
+        $("#soheadchk").ejCheckBox({ "change": CheckBoxSelectAllSO });
+    };
+
+    function CheckBoxSelectAllSO(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridSO").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                $scope.SalesOrderList[i].Flags = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridSO").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    function MakeSOData() {
+        try {
+            for (var i = 0; i < $scope.SalesOrderList.length; i++) {
+                if ($scope.SalesOrderList[i].Flags == true) {
+                    $scope.SelectedSalesOrderList.push($scope.SalesOrderList[i]);
+                }
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure', 'salesOrderPopUp');
+        }
+    }
+
+    $scope.CloseSOPopUp = function () {
+        MakeSOData();
+        angular.element(document.querySelector('#salesOrderPopUp')).modal('hide');
+    };
+
+
+    // #endregion checkbox all
+
 
 
     $scope.partyId = "";
@@ -391,14 +441,14 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         });
     }
 
-    $scope.masterOrderList = [];
+    $scope.SelectedSalesOrderList = [];
     $scope.GetEditSalesOrderList = function () {
-        $scope.SalesOrderList = [];
+        $scope.SelectedSalesOrderList = [];
         $http({
             method: 'GET',
             url: "Commercial/Contract/GetEditSalesOrderList?customerId=" + $scope.modelNew.CustomerId + '&contractId=' + $scope.modelNew.Id
         }).then(function (response) {
-            $scope.SalesOrderList = response.data;
+            $scope.SelectedSalesOrderList = response.data;
         });
     }
 
@@ -406,19 +456,12 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     $scope.selectContract = function (obj) {
         $scope.modelNew = obj.data;
-        $scope.modelNew.SOQty = 0;
-        $scope.modelNew.Amount = 0;
-        $scope.modelNew.TotalQty = 0;
         $scope.modelNew.Currency = null;
-
-        //$scope.GetMasterOrderByContractList($scope.modelNew.Id);
         $scope.GetContractFundData($scope.modelNew.Id);
         getPartyPlantEditList($scope.modelNew.InvoicingPartyPlantId, $scope.modelNew.InvoicingByAddress, $scope.modelNew.DeliveryPartyPlantId, $scope.modelNew.DeliveryByAddress, $scope.modelNew.DeliveryState, $scope.modelNew.DeliveryGSTIN);
         $scope.GetEditSalesOrderList();
         $scope.GetMasterLCData($scope.modelNew.Id);
         $scope.GetContractTermsAndConditionsList();
-       // $scope.GetContractItemDataList();
-        
         if (!baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
             $scope.msg = "As this contract saved from Master Order, so no change is possible from here.";
         } else {
@@ -670,22 +713,15 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             var tq = 0;
             var amt = 0;
             var qt = 0;
-            $scope.selectedSalesOrderList = [];
-            //$scope.modelNew.Amount = $scope.modelNew.Amount.toFixed(2);
-            //$scope.modelNew.Amount = parseFloat($scope.modelNew.Amount);
 
             $scope.$broadcast('show-errors-check-validity');
-            if (baseService.arrayLength($scope.SalesOrderList) === 0) {
+            if (baseService.arrayLength($scope.SelectedSalesOrderList) === 0) {
                 throw "Select Sales Order.";
             } else {
-                for (var i = 0; i < $scope.SalesOrderList.length; i++) {
-                    if ($scope.SalesOrderList[i].Active) {
-                        $scope.selectedSalesOrderList.push($scope.SalesOrderList[i]);
-                    }
-
-                    tq += $scope.SalesOrderList[i].TotalQty;
-                    amt += $scope.SalesOrderList[i].Amount;
-                    qt += $scope.SalesOrderList[i].Qty;
+                for (var i = 0; i < $scope.SelectedSalesOrderList.length; i++) {
+                    tq += $scope.SelectedSalesOrderList[i].TotalQty;
+                    amt += $scope.SelectedSalesOrderList[i].Amount;
+                    qt += $scope.SelectedSalesOrderList[i].Qty;
                 }
             }
             $scope.modelNew.TotalQty = tq;
@@ -701,7 +737,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                     url: $scope.saveUrl,
                     data: {
                         'model': $scope.modelNew,
-                        'selectedSalesOrderList': JSON.stringify($scope.selectedSalesOrderList)
+                        'selectedSalesOrderList': JSON.stringify($scope.SelectedSalesOrderList)
                         , 'funds': $scope.fundUtilizationList
                     },
                     dataType: 'JSON'
@@ -961,8 +997,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.buyerDeductionList = [];
         $scope.TermsAndConditionsList = [];
         $scope.SalesOrderList = [];
-        
-       // $scope.GetMasterOrderList();
+        $scope.SelectedSalesOrderList = [];
         $scope.Action = 'Save';
     }
 

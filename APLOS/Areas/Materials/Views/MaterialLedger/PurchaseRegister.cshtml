@@ -139,7 +139,7 @@
                                 <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
                             </div>
                         </div>
-                        <div class="form-group" show-errors id="div_ToDate">
+                        <div class="form-group" show-errors >
                             <label class="col-sm-3 control-label">Report Type<sup>*</sup></label>
                             <div class="col-sm-9 show-message">
                                 <div class="select-style">
@@ -432,23 +432,95 @@
             </ul>
         </div>
         <div class="clearfix"></div>
-        <fieldset class="scheduler-border">
-            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+        <div class="col-xs-12 col-sm-12 col-md-12" ng-form="OtherForm">
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Other Purchase Register</legend>
+                    <div class="clearfix"></div>
+                    <div class="form-group" show-errors id="div_OtherFromDate">
+                        <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <input type="text" name="Other Form Date" ng-model="report.OtherFromDate" datepicker tabindex="6" class="form-control">
+                        </div>
+                    </div>
 
-            <!--Create a tag which acts as a container for PivotGrid-->
-            <div id="PivotGrid1" style="width: 60%; height: 670px; overflow: scroll; float: left;"></div>
-            <button id="Button1">Apply formatting</button>
-            @*<button id="btnExport" ng-click="PrintPurchaseRegister1()">Export</button>*@
-            <button id="btnExport">Export</button>
+                    <div class="form-group" show-errors id="div_OtherToDate">
+                        <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                        <div class="col-sm-9  show-message">
+                            <input type="text" name="Other To Date" ng-model="report.OtherToDate" datepicker tabindex="7" class="form-control">
+                        </div>
+                    </div>
 
+                    <div class="form-group" show-errors id="div_ToDate">
+                        <label class="col-sm-3 control-label">Report Type<sup>*</sup></label>
+                        <div class="col-sm-9 show-message">
+                            <div class="select-style">
+                                <select name="ReportType" ng-model="report.OtherReportType" class="col-sm-3 form-control">
+                                    <option value="PartyWise">Party Wise</option>
+                                    <option value="InvoiceWise">Invoice Wise</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="getOtherPurchaseRegisterReport();" ng-disabled="report.OtherReportType==null" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                        </ul>
+                    </div>
+                </fieldset>
 
-            <!--Create a tag which acts as a container for PivotTable Field List-->
-            <div id="PivotSchemaDesigner1" style="height:650px;width:40%;"></div>
-        </fieldset>
+            </div>
+            <div class="clearfix"></div>
+            <fieldset class="scheduler-border" ng-show="report.OtherReportType=='InvoiceWise'">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Invoice Wise</span></legend>
+                <div id="PR">
+                    <div class="content-container-fluid" style="color:black;">
 
+                        <div style="color:black;" id="GridInvoiceWise" ej-grid e-datasource="OtherPurchaseRegisterList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
+                             e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
 
+                            <div e-columns>
+                                <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="90" textAlign='Left'></div>
+                                <div e-column e-field="InvoiceEntryDate" e-headertext="Invoice Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="120"></div>
+                                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="90"></div>
+                                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                                <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
+                                <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="95"></div>
+                                <div e-column e-field="PartyName" e-headertext="Party" e-width="200" textAlign='Left'></div>
+                                <div e-column e-field="GSTINNo" e-headertext="GSTIN No" e-width="130" textAlign='Left'></div>
+                                <div e-column e-field="MaterialTranAmount" e-headertext="Base Amount" e-width="110" textAlign='Right'></div>
+                                <div e-column e-field="TotalTaxAmount" e-headertext="Total Tax Amount" e-width="110" textAlign='Right'></div>
+                                <div e-column e-field="TotalMaterialBaseAmount" e-headertext="Total Base Amount" e-width="130" textAlign='Right'></div>
+                                <div e-column e-field="Payment" e-headertext="Payment" e-width="110" textAlign='Right'></div>
+                                <div e-column e-field="Balance" e-headertext="Balance" e-width="110" textAlign='Right'></div>
+                                <div e-column e-field="PartyGroup" e-headertext="Party Group" e-width="110" textAlign='Right'></div>
+                                <div e-column e-field="PartyCategory" e-headertext="Party Category" e-width="110" textAlign='Right'></div>
+                                <div e-column e-field="PartySubCategory" e-headertext="Party Sub Category" e-width="130" textAlign='Right'></div>
+                                <div e-column e-field="PartyType" e-headertext="Party Type" e-width="110" textAlign='Right'></div>
+                                <div e-column e-field="PartyAccountGroup" e-headertext="Party Account Group" e-width="140" textAlign='Right'></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>>
+            </fieldset>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" ng-disabled="report.OtherReportType==null" e-content="Export To Excel" ng-click="OtherdownloadReport();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
+
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
 <div class="modal fade site-modal in" id="ListOfPendingGRNList" role="dialog" data-backdrop="static">
 	<div class="modal-dialog modal-lg modellgModify">

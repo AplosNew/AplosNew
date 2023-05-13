@@ -209,19 +209,20 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         });
     }
 
+    $scope.searchBy = "ContractNo"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'ContractNo', name: "ContractNo" }, { value: 'CustomerName', name: "Customer" }];
+
     $scope.contractList = [];
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Commercial/Contract/getlist")
-            .then(
-                function successCallback(response) {
-                    if (baseService.arrayLength(response.data) > 0) {
-                        $scope.contractList = response.data;
-                    }
-                },
-                function errorCallback(response) {
-                    ShowResult(response, 'failure');
-                });
+        $http({
+            method: 'POST',
+            url: "Commercial/contract/GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.contractList = response.data;
+        });
         angular.element(document.querySelector('#ContractPopUp')).modal('show');
     };
 
@@ -306,10 +307,10 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
             .then(
                 function successCallback(response) {
 
-                    for (var i = 0; i < response.data.length; i++) {
-                        response.data[i]["LCDate"] = new Date(response.data[i]["LCDate"]);
-                        response.data[i]["AmendmentDate"] = new Date(response.data[i]["AmendmentDate"]);
-                    }
+                    //for (var i = 0; i < response.data.length; i++) {
+                    //    response.data[i]["LCDate"] = new Date(response.data[i]["LCDate"]);
+                    //    response.data[i]["AmendmentDate"] = new Date(response.data[i]["AmendmentDate"]);
+                    //}
                     $scope.purchaseLCList = response.data;
 
                 },

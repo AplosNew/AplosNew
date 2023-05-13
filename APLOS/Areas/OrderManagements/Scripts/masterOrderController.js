@@ -14,8 +14,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.personList = [];
 
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-    //$scope.exportgriddataUrl = 'GridReports/ExcelExport';
-    //$scope.downloadgriddataUrl = 'GridReports/Download';
+   
 
     $scope.path = 'OrderManagements/masterorder/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -31,29 +30,68 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $controller("MasterOrderTaskTemplateController", { cboService: cboService, $scope: $scope, $http: $http });
     $controller("TaskScheduleController", { cboService: cboService, $scope: $scope, $http: $http });
 
-    // $scope.ExchangeRateTableName = 'MasterOrderExchangeRates';//very important to provide the table where the exchange rates will be saved
     $controller("CurrencyExchangeController", { cboService: cboService, $scope: $scope, $http: $http, TableName: 'MasterOrderExchangeRates' });
 
-    //$controller('employeeBaseController', { $scope: $scope, $http: $http });
 
+    $scope.SearchColumn = 'Entity';
+    $scope.SearchValue = null;
+
+    $scope.modelFilterByList = [
+        { 'name': 'Creation Date', 'value': 'AddedDate' },
+        { 'name': 'Created By', 'value': 'AddedBy' },
+        { 'name': 'Order Type', 'value': 'OrderType' },
+        { 'name': 'Plant', 'value': 'UserName' },
+        { 'name': 'Entity', 'value': 'Entity' },
+        { 'name': 'Customer Name', 'value': 'CustomerName' },
+        { 'name': 'Buyer', 'value': 'Buyer' },
+        { 'name': 'Master Order No', 'value': 'MasterOrderNo' },
+        { 'name': 'Order Category', 'value': 'OrderCategory' },
+        { 'name': 'Order Year', 'value': 'OrderYear' },
+        { 'name': 'Total Qty', 'value': 'TotalQty' },
+        { 'name': 'Line Item No', 'value': 'NoOfLineItem' },
+        { 'name': 'Responsible Person', 'value': 'ResponsiblePersonName' },
+        { 'name': 'Bill To', 'value': 'InvoicingPartyPlant' },
+        { 'name': 'Ship To', 'value': 'DeliveryPartyPlant' },
+        { 'name': 'Buyer Ref. No-Item', 'value': 'BuyerReferenceNoItem' },
+        { 'name': 'OwnItem', 'value': 'Own Item#' },
+        { 'name': 'BuyerReferenceNo', 'value': 'Buyer Ord#' },
+        { 'name': 'OwnReferenceNo', 'value': 'Own Order#' }
+    ];
+    $scope.files = [];
     $scope.getData = function () {
-        baseService.setCurrentPage('files');
-        $rootScope.parameters.companyId = $scope.fileNew.CompanyId;
-        // baseService.init($scope.getListUrl, null, null, null, 'CONVERT(int,MasterOrderNo)', 'MasterOrderNo');
-        baseService.init($scope.getListUrl, null, null, "DESC", 'AddedDate', 'MasterOrderNo');
-        $scope.loadMasterData = function (pageno) {
-            baseService.pagination(pageno)
-                .then(function (result) {
-                    $scope.files = result.Rows;
-                    if (baseService.arrayLength($scope.searchMasterFilterList) === 0)
-                        baseService.getDDLSearchColumn(result.Rows, $scope.searchMasterFilterList);
-
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        }; $scope.loadMasterData();
+        $scope.files = [];
+        if (!baseService.isUndefinedOrNull($scope.fileNew.CompanyId)) {
+            $http({
+                method: 'POST',
+                data: {
+                    'companyId': $scope.fileNew.CompanyId, 'column': $scope.SearchColumn, 'value': $scope.SearchValue
+                },
+                url: $scope.getListUrl
+            }).then(function successCallback(response) {
+                $scope.files = response.data;
+            });
+        }
     };
+
+
+    //$scope.getData = function () {
+    //    baseService.setCurrentPage('files');
+    //    $rootScope.parameters.companyId = $scope.fileNew.CompanyId;
+    //    // baseService.init($scope.getListUrl, null, null, null, 'CONVERT(int,MasterOrderNo)', 'MasterOrderNo');
+    //    baseService.init($scope.getListUrl, null, null, "DESC", 'AddedDate', 'MasterOrderNo');
+    //    $scope.loadMasterData = function (pageno) {
+    //        baseService.pagination(pageno)
+    //            .then(function (result) {
+    //                $scope.files = result.Rows;
+    //                if (baseService.arrayLength($scope.searchMasterFilterList) === 0)
+    //                    baseService.getDDLSearchColumn(result.Rows, $scope.searchMasterFilterList);
+
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, 'failure');
+    //            }).finally(function () {
+    //            });
+    //    }; $scope.loadMasterData();
+    //};
 
     $scope.file = {
         Id: null
@@ -433,8 +471,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.currency = null;
     $scope.Get = function (index) {
         $scope.getPlantConfigByPlant();
-        $scope.index = index;
-        angular.copy($scope.files[$scope.index], $scope.file);
+        $scope.index = index.data;
+        angular.copy(index.data, $scope.file);
         $scope.file.IsExtraOrderPercentage = $scope.file.ExtraOrderPercentage > 0;
         angular.copy($scope.file, $scope.fileNew);
         $scope.fileNew.OrderYear = parseInt($scope.fileNew.OrderYear);

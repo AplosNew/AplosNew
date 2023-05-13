@@ -1492,6 +1492,14 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
 
 
     // #region Material Master Attribute
+    $scope.joiningParameterList = [
+        { Value: ", ", Text: "Comma(,)" },
+        { Value: " ", Text: "Space()" },
+        { Value: "/", Text: "Slash(/)" },
+        { Value: "-", Text: "Hyphen(-)" },
+        { Value: ":", Text: "Colon(:)" }
+    ];
+
     $scope.materialAttributeMasters = [];
     $scope.ChAction = 'Add Row';
     $scope.vindex = -1;
@@ -1519,6 +1527,8 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
         , IsMandatory: true
         , Active: true
         , CreationLevel: ''
+        , JoiningSequence: 0
+        , JoiningParameter:null
         , MaterialMasterAttributeValues: []
     };
     $scope.materialAttributeMasterNew = Object.assign({}, $scope.materialAttributeMaster);

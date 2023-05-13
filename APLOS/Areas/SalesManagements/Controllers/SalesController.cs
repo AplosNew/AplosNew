@@ -398,11 +398,19 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetMaterialSalesListForReturn(string column, string value)
+        public JsonResult GetPackingSalesListForReturn(string column, string value)
         {
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(accountsSalesService.GetMaterialSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetPackingSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult GetSalesListForReturn(string column, string value)
+        {
+            AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsSalesService.GetSalesListForReturn(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -560,8 +568,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         DataRow drmo = dvsc[0].Row;
                                         drmo.BeginEdit();
                                         drmo["SalesReturnId"] = _Id;
-                                        drmo["ReturnNetWeight"] = scitem["ReturnNetWeight"];
-                                        drmo["Booked"] = false;
+                                        //drmo["ReturnNetWeight"] = scitem["ReturnNetWeight"];
+                                        //drmo["Booked"] = false;
                                         drmo["UpdatedBy"] = identity.Name;
                                         drmo["UpdatedDate"] = DateTime.Now.ToString();
                                         drmo.EndEdit();
@@ -1233,11 +1241,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId)
+        public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId, string deletedRemarks)
         {
-
+            if (deletedRemarks == null || deletedRemarks == "")
+                throw new CustomException("Deleted Remarks is required!");
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _salesService.DeleteMasterOrderSalePost(identity.CompanyId, identity.PlantId, salesId, voucherId);
+            _salesService.DeleteMasterOrderSalePost(identity.CompanyId, identity.PlantId, salesId, voucherId, deletedRemarks);
 
             return Json(new { Message = AplosMessage.Deleted });
         }
@@ -1695,5 +1704,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 objCon = null;
             }
         }//End of function
+
+        [Authorize, HttpGet]
+        public ActionResult SalesReturnReport(string salesReturnId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.SalesReturnService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesReturnId);
+
+            return View();
+        }
     }
 }

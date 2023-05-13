@@ -179,5 +179,26 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         #endregion Independent Entity Combo  and List
+
+        #region Balance Sheet Tree View
+        [HttpPost]
+        public JsonResult GetBalanceSheetInfoGLLevel(string parameterString, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_misAccountDashboardService.GetBalanceSheetInfoGLLevel( parameterString, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,  date, GLGeneralInfoId,  BudgetMasterId,  ActivityId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult GetBalanceSheetInfoBudgetLevel(string parameterString, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_misAccountDashboardService.GetBalanceSheetInfoBudgetLevel(parameterString, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, date, GLGeneralInfoId, BudgetMasterId, ActivityId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult GetBalanceSheetInfoActivityLevel(string parameterString, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_misAccountDashboardService.GetBalanceSheetInfoActivityLevel(parameterString, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, date, GLGeneralInfoId, BudgetMasterId, ActivityId), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }

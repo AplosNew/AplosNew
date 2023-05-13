@@ -37,6 +37,7 @@ upanelApp.controller("attendanceSlipController", attendanceSlipController);
 upanelApp.controller("balanceSheetDetailsReportController", BalanceSheetDetailsReportController);
 upanelApp.controller("balanceSheetOpeningBalanceReportController", BalanceSheetOpeningBalanceReportController);
 upanelApp.controller("balanceSheetReportController", balanceSheetReportController);
+upanelApp.controller("balanceSheetReportTreeViewController", balanceSheetReportTreeViewController);
 upanelApp.controller("bankBaseController", bankBaseController);
 upanelApp.controller("bankBookReportController", bankBookReportController);
 upanelApp.controller("bankJournalController", bankJournalController);
@@ -135,6 +136,7 @@ upanelApp.controller("employeeDocumentAssignmentController", employeeDocumentAss
 upanelApp.controller("employeeExpenseBookingReportController", employeeExpenseBookingReportController);
 upanelApp.controller("employeeIdCardController", employeeIdCardController);
 upanelApp.controller("employeeInformationController", employeeInformationController);
+upanelApp.controller("SectionemployeeLeaveApplicationController", SectionemployeeLeaveApplicationController);
 upanelApp.controller("employeeLeaveApplicationController", employeeLeaveApplicationController);
 upanelApp.controller("employeeLeaveBalanceController", employeeLeaveBalanceController);
 upanelApp.controller("employeeLeaveCarryForwardController", employeeLeaveCarryForwardController);
@@ -1163,6 +1165,14 @@ upanelApp.controller("WCWorkStationsControlMasterController", WCWorkStationsCont
 upanelApp.controller("WCWorkStationsControlController", WCWorkStationsControlController)
 upanelApp.controller("BudgetCodeWiseHRReportController", BudgetCodeWiseHRReportController)
 upanelApp.controller("WCWorkStationsControlReportController", WCWorkStationsControlReportController)
+upanelApp.controller("BudgetReportMasterController", BudgetReportMasterController)
+upanelApp.controller("WorkcenterWiseDetentionController", WorkcenterWiseDetentionController)
+upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
+upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
+upanelApp.controller("GoodWorkController", GoodWorkController)
+upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
+upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterController)
+
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
@@ -1200,6 +1210,7 @@ upanelApp.config(JobWorkConfig);
 upanelApp.config(OutsourcingConfig);
 upanelApp.config(PerformanceManagementConfig);
 upanelApp.config(MeetingManagementConfig);
+
 upanelApp.config(["$routeProvider", "$locationProvider", "$httpProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider) {
     $httpProvider.interceptors.push("errorInterceptor");
     $httpProvider.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";

@@ -1163,12 +1163,12 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
 
     }
 
-    $scope.delete = function (gRNId, voucherId, invoiceId, type, tDSTaxVoucherId, tDSVoucherNo) {
+    $scope.delete = function (gRNId, voucherId, invoiceId, type, tDSTaxVoucherId, tDSVoucherNo, deletedRemarks) {
         $http({
             method: "POST",
             url: 'accounts/Invoice/DeleteInventoryPayable',
             data: {
-                "grnId": gRNId, "voucherId": voucherId, "invoiceId": invoiceId, "type": type, "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo
+                "grnId": gRNId, "voucherId": voucherId, "invoiceId": invoiceId, "type": type, "tDSTaxVoucherId": tDSTaxVoucherId, "tDSVoucherNo": tDSVoucherNo, "deletedRemarks": deletedRemarks
             },
             dataType: "JSON"
         }).then(function successCallback(response) {
@@ -1176,6 +1176,8 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 ShowResult(response.data.Message, "failure");
             }
             else {
+                $scope.deletedRemarks = "";
+                $scope.closeconfirmDeletePopUp_Remarks();
                 ShowResult(response.data.Message, "success");
                 $scope.getData();
                 $scope.Clear();
@@ -1192,6 +1194,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         return true;
     };
 
+    $scope.deletedRemarks = "";
     $scope.onClickDeletePopUp = function (x) {
         var data = x;
         $scope.GRNId = data.Id;
@@ -1201,7 +1204,11 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.InvoiceId = data.InvoiceId;
         $scope.Type = data.GRNType;
         $scope.message_delete_confirmation = "Are you sure to Delete?";
-        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+        angular.element(document.querySelector('#confirmDeletePopUp_Remarks')).modal('show');
+    };
+
+    $scope.closeconfirmDeletePopUp_Remarks = function () {
+        angular.element(document.querySelector("#confirmDeletePopUp_Remarks")).modal("hide");
     };
 
     $scope.fiscalinvoiceAmountByParty = [];

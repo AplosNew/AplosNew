@@ -13,15 +13,13 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
     $scope.Action = 'Save';
+    $scope.passwordShow = true;
 
     $scope.ModelTemp = {
         Id: null,
         UserId: null,
-        EmployeeId: null,
         UserName: null,
         FullName: null,
-        //HrefId:null,
-        Href: null,
         Password: null,
         RePassword: null
     };
@@ -65,7 +63,7 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.popUp = function () {
         $scope.popUpDataList = [];
-        $scope.popUpUrl = 'Securities/user/getlist'; 
+        $scope.popUpUrl = 'Securities/user/getlist';
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
                 .then(function (result) {
@@ -87,6 +85,7 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         $scope.ModelNew.UserName = data.UserId;
         $scope.ModelNew.FullName = data.FullName;
         $scope.getData();
+        $scope.getHrefList();
         $scope.closePopUp();
     };
     $scope.selectSingleClick = function (data) {
@@ -107,30 +106,30 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     //***********************************User ********************************************************//
     $scope.removeRow = function (data) {
         /* $scope.HrefDataList.splice(index, 1);*/
-       
-            $http({
-                method: 'POST',
-                url: 'TaskManagement/TaskAppliedOn/DeleteChildUrl?Id=' + data.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getHrefList();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });    
-        };
 
-    $scope.HrefDataList=[];
+        $http({
+            method: 'GET',
+            url: 'TaskManagement/TaskAppliedOn/DeleteChildUrl?Id=' + data.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getHrefList();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.HrefDataList = [];
     $scope.getHrefList = function () {
         $http({
             method: "get",
-            url: "TaskManagement/TaskAppliedOn/GetHrefDatasList?hrefId=" + $scope.ModelNew.Id
+            url: "TaskManagement/TaskAppliedOn/GetHrefDatasList?hrefId=" + $scope.ModelNew.UserId
         }).then(function successCallback(response) {
             $scope.HrefDataList = response.data;
         });
@@ -171,19 +170,19 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
     $scope.setSelected = function (data) {
         $scope.selectHrefDoubleClick(data);
     };
-  
-    $scope.selectHrefDoubleClick = function (a) {
-       
-        var obj = {};
-        
-                    obj.HrefId = a.Id;
-                    obj.Href = a.Href;
-                    obj.Controller = a.Controller;
-                    obj.Description = a.Description;
 
-                    $scope.HrefDataList.push(obj);
-                    obj = {};
-         
+    $scope.selectHrefDoubleClick = function (a) {
+
+        var obj = {};
+        obj.Id = null;
+        obj.HrefId = a.Id;
+        obj.Href = a.Href;
+        obj.Controller = a.Controller;
+        obj.Description = a.Description;
+
+        $scope.HrefDataList.push(obj);
+        obj = {};
+
         $scope.closeHrefPopUp();
     };
 
@@ -213,42 +212,44 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         $scope.hrefvalueData = '';
         angular.element(document.querySelector('#popUphrefId')).modal('hide');
     };
-     //***********************************Href ********************************************************//
+    //***********************************Href ********************************************************//
 
 
     $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
-            if ($scope.ModelNew.UserId == $scope.ModelList[0]["UserId"]) {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+       
+            if ($scope.ModelNewForm.$valid) {
+                if ($scope.ModelNew.Password == $scope.ModelNew.RePassword) {
 
-                ShowResult('The employee already Saved!', 'failure');
-            }
-            if ($scope.ModelNew.Password == $scope.ModelNew.RePassword) {
-
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: {
-                        'data': $scope.ModelNew
-                        , 'userECDetail': $scope.HrefDataList
-                    },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
+                    $http({
+                        method: 'POST',
+                        url: $scope.saveUrl,
+                        data: {
+                            'data': $scope.ModelNew
+                            , 'userECDetail': $scope.HrefDataList
+                        },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Clear();
+                            $scope.getData();
+                        }
+                    }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
                     }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.Clear();
-                        $scope.getData();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult('Password and Confirm Password does not match!', 'failure');
                 }
             }
-            else {
-                ShowResult('Password and Confirm Password does not match!', 'failure');
-            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
@@ -292,7 +293,8 @@ function UserEditControlController(cboService, commonMessage, $scope, $rootScope
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: 'TaskManagement/TaskAppliedOn/Delete',
+                data: {'Id': $scope.ModelNew.Id},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

@@ -56,7 +56,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult getAttendanceData(string pdate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -406,7 +406,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             AttdnProcessData AS apd
                             inner join trn.EmployeeLeaveSummary LS ON ls.EmployeeId=apd.EmpSystemID
                             inner JOIN LeaveType AS lt ON lt.Id=ls.LeaveTypeId
-                            inner JOIN YearlyCalendar AS yc ON ls.CalanderYearId=yc.Id AND apd.WorkDate BETWEEN yc.FromDate AND yc.ToDate
+                            LEFT JOIN YearlyCalendar AS yc ON ls.CalanderYearId=yc.Id AND apd.WorkDate BETWEEN yc.FromDate AND yc.ToDate
                             WHERE apd.WorkDate='" + pdate + @"'
                             AND apd.DayStatus IN ('A','HDP') AND ISNULL(apd.LTSystemID,'')=''
 

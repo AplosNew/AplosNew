@@ -4154,14 +4154,14 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
-                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var voucher = _voucherService.FindVoucher(voucherId);
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
-                _accountsCommonService.InsertVoucherLogDeleted(voucherId,voucher.VoucherNo,"","",invoiceId,"","","","", "","","", deletedRemarks);
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.InsertVoucherLogDeleted(voucherId,voucher.VoucherNo,"","",invoiceId,"","","","", "","","", "", deletedRemarks);
 
                 var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
@@ -4770,7 +4770,7 @@ namespace Library.Service.Invoices
         #endregion
 
         #region Inventory Payable
-        public void DeleteInventoryPayable(string grnId, string invoiceId, string voucherId)
+        public void DeleteInventoryPayable(string grnId, string invoiceId, string voucherId, string deletedRemarks)
         {
             var flag = false;
             try
@@ -4783,6 +4783,9 @@ namespace Library.Service.Invoices
                     var voucher = _voucherService.FindVoucher(voucherId);
                     if (voucher.IsPark == false)
                         throw new CustomException("Delete is not allow after post ! ");
+
+                    AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                    _accountsCommonService.InsertVoucherLogDeleted(voucherId, voucher.VoucherNo, "", "", invoiceId, "", "", "", "", "", "", "", "", deletedRemarks);
 
                     var voucherdetail = _voucherService.QueryVoucherDetail(voucherId).Select().ToList();
                     var voucherdetailcurrnecy = _voucherService.QueryVoucherDetailCurrency(voucherId).Select().ToList();
@@ -4797,8 +4800,12 @@ namespace Library.Service.Invoices
 
                     var grnBuilder = new System.Text.StringBuilder();
                     var buildergrnSql = @"UPDATE [TRN].InventoryReceive set VoucherId =NULL,Status=NULL WHERE Id='" + grnId + "'";
+                    var buildergrnDetailSql = @"UPDATE [TRN].InventoryReceiveDetail set VoucherDetailId =NULL WHERE InventoryReceiveId='" + grnId + "'";
+                    var buildergrnTaxSql = @"UPDATE [TRN].InventoryReceiveTax set DrVoucherDetailId =NULL WHERE InventoryReceiveId='" + grnId + "'";
                     var buildergrnmapSql = @"delete trn.GRNAcceptanceMap  where InvoiceId='" + invoiceId + "'";
                     grnBuilder.Append(buildergrnSql);
+                    grnBuilder.Append(buildergrnDetailSql);
+                    grnBuilder.Append(buildergrnTaxSql);
                     grnBuilder.Append(buildergrnmapSql);
                     _sqlRepository.ExecuteSqlCommand(grnBuilder.ToString());
 

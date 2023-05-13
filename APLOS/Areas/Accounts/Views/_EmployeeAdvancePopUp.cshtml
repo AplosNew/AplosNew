@@ -45,7 +45,7 @@
                         </thead>
                         <tbody>
                             <tr dir-paginate="x in employeeAdvanceDataList |itemsPerPage:employeeAdvanceParameters.pageSize" pagination-id="metaData.name + 'employeeAdvanceDataList'" total-items="employeeAdvanceParameters.total_count"
-                                ng-class="{selected : x.AdvanceId == rowSelected}" ng-dblclick="closeEmployeeAdvancePopUp(x)">
+                                ng-class="{selected : x.AdvanceId == rowSelected}" ng-dblclick="closeEmployeeSalaryAdvancePopUp(x)">
                                 <td>{{x.VoucherNo}}</td>
                                 <td>{{x.EmployeeCode}} - {{x.EmployeeName}}</td>
                                 <td>{{x.DocDate |dateFiltering}}</td>
@@ -69,7 +69,7 @@
             <div class="modal-footer common-btn">
                 @*TODO:*@
                 <button type="button" class="btn btn-default" ng-click="EmployeeAdvanceDueList();">Report</button>
-                <button type="button" class="btn btn-default" ng-click="closeEmployeeAdvancePopUp();">Select</button>
+                <button type="button" class="btn btn-default" ng-click="closeEmployeeSalaryPopUp();">Close</button>
             </div>
 
 

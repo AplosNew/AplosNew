@@ -414,6 +414,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["Amount"] = data.Amount;
                     dr["TotalQty"] = data.TotalQty;
                     dr["UDNo"] = data.UDNo;
+                    dr["FileNo"] = data.FileNo;
                     if (data.UDDate == null)
                         dr["UDDate"] = DBNull.Value;
                     else
@@ -463,6 +464,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["TotalQty"] = data.TotalQty;
                     dr["SOQty"] = data.SOQty;
                     dr["UDNo"] = data.UDNo;
+                    dr["FileNo"] = data.FileNo;
                     if (data.UDDate == null)
                         dr["UDDate"] = DBNull.Value;
                     else
@@ -1035,7 +1037,7 @@ namespace Aplos.Areas.Commercial.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strUSQL = "Update TRN.MasterOrderItem set ContractId=NULL Where ContractId='" + Id + "'";
+                strUSQL = "Update TRN.SalesOrder set ContractId=NULL Where ContractId='" + Id + "'";
                 strCFSQL = "delete from dbo.ContractFund Where ContractId='" + Id + "'";
                 strCNFSQL = "delete from dbo.ContractTermsAndConditions Where ContractId='" + Id + "'";
                 strSQL = "delete from dbo.Contract Where Id='" + Id + "'";
@@ -3256,6 +3258,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string ContractNo { get; set; }
         public string CustomerId { get; set; }
         public string UDNo { get; set; }
+        public string FileNo { get; set; }
         public string MasterLCId { get; set; }
         public string Description { get; set; }
         public string Remarks { get; set; }

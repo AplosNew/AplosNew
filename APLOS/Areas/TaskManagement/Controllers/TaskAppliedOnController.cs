@@ -190,8 +190,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 DataSet dsMaster;
                 DataSet dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from UserEditControl where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                con.OpenDataSetThroughAdapter("select * from UserEditControlDetail where UserEditControlId='" + data["Id"] + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter("select * from UserEditControl where UserId='" + data["UserId"] + "'", out dsMaster, false, "1");
+       
 
                 string _Id = "";
 
@@ -210,8 +210,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                         }
                         else
                         {
-                            //_Id = data["Id"].ToString();
-                            EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                          data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
                         }
 
                 #endregion data update
@@ -219,6 +219,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 #region User Edit Control Detail
                 
                 string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from UserEditControlDetail where UserEditControlId='" + _MasterId + "'", out dsDetail, false, "1");
                 int ccount = 0;
                 if (userECDetail != null)
                 {
@@ -233,7 +234,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
 
                         DataView dv = new DataView(dsDetail.Tables[0]);
-                        dv.RowFilter = "Id='" + item["HrefId"] + "'";
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
                         if (dv.Count == 0)
                         {
                             ccount++;
@@ -245,18 +246,18 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
 
                         }
-                        //if (dv.Count > 0)
-                        //{
-                        //    ccount++;
-                        //    string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
-                        //    DataRow drmo = dv[0].Row;
-                        //    drmo.BeginEdit();
-                        //    drmo["Id"] = detailid;
-                        //    drmo["UserEditControlId"] = _MasterId;
-                        //    drmo["Href"] = item["Href"]; ;
-                        //    drmo.EndEdit();
+                        if (dv.Count > 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["Id"] = detailid;
+                            drmo["UserEditControlId"] = _MasterId;
+                            drmo["Href"] = item["Href"];
+                            drmo.EndEdit();
 
-                        //}
+                        }
                     }
                 }
 
@@ -276,7 +277,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         [HttpGet, Authorize]
         public ActionResult GetUserEditControlList()
         {
-            string sql = @"select UEC.*,U.*
+            string sql = @"select UEC.*,U.*,UserType=Case when U.SysAdmin=1 then 'System User' else 'General User' end
                             from UserEditControl UEC
                             left join sec.[User] U on U.Id=UEC.UserId";
 
@@ -296,14 +297,14 @@ namespace Aplos.Areas.TaskManagement.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult Delete(string id)
+        public ActionResult Delete(string Id)
         {
             try
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from dbo.UserEditControlDetail where UserEditControlId='" + id + "'");
-                con.executeQuery("delete from dbo.UserEditControl where Id='" + id + "'");
+                con.executeQuery("delete from dbo.UserEditControlDetail where UserEditControlId='" + Id + "'");
+                con.executeQuery("delete from dbo.UserEditControl where Id='" + Id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -359,7 +360,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 							from [MST].[MenuMaster] MM 
 							left join UserEditControlDetail UECD on UECD.Href=MM.Href
 							left join UserEditControl UEC on UEC.Id=UECD.UserEditControlId
-                            where UEC.Id = '" + hrefId + "'";
+                            where UEC.UserId = '" + hrefId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

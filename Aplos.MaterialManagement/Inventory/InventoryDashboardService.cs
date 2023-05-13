@@ -3163,7 +3163,7 @@ namespace Library.Service.Expenses
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'	
 
 						UNION ALL
-						----------------------------------------Pending Inventory Issue For Approval--------------------------
+						----------------------------------------Pending  Issue Request  For Approval--------------------------
 						SELECT
 						--	CMPGR.Id AS CompanyGroupId
 						--, CMPGR.UserName AS GroupName
@@ -3171,7 +3171,7 @@ namespace Library.Service.Expenses
 						--, CMP.UserName AS ColumnName
 						--,P.Id PlantId
 						--,P.UserName PlantName
-						'Pending Inventory Issue For Approval' Category, 12 SI
+						'Pending  Issue Request  For Approval' Category, 12 SI
 						,isnull(Res3.ThreeDaysCount,0) ThreeDaysCount,isnull(Res3.Total3Value,0) Total3Value
 						,isnull(Res5.FiveDaysCount,0) FiveDaysCount,isnull(Res5.Total5Value,0) Total5Value
 						,isnull(Res10.TenDaysCount,0) TenDaysCount,isnull(Res10.Total10Value,0) Total10Value
@@ -3188,7 +3188,7 @@ namespace Library.Service.Expenses
 						LEFT JOIN
 						( 
 			
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,Count(IRM.Id) ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3212,7 +3212,7 @@ namespace Library.Service.Expenses
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res3 ON Res3.CompanyGroupId=cmpGR.Id --ANd Res3.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,Count(IRM.Id) AS FiveDaysCount
@@ -3236,7 +3236,7 @@ namespace Library.Service.Expenses
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId		
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --ANd Res5.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3284,7 +3284,7 @@ namespace Library.Service.Expenses
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --ANd Res15.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3308,7 +3308,7 @@ namespace Library.Service.Expenses
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --ANd Res20.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3332,7 +3332,7 @@ namespace Library.Service.Expenses
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id -- ANd Res25.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3356,7 +3356,7 @@ namespace Library.Service.Expenses
 						GROUP BY IRM.CompanyGroupId--,IRM.PlantId	
 						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --ANd Res30.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3380,7 +3380,7 @@ namespace Library.Service.Expenses
 						GROUP BY IRM.CompanyGroupId--	,IRM.PlantId
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --ANd Res31.PlantId=P.Id
 						left JOIN(
-						SELECT 'Pending Inventory Issue For Approval' Category		
+						SELECT 'Pending  Issue Request  For Approval' Category		
 						,IRM.CompanyGroupId--,IRM.PlantId
 						,0 ThreeDaysCount			
 						,0 AS FiveDaysCount
@@ -3444,7 +3444,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total3Value
+						,SUM(ISNULL(IID.Total3Value,0)) Total3Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3452,7 +3452,7 @@ namespace Library.Service.Expenses
 						,sum(isnull(PolicyAmount,0)) Total3Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 0 and 3
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 		
 
@@ -3471,7 +3471,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total5Value
+						,SUM(ISNULL(IID.Total5Value,0)) Total5Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3479,7 +3479,7 @@ namespace Library.Service.Expenses
 						,sum(isnull(PolicyAmount,0)) Total5Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 4 and 5   
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res5 ON Res5.CompanyGroupId=cmpGR.Id --AND Res5.PlantId=p.Id
 						Left JOIN(
@@ -3497,7 +3497,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0)))Total10Value
+						,SUM(ISNULL(IID.Total10Value,0)) Total10Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3505,7 +3505,7 @@ namespace Library.Service.Expenses
 						,sum(isnull(PolicyAmount,0)) Total10Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 6 and 10 
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	   
 						)Res10 ON Res10.CompanyGroupId=cmpGR.Id  --AND Res10.PlantId=p.Id
 						Left JOIN(
@@ -3522,7 +3522,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total15Value
+						,SUM(ISNULL(IID.Total15Value,0)) Total15Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3530,7 +3530,7 @@ namespace Library.Service.Expenses
 						,sum(isnull(PolicyAmount,0)) Total15Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where  DATEDIFF(day,II.IssueDate,getdate()) Between 11 and 15   
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	   
 
 						)Res15 ON Res15.CompanyGroupId=cmpGR.Id --AND Res15.PlantId=p.Id
@@ -3548,7 +3548,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total20Value
+						,SUM(ISNULL(IID.Total20Value,0)) Total20Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3556,7 +3556,7 @@ namespace Library.Service.Expenses
 						,sum(isnull(PolicyAmount,0)) Total20Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where  DATEDIFF(day,II.IssueDate,getdate()) Between 16 and 20 
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	      
 
 						)Res20 ON Res20.CompanyGroupId=cmpGR.Id --AND Res20.PlantId=p.Id
@@ -3574,7 +3574,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total25Value
+						,SUM(ISNULL(IID.Total25Value,0)) Total25Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3582,7 +3582,7 @@ namespace Library.Service.Expenses
 						,sum(isnull(PolicyAmount,0)) Total25Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id	
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 21 and 25
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res25 ON Res25.CompanyGroupId=cmpGR.Id --AND Res25.PlantId=p.Id
 						Left JOIN(
@@ -3599,7 +3599,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total30Value
+						,SUM(ISNULL(IID.Total30Value,0)) Total30Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3607,7 +3607,7 @@ namespace Library.Service.Expenses
 						,sum(isnull(PolicyAmount,0)) Total30Value 
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 26 and 30
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res30 ON Res30.CompanyGroupId=cmpGR.Id --AND Res30.PlantId=p.Id
 						Left JOIN(
@@ -3624,7 +3624,7 @@ namespace Library.Service.Expenses
 						,0 AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total31Value
+						,SUM(ISNULL(IID.Total31Value,0)) Total31Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3633,7 +3633,7 @@ namespace Library.Service.Expenses
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 31 and 900000
 
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	     
 						)Res31 ON Res31.CompanyGroupId=cmpGR.Id --AND Res31.PlantId=p.Id
 
@@ -3651,7 +3651,7 @@ namespace Library.Service.Expenses
 						,Count(II.Id) AS AllCount
 						,sum(isnull(IID.Qty,0)) Qty
 						,sum(isnull(IID.Rate,0)) Rate
-						,(sum(isnull(IID.Qty,0))* sum(isnull(IID.Rate,0))) Total32Value
+						,SUM(ISNULL(IID.Total32Value,0)) Total32Value
 						FROM trn.InventoryIssue II
 						 JOIN (Select InventoryIssueId,
 						sum(isnull(TransactionQty,0)) Qty
@@ -3660,7 +3660,7 @@ namespace Library.Service.Expenses
 						from trn.InventoryIssueDetail Group by InventoryIssueId) IID ON IID.InventoryIssueId=II.Id		
 						Where DATEDIFF(day,II.IssueDate,getdate()) Between 0 and 9000000
 
-						AND II.VoucherId IS null AND II.IsPostingRequired=1
+						AND II.VoucherId IS null AND II.IsPostingRequired=1 AND ii.IssueType='Revenue'
 						GROUP BY II.CompanyGroupId-- ,II.PlantId	  
 						)Res32 ON Res32.CompanyGroupId=cmpGR.Id  --AND Res32.PlantId=p.Id
 						where CMPGR.Active = 1 --AND cmp.Id='C20171'
@@ -21492,8 +21492,8 @@ UNION ALL
                     }
 
 					#endregion
-					#region Pending Inventory Issue For Approval
-					if (Category == "Pending Inventory Issue For Approval" && days == RequestDay)
+					#region Pending  Issue Request  For Approval
+					if (Category == "Pending  Issue Request  For Approval" && days == RequestDay)
                     {
                         sql = @"SELECT 'Pending Inventory Issue' Category		
 								,IRM.CompanyId
@@ -21517,10 +21517,10 @@ UNION ALL
 								GROUP BY IRM.CompanyId,IRM.Id,EI.EmployeeName,DATEDIFF(day,IRM.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName	";
 
                     }
-                    
-                    #endregion
-                    #region pending expense booking
-                    else if (Category == "Pending Inventory Issue Posting" && days == "3")
+
+					#endregion
+					#region Pending Inventory Issue Posting
+					else if (Category == "Pending Inventory Issue Posting" && days == "3")
                     {
                         sql = @"SELECT 'Pending Inventory Issue Posting' Category			
 									, II.CompanyId	
@@ -21532,7 +21532,7 @@ UNION ALL
 									,II.AddedBy
 									,sum(isnull(IID.TransactionQty,0)) Qty
 									,sum(isnull(IID.PolicyRate,0)) Rate
-									,FORMAT((sum(isnull(IID.TransactionQty,0))* sum(isnull(IID.PolicyRate,0))),'#,#') Amount
+									,FORMAT(sum(isnull(IID.PolicyAmount,0)),'#,#') Amount
 								FROM trn.InventoryIssue II
 									 JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
 									--LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
@@ -21540,7 +21540,7 @@ UNION ALL
 									LEFT JOIN ORG.Company C ON C.Id=II.CompanyId
 									LEFT JOIN ORG.Plant P2 ON p2.Id=II.PlantId
 									Where DATEDIFF(day,II.IssueDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND ii.IssueType='Revenue' AND II.IsPostingRequired=1
 								GROUP BY II.CompanyId,II.Id,II.AddedBy,DATEDIFF(day,II.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName";
 
                     }
@@ -22092,10 +22092,10 @@ UNION ALL
                     }
 
                     #endregion
-                    #region Pending Inventory Issue For Approval
-                    if (Category == "Pending Inventory Issue For Approval" && days == RequestDay)
+                    #region Pending  Issue Request  For Approval
+                    if (Category == "Pending  Issue Request  For Approval" && days == RequestDay)
                     {
-                        sql = @"SELECT 'Pending Inventory Issue For Approval' Category		
+                        sql = @"SELECT 'Pending  Issue Request  For Approval' Category		
 								,IRM.CompanyId
 									,CG.UserName CompanyGroup
 									,C.UserName Company
@@ -22134,7 +22134,7 @@ UNION ALL
 									,II.AddedBy
 									,sum(isnull(IID.TransactionQty,0)) Qty
 									,sum(isnull(IID.PolicyRate,0)) Rate
-									,(sum(isnull(IID.TransactionQty,0))* sum(isnull(IID.PolicyRate,0))) Amount
+									,FORMAT(sum(isnull(IID.PolicyAmount,0)),'#,#') Amount
 									,REPLACE(CONVERT(CHAR(11), II.AddedDate, 106),' ','-') AS IssueDate
 								FROM trn.InventoryIssue II
 									 JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
@@ -22144,7 +22144,7 @@ UNION ALL
 									LEFT JOIN ORG.Plant P2 ON p2.Id=II.PlantId
 									Where DATEDIFF(day,II.IssueDate,getdate()) Between '" + fromDate + @"' ANd '" + toDate + @"'
 									AND II.CompanyId='" + companyId + @"' AND II.PlantId='" + PlantId + @"' 
-									AND II.VoucherId IS null
+									AND II.VoucherId IS null AND ii.IssueType='Revenue' AND II.IsPostingRequired=1
 								GROUP BY II.CompanyId,II.Id,II.AddedBy,DATEDIFF(day,II.AddedDate,getdate()),CG.UserName,C.UserName,P2.UserName,II.AddedDate";
 
                     }

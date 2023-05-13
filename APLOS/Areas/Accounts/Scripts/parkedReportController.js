@@ -28,9 +28,7 @@ function parkedReportController(cboService, $scope, $rootScope, $filter, baseSer
               manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
         }
         else {
-            var url = 'Accounts/VoucherReport/GetParkedReport?reportFormat=' + $scope.report.ReportFormat + '&fromdate=' + $scope.report.FromDate + '&todate=' + $scope.report.ToDate + '&reportType=' + $scope.report.ReportType;
-           // $window.open(url);
-            $rootScope.report(url);
+                $window.open('Accounts/VoucherReport/GetParkedReport?reportFormat=' + $scope.report.ReportFormat + '&fromdate=' + $scope.report.FromDate + '&todate=' + $scope.report.ToDate + '&reportType=' + $scope.report.ReportType, '_blank');
              }
     };
    

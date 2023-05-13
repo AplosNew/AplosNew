@@ -139,5 +139,9 @@ function IEConfig($routeProvider, $locationProvider) {
             templateUrl: 'ie/LineLayoutForProductionBulletin/Aplos',
             controller: 'LineLayoutForProductionBulletinController'
         })
+        .when('/workcenter-wise-detention', {
+            templateUrl: 'ie/WorkcenterWiseDetention/Aplos',
+            controller: 'WorkcenterWiseDetentionController'
+        })
         ;
 };

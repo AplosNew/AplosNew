@@ -3,57 +3,45 @@
         <div class="modal-content">
             <div class="modal-header">User Group <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-                
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div class="form-elements form-horizontal" ng-form>
-                            
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-6 col-md-4">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <div class="select-style">
-                                                <select class="form-control" name="User Group" ng-model="ob.UserGroupId" ng-change="GetUserSubGroup(); GetGrade();" required>
-                                                    <option ng-repeat="option in UserGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                </div>
+                <div id="issuegrid" class="table-responsive" style="border:1px solid white">
+                    <div ej-grid e-datasource="UserGroupList" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-headertext="Check / Uncheck" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>
 
-                                <div class="col-xs-12 col-sm-6 col-md-4">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">User Sub Group<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <div class="select-style">
-                                                <select class="form-control" name="User Sub Group" ng-model="ob.UserSubGroupId" required>
-
-                                                    <option ng-repeat="option in UserSubGroupList" value="{{option.Value}}">{{option.Text}}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6 col-md-4">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <div class="select-style">
-                                                <select class="form-control" name="Grade" ng-model="ob.Grade" required>
-
-                                                    <option ng-repeat="option in GradeList" value="{{option.Value}}">{{option.Text}}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div e-column e-field="UserGroup" e-headertext="User Group" e-width="100"></div>
+                            <div e-column e-field="UserSubGroup" e-headertext="User Sub Group" e-width="100"></div>
+                            <div e-column e-headertext="Grade" e-template="#checkboxGradeTemplate" e-textalign="center" e-width="100"></div>
 
                         </div>
                     </div>
-                   
+                    <script type="text/template" id="checkboxIssueTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                    </script>
+
+                    <script type="text/template" id="checkboxGradeTemplate">
+                        <div class="select-style">
+                            <select class="form-control" name="User Group" ng-model="data.Grade" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                            </select>
+                        </div>
+                    </script>
+
+
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="ClosePopupOnSelectAllField(this);" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+
+                        </ul>
                     </div>
+                </div>
+
+            </div>
                     
                 </div>
             </div>

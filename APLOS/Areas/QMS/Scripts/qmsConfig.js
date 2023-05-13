@@ -135,7 +135,7 @@
             templateUrl: 'QMS/DocumentSetup/Aplos',
             controller: 'DocumentSetupController'
         })
-        
 
+        
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];

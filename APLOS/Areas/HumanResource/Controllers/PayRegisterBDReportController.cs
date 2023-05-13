@@ -1109,6 +1109,513 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        private void GetEmpJobCardInfoWithInDateTimes(string empId, string FromDate, string ToDate, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"SELECT A.EmployeeCode,A.EmployeeCodeNumeric
+                            	,A.EmployeeName
+                                ,A.EmployeeStatus
+                            	,A.DOJ
+                            	,A.GivenDesignation
+                                ,A.LegalDesignation
+                            	,A.Unit
+                            	,A.Division
+                            	,A.Department
+                            	,A.Section
+                            	,A.SubSection
+                            	,REPLACE(CONVERT(VARCHAR(11), A.PDate, 113), ' ', '-') PDate
+                                ,PDay
+                            	,A.DayStatus
+                                ,A.IsHalfDayLeave
+                            	,A.InTime
+                                ,ShiftInTimeShow
+								 ,ShiftInTime
+                            	,A.InDeviceID
+                            	,A.OutTime
+                            	,A.OutDeviceID
+                            	,A.IsManual
+                            	,A.OTHr OverStay
+                                ,A.TotalOTHr FinalOT
+                            	,A.LvShortName
+                            	,A.Code
+                            	,A.LvDescrip
+                            	,A.LeaveType
+                            	,A.OriginalDayType
+                                ,dti,dto
+                                ,InTimeShow
+                                ,OutTimeShow
+                                ,A.OTConsiderOn
+                                ,ShiftTime = CASE WHEN ShiftChangeInTime IS NULL THEN ShiftInTime ELSE ShiftChangeInTime END
+                                ,ShiftName
+								,ShiftType
+							    ,ShiftOutTime
+                                ,A.IsManualDayStatus,A.IsManualInTime,A.IsManualOutTime, A.ShortLeave,A.IsOTEntitled,A.IsOTComfirm,A.WorkDate,
+                                ReConfirm = CASE  WHEN A.IsOTComfirm=0 AND A.WorkDate IS NOT NULL  THEN 1   ELSE 0  END,A.DayCategory
+                                ,A.InTimelate,A.OutTimelate
+                                ,A.ShiftInTimeLate
+                                ,A.GradeCode
+	                            ,A.LeaveDuration                               
+								,A.DurationInMin
+
+	                                ,A.EO 
+									,A.LIN
+									,A.LO
+                                    ,A.Line,A.WDate
+,A.MaxOTPerDay,A.IsNoPunchOnHolidayForOTEntitle,A.IsNoPunchOnHolidayForOTNotEntitle,A.IsNoPunchOnWeekOffForOTEntitle,A.IsNoPunchOnWeekOffForOTNotEntitle
+,A.SystemId
+                            FROM(
+                                SELECT E.EmployeeCode,E.EmployeeCodeNumeric
+                                    , E.EmployeeName
+                                    ,E.EmployeeStatus
+                                    , REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ
+                                    , REPLACE(CONVERT(VARCHAR(11), E.DOS, 113), ' ', '-') DOS
+                                    ,E.SystemId
+                                    , D.UserName GivenDesignation
+                                    , U.UserName Unit
+                                    , Dv.UserName Division
+                                    , Dp.UserName Department
+                                    , S.UserName Section
+                                    ,ar.IsHalfDayLeave
+                                    , SB.UserName SubSection
+                                    ,datename(dw,AR.WorkDate) as PDay,AR.WorkDate WDate
+                                    , AR.WorkDate PDate
+                                    , AR.DayStatus
+                                    , LSalGr.Code GradeCode
+                                    , HR.OTConsiderOn
+                                    , AR.InTime InTime
+                                    , AR.InTime InTimeShow
+                                   	,l.UserName as Line
+                            ,ShiftInTimeLate=CASE
+							 WHEN cs.InTime IS NULL
+							 THEN CONVERT(varchar(15),CAST(SD.InTime AS TIME),108)
+							 ELSE CONVERT(VARCHAR(15), CAST(cs.InTime AS TIME), 108)
+						     END
+                                    , CONVERT(VARCHAR(5), AR.InTime, 108) InTimelate
+                             ,ShiftInTimeShow = CASE
+							 WHEN cs.InTime IS NULL
+							 THEN CONVERT(varchar(15),CAST(SD.InTime AS TIME),100)
+							 ELSE CONVERT(VARCHAR(15), CAST(cs.InTime AS TIME), 100)
+						     END
+                                    , ARIN.DeviceID InDeviceID
+                                    , AR.OutTime OutTime
+                                    , AR.OutTime as OutTimeShow
+                                    , CONVERT(VARCHAR(5), AR.OutTime, 108) OutTimelate
+                                    , AROUT.DeviceID OutDeviceID
+                                    , AR.IsManualInTime IsManual
+                                    , AR.OTHr 
+                                    ,OT.TotalOTHr
+                                    , LT.UserName LvShortName
+                                    , LT.Description LvDescrip
+                                    , LT.LeaveType
+                                    , dt.OriginalDayType
+                                    , LT.Code
+                                    , Isnull(LG.UserName, '') LegalDesignation
+                                    , AR.InTime dti, AR.OutTime dto
+                                    , CONVERT(VARCHAR(5), cs.InTime, 108) ShiftChangeInTime
+                                    , SD.ShiftDefinationName ShiftName
+									,sd.ShiftType
+                                    ,LEAVE.LeaveDuration	                            
+									,HODD.DurationInMin
+
+		                            ,EO.OffDuration AS EO
+									,EIN.OffDuration AS LIN
+									,LO= Case when LO.InfoType='LUNCHOUT' THEN 'YES' ELSE 'NO' END
+
+						   ,ShiftOutTime = CASE                                   
+                           WHEN cs.OutTime IS NULL
+                           THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100)
+                           ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)
+                           END
+                                     ,ShiftInTime = Format(AR.WorkDate, 'yyyy-MM-dd') + ' ' + CASE 
+			                         WHEN cs.InTime IS NULL
+			                         	THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
+			                         ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
+			                         END
+                                    , AR.IsManualDayStatus, AR.IsManualInTime, AR.IsManualOutTime,
+ar.CountedShortLeave ShortLeave,AR.IsOTEntitled,AR.IsOTComfirm,OT.WorkDate,dt.Category DayCategory
+,CAS.MaxOTPerDay,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+                                FROM dbo.EmployeeInformation E
+
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.CompanyGroupId and cas.PlantId=e.PlantId
+                                INNER JOIN dbo.AttdnProcessData AR ON E.SystemID = AR.EmpSystemID
+	                           LEFT JOIN (select LET.SystemID,LTD.LeaveDuration,LTD.WorkDate,LET.EmpSystemID from  LeaveTransaction LET 
+										    left join LeaveTransactionDetails LTD ON LTD.LvTrnsSystemID=LET.SystemID	
+                                        where ltd.WorkDate Between '" + FromDate + @"' and '" + ToDate + @"'
+								         ) LEAVE ON LEAVE.EmpSystemID=E.SystemId and LEAVE.WorkDate= AR.WorkDate
+
+                                left join (select EmpSystemID,WorkDate,SUM(DurationInMin)AS DurationInMin
+		                    From  [dbo].[HourlyOffDuty] 
+	                        WHERE  ApproveType='Deducation' AND WorkDate Between '" + FromDate + @"' and '" + ToDate + @"'
+		                    Group BY  EmpSystemID,WorkDate)as HODD on HODD.EmpSystemID=E.SystemId and HODD.WorkDate=AR.WorkDate
+
+                                LEFT JOIN(SELECT * FROM dbo.ShiftTimeChgMaster WHERE '" + FromDate + @"' BETWEEN FromDate AND ToDate) AS SFCG
+                                ON AR.ShiftSystemID = SFCG.ShiftDefinationID
+                                LEFT JOIN dbo.AttdnRawData ARIN ON AR.InTimeRowID = ARIN.RowID
+                                LEFT JOIN dbo.AttdnRawData AROUT ON AR.OutTimeRowID = AROUT.RowID
+                                LEFT JOIN dbo.LeaveType LT ON AR.LTSystemID = LT.Id
+                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
+                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
+                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+
+                                  LEFT JOIN ORG.Section S ON PO.SectionID = S.Id
+                                LEFT JOIN ORG.SubSection SB ON PO.SubSectionID = SB.Id
+								left join org.Line l on l.Id=mpb.LineId
+
+                                LEFT JOIN HKP.LegalDesignation LG ON E.LegalDesignationId = LG.Id
+                                LEFT JOIN MST.LegalSalaryGradeDesignation LSGD ON LSGD.LegalDesignationId = LG.Id and LSGD.PlantId='" + plantId + @"'
+                                LEFT JOIN SCS.LegalSalaryGrade LSalGr ON LSalGr.Id = LSGD.LegalSalaryGradeId
+                                --left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId
+                                --AND AR.WorkDate = ES.WorkDate
+                                left join(
+                                SELECT  m.ShiftDefinationID, c.ShiftDate, m.InTime, m.SystemID,m.OutTime  FROM[ShiftTimeChgMaster] m
+                                left join[ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID
+                                         ) CS on cs.ShiftDefinationID = AR.ShiftSystemID and cs.ShiftDate = ar.WorkDate
+                                left join[ShiftDefination] sd on sd.SystemID = AR.ShiftSystemID
+                                LEFT JOIN HKP.Designation D ON E.GivenDesignationId = D.Id
+                                LEFT JOIN FinalOT OT ON E.SystemId = OT.EmpSystemID and ot.WorkDate=ar.WorkDate
+                                LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
+                                LEFT JOIN DayType dt on dt.Daytype=AR.DayStatus
+
+                                left join AttendanceInfoExtra LO on LO.EmpSystemId=e.SystemId and LO.WorkDate=ar.WorkDate and LO.InfoType='LUNCHOUT'
+								left join AttendanceInfoExtra EO on EO.EmpSystemId=e.SystemId and EO.WorkDate=ar.WorkDate and EO.InfoType='EARLUOUT'
+								left join AttendanceInfoExtra EIN on EIN.EmpSystemId=e.SystemId and EIN.WorkDate=ar.WorkDate and EIN.InfoType='EARLUIN'
+
+                                WHERE E.SystemID in (" + empId + @")
+                                    AND AR.WorkDate BETWEEN '" + FromDate + @"'
+                                        AND '" + ToDate + @"' AND (EmployeeStatus = 'Active' OR Convert(date,DOS) >= Convert(Date,'" + FromDate + @"'))
+                                ) A
+                           
+                            ORDER BY A.EmployeeCode
+                            	,A.PDate
+                                ";
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+
+                double tothr = 0;
+                ReportUtility oru = new ReportUtility();
+                double OTOverstay1 = 0;
+                var OTOverstay2 = 0.00;
+                var tempEmp = "";
+                DataSet dataSet = null;
+                for (int j = 0; j < dsRef.Tables[0].Rows.Count; j++)
+                {
+                    try
+                    {
+
+                        if (tempEmp != dsRef.Tables[0].Rows[j]["SystemId"].ToString())
+                        {
+
+
+                            #region -- OUT TIME NCE JOB CARD--
+
+                            if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                            {
+
+
+                            }
+                            else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                            {
+
+
+                            }
+                            else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                            {
+
+                            }
+                            else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                            {
+
+                            }
+
+                            else if (dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim().Contains("LV") || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "W")
+                            {
+
+                            }
+
+                            else
+                            {
+
+                                if (dsRef.Tables[0].Rows[j]["OutTimeShow"].ToString() != "")
+                                {
+                                    DateTime NewRealOutTime;
+                                    string TakeDate = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                                    string ot = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
+
+                                    //check night shift
+                                    string _sOUTtime = TakeDate + " " + ot;
+                                    string _sINtime = TakeDate + " " + Convert.ToDateTime(dsRef.Tables[0].Rows[j]["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
+                                    if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                                    {
+                                        TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                                    }
+
+                                    string TateandTime = TakeDate + " " + ot;
+                                    int minutesadd = Convert.ToInt32(dsRef.Tables[0].Rows[j]["MaxOTPerDay"].ToString().Trim());
+                                    DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
+                                    DateTime RealOutTime = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["OutTimeShow"].ToString().Trim());
+
+                                    if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime))
+                                    {
+                                        //long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(dsRef.Tables[0].Rows[j]["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
+                                        //int EmployeeSystemId = (int)Convert.ToInt64(dsRef.Tables[0].Rows[j]["SystemId"].ToString());
+
+                                        long WorkDateTickCount = Convert.ToInt64(Convert.ToDateTime(dsRef.Tables[0].Rows[j]["WDate"].ToString()).ToString("yyMMddHHmmss"));
+                                        int EmployeeSystemId = (int)Convert.ToInt64(dsRef.Tables[0].Rows[j]["EmployeeCodeNumeric"].ToString());
+
+                                        WorkDateTickCount += EmployeeSystemId;
+
+                                        Random rnd = new Random((int)(WorkDateTickCount));
+                                        int RandomMinutes = rnd.Next(0, 15);
+                                        NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
+                                    }
+
+                                    else
+                                    {
+                                        NewRealOutTime = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["OutTimeShow"].ToString().Trim());
+                                    }
+                                    DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
+                                    DateTime ShiftTime = Convert.ToDateTime(TateandTime);
+                                    TimeSpan span = RandomTime - ShiftTime;
+                                    double totalMinutes = span.TotalMinutes;
+
+                                    if (dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() != "CWP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() != "WP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HL")
+                                    {
+
+                                    }
+                                    else
+                                    {
+
+                                    }
+
+                                    //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                }
+                                if (dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWL")
+                                {
+
+                                }
+                                else if (dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HL")
+                                {
+
+                                }
+                                else
+                                {
+
+
+                                }
+                                //if (bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[j]["IsManualOutTime"].ToString().Trim()))
+                                //{
+                                //    sheet1.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
+                                //}
+                            }
+
+                            #endregion
+
+                            #region -- OT NCE JOB CARD --
+
+                            string yot = string.Empty;//OTConsiderOn
+                            string overstay = string.Empty;
+                            if (bplib.clsWebLib.GetBoolData(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString()) == true)
+                            {
+
+                                if (!string.IsNullOrEmpty(dsRef.Tables[0].Rows[j]["DayCategory"].ToString()))
+                                {
+                                    if (dsRef.Tables[0].Rows[j]["DayCategory"].ToString() == "Present" || dsRef.Tables[0].Rows[j]["DayCategory"].ToString() == "Late")
+                                    {
+
+                                        if (dsRef.Tables[0].Rows[j]["OutTimeShow"].ToString() != "")
+                                        {
+                                            DateTime NewRealOutTime;
+                                            string TakeDate = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                                            string ot = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
+
+                                            //check night shift
+                                            string _sOUTtime = TakeDate + " " + ot;
+                                            string _sINtime = TakeDate + " " + Convert.ToDateTime(dsRef.Tables[0].Rows[j]["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
+                                            if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                                            {
+                                                TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                                            }
+
+                                            string TateandTime = TakeDate + " " + ot;
+                                            int minutesadd = Convert.ToInt32(dsRef.Tables[0].Rows[j]["MaxOTPerDay"].ToString().Trim());
+                                            DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
+                                            DateTime RealOutTime = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["OutTimeShow"].ToString().Trim());
+                                            double totalMinutes;
+
+                                            if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime) && (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString() != "H" && dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString() != "W"))
+                                            {
+                                                long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(dsRef.Tables[0].Rows[j]["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
+                                                int EmployeeSystemId = (int)Convert.ToInt64(dsRef.Tables[0].Rows[j]["SystemId"].ToString());
+                                                WorkDateTickCount += EmployeeSystemId;
+
+                                                Random rnd = new Random((int)(WorkDateTickCount));
+                                                int RandomMinutes = rnd.Next(0, 15);
+                                                NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
+                                                DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
+                                                DateTime ShiftTime = Convert.ToDateTime(TateandTime);
+                                                TimeSpan span = RandomTime - ShiftTime;
+                                                totalMinutes = span.TotalMinutes;
+                                                oru.GetOT(dsRef.Tables[0].Rows[j]["OTConsiderOn"].ToString(), minutesadd.ToString(), out overstay);
+                                                if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay1 += 0.00;
+
+                                                }
+                                                else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay1 += 0.00;
+
+
+                                                }
+                                                else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay1 += 0.00;
+
+
+                                                }
+                                                else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay1 += 0.00;
+
+                                                }
+
+                                                else if (dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim().Contains("LV") || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "W" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HL")
+                                                {
+                                                    OTOverstay1 += 0.00;
+                                                }
+                                                else
+                                                {
+                                                    OTOverstay1 += clsStaticInfo.dbl(minutesadd);
+
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                NewRealOutTime = Convert.ToDateTime(dsRef.Tables[0].Rows[j]["OutTimeShow"].ToString().Trim());
+                                                oru.GetOT(dsRef.Tables[0].Rows[j]["OTConsiderOn"].ToString(), dsRef.Tables[0].Rows[j]["OverStay"].ToString(), out overstay);
+                                                if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay2 += 0.00;
+
+                                                }
+                                                else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay2 += 0.00;
+
+
+                                                }
+                                                else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay2 += 0.00;
+
+
+                                                }
+                                                else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                                                {
+                                                    overstay = "";
+                                                    OTOverstay2 += 0.00;
+
+                                                }
+
+                                                else if (dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim().Contains("LV") || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "W" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HL")
+                                                {
+                                                    OTOverstay2 += 0.00;
+                                                }
+                                                else
+                                                {
+                                                    OTOverstay2 += clsStaticInfo.dbl(dsRef.Tables[0].Rows[j]["OverStay"].ToString());
+
+
+                                                }
+
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                            {
+                                overstay = "";
+
+
+                            }
+                            else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                            {
+                                overstay = "";
+
+
+
+                            }
+                            else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == false)
+                            {
+                                overstay = "";
+
+
+
+                            }
+                            else if (dsRef.Tables[0].Rows[j]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dsRef.Tables[0].Rows[j]["IsOTEntitled"].ToString().Trim()) == true)
+                            {
+                                overstay = "";
+
+
+                            }
+
+                            else if (dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim().Contains("LV") || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "W" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "CWL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "WL" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HP" || dsRef.Tables[0].Rows[j]["DayStatus"].ToString().Trim() == "HL")
+                            {
+                                overstay = "";
+
+                            }
+
+
+                            tothr += clsStaticInfo.dbl(overstay);
+
+
+                            #endregion
+
+                            tempEmp = dsRef.Tables[0].Rows[j]["SystemId"].ToString(); 
+                        }
+
+                    }
+                    catch
+                    {
+
+
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }//End Function
+
         public void GetSalaryInfoSlrProcIDWisePayGrpForReportNewLogCompliance(ParamList para, string sortingParameters, Dictionary<string, string> parameters, out DataSet dsRef)
         {
             string strSQL;
@@ -1156,6 +1663,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             try
             {
+
+
+
                 strSQL = @"SELECT EmpSlr.EmpInfoSystemID, EmpBasic.EmployeeCode EmployeeCode, EmpBasic.EmployeeName
                                 ,isnull(EmpBasic.EmployeeNameLocal,EmpBasic.EmployeeName) EmployeeNameLocal
                                 , Replace(Convert(varchar(11),EmpBasic.DOJ,105),' ','-') DOJ
@@ -1520,7 +2030,8 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
                                             ComplianceAttendanceSetting CAS ON CAS.CompanyGroupId = FOT.GroupID  AND CAS.PlantID = '" + para.PlantId + @"'
 	                                        LEFT JOIN AttdnProcessData APD  ON APD.WorkDate = FOT.WorkDate and apd.EmpSystemID = FOT.EmpSystemID
 											LEFT JOIN DayType DT  ON DT.DayType = APD.DayStatus 
-                                            WHERE " + wcBasedOnSetting + @"
+                                            --WHERE " + wcBasedOnSetting + @"
+WHERE 1 = 1 AND APD.DayStatus='P'
                                             ) dd
                                             WHERE WorkDate BETWEEN '" + para.FromDate + @"' and '" + para.ToDate + @"' and PlantID = '" + para.PlantId + @"'
                                             GROUP BY EmpSystemID,PlantID ) OT ON OT.EmpSystemID = MMDSA.EmpSystemID

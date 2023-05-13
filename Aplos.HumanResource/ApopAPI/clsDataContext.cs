@@ -4374,6 +4374,202 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
 
         }
 
+        #region Attendance
+        public void GetUserGroup(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select id as Value, UserGroup as Name  from HKP.HRReportGroupMaster";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetLocation(out List<Locations> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Locations>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct Location from dbo.ResidenceMaster";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Locations
+                    {
+                        Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            string strSQL1 = "";
+            DataList = new List<AttendanceReport>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                #region Sql
+                strSQL1 = @"select distinct LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
+case when apd.WeeklyStatus = 'W' then 'W'
+when (select top 1 rw.PTime from AttdnRawData rw
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+order by rw.PTime asc) is null then 'IM'
+else 'IN' end as RawDayStatus ,
+(select top 1 rw.PTime from AttdnRawData rw
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,A.ToDayIN, Diffenence=A.ToDayIN-MBGT.Deployment
+
+from AttdnProcessData apd 
+left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN hkp.Designation DSG on DSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+LEFT JOIN MST.DesignationMasterLegalDesignation DMLD on DMLD.LegalDesignationId = GDSG.Id
+left join mst.DesignationMaster dm on dm.Id = DMLD.DesignationMasterId
+left join scs.designationmasterconfiguration dmc on dmc.designationmasterid = dm.id
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
+left join mst.LegalSalaryGradeDesignation GRD on GRD.legaldesignationid = gdsg.id
+left join scs.legalsalarygrade lsg on lsg.id = grd.legalsalarygradeid
+left join scs.legalsalarygradehead lsh on lsh.legalsalarygradeid = lsg.id
+left join mst.LegalSalaryStructure lss on lss.legalsalarygradeid = lsh.legalsalarygradeid
+left join mst.LegalSalaryStructureValue lsv on lsv.legalsalarystructureid = lss.id
+left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
+left join SalaryRuleMaster SRM on srm.systemid = dmc.salaryrulemasterid
+left join EmployeeBankInfo BNK on BNK.EmpSystemID = emp.SystemId
+left join ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId
+left join TransportGroup TG on TG.Id = EMP.TransportGroupId
+left join employeecodetype ect on ect.id = emp.employeecodetypeid
+left join hkp.Process PR on PR.Id = POS.ProcessId
+left join scs.District DT on DT.Id = emp.ParmDistrictID
+left join scs.[State] ST on ST.Id = EMP.ParmStateId
+left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
+left join dbo.AttdnRawData Ard on Ard.LogDownLoadNum = EMP.SystemId and Ard.PDate = apd.WorkDate
+left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
+left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
+left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
+left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
+left join LeaveType LTY on LTY.Id = LT.LTSystemID
+left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
+left join ResidenceMaster RM on RM.Id = RA.ResidenceId
+
+LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
+"where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1" +
+"and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
+
+                if(locations != null)
+                {
+                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "'";
+                }
+
+                if (inmis ==  "IN" || inmis == "IM" || inmis == "W")
+                {
+                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis +"' order by Diffenence Asc";
+                }
+               
+                #endregion Sql
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new AttendanceReport
+                    {
+                        LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
+                        SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
+                        EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
+                        SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
+                        Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
+                        Category = dsRef.Tables[0].Rows[i]["Category"].ToString(),
+                        Activity = dsRef.Tables[0].Rows[i]["Activity"].ToString(),
+                        InStatus = dsRef.Tables[0].Rows[i]["InStatus"].ToString(),
+                        InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
+                        InVerificationTime = dsRef.Tables[0].Rows[i]["InVerificationTime"].ToString(),
+                        BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
+                        Shift = dsRef.Tables[0].Rows[i]["Shift"].ToString(),
+                        ShiftId = dsRef.Tables[0].Rows[i]["ShiftId"].ToString(),
+                        MobileNo = dsRef.Tables[0].Rows[i]["MobileNo"].ToString(),
+                        WeeklyStatus = dsRef.Tables[0].Rows[i]["WeeklyStatus"].ToString(),
+                        Residence = dsRef.Tables[0].Rows[i]["Residence"].ToString(),
+                        Transport = dsRef.Tables[0].Rows[i]["Transport"].ToString(),
+                        ManpowerBudgetId = dsRef.Tables[0].Rows[i]["ManpowerBudgetId"].ToString(),
+                        UserGroup = dsRef.Tables[0].Rows[i]["UserGroup"].ToString(),
+                        GroupId = dsRef.Tables[0].Rows[i]["GroupId"].ToString(),
+                        Location = dsRef.Tables[0].Rows[i]["Location"].ToString(),
+                        CurrentStatus = dsRef.Tables[0].Rows[i]["CurrentStatus"].ToString(),
+                        Deployment = dsRef.Tables[0].Rows[i]["Deployment"].ToString(),
+                        ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
+                        Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
+                        RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
+                       
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Attendance
 
 
 
@@ -4431,6 +4627,191 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
 
 
         #endregion Sales Return
+
+        #region Aman C
+        public string PostUserinfo(IEnumerable<Userinfo> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.Userinfo";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Userinfo> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.Userinfo where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (Userinfo item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+
+                        dr["Id"] =  _Id;
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
+                        dr["Status"] = item.Status;
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
+                        dr["Status"] = item.Status;
+
+                        dr.EndEdit();
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
+
+        public void GetUserinfo(out List<Userinfo> DataList, string user,string password)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Userinfo>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select * from dbo.Userinfo where UserName = '" + user + "' and Password = '" + password + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Userinfo
+                    {
+                        UserName = dsRef.Tables[0].Rows[i]["UserName"].ToString(),
+                        PhoneNumber = dsRef.Tables[0].Rows[i]["PhoneNumber"].ToString(),
+                        Email = dsRef.Tables[0].Rows[i]["Email"].ToString(),
+                        Password = dsRef.Tables[0].Rows[i]["Password"].ToString(),
+                        BloodGroup = dsRef.Tables[0].Rows[i]["BloodGroup"].ToString(),
+                        Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetReceiver(out List<Receiver> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Receiver>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select * from dbo.receiver";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Receiver
+                    {
+                        DonorName = dsRef.Tables[0].Rows[i]["DonorName"].ToString(),
+                        PhoneNumber = dsRef.Tables[0].Rows[i]["PhoneNumber"].ToString(),
+                        Address = dsRef.Tables[0].Rows[i]["Address"].ToString(),
+                        BloodGroup = dsRef.Tables[0].Rows[i]["BloodGroup"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+       
+        public void Getambulance(out List<Ambulance> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Ambulance>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select * from  dbo.ambulance";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Ambulance
+                    {
+                        CompanyName = dsRef.Tables[0].Rows[i]["CompanyName"].ToString(),
+                        PhoneNumber = dsRef.Tables[0].Rows[i]["PhoneNumber"].ToString(),
+                        Address = dsRef.Tables[0].Rows[i]["Address"].ToString(),
+                        Price = dsRef.Tables[0].Rows[i]["Price"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        #endregion Aman C
 
     }
 
@@ -4936,5 +5317,76 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         public string BookedQty { get; set; } = "";
     }
 
+    #region Attendance
+    public class AttendanceReport
+    {
+        public string LeaveCode { get; set; }
+        public string SystemID { get; set; }
+        public string EMPCode { get; set; }
+        public string EmployeeName { get; set; }
+        public string Section { get; set; }
+        public string SubSection { get; set; }
+        public string Designation { get; set; }
+        public string Category { get; set; }
+        public string Activity { get; set; }
+        public string InStatus { get; set; }
+        public string InTime { get; set; }
+        public string InVerificationTime { get; set; }
+        public string BudgetCode { get; set; }
+        public string Shift { get; set; }
+        public string ShiftId { get; set; }
+        public string MobileNo { get; set; }
+        public string WeeklyStatus { get; set; }
+        public string Residence { get; set; }
+        public string Transport { get; set; }
+        public string ManpowerBudgetId { get; set; }
+        public string UserGroup { get; set; }
+        public string GroupId { get; set; }
+        public string Location { get; set; }
+        public string CurrentStatus { get; set; }
+        public string Deployment { get; set; }
+        public string ToDayIN { get; set; }
+        public string Diffenence { get; set; }
+        public string RawDayStatus { get; set; }
+       
+    }
 
+    public class Locations
+    {
+        public string Location { get; set; } = "";
+    }
+    #endregion Attendance
+
+    #region Aman c
+    public class Userinfo
+    {
+        public string Id { get; set; }
+        public string UserName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string BloodGroup { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class Receiver
+    {
+        public string Id { get; set; }
+        public string DonorName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string BloodGroup { get; set; }
+        public string Address { get; set; }
+    }
+
+
+    public class Ambulance
+    {
+        public string Id { get; set; }
+        public string CompanyName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Address { get; set; }
+        public string Price { get; set; }
+    }
+
+    #endregion Aman c
 }

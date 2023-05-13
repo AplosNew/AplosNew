@@ -209,6 +209,7 @@ namespace Aplos.Areas.Leave.Controllers
                 sheet[ROW, ColEmpId].Text = data.Rows[i]["EmpId"].ToString();
                 sheet[ROW, ColLvYear].Text = data.Rows[i]["LeaveYear"].ToString();
                 sheet[ROW, ColLvType].Text = data.Rows[i]["LeaveType"].ToString();
+                sheet[ROW, ColLvTypeId].Text = data.Rows[i]["LeaveTypeId"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
                 sheet[ROW, ColRegEncashment].Number = OTSBD.clsStaticInfo.dbl(data.Rows[i]["RegularEncashment"].ToString());
                 sheet[ROW, ColEarned].Number = OTSBD.clsStaticInfo.dbl(data.Rows[i]["Earned"].ToString());
