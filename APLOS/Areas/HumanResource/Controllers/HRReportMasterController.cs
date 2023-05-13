@@ -149,7 +149,32 @@ order by Sequence
             //"order by BGT2.Code desc";
             #endregion comment
 
-            bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            bgtQuery = @"select HMC.Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+, DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
+, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId --, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
+from  MST.ManpowerBudget BGT 
+left join ORG.Entity E on E.Id = BGT.EntityId
+left join MST.BudgetMasterActivity BMA on BGT.ROBudgetCode = BMA.BudgetMasterId
+left join HKP.Activity A on BMA.ActivityId = A.Id
+left join dbo.ShiftDefination SDF on BGT.ShiftDefinationId = SDF.SystemID
+left join ORG.Position P on BGT.PositionId = P.Id
+left join ORG.Division D on P.DivisionId  = D.Id
+left join ORG.Department DT on P.DepartmentId = DT.Id
+left join ORG.Section S on P.SectionId = S.Id
+left join ORG.SubSection SS on P.SubSectionId = SS.Id
+left join ORG.Division DSN on P.DivisionId = DSN.Id
+left join HKP.Designation DSG ON P.DesignationId = DSG.Id
+left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
+where BGT.EntityId in ("+Entity+ @") and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
+";
+
+            return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetAllSavedBudgetCode(string id)
+        {
+           string bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
 , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
 from  [TRN].[HRReportMasterChild] HMC
@@ -165,7 +190,7 @@ left join ORG.Section S on P.SectionId = S.Id
 left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-" + whereClause + @"
+where HMC.HRReportMasterId = '"+id+ @"' and HMC.Active = 1
 order by HMC.ManpowerBudgetId DESC";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
@@ -675,33 +700,7 @@ order by HMC.ManpowerBudgetId DESC";
             }
         }
 
-        [HttpPost]
-        public ActionResult GetAllSavedBudgetCode(string EntityId, string headerId)
-        {
-            //string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
-            var bgtQuery = "";
-
-            bgtQuery = @"select HMC.Id ,E.UserName Entity, HMC.Active,  D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
-, DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
-, P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId, isSelected = case when BGT.Id = HMC.ManpowerBudgetId then  1 else 0 end
-from  [TRN].[HRReportMasterChild] HMC
-full join MST.ManpowerBudget BGT on BGT.Id = HMC.ManpowerBudgetId
-left join ORG.Entity E on E.Id = BGT.EntityId
-left join MST.BudgetMasterActivity BMA on BGT.ROBudgetCode = BMA.BudgetMasterId
-left join HKP.Activity A on BMA.ActivityId = A.Id
-left join dbo.ShiftDefination SDF on BGT.ShiftDefinationId = SDF.SystemID
-left join ORG.Position P on BGT.PositionId = P.Id
-left join ORG.Division D on P.DivisionId  = D.Id
-left join ORG.Department DT on P.DepartmentId = DT.Id
-left join ORG.Section S on P.SectionId = S.Id
-left join ORG.SubSection SS on P.SubSectionId = SS.Id
-left join ORG.Division DSN on P.DivisionId = DSN.Id
-left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-order by HMC.ManpowerBudgetId DESC";
-           // --BGT.EntityId in (" + Entity + ")
-
-            return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
-        }
+        
 
         #region 2nd Tab
 
@@ -799,11 +798,5 @@ order by HMC.ManpowerBudgetId DESC";
 
     }
 
-   public class BudgetList
-    {
-        public string Id { get; set; }
-        public string HRReportMasterId { get; set; }
-        public string ManpowerBudgetId { get; set; }
-
-    }
+ 
 }

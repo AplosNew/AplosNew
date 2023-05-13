@@ -152,6 +152,8 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, ex.Message });
             }
         }
+
+        [Authorize]
         private void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> dataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

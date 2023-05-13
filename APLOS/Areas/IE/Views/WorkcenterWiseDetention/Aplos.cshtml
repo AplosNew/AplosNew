@@ -1,7 +1,11 @@
 ﻿<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
 <script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
-<togglable name="{{FormTitle}}"></togglable>
+@*<togglable name="{{FormTitle}}"></togglable>*@
+<div>
+    <h4>{{FormTitle}}</h4>
+    <hr/>
+</div>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="container-fluid">
         <div class="row">
@@ -154,7 +158,7 @@
     </div>
 </div>
 
-<div class="table-responsive aplos-grid-toggle">
+@*<div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-recorddoubleclick="Get" e-load="loadGridEdit" e-datasource="GriddataMachineMasterData"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
@@ -171,7 +175,7 @@
             <div e-column e-field="Remark" e-headertext="Remark" e-width="15"></div>
         </div>
     </div>
-</div>
+</div>*@
 
 @* #<!-- #region name -->*@
 
@@ -226,7 +230,7 @@
                                 @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
 
                                 <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
-                                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="50"></div>
+                                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="120"></div>
                                 <div e-column e-field="ShiftDefination" e-headertext="Shift Defination" e-width="120"></div>
                                 <div e-column e-field="InTime" e-headertext="In Time" e-width="120"></div>
                                 <div e-column e-field="OutTime" e-headertext="Out Time" e-width="120"></div>
