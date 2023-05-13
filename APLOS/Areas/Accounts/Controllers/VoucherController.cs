@@ -2725,6 +2725,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/BalanceSheetReportPage.cshtml");
         }
+        public ActionResult BalanceSheetReportTreeView()
+        {
+            return View("~/Areas/Accounts/Views/BalanceSheetReportTreeView.cshtml");
+        }
 
         [HttpGet, Authorize]
         public ActionResult BalanceSheetReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel, bool isACGroupLevel)
