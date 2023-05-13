@@ -27,6 +27,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         #region Purpose Master
+        public JsonResult GetList()
+        {
+            string sql = "Select * from HKP.PurposeMaster";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         public double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.PurposeMaster");
@@ -36,7 +41,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return 1;
         }
 
-        public Dictionary<string, object> CreateNewPurpose(Dictionary<string, object> data, string Employee)
+        public Dictionary<string, object> CreateNewPurpose(Dictionary<string, object> data)
         {
             try
             {
@@ -79,6 +84,47 @@ namespace Aplos.Areas.HumanResource.Controllers
                 {
                     _Id = data["Id"].ToString();
                     
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, object> CreateNewVehicleMovement(Dictionary<string, object> data)
+        {
+            try
+            {
+
+                string TableName = "TRN.VehicleMovementMaster";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+               
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
@@ -160,12 +206,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult Save(Dictionary<string, object> datas, string Employee)
+        public JsonResult Save(Dictionary<string, object> datas)
 
         {
             try
             {
-                var data = CreateNewPurpose(datas, Employee);
+                var data = CreateNewPurpose(datas);
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
