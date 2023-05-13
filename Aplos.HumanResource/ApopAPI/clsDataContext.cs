@@ -4498,7 +4498,8 @@ left join scs.[State] ST on ST.Id = EMP.ParmStateId
 left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
 left join dbo.AttdnRawData Ard on Ard.LogDownLoadNum = EMP.SystemId and Ard.PDate = apd.WorkDate
 left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
-left join HKP.HRReportGroupMaster Hg on Hg.Id = Hrg.HRReportMasterId
+left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
+left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
 left join LeaveTransaction LT on LT.EmpSystemID = apd.EmpSystemID and (LT.FromDate <= apd.WorkDate and LT.ToDate >= apd.WorkDate)
 left join LeaveType LTY on LTY.Id = LT.LTSystemID
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
@@ -4656,10 +4657,11 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
 
                         dr["Id"] =  _Id;
-                        dr["EntityId"] = item.PhoneNumber;
-                        dr["ProcessId"] = item.Email;
-                        dr["ShiftId"] = item.Password;
-                        dr["ResponsiblePerson"] = item.BloodGroup;
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
                         dr["Status"] = item.Status;
 
 
@@ -4671,10 +4673,11 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["EntityId"] = item.PhoneNumber;
-                        dr["ProcessId"] = item.Email;
-                        dr["ShiftId"] = item.Password;
-                        dr["ResponsiblePerson"] = item.BloodGroup;
+                        dr["UserName"] = item.UserName;
+                        dr["PhoneNumber"] = item.PhoneNumber;
+                        dr["Email"] = item.Email;
+                        dr["Password"] = item.Password;
+                        dr["BloodGroup"] = item.BloodGroup;
                         dr["Status"] = item.Status;
 
                         dr.EndEdit();

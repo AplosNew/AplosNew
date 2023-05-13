@@ -36,14 +36,10 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $scope.GetWorkcenter();
         $scope.getMinute();
         
-        $scope.Action = 'Update';
+        //$scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-            //for (var i = 0; i < $scope.WorkcenterList.length; i++) {
-               
-            //    $scope.WorkcenterList[i].Detention = args.data.Detention;
-                 
-            //}
+           
         }
     };
 

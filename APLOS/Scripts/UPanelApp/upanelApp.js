@@ -37,6 +37,7 @@ upanelApp.controller("attendanceSlipController", attendanceSlipController);
 upanelApp.controller("balanceSheetDetailsReportController", BalanceSheetDetailsReportController);
 upanelApp.controller("balanceSheetOpeningBalanceReportController", BalanceSheetOpeningBalanceReportController);
 upanelApp.controller("balanceSheetReportController", balanceSheetReportController);
+upanelApp.controller("balanceSheetReportTreeViewController", balanceSheetReportTreeViewController);
 upanelApp.controller("bankBaseController", bankBaseController);
 upanelApp.controller("bankBookReportController", bankBookReportController);
 upanelApp.controller("bankJournalController", bankJournalController);
@@ -1170,6 +1171,7 @@ upanelApp.controller("TaskCloserMasterController", TaskCloserMasterController)
 upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
 upanelApp.controller("GoodWorkController", GoodWorkController)
 upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
+upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterController)
 
 
 upanelApp.config(AccessControllerConfig);
