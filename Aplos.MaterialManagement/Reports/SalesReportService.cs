@@ -1232,10 +1232,75 @@ namespace Library.MaterialManagement.Reports
 								,PSI.CNFContainerNo
 								,PSI.CNFVesselName
 								,PSI.CNFVesselTrackingNo
-                                --,LC.LcNo,LC.BenificiaryBank,LC.OpeningBank
-								--,FORMAT(LC.LCDate, 'dd-MMM-yyyy')LCDate
-                                --,LC.BenificiaryBankDescription
-                                --,LC.OpeningBankAddress
+                                ,LcNo=REPLACE(REPLACE(
+                                        STUFF((select distinct ', ' + PLC.LCRef 
+                         from trn.SalesMaterial as SM
+                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
+                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
+                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
+                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
+ WHERE SM.SalesId=IR.Id
+for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
+
+,BenificiaryBank=REPLACE(REPLACE(
+                                        STUFF((select distinct ', ' + PLC.BenificiaryBank 
+                         from trn.SalesMaterial as SM
+                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
+                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
+                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
+                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
+ WHERE SM.SalesId=IR.Id
+for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
+
+,OpeningBank=REPLACE(REPLACE(
+                                        STUFF((select distinct ', ' + B.UserName
+                         from trn.SalesMaterial as SM
+                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
+                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
+                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
+                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
+ WHERE SM.SalesId=IR.Id
+for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
+,LCDate=REPLACE(REPLACE(
+                                        STUFF((select distinct ', ' + FORMAT(PLC.LCDate, 'dd-MMM-yyyy') 
+                         from trn.SalesMaterial as SM
+                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
+                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
+                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
+                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
+ WHERE SM.SalesId=IR.Id
+for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
+
+,BenificiaryBankDescription=REPLACE(REPLACE(
+                                        STUFF((select distinct ', ' + PLC.BenificiaryBankDescription
+                         from trn.SalesMaterial as SM
+                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
+                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
+                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
+                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
+ WHERE SM.SalesId=IR.Id
+for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
+,OpeningBankAddress=REPLACE(REPLACE(
+                                        STUFF((select distinct ', ' + OA.Address1
+                         from trn.SalesMaterial as SM
+                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
+                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
+                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
+                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
+ WHERE SM.SalesId=IR.Id
+for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
 								,D.UserName as FinalDestination
 								,PL.UserName as PortOfLanding
 								,PD.UserName as PortOfDischarge
@@ -1336,20 +1401,6 @@ namespace Library.MaterialManagement.Reports
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
-                         --LEFT JOIN(
-                         --select distinct
-                         --PLC.LCRef as LcNo,PLC.LCDate,PLC.BenificiaryBank,PLC.BenificiaryBankDescription
-						 --,B.UserName OpeningBank, SOI.SalesId
-						 --,OA.Address1 OpeningBankAddress
-                         --from trn.SalesOrderItem as SOI
-                         --LEFT JOIN TRN.MasterOrderItem MOI on MOI.Id = SOI.MasterOrderItemId
-                         --LEFT JOIN TRN.SalesOrder SO on MOI.Id = SO.MasterOrderItemId
-                         --LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                         --LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-                         --LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-                         --LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                         --LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId						
-						 --) LC on LC.SalesId = IR.Id
                          WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);

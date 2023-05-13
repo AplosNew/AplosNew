@@ -1499,8 +1499,8 @@ select x.* from (
 								,SalesType=CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
 									WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
 									ELSE  SA.SourceType END 
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
+								,SA.InvoicingByAddress InvoicingPartyPlant
+								,SA.DeliveryByAddress DeliveryPartyPlant
 								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
@@ -1572,7 +1572,7 @@ select x.* from (
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+						,PSI.TransportVehicleNo,Agent.UserName as TransportAgent
 									,IGL.AccountCode DrGLCode
 						,IGL.UserName AS DrGL
 						,IGL.Id DrGLGeneralInfoId
@@ -1611,8 +1611,6 @@ select x.* from (
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=TA.PartySubCategoryId
 									LEFT JOIN HKP.PartyGroup PG on PG.Id=TA.PartyGroupId
 
-						--LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
-						--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 						LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
 						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
@@ -1774,9 +1772,10 @@ select x.* from (
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,PSI.TransportVehicleNo,NULL TransportAgent
 						,NULL DrGLCode
 						,NULL DrGL
-						,NULL DrGLGeneralInfoId
+								,NULL DrGLGeneralInfoId
 						,NULL DrActivityCode
 						,NULL DrActivity
 						,NULL DrActivityId
@@ -1922,6 +1921,7 @@ select x.* from (
 								,''OwnReferenceNo
 								,0 RealizeAmount
 								,''RealizeDate
+								,NULL TransportVehicleNo,NULL TransportAgent
 								,IGL.AccountCode DrGLCode
 						,IGL.UserName AS DrGL
 						,IGL.Id DrGLGeneralInfoId
@@ -2104,7 +2104,7 @@ select x.* from (
 						,''CNFVesselTrackingNo
 						,''OwnReferenceNo
 						,0 RealizeAmount
-					    ,''RealizeDate
+					    ,''RealizeDate,NULL TransportVehicleNo,NULL TransportAgent
 						,NULL DrGLCode
 						,NULL DrGL
 						,NULL DrGLGeneralInfoId

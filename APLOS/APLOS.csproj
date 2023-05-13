@@ -1787,6 +1787,7 @@
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
+    <Content Include="Areas\Accounts\Scripts\balanceSheetReportTreeViewController.js" />
     <Content Include="Areas\Accounts\Scripts\inventoryIssueReturnJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\ManagementChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\parkedReportController.js" />
@@ -4666,6 +4667,7 @@
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportCom.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_VehicleMovement.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_PurposeMaster.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetReportTreeView.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

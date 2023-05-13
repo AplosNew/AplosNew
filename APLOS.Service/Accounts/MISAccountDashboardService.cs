@@ -2128,5 +2128,251 @@ namespace Library.Service.Accounts
         }
 
         #endregion Item/Budget Responsible person
+
+        #region Balance Sheet Tree View
+        public IEnumerable<object> GetBalanceSheetInfoGLLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId)
+        {
+            var bCId = string.Empty; var bCSId = string.Empty; var bId = string.Empty;
+            
+            var budgetType = string.Empty;
+            //if (budgetCategory != null && budgetCategory != "")
+            //{
+            //    bCId = "AND  BBM.budgetCategoryId = '" + budgetCategory + @"'";
+            //}
+            //else
+            //{
+            //    bCId = "";
+            //}
+            //if (budgetSubCategory != null)
+            //{
+            //    bCSId = "and BBM.budgetSubCategoryId = '" + budgetSubCategory + @"'";
+            //}
+            //else
+            //{
+            //    bCSId = "";
+            //}
+            //if (budget != null)
+            //{
+            //    bId = "and BBM.budgetId = '" + budget + @"'";
+            //}
+            //else
+            //{
+            //    bId = "";
+            //}
+            //if (bType == null || bType == "")
+            //{
+            //    budgetType = "";
+            //}
+            //else
+            //{
+            //    budgetType = "AND IsBalanceSheet =  " + bType + @"";
+            //}
+
+            try
+            {
+                //var month = Convert.ToDateTime(toDate).Month;
+                //var year = Convert.ToDateTime(toDate).Year;
+                //var fromMonth = Convert.ToDateTime(fromDate).Month;
+                //var fromYear = Convert.ToDateTime(fromDate).Year;
+                //var fromMonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(fromMonth));//Month Name from Month No
+                //var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(month));//Month Name from Month No
+                //var daysInMonth = DateTime.DaysInMonth(Convert.ToInt32(year), Convert.ToInt32(month));//Number of Days in a month
+
+                //var lastDateOfToMonth = daysInMonth + "-" + monthName + "-" + year;
+                //var firsDateOfFromMonth = 1 + "-" + fromMonthName + "-" + fromYear;
+
+                var cmdText = @"select *,CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END Amount
+                                FROM (SELECT distinct GL.Id AS AccountCodeId, VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
+								sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id,  VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
+                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
+                                , ACT.BalanceType, ACT.Id AS [MainHead], AG.UserName AS [Level], VD.GLGeneralInfoId,GL.UserName AS GL,GL.AccountCode
+	                            FROM TRN.VoucherDetailCurrency AS VDC
+		                        INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                        INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                        LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                LEFT OUTER JOIN [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+		                        LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                                WHERE act.IsBalanceSheet=1 AND v.PostingDate <='" + date + @"' AND V.CompanyGroupId='" + companyGroupId + @"'
+                                AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                                AND V.IsPark=0
+                                GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType, AG.UserName, ACT.Id
+
+			) AS K where k.DRcumulative<>0  OR 	k.CRcumulative<>0";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        public IEnumerable<object> GetBalanceSheetInfoBudgetLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId)
+        {
+            var bCId = string.Empty; var bCSId = string.Empty; var bId = string.Empty;
+            
+            //var budgetType = string.Empty;
+            //if (budgetCategory != null && budgetCategory != "")
+            //{
+            //    bCId = "AND  BBM.budgetCategoryId = '" + budgetCategory + @"'";
+            //}
+            //else
+            //{
+            //    bCId = "";
+            //}
+            //if (budgetSubCategory != null)
+            //{
+            //    bCSId = "and BBM.budgetSubCategoryId = '" + budgetSubCategory + @"'";
+            //}
+            //else
+            //{
+            //    bCSId = "";
+            //}
+            //if (budget != null)
+            //{
+            //    bId = "and BBM.budgetId = '" + budget + @"'";
+            //}
+            //else
+            //{
+            //    bId = "";
+            //}
+            //if (bType == null || bType == "")
+            //{
+            //    budgetType = "";
+            //}
+            //else
+            //{
+            //    budgetType = "AND IsBalanceSheet =  " + bType + @"";
+            //}
+
+            try
+            {
+                //var month = Convert.ToDateTime(toDate).Month;
+                //var year = Convert.ToDateTime(toDate).Year;
+                //var fromMonth = Convert.ToDateTime(fromDate).Month;
+                //var fromYear = Convert.ToDateTime(fromDate).Year;
+                //var fromMonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(fromMonth));//Month Name from Month No
+                //var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(month));//Month Name from Month No
+                //var daysInMonth = DateTime.DaysInMonth(Convert.ToInt32(year), Convert.ToInt32(month));//Number of Days in a month
+
+                //var lastDateOfToMonth = daysInMonth + "-" + monthName + "-" + year;
+                //var firsDateOfFromMonth = 1 + "-" + fromMonthName + "-" + fromYear;
+
+                var cmdText = @"select *,CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END Amount
+                                FROM (SELECT distinct GL.Id AS AccountCodeId, VDC.ParallelCurrencyId,CU.Code AS CurrencyCode
+                                , sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
+                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
+                                , ACT.BalanceType, ACT.Id AS [MainHead], AG.UserName AS [Level], VD.GLGeneralInfoId,GL.UserName AS GL,GL.AccountCode, VD.BudgetMasterId, BM.RefNo+' - '+BUD.UserName AS Budget,VD.GLGeneralInfoId+VD.BudgetMasterId GLGeneralInfoIdBudgetMasterId
+	                            FROM TRN.VoucherDetailCurrency AS VDC
+		                        INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                        INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                        LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+		                        LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                                LEFT JOIN MST.BudgetMaster BM ON BM.Id=VD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                                WHERE act.IsBalanceSheet=1 AND v.PostingDate <= '" + date + @"' AND V.CompanyGroupId='" + companyGroupId + @"'
+                                AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                                AND V.IsPark=0
+                                GROUP BY  GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType, AG.UserName, ACT.Id, VD.BudgetMasterId, BM.RefNo, BUD.UserName
+) AS K where k.DRcumulative<>0  OR 	k.CRcumulative<>0";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+
+        public IEnumerable<object> GetBalanceSheetInfoActivityLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId)
+        {
+            var bCId = string.Empty; var bCSId = string.Empty; var bId = string.Empty;
+            
+            //var budgetType = string.Empty;
+            //if (budgetCategory != null && budgetCategory != "")
+            //{
+            //    bCId = "AND  BBM.budgetCategoryId = '" + budgetCategory + @"'";
+            //}
+            //else
+            //{
+            //    bCId = "";
+            //}
+            //if (budgetSubCategory != null)
+            //{
+            //    bCSId = "and BBM.budgetSubCategoryId = '" + budgetSubCategory + @"'";
+            //}
+            //else
+            //{
+            //    bCSId = "";
+            //}
+            //if (budget != null)
+            //{
+            //    bId = "and BBM.budgetId = '" + budget + @"'";
+            //}
+            //else
+            //{
+            //    bId = "";
+            //}
+            //if (bType == null || bType == "")
+            //{
+            //    budgetType = "";
+            //}
+            //else
+            //{
+            //    budgetType = "AND IsBalanceSheet =  " + bType + @"";
+            //}
+
+            try
+            {
+                //var month = Convert.ToDateTime(toDate).Month;
+                //var year = Convert.ToDateTime(toDate).Year;
+                //var fromMonth = Convert.ToDateTime(fromDate).Month;
+                //var fromYear = Convert.ToDateTime(fromDate).Year;
+                //var fromMonthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(fromMonth));//Month Name from Month No
+                //var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt32(month));//Month Name from Month No
+                //var daysInMonth = DateTime.DaysInMonth(Convert.ToInt32(year), Convert.ToInt32(month));//Number of Days in a month
+
+                //var lastDateOfToMonth = daysInMonth + "-" + monthName + "-" + year;
+                //var firsDateOfFromMonth = 1 + "-" + fromMonthName + "-" + fromYear;
+
+                var cmdText = @"select *,CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END Amount
+                                FROM (SELECT distinct GL.Id AS AccountCodeId, VDC.ParallelCurrencyId,CU.Code AS CurrencyCode
+                              , sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
+                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative
+                                , ACT.BalanceType, ACT.Id AS [MainHead], AG.UserName AS [Level], VD.GLGeneralInfoId,GL.UserName AS GL,GL.AccountCode, VD.BudgetMasterId, BM.RefNo+' - '+BUD.UserName AS Budget
+                                , A.UserName AS Activity, A.Id as ActivityId,VD.GLGeneralInfoId+VD.BudgetMasterId GLGeneralInfoIdBudgetMasterId
+	                            FROM TRN.VoucherDetailCurrency AS VDC
+		                        INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
+		                        INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+		                        LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
+                                LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
+                                left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
+		                        LEFT OUTER JOIN SCS.Currency AS CU ON CU.Id=VDC.ParallelCurrencyId
+                                LEFT JOIN MST.BudgetMaster BM ON BM.Id=VD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id = BM.BudgetId
+                                LEFT JOIN HKP.Activity A on VD.ActivityId=A.Id
+                                WHERE act.IsBalanceSheet=1 AND v.PostingDate <= '" + date + @"' AND V.CompanyGroupId='" + companyGroupId + @"'
+                                AND V.CompanyId='" + companyId + @"' AND V.PlantId='" + plantId + @"'
+                                AND V.IsPark=0
+                                GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code,
+VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType, AG.UserName, ACT.Id, VD.BudgetMasterId, BM.RefNo, BUD.UserName, A.UserName, A.Id
+) AS K where k.DRcumulative<>0  OR 	k.CRcumulative<>0";
+                return _sqlRepository.GetDataCollection(cmdText);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+
+        #endregion
     }
 }
