@@ -196,9 +196,21 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             for (var i = 0; i < $scope.SalesOrderList.length; i++) {
                 if ($scope.SalesOrderList[i].Flags == true) {
                     $scope.SelectedSalesOrderList.push($scope.SalesOrderList[i]);
+
                 }
             }
 
+            for (var m = 0; m < $scope.SelectedSalesOrderList.length; m++) {
+
+                tq += $scope.SelectedSalesOrderList[m].TotalQty;
+                amt += $scope.SelectedSalesOrderList[m].Amount;
+                qt += $scope.SelectedSalesOrderList[m].Qty;
+
+            }
+
+            $scope.modelNew.TotalQty = tq;
+            $scope.modelNew.Amount = amt;
+            $scope.modelNew.SOQty = qt;
         } catch (e) {
             ShowResult(e, 'failure', 'salesOrderPopUp');
         }
@@ -240,6 +252,46 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     }
     $scope.GetshipmentMode();
 
+    $scope.summaryRows = [{
+        title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Amount", dataMember: "Amount", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Qty", dataMember: "Qty", format: "{0:N2}" }
+            , { summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalQty", dataMember: "TotalQty", format: "{0:N2}" }
+        ]
+        , showCaptionSummary: true
+
+    }];
+
+    $scope.message_detailconfirm = null;
+    $scope.removeSO = function (obj) {
+
+        $scope.New = obj.data;
+        if (!baseService.isUndefinedOrNull($scope.New.SalesOrderId))
+            $scope.message_detailconfirm = 'Are you sure want to remove permanently [ ' + $scope.New.SalesOrderId + ' ]';
+        angular.element(document.querySelector('#confirmSOPopUp')).modal('show');
+    }
+
+    $scope.DeleteSO = function () {
+        $http({
+            method: 'POST',
+            url: 'Commercial/Contract/DeleteSO?id=' + $scope.New.SalesOrderId
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+
+                $scope.GetEditSalesOrderList();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+
+    };
+
+
+
     $scope.searchBy = "ContractNo"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'ContractNo', name: "ContractNo" }, { value: 'CustomerName', name: "Customer" }];
 
@@ -278,6 +330,10 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     };
 
+    var tq = 0;
+    var amt = 0;
+    var qt = 0;
+
     $scope.selectedMasterOrderList = [];
     $scope.MakeData = function () {
         $scope.selectedMasterOrderList = [];
@@ -315,9 +371,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
             }
         }
-        var tq = 0;
-        var amt = 0;
-        var qt = 0;
+       
         for (var i = 0; i < $scope.masterOrderCustomerList.length; i++) {
             tq += $scope.masterOrderCustomerList[i].TotalQty;
             amt += $scope.masterOrderCustomerList[i].Amount;
