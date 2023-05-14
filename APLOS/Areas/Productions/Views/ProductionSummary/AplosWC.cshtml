@@ -159,6 +159,7 @@
                 <div class="form-group">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
+                            <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardLatestReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank">Latest Report</a></li>
                             <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ProductionDate={{productionSummaryNew.ProductionDate}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a></li>
                             <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);getProdLevel();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
                             <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
@@ -202,13 +203,19 @@
                     <div e-column e-template="#Mentor" e-headertext="Mentor" e-width="200" e-visible="false"></div>
                     <div e-column e-template="#CheckedBy" e-headertext="CheckedBy" e-visible="false" e-width="200"></div>
                     <div e-column e-template="#OrderQty" e-headertext="Odr.Qty" e-width="100"></div>
+                    <div e-column e-template="#POQty" e-headertext="PO.Qty" e-width="100"></div>
+                    <div e-column e-template="#ProcessPlanQty" e-headertext="Pro.Plan.Qty" e-width="100"></div>
                     <div e-column e-template="#BookedQty" e-headertext="Bkd.Qty" e-width="100"></div>
+                    <div e-column e-template="#CurPOBalProd" e-headertext="CurPO.Bal.Prod.Qty" e-width="100"></div>
+                    <div e-column e-template="#POPreviousProdQty" e-headertext="POPrevious.Prod.Qty" e-width="100"></div>
                     <div e-column e-field="TargetProductionFP" e-headertext="Prod.FP" e-width="100"></div>
                     <div e-column e-field="SONo" e-headertext="SO No" e-width="200"></div>
                     <div e-column e-field="Customer" e-headertext="Customer" e-width="200"></div>
                     <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="200"></div>
                     <div e-column e-field="ProductDetails" e-headertext="Product Details" e-width="200"></div>
                     <div e-column e-field="CustomerRefNo" e-headertext="Customer Ref No" e-width="200"></div>
+                    <div e-column e-template="#ActualPlannedQty" e-headertext="Actual Planned Qty" e-width="100"></div>
+                    <div e-column e-template="#ProcessPlanPercentage" e-headertext="Process Plan Percentage" e-width="100"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                 </div>
             </div>
@@ -247,16 +254,16 @@
                     <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
                 </div>
                 @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-            </div>*@
+                        <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>*@
             </script>
             <script type="text/template" id="InCharge">
                 <div class="col-sm-12" style="padding:0px;">
                     <input type="text" ng-click="$parent.selectGridIncharge(this);" name="InCharge" ng-model="data.InCharge" ng-disabled="false" class="form-control" readonly>
                 </div>
                 @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
-                <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-            </div>*@
+                        <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </div>*@
             </script>
             <script type="text/template" id="CheckedBy">
                 <div class="col-sm-10" style="padding:0px;">
@@ -327,9 +334,39 @@
                     <input type="text" name="Order Qty" ng-disabled="true" ng-model="data.OrderQty" ng-click="" class="form-control" maxlength="200">
                 </div>
             </script>
+            <script type="text/template" id="POQty">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="PO Qty" ng-disabled="true" ng-model="data.POQty" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="ProcessPlanQty">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="Process Plan Qty" ng-disabled="true" ng-model="data.ProcessPlanQty" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
             <script type="text/template" id="BookedQty">
                 <div class="col-sm-10" style="padding:0px;">
                     <input type="text" name="Booked Qty" ng-disabled="true" ng-model="data.BookedQty" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="CurPOBalProd">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="Cur PO Bal Prod" ng-disabled="true" ng-model="data.CurPOBalProd" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="POPreviousProdQty">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="Cur PO Bal Prod" ng-disabled="true" ng-model="data.POPreviousProdQty" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="ActualPlannedQty">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="Actual Planned Qty" ng-disabled="true" ng-model="data.ActualPlannedQty" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="ProcessPlanPercentage">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="Process Plan Percentage" ng-disabled="true" ng-model="data.ProcessPlanPercentage" ng-click="" class="form-control" maxlength="200">
                 </div>
             </script>
             <script type="text/template" id="ProductionGrade">
@@ -939,13 +976,25 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
-                            <button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
-                        </li>
-                    </ul>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Remarks" ng-model="productionSummaryNew.Remarks" ng-click="" class="form-control" maxlength="200">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li>
+                                    <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
+                                    <button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
