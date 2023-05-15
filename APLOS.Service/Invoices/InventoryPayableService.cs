@@ -382,6 +382,7 @@ namespace Library.Service.Invoices
                                     TaxYearId = voucher.TaxYearId,
                                     TaxYearPeriodId = voucher.TaxYearPeriodId,
                                     TaxCategoryId = voucherDetailVM.TaxCategoryId,
+                                    TaxCodeId = voucherDetailVM.TaxCodeId,
                                     TaxAmount = voucherDetailVM.Amount,
                                     TaxAutoAmount = 0,
                                     PartyId = voucherVM.PartyId,

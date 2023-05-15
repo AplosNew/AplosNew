@@ -442,7 +442,7 @@ namespace Library.Accounting.Accounts
                 else
                 {
                     var sql = @"DECLARE @receiveId varchar(10)='" + inveReveiveId + @"', @companyId varchar(10)='" + companyId + @"', @plantId varchar(30)='" + plantId + @"', @partyAccountGruopId varchar(10)='" + companyParty["PartyAccountGroupId"].ToString() + @"',@countryId varchar(10)
-					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
+					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
@@ -450,7 +450,7 @@ namespace Library.Accounting.Accounts
 						
 						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
 					FROM (
-						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
+						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId,MM.FixedAssetMasterId
 
 							,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGGL.InventoryGLId  ELSE FAG.AssetUnderConstructionGLId END
 							,GLGeneralInfoCode =case WHEN MM.IsAsset=0 THEN GL.AccountCode  ELSE GLF.AccountCode END
@@ -492,7 +492,7 @@ namespace Library.Accounting.Accounts
                     , T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId,T.IsAsset, T.InventoryReceiveDetailId
 					
                    UNION
-				   SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
+				   SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
@@ -500,7 +500,7 @@ namespace Library.Accounting.Accounts
 						
 						, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId
 					FROM (
-						SELECT  'Shortage' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
+						SELECT  'Shortage' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId,MM.FixedAssetMasterId
 
 							,GLGeneralInfoId =case WHEN MM.IsAsset=0 THEN MGGL.ShortageGLId  ELSE FAG.AssetUnderConstructionGLId END
 							,GLGeneralInfoCode =case WHEN MM.IsAsset=0 THEN GL.AccountCode  ELSE GLF.AccountCode END
@@ -562,7 +562,7 @@ namespace Library.Accounting.Accounts
 					--	GROUP BY MM.Id, MGGL.ExpenseGLId, GL.AccountCode, GL.UserName, MGGL.ExpenseBudgetMasterId, B.Code, B.UserName, MGGL.ExpenseActivityId, A.Code, A.UserName
                         
                     UNION
-					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
+					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId, NULL AS TaxCodeId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
@@ -585,7 +585,7 @@ namespace Library.Accounting.Accounts
 					WHERE IRD.InventoryReceiveId=@receiveId AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM' AND IRT.InventoryReceiveDetailId<>'' AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY  IRT.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
 					UNION
-					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, TC.TaxCategoryId
+					SELECT 'TCS' AS OtherName, 'Dr' AS TrnType, NULL MaterialGroupMasterId, TC.TaxCategoryId,IRT.TaxCodeId
 						, TCGL.CreditableGLId  GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.CreditableGLBudgetMasterId BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.CreditableGLActivityId ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
@@ -602,9 +602,9 @@ namespace Library.Accounting.Accounts
 					LEFT JOIN [HKP].[Activity] AS A ON TCGL.CreditableGLActivityId= A.Id
 					WHERE IR.Id=@receiveId  AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY  TC.TaxCategoryId, TCGL.CreditableGLId, GL.AccountCode, GL.UserName, TCGL.CreditableGLBudgetMasterId
-					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName
+					, B.Code, B.UserName, TCGL.CreditableGLActivityId, A.Code, A.UserName,IRT.TaxCodeId
 					UNION
-					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId
+					SELECT 'Tax' AS OtherName, 'Dr' AS TrnType, NULL AS MaterialGroupMasterId, IRTS.TaxCategoryId, NULL AS TaxCodeId
 						, TCGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
 						, TCGL.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
 						, TCGL.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
@@ -626,7 +626,7 @@ namespace Library.Accounting.Accounts
 					AND IRTS.InventoryServiceId<>'' and INS.IsOtherVendor=0 AND TCGL.InputTaxOutPutTax='Input' AND ISNULL(TCGL.TaxType,'')<>'RCM' AND IR.PurchaseDocumentAcceptanceId IS NULL
 					GROUP BY IRTS.TaxCategoryId, TCGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, TCGL.BudgetMasterId, B.Code, B.UserName, TCGL.ActivityId, A.Code, A.UserName
 					UNION
-					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId
+					SELECT T.OtherName, T.TrnType, T.MaterialGroupMasterId, T.TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
@@ -692,7 +692,7 @@ namespace Library.Accounting.Accounts
 					) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId, T.IsAsset
 					UNION
-SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId
+SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName
@@ -729,7 +729,7 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId
 					) AS T
 					GROUP BY  T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType--,T.TaxCategoryId, T.IsAsset
 					UNION
-SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId
+SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId, NULL AS TaxCodeId
 						, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName
 						, T.BudgetMasterId, T.BudgetCode, T.BudgetName
 						, T.ActivityId, T.ActivityCode, T.ActivityName

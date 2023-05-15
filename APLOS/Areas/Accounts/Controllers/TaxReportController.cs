@@ -336,6 +336,25 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTCSDeductionReport(ReportFormat reportFormat, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _taxReportServiceService.GetTCSDeductionReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " TCS Deduction Report";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
     }
 
 
