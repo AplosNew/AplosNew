@@ -549,14 +549,14 @@ Select SUM(D.RequestedQty) TotalRequestedQty,M.ProductionOrderId FROM TRN.IssueR
 LEFT JOIN TRN.IssueRequestMaster M ON M.Id=D.IssueRequestMasterId
 GROUP BY M.ProductionOrderId
 ) T ON T.ProductionOrderId=PO.Id
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName='Running' AND ISNULL(O.TotalOtherQty,0)<=T.TotalRequestedQty) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+                            WHERE PO.entityid='" + entityid + @"' AND S.UserName='Running' AND (ISNULL(O.TotalOtherQty,0)<T.TotalRequestedQty) OR ISNULL(O.TotalOtherQty,0)!=T.TotalRequestedQty) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
         public IEnumerable<object> GetSOItemList(string entityid, string ProductionOrderId)
         {
-            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,PM.Id,Flag =Convert(bit, 'False')
+            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,ICSO.Id,Flag =Convert(bit, 'False')
 	                                ,ISNULL(so.Id,'') SOId,SO.CustomerPOId,CPO.PONumber,mm.Id MaterialMasterId,mm.UserName MaterialMaster,mma.Id ArticleId
 	                                ,ISNULL(mma.StandardName, '') SOArticle,b.Id CustomerId,b.UserName Customer,mo.TotalQty MOQty,ISNULL(u.UserName, '') UOM
 	                                ,moi.ExtraOrderPercentage [ExtraP],moi.OrderWastagePercentage [WastageP],ISNULL(mma.Id, '') ArticleId,mmc.CharCount
@@ -616,7 +616,7 @@ GROUP BY PC.OrderCostingMasterTemplateId) CMC ON CMC.OrderCostingMasterTemplateI
 LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost,Q.MasterOrderItemId FROM [dbo].[QuickBOQ] Q
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
-
+LEFT JOIN dbo.InputConfirmationSODetail ICSO ON ICSO.SOId=so.Id
    WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
 
 
@@ -1351,6 +1351,22 @@ LEFT JOIN HKP.Process P ON P.id=M.ProcessId
  LEFT JOIN SCS.UnitofMeasurement U ON U.Id=D.UOMId 
 Left Join [ORG].[CostCenter] CC On CC.Id=D.CostCenterId
                 WHERE D.InputConfirmationMasterId='" + masterId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetInputConfirmationAdditionalMaterialData(string masterId)
+        {
+            try
+            {
+                string sql = @"Select M.*,MMA.Code ArticleCode,MM.UserName Material from dbo.InputConfirmationAdditionalMaterial M
+LEFT JOIN MST.MaterialMaster MM  ON MM.Id=M.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id=M.ArticleId
+                WHERE M.InputConfirmationMasterId='" + masterId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

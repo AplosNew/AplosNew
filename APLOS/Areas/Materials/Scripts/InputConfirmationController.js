@@ -269,6 +269,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.GetSaved = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
         $scope.ModelNew.IssueDate = $filter('dateFiltering')($scope.ModelNew.IssueDate, 'dd-M-yyyy');
+        $scope.loadProcessList();
         $scope.Action = 'Update';
         $scope.GetSOItemList();
         $scope.GetSavedChildDetailData();
@@ -285,6 +286,22 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
                         $scope.IssueSlipDataList = response.data;
+                    }
+                    $scope.GetInputConfirmationAdditionalMaterialData();
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+    };
+
+    $scope.GetInputConfirmationAdditionalMaterialData = function () {
+        $scope.AddOtherMaterialList = [];
+        $http.get('Materials/InputConfirmation/GetInputConfirmationAdditionalMaterialData?masterId=' + $scope.ModelNew.Id)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.AddOtherMaterialList = response.data;
                     }
                 },
                 function errorCallback(response) {
@@ -322,6 +339,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                             'model': $scope.ModelNew
                             , 'soList': $scope.SOItemList
                             , 'dataList': $scope.IssueSlipDataList
+                            , 'otherMaterialList': $scope.AddOtherMaterialList
                         },
                         dataType: 'JSON'
                         , contentType: "application/json charset=utf-8"
@@ -347,6 +365,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                         'model': $scope.ModelNew
                         , 'soList': $scope.SOItemList
                         , 'dataList': $scope.IssueSlipDataList
+                        , 'otherMaterialList': $scope.AddOtherMaterialList
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -372,6 +391,9 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, ProcessId: null, ResponsiblePersonId: null, CheckedById: null, WorkCenterMasterId: null, ConfirmationDate: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
         $scope.modelList = [];
+        $scope.AddOtherMaterialList = [];
+        $scope.IssueSlipDataList = [];
+
         $rootScope.toggle();
         $scope.Action = 'Save';
     }
@@ -456,5 +478,31 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
         , showCaptionSummary: true
 
     }];
+
+    $scope.AddOtherMaterial = function () {
+
+        $scope.materialType = 'ProductDefinition';
+        $scope.getMaterialMasterWithArticle(null);
+    };
+
+    $scope.AddOtherMaterialList = [];
+    $scope.setInputeMaterialArticleData = function (obj) {
+        var data = obj.data;
+        var object = {};
+
+        object.Id = null;
+        object.ArticleId = data.Id;
+        object.ArticleCode = data.Code;
+        object.ArticleName = data.StandardName;
+        object.Material = data.MaterialMasterName;
+        object.MaterialMasterId = data.MaterialMasterId;
+        object.Qty = 0;
+        $scope.AddOtherMaterialList.push(object);
+        object = {};
+        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+    };
+
+
+
 
 }
