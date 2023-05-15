@@ -284,9 +284,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     // #region Save
     $scope.CheckedDetentionWorkList = [];
     $scope.Save = function () {
-        try {
-            angular.copy($scope.ModelNew, $scope.ModelTransaction);
-            $scope.$broadcast('show-errors-check-validity');
+       
 
             if ($scope.ModelNewForm.$valid) {
                 for (var i = 0; i < $scope.WorkcenterList.length; i++) {
@@ -312,7 +310,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                     method: 'POST',
                     url: $scope.saveUrl,
                     data: {
-                       // 'data': $scope.ModelNew,
+                       
                         'data': $scope.CheckedDetentionWorkList
                     },
                     dataType: 'JSON'
@@ -323,18 +321,14 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                     else {
                         ShowResult(response.data.Message, 'success');
 
-                        //$scope.getData();
-                        //$scope.Clear();
+                       
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
 
                 }
             }
-        }
-        catch (ex) {
-            ShowResult(ex, 'failure');
-        }
+       
 
         };
 
