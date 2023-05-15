@@ -320,6 +320,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                         url: $scope.saveUrl,
                         data: {
                             'model': $scope.ModelNew
+                            , 'soList': $scope.SOItemList
                             , 'dataList': $scope.IssueSlipDataList
                         },
                         dataType: 'JSON'
@@ -344,6 +345,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                     url: $scope.updateUrl,
                     data: {
                         'model': $scope.ModelNew
+                        , 'soList': $scope.SOItemList
                         , 'dataList': $scope.IssueSlipDataList
                     },
                     dataType: 'JSON'

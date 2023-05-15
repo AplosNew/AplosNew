@@ -125,11 +125,11 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> model, List<Dictionary<string, object>> dataList)
+        public JsonResult Create(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
         {
             try
             {
-                SaveData(model, dataList);
+                SaveData(model, soList, dataList);
 
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }
@@ -139,11 +139,11 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
         [HttpPost]
-        public JsonResult Update(Dictionary<string, object> model, List<Dictionary<string, object>> dataList)
+        public JsonResult Update(Dictionary<string, object> model, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
         {
             try
             {
-                SaveData(model, dataList);
+                SaveData(model, soList,dataList);
 
                 return Json(new { Data = model, Message = AplosMessage.Insert });
             }
@@ -153,12 +153,12 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [Authorize]
-        private void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> dataList)
+        
+        private void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> soList, List<Dictionary<string, object>> dataList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild, dsIdChild;
+            DataSet dsMaster, dsChild, dsIdChild, dsSOChild;
             string _Id = string.Empty;
             try
             {
@@ -180,9 +180,40 @@ namespace Aplos.Areas.Materials.Controllers
                 }
 
                 _Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                               
+
+
+                #region InputConfirmationSODetail 
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.InputConfirmationSODetail where InputConfirmationMasterId='" + _Id + "'", out dsSOChild, false, "1");
+                int socount = 0;
+                if (soList != null)
+                {
+                    foreach (var item in soList)
+                    {
+                        socount++;
+                        DataView dv = new DataView(dsSOChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _Id + "-" + socount;
+                            item["InputConfirmationMasterId"] = _Id;
+                            item["SOQty"] = item["PlannedQty"];
+                            AddNewRow(dsSOChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
 
                 #region InputConfirmationDetail 
+
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.InputConfirmationDetail where  InputConfirmationMasterId='" + _Id + "'", out dsChild, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT Count(Id)Idc FROM dbo.InputConfirmationDetail where  InputConfirmationMasterId='" + _Id + "'", out dsIdChild, false, "1");
                 int ccount = Convert.ToInt32(dsIdChild.Tables[0].Rows[0]["Idc"].ToString());
@@ -211,8 +242,9 @@ namespace Aplos.Areas.Materials.Controllers
                 }
 
                 #endregion
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsChild);
+                obj.SaveDataSets(dsMaster, dsSOChild, dsChild);
 
             }
             catch (Exception ex)
