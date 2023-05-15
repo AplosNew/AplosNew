@@ -2385,6 +2385,41 @@ namespace Library.OrderManagement.Production
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+                             LEFT JOIN
+                            (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId
+                            FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId
+                            ) AS PRS ON PRS.ProductionOrderId = PO.Id WHERE PO.Id = '" + productionOrderId + @"'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetPOQty(string productionOrderId, string processId)
+        {
+            try
+            {
+                string sql = "";
+                sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
+,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
+,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty
+                             FROM trn.ProductionOrder AS PO
+                             LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
+                            LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+                             LEFT JOIN
+                            (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
+                            FROM TRN.SalesOrder SO
+							left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId=SO.Id
+							where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+                            ) AS SOP ON SOP.ProductionOrderId = PO.Id
+                            LEFT JOIN
+                            (SELECT SUM(SO.Qty) POQty, PD.ProductionOrderId
+                            FROM TRN.SalesOrder SO
+							left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId=SO.Id
+							where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+                            ) AS POQ ON POQ.ProductionOrderId = PO.Id
                             LEFT JOIN
                             (SELECT SUM(PS.Quantity) TotalProductionQty, PS.ProductionOrderId
                             FROM [TRN].[ProductionSummary] PS WHERE PS.ProcessId = '" + processId + @"'  GROUP BY PS.ProductionOrderId

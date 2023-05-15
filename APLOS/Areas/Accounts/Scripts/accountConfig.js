@@ -317,6 +317,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/voucher/BalanceSheetReportPage",
             controller: "balanceSheetReportController"
         })
+        .when("/balancesheet-report-treeview/:FromDate", {
+            templateUrl: "Accounts/voucher/BalanceSheetReportTreeView",
+            controller: "balanceSheetReportTreeViewController"
+        })
         .when("/ob-balance-sheet", {
             templateUrl: "Accounts/voucher/balancesheetopeningbalancereport",
             controller: "balanceSheetOpeningBalanceReportController"
