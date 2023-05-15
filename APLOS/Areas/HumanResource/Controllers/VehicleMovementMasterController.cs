@@ -212,7 +212,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 var data = CreateNewPurpose(datas);
-                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -241,6 +241,138 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
         #endregion Purpose Master
+
+        #region LocationMaster
+        public JsonResult GetLocationList()
+        {
+            string sql = "Select * from HKP.LocationMaster";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        public double GetLocationSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.LocationMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        public void CreateNewLocation(Dictionary<string, object> data)
+        {
+            try
+            {
+
+                string TableName = "HKP.LocationMaster";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                #region validations
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where User = '" + data["UserName"] + "' and Id <>'" + data["Id"] + "'", out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where User = '" + data["Sequence"] + "' and Id <>'" + data["Id"] + "'", out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Sequence exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where User = '" + data["Code"] + "' and Id <>'" + data["Id"] + "'", out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+                #endregion validations
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+               
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveLocation(Dictionary<string, object> data)
+
+        {
+            try
+            {
+                 CreateNewLocation(data);
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public void DeleteCreatedLocation(string id)
+        {
+            try
+            {
+                string TableName = "HKP.PurposeMaster";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        public ActionResult DeleteLocation(string id)
+        {
+            try
+            {
+                DeletePurpose(id);
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+        #endregion LocationMaster
 
     }
 }
