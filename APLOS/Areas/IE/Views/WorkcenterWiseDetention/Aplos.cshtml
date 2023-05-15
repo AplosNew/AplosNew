@@ -52,11 +52,11 @@
                     </div>
                 </div>
                 <div class="mb-3 form-group" style="margin-right:4px" show-errors>
-                    <label class="control-label">Responsible Person<sup>*</sup></label>
+                    <label class="control-label">Responsible Person</label>
                     <div class="show-message">
                         <div class="input-group">
                             <span class="input-group-addon">{{ModelNew.ResponsiblePersonCode}}</span>
-                            <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePerson" class="form-control" required readonly>
+                            <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePerson" class="form-control" readonly>
                             <span class="input-group-btn">
                                 <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                             </span>
@@ -132,7 +132,7 @@
             <div e-column e-field="StandardName" e-headertext="Workcenter" e-width="100"></div>
             <div e-column e-headertext="Detention" e-template="#Detention" e-textalign="center" e-width="100"></div>
             <div e-column e-headertext="Responsible Person" e-template="#Responsibleperson" e-textalign="center" e-width="100"></div>
-            <div e-column e-headertext="Calculated Time" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
+            <div e-column e-headertext="Calculated Minute" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
         </div>
     </div>
     <script type="text/template" id="checkboxUnallocationTemplate">

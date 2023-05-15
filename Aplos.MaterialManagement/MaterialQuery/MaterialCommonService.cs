@@ -241,7 +241,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 							, OS.UserName AS OurStyleName, M.WithSKU, ISNULL(ART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
 							, hasInventory=CASE WHEN IM.MaterialMasterId<>'' THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
 							, M.IsOriginApplicable,M.IsAsset
-                            ,M.IsReplacement,Replacement=case when M.IsReplacement=1 then 'Yes' else 'No' end
+                            ,M.IsReplacement,Replacement=case when M.IsReplacement=1 then 'Yes' else 'No' end,BPM.BusinessProcessName
 		                    FROM MST.MaterialMasterArticle MMA
 							LEFT JOIN [MST].[MaterialMaster] M ON M.Id=MMA.MaterialMasterId
 							 LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
@@ -259,6 +259,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									, HasAttribute=CASE WHEN COUNT(MaterialMasterId)>0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END, MaterialMasterId
 								FROM MST.MaterialMasterAttribute GROUP BY MaterialMasterId) AS ART ON ART.MaterialMasterId=M.Id
 								LEFT JOIN (SELECT distinct MaterialMasterId FROM TRN.InventoryMaterial) AS IM ON IM.MaterialMasterId=M.Id
+LEFT JOIN (SELECT distinct MBP.MaterialMasterId, BP.BusinessProcessName FROM [MST].[MaterialMasterBusinessProcess] AS MBP
+JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id) BPM ON BPM.MaterialMasterId=M.Id
 								WHERE  M.Archive=0 AND M.Active=1 and M.CompanyGroupId=@materialGroupId) AS TEMP WHERE " + strkey + " ";
                 return _sqlRepository.GetDataCollection(sql);
             }

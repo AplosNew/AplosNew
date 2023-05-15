@@ -63,5 +63,6 @@ namespace Library.Service.HumanResources
         IWorkbook GetProductionJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string workCenterId);
         IWorkbook GetRunningMachineJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string entityId, string processId, string targetDate, string shiftId);
         IWorkbook GetProductionBookingJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string entityId, string processId, string productionDate, string shiftId);
+        IWorkbook GetProductionBookingJobCardLatestReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string entityId, string processId, string shiftId);
     }
 }
