@@ -1184,7 +1184,7 @@ namespace Library.MaterialManagement.Reports
             }
             catch (Exception ex)
             {
-                throw ex;
+                
 
             }
 
@@ -1232,75 +1232,11 @@ namespace Library.MaterialManagement.Reports
 								,PSI.CNFContainerNo
 								,PSI.CNFVesselName
 								,PSI.CNFVesselTrackingNo
-                                ,LcNo=REPLACE(REPLACE(
-                                        STUFF((select distinct ', ' + PLC.LCRef 
-                         from trn.SalesMaterial as SM
-                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
- WHERE SM.SalesId=IR.Id
-for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
-
-,BenificiaryBank=REPLACE(REPLACE(
-                                        STUFF((select distinct ', ' + PLC.BenificiaryBank 
-                         from trn.SalesMaterial as SM
-                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
- WHERE SM.SalesId=IR.Id
-for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
-
-,OpeningBank=REPLACE(REPLACE(
-                                        STUFF((select distinct ', ' + B.UserName
-                         from trn.SalesMaterial as SM
-                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
- WHERE SM.SalesId=IR.Id
-for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
-,LCDate=REPLACE(REPLACE(
-                                        STUFF((select distinct ', ' + FORMAT(PLC.LCDate, 'dd-MMM-yyyy') 
-                         from trn.SalesMaterial as SM
-                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
- WHERE SM.SalesId=IR.Id
-for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
-
-,BenificiaryBankDescription=REPLACE(REPLACE(
-                                        STUFF((select distinct ', ' + PLC.BenificiaryBankDescription
-                         from trn.SalesMaterial as SM
-                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
- WHERE SM.SalesId=IR.Id
-for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
-,OpeningBankAddress=REPLACE(REPLACE(
-                                        STUFF((select distinct ', ' + OA.Address1
-                         from trn.SalesMaterial as SM
-                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
-                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
-                         LEFT JOIN dbo.PurchaseLC PLC on PLC.ContractId = C.Id
-                         LEFT JOIN  MST.BankMaster OB on OB.Id = PLC.OpeningBankMasterId
-                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
-                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId	
- WHERE SM.SalesId=IR.Id
-for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp;', '')
+                                ,LC.LcNo,LC.BenificiaryBank,LC.OpeningBank
+								,FORMAT(LC.LCDate, 'dd-MMM-yyyy')LCDate
+                                ,LC.BenificiaryBankDescription
+                                ,LC.OpeningBankAddress
+                                ,LC.ContractNo
 								,D.UserName as FinalDestination
 								,PL.UserName as PortOfLanding
 								,PD.UserName as PortOfDischarge
@@ -1346,7 +1282,14 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
                                         JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
                                         WHERE IR.Id = SOI.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')
-										,AddedDate = REPLACE(REPLACE(
+                            ,BuyertemRef = REPLACE(REPLACE(
+                                        STUFF((select distinct ', ' + MOI.BuyerReferenceNo FROM
+                                        TRN.SalesMaterial SM
+										JOIN TRN.SalesOrder SO ON SO.Id = SM.SalesOrderId
+                                        JOIN TRN.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
+                                        WHERE IR.Id = SM.SalesId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')
+							,AddedDate = REPLACE(REPLACE(
                                         STUFF((select distinct ', ' + FORMAT(MO.AddedDate, 'dd-MMM-yyyy') FROM
                                         TRN.SalesOrderItem SOI
                                         JOIN TRN.MasterOrder MO ON MO.Id = SOI.MasterOrderId
@@ -1401,6 +1344,16 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
                          LEFT JOIN HKP.Bank B ON B.Id = BM.BankId
                          LEFT JOIN HKP.BankBranch BB ON BB.BankId = BM.BankId And BB.Id = BM.BankBranchId
                          LEFT JOIN[MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
+                         LEFT JOIN(
+SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address1 BenificiaryBankDescription,LC.OpeningBank, SM.SalesId,LC.OpeningDescription OpeningBankAddress,C.ContractNo
+                         FROM trn.SalesMaterial as SM
+                         LEFT JOIN TRN.SalesOrder SO on SO.Id=SM.SalesOrderId
+                         LEFT JOIN dbo.[Contract]  C on c.Id = SO.ContractId
+                         LEFT JOIN dbo.MasterLC LC on LC.Id=C.MasterLCId
+                         LEFT JOIN  MST.BankMaster OB on OB.Id = LC.BenificiaryBankId
+                         LEFT JOIN  HKP.Bank B on B.Id = OB.BankId
+                         LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
+) LC on LC.SalesId = IR.Id
                          WHERE IR.Id ='" + SalesId + "'";
 
                 return _sqlRepository.GetDataTable(strSQL);
@@ -3394,7 +3347,7 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
             //sales = loadLocalTaxMaterialMaster(salesId);
             //  materialTax = loadOrderMasterTax(salesId);
 
-            int LasColumnIndex = 7;
+            int LasColumnIndex = 9;
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -3411,18 +3364,28 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
             IWTextRange range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Materials");
             range.ApplyCharacterFormat(FontBold);
             int colMaterialGroup = COL; COL++;
-            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 100;
+            wTable.Rows[ROW].Cells[colMaterialGroup].Width = 80;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 100;
+            wTable.Rows[ROW].Cells[colArticle].Width = 90;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar1].Width = 50;
+            wTable.Rows[ROW].Cells[colChar1].Width = 40;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Style No");
+            range.ApplyCharacterFormat(FontBold);
+            int colStyle = COL; COL++;
+            wTable.Rows[ROW].Cells[colChar1].Width = 40;
+
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PO Number");
+            range.ApplyCharacterFormat(FontBold);
+            int colCusPO = COL; COL++;
+            wTable.Rows[ROW].Cells[colChar1].Width = 40;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
@@ -3437,57 +3400,19 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL; COL++;
-            wTable.Rows[ROW].Cells[colUoM].Width = 45;
+            wTable.Rows[ROW].Cells[colUoM].Width = 35;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL; COL++;
-            wTable.Rows[ROW].Cells[colRate].Width = 60;
+            wTable.Rows[ROW].Cells[colRate].Width = 50;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Amount" + "(" + " " + dsOrderMaster.Rows[0]["CurrencyName"].ToString() + " " + ")" + " ");
             range.ApplyCharacterFormat(FontBold);
             int colAmount = COL;
-            wTable.Rows[ROW].Cells[colAmount].Width = 80;
+            wTable.Rows[ROW].Cells[colAmount].Width = 75;
 
-            //if (dv.Count > 0)
-            //{
-            //    COL++;
-            //    colTotalTaxableAmount = COL;
-            //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount " + "(" + " " + sales.Rows[0]["BaseCurrencyName"].ToString() + " " + ")" + " ");
-            //    wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 80;
-            //    range.ApplyCharacterFormat(FontBold);
-            //    //COL++;
-            //    for (int i = 0; i < dv.Count; i++)
-            //    {
-            //        try
-            //        {
-            //            //two columns required for tax
-            //            COL++;
-            //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText(dv[i]["TaxCode"].ToString());
-            //            range.ApplyCharacterFormat(FontBold);
-
-            //            COL++;
-            //            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("");
-            //            range.ApplyCharacterFormat(FontBold);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //        }
-
-            //    }
-            //}
-            //else
-            //{
-            //    COL++;
-            //    colTotalTaxableAmount = COL;
-            //    range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Total Amount");
-            //    range.ApplyCharacterFormat(FontBold);
-            //}
-
-
-
-
-
+           
             #endregion column headers
             double totalValue = 0;
             int sl = 0;
@@ -3511,8 +3436,8 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
                 TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
-                //TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
-                //TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                TROW.Cells[colStyle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BuyertemRef"].ToString());
+                TROW.Cells[colCusPO].AddParagraph().AppendText(dsOrderMaster.Rows[i]["PONumber"].ToString());
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colUoM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
@@ -3537,7 +3462,7 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
                 //|| dicTaxes.ContainsValue(C)
-                if (C == colArticle || C == colHSN || C == colUoM || C == colRate || C == colQty || C == colChar1)
+                if (C == colArticle || C == colHSN || C == colUoM || C == colRate ||  C == colChar1 || C == colStyle || C == colCusPO)
                     continue;
 
                 double value = 0;
@@ -3555,19 +3480,9 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
 
             ROW++;
             #region Sub Total
-            //int SubTotalRow = ROW;
-            //int SubTotalColumn = 0;//_TROW.Cells.Count - 5;
-            //wTable.AddRow();
-            //_TROW = wTable.LastRow;
-
-            //_TROW.Cells[SubTotalColumn].AddParagraph().AppendText("Sub Total");
-
+           
             double total = clsStdLib.dbl(dsOrderMaster.Compute("SUM(TrnAmount)", "").ToString());
-            //- clsStdLib.dbl(dsOrderItems.Tables[0].Compute("SUM(Discount)", "").ToString())
-            //+ clsStdLib.dbl(materialTax.Compute("SUM(BooksCurrencyTaxAmount)", "").ToString());
-
-            //_TROW.Cells[SubTotalColumn + 1].AddParagraph().AppendText(total.ToString("F2"));
-
+         
             #endregion Total
 
 
@@ -3588,21 +3503,6 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
-            //for (int R = 0; R < wTable.Rows.Count; R++)
-            //{
-            //    WTableRow TROW = wTable.Rows[R];
-            //    TROW.Cells[0].Width = 30;
-            //    if (dv.Count < 3)
-            //        TROW.Cells[0].Width = 30 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
-
-            //    for (int CE = 0; CE < TROW.Cells.Count; CE++)
-            //    {
-            //        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
-            //        {
-            //            item.ApplyStyle("MyStyle");
-            //        }
-            //    }
-            //}
 
 
             #endregion paragrpath formats
@@ -3610,29 +3510,14 @@ for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'&amp;','&'), 'amp
 
             #region merging section
 
-
-            //tax codes merging (horizontal)
             ROW = 0;
-            //for (int i = 0; i < dv.Count; i++)
-            //    wTable.ApplyHorizontalMerge(ROW, dicTaxes[dv[i]["TaxCode"].ToString()], dicTaxes[dv[i]["TaxCode"].ToString()] + 1);
-
-            //primary cells merging (veritcal)
+          
             ROW++;
-            //for (int i = 0; i <= colTotalTaxableAmount; i++)
-            //    wTable.ApplyVerticalMerge(i, ROW - 1, ROW);
-
-
+         
             IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
             style.CharacterFormat.Bold = true;
             style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
-            //Adds new paragraph to the section
-
-
-            //for (int CELL = 0; CELL < wTable.Rows[SubTotalRow].Cells.Count; CELL++)
-            //    foreach (WParagraph PARA in wTable.Rows[SubTotalRow].Cells[CELL].Paragraphs)
-            //        PARA.ApplyStyle("SubTotalStyle");
-
-            //wTable.ApplyHorizontalMerge(SubTotalRow, 1, wTable.LastCell.GetCellIndex());
+           
             #endregion merging section
 
 

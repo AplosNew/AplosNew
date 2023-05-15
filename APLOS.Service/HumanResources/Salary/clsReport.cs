@@ -2236,6 +2236,36 @@ where PS.EntityId='" + EntityId + "' and PS.ProcessId='" + ProcessId + "' and PS
             }
         }
 
+        public void GetProducitonBookingHeaderLR(string EntityId, string ProcessId, string ShiftId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select PS.Id as ProductionId,E.UserName as Entity,P.UserName Process,S.ShiftDefinationName as Shift,format(PS.ProductionDate,'dd-MMM-yyyy') as ProductionDate
+from TRN.ProductionSummary PS
+left join Org.Entity E On E.Id=PS.EntityId
+left join hkp.process P On P.Id=PS.ProcessId
+left join ShiftDefination S On S.SystemID=PS.ProductionShiftId
+where PS.EntityId='" + EntityId + "' and PS.ProcessId='" + ProcessId + "' and PS.ProductionShiftId='" + ShiftId + @"'
+and ProductionDate = (select top 1 ProductionDate from TRN.ProductionSummary where EntityId = '" + EntityId + "' and ProcessId = '" + ProcessId + "' and ProductionShiftId = '" + ShiftId + "' order by  AddedDate desc)";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetProducitonBookingDetails(string EntityId, string ProcessId, string ProductionDate, string ShiftId, string plantId, out DataSet dsRef)
         {
 
@@ -2304,6 +2334,90 @@ left join employeeinformation R on R.SystemId = PS.ResponsiblePersonId
 left join employeeinformation I on I.SystemId = PS.InChargeId
 LEFT JOIN TRN.RunningMachineSetUpTarget RM ON RM.EntityId = '" + EntityId + "' and RM.ProcessId = '" + ProcessId + "' and RM.TargetDate = '" + ProductionDate + "' and RM.ProductionShiftId = '" + ShiftId + @"' and RM.WorkCenterMasterId = wc.Id and RM.ProductionOrderId = PS.ProductionOrderId
 where PS.EntityId = '" + EntityId + "' and PS.ProcessId = '" + ProcessId + "' and PS.ProductionShiftId = '" + ShiftId + "' and PS.ProductionDate = '" + ProductionDate + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                //objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetProducitonBookingDetailsLR(string EntityId, string ProcessId, string ShiftId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"Select B.Id,B.Sequence,B.ProdId,B.Process,B.POStatus,B.PONo,B.BookingLevel,B.Article,B.ItemId,B.SOId,B.LotNumber,B.WorkCenter,B.WorkStations,B.ProcessPlanQty,B.LatestBookedQty,B.LatestBookedDate,B.PlanBalQty,B.POPreviousProdQty,B.Remarks,B.ParameterName,B.Value 
+into #tempPC from 
+(Select A.Id,A.Sequence,A.ProdId,A.Process,A.POStatus,A.PONo,A.BookingLevel,A.Article,A.ItemId,A.SOId,A.LotNumber,A.WorkCenter,A.WorkStations,A.ProcessPlanQty,A.LatestBookedQty,A.LatestBookedDate,A.PlanBalQty,A.POPreviousProdQty,A.Remarks,A.ParameterName,A.Value from
+(select wC.Id,wc.Sequence,(select top 1 Id from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + @"' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + @"' and ProductionShiftId = '" + ShiftId + "' and WorkCenterMasterId = wc.Id order by AddedDate desc)) order by addedDate desc) ProdId,P.UserName Process,PS.UserName as POStatus,PO.Id as PONo,isnull(PPS.ProductionBookingLevel,(select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + EntityId + @"' and ProcessId = '" + ProcessId + @"')) as BookingLevel,
+Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
+left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+where Pod.ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "'  and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc))    for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+pm.UserName + ' / ' + (select top 1 MasterOrderItemId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' AND EntityId = '" + EntityId + "' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + "' and WorkCenterMasterId = wc.Id order by AddedDate desc)) order by addedDate desc) ItemId,(select top 1 SalesOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' AND EntityId = '" + EntityId + "' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + "' and WorkCenterMasterId = wc.Id order by AddedDate desc)) order by addedDate desc) SOId,isnull(pw.LotNumber, (select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc)) as LotNumber
+,wc.UserName as WorkCenter,wc.NoOfWorkStation as WorkStations,ceiling(isnull(PQ.Qty, POQ.POQty) / POQ.POQty * SOP.OrderQty * PPS.Qty / 100) ProcessPlanQty,
+isnull((select top 1 Quantity from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' AND EntityId = '" + EntityId + "' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc)) order by addedDate desc),0) as LatestBookedQty,
+(select top 1 format(AddedDate, 'dd-MMM-yyyy') from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' AND EntityId = '" + EntityId + "' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc)) order by addedDate desc) as LatestBookedDate,
+ceiling(isnull(PQ.Qty, POQ.POQty) / POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - isnull((select top 1 Quantity from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' AND EntityId = '" + EntityId + "' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc))
+order by addedDate desc),0)) PlanBalQty,PPP.TotalProductionQty as POPreviousProdQty,'' Remarks,PPV.UserName as ParameterName,PPV.Value
+from SCS.WorkCenterMaster wc
+LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId = wc.Id AND pw.ProcessId = '" + ProcessId + "' AND pw.EntityId = '" + EntityId + "'  AND PW.ProductionDate = format(getdate(), 'dd-MMM-yyyy') AND PW.ProductionShiftId = '" + ShiftId + @"'
+LEFT JOIN ProductionSummaryParameterValue PPV ON PPV.ProductionSummaryId = (select top 1 Id from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' AND EntityId = '" + EntityId + "' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc)) order by addedDate desc)
+LEFT JOIN trn.ProductionOrder AS PO ON PO.ID = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc))
+left Join[HKP].[ProductionStatus] PS on PS.Id = PO.ProductionStatusId
+left join TRN.MasterOrderItem MOI ON MOI.Id = isnull((select top 1 MasterOrderItemId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' AND EntityId = '" + EntityId + "' and WorkCenterMasterId = wc.Id and ProductionShiftId = '" + ShiftId + "' and ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId = '" + EntityId + "' and ProductionShiftId = '" + ShiftId + @"' and WorkCenterMasterId = wc.Id order by AddedDate desc)) order by addedDate desc),0)
+left join TRN.ProductDefinition AS pd ON pd.MaterialMasterId = MOI.MaterialMasterId
+left join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
+LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + ProcessId + @"'
+LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
+left join hkp.process P On P.Id = wc.ProcessId
+LEFT JOIN(select SUM(PP.Quantity) TotalProductionQty, PP.ProductionOrderId from [TRN].[ProductionSummary] PP where PP.ProcessId =
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId= PP.ProductionOrderId  and B.Sequence =
+(select Sequence= Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId= PP.ProductionOrderId and A.ProcessId= '" + ProcessId + @"')) GROUP BY PP.ProductionOrderId
+ ) AS PPP ON PPP.ProductionOrderId = PO.Id
+LEFT JOIN(SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
+FROM TRN.SalesOrder SO
+left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
+where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+) AS SOP ON SOP.ProductionOrderId = PO.Id
+LEFT JOIN(SELECT SUM(SO.Qty) POQty, PD.ProductionOrderId
+FROM TRN.SalesOrder SO
+left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
+where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+) AS POQ ON POQ.ProductionOrderId = PO.Id
+where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '" + EntityId + @"'
+ --order by wc.UserName,Ps.PlanningGroupPriority
+ )A
+ ) B order by B.Sequence
+
+DECLARE @sql nvarchar(max), @col nvarchar(max)
+
+ SELECT @col = (
+ SELECT DISTINCT ',' + QUOTENAME(CONVERT(VARCHAR(100), ParameterName, 113))
+
+ FROM #tempPC 
+                                FOR XML PATH('')
+                            )                             SELECT @sql = N'
+ (SELECT *
+ FROM #tempPC
+                            PIVOT(
+ MAX([Value]) FOR[ParameterName] IN('+STUFF(@col,1,1,'')+')
+ ) as pvt)' 
+
+ EXEC sp_executesql @sql
+ drop table #tempPC";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSql, out dsRef);
