@@ -622,7 +622,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         offset: 0,
         order: 'ASC',
         sort: 'EmployeeName',
-        searchBy: 'EmployeeName',
+        searchBy: 'EmployeeCode',
         pageSize: 10,
         total_count: 0,
         search: null,
