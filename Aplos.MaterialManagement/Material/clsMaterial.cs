@@ -549,7 +549,7 @@ Select SUM(D.RequestedQty) TotalRequestedQty,M.ProductionOrderId FROM TRN.IssueR
 LEFT JOIN TRN.IssueRequestMaster M ON M.Id=D.IssueRequestMasterId
 GROUP BY M.ProductionOrderId
 ) T ON T.ProductionOrderId=PO.Id
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName='Running' AND (ISNULL(O.TotalOtherQty,0)<T.TotalRequestedQty) OR ISNULL(O.TotalOtherQty,0)!=T.TotalRequestedQty) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+                            WHERE PO.entityid='" + entityid + @"' AND S.UserName='Running' AND (T.TotalRequestedQty-ISNULL(O.TotalOtherQty,0)>0)) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return _sqlRepository.GetDataCollection(sql, null);
         }
