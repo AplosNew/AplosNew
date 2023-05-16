@@ -935,7 +935,7 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 								, B.CarryForwardOpeningBalance, B.DaysCanBeSanctioned, B.AppliedDays,
                                 B.AvailedDays, B.YearEndEncash,isnull(APL.LeaveDuration,0) AS AppliedLeave,APP.LeaveDuration AS AllFutureAppliedLeave,
                                 --isnull(B.CarryForwardOpeningBalance,0)+(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
-                                ISNULL(CASE WHEN LT.LeaveType='Earn' THEN ALD.Opening ELSE ISNULL(B.CurrentYearAllocation, 0) END,0)-isnull(B.AvailedDays,0) AS ClosingBalance
+                               (ISNULL(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END, 0)+B.DaysCanBeSanctioned)-isnull(B.AvailedDays,0) AS ClosingBalance
                             FROM (		SELECT BAL.EmployeeId, BAL.LeaveTypeId,
 								       SUM(BAL.CurrentYearAllocation) AS CurrentYearAllocation,
 								        SUM(BAL.BroughtForward) AS BroughtForward,SUM(BAL.CarryForwardOpeningBalance) AS CarryForwardOpeningBalance,   SUM(BAL.DaysCanBeSanctioned) AS DaysCanBeSanctioned,
