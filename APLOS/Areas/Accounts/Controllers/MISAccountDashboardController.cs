@@ -199,6 +199,14 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_misAccountDashboardService.GetBalanceSheetInfoActivityLevel(parameterString, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, date, GLGeneralInfoId, BudgetMasterId, ActivityId), JsonRequestBehavior.AllowGet);
         }
+        [HttpPost]
+        public JsonResult GetBalanceSheetInfoVoucherLevel(string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsonResult = Json(_misAccountDashboardService.GetBalanceSheetInfoVoucherLevel( identity.CompanyGroupId, identity.CompanyId, identity.PlantId, date, GLGeneralInfoId, BudgetMasterId, ActivityId), JsonRequestBehavior.AllowGet);
+            jsonResult.MaxJsonLength = int.MaxValue;
+            return jsonResult;
+        }
         #endregion
     }
 }
