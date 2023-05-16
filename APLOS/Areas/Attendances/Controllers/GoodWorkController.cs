@@ -8,6 +8,7 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.HumanResource.Payroll.Allowance;
 using Library.Model.Setups;
 using Library.OrderManagement.Sales;
 using Library.Service.Enums;
@@ -154,85 +155,85 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         //Good Work
-        [HttpPost, Authorize]
-        public ActionResult GetList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM " + TableName;
-            DataTable dt = _sqlRepository.GetDataTable(sql);
-            foreach (TaskAppliedOnEnum _data in Enum.GetValues(typeof(TaskAppliedOnEnum)))
-            {
-                dt.DefaultView.RowFilter = "TaskAppliedOnEnum='" + _data.ToString() + "'";
-                if (dt.DefaultView.Count == 0)
-                {
-                    DataRow dr = dt.NewRow();
-                    dr["TaskAppliedOnEnum"] = _data.ToString();
-                    dt.Rows.Add(dr);
-                }
-            }
-            dt.DefaultView.RowFilter = null;
+        //[HttpPost, Authorize]
+        //public ActionResult GetList()
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    string sql = @"SELECT * FROM " + TableName;
+        //    DataTable dt = _sqlRepository.GetDataTable(sql);
+        //    foreach (TaskAppliedOnEnum _data in Enum.GetValues(typeof(TaskAppliedOnEnum)))
+        //    {
+        //        dt.DefaultView.RowFilter = "TaskAppliedOnEnum='" + _data.ToString() + "'";
+        //        if (dt.DefaultView.Count == 0)
+        //        {
+        //            DataRow dr = dt.NewRow();
+        //            dr["TaskAppliedOnEnum"] = _data.ToString();
+        //            dt.Rows.Add(dr);
+        //        }
+        //    }
+        //    dt.DefaultView.RowFilter = null;
 
-            return Json(Helpers.CustomJsonResult.DataTableToJson(dt), JsonRequestBehavior.AllowGet);
-        }
+        //    return Json(Helpers.CustomJsonResult.DataTableToJson(dt), JsonRequestBehavior.AllowGet);
+        //}
 
-        [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> data)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName, out dsMaster, false, "1");
+        //[HttpPost]
+        //public JsonResult Create(List<Dictionary<string, object>> data)
+        //{
+        //    try
+        //    {
+        //        DataSet dsMaster;
+        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+        //        con.OpenDataSetThroughAdapter("select * from " + TableName, out dsMaster, false, "1");
 
-                string _Id = "";
-
-
+        //        string _Id = "";
 
 
-                #region data update
-
-                bplib.clsGenID genid;
-                for (int i = 0; i < data.Count; i++)
-                {
-                    if (data[i]["UserName"] != null)
-                    {
-                        dsMaster.Tables[0].DefaultView.RowFilter = "TaskAppliedOnEnum='" + data[i]["TaskAppliedOnEnum"].ToString() + "'";
-                        if (dsMaster.Tables[0].DefaultView.Count == 0)
-                        {
-                            if (_Id == "")
-                            {
-                                genid = new bplib.clsGenID();
-                                genid.GenID(TableName, out _Id);
-                            }
-                            data[i]["Id"] = "A" + _Id + (i + 1).ToString();
-                            AddNewRow(dsMaster.Tables[0], data[i]);
-                        }
-                        else
-                        {
-
-                            EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
-                        }
-                    }
-
-                }
-
-                #endregion data update
 
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+        //        #region data update
+
+        //        bplib.clsGenID genid;
+        //        for (int i = 0; i < data.Count; i++)
+        //        {
+        //            if (data[i]["UserName"] != null)
+        //            {
+        //                dsMaster.Tables[0].DefaultView.RowFilter = "TaskAppliedOnEnum='" + data[i]["TaskAppliedOnEnum"].ToString() + "'";
+        //                if (dsMaster.Tables[0].DefaultView.Count == 0)
+        //                {
+        //                    if (_Id == "")
+        //                    {
+        //                        genid = new bplib.clsGenID();
+        //                        genid.GenID(TableName, out _Id);
+        //                    }
+        //                    data[i]["Id"] = "A" + _Id + (i + 1).ToString();
+        //                    AddNewRow(dsMaster.Tables[0], data[i]);
+        //                }
+        //                else
+        //                {
+
+        //                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
+        //                }
+        //            }
+
+        //        }
+
+        //        #endregion data update
 
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+        //        clsStaticInfo _info = new clsStaticInfo();
+        //        _info.SaveDataSets(dsMaster);
 
-            }
-            catch (Exception ex)
-            {
 
-                return Json(new { Error = true, Message = ex.Message });
+        //        return Json(new { Error = false, Message = AplosMessage.Updated });
 
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message });
+
+        //    }
+        //}
 
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -284,6 +285,22 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         #region Good Work
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeCategoryList()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                clsDiscreteAllowanceReport ep = new clsDiscreteAllowanceReport();
+                return Json(ep.GetEmployeeCategoryList(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         [HttpPost]
         public JsonResult CreateGoodWork(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkDetail)
         {
@@ -390,86 +407,150 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-
-        [HttpGet, Authorize]
-        public ActionResult GetUserEditControlDetailList(string userEditControlId)
+        //Load Employee
+        [HttpGet]
+        public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation)
         {
-            string sql = @"select UEC.*,UECD.Href,MM.Description,MM.Controller
-                            from UserEditControl UEC
-							left join UserEditControlDetail UECD on UECD.UserEditControlId=UEC.Id
-							left join [MST].[MenuMaster] MM on MM.Href=UECD.Href
-                            where UEC.Id = '" + userEditControlId + "'";
-
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
-
-        public ActionResult Delete(string Id)
-        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = string.Empty;
+            var ec = ""; var dep = ""; var sec = ""; var subsec = ""; var des = "";
+            if (empCategory != "null")
+            {
+                ec = "and EI.EmployeeCategorySystemID in ('" + empCategory + @"')";
+            } 
+            if (department != "null")
+            {
+                dep = "and EI.DepartmentId in ('" + department + @"')";
+            }
+            if (section != "null")
+            {
+                sec = "and EI.SectionId in ('" + section + @"')";
+            }
+            if (subSection != "null")
+            {
+                subsec = "and EI.SubSectionId in ('" + subSection + @"')";
+            }
+            if (designation != "null")
+            {
+                des = "and EI.GivenDesignationId in ('" + designation + @"')";
+            }
             try
             {
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from dbo.UserEditControlDetail where UserEditControlId='" + Id + "'");
-                con.executeQuery("delete from dbo.UserEditControl where Id='" + Id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                sql = @"SELECT 0 CheckBoxSelect, EI.SystemId
+                         ,EI.EmployeeCode
+                         ,EI.EmployeeName,ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric
+                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
+                         , DG.UserName LegalDesignation
+                         , DP.UserName Department
+                         , PMB.Code,PR.UserName PositionName
+                         ,EI.EmployeeStatus
+						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
+                         FROM dbo.Employeeinformation EI
+                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
+                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
+                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
+                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
+                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + "  " + dep +@"  "+sec+"   "+ subsec +"   "+ des +@" 
+                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+                throw new Exception(ex.Message);
             }
+
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
-        public ActionResult DeleteChildUrl(string Id)
-        {
-            try
-            {
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from dbo.GoodWorkDetail where Id='" + Id + "'");
-                con.CommitTransaction();
+        //Load Employee
 
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
+        // [HttpGet, Authorize]
+        // public ActionResult GetUserEditControlDetailList(string userEditControlId)
+        // {
+        //     string sql = @"select UEC.*,UECD.Href,MM.Description,MM.Controller
+        //                     from UserEditControl UEC
+        //left join UserEditControlDetail UECD on UECD.UserEditControlId=UEC.Id
+        //left join [MST].[MenuMaster] MM on MM.Href=UECD.Href
+        //                     where UEC.Id = '" + userEditControlId + "'";
 
-        [Authorize, HttpGet]
-        public JsonResult GetHreflist(GridParameter parameters)
-        {
-            return Json(GetHreflistData(parameters), JsonRequestBehavior.AllowGet);
-        }
+        //     return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        // }
 
-        public GridModel GetHreflistData(GridParameter parameters)
-        {
-            try
-            {
-                parameters.CmdText = @"select Id,Description, Controller, Href from [MST].[MenuMaster]";
-                return _sqlRepository.GetGridData(parameters);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
-            }
-        }
+        // public ActionResult Delete(string Id)
+        // {
+        //     try
+        //     {
+        //         ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //         con.BeginTransaction();
+        //         con.executeQuery("delete from dbo.UserEditControlDetail where UserEditControlId='" + Id + "'");
+        //         con.executeQuery("delete from dbo.UserEditControl where Id='" + Id + "'");
+        //         con.CommitTransaction();
 
-        [HttpGet, Authorize]
-        public JsonResult GetHrefDatasList(string hrefId)
-        {
-            string sql = @"select UECD.Id,UECD.UserEditControlId,MM.Description,MM.Controller,MM.Href
-							from [MST].[MenuMaster] MM 
-							left join UserEditControlDetail UECD on UECD.Href=MM.Href
-							left join UserEditControl UEC on UEC.Id=UECD.UserEditControlId
-                            where UEC.UserId = '" + hrefId + "'";
+        //         return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //     }
+        // }
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
+        // public ActionResult DeleteChildUrl(string Id)
+        // {
+        //     try
+        //     {
+        //         ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //         con.BeginTransaction();
+        //         con.executeQuery("delete from dbo.GoodWorkDetail where Id='" + Id + "'");
+        //         con.CommitTransaction();
+
+        //         return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //     }
+        // }
+
+        // [Authorize, HttpGet]
+        // public JsonResult GetHreflist(GridParameter parameters)
+        // {
+        //     return Json(GetHreflistData(parameters), JsonRequestBehavior.AllowGet);
+        // }
+
+        // public GridModel GetHreflistData(GridParameter parameters)
+        // {
+        //     try
+        //     {
+        //         parameters.CmdText = @"select Id,Description, Controller, Href from [MST].[MenuMaster]";
+        //         return _sqlRepository.GetGridData(parameters);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         throw new CustomException(ex.Message, ex,
+        //         Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+        //         ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+        //     }
+        // }
+
+        // [HttpGet, Authorize]
+        // public JsonResult GetHrefDatasList(string hrefId)
+        // {
+        //     string sql = @"select UECD.Id,UECD.UserEditControlId,MM.Description,MM.Controller,MM.Href
+        //from [MST].[MenuMaster] MM 
+        //left join UserEditControlDetail UECD on UECD.Href=MM.Href
+        //left join UserEditControl UEC on UEC.Id=UECD.UserEditControlId
+        //                     where UEC.UserId = '" + hrefId + "'";
+
+        //     return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        // }
 
         #endregion Good Work
     }
