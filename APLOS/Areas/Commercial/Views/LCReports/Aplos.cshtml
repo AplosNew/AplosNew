@@ -151,13 +151,13 @@
 
     @*<div class="table-responsive modal-table aplos-grid-toggle">
         <div class="content-container-fluid" style="color:black;overflow:scroll">*@
-            <div style="color:black;" id="GridMasterLC" ej-grid e-datasource="MasterLCList"
+            <div style="color:black;" id="GridMasterLC" ej-grid e-datasource="MasterLCList"  e-templaterefresh="refreshTemplateLC"
                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                 <div e-columns>
                     @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
 
-                    <div e-column e-template="#checkMasterLC" e-headertext="" e-width="20"></div>
+                    <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC"  e-width="20"></div>
                     <div e-column e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="100"></div>
                     <div e-column e-field="Vendor" e-headertext="Vendor" e-width="100"></div>
                     <div e-column e-field="PurchaseLCId" e-headertext="Purchase LC Id" e-width="100"></div>
@@ -207,9 +207,9 @@
                 </div>
             </script>
 
-            @*<script type="text/x-jsrender" id="headerTemplate">
+            <script type="text/x-jsrender" id="headerTemplate">
                 <input type="checkbox" id="headchk" />
-            </script>*@
+            </script>
             @*<script type="text/template" id="checkMasterLC">
             <div class="checkbox-site">
                 <label>
