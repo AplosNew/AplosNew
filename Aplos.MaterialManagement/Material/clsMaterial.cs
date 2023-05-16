@@ -445,7 +445,7 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
             string sql = @"select * from (SELECT  PO.Id,s.UserName AS ProductionStatus,so.SONo,so.BuyerRefNo,so.SODesc,SO.SOQuantity SOQty,ISNULL(PO.Qty,0) AS POQuantity
                         ,SO.PlanExFactoryDate ExFactoryDate,SO.DeliveryDate,SO.CommitmentDate
                        ,so.Material, so.Product,so.ProductCategory, so.Buyer, so.OwnRefNo, so.StyleNo, so.OwnStyleNo, So.MasterOrderId,so.Customer,so.article
-						,PO.AddedDate
+						,PO.AddedDate,O.TotalOtherQty,T.TotalRequestedQty
                             FROM [TRN].[ProductionOrder] AS PO                            
                            LEFT OUTER  JOIN (select
                                                     pod.ProductionOrderId, sum(so.Qty) AS SOQuantity, Format(Min(so.DeliveryDate),'dd-MMM-yyyy') DeliveryDate,Format(Min(so.CommitmentDate),'dd-MMM-yyyy') CommitmentDate,Format(Min(so.PlanExFactoryDate),'dd-MMM-yyyy') PlanExFactoryDate,
@@ -541,14 +541,22 @@ from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderI
 from trn.ProductionOrderDetail AS pod JOIN  trn.SalesOrder SO ON pod.SalesOrderId=so.Id group by pod.ProductionOrderId
 ) AS SO ON so.ProductionOrderId=po.Id
                             LEFT OUTER JOIN hkp.ProductionStatus AS S ON s.Id=po.ProductionStatusId
-                            WHERE PO.entityid='" + entityid + @"' AND S.UserName='Running') AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
+							LEFT JOIN(Select SUM(D.OtherQty)TotalOtherQty,M.POId FROM dbo.InputConfirmationDetail D
+LEFT JOIN dbo.InputConfirmationMaster M ON M.Id=D.InputConfirmationMasterId
+GROUP BY M.POId)O ON O.POId=PO.Id
+LEFT JOIN(
+Select SUM(D.RequestedQty) TotalRequestedQty,M.ProductionOrderId FROM TRN.IssueRequest D
+LEFT JOIN TRN.IssueRequestMaster M ON M.Id=D.IssueRequestMasterId
+GROUP BY M.ProductionOrderId
+) T ON T.ProductionOrderId=PO.Id
+                            WHERE PO.entityid='" + entityid + @"' AND S.UserName='Running' AND (ISNULL(O.TotalOtherQty,0)<T.TotalRequestedQty) OR ISNULL(O.TotalOtherQty,0)!=T.TotalRequestedQty) AS TEMP WHERE " + strkey + " ORDER BY AddedDate Desc";
 
             return _sqlRepository.GetDataCollection(sql, null);
         }
 
         public IEnumerable<object> GetSOItemList(string entityid, string ProductionOrderId)
         {
-            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,PM.Id,Flag =Convert(bit, 'False')
+            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,ICSO.Id,Flag =Convert(bit, 'False')
 	                                ,ISNULL(so.Id,'') SOId,SO.CustomerPOId,CPO.PONumber,mm.Id MaterialMasterId,mm.UserName MaterialMaster,mma.Id ArticleId
 	                                ,ISNULL(mma.StandardName, '') SOArticle,b.Id CustomerId,b.UserName Customer,mo.TotalQty MOQty,ISNULL(u.UserName, '') UOM
 	                                ,moi.ExtraOrderPercentage [ExtraP],moi.OrderWastagePercentage [WastageP],ISNULL(mma.Id, '') ArticleId,mmc.CharCount
@@ -608,7 +616,7 @@ GROUP BY PC.OrderCostingMasterTemplateId) CMC ON CMC.OrderCostingMasterTemplateI
 LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost,Q.MasterOrderItemId FROM [dbo].[QuickBOQ] Q
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
-
+LEFT JOIN dbo.InputConfirmationSODetail ICSO ON ICSO.SOId=so.Id
    WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
 
 
@@ -1027,14 +1035,14 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
             try
             {
                 string today = confirmdate;
-                string sql = @"select * from(
+                string sql = @"SELECT * FROM(
                          SELECT IRD.InventoryReceiveId, IRD.POId, IRD.PODetailsId, IRD.Id AS InventoryReceiveDetailId, IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
 						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor,IRD.BaseUoMFactor GRNBaseUoMFactor
                         , round(IRD.MaterialTranRate,4) MaterialTranRate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
                        
-						, round(ISNULL(IRD.TrnCurrencyBaseRate,0),4)++Round(ISNULL((case when ird.AdditionalChargesAmount>0 then ird.AdditionalChargesAmount/ird.BaseQty else 0 end),0),4) BaseRate
+						, round(ISNULL(IRD.TrnCurrencyBaseRate,0),4)+Round(ISNULL((case when ird.AdditionalChargesAmount>0 then ird.AdditionalChargesAmount/ird.BaseQty else 0 end),0),4) BaseRate
                         , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, REPLACE(CONVERT(CHAR(11), IR.AddedDate, 106),' ','-') AS ReceiveDate, 0 AS RequisitionQty
                         
 						 ,Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4)+Round(ISNULL((case when ird.AdditionalChargesAmount>0 then ird.AdditionalChargesAmount/ird.BaseQty else 0 end) * ir.ToCurrencyRate,0),4) BaseCurrencyRate
@@ -1045,7 +1053,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                         ,ISNULL(IRD.TotalMaterialTranAmount,0) TotalMaterialTranAmount
 						 ,ISNULL(IRD.TotalMaterialBooksCurrencyAmount,0) TotalMaterialBooksCurrencyAmount
 						, Round(ISNULL(IRD.BooksCurrencyBaseRate,0),4)+Round(ISNULL((case when ird.AdditionalChargesAmount>0 then ird.AdditionalChargesAmount/ird.BaseQty else 0 end) * ir.ToCurrencyRate,0),4) BooksCurrencyBaseRate
-						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4)++Round(ISNULL((case when ird.AdditionalChargesAmount>0 then ird.AdditionalChargesAmount/ird.BaseQty else 0 end),0),4) TrnCurrencyBaseRate
+						 ,round(ISNULL(IRD.TrnCurrencyBaseRate,0),4)+Round(ISNULL((case when ird.AdditionalChargesAmount>0 then ird.AdditionalChargesAmount/ird.BaseQty else 0 end),0),4) TrnCurrencyBaseRate
                         ,round(ISNULL(II.IssueAmount,0),4) TotalIssueAmount
                         , ISNULL(IRD.AdditionalChargesAmount,0) AdditionalChargesAmount
                          ,IsOpeningBalance=CASE WHEN IR.OpeningBalanceId IS NOT NULL THEN 'Yes' ELSE 'No' END
@@ -1343,6 +1351,22 @@ LEFT JOIN HKP.Process P ON P.id=M.ProcessId
  LEFT JOIN SCS.UnitofMeasurement U ON U.Id=D.UOMId 
 Left Join [ORG].[CostCenter] CC On CC.Id=D.CostCenterId
                 WHERE D.InputConfirmationMasterId='" + masterId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetInputConfirmationAdditionalMaterialData(string masterId)
+        {
+            try
+            {
+                string sql = @"Select M.*,MMA.Code ArticleCode,MM.UserName Material from dbo.InputConfirmationAdditionalMaterial M
+LEFT JOIN MST.MaterialMaster MM  ON MM.Id=M.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA  ON MMA.Id=M.ArticleId
+                WHERE M.InputConfirmationMasterId='" + masterId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

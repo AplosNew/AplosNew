@@ -462,7 +462,7 @@ namespace Library.Service.Productions
         }
         public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId)
         {
-            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.PPQFlag,pw.Id,wc.UserName as WorkCenter,
+            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,wc.ProcessId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.PPQFlag,pw.Id,wc.UserName as WorkCenter,
                         isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + "' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as ProductionOrderId,isnull(pw.LotNumber,(select top 1 LotNumber from TRN.ProductionSummary where ProcessId = '" + ProcessId + "' and EntityId='" + entityId + "' and ProductionShiftId='" + shiftId + @"' and WorkCenterMasterId=wc.Id order by AddedDate desc)) as LotNumber,M.EmployeeName as Mentor,
                         PI.EmployeeName as ProductionInCharge,PI.SystemId as ProductionInChargeId,
                         isnull(R.EmployeeName, (select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.ProductionSummary where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + @"' and WorkCenterMasterID = WC.Id order by AddedDate desc))) as ResponsiblePerson,
@@ -478,7 +478,7 @@ namespace Library.Service.Productions
                         Case when  isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then ISNULL(CEILING(PRS.TotalProductionQty), 0)  else 0 end BookedQty,
                             Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then POQ.POQty else 0 end POQty,
                               Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 else 0 end ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,PPP.TotalProductionQty as POPreviousProdQty,
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,
         isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,
 (select MA.StandardName from trn.salesorder SO
 left outer join trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
