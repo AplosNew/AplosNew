@@ -86,6 +86,7 @@ function balanceSheetReportTreeViewController(cboService, commonMessage, $scope,
                     allowSelection: true,
                     selectionType: ej.Grid.SelectionType.Single,
                     selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
+                    cellSelected: $scope.tung,
                     columns: [
                         { field: "Activity", headerText: 'Activity', textAlign: ej.TextAlign.Left, width: 185 },
                         { field: "Amount", headerText: 'Amount', textAlign: ej.TextAlign.Right, width: 80, format: "{0:N2}" }
@@ -94,5 +95,26 @@ function balanceSheetReportTreeViewController(cboService, commonMessage, $scope,
             }
         }).render();
     };
+    $scope.tung = function (args) {
+        $scope.getBalanceSheetInfoVoucherLevel(args.data);
+    };
+    $scope.VoucherLevelDataList = [];
+    $scope.getBalanceSheetInfoVoucherLevel = function (x) {
+        $http({
+            method: 'POST',
+            url: 'Accounts/MISAccountDashboard/GetBalanceSheetInfoVoucherLevel/',
+            params: { 'date': $routeParams.FromDate, 'GLGeneralInfoId': x.GLGeneralInfoId, 'BudgetMasterId': x.BudgetMasterId, 'ActivityId': x.ActivityId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.VoucherLevelDataList = response.data;
+            angular.element(document.querySelector("#VoucharListModal")).modal('show');
+        });
+    };
+    $scope.printVoucharDetailCommon = function (data) {
+        var file_src = "";
+        file_src = 'Accounts/VoucherReport/GetCommonVoucherReport?reportFormat=' + 'Pdf' + '&compnayGroupId=' + data.CompanyGroupId + '&companyId=' + data.CompanyId + '&plantId=' + data.PlantId + '&sourceType=' + data.SourceType + '&voucherId=' + data.VoucherId + '&inventoryIssueId=' + data.InventoryIssueId + '&inventoryReceiveId=' + data.InventoryReceiveId + '&salesSourceType=' + data.SalesSourceType;
 
+        $window.open(file_src, '_blank');
+       
+    };
 }

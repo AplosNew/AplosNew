@@ -27,10 +27,6 @@ namespace Aplos.Areas.Commercial.Controllers
 {
     public class LCReportsController : BaseController
     {
-        string TableName = "hkp.LCChargesType";
-        //authentication for
-        //GetList Create Delete
-
 
         #region Constructor
 
@@ -52,32 +48,7 @@ namespace Aplos.Areas.Commercial.Controllers
             return View();
         }
 
-        //[HttpGet, Authorize]
-        //public ActionResult MasterLCReport(string MasterLCId, string ContractId, string PLCId)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty(MasterLCId))
-        //            throw new Exception("Please select at least one master LC");
-
-        //        ExcelEngine excelEngine = new ExcelEngine();
-
-        //        IWorkbook workbook = GetMasterLCReport(excelEngine, MasterLCId, ContractId, PLCId);
-
-        //        string strFileName = "Master LC.xlsx";
-        //        workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-        //        workbook.Close();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(ex.Message, JsonRequestBehavior.AllowGet);
-
-        //    }
-
-
-        //    return null;
-        //}
-
+       
         [HttpPost, Authorize]
         public ActionResult MasterLCDataXls(List<Dictionary<string, object>> data, string reportFileName)
         {
