@@ -11475,20 +11475,20 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
                 sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
                 sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
 
-                sheet1.Range[xlsRow - 1, 5].Text = "Payable";
-                sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Size = 10;
-                // sheet1.Range[xlsRow - 1, 4,xlsRow-1,7].RowHeight = 30;
-                sheet1.Range[xlsRow - 1, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 7].BorderAround(ExcelLineStyle.Thin);
+                //sheet1.Range[xlsRow - 1, 5].Text = "Payable";
+                //sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Size = 10;
+                //// sheet1.Range[xlsRow - 1, 4,xlsRow-1,7].RowHeight = 30;
+                //sheet1.Range[xlsRow - 1, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 7].BorderAround(ExcelLineStyle.Thin);
 
-                sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Bold = true;
+                //sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Bold = true;
 
-                sheet1.Range[xlsRow - 1, 9].Text = "Tax";
-                sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Size = 10;
-                sheet1.Range[xlsRow - 1, 9].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                //sheet1.Range[xlsRow - 1, 7].BorderInside(ExcelLineStyle.Thin);
-                sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 11].BorderAround(ExcelLineStyle.Thin);
-                sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Bold = true;
+                //sheet1.Range[xlsRow - 1, 9].Text = "Tax";
+                //sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Size = 10;
+                //sheet1.Range[xlsRow - 1, 9].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                ////sheet1.Range[xlsRow - 1, 7].BorderInside(ExcelLineStyle.Thin);
+                //sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 11].BorderAround(ExcelLineStyle.Thin);
+                //sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Bold = true;
 
                 //int iPostingDate = xlsCol;
                 //sheet1.Range[xlsRow, xlsCol].Text = "Date";
@@ -11496,7 +11496,7 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
 
                 int colSLNO = xlsCol;
                 sheet1[xlsRow, xlsCol].Text = "SL. No";
-                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 21;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
 
@@ -11507,12 +11507,12 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
 
                 int PartyName = xlsCol; // Party
                 sheet1.Range[xlsRow, xlsCol].Text = "Suppliers Name";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40;
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 32;
                 xlsCol++;
 
                 sheet1[xlsRow, xlsCol].Text = "PAN No";
                 int colPenNO = xlsCol;
-                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
 
@@ -11530,43 +11530,48 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
                 xlsCol++;
                 int iInvoicePostingDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
-                int iInvoiceDocDate = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
 
-                xlsCol++;
-                int iInvoiceDocRefNo = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //int iInvoiceDocDate = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
 
-                //VoucherNo
-                xlsCol++;
-                int iVoucherNo = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "TDS Voucher No";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //int iInvoiceDocRefNo = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                ////VoucherNo
+                //xlsCol++;
 
-                xlsCol++;
-                int iPostingDate = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //int iVoucherNo = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "TDS Voucher No";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
 
-                xlsCol++;
+                //int iPostingDate = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
                 int iDocDate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
                 xlsCol++;
+
                 int iDocRefNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
 
-                int iTDSPer = xlsCol;
+                int iTCSType = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "TCS Type";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iTCSPer = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "TCS Name";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18;
                 xlsCol++;
 
                 int iPercentage = xlsCol;
@@ -11660,8 +11665,8 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
 
                                 sheet1[perStartRow, GSTIN, xlsRow - 1, GSTIN].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
-                                sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                                //sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                                //sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
 
                                 sheet1[perStartRow, CrAmount, xlsRow - 1, CrAmount].BorderAround(ExcelLineStyle.Hair);
@@ -11713,11 +11718,12 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
                         sheet1.Range[xlsRow, iInvoiceVoucherNo].Text = dtRCMPayable.Rows[i]["InvoiceVoucherNo"].ToString();
                         sheet1.Range[xlsRow, iInvoicePostingDate].DateTime = Convert.ToDateTime(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
                         //sheet1.Range[xlsRow, iInvoicePostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
-                        sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
-                        sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
+                        //sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
+                        //sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
                         sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
 
-                        sheet1.Range[xlsRow, iTDSPer].Text = dtRCMPayable.Rows[i]["TDSPer"].ToString();//TaxableAmount
+                        sheet1.Range[xlsRow, iTCSType].Text = dtRCMPayable.Rows[i]["SourceType"].ToString();//TaxableAmount
+                        sheet1.Range[xlsRow, iTCSPer].Text = dtRCMPayable.Rows[i]["TCSPer"].ToString();//TaxableAmount
                                                                                                        //sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
                         sheet1.Range[xlsRow, iPercentage].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["ValueOfFixed"].ToString());//TaxableAmount
@@ -11729,8 +11735,8 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
                         sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
                         sheet1.Range[xlsRow, iDocRefNo].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();
-                        sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
-                        sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
+                        //sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+                        //sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
                         sheet1.Range[xlsRow, iDocDate].Text = dtRCMPayable.Rows[i]["DocDate"].ToString();
 
                         //sheet1.Range[xlsRow, CrAmount].Text = dtRCMPayable.Rows[i]["CrAmount"].ToString();//TaxableAmount
@@ -11977,7 +11983,7 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
                 ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
                 ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
                 ,0 Percentage
-                ,P.VATResistrationNo PanNo,TAXC.UserName TDSPer,TAXC.Section
+                ,P.VATResistrationNo PanNo,TAXC.UserName TCSPer,TAXC.Section
 
                 from TRN.InvoiceTax IT 
                 left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
