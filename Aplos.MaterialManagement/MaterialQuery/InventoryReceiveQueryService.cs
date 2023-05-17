@@ -7050,11 +7050,13 @@ namespace Aplos.MaterialManagement
 						worksheet[ROW, colPartyUserName].Text = dsData.Rows[i]["vendor"].ToString();
 						worksheet[ROW, colLastAmendmentDate].Text = dsData.Rows[i]["LastAmendmentDate"].ToString();
 
-						//var percentage = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLcOpeningValue"] + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"])) + "%";
-						//worksheet[ROW, colPercentage].Text = percentage;
+                        //var percentage = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLcOpeningValue"] + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"])) + "%";
+                        //worksheet[ROW, colPercentage].Text = percentage;
 
-						worksheet[ROW, colPercentage].Formula = clsStaticInfo.GetxlsCol(colPurchaseLCAmount) + ROW.ToString() + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString()) + "%";
-
+                        if (clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString()) != 0)
+                        {
+							worksheet[ROW, colPercentage].Formula = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLCAmount"].ToString()) + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString()) + "%";
+						}
 						//worksheet[ROW, colPercentage].Formula = clsStaticInfo.GetxlsCol(colPurchaseLCAmount) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colMasterLCAmount) + ROW.ToString() + "%";
 
 						worksheet[ROW, colPresentLCValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["PresentLCValue"].ToString());

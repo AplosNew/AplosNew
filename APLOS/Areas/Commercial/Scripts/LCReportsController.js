@@ -17,11 +17,11 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
 
         try {
 
-            if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
-                throw 'Please enter from date';
+            //if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
+            //    throw 'Please enter from date';
 
-            if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
-                throw 'Please enter to date';
+            //if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
+            //    throw 'Please enter to date';
 
             $http({
                 method: 'POST',
@@ -31,10 +31,10 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
 
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
-                    for (var i = 0; i < response.data.DATA.length; i++) {
-                        response.data.DATA[i].LCOpeningDate = new Date(response.data.DATA[i].LCOpeningDate);
-                        response.data.DATA[i].ExpiryDate = new Date(response.data.DATA[i].ExpiryDate);
-                    }
+                    //for (var i = 0; i < response.data.DATA.length; i++) {
+                    //    response.data.DATA[i].LCOpeningDate = new Date(response.data.DATA[i].LCOpeningDate);
+                    //    response.data.DATA[i].ExpiryDate = new Date(response.data.DATA[i].ExpiryDate);
+                    //}
                     $scope.MasterLCList = response.data.DATA;
                 }
                 else {
@@ -79,8 +79,8 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.MasterLCReport = function () {        
         var dataList = [];
-        //var g = $("#GridMasterLC").data("ejGrid");
-        //dataList = g.getFilteredRecords();
+        var g = $("#GridMasterLC").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
         for (var i = 0; i < $scope.MasterLCList.length; i++) {
             if ($scope.MasterLCList[i].isSelected == true) {
