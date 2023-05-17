@@ -255,7 +255,7 @@ function employeePaymentController(cboService, commonMessage, $scope, $rootScope
         $scope.employeeWiseOutstandingAdvanceList = [];
         $http({
             method: "GET",
-            url: "accounts/Advance/GetEmployeeTotalAdvanceAmount?employeeId=" + id
+            url: "accounts/Advance/GetEmployeeTotalAdvanceAmountByEmployeeId?employeeId=" + id
         }).then(function successCallback(response) {
             $scope.employeeOutStandingAdvanceDataList = response.data.Rows;
             $scope.TotalAdvanceAmount = $filter("sumByKey")($filter("filter")($scope.employeeOutStandingAdvanceDataList), "Balance");
