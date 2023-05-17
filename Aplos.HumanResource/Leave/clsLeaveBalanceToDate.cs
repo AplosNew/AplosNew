@@ -934,7 +934,8 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
 								, BroughtForward= CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END								
 								, B.CarryForwardOpeningBalance, B.DaysCanBeSanctioned, B.AppliedDays,
                                 B.AvailedDays, B.YearEndEncash,isnull(APL.LeaveDuration,0) AS AppliedLeave,APP.LeaveDuration AS AllFutureAppliedLeave,
-                                isnull(B.CarryForwardOpeningBalance,0)+(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
+                                --isnull(B.CarryForwardOpeningBalance,0)+(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END)+isnull(B.CurrentYearAllocation,0)-isnull(B.AvailedDays,0) AS ClosingBalance
+                               (ISNULL(CASE WHEN  ISNULL(AL.PBroughtForward,0)=0 THEN B.BroughtForward ELSE AL.PBroughtForward END, 0)+B.DaysCanBeSanctioned)-isnull(B.AvailedDays,0) AS ClosingBalance
                             FROM (		SELECT BAL.EmployeeId, BAL.LeaveTypeId,
 								       SUM(BAL.CurrentYearAllocation) AS CurrentYearAllocation,
 								        SUM(BAL.BroughtForward) AS BroughtForward,SUM(BAL.CarryForwardOpeningBalance) AS CarryForwardOpeningBalance,   SUM(BAL.DaysCanBeSanctioned) AS DaysCanBeSanctioned,
@@ -974,6 +975,25 @@ inner join dbo.LeavePolicyDetail d on d.LPMSystemID = lm.SystemID
                                 WHERE 
                                 apd.WorkDate BETWEEN '" + _FromDate + @"' AND '" + _ToDate + @"'
                                 AND ei.SystemId='" + EmployeeSystemId + @"' 
+
+	UNION ALL
+
+								 select S.EmployeeId EmpSystemID,s.LeaveTypeId,lt.LeaveType,0 ActualEarnedLeave,0 BroughtForward, 0 CarryForwardOpeningBalance
+								 ,DaysCanBeSanctioned=case when lp.LvAvailedOnFixedOrPercentage='Fixed' then  Isnull(lp.LvCanAvailQuantity,0)
+																   when lp.LvAvailedOnFixedOrPercentage='Percentage' then  (Isnull(lp.LvCanAvailQuantity,0) * Isnull(s.DaysCanBeSanctioned,0))/100
+																   else Isnull(s.DaysCanBeSanctioned,0) end
+								,0 AppliedDays,0.AvailedDays,0 YearEndEncash
+								 from trn.EmployeeLeaveSummary S
+                                                        JOIN  trn.EmployeeLeaveSummary SS ON S.Id=ss.Id
+                                                        AND S.Id=(SELECT TOP 1 SX.Id FROM trn.EmployeeLeaveSummary SX WHERE ss.EmployeeId=SX.EmployeeId AND ss.LeaveTypeId=SX.LeaveTypeId ORDER BY sx.ToDate DESC)
+                                                        LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=s.EmployeeId
+                                                        LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                                                        LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId AND dmc.PlantId=ei.PlantId
+                                                        LEFT JOIN LeavePolicyDetail AS lp ON lp.LPMSystemID=dmc.LeavePolicyMasterId AND s.LeaveTypeId=lp.LTSystemID
+														  LEFT JOIN LeaveType AS lt ON lt.Id=lp.LTSystemID
+                                                        where S.EmployeeId ='" + EmployeeSystemId + @"'  AND lp.EncashmentBasis<>'CalanderYear'
+
+
 								) AS BAL
 								GROUP BY BAL.EmployeeId, BAL.LeaveTypeId
 								

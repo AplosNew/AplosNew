@@ -2235,7 +2235,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
         {
             try
             {
-                var cmdText = @"select *,CASE WHEN DRcumulative=0 THEN CRcumulative ELSE DRcumulative END Amount
+                var cmdText = @"select *,CASE WHEN ABS(DRcumulative)=0 THEN ABS(CRcumulative) ELSE ABS(DRcumulative) END Amount
                                 FROM (SELECT distinct GL.Id AS AccountCodeId, VDC.ParallelCurrencyId,CU.Code AS CurrencyCode
                                 , sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id, VDC.ParallelCurrencyId,VD.VoucherId order by VDC.ParallelCurrencyId) as DRcumulative
                                 , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id, VDC.ParallelCurrencyId,VD.VoucherId order by VDC.ParallelCurrencyId) as CRcumulative
