@@ -103,8 +103,8 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
             $scope.GetBudget($scope.ModelNew.Id);
-            //$scope.GetAllSavedBudgetCode();
-           // $scope.GetSavedResponsiblePerson();
+            $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
+            
         }
 
     };
@@ -153,6 +153,19 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         });
     }
 
+    $scope.SavedBudgetList = [];
+    $scope.GetAllSavedBudgetCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetAllSavedBudgetCode",
+            data: { 'id': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SavedBudgetList = response.data;
+            
+        });
+    }
+
     
     $scope.GetUserGroup = function (masterId) {
         $http({
@@ -192,20 +205,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         });
     }
 
-    $scope.GetAllSavedBudgetCode = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetAllSavedBudgetCode",
-            data: { 'headerId': $scope.ModelNew.Id },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.BudgetList = response.data;
-            $scope.GetUserGroup($scope.obj.Id);
-            $scope.GetUserSubGroup();
-            $scope.GetGrade();
-        });
-    }
-
+   
     $scope.GetSavedResponsiblePerson = function () {
         $http({
             method: 'POST',
@@ -335,15 +335,21 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
 
+    $scope.OpenUserGroupPopUp2 = function (data) {
+
+        angular.element(document.querySelector('#UserGroupPop2')).modal('show');
+        $scope.obj = data.data;
+        $scope.GetUserGroup($scope.obj.Id);
+
+
+    }
 
     $scope.obj = {};
     $scope.OpenUserGroupPopUp = function (data) {
         
-            
-        
         angular.element(document.querySelector('#UserGroupPop')).modal('show');
         $scope.obj = data.data;
-        $scope.GetUserGroup($scope.obj.Id);
+        $scope.GetUserGroup();
 
  
     }
@@ -375,6 +381,8 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.obj.Id = response.data.Id;
+                $scope.GetBudget($scope.ModelNew.Id);
+                $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
                 var gridObj = $("#bgtCodeGridId").data("ejGrid");
                 gridObj.refreshContent(true);
                 gridObj.refreshTemplate();

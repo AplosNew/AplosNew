@@ -77,8 +77,8 @@ namespace Aplos.Areas.IE.Controllers
             {
                 sqlCondition = $"where MMT.Id = '{headerid}'";
             }
-            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, MMT.Id , '' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM MachineMasterTransaction MMT 
-left join SCS.WorkCenterMaster WCM on MMT.WorkCenterId = WCM.Id
+            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM 
+--left join SCS.WorkCenterMaster WCM on MMT.WorkCenterId = WCM.Id
 " + sqlCondition + "";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -134,7 +134,8 @@ where DetentionMasterId='" + detentionId + "'";
             }
         }
 
-        private void SaveMachineMasterTransactionData(List<Dictionary<string, object>> data)
+        [HttpPost, Authorize]
+        public JsonResult Create(List<Dictionary<string, object>> data)
         {
            try
             {
@@ -164,18 +165,7 @@ where DetentionMasterId='" + detentionId + "'";
                 {
                         DataView dv = new DataView(dsMaster.Tables[0]);
                     
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-                    //if (dv.Count > 0)
-                    //{
-                    //    DataRow dr = dv[0].Row;
-                    //    dr["ResponsiblePersonId"] = item["ResponsiblePersonId"];
-                    //    dr["Remark"] = item["Remark"];
-                    //    dr["UpdatedBy"] = identity.Name;
-                    //    dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                    //    dr["UpdatedFromIP"] = identity.IPAddress;
-                    //}
-                    //else
-                    //{
+                        dv.RowFilter = "Id='" + item["Id"] + "'";                    
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("MachineMasterTransaction", out _Id);
                         DataRow dr = dsMaster.Tables[0].NewRow();
@@ -190,12 +180,12 @@ where DetentionMasterId='" + detentionId + "'";
                         dr["FromTime"] = item["FromTime"];
                         dr["ToTime"] = item["ToTime"];
                         dr["Minute"] = item["Minute"];
-                        dr["Remark"] = item["Remark"];
+                        //dr["Remark"] = item["Remark"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
                         dsMaster.Tables[0].Rows.Add(dr);
-                    //}
+                   
                     }
 
                 #endregion UserGroup (From Pop Screen)
@@ -203,33 +193,33 @@ where DetentionMasterId='" + detentionId + "'";
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                //return Json(new { Data = chkBgtList, headerId, Message = AplosMessage.Insert }); 
+                return Json(new { Data = data, Message = AplosMessage.Insert }); 
             }
             catch (Exception ex)
             {
-                //return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
-        [HttpPost]
-        public JsonResult Create(List<Dictionary<string, object>> data)
-        {
-            try
-            {
-                SaveMachineMasterTransactionData(data);
-                //if (DetentionParaList != null)
-                //{
-                //    SaveMasterOrderItemCostingRateData(DetentionParaList, data["Id"].ToString());
-                //}
+        //[HttpPost]
+        //public JsonResult Create(List<Dictionary<string, object>> data)
+        //{
+        //    try
+        //    {
+        //        SaveMachineMasterTransactionData(data);
+        //        //if (DetentionParaList != null)
+        //        //{
+        //        //    SaveMasterOrderItemCostingRateData(DetentionParaList, data["Id"].ToString());
+        //        //}
 
-                return Json(new { Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, ex.Message });
-            }
+        //        return Json(new { Message = AplosMessage.Insert });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, ex.Message });
+        //    }
 
-        }
+        //}
 
 
         #region AddDefaultColumn

@@ -714,9 +714,33 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetTotalSO(string POId, string salesOrderId, string processId)
+        {
+            return Json(_ProductionSummaryService.GetTotalSOQty(POId, salesOrderId, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTotalMOIQty(string POId, string MasterOrderItemId, string processId)
+        {
+            return Json(_ProductionSummaryService.GetTotalMOIQty(POId, MasterOrderItemId, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetTotalPCQty(string POId, string MasterOrderItemId, string processId)
+        {
+            return Json(_ProductionSummaryService.GetTotalPCQty(POId, MasterOrderItemId, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetTotalPOQty(string productionOrderId, string processId)
         {
             return Json(_productionSummaryData.GetTotalPOQty(productionOrderId, processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPOQty(string productionOrderId, string processId)
+        {
+            return Json(_productionSummaryData.GetPOQty(productionOrderId, processId), JsonRequestBehavior.AllowGet);
         }
 
 

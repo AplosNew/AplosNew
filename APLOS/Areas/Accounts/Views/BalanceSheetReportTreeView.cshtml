@@ -1,0 +1,71 @@
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Balance Sheet Report Tree View</h3>
+<div class="form-elements form-horizontal" ng-form id="form" name="form">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-5">
+            </div>
+            <div class="col-md-5">
+            </div>
+            <div class="col-md-2">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div id="Grid">
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-5">
+            </div>
+            <div class="col-md-5">
+            </div>
+            <div class="col-md-2">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="VoucharListModal" class="modal fade site-modal in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="padding-left:115px;">
+    <div class="modal-dialog" style="width:1250px;">
+        <div class="modal-content" style="width:1250px; ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Voucher List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12" style="height:400px;">
+                    <div id="VoucherList" ej-grid e-datasource="VoucherLevelDataList"
+                         e-allowfiltering="true" e-allowpaging="true"
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="VoucherDate" e-headertext="Voucher Date" e-tooltip="Voucher Date" e-width="80"></div>
+                            <div e-column e-field="PostingDate" e-headertext="Posting Date" e-tooltip="Posting Date" e-width="80"></div>
+                            <div e-column e-field="VoucherNo" e-headertext="Voucher No" e-tooltip="Voucher No" e-width="80"></div>
+                            <div e-column e-template="#VoucherNo"  e-headertext="Amount" e-tooltip="Amount" e-width="50" e-type="numeric" e-format="{0:0.00}" e-textalign="right"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="VoucherNo">
+                        <label id="printVoucherTemplate" ng-click="$parent.printVoucharDetailCommon(this.data)" style="color:blue;text-decoration:underline;cursor:pointer">{{data.Amount|number:2}}</label>
+                    </script>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

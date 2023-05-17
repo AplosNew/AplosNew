@@ -57,5 +57,13 @@ namespace Library.Service.Accounts
         IEnumerable<object> GetBudgetCategoryWisevarianceElastic(string parameterString, string companyGroupId, string companyId, string plantId, string divisionId, string subDivisionId, string unitId, string budgetCategory, string budgetSubCategory, string budget, string Activity, string fromDate, string toDate, string bType, string dateType);
         IEnumerable<object> GetBudgetSubCategoryWisevarianceElastic(string parameterString, string companyGroupId, string companyId, string plantId, string divisionId, string subDivisionId, string unitId, string budgetCategory, string budgetSubCategory, string budget, string Activity, string fromDate, string toDate, string bType, string dateType);
         IEnumerable<object> GetBudgetItemWisevarianceElastic(string parameterString, string companyGroupId, string companyId, string plantId, string divisionId, string subDivisionId, string unitId, string budgetCategory, string budgetSubCategory, string budget, string Activity, string fromDate, string toDate, string bType, string dateType);
+
+        #region Balance Sheet Tree View
+        IEnumerable<object> GetBalanceSheetInfoGLLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
+        IEnumerable<object> GetBalanceSheetInfoBudgetLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
+        IEnumerable<object> GetBalanceSheetInfoActivityLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
+        IEnumerable<object> GetBalanceSheetInfoVoucherLevel(string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
+        #endregion
+
     }
 }

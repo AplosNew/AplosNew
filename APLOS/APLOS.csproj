@@ -310,7 +310,6 @@
     <Folder Include="Areas\PerformanceManagement\Views\Shared\" />
     <Folder Include="Areas\Products\Views\GateEntry\" />
     <Folder Include="Areas\Products\Views\IssueSlip\" />
-    <Folder Include="Areas\QMS\Views\QualityMasterSetup\" />
     <Folder Include="Areas\QMS\Views\Shared\" />
     <Folder Include="DOC\" />
     <Folder Include="PDF\" />
@@ -1188,7 +1187,7 @@
     <Compile Include="Areas\Products\Controllers\SFGInventoryController.cs" />
     <Compile Include="Areas\Products\Controllers\SFGMovementController.cs" />
     <Compile Include="Areas\QMS\Controllers\ActivityMasterController.cs" />
-    <Compile Include="Areas\QMS\Controllers\QualityMasterSetupController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\VehicleMovementMasterController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityProcessController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentLocationController.cs" />
     <Compile Include="Areas\QMS\Controllers\DefectZoneController.cs" />
@@ -1788,6 +1787,7 @@
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
+    <Content Include="Areas\Accounts\Scripts\balanceSheetReportTreeViewController.js" />
     <Content Include="Areas\Accounts\Scripts\inventoryIssueReturnJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\ManagementChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\parkedReportController.js" />
@@ -2794,6 +2794,7 @@
     <Content Include="Areas\Products\Scripts\SFGMovementController.js" />
     <Content Include="Areas\Products\Scripts\PurchaseConfirmationController.js" />
     <Content Include="Areas\QMS\Scripts\ActivityMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleMovementMasterController.js" />
     <Content Include="Areas\QMS\Scripts\QualityProcessController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentLocationController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSourceController.js" />
@@ -4664,6 +4665,10 @@
     <Content Include="Areas\HumanResource\Views\WebBasedPacking\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\GoodWork\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PayrollReports\SalaryProcessedReportCom.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_VehicleMovement.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_PurposeMaster.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetReportTreeView.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_LocationMaster.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4807,6 +4812,7 @@
     <Content Include="Areas\QMS\Views\DocumentSetup\_DocumentSource.cshtml" />
     <Content Include="Areas\QMS\Views\DocumentSetup\_DocumentLocation.cshtml" />
     <Content Include="Areas\TaskManagement\Views\TaskCloserMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

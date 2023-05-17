@@ -1,35 +1,58 @@
-﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>TDS Deduction Report</h3>
+﻿<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>TDS AND TCS Deduction Report</h3>
 <div class="form-elements form-horizontal" ng-form="form0">
-    <div class="col-xs-12 col-sm-5 col-md-5">
-        <div class="form-group" show-errors id="div_FromDate">
-            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <input type="text" name="From Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="5">
+    <div class="col-xs-6 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">TDS Deduction</span></legend>
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="From Date" ng-model="report.FromDate" datepicker class="form-control" required tabindex="5">
+                    </div>
+                </div>
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="6">
+                    </div>
+                </div>
+
+
             </div>
-        </div>
-        <div class="form-group" show-errors id="div_ToDate">
-            <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <input type="text" name="To Date" ng-model="report.ToDate" datepicker class="form-control" required tabindex="6">
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                </ul>
             </div>
-        </div>
-        @*<div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Format<sup>*</sup></label>
-            <div class="col-sm-9 radio">
-                <label>
-                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
-                    <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
-                </label>
-                <label>
-                    <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
-                    <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
-                </label>
-            </div>
-        </div>*@
+        </fieldset>
     </div>
-    <div class="common-btn">
-        <ul class="list-inline text-left">
-            <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
-        </ul>
+    <div class="col-xs-6 col-sm-6 col-md-6">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">TCS Deduction</span></legend>
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group" show-errors id="div_TCSFromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="From Date" ng-model="report.TCSFromDate" datepicker class="form-control" required tabindex="5">
+                    </div>
+                </div>
+                <div class="form-group" show-errors id="div_TCSToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="To Date" ng-model="report.TCSToDate" datepicker class="form-control" required tabindex="6">
+                    </div>
+                </div>
+
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li><button ng-click="getTCSReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                </ul>
+            </div>
+        </fieldset>
+        
     </div>
+        <div class="common-btn">
+
+        </div>
 </div>

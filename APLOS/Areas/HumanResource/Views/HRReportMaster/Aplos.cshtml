@@ -4,7 +4,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSetHeader(1) }"><a ng-click="setTabHeader(1)" href="" aria-controls="general" role="tab" data-toggle="tab">HR Report Master</a></li>
             <li role="presentation" ng-class="{ active: isSetHeader(2) }"><a ng-click="setTabHeader(2)" href="" aria-controls="general" role="tab" data-toggle="tab">User Group / User Sub Group</a></li>
-            
+
         </ul>
     </div>
     <div class="tab-content">
@@ -33,6 +33,7 @@
                                 <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Active</label>
                             <div class="col-sm-8">
@@ -70,7 +71,7 @@
                             </div>
                         </div>
 
-                        
+
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
@@ -85,7 +86,8 @@
                         <div class="site-tab">
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Budget Code</a></li>
-                                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
+                                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Saved Budget Code</a></li>
+                                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Responsible Person</a></li>
 
                             </ul>
                         </div>
@@ -144,15 +146,98 @@
                                 </div>
                                 @Html.Partial("~/Areas/HumanResource/Views/HRReportMaster/_UserGroupPop.cshtml")
 
-                                @*<div class="common-btn">
-                                    <ul class="list-inline text-right">
-                                        <li> <button ng-click="SaveBudgetCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionB}}</button></li>
-                                       
-                                    </ul>
 
-                                </div>*@
                             </div>
+
                             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                                <div class="table-responsive">
+                                    <div id="bgtCodeGridId" ej-grid e-datasource="SavedBudgetList" e-load="loadGridEdit"
+                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                        <div e-columns>
+                                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                            <div e-column e-headertext="Check / Uncheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
+
+                                            <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                            <div e-column e-field="Division" e-headertext="Division" e-width="100"></div>
+                                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+
+                                            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                                            <div e-column e-field="Designation" e-headertext="Designation" e-width="150"></div>
+
+
+                                            <div e-column e-field="Shift" e-headertext="Shift" e-width="150"></div>
+                                            <div e-column e-field="PositionCode" e-headertext="PositionCode" e-width="100"></div>
+
+                                            <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="100"></div>
+
+                                            <div e-column e-headertext="User Group" e-template="#userGroupId2" e-textalign="center" e-width="100"></div>
+                                        </div>
+                                    </div>
+                                    <script type="text/template" id="checkboxUnallocationTemplate">
+                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+                                    </script>
+
+                                    <script type="text/template" id="userGroupId2">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px; padding-top:1px; padding-bottom:1px; border-radius:0" class="btn"><i class="glyphicon glyphicon-menu-hamburger" title="Print Report" style="margin: -6px;" ng-click="$parent.OpenUserGroupPopUp2(this)"></i></button>
+
+                                    </script>
+
+
+                                </div>
+                                <div class="modal fade site-modal in" id="UserGroupPop2" role="dialog" data-backdrop="static">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">User Group <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                                            <div class="modal-body form-elements form-horizontal">
+
+                                                <div id="issuegrid" class="table-responsive" style="border:1px solid white">
+                                                    <div ej-grid e-datasource="UserGroupList" e-load="loadGridEdit"
+                                                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                                        <div e-columns>
+                                                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                                            <div e-column e-headertext="Check / Uncheck" e-template="#checkboxIssueTemplate" e-textalign="center" e-width="100"></div>
+
+                                                            <div e-column e-field="UserGroup" e-headertext="User Group" e-width="100"></div>
+                                                            <div e-column e-field="UserSubGroup" e-headertext="User Sub Group" e-width="100"></div>
+                                                            <div e-column e-headertext="Grade" e-template="#checkboxGradeTemplate" e-textalign="center" e-width="100"></div>
+
+                                                        </div>
+                                                    </div>
+                                                    <script type="text/template" id="checkboxIssueTemplate">
+                                                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
+                                                    </script>
+
+                                                    <script type="text/template" id="checkboxGradeTemplate">
+                                                        <div class="select-style">
+                                                            <select class="form-control" name="User Group" ng-model="data.Grade" required>
+                                                                <option value="A">A</option>
+                                                                <option value="B">B</option>
+                                                                <option value="C">C</option>
+                                                            </select>
+                                                        </div>
+                                                    </script>
+
+
+                                                    <div class="common-btn">
+                                                        <ul class="list-inline text-right">
+                                                            <li> <button ng-click="ClosePopupOnSelectAllField(this);" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                                 <div ng-form>
                                     <div class="form-group">
 
@@ -205,7 +290,7 @@
                                 <input type="text" name="UserGroup" ng-model="ModelNewB.UserGroup" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
-                        
+
                     </div>
 
                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -254,7 +339,7 @@
 
         </div>
 
-        
+
     </div>
 
 </div>

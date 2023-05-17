@@ -327,8 +327,8 @@
                         <input type="hidden" ng-model="articleAlias.Id" />
                         <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group" style="margin-bottom: 0px;">
-                                <label class="col-sm-2 control-label">Code<sup>*</sup></label>
-                                <label class="col-sm-3 control-label">Vendor<sup>*</sup></label>
+                                <label class="col-sm-2 control-label">Party Code<sup>*</sup></label>
+                                <label class="col-sm-3 control-label">Party<sup>*</sup></label>
                                 <label class="col-sm-3 control-label">User Group<sup>*</sup></label>
                                 <label class="col-sm-2 control-label">Remark</label>
                                 <label class="col-sm-2 control-label"></label>
@@ -337,14 +337,14 @@
                         <div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">
                             <div class="form-group">
                                 <div class="col-sm-2">
-                                    <input type="text" ng-model="articleAlias.Code" class="form-control" maxlength="200">
+                                    <input type="text" ng-model="articleAlias.Code" disabled class="form-control" maxlength="200">
                                 </div>
 
                                 @* <div class="form-group" show-errors>*@
                                 @*<label class="col-sm-2 control-label">@Library.Model.Parties.PartyType.Vendor.ToString()<sup>*</sup></label>*@
                                 <div class="col-sm-3 show-message">
                                     <div class="input-group">
-                                        <input type="text" name="@Library.Model.Parties.PartyType.Vendor.ToString()" ng-model="articleAlias.VendorName" class="form-control" readonly required>
+                                        <input type="text" name="Party" ng-model="articleAlias.PartyName" class="form-control" readonly required>
                                         <span class="input-group-btn">
                                             @*<button ng-click="showPartyPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>*@
                                             <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
@@ -381,7 +381,7 @@
                             <thead>
                                 <tr>
                                     <th>Code</th>
-                                    <th>Vendor</th>
+                                    <th>Party</th>
                                     <th>User Group</th>
                                     <th>Remark</th>
                                     <th>Action</th>
@@ -391,7 +391,7 @@
                                 <tr ng-repeat="x in aliasList" ng-dblclick="GetArticleAlias(x)">
 
                                     <td>{{x.Code}}</td>
-                                    <td>{{x.VendorName}}</td>
+                                    <td>{{x.PartyName}}</td>
                                     <td>{{x.UserGroup}}</td>
                                     <td>{{x.Remark}}</td>
                                     <td>
