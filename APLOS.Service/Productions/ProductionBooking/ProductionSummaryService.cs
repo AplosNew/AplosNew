@@ -546,7 +546,7 @@ where MOI.Id = pw.MasterOrderItemId) as ProductCodeArticle,
                         LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
 LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from [TRN].[ProductionSummary] PP where PP.ProcessId = 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
-(select Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + ProcessId + @"')) GROUP BY PP.ProductionOrderId
+(select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + ProcessId + @"')) GROUP BY PP.ProductionOrderId
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
                           LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
@@ -579,7 +579,7 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
                         LEFT JOIN(select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId, ProductionSummaryId from MachineMasterTransaction MT where MT.ProcessId = '" + ProcessId + "'  and MT.EntityId = '" + entityId + "' AND MT.Date = '" + productionDate + "' AND MT.ShiftId = '" + shiftId + @"'
                         group by WorkCenterId,ProductionSummaryId) SM ON SM.WorkCenterId = wc.Id and SM.ProductionSummaryId = pw.Id
                         where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '" + entityId + "' order by wc.UserName";
-            return _sqlRepository.GetDataCollection(sql);
+              return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)
