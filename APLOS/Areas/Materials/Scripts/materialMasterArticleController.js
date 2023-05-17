@@ -651,16 +651,26 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
 
     $scope.Generate = function () {
         var un = "";
+        $scope.stndName = "";
+        $scope.srtName = "";
         for (var i = 0; i < $scope.attributeList.length; i++) {
             if (i === 0) {
                 $scope.srtName = $scope.attributeList[i].MaterialAttributeValueFreeText;
+                un = $scope.attributeList[i].MaterialAttributeValueFreeText;
             }
-            else {
-                $scope.stndName = $scope.attributeList[i].MaterialAttributeValueFreeText;
+            ////else {
+            ////    $scope.stndName = $scope.attributeList[i].MaterialAttributeValueFreeText;
+            ////}
+
+            if (i === 0) {
+                $scope.stndName += $scope.attributeList[i].MaterialAttributeValueFreeText;
+                $scope.un += $scope.attributeList[i].MaterialAttributeValueFreeText;
+            } else {
+                $scope.stndName += $scope.attributeList[i].JoiningParameter + $scope.attributeList[i].MaterialAttributeValueFreeText; 
+                un += $scope.attributeList[i].JoiningParameter + $scope.attributeList[i].MaterialAttributeValueFreeText; 
             }
-           
-            un += $scope.attributeList[i].JoiningSequence + "" +$scope.attributeList[i].JoiningParameter;
         }
+
         if (baseService.isUndefinedOrNull($scope.stndName)) {
             $scope.articleNew.ShortName = $scope.srtName;
             $scope.articleNew.StandardName = $scope.srtName;
