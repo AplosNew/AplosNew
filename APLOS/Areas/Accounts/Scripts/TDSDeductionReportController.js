@@ -6,13 +6,12 @@ function TDSDeductionReportController(addressService, cboService, $scope, $rootS
         //BankMasterId: null,
         ReportFormat: "Excel",
         FromDate: $filter("dateFiltering")(Date.now()),
-        ToDate: $filter("dateFiltering")(Date.now())
+        ToDate: $filter("dateFiltering")(Date.now()),
+        TCSFromDate: $filter("dateFiltering")(Date.now()),
+        TCSToDate: $filter("dateFiltering")(Date.now())
     };
 
     $scope.getReport = function () {
-        //if (baseService.isUndefinedOrNull($scope.report.TaxCategoryId)) {
-        //    manualValidation("div_Bank", true, "Tax Category is required.");
-        //}
         if (baseService.isUndefinedOrNull($scope.report.FromDate)) {
             manualValidation("div_FromDate", true, "From Date is required.");
         }
@@ -26,13 +25,27 @@ function TDSDeductionReportController(addressService, cboService, $scope, $rootS
             manualValidation("div_ToDate", true, "To date must be above or equal to From Date.");
         }
         else {
-            //var url = "Accounts/InvoiceTax/GetTaxPayableReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&taxCategoryId=" + $scope.report.TaxCategoryId;
-            //$window.open(url, "_blank");
-
             var url = "Accounts/TaxReport/GetTdsDeductionReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate /*+ "&taxCategoryId=" + $scope.report.TaxCategoryId*/;
             $window.open(url, "_blank");
+        }
+    };
 
-            
+    $scope.getTCSReport = function () {
+        if (baseService.isUndefinedOrNull($scope.report.TCSFromDate)) {
+            manualValidation("div_TCSFromDate", true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.report.TCSToDate)) {
+            manualValidation("div_TCSToDate", true, "To Date is required.");
+        }
+        else if (new Date($scope.report.TCSFromDate) > new Date($scope.report.TCSToDate)) {
+            manualValidation("div_TCSFromDate", true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.report.TCSToDate) < new Date($scope.report.TCSFromDate)) {
+            manualValidation("div_TCSToDate", true, "To date must be above or equal to From Date.");
+        }
+        else {
+            var url = "Accounts/TaxReport/GetTCSDeductionReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.TCSFromDate + "&toDate=" + $scope.report.TCSToDate /*+ "&taxCategoryId=" + $scope.report.TaxCategoryId*/;
+            $window.open(url, "_blank");
         }
     };
 }

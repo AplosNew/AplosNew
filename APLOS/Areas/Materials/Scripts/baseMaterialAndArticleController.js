@@ -424,8 +424,7 @@ function baseMaterialAndArticleController(cboService, commonMessage, $scope, $ro
     // #endregion Material by material type
     $scope.searchByMaterial = "MaterialMasterName"; $scope.search = "";
     $scope.searchByMaterialList = [{ value: 'MaterialMasterName', name: "Material" }, { value: 'StandardName', name: "Article" }, { value: 'MaterialTypeName', name: "MaterialType" }
-        , { value: 'MaterialGroupMasterName', name: "MaterialGroup" }
-        , { value: 'HSNCode', name: "HSNCode" }];
+        , { value: 'MaterialGroupMasterName', name: "MaterialGroup" }, { value: 'HSNCode', name: "HSNCode" }, { value: 'BusinessProcessName', name: "Business Process" }];
 
     $scope.materialArticleList = [];
     $scope.InputMaterialArticlelistData = {};

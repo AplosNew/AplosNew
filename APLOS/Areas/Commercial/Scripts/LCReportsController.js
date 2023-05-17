@@ -17,11 +17,11 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
 
         try {
 
-            if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
-                throw 'Please enter from date';
+            //if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
+            //    throw 'Please enter from date';
 
-            if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
-                throw 'Please enter to date';
+            //if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
+            //    throw 'Please enter to date';
 
             $http({
                 method: 'POST',
@@ -31,10 +31,10 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
 
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
-                    for (var i = 0; i < response.data.DATA.length; i++) {
-                        response.data.DATA[i].LCOpeningDate = new Date(response.data.DATA[i].LCOpeningDate);
-                        response.data.DATA[i].ExpiryDate = new Date(response.data.DATA[i].ExpiryDate);
-                    }
+                    //for (var i = 0; i < response.data.DATA.length; i++) {
+                    //    response.data.DATA[i].LCOpeningDate = new Date(response.data.DATA[i].LCOpeningDate);
+                    //    response.data.DATA[i].ExpiryDate = new Date(response.data.DATA[i].ExpiryDate);
+                    //}
                     $scope.MasterLCList = response.data.DATA;
                 }
                 else {
@@ -52,11 +52,35 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
         }
     }
 
+    $scope.refreshTemplateLC = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllLC });
+    };
+
+    function CheckBoxSelectAllLC(e) {
+        var ChkOrUnchkLC = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchkLC = true;
+        }
+        var filtered = $("#GridMasterLC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.MasterLCList.length; i++) {
+                $scope.MasterLCList[i].isSelected = ChkOrUnchkLC;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchkLC;
+            }
+        }
+        var gridObj = $("#GridMasterLC").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
 
     $scope.MasterLCReport = function () {        
         var dataList = [];
-        //var g = $("#GridMasterLC").data("ejGrid");
-        //dataList = g.getFilteredRecords();
+        var g = $("#GridMasterLC").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
         for (var i = 0; i < $scope.MasterLCList.length; i++) {
             if ($scope.MasterLCList[i].isSelected == true) {

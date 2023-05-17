@@ -11412,6 +11412,669 @@ where TC.TaxCategoryType='TDS' AND ITD.AType='Cr'
 
         #endregion
 
+        #region TDS Deduction
+        public IWorkbook GetTCSDeductionReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
+        {
+            clsReport objRpt = null;
+            clsReport objRptSR = null;
+            try
+            {
 
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
+                var reportUtility = new ReportUtility();
+                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+                var sheet1 = workbook.Worksheets[0];
+
+                #region Logo
+                string strPath = "";
+                Image companyLogo = null;
+                try
+                {
+                    DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + companyId + @"'");
+
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());  // IDCardEng.xlsx
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                #endregion
+                objRpt = new clsReport();
+
+                objRptSR = new clsReport(_sqlRepository);
+
+                DataTable dtRCMPayable = null;
+                string taxyearId = GetTaxYearId(fromDate, toDate, companyId);
+
+
+                dtRCMPayable = GetTCSDedutionData(companyGroupId, companyId, plantId, plantName, fromDate, toDate, taxyearId);
+                if (dtRCMPayable.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                DataTable dtCmp = objRptSR.SelectedCompanyDT(plantId);
+
+                DataTable dtFactory = objRptSR.SelectedPlantDT(plantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+                xlsRow = 6;
+                sheet1.Range[xlsRow - 1, 1].Text = "Report Ref No:";
+                sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow - 1, 1].RowHeight = 20;
+                sheet1.Range[xlsRow - 1, 1].CellStyle.Font.Bold = true;
+
+                //sheet1.Range[xlsRow - 1, 5].Text = "Payable";
+                //sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Size = 10;
+                //// sheet1.Range[xlsRow - 1, 4,xlsRow-1,7].RowHeight = 30;
+                //sheet1.Range[xlsRow - 1, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 7].BorderAround(ExcelLineStyle.Thin);
+
+                //sheet1.Range[xlsRow - 1, 5].CellStyle.Font.Bold = true;
+
+                //sheet1.Range[xlsRow - 1, 9].Text = "Tax";
+                //sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Size = 10;
+                //sheet1.Range[xlsRow - 1, 9].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                ////sheet1.Range[xlsRow - 1, 7].BorderInside(ExcelLineStyle.Thin);
+                //sheet1.Range[xlsRow - 1, 4, xlsRow - 1, 11].BorderAround(ExcelLineStyle.Thin);
+                //sheet1.Range[xlsRow - 1, 9].CellStyle.Font.Bold = true;
+
+                //int iPostingDate = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Date";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                int colSLNO = xlsCol;
+                sheet1[xlsRow, xlsCol].Text = "SL. No";
+                sheet1[xlsRow, xlsCol].ColumnWidth = 21;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                //COL++;
+
+
+                //COL++;
+
+                int PartyName = xlsCol; // Party
+                sheet1.Range[xlsRow, xlsCol].Text = "Suppliers Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 32;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "PAN No";
+                int colPenNO = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 12;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+
+                int GSTIN = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "GSTIN";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                // xlsCol++;
+
+                xlsCol++;
+                int iInvoiceVoucherNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Invoice Voucher No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+
+                xlsCol++;
+                int iInvoicePostingDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                //int iInvoiceDocDate = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                //int iInvoiceDocRefNo = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                ////VoucherNo
+                //xlsCol++;
+
+                //int iVoucherNo = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "TDS Voucher No";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                //int iPostingDate = xlsCol;
+                //sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                int iDocDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                int iDocRefNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iTCSType = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "TCS Type";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iTCSPer = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "TCS Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18;
+                xlsCol++;
+
+                int iPercentage = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Percentage";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
+                xlsCol++;
+
+                int iSection = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Section";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
+                xlsCol++;
+
+                int iInvoiceAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Invoice Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+
+                xlsCol++;
+                int iTaxableAmount = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Taxable Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int CrAmount = xlsCol; // Doc Ref
+                sheet1.Range[xlsRow, xlsCol].Text = "TCS Amount";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                // xlsCol++;
+
+                DataTable dtTaxCode = null;
+
+
+                dtRCMPayable.DefaultView.Sort = "TCSequence";
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+
+
+
+                string voucherNo = "";
+                string Percentage = "";
+                int startRow = 0;
+                int perStartRow = 0;
+                string formula = "";
+                string formula2 = "";
+                string totalFormula = "";
+                string totalFormula2 = "";
+
+                string lineItemPercentageType = "";
+                string ValueOfFixedNew = "";
+                xlsRow++;
+                startRow = xlsRow;
+                perStartRow = xlsRow;
+                bool isFirst = true;
+                int sl = 0;
+
+                //int SerialNumber = 0;
+                for (int i = 0; i < dtRCMPayable.Rows.Count; i++)
+                {
+
+                    if (voucherNo != dtRCMPayable.Rows[i]["VoucherNo"].ToString())
+                    {
+                        sheet1[xlsRow, colSLNO].Number = (i + 1);
+                        sl++;
+
+                        if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "GL")
+                        {
+                            lineItemPercentageType = "ValueOfFixed";
+                        }
+                        if (dtRCMPayable.Rows[i]["LineItemType"].ToString().ToUpper() == "MATERIAL")
+                        {
+                            lineItemPercentageType = "Percentage";
+                        }
+                        if (Percentage != dtRCMPayable.Rows[i][lineItemPercentageType].ToString())
+                        {
+                            if (isFirst == false)
+                            {
+
+                                //sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                                sheet1[perStartRow, PartyName, xlsRow - 1, PartyName].BorderAround(ExcelLineStyle.Hair);
+                                sheet1[perStartRow, colPenNO, xlsRow - 1, colPenNO].BorderAround(ExcelLineStyle.Hair);
+
+                                sheet1[perStartRow, GSTIN, xlsRow - 1, GSTIN].BorderAround(ExcelLineStyle.Hair);
+                                sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
+                                //sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                                //sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                                sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
+
+                                sheet1[perStartRow, CrAmount, xlsRow - 1, CrAmount].BorderAround(ExcelLineStyle.Hair);
+                                sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
+                                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
+
+                                formula2 = "SUM(" + clsStaticInfo.GetxlsCol(CrAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(CrAmount) + (xlsRow - 1) + ")";
+                                //if (dtTaxCode.Rows.Count > 0)
+                                //{
+                                //    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                                //    {
+                                //       // sheet1[perStartRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow - 1, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].BorderAround(ExcelLineStyle.Hair);
+                                //        //formula2 = "SUM(" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + perStartRow + ":" + clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + (xlsRow - 1) + ")";
+                                //        //sheet1[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"]), xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Formula = formula2;
+
+                                //       // dtTaxCode.Rows[j]["ColumnFormula"] += (clsStaticInfo.GetxlsCol(Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])) + xlsRow).ToString() + " + ";
+                                //    }
+                                //}
+                                sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Total";
+
+                                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
+                                sheet1[xlsRow, CrAmount, xlsRow, CrAmount].Formula = formula2;
+                                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                                totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
+                                totalFormula2 += (clsStaticInfo.GetxlsCol(CrAmount) + xlsRow).ToString() + "+";
+
+
+                                //SerialNumber++;
+                                //sheet1[xlsRow, colSLNO].Text = (SerialNumber).ToString();
+                                xlsRow++;
+
+
+                            }
+
+
+                            xlsRow++;
+                            sheet1.Range[xlsRow - 1, 1].Text = dtRCMPayable.Rows[i]["ValueOfFixedNew"].ToString();
+                            sheet1.Range[xlsRow - 1, 1].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                            perStartRow = xlsRow;
+                            isFirst = false;
+
+                        }
+
+                        //sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
+                        sheet1[xlsRow, colSLNO].Number = sl;
+                        sheet1.Range[xlsRow, PartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
+
+                        sheet1.Range[xlsRow, colPenNO].Text = dtRCMPayable.Rows[i]["PanNo"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceVoucherNo].Text = dtRCMPayable.Rows[i]["InvoiceVoucherNo"].ToString();
+                        sheet1.Range[xlsRow, iInvoicePostingDate].DateTime = Convert.ToDateTime(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
+                        //sheet1.Range[xlsRow, iInvoicePostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
+                        //sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
+                        //sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
+                        sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
+
+                        sheet1.Range[xlsRow, iTCSType].Text = dtRCMPayable.Rows[i]["SourceType"].ToString();//TaxableAmount
+                        sheet1.Range[xlsRow, iTCSPer].Text = dtRCMPayable.Rows[i]["TCSPer"].ToString();//TaxableAmount
+                                                                                                       //sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        sheet1.Range[xlsRow, iPercentage].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["ValueOfFixed"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, iPercentage].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        sheet1.Range[xlsRow, iSection].Text = dtRCMPayable.Rows[i]["Section"].ToString();//TaxableAmount
+
+                        sheet1.Range[xlsRow, iInvoiceAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["InvoiceAmount"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        sheet1.Range[xlsRow, iDocRefNo].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();
+                        //sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+                        //sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
+                        sheet1.Range[xlsRow, iDocDate].Text = dtRCMPayable.Rows[i]["DocDate"].ToString();
+
+                        //sheet1.Range[xlsRow, CrAmount].Text = dtRCMPayable.Rows[i]["CrAmount"].ToString();//TaxableAmount
+                        sheet1.Range[xlsRow, CrAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["CrAmount"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, CrAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+
+                        sheet1.Range[xlsRow, iTaxableAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TaxableAmount"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, iTaxableAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                        dtRCMPayable.DefaultView.RowFilter = "VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
+
+                        //if (dtTaxCode.Rows.Count > 0)
+                        //{
+                        //    for (int j = 0; j < dtTaxCode.Rows.Count; j++)
+                        //    {
+                        //        //dtRCMPayable.DefaultView.RowFilter = "TaxCode = '" + dtTaxCode.Rows[j]["TaxCode"].ToString() + "' and VoucherNo = '" + dtRCMPayable.Rows[i]["VoucherNo"].ToString() + "'";
+                        //        if (dtRCMPayable.DefaultView.Count > 0)
+                        //        {
+
+                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Number = clsStaticInfo.dbl(dtRCMPayable.DefaultView[0]["CrAmount"].ToString());
+                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                        //        }
+                        //        else
+                        //        {
+                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].Text = "-";
+                        //            sheet1.Range[xlsRow, Convert.ToInt32(dtTaxCode.Rows[j]["ColumnNumber"])].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                        //        }
+                        //    }
+                        //}
+
+
+                        Percentage = dtRCMPayable.Rows[i][lineItemPercentageType].ToString();
+                        xlsRow++;
+                    }
+
+                    voucherNo = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
+
+
+                }
+
+                //sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, PartyName, xlsRow - 1, PartyName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, GSTIN, xlsRow - 1, GSTIN].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
+                // sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+
+                sheet1[perStartRow, CrAmount, xlsRow - 1, CrAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iTaxableAmount, xlsRow - 1, iTaxableAmount].BorderAround(ExcelLineStyle.Hair);
+
+
+
+                sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Total";
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaxableAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaxableAmount) + (xlsRow - 1) + ")";
+                formula2 = "SUM(" + clsStaticInfo.GetxlsCol(CrAmount) + perStartRow + ":" + clsStaticInfo.GetxlsCol(CrAmount) + (xlsRow - 1) + ")";
+
+                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = formula;
+                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet1[xlsRow, CrAmount, xlsRow, CrAmount].Formula = formula2;
+                sheet1[xlsRow, CrAmount, xlsRow, CrAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                totalFormula += (clsStaticInfo.GetxlsCol(iTaxableAmount) + xlsRow).ToString() + "+";
+                totalFormula2 += (clsStaticInfo.GetxlsCol(CrAmount) + xlsRow).ToString() + "+";
+
+
+
+
+
+                xlsRow++;
+                xlsRow++;
+
+                sheet1.Range[xlsRow, 1, xlsRow, 1].Text = "Grand Total";
+
+                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].Formula = totalFormula.Remove(totalFormula.Length - 1);
+                sheet1[xlsRow, iTaxableAmount, xlsRow, iTaxableAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet1[xlsRow, CrAmount, xlsRow, CrAmount].Formula = totalFormula2.Remove(totalFormula2.Length - 1);
+                sheet1[xlsRow, CrAmount, xlsRow, CrAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+
+
+
+
+                #region ******************Report Header******************
+
+
+
+                xlsRow = 1;
+                xlsCol = 3;
+                try
+                {
+                    if (companyLogo != null)
+                    {
+
+                        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(GSTIN);
+                        int totalWidthPixel = (int)(totalWidth * 7.5);
+                        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                        IPictureShape pic = null;
+
+                        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+                        //pic.Height = 80;
+                        //pic.Width = 220;
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                FactoryName = string.Empty;
+
+                string FactoryAddress = string.Empty;
+
+                if (dtCmp.Rows.Count > 0)
+                {
+                    CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = CmpName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    //FactoryName = dsFactory.Tables[0].Rows[0]["PlantName"].ToString();
+                    FactoryName = dtFactory.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryAddress = dtFactory.Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, 3].Text = "TCS Deduction Report From " + fromDate + " To " + toDate;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                #endregion Page Setup
+
+
+                sheet1.Name = "TCS Deduction";
+                return workbook;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        private DataTable GetTCSDedutionData(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string taxyearId)
+        {
+            string strSql = "";
+            strSql = @"
+                 select SourceType= V.SourceType
+                ,V.VoucherNo InvoiceVoucherNo,IV.InventoryReceiveId
+				,V.PostingDate InvoicePostingDate,V.DocRefNo InvoieDocRefNo,format( V.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
+				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
+                ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
+				                   when v.SourceType='SalesInvoice' then 'GL'
+				                   when v.SourceType='VendorPayment' then 'GL'
+				                   when v.SourceType='CreditNoteSetOff' then 'GL'
+				                   else '' end
+				                   ,Particular=TAXC.UserName
+				  ,TaxableAmount=iv.Amount-it.taxAmount
+                ,InvoiceAmount=iv.Amount
+                ,IT.Id,0 DrAmount, CrAmount=case when ITD.AType='Dr' then IT.TaxAmount else 0 end
+
+                ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+                ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
+                ,0 Percentage
+                ,P.VATResistrationNo PanNo,TAXC.UserName TCSPer,TAXC.Section
+
+                from TRN.InvoiceTax IT 
+                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Dr'
+                LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+				LEFT JOIN MST.TaxCode TXC ON TXC.Id=IT.TaxCodeId
+                LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                
+                --LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
+                LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+				 JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId AND TC.TaxCategoryType='TCS'
+				 LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
+                LEFT JOIN [TRN].[InventoryReceiveAdditionalTax] ATX ON IR.Id=ATX.InventoryReceiveId
+               
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed,TAC.Code Section  from MST.TaxCode TAC 
+	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") AND TACD.TaxCodeYearId=TAY.Id) TAXC ON TAXC.Id=ATX.TaxCodeId
+				
+				where TC.TaxCategoryType='TCS' AND ITD.AType='Dr' 
+				AND V.PostingDate between '"+ fromDate + "' AND '"+ toDate + "' and V.PlantId = '"+ plantId + @"' and V.IsPark=0
+             
+
+				UNION ALL
+				select SourceType= V.SourceType
+                ,V.VoucherNo InvoiceVoucherNo,IV.InventoryReceiveId
+				,V.PostingDate InvoicePostingDate,V.DocRefNo InvoieDocRefNo,format( V.DocDate, 'dd-MMM-yyyy') InvoiceDocDate
+				,V.VoucherNo,Format(V.PostingDate,'dd-MMM-yyyy') PostingDate,V.DocRefNo,format( V.DocDate, 'dd-MMM-yyyy')DocDate, P.UserName PartyName,P.TINNO GSTIN 
+                ,LineItemType=case when v.SourceType='InventoryPayable' then 'Material' 
+				                   when v.SourceType='SalesInvoice' then 'GL'
+				                   when v.SourceType='VendorPayment' then 'GL'
+				                   when v.SourceType='CreditNoteSetOff' then 'GL'
+				                   else '' end
+				                   ,Particular=case when v.SourceType='SalesInvoice' then TXC.UserName 
+									                WHEN v.SourceType='VendorInvoice' THEN A.UserName
+									                WHEN v.SourceType='VendorPayment' THEN AP.UserName
+									                WHEN v.SourceType='CreditNoteSetOff' THEN AP.UserName
+				                   else '' end
+				  ,TaxableAmount=iv.Amount-it.taxAmount
+                ,InvoiceAmount=iv.Amount
+                ,IT.Id,0 DrAmount ,CrAmount=case when ITD.AType='Cr' then IT.TaxAmount else 0 end
+
+                ,TC.Code TaxCode ,TC.Sequence TCSequence,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
+                ,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],ValueOfFixedNew = TAXC.UserName +' - '+ convert(varchar,TAXC.ValueOfFixed),TAXC.ValueOfFixed
+                ,IsNULL(HSNP.[Percentage],0) Percentage--,MM.HSNCodeId,MM.UserName Material
+                ,P.VATResistrationNo PanNo,TXC.UserName TDSPer,TXC.Code Section
+
+                FROM TRN.InvoiceTax IT 
+                left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'
+                LEFT JOIN TRN.Voucher V ON V.Id=IT.VoucherId
+				LEFT JOIN MST.TaxCode TXC ON TXC.Id=IT.TaxCodeId
+                LEFT JOIN TRN.Invoice IV ON IV.Id=IT.InvoiceId
+                LEFT JOIN TRN.InvoiceWriteOff IW ON IW.Id=IT.InvoiceWriteOffId
+                LEFT JOIN HKP.Party P ON P.Id=IT.PartyId
+				LEFT JOIN MST.TaxCategory TC ON TC.Id=IT.TaxCategoryId AND TC.TaxCategoryType='TCS'
+                LEFT JOIN( select distinct TAC.Id,TAC.UserName,TAC.IsRCM,TAY.[Type],TACD.ValueOfFixed from MST.TaxCode TAC 
+	                LEFT JOIN MST.TaxCodeYear TAY ON TAY.TaxCodeId=TAC.Id
+	               LEFT JOIN MST.TaxCodeDetail TACD ON TACD.TaxCodeId=TAC.Id WHERE TAY.TaxYearId IN (" + taxyearId + @") AND TACD.TaxCodeYearId=TAY.Id) TAXC ON TAXC.Id=IT.TaxCodeId
+                LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
+                LEFT JOIN TRN.InventoryReceiveTax IRT ON IRT.InventoryReceiveId=IR.Id --AND IRT.TaxCategoryId=IT.TaxCategoryId
+                LEFT JOIN MST.HSNTaxPercentage HSNP ON  IRT.HSNCodeId=HSNP.HSNCodeId AND HSNP.TaxCategoryId=IT.TaxCategoryId 
+                LEFT JOIN (SELECT SUM(D.DrAmount) DrAmount,D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId 
+				FROM  TRN.VoucherDetail D LEFT JOIN TRN.Voucher VV ON VV.Id=D.VoucherId 
+				WHERE D.InvoiceTaxDetailId IS NULL AND D.DrAmount<> 0 
+				GROUP BY D.VoucherId,D.ActivityId,D.InvoiceWriteOffDetailId
+				) VD ON VD.VoucherId=IT.VoucherId 
+                LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId 
+                LEFT JOIN (SELECT IW.InvoiceWriteOffId,I.InventoryReceiveId,IW.ActivityId
+				,SUM(I.Amount) Amount,SUM(VD.DrAmount) TaxableAmount
+				,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate
+				FROM TRN.InvoiceWriteOffDetail IW 
+			                JOIN TRN.Invoice I ON I.Id=IW.InvoiceId
+							JOIN TRN.Voucher V ON V.Id=I.VoucherId
+							JOIN TRN.VoucherDetail VD ON VD.VoucherId=I.VoucherId AND VD.DrAmount>0 AND VD.InvoiceTaxDetailId IS NULL
+		                GROUP BY InvoiceWriteOffId,IW.ActivityId,V.VoucherNo,V.PostingDate,V.DocRefNo,V.DocDate,I.InventoryReceiveId
+						) IWD ON IWD.InvoiceWriteOffId=IT.InvoiceWriteOffId
+                LEFT JOIN HKP.Activity AP ON AP.Id=IWD.ActivityId
+				LEFT JOIN (select InventoryReceiveId,sum(TotalMaterialTranAmount) TotalMaterialTranAmount from TRN.InventoryReceiveDetail group by InventoryReceiveId)IRD ON IWD.InventoryReceiveId=IRD.InventoryReceiveId
+                LEFT JOIN TRN.Invoice SIV ON SIV.VoucherId=V.Id
+				LEFT JOIN (select sad.ServiceAcknowledgementMasterId,IWD.InvoiceWriteOffId,sum(sad.Amount) TotalMaterialTranAmount from TRN.ServiceAcknowledgementDetail sad
+				join TRN.ServiceAcknowledgementMaster sam on sam.Id=sad.ServiceAcknowledgementMasterId
+				join trn.Invoice I on I.ServiceAcknowledgementMasterId =sam.Id
+				join trn.InvoiceWriteOffDetail IWD ON IWD.InvoiceId=I.Id
+				group by sad.ServiceAcknowledgementMasterId,IWD.InvoiceWriteOffId)SAM ON IT.InvoiceWriteOffId=SAM.InvoiceWriteOffId
+                WHERE TC.TaxCategoryType='TCS' AND ITD.AType='Cr' 
+				AND V.PostingDate between '" + fromDate + "' AND '" + toDate + "' and V.PlantId = '" + plantId + @"' and V.IsPark=0
+                ORDER BY LineItemType,ValueOfFixed,Percentage
+				";
+
+            return _sqlRepository.GetDataTable(strSql);
+
+        }
+
+        #endregion
     }
 }
