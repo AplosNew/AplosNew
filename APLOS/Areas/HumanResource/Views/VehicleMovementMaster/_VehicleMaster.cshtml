@@ -1,0 +1,91 @@
+﻿<togglable></togglable>
+<div class="form-elements form-horizontal" ng-form name="VehicleMasterForm">
+    <input type="hidden" ng-model="VehicleMaster.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Vehicle Name<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Vehicle Name" ng-model="VehicleMaster.VehicleName" class="form-control" maxlength="15" required tabindex="5">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Fuel Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="VehicleMaster.FuelTypeId" name="Detention"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in AllFuelList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Avg. Fuel Cost/KL<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Milage" ng-model="VehicleMaster.AvgFuelCostPerKL" class="form-control" maxlength="15" required tabindex="8">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" rows="2" ng-model="VehicleMaster.Remarks" maxlength="250" tabindex="7"></textarea>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Vehicle Number<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Vehicle Number" ng-model="VehicleMaster.VehicleNumber" class="form-control" maxlength="15" required tabindex="6">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Avg. Milage<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Milage" ng-model="VehicleMaster.AvgMilage" class="form-control" maxlength="15" required tabindex="8">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Avg. Maintenance/KL<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Milage" ng-model="VehicleMaster.AvgMaintanancePerKL" class="form-control" maxlength="15" required tabindex="8">
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="SaveVehicleMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                <li> <button ng-click="ClearVehicleMaster();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div ej-grid e-recorddoubleclick="GetVM" e-datasource="VehicleMasterList" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>        
+            <div e-column e-field="VehicleName" e-headertext="Vehicle Name" e-width="2"></div>
+            <div e-column e-field="VehicleNumber" e-headertext="Vehicle Number" e-width="2"></div>
+            <div e-column e-field="FuelType" e-headertext="Fuel Type" e-width="2"></div>
+            <div e-column e-field="AvgMilage" e-headertext="Avg Milage" e-width="2"></div>
+            <div e-column e-field="AvgFuelCostPerKL" e-headertext="AvgFuelCostPerKL" e-width="2"></div>
+            <div e-column e-field="AvgMaintanancePerKL" e-headertext="AvgMaintanancePerKL" e-width="2"></div>
+            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+        </div>
+    </div>
+</div>
+

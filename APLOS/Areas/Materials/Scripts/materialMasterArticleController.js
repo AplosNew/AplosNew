@@ -10,7 +10,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.partyType = "Vendor";
+    $scope.partyType = "Party";
     $controller("partyBaseController", { $scope: $scope, $http: $http });
 
 
@@ -651,16 +651,26 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
 
     $scope.Generate = function () {
         var un = "";
+        $scope.stndName = "";
+        $scope.srtName = "";
         for (var i = 0; i < $scope.attributeList.length; i++) {
             if (i === 0) {
                 $scope.srtName = $scope.attributeList[i].MaterialAttributeValueFreeText;
+                un = $scope.attributeList[i].MaterialAttributeValueFreeText;
             }
-            else {
-                $scope.stndName = $scope.attributeList[i].MaterialAttributeValueFreeText;
+            ////else {
+            ////    $scope.stndName = $scope.attributeList[i].MaterialAttributeValueFreeText;
+            ////}
+
+            if (i === 0) {
+                $scope.stndName += $scope.attributeList[i].MaterialAttributeValueFreeText;
+                $scope.un += $scope.attributeList[i].MaterialAttributeValueFreeText;
+            } else {
+                $scope.stndName += $scope.attributeList[i].JoiningParameter + $scope.attributeList[i].MaterialAttributeValueFreeText; 
+                un += $scope.attributeList[i].JoiningParameter + $scope.attributeList[i].MaterialAttributeValueFreeText; 
             }
-           
-            un += $scope.attributeList[i].JoiningSequence + "" +$scope.attributeList[i].JoiningParameter;
         }
+
         if (baseService.isUndefinedOrNull($scope.stndName)) {
             $scope.articleNew.ShortName = $scope.srtName;
             $scope.articleNew.StandardName = $scope.srtName;
@@ -885,23 +895,23 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     $scope.articleAliasModel = {
         Id: null
         , Code: null
-        , VendorId: null
-        , VendorName: null
+        , PartyId: null
+        , PartyName: null
         , UserGroup: null
         , Remark: null
     };
     $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
 
     $scope.articleAliasClear = function () {
-        
         $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
     }
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
        
-        $scope.articleAlias.VendorName = party.UserName;
-        $scope.articleAlias.VendorId = party.Id;
+        $scope.articleAlias.PartyName = party.UserName;
+        $scope.articleAlias.PartyId = party.Id;
+        $scope.articleAlias.Code = party.Code;
          
         $scope.hidePartyPopUp();
     };
@@ -918,23 +928,35 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
 
 
     $scope.SaveArticleAlias = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'CreateArticleAlias',
-            data: {'data': $scope.articleAlias},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        try {
+            if (baseService.isUndefinedOrNull($scope.articleAlias.PartyId)) {
+                throw "Party is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.articleAlias.UserGroup)) {
+                throw "User Group is required.";
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'CreateArticleAlias',
+                data: { 'data': $scope.articleAlias },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetArticleAliasDatas();
+                    $scope.articleAliasClear();
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetArticleAliasDatas();
-                $scope.articleAliasClear();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        };
+            };
+        } catch (e) {
+            ShowResult(e, 'failure', 'ArticleAliasPoUp');
+        }
     };
 
 

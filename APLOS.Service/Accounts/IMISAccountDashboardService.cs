@@ -62,6 +62,7 @@ namespace Library.Service.Accounts
         IEnumerable<object> GetBalanceSheetInfoGLLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
         IEnumerable<object> GetBalanceSheetInfoBudgetLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
         IEnumerable<object> GetBalanceSheetInfoActivityLevel(string parameterString, string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
+        IEnumerable<object> GetBalanceSheetInfoVoucherLevel(string companyGroupId, string companyId, string plantId, string date, string GLGeneralInfoId, string BudgetMasterId, string ActivityId);
         #endregion
 
     }

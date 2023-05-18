@@ -48,124 +48,22 @@
         </ul>
     </div>
 
-    @*<div class="row">
-            <div class="col-md-2">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Type<sup>*</sup></label>
-                    <div class="col-sm-9 show-message">
-                        <div class="select-style">
-                            <select id="GRNType" class="form-control" name="GRN" ng-model="material.GRNandAccPType" ng-change="getDataList()" tabindex="7" required>
-                                <option value="GRNPosted">GRN Posted</option>
-                                <option value="AcceptancePosted">Acceptance Posted</option>
-                                <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="form-group">
-                    <div class="col-sm-12 radio">
-                        <label>
-                            <input type="radio" name="DateType" ng-model="material.DateType" value='PostingDate'>
-                            <span class="cr" tabindex="8"><i class="cr-icon"></i></span>Posting Date
-                        </label>
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-1">
-                <div class="form-group">
-                    <div class="col-sm-14 radio" style="margin-left: -59px;">
-
-
-                        <label>
-                            <input ng-click="clearBankPopUp()" type="radio" name="DateType" ng-model="material.DateType" value='EntryDate'>
-                            <span class="cr"><i class="cr-icon"></i></span>Entry Date
-                        </label>
-
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-2" style="margin-left: -50px;">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                    <div class="col-sm-8">
-                        <input type="text" ng-model="material.FromDate" datepicker class="form-control" tabindex="5">
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-2">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
-                    <div class="col-sm-9">
-                        <input type="text" ng-model="material.ToDate" datepicker class="form-control" tabindex="6">
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="form-group">
-                    <label class="col-sm-3" style="font-weight:normal;">Order Specific<sup></sup></label>
-
-                    <div class="col-sm-2" style="margin-left: -96px;">
-                        <div class="checkbox-site">
-                            <label>
-                                <input tabindex="8" type="checkbox" ng-model="material.IsOrderSpecific">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <label class="col-sm-4" style="font-weight:normal; ">Non Order Specific<sup></sup></label>
-                    <div class="col-sm-3" style="padding-left:0px;">
-                        <div class="checkbox-site">
-                            <label>
-                                <input tabindex="8" type="checkbox" ng-model="material.IsNonOrderSpecific">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li><button ng-click="getDataList();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                    </ul>
-                </div>
-            </div>
-
-        </div>*@
-
-
-
-
-
-    @*<div class="table-responsive modal-table aplos-grid-toggle">
-        <div class="content-container-fluid" style="color:black;overflow:scroll">*@
-            <div style="color:black;" id="GridMasterLC" ej-grid e-datasource="MasterLCList"
+            <div style="color:black;" id="GridMasterLC" ej-grid e-datasource="MasterLCList"  e-templaterefresh="refreshTemplateLC"
                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                 <div e-columns>
                     @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC" e-textalign="center" e-width="30"></div>*@
 
-                    <div e-column e-template="#checkMasterLC" e-headertext="" e-width="20"></div>
-                    <div e-column e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="100"></div>
-                    <div e-column e-field="Vendor" e-headertext="Vendor" e-width="100"></div>
+                    <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkMasterLC"  e-width="20"></div>
+                    <div e-column e-field="MasterLCNo" e-headertext="Master LC No." e-width="100"></div>
+                    <div e-column e-field="Vendor" e-headertext="Vendor" e-width="120"></div>
                     <div e-column e-field="PurchaseLCId" e-headertext="Purchase LC Id" e-width="100"></div>
-                    <div e-column e-field="PurchaseLCRef" e-headertext="Purchase LC Ref" e-width="60"></div>
+                    <div e-column e-field="PurchaseLCRef" e-headertext="Purchase LC Ref" e-width="80"></div>
                     <div e-column e-field="LCOpeningDate" e-headertext="LC OpeningDate" e-width="80"></div>
                     <div e-column e-field="ExpiryDate" e-type="string" e-format="{0:dd-MMM-yyyy}" e-headertext="Expiry Date" e-width="90"></div>
                     <div e-column e-field="PurCurrencyCode" e-headertext="Currency" e-width="80"></div>
                     <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
+                    <div e-column e-field="FileNo" e-headertext="File No" e-width="80"></div>
                     <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
 
                     <div e-column e-field="MasterLCRefNo" e-headertext="Master LC No." e-width="100"></div>
@@ -207,21 +105,10 @@
                 </div>
             </script>
 
-            @*<script type="text/x-jsrender" id="headerTemplate">
+            <script type="text/x-jsrender" id="headerTemplate">
                 <input type="checkbox" id="headchk" />
-            </script>*@
-            @*<script type="text/template" id="checkMasterLC">
-            <div class="checkbox-site">
-                <label>
-                    <input type="checkbox" ng-model="data.isSelected" tabindex="10" />
-                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                </label>
-            </div>
-        </script>*@
-
-        @*</div>
-    </div>*@
-
+            </script>
+           
     <div class="form-group">
 
         <div class="col-xs-12 col-sm-12 col-md-12">

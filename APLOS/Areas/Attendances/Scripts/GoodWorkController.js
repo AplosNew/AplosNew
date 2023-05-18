@@ -10,8 +10,7 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     //$scope.deleteUrl = $scope.path + 'delete/';
     $scope.deleteChildUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
-    //$scope.searchBy = "UserName"; $scope.search = "";
-    //$scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.LoadEmpListUrl = $scope.path + 'LoadEmployeelist';
     $scope.Action = 'Save';
     $scope.passwordShow = true;
     $controller("employeeBaseController", { $scope: $scope, $http: $http });
@@ -20,6 +19,11 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.ModelTemp = {
         Id: null,
         WorkDate: null,
+        EmployeeCategory: null,
+        Department: null,
+        SubSection: null,
+        Section: null,
+        Designation:null,
         ShiftId: null,
         Shift: null,
         Remarks: null
@@ -43,10 +47,105 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     };
     $scope.ModelEmpNew = Object.assign({}, $scope.ModelEmpTemp);
 
+
+    $scope.EmployeeCategoryList = [];
+    $scope.getEmployeeCategory = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetEmployeeCategoryList",
+        }).then(function successCallback(response) {
+            $scope.EmployeeCategoryList = response.data;
+        });
+    }
+    $scope.getEmployeeCategory();
+
+
     $scope.selectShift = function () {
         $scope.getsS();
         angular.element(document.querySelector('#ShiftPop')).modal('show');
     }
+
+
+    ////Load Employee
+
+    $scope.EmployeeList = [];
+    $scope.SelectedEmployeeList = [];
+    $scope.getEmploymeeList = function () {
+        try {
+            $http.get($scope.LoadEmpListUrl + '?empCategory=' + $scope.ModelNew.EmployeeCategory + '&department=' + $scope.ModelNew.EmployeeCategory + '&section=' + $scope.ModelNew.Section
+                + '&subSection=' + $scope.ModelNew.SubSection + '&designation=' + $scope.ModelNew.Designation)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.Message, 'failure');
+                    }
+                    else {
+                        $scope.EmployeeList = response.data;
+                        var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
+                        eDialog.open();
+                    }
+                },
+                    function errorCallBack(response) {
+                        ShowResult(response.Message, 'failure');
+                    });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.GetSelectedEmployeeList = function () {
+        var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
+        eDialog.close();
+        try {
+            $scope.SelectedEmployeeList = [];
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                if ($scope.EmployeeList[i].CheckBoxSelect === true) {
+                    $scope.SelectedEmployeeList.push($scope.EmployeeList[i]);
+                }
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.refreshTemplateemployee4 = function (args) {
+        $("#headchk4").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEmployeeInfoList").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                $scope.EmployeeList[i].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].CheckBoxSelect = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+    $scope.RemoveSelectedEmployeeList = function () {
+        var gridObj = $("#GridSelectedEmployeeInfoList").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        try {
+            $scope.SelectedEmployeeList.splice($scope.SelectedEmployeeList.indexOf(data), 1);
+            gridObj.refreshContent();
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    ////Load Employee
 
     $scope.ShiftList = [];
     $scope.getsS = function () {
@@ -68,6 +167,20 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.closeShiftPopUp = function () {
         angular.element(document.querySelector('#ShiftPop')).modal('hide');
     }
+
+    cboService.getCboDepartmentByCompanyGroup(null, function (result) {
+        $scope.DepartmentList = result;
+    });
+    cboService.getCboSectionByCompanyGroup(null, function (result) {
+        $scope.SectionList = result;
+    });
+
+    cboService.getCboSubSectionByCompanyGroup(null, function (result) {
+        $scope.SubSectionList = result;
+    });
+    cboService.getbyDesignationMasterCbo(function (result) {
+        $scope.designationList = result;
+    });
 
     $scope.showEmployeeListPopUp = function () {
         baseService.setCurrentPage('employeeList');
@@ -108,16 +221,16 @@ function GoodWorkController(cboService, commonMessage, $scope, $rootScope, baseS
         angular.element(document.querySelector("#employeePopUp")).modal("hide");
     };
 
-    //$scope.GoodWorkList = [];
-    //$scope.getGoodWorkEmpList = function (employeeId) {
-    //    $http({
-    //        method: "get",
-    //        url: "Attendances/GoodWork/GetGoodWorkDataList?empId=" + employeeId
-    //    }).then(function successCallback(response) {
-    //        $scope.GoodWorkList = response.data;
-    //    });
-    //};
-    //$scope.getGoodWorkEmpList();
+    $scope.GoodWorkList = [];
+    $scope.getGoodWorkEmpList = function (employeeId) {
+        $http({
+            method: "get",
+            url: "Attendances/GoodWork/GetGoodWorkDataList?empId=" + employeeId
+        }).then(function successCallback(response) {
+            $scope.GoodWorkList = response.data;
+        });
+    };
+    $scope.getGoodWorkEmpList();
 
     $scope.popUpDataList = [];
     $scope.showByWhomEmployeeListPopUp = function (index) {

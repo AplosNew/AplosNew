@@ -10,8 +10,7 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>VoucherNo</th>
-                                <th>Doc Ref</th>
+                                <th>Employee Name</th>
                                 <th>Currency</th>
                                 <th>Advanced</th>
                                 <th>Write-off</th>
@@ -20,8 +19,7 @@
                         </thead>
                         <tbody>
                             <tr dir-paginate="x in employeeOutStandingAdvanceDataList |itemsPerPage:employeeAdvanceParameters.pageSize" pagination-id="metaData.name + 'employeeOutStandingAdvanceDataList'">
-                                <td>{{x.VoucherNo}}</td>
-                                <td>{{x.DocRefNo}}</td>
+                                <td>{{x.EmployeeName}}</td>
                                 <td>{{x.CurrencyCode}}</td>
                                 <td class="text-right">{{x.Receivable | number:2}}</td>
                                 <td class="text-right">{{x.Received | number:2}}</td>
@@ -30,7 +28,7 @@
                         </tbody>
                         <tfoot ng-show="employeeOutStandingAdvanceDataList.length">
                             <tr>
-                                <td colspan="4"></td>
+                                <td colspan="3"></td>
                                 <td><b>Sub Total</b></td>
                                 <td class="text-right"><b>{{ employeeOutStandingAdvanceDataList | sumByKey : 'Balance' }}</b></td>
                             </tr>

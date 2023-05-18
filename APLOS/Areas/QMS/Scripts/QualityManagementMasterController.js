@@ -302,19 +302,16 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
 
     $scope.QualityManagementActivityGroupList = [];
-    $scope.LoadQMActivityGroupDetails = function () {
+    $scope.LoadQMActivityGroupDetails = function (pid) {
         $http({
 
             method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadQMActivityGroupDetails?ScheduleId=' + $scope.scheduleNew.Id
+            url: 'QMS/QualityManagementMaster/LoadQMActivityGroupDetails?ScheduleId=' + pid
         }).then(function successCallback(response) {
             $scope.QualityManagementActivityGroupList = response.data;
         }
         )
     }
-
-    $scope.LoadQMActivityGroupDetails();
-
 
     $scope.ActivityGroupSave = function () {
         $scope.$broadcast('show-errors-check-validity');

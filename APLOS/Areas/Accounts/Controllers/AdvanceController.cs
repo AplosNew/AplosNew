@@ -701,6 +701,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsAdvanceService.GetEmployeeWiseOutstandingAdvance(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, employeeId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetEmployeeTotalAdvanceAmountByEmployeeId(GridParameter parameters, string employeeId)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.EmployeeTotalAdvanceByEmployeeIdQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance, employeeId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetAdvanceReqSchedule(string Id)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);

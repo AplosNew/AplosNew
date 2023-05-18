@@ -422,9 +422,9 @@ namespace Library.Service.Materials
        
         public IEnumerable<object> getArticleAliaslist(string articleId)
         {
-            string sql = @"select AA.*,P.UserName VendorName 
+            string sql = @"select AA.*,P.UserName PartyName 
                             from [dbo].[ArticleAlias] AA
-                            left join [HKP].[Party] P on P.Id=AA.VendorId
+                            left join [HKP].[Party] P on P.Id=AA.PartyId
                             where ArticleId in ('" + articleId + @"')";
 
             return _sqlRepository.GetDataCollection(sql, null);

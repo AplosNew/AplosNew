@@ -2,7 +2,8 @@
 VehicleMovementMasterController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
 function VehicleMovementMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     //$rootScope.title = "Vehicle Movement Master";
-   
+    $scope.path = 'HumanResource/VehicleMovementMaster/';
+    $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
     
     
     // #region TAB CHANGE
@@ -16,9 +17,240 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     };
         // #endregion TAB CHANGE
 
+    // #region Vehicle Movement
+    $scope.ActionVM = 'Save';
+    
+    $scope.VehicleMovementList = [];
+    $scope.getListUrlVM = $scope.path + 'GetlistVehicleMaster';
+    $scope.saveUrlVM = $scope.path + 'SaveVehicleMovement';
+    $scope.deleteUrlVM = $scope.path + 'deleteVehicleMaster/';
+    /*baseService.init($scope.getListUrlVM);*/
+
+    $scope.VehicleMovementTemp = {
+        Id: null,
+        FromLocationId: null,
+        ToLocationId: null,
+        MinKillometer: null,
+        Maxkillometer: null,
+        CostPerKillometer: null,
+        VehicleName: null,
+        VehicleName: null,
+        VehicleNumber: null,
+        Milage: null,
+        FuelType: null,
+        Remarks: null,
+        Remarks: null,
+
+    };
+    $scope.VehicleMovement = Object.assign({}, $scope.VehicleMovementTemp);
+
+
+    $scope.GetVehicleMovement = function (args) {
+
+        $scope.VehicleMovement = Object.assign({}, args.data);
+        $scope.ActionVM = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.GetVehicleMovementData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetVehicleMovementData",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.VehicleMovementList = response.data;
+
+        });
+    }
+    $scope.GetVehicleMovementData();
+
+    $scope.SaveVehicleMovement = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.VehicleMovementForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlVM,
+                data: {
+                    'data': $scope.VehicleMovement,
+
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFieldsVM();
+                    $scope.GetVehicleMovementData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteVM = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearVM = function () {
+        ClearFieldsVM();
+        return true;
+    };
+
+    function ClearFieldsVM() {
+        $scope.ActionVM = 'Save';
+
+        $scope.VehicleMovement = {
+            Id: null,
+            FromLocationId: null,
+            ToLocationId: null,
+            MinKillometer: null,
+            Maxkillometer: null,
+            CostPerKillometer: null,
+            VehicleName: null,
+            VehicleName: null,
+            VehicleNumber: null,
+            Milage: null,
+            FuelType: null,
+            Remarks: null,
+            Remarks: null,
+        };
+        $scope.VehicleMovement = Object.assign({}, $scope.VehicleMovementTemp);
+    }
+    // #endregion Vehicle Movement
+
+    // #region Vehicle Master
+    $scope.ActionVM = 'Save';
+    $scope.VehicleMasterList = [];
+    $scope.getListUrlVehicleMaster = $scope.path + 'GetlistVehicleMaster';
+    $scope.saveUrlVehicleMaster = $scope.path + 'CreateVehicleMaster';
+    $scope.deleteUrlVehicleMaster = $scope.path + 'deleteVehicleMaster/';
+
+    $scope.VehicleMasterTemp = {
+        VehicleName: null,
+        VehicleNumber: null,
+        FuelType: null,
+        Milage: null,
+        AvgFuelCostPerKL: null,
+        AvgMaintenancePerKL: null,
+        Remarks:null
+    }
+    $scope.VehicleMaster = Object.assign({}, $scope.VehicleMovementTemp);
+
+    $scope.GetVehicleMasterData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetVehicleMasterData",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.VehicleMasterList = response.data;
+
+        });
+    }
+    $scope.GetVehicleMasterData();
+
+    $scope.SaveVehicleMaster = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.VehicleMasterForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlVehicleMaster,
+                data: {
+                    'data': $scope.VehicleMaster,
+
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFieldsVehicleMaster();
+                    $scope.GetVehicleMasterData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteVehicleMaster = function () {
+        if (!baseService.isUndefinedOrNull($scope.VehicleMaster.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrlVehicleMaster + $scope.VehicleMaster.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFieldsVehicleMaster();
+                    $scope.GetVehicleMasterData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearVehicleMaster = function () {
+        ClearFieldsVehicleMaster();
+        return true;
+    };
+
+    function ClearFieldsVehicleMaster() {
+        $scope.ActionVM = 'Save';
+
+        $scope.VehicleMaster = {
+            VehicleName: null,
+            VehicleNumber: null,
+            FuelType: null,
+            Milage: null,
+            AvgFuelCostPerKL: null,
+            AvgMaintenancePerKL: null,
+            Remarks: null
+        }
+        $scope.VehicleMaster = Object.assign({}, $scope.VehicleMovementTemp);
+    }
+    // #endregion Vehicle Master
+
     //  #region PurposeMaaster
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/VehicleMovementMaster/';
+    
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'GetSequence';
     $scope.saveUrl = $scope.path + 'Save';
@@ -146,108 +378,6 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     }
     //  #endregion PurposeMaaster
 
-    // #region Vehicle Master
-    $scope.ActionVM = 'Save';
-    $scope.VehicleMasterList = [];    
-    $scope.getListUrlVM = $scope.pathVM + 'GetlistVehicleMaster';
-    $scope.saveUrlVM = $scope.pathVM + 'SaveVehicleMaster';
-    $scope.deleteUrlVM = $scope.pathVM + 'deleteVehicleMaster/';
-    /*baseService.init($scope.getListUrlVM);*/
-
-    $scope.VehicleMovementTemp = {
-        Id: null,
-        FromLocation: null,
-        ToLocation: null,
-        MinKillometer: null,
-        Maxkillometer: null,
-        CostPerKillometer: null,
-        VehicleName: null,
-        VehicleName: null,
-        VehicleNumber: null,
-        Milage: null,
-        FuelType: null,
-        Remarks:null,
-        Remarks: null,
-
-    };
-    $scope.VehicleMovement = Object.assign({}, $scope.VehicleMovementTemp);
-
-
-    $scope.GetVM = function (args) {
-
-        $scope.VehicleMovement = Object.assign({}, args.data);
-        $scope.ActionVM = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
-
-    $scope.getDataVM = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetVMList",
-
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.VehicleMasterList = response.data;
-            
-        });
-    }
-    //$scope.getDataVM();
-
-    $scope.SaveVM = function () {
-        $scope.$broadcast('show-errors-check-validity');
-
-        if ($scope.VehicleMovementForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlVM,
-                data: {
-                    'datas': $scope.VehicleMovement,
-
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFieldsVM(response.data.Sequence);
-                    $scope.getDataVM();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-        }
-    };
-
-    $scope.DeleteVM = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
-
-    // #endregion Vehicle Master
-
     // #region LocationMaster
     $scope.LocationList = [];
     $scope.LocationAction = 'Save';
@@ -266,24 +396,25 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
         Active: true,
         Remarks: null,
     };
-    $scope.LocationNew = Object.assign({}, $scope.LocationTemp);
+    $scope.LocationNewModel = Object.assign({}, $scope.LocationTemp);
 
     $scope.GetLocationSequence = function () {
         cboService.getSequence($scope.getLocationSeqUrl, function (data) {
             $scope.LocationTemp.Sequence = data;
-            $scope.LocationNew.Sequence = data;
+            $scope.LocationNewModel.Sequence = data;
         });
     };
     $scope.GetLocationSequence();
 
     $scope.GetLocation = function (args) {
 
-        $scope.LocationNew = Object.assign({}, args.data);
+        $scope.LocationNewModel = Object.assign({}, args.data);
         $scope.LocationAction = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
+    
 
     $scope.GetLocationData = function () {
         $http({
@@ -292,7 +423,7 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
 
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.LocationNew = response.data;
+            $scope.LocationList = response.data;
             ClearFields(response.data.Sequence);
             $scope.GetLocationSequence();
         });
@@ -301,12 +432,12 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
 
     $scope.SaveLocation = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.LocationNewForm.$valid) {
+        if ($scope.LocationNewModelForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveLocationUrl,
                 data: {
-                    'data': $scope.LocationNew
+                    'data': $scope.LocationNewModel
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -315,7 +446,7 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFieldsLocation(response.data.Sequence);
                     $scope.GetLocationData();
 
                 }
@@ -327,10 +458,10 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     };
 
     $scope.DeleteLocation = function () {
-        if (!baseService.isUndefinedOrNull($scope.LocationNew.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.LocationNewModel.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteLocationUrl + $scope.LocationNew.Id,
+                url: $scope.deleteLocationUrl + $scope.LocationNewModel.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -356,7 +487,7 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     function ClearFieldsLocation(seq) {
         $scope.LocationAction = 'Save';
 
-        $scope.LocationNew = {
+        $scope.LocationNewModel = {
             Id: null,
             Sequence: 0,
             StandardName: null,
@@ -366,11 +497,126 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
             Active: true,
             Remarks: null,
         };
-        $scope.LocationNew = Object.assign({}, $scope.LocationTemp);
-        $scope.LocationNew.Sequence = seq;
-
-
+        $scope.LocationNewModel = Object.assign({}, $scope.LocationTemp);
+        $scope.LocationNewModel.Sequence = seq;
 
     }
     // #endregion LocationMaster
+
+    // #region Fuel Master
+    $scope.FuelList = [];
+    $scope.FuelAction = 'Save';
+    $scope.getFuelListUrl = $scope.path + 'GetMovementList';
+    $scope.saveFuelUrl = $scope.path + 'SaveFuelMaster';
+    $scope.deleteFuelUrl = $scope.path + 'deleteFuel/';
+
+    $scope.FuelTemp = {
+        Id: null,
+        FuelType: null,
+        Rate:0.00,
+        EffectiveDate: null,
+        Remarks: null
+    };
+    $scope.FuelNewModel = Object.assign({}, $scope.FuelTemp);
+
+    $scope.GetFuel = function (args) {
+
+        $scope.FuelNewModel = Object.assign({}, args.data);
+        $scope.FuelAction = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+
+    $scope.GetFuelData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetFuelData",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FuelList = response.data;
+            //ClearFields(response.data.Sequence);
+
+        });
+    }
+    $scope.GetFuelData();
+
+    $scope.SaveFuel = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.FuelForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveFuelUrl,
+                data: {
+                    'data': $scope.FuelNewModel
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearFuel();
+                    $scope.GetFuelData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.ClearFuel = function () {
+        ClearFieldsFuel();
+        return true;
+    };
+
+    function ClearFieldsFuel() {
+        $scope.FuelAction = 'Save';
+        $scope.FuelNewModel = {
+            Id: null,
+            FuelName:null,
+            EffectiveDate: null,
+            Remarks: null
+        };
+        $scope.FuelNewModel = Object.assign({}, $scope.FuelTemp);
+
+    }
+
+    // #endregion Fuel Master
+
+    
+
+    $scope.FromLocationList = [];
+    $scope.GetFromToLocationList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetFromToLocationList",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FromLocationList = response.data;
+
+        });
+    }
+    $scope.GetFromToLocationList();
+
+    $scope.AllFuelList = [];
+    $scope.GetFuelList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetFuelList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AllFuelList = response.data;
+
+        });
+    }
+    $scope.GetFuelList();
+    
+   
 }

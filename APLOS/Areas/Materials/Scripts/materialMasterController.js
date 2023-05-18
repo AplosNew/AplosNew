@@ -1494,6 +1494,7 @@ function MaterialMasterController(fileReader, commonMessage, $scope, $rootScope,
     // #region Material Master Attribute
     $scope.joiningParameterList = [
         { Value: ", ", Text: "Comma(,)" },
+        { Value: ", ", Text: "Comma Space(, )" },
         { Value: " ", Text: "Space()" },
         { Value: "/", Text: "Slash(/)" },
         { Value: "-", Text: "Hyphen(-)" },

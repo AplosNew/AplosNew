@@ -148,9 +148,30 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.BudgetList = response.data;
-            /*$scope.GetUserGroup();*/
-            //$scope.GetUserSubGroup();
+           
         });
+    }
+
+    $scope.ViewAllBudgetCode = function () {
+        var DropDownEntityListObj = $("#entityId").data("ejDropDownList");
+        var EntityId = DropDownEntityListObj.getSelectedValue();
+        if (angular.isUndefinedOrNull(EntityId)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "ViewAllBudgetCode",
+                data: {
+                    'EntityId': EntityId,
+                    'id': $scope.ModelNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.BudgetList = response.data;
+
+            });
+        }
+        else {
+            $scope.GetBudget();
+        }
     }
 
     $scope.SavedBudgetList = [];
@@ -288,6 +309,29 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.DeleteBudgetCode = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'DeleteBudgetCode' + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    }
+
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
         return true;
@@ -384,9 +428,11 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 $scope.GetBudget($scope.ModelNew.Id);
                 $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
                 var gridObj = $("#bgtCodeGridId").data("ejGrid");
+                angular.element(document.querySelector('#UserGroupPop')).modal('hide');
                 gridObj.refreshContent(true);
                 gridObj.refreshTemplate();
                 $scope.UnchkOfCheckedItem();
+
             }
         });
 
