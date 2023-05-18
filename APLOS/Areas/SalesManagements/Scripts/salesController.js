@@ -140,7 +140,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         BooksCurrencyTransactionAmount: null,
         BooksCurrencyTaxAmount: null,
         BooksCurrencyBaseRate: null,
-        IsPark: 1
+        IsPark: 1,
+        IsIncentiveApplicable: false
     };
     $scope.salesVM.TaxOptionAddiTax = 'Yes';
     $scope.materialMaster = {
@@ -341,7 +342,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     }
     $scope.Get = function (data) {
         $scope.salesVM = data;
-        $scope.salesVM.AddedDate=$filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
+        $scope.salesVM.AddedDate = $filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
         getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
         $scope.GetSalesMaterialData($scope.salesVM.Id);
         $scope.getTaxCodeByTaxYearWithhold($scope.salesVM.InvoiceDate);
@@ -436,7 +437,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             if ($scope.salesVM.IsPark == 0) {
                 throw "Posted data cann't save or update.";
             }
-            
+
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.form0.$valid) {
                 $scope.savebtndisable = true;
@@ -566,7 +567,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             CompanyGroupId: null,
             CompanyId: null,
             PartyId: null,
-            EntityId:null,
+            EntityId: null,
             ItemDescription: null,
             PartyName: null,
             CurrencyId: null,
@@ -1240,7 +1241,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             ShowResult('Please select Due Date BaseOn!', 'failure');
             return true;
         }
-        if(!baseService.isUndefinedOrNull(salesdb.PaymentTermId)){
+        if (!baseService.isUndefinedOrNull(salesdb.PaymentTermId)) {
             $http({
                 method: "POST",
                 url: $scope.postUrl,
@@ -1269,7 +1270,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             ShowResult('Please select PaymentTerm', "failure", 'JournalPopUp');
 
         }
-       
+
         return true;
     };
 
