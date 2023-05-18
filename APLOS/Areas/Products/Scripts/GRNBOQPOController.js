@@ -2141,6 +2141,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
             else {
                 ShowResult(response.data.Message, 'success');
+                $scope.GetAdvanceTaxInfo($scope.productNew.Id);
                 $scope.TotalSumAfterTCS();
 
             }
@@ -2487,5 +2488,43 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:C2}" }],
         showCaptionSummary: true,
     }];
-   
+
+    $scope.GetAdvanceTaxInfo = function (Id) {
+        $scope.advanceTaxesList = [];
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/InventoryReceive/GetAdvanceTaxInfo?InventoryReceiveId=' + Id,
+        }).then(function successCallback(response) {
+            $scope.advanceTaxesList = response.data;
+
+        });
+    }
+
+    $scope.removeTaxesRow = function (Id, index) {
+        if (baseService.isUndefinedOrNull(Id)) {
+            $scope.advanceTaxesList.splice(index, 1);
+
+        }
+        else {
+            $scope.DeleteAdditinalTax(Id);
+        }
+    };
+    $scope.DeleteAdditinalTax = function (Id) {
+        $http({
+            method: 'POST',
+            url: 'Products/InventoryReceive/AdditionalTaxDelete?Id=' + Id,
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
+                ShowResult(response.data.Message, 'failure');
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetAdvanceTaxInfo($scope.productNew.Id);
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
 }
