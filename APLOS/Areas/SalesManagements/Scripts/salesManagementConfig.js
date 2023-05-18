@@ -42,5 +42,9 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/Sales/SalesReturnPost",
             controller: "SalesReturnPostController"
         })
+        .when("/addinfo", {
+            templateUrl: "SalesManagements/AdditionalInfo/Aplos",
+            controller: "AdditionalInfoController"
+        })
         ;
 }

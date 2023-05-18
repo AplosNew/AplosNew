@@ -525,6 +525,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("ChartAccountSetupController", ChartAccountSetupController)
     .controller("ManagementChartAccountSetupController", ManagementChartAccountSetupController)
     .controller("DesignationSetupController", DesignationSetupController)
+    .controller("AdditionalInfoController", AdditionalInfoController)
     
 
 
@@ -563,6 +564,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .config(EmployeeServicesConfig)
     .config(PayrollsConfig)
     .config(MeetingManagementConfig)
+    .config(salesManagementConfig)
 
     .config(["$routeProvider", "$locationProvider", "$httpProvider", "$compileProvider", function apanelConfig($routeProvider, $locationProvider, $httpProvider, $compileProvider) {
         $httpProvider.interceptors.push("errorInterceptor");
