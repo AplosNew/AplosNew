@@ -8,7 +8,7 @@ function jwTransformationMasterController(cboService, commonMessage, $scope, $ro
     $scope.popUpFlag = 'Main';
 
     $scope.ModelList = [];
-    $scope.path = 'JobWork/JWTransformationMaster/';
+    $scope.path = 'Outsourcing/JWTransformationMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -21,12 +21,12 @@ function jwTransformationMasterController(cboService, commonMessage, $scope, $ro
 
     $scope.productionPrcoessList = [];
     $scope.jobWorkActivityList = [];
-    $http.get('JobWork/JWActivity/GetProductionProcessList')
+    $http.get('Outsourcing/JWActivity/GetProductionProcessList')
         .then(function (response) {
             $scope.productionPrcoessList = response.data;
         });
 
-    $http.get('JobWork/JWTransformationMaster/GetJobWorkActivityList')// Only Transformation
+    $http.get('Outsourcing/JWTransformationMaster/GetJobWorkActivityList')// Only Transformation
         .then(function (response) {
             $scope.jobWorkActivityList = response.data;
         });
@@ -628,7 +628,7 @@ function jwTransformationMasterController(cboService, commonMessage, $scope, $ro
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'JobWork/JWItem/EmployeeListAll'
+            url: 'Outsourcing/JWItem/EmployeeListAll'
         }).then(function successCallback(response) {
             if (response.data.length > 0) {
                 $scope.employeeList = response.data;
@@ -651,7 +651,7 @@ function jwTransformationMasterController(cboService, commonMessage, $scope, $ro
             $http({
                 method: "GET",
                 dataType: 'JSON',
-                url: 'JobWork/JWActivity/EmployeeListAll'
+                url: 'Outsourcing/JWActivity/EmployeeListAll'
             }).then(function successCallback(response) {
                 if (response.data.length > 0) {
                     $scope.employeeList = response.data;

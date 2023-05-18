@@ -144,7 +144,7 @@ function JobWorkTransformationPOController(cboService, commonMessage, $scope, $r
     $scope.GetJWLocation = function () {
         $http({
             method: 'GET',
-            url: $scope.pathJWCBO + 'getmateriallocation?EntityId=' + $scope.productNew.EntityId + '&JWActivityId=' + $scope.detailModel.JobActivityId,
+            url: 'Outsourcing/JobWorkValueAddedContract/getmateriallocation?EntityId=' + $scope.productNew.EntityId + '&JWActivityId=' + $scope.detailModel.JobActivityId,
         }).then(function successCallback(response) {
             $scope.MaterialLocList = response.data;
         });
@@ -1921,6 +1921,7 @@ function JobWorkTransformationPOController(cboService, commonMessage, $scope, $r
         //$scope.MatPlanning = Object.assign({}, $scope.MatPlanningModelTemp);
         angular.element(document.querySelector('#detailPopUp')).modal('show');
         $scope.GetJWActivityListByPOType();
+        $scope.GetJWLocation();
     };
 
     $scope.GetMatMstJW = [];
@@ -3961,6 +3962,18 @@ function JobWorkTransformationPOController(cboService, commonMessage, $scope, $r
         angular.element(document.querySelector("#" + popupName + "")).modal("hide");
 
     }
+
+    $scope.setInputeMaterialArticleData = function (obj) {
+        var data = obj.data;
+        $scope.InputMaterialArticlelistData.ArticleId = data.Id;
+        $scope.InputMaterialArticlelistData.InputArticleCode = data.Code;
+        $scope.InputMaterialArticlelistData.InputArticleName = data.StandardName;
+        $scope.InputMaterialArticlelistData.InputMaterial = data.MaterialMasterName;
+        $scope.InputMaterialArticlelistData.InputMaterialId = data.MaterialMasterId;
+        var gridObj = $("#GridMatInput").data("ejGrid");
+        gridObj.refreshTemplate(true);
+        angular.element(document.querySelector('#materialarticleNewPopUp')).modal('hide');
+    };
 
     $scope.MaterialInputList = [];
     //$scope.MaterialMasterList = [];

@@ -3,7 +3,7 @@ jwLocationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootS
 function jwLocationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, $window) {
     $rootScope.title = 'Job Work Location';
     $scope.ModelList = [];
-    $scope.path = 'JobWork/JWLocation/';
+    $scope.path = 'Outsourcing/JWLocation/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -44,7 +44,7 @@ function jwLocationController(cboService, commonMessage, $scope, $rootScope, bas
 
     $scope.entityListA = [];
     $scope.getEntityListA = function () {
-        $http.get('JobWork/JWLocation/GetEntityListA')
+        $http.get('Outsourcing/JWLocation/GetEntityListA')
             .then(function (response) {
                 $scope.entityListA = response.data;
                 $scope.entityList = response.data;
@@ -54,7 +54,7 @@ function jwLocationController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.getEntityListA();
     $scope.plantListA = [];
     $scope.getPlantListA = function () {
-        $http.get('JobWork/JWLocation/GetPlantList')
+        $http.get('Outsourcing/JWLocation/GetPlantList')
             .then(function (response) {
                 $scope.plantListA = response.data;
                 $scope.cboPlantList = response.data;
@@ -63,7 +63,7 @@ function jwLocationController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.getPlantListA();
 
 
-    $http.get('JobWork/JWLocation/GetStorageLocationList')
+    $http.get('Outsourcing/JWLocation/GetStorageLocationList')
         .then(function (response) {
             $scope.storageLocationListAll = response.data;
             $scope.storageLocationList = response.data;
@@ -401,7 +401,7 @@ function jwLocationController(cboService, commonMessage, $scope, $rootScope, bas
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'JobWork/JWActivity/EmployeeListAll'
+            url: 'Outsourcing/JWActivity/EmployeeListAll'
         }).then(function successCallback(response) {
             if (response.data.length > 0) {
                 $scope.employeeList = response.data;
