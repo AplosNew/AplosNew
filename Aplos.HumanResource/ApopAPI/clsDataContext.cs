@@ -4442,7 +4442,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations)
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations,string entityid)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4454,7 +4454,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             {
                 #region Sql
                 strSQL1 = @"select distinct LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
-DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
+DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
@@ -4507,18 +4507,42 @@ left join ResidenceMaster RM on RM.Id = RA.ResidenceId
 
 LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
 "where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1" +
-"and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
+"and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
 
-                if(locations != null)
+                if (inmis == "IN" || inmis == "IM" || inmis == "W")
                 {
-                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "'";
+                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis + "'";
+                }
+                if (entityid != null && shiftid == null && locations == null)
+                {
+                    strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'";
+                }
+                if (entityid == null && shiftid != null && locations == null)
+                {
+                    strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                }
+                if (entityid == null && shiftid == null && locations != null)
+                {
+                    strSQL = strSQL + " and  RM.Location = '" + locations + "'";
+                }
+                if (entityid != null && shiftid != null && locations == null)
+                {
+                    strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                }
+                if (entityid == null && shiftid != null && locations != null)
+                {
+                    strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                }
+                if (entityid != null && shiftid == null && locations != null)
+                {
+                    strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'";
+                }
+                if (entityid != null && shiftid != null && locations != null)
+                {
+                    strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
                 }
 
-                if (inmis ==  "IN" || inmis == "IM" || inmis == "W")
-                {
-                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis +"' order by Diffenence Asc";
-                }
-               
+
                 #endregion Sql
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -4556,6 +4580,8 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
                         Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
                         RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
+                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                        EntityName = dsRef.Tables[0].Rows[i]["EntityName"].ToString(),
                        
                     });
                 }
@@ -5348,6 +5374,8 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
         public string ToDayIN { get; set; }
         public string Diffenence { get; set; }
         public string RawDayStatus { get; set; }
+        public string EntityId { get; set; }
+        public string EntityName { get; set; }
        
     }
 

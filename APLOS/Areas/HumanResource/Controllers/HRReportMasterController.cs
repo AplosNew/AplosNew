@@ -110,6 +110,28 @@ order by Sequence
             return Json(_sqlRepository.GetDataCollection(entityQry), JsonRequestBehavior.AllowGet);
         }
 
+        public  ActionResult ViewAllBudgetCode()
+        {
+          string  bgtQuery = @"select HMC.Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+                            , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
+                            , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId --, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
+                            from  MST.ManpowerBudget BGT 
+                            left join ORG.Entity E on E.Id = BGT.EntityId
+                            left join MST.BudgetMasterActivity BMA on BGT.ROBudgetCode = BMA.BudgetMasterId
+                            left join HKP.Activity A on BMA.ActivityId = A.Id
+                            left join dbo.ShiftDefination SDF on BGT.ShiftDefinationId = SDF.SystemID
+                            left join ORG.Position P on BGT.PositionId = P.Id
+                            left join ORG.Division D on P.DivisionId  = D.Id
+                            left join ORG.Department DT on P.DepartmentId = DT.Id
+                            left join ORG.Section S on P.SectionId = S.Id
+                            left join ORG.SubSection SS on P.SubSectionId = SS.Id
+                            left join ORG.Division DSN on P.DivisionId = DSN.Id
+                            left join HKP.Designation DSG ON P.DesignationId = DSG.Id
+                            left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id";
+
+            return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult GetBudgetCode(string EntityId, string id)
         {
             string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
@@ -129,25 +151,7 @@ order by Sequence
                 whereClause = $"where BGT.EntityId = ({Entity}) or HMC.HRReportMasterId = '{id}'";
             }
 
-            #region comment
-            //            bgtQuery = @"select '' Id, E.UserName Entity ,D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection, DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
-            //, P.UserName Position ,BGT2.Code BudgetCode, BGT.Id ManpowerBudgetId 
-            //from MST.ManpowerBudget BGT
-            //left join MST.ManpowerBudget BGT2 on BGT.Id = BGT2.ROBudgetCode
-            //left join ORG.Entity E on E.Id = BGT.EntityId
-            //left join MST.BudgetMasterActivity BMA on BGT.ROBudgetCode = BMA.BudgetMasterId
-            //left join HKP.Activity A on BMA.ActivityId = A.Id
-            //left join dbo.ShiftDefination SDF on BGT.ShiftDefinationId = SDF.SystemID
-            //left join ORG.Position P on BGT.PositionId = P.Id
-            //left join ORG.Division D on P.DivisionId  = D.Id
-            //left join ORG.Department DT on P.DepartmentId = DT.Id
-            //left join ORG.Section S on P.SectionId = S.Id
-            //left join ORG.SubSection SS on P.SubSectionId = SS.Id
-            //left join ORG.Division DSN on P.DivisionId = DSN.Id
-            //left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-            //where BGT.EntityId in (" + Entity + ") " +
-            //"order by BGT2.Code desc";
-            #endregion comment
+            
 
             bgtQuery = @"select HMC.Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
@@ -336,6 +340,8 @@ order by HMC.ManpowerBudgetId DESC";
 
             }
         }
+
+        #region AddEdit
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -389,105 +395,8 @@ order by HMC.ManpowerBudgetId DESC";
 
             return 1;
         }
+        #endregion AddEdit
 
-        #region Unused Fun
-        public ActionResult SaveBudgetCode(List<Dictionary<string, object>> chkBgtList, string headerId, List<Dictionary<string, object>> usergroup)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string TableNameChildA = "TRN.HRReportMasterChild";
-                string TableUserGroup = "TRN.HRReportMasterBudgetUserGroup";
-
-                DataSet dsChildA, dsUserGroup;
-
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                string _Id = "";
-                #region CHILD 1
-                con.OpenDataSetThroughAdapter("select * from " + TableNameChildA + " where HRReportMasterId='" + headerId + "'", out dsChildA, false, "1");
-
-                foreach (var item in chkBgtList)
-                {
-                    DataView dv = new DataView(dsChildA.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-                    if (dv.Count > 0)
-                    {
-
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableNameChildA, out _Id);
-                        DataRow dr = dv[0].Row;
-                        dr["Active"] = 0;
-
-                        EditRow(dr, item);
-
-                    }
-                    else
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableNameChildA, out _Id);
-
-                        DataRow dr = dsChildA.Tables[0].NewRow();
-                        dr["Id"] = _Id;
-                        dr["HRReportMasterId"] = headerId;
-                        
-                        dr["ManpowerBudgetId"] = item["ManpowerBudgetId"];
-                        dr["UserGroupId"] = item["UserGroupId"];
-                        dr["UserSubGroupId"] = item["UserSubGroupId"];
-                        dr["Grade"] = item["Grade"];
-                        dr["Active"] = item["isSelected"];
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dsChildA.Tables[0].Rows.Add(dr);
-                    }
-
-
-                }
-                #endregion CHILD 1
-
-                #region UserGroup (From Pop Screen)
-                var id = "";
-                foreach (var item in chkBgtList)
-                {
-                    if (id == "")
-                        id = "'" + item["Id"] + "'";
-                    else
-                        id = id + ",'" + item["Id"] + "'";
-                }
-                string _UserGroupId = "";
-                con.OpenDataSetThroughAdapter("select * from " + TableUserGroup + " where Id In (" + id + ")", out dsUserGroup, false, "1");
-                foreach (var item in usergroup)
-                {
-                    DataView dv = new DataView(dsUserGroup.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableUserGroup, out _UserGroupId);
-                    DataRow dr = dsChildA.Tables[0].NewRow();
-                    dr["Id"] = _Id;
-                    dr["HRReportMasterChildId"] = id;
-                    dr["Grade"] = item["Grade"];
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dsChildA.Tables[0].Rows.Add(dr);
-                }
-
-                #endregion UserGroup (From Pop Screen)
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsChildA, dsUserGroup);
-
-                return Json(new { Data = chkBgtList, headerId, Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-        #endregion Unused Fun
         public void SaveData(Dictionary<string, object> chkBgtList, string headerId, out string contId, List<Dictionary<string, object>> usergroup)
         {
             string TableName = "TRN.HRReportMasterChild";
@@ -524,6 +433,11 @@ order by HMC.ManpowerBudgetId DESC";
                         AddNewRow(dsMaster.Tables[0], chkBgtList);
 
                     }
+                else
+                {
+                    chkBgtList["Active"] = 0;
+                    EditRow(dsMaster.Tables[0].Rows[0], chkBgtList);
+                }
                
                 contId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
@@ -533,19 +447,35 @@ order by HMC.ManpowerBudgetId DESC";
                 foreach (var item in usergroup)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
+                    
                     dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["Grade"] = item["Grade"];
 
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("TRN.HRReportMasterBudgetUserGroup", out _UserGroupId);
-                    DataRow dr = dsChild.Tables[0].NewRow();
-                    dr["Id"] = _UserGroupId;
-                    dr["HRReportMasterChildId"] = contId;
-                    dr["UserGroupId"] = item["UserGroupId"];
-                    dr["Grade"] = item["Grade"];
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dsChild.Tables[0].Rows.Add(dr);
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.HRReportMasterBudgetUserGroup", out _UserGroupId);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _UserGroupId;
+                        dr["HRReportMasterChildId"] = contId;
+                        dr["UserGroupId"] = item["UserGroupId"];
+                        dr["Grade"] = item["Grade"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
                 }
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -575,63 +505,29 @@ order by HMC.ManpowerBudgetId DESC";
 
         }
 
-        public ActionResult UpdateBudgetCode(List<Dictionary<string, object>> unchkBgtList, string headerId)
+        public ActionResult DeleteBudgetCode(string bgtId, string groupId)
         {
             try
             {
-                var id = "";
-                foreach (var item in unchkBgtList)
-                {
-                    if (id == "")
-                        id = "'" + item["Id"] + "'";
-                    else
-                        id = id + ",'" + item["Id"] + "'";
-                }
+                string BudgetCodeTable = "TRN.HRReportMasterChild";
+                string GroupTable = "TRN.HRReportMasterBudgetUserGroup";
 
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string TableNameChildA = "TRN.HRReportMasterChild";
+                if (string.IsNullOrEmpty(bgtId))
+                    throw new Exception("Select entry first");
 
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + GroupTable + " where id='" + groupId + "'");
+                con.executeQuery("delete from " + BudgetCodeTable + " where id='" + bgtId + "'");
+                con.CommitTransaction();
+                return Json(new { Id = bgtId, x = groupId, Message = AplosMessage.Deleted });
 
-                DataSet dsChildA;
-
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                string _Id = "";
-                #region CHILD 1
-                con.OpenDataSetThroughAdapter("select * from " + TableNameChildA + " where Id In (" + id + ")", out dsChildA, false, "1");
-
-                //for (int i = 0; i < chkBgtList.Count; i++)
-                foreach (var item in unchkBgtList)
-                {
-                    DataView dv = new DataView(dsChildA.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-                    if (dv.Count > 0)
-                    {
-
-                        DataRow dr = dv[0].Row;
-                        dr.BeginEdit();
-                        dr["Active"] = false;
-
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-
-                        dr.EndEdit();
-
-                    }
-                    
-                }
-                #endregion CHILD 1
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsChildA);
-
-                return Json(new { Data = unchkBgtList, headerId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+
+                throw ex;
+
             }
         }
 
