@@ -790,8 +790,8 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        
-        public IEnumerable<object> GetListForHold(string plantId, string PoType, string Status,string vendorId)
+
+        public IEnumerable<object> GetListForHold(string plantId, string PoType, string Status, string vendorId)
         {
             var Sql = "";
             try
@@ -2316,7 +2316,7 @@ namespace Library.MaterialManagement.Inventory
 
                 if (dsMaster1.Tables[0].Rows.Count > 0)
                 {
-                    throw new CustomException("Approved not allow of GRN No "+ GRNNo + " ,  Purchase Return  Occured against this GRN !");
+                    throw new CustomException("Approved not allow of GRN No " + GRNNo + " ,  Purchase Return  Occured against this GRN !");
                 }
 
                 bool IsApproved;
@@ -2482,8 +2482,8 @@ namespace Library.MaterialManagement.Inventory
 
                 dtOrderMaster = loadGRNBOQPOMaster(grnBOQPOId);
                 dtOrderMasterDetail = loadGRNBOQPOMaterialMaster(grnBOQPOId);
-                
-                if (dtOrderMasterDetail.Rows.Count==0)
+
+                if (dtOrderMasterDetail.Rows.Count == 0)
                 {
                     throw new CustomException("There is no Material in this GRN.");
                 }
@@ -2508,7 +2508,7 @@ namespace Library.MaterialManagement.Inventory
 
                 {
                     InventoryReceiveAdditionalTax = BOQPOmakeInventoryReceiveAdditionalTaxTable(document, dsInventoryReceiveAdditionalTax, grnBOQPOId);//Service Details 
-                                                                                                                                             //document.Replace("{ServiceDetails}", "Service Details", true, true);
+                                                                                                                                                       //document.Replace("{ServiceDetails}", "Service Details", true, true);
 
                     //{TotalInWords}
                 }
@@ -5129,7 +5129,7 @@ namespace Library.MaterialManagement.Inventory
 
             }
         }
-//#endregion
+        //#endregion
 
         #region GRNReport
         public void InventoryReceive(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId)
@@ -5164,11 +5164,11 @@ namespace Library.MaterialManagement.Inventory
 
                 dtOrderMaster = loadGRNMaterialMaster(grnId);
 
-                if (dtOrderMaster.Rows.Count==0)
+                if (dtOrderMaster.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found");
                 }
-               
+
 
 
                 var invoicePartyAddress = ru.GetAddress(dtOrderMaster.Rows[0]["InvoicePartyAddressMasterId"].ToString(), dtOrderMaster.Rows[0]["InvoicingByAddress"].ToString());
@@ -9065,7 +9065,7 @@ namespace Library.MaterialManagement.Inventory
 
         #region un Approval for post
 
-        
+
 
         public void PoApproved1(string PoId, string PoValue)
         {
@@ -13741,7 +13741,7 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public IEnumerable<object> GetStockForMaterialIssue(string plantId,string materialMasterId,string articleId)
+        public IEnumerable<object> GetStockForMaterialIssue(string plantId, string materialMasterId, string articleId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -13858,7 +13858,7 @@ namespace Library.MaterialManagement.Inventory
                                 	GROUP BY IRD.InventoryMaterialId
                                 	) InventoryTransferData ON InventoryTransferData.InventoryMaterialId = MRD.Id
                                 LEFT JOIN SCS.Country C ON C.Id = MRD.CountryId
-                                WHERE MM.IsAsset = 0 and MRD.MaterialMasterId='"+materialMasterId+@"' AND MRD.ArticleId='"+articleId+@"'
+                                WHERE MM.IsAsset = 0 and MRD.MaterialMasterId='" + materialMasterId + @"' AND MRD.ArticleId='" + articleId + @"'
                                 ) AS TEMP  order by  TotalQty desc,MaterialMasterName asc
                                 ";
 
@@ -18764,13 +18764,15 @@ WHERE PO.Id='" + grnId + @"' and PurchaseReturnDetailId IS NOT NULL
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='JobWorkReceiptApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='JobWorkReceiptApproveBy' AND E.EmployeeStatus='Active'";
+                    return _sqlRepository.GetDataCollection(sql);//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {
-
+                    return null;
                 }
                 return _sqlRepository.GetDataCollection(sql);
+
 
             }
             catch (Exception ex)

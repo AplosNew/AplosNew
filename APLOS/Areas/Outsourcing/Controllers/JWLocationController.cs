@@ -19,7 +19,7 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.JobWork.Controllers
+namespace Aplos.Areas.Outsourcing.Controllers
 {
     public class JWLocationController : BaseController
     {
