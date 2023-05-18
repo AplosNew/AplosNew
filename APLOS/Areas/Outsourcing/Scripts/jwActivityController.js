@@ -3,7 +3,7 @@ jwActivityController.$inject = ['cboService', 'commonMessage', '$scope', '$rootS
 function jwActivityController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter,$controller) {
     $rootScope.title = 'Job Work Activity';
     $scope.ModelList = [];
-    $scope.path = 'JobWork/JWActivity/';
+    $scope.path = 'Outsourcing/JWActivity/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -27,7 +27,7 @@ function jwActivityController(cboService, commonMessage, $scope, $rootScope, bas
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'JobWork/JWItem/EmployeeListAll'
+            url: 'Outsourcing/JWItem/EmployeeListAll'
         }).then(function successCallback(response) {
             if (response.data.length > 0) {
                 $scope.employeeList = response.data;
@@ -44,7 +44,7 @@ function jwActivityController(cboService, commonMessage, $scope, $rootScope, bas
             $scope.serviceCboList = response.data;
         });
     $scope.productionPrcoessList = [];
-    $http.get('JobWork/JWActivity/GetProductionProcessList')
+    $http.get('Outsourcing/JWActivity/GetProductionProcessList')
         .then(function (response) {
             $scope.productionPrcoessList = response.data;
         });
