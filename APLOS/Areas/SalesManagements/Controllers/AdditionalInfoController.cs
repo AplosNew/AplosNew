@@ -11,41 +11,41 @@ using Library.Service.Setups;
 using OTSBD;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.Outsourcing.Controllers
+namespace Aplos.Areas.SalesManagements.Controllers
 {
-    public class JWItemController : BaseController
+    public class AdditionalInfoController : BaseController
     {
-        string TableName = "HKP.JobWorkItem";
+        //abcd
+        //this is my code from tarek
+        string TableName = "hkp.AdditionalInfo";
         //authentication for
         //GetList Create Delete
-        Library.MaterialManagement.JobWork.OSCommon JobWorkCommon = null;
+
 
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public JWItemController(ISqlRepository R)
+        public AdditionalInfoController(ISqlRepository R)
         {
             _sqlRepository = R;
-            
         }
 
         #endregion Constructor
 
 
-    
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();
         }
 
-        [Authorize, HttpPost]
+        [AllowAnonymous]
         public JsonResult GetCbo()
         {
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
@@ -56,7 +56,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
         {
             try
             {
-                var _master = _sqlRepository.GetDataCollection("select * from JWActivity where Id = '" + Id + "' ");
+                var _master = _sqlRepository.GetDataCollection("select * from hkp.AdditionalInfo wher Id = '" + Id + "' ");
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
@@ -69,7 +69,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult GetList(string column, string value)
         {
             string strkey = "1=1";
@@ -77,12 +77,9 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT JWI.Id,JWI.MaterialMasterId,JWI.ResponsiblePersonId,JWI.UOMId UOMId,JWI.Code
-                            ,JWI.Sequence,JWI.ShortName,JWI.StandardName,JWI.UserName,JWI.Remarks,MM.UserName MaterialMaster
-                            ,UOM.ShortName UOM,EEI.EmployeeName ResponsiblePersonName FROM HKP.JobWorkItem JWI 
-                            LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id = JWI.MaterialMasterId
-                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = JWI.ResponsiblePersonId
-                            LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id = JWI.UOMId WHERE " + strkey + " order by JWI.sequence";
+            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+
+
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -92,13 +89,6 @@ namespace Aplos.Areas.Outsourcing.Controllers
         {
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
-        [HttpGet, Authorize]
-        public JsonResult GetProductionProcessList()
-        {
-            string strSql = @"SELECT * FROM HKP.Process where IsProductionProcess = 1";
-            return Json(_sqlRepository.GetDataCollection(strSql, null), JsonRequestBehavior.AllowGet);
-        }
-
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
@@ -109,11 +99,11 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same code already exists!!!");
+                    throw new Exception("Same Code already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same user name already exists!!!");
+                    throw new Exception("Same User Name already exists!!!");
 
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -126,7 +116,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "JWI" + _Id;
+                    data["Id"] = "AI" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -139,7 +129,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -152,17 +142,21 @@ namespace Aplos.Areas.Outsourcing.Controllers
 
         public ActionResult Delete(string id)
         {
+            string sql = @"select * from '"+TableName+"' where Id = '" + id + "'";
+
             try
             {
+
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("DELETE FROM " + TableName + " WHERE id='" + id + "'");
+                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
@@ -184,7 +178,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
             {
                 try
                 {
-                    dr[item] = bplib.clsWebLib.RetValidLen(sourceData[item]);
+                    dr[item] = sourceData[item];
                 }
                 catch (Exception)
                 {
@@ -208,7 +202,7 @@ namespace Aplos.Areas.Outsourcing.Controllers
             {
                 try
                 {
-                    dr[item] = bplib.clsWebLib.RetValidLen(sourceData[item]);
+                    dr[item] = sourceData[item];
                 }
                 catch (Exception)
                 {
@@ -226,16 +220,6 @@ namespace Aplos.Areas.Outsourcing.Controllers
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
-        }
-        [HttpGet, Authorize]
-        public JsonResult EmployeeListAll()
-        {
-            JobWorkCommon = new Library.MaterialManagement.JobWork.OSCommon();
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(JobWorkCommon.EmployeeListAll(), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
-            //return Json(JobWorkCommon.EmployeeListAll(), JsonRequestBehavior.AllowGet);
         }
     }
 }

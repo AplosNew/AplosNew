@@ -48,7 +48,7 @@ namespace Aplos.Areas.Commercial.Controllers
             return View();
         }
 
-       
+
         [HttpPost, Authorize]
         public ActionResult MasterLCDataXls(List<Dictionary<string, object>> data, string reportFileName)
         {
@@ -57,7 +57,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 DataTable dt = new DataTable("DD");
                 foreach (string item in data[0].Keys)
                 {
-                    if ( item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
                         continue;
 
                     dt.Columns.Add(item);
@@ -90,68 +90,74 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-
         [HttpPost, Authorize]
         public ActionResult GetMasterLCList(string FromDate, string ToDate, string lcType)
         {
-
             try
             {
-                FromDate = Convert.ToDateTime(FromDate).ToString("dd-MMM-yyyy");
-                ToDate = Convert.ToDateTime(ToDate).ToString("dd-MMM-yyyy");
-
-                if (Convert.ToDateTime(FromDate) > Convert.ToDateTime(ToDate))
-                    throw new Exception("To date cannot be earlier than from date");
-
                 var datePic = "";
-                if (FromDate!=null && ToDate!=null)
+                if (FromDate != null && ToDate != null)
                 {
+                    FromDate = Convert.ToDateTime(FromDate).ToString("dd-MMM-yyyy");
+                    ToDate = Convert.ToDateTime(ToDate).ToString("dd-MMM-yyyy");
+
+                    if (Convert.ToDateTime(FromDate) > Convert.ToDateTime(ToDate))
+                        throw new Exception("To date cannot be earlier than from date");
+
                     datePic = "where c.AddedDate between '" + FromDate + @"' and '" + ToDate + @"' ";
                 }
 
                 string sql = "";
                 if (lcType == "contract")
                 {
-                    sql = @"select convert(bit,0) AS isSelected,
-				 PLC.Id PurchaseLCId 
+					datePic = "where c.ContractNo is not null ";
+
+					sql = @"select convert(bit,0) AS isSelected,
+				 isnull(PLC.Id,'') PurchaseLCId 
 
 				,ISNULL(mlc.LCRef,'') as MasterLCRefNo
-                    ,PurchaseLCRef= STUFF((select distinct ','+XVD.LCRef 
+                    ,PurchaseLCRef= isnull(STUFF((select distinct ','+XVD.LCRef 
                     from dbo.PurchaseLC XVD 
-                    where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
 					-- ,Format( PLC.LCDate,'dd-MMM-yyyy') as PurchaseLCOpeningDate
-				   ,plc.LCDate LCOpeningDate 
-				 ,Format( PLC.ExpiryDate, 'dd-MMM-yyyy')as ExpiryDate				 
-		            ,XC.Code PurchaseCurrency 
+				    ,Format(PLC.LCDate,'dd-MMM-yyyy') LCOpeningDate				 
+				 ,Format(PLC.ExpiryDate,'dd-MMM-yyyy') ExpiryDate				 
+		            ,isnull(XC.Code,'') PurCurrencyCode 
  							,ISNULL( PLC.Amount,0) as PurchaseLCAmount
 							,ISNULL( plc.Rate,0)Rate
-                           , PLC.Type, PLC.Tenure
+                           ,isnull(PLC.Type,'') Type,isnull(PLC.Tenure,0)Tenure
 							,isnull( bm.AccountTitle ,'')OpeningBank
-							,PLC.BenificiaryBank 
-							,PLC.BenificiaryBankDescription
+							,isnull(PLC.BenificiaryBank,'') BenificiaryBank
+							,isnull(PLC.BenificiaryBankDescription,'')BenificiaryBankDescription
                            ,ISNULL(PLC.LeinBank,0)LeinBank
 							, ISNULL(plc.LeinBankDescription,0)LeinBankDescription
 						
 					
 							,plc.VendorId
 							,isnull( P.UserName,'') as Vendor
-							,plc.PortOfLoading
-							,plc.FinalDestination
-							,plc.Status
-							,PLC.LCANo
-							,PLC.PaymentBasedOn
+							,isnull(plc.PortOfLoading,'') PortOfLoading
+							,isnull(plc.FinalDestination,'') FinalDestination
+							,isnull(plc.Status,'') Status
+							,isnull(PLC.LCANo,'') LCANo
+							,isnull(PLC.PaymentBasedOn,'') PaymentBasedOn
 							,format( plc.ShipmentDate, 'dd-MMMM-yyyyy')ShipmentDate
-						   ,plc.PINo
-							,plc.ContractId
-							,c.ContractNo 
+						   ,isnull(plc.PINo,0) PINo
+							,c.Id ContractId,isnull(c.FileNo,'') FileNo
+							,isnull(c.ContractNo,'') ContractNo
 							,PA.UserName Customer 
-							,c.MasterLCId MasterLCNo
-							,c.UDNo
+							,isnull(c.MasterLCId,'') MasterLCNo
+							,isnull(c.UDNo,0) UDNo
 							,isnull( plc.OrderSpecific,'')OrderSpecific
-							,cf.Percentage as PurchaseMargin,cfc.Percentage as CommissionPercentage,cov.Buyer,cov.MasterOrderCurrency,cov.ContractOrderQty
-							,cov.ContractOrderValue,COV.MasterOrderCurrency PurchasePLCurrency,po.POValue,PLC.Amount as PurchaseLcOpeningValue,format(PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate
-							,MLC.Amount as MasterLCValue,PLCV.Amount as PresentLCValue,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate,PurchaseCur.Code AS MasterLCcurrency
+							,cf.Percentage as PurchaseMargin,cfc.Percentage as CommissionPercentage
+							,cov.Buyer,cov.MasterOrderCurrency,cov.ContractOrderQty
+							,cov.ContractOrderValue,COV.MasterOrderCurrency PurchasePLCurrency
+							
+							,po.POValue,PLC.Amount as PurchaseLcOpeningValue
+							,format(PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate
+							,MLC.Amount as MasterLCValue
+							,PLCV.Amount as PresentLCValue
+							,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate,PurchaseCur.Code AS MasterLCcurrency
 							,MLC.Id MasterLCId,PLC.LCRef PurchaseLCRefNo
 							,PONo= isnull( STUFF((select distinct ','+xpomap.POId 
                     from  dbo.PurchaseLC XVD 
@@ -170,39 +176,41 @@ namespace Aplos.Areas.Commercial.Controllers
 							left outer join scs.Currency PurchaseCur on PurchaseCur.Id = PLC.CurrencyId
                             left outer join mst.BankMaster bm on bm.id = PLC.OpeningBankMasterId
                             left outer join hkp.Bank b on b.id = bm.BankId
-                           -- left outer join mst.Destination fd on fd.id = PLC.FinalDestinationId
                             left outer join hkp.Party as P on P.Id = PLC.VendorId
                             left join dbo.MasterLC MLC on MLC.Id = c.MasterLCId
 							left join hkp.Party PA on PA.Id=c.CustomerId
                             left join contractfund as cf on cf.ContractId= c.Id and cf.FundUtilization='Purchase'
                             left join contractfund as cfc on cfc.ContractId= c.Id and cfc.FundUtilization='LessCommission'
                             LEFT JOIN SCS.Currency XC ON XC.Id=PLC.CurrencyId
-                            left outer join (select  buyer=STUFF((select distinct ','+XB.UserName from 
-				 								trn.MasterOrder XMO 
+			                    left outer join (select  buyer=STUFF((select distinct ','+XB.UserName from 
+				 									trn.MasterOrder XMO 
 				 								
-				 											left outer join trn.MasterOrderItem XMOI on XMO.Id=XMOI.MasterOrderId
-				 											inner join trn.SalesOrder SO on SO.MasterOrderItemId=XMOI.Id
-				 											inner join Contract XC on XC.Id=SO.ContractId
-				 									left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-				 										where C.Id=XC.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-				 																		,
+				 												left outer join trn.MasterOrderItem XMOI on XMO.Id=XMOI.MasterOrderId
+				 												inner join trn.SalesOrder SO on SO.MasterOrderItemId=XMOI.Id
+				 												inner join Contract XC on XC.Id=SO.ContractId
+				 										left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
+				 											where C.Id=XC.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				 																			,
 				 																		
-				 						 c.Id As ContractNo,CurOrder.Code AS MasterOrderCurrency
-				                ,SUM(so.Qty) AS ContractOrderQty,sum(so.qty*so.rate) AS ContractOrderValue from MasterLC MLC
-				 				inner join Contract C on mlc.Id=c.MasterLCId
-                                LEFT JOIN TRN.SalesOrder so on c.Id=so.ContractId
-				 				left outer join trn.MasterOrderItem moi on moi.id=so.MasterOrderItemId
+				 							 c.Id As ContractNo,CurOrder.Code AS MasterOrderCurrency
+						            ,SUM(so.Qty) AS ContractOrderQty,sum(so.qty*so.rate) AS ContractOrderValue from MasterLC MLC
+				 					inner join Contract C on mlc.Id=c.MasterLCId
+			                        LEFT JOIN TRN.SalesOrder so on c.Id=so.ContractId
+				 					left outer join trn.MasterOrderItem moi on moi.id=so.MasterOrderItemId
 				 
-				 				inner join trn.MasterOrder mo on moi.MasterOrderId=mo.Id 
+				 					inner join trn.MasterOrder mo on moi.MasterOrderId=mo.Id 
 				 				
-				 				left join scs.Currency CurOrder on CurOrder.id=mo.CurrencyId
-				 				group by c.Id,CurOrder.Code) AS COV on cov.ContractNo=c.Id  
-                                left outer join (select po.PurchaseLCId,SUM(pod.TransactionQty*pod.TransactionRate) AS POValue from trn.PurchaseOrder PO
-					            Left outer join  trn.PurchaseOrderDetail POD on pod.InventoryReceiveId=po.Id
-                                group by po.PurchaseLCId) AS PO on po.PurchaseLCId=plc.Id
-            
-                                left outer join  PurchaseLCVersion PLCV on PLCV.PurchaseLCId = PLC.Id 
-                            " + datePic+"";
+				 					left join scs.Currency CurOrder on CurOrder.id=mo.CurrencyId
+				 					group by c.Id,CurOrder.Code)
+									AS COV on cov.ContractNo=c.Id  
+					                left outer join (select po.PurchaseLCId,SUM(pod.TransactionQty*pod.TransactionRate) AS POValue from trn.PurchaseOrder PO
+									Left outer join  trn.PurchaseOrderDetail POD on pod.InventoryReceiveId=po.Id
+					                group by po.PurchaseLCId) AS PO on po.PurchaseLCId=plc.Id
+									left  join  (select top 1 PurchaseLCId,AmendmentDate,Amount from PurchaseLCVersion order by AddedDate desc) PLCV on PLCV.PurchaseLCId = PLC.Id 
+
+                            " + datePic + "" + 
+
+							" order by c.ContractDate";
                 }
 
                 else if (lcType == "masterLC")
@@ -263,7 +271,7 @@ namespace Aplos.Areas.Commercial.Controllers
 						   where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 
-							,plc.ContractId
+							,plc.ContractId,isnull(c.FileNo,'') FileNo
 						--	c.ContractNo,c.ContractDate,p.UserName Customer
 
                     ,ContractNo= isnull( STUFF((select distinct ','+XC.ContractNo 
@@ -299,7 +307,9 @@ namespace Aplos.Areas.Commercial.Controllers
                     LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
                     where XVD.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
                     ,cf.Percentage as PurchaseMargin,cfc.Percentage as CommissionPercentage,cov.Buyer,cov.MasterOrderCurrency,cov.ContractOrderQty
-                    ,cov.ContractOrderValue,COV.MasterOrderCurrency PurchasePLCurrency,po.POValue,PLC.Amount as PurchaseLcOpeningValue,format(PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate,MLC.Amount as MasterLCValue,PLCV.Amount as PresentLCValue,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate,PurchaseCur.Code AS MasterLCcurrency,MLC.Id MasterLCId
+                    ,cov.ContractOrderValue,COV.MasterOrderCurrency PurchasePLCurrency,po.POValue,PLC.Amount as PurchaseLcOpeningValue,format(PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate,MLC.Amount as MasterLCValue
+					,PLCV.Amount as PresentLCValue
+					,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate,PurchaseCur.Code AS MasterLCcurrency,MLC.Id MasterLCId
 
                             from dbo.MasterLC MLC
                             left join dbo.Contract c on MLC.Id=c.MasterLCId
@@ -334,25 +344,24 @@ namespace Aplos.Areas.Commercial.Controllers
 							left outer join (select po.PurchaseLCId,SUM(pod.TransactionQty*pod.TransactionRate) AS POValue from trn.PurchaseOrder PO
 					            Left outer join  trn.PurchaseOrderDetail POD on pod.InventoryReceiveId=po.Id
                                 group by po.PurchaseLCId) AS PO on po.PurchaseLCId=plc.Id
+							left  join  (select top 1 PurchaseLCId,AmendmentDate,Amount from PurchaseLCVersion order by AddedDate desc) PLCV on PLCV.PurchaseLCId = PLC.Id 
 
-							left outer join  PurchaseLCVersion PLCV on PLCV.PurchaseLCId = PLC.Id 
-
-                            " + datePic + "";
+                            " + datePic + "" +
+                            "order by MLC.LCDate";
                 }
                 else
                 {
-                    sql = @"select convert(bit,0) AS isSelected,
-				 PLC.Id PurchaseLCId 
+                    sql = @"select convert(bit,0) AS isSelected
+				         ,PLC.Id PurchaseLCId 
+				        ,ISNULL(mlc.LCRef,'') as MasterLCRefNo
+                            ,PurchaseLCRef= STUFF((select distinct ','+XVD.LCRef 
+                            from dbo.PurchaseLC XVD 
+                            where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-				,ISNULL(mlc.LCRef,'') as MasterLCRefNo
-                    ,PurchaseLCRef= STUFF((select distinct ','+XVD.LCRef 
-                    from dbo.PurchaseLC XVD 
-                    where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-					-- ,Format( PLC.LCDate,'dd-MMM-yyyy') as PurchaseLCOpeningDate
-				   ,plc.LCDate LCOpeningDate 
-				 ,Format( PLC.ExpiryDate, 'dd-MMM-yyyy')as ExpiryDate				 
-		            ,XC.Code PurchaseCurrency 
+					        -- ,Format( PLC.LCDate,'dd-MMM-yyyy') as PurchaseLCOpeningDate
+				           ,plc.LCDate LCOpeningDate 
+				         ,Format( PLC.ExpiryDate, 'dd-MMM-yyyy')as ExpiryDate				 
+		                    ,XC.Code PurchaseCurrency 
  							,ISNULL( PLC.Amount,0) as PurchaseLCAmount
 							,ISNULL( plc.Rate,0)Rate
                            , PLC.Type, PLC.Tenure
@@ -361,8 +370,7 @@ namespace Aplos.Areas.Commercial.Controllers
 							,PLC.BenificiaryBankDescription
                            ,ISNULL(PLC.LeinBank,0)LeinBank
 							, ISNULL(plc.LeinBankDescription,0)LeinBankDescription
-						
-					
+											
 							,plc.VendorId
 							,isnull( P.UserName,'') as Vendor
 							,plc.PortOfLoading
@@ -372,38 +380,39 @@ namespace Aplos.Areas.Commercial.Controllers
 							,PLC.PaymentBasedOn
 							,format( plc.ShipmentDate, 'dd-MMMM-yyyyy')ShipmentDate
 						   ,plc.PINo
-							,plc.ContractId
-							,c.ContractNo 
+							,c.Id ContractId,isnull(c.FileNo,'') FileNo
+							,isnull(c.ContractNo,'') ContractNo
 							,XCU.UserName Customer 
                             ,MLC.Id MasterLCId
 							,c.MasterLCId MasterLCNo
 							,c.UDNo
 							,isnull( plc.OrderSpecific,'')OrderSpecific
                             ,cf.Percentage as PurchaseMargin,cfc.Percentage as CommissionPercentage,cov.Buyer,cov.MasterOrderCurrency,cov.ContractOrderQty
-							,cov.ContractOrderValue,COV.MasterOrderCurrency PurchasePLCurrency,po.POValue,PLC.Amount as PurchaseLcOpeningValue,format(PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate,MLC.Amount as MasterLCValue,PLCV.Amount as PresentLCValue,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate,PurchaseCur.Code AS MasterLCcurrency,PLC.LCRef PurchaseLCRefNo
+							,cov.ContractOrderValue,COV.MasterOrderCurrency PurchasePLCurrency,po.POValue,PLC.Amount as PurchaseLcOpeningValue
+							,format(PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate
+							,MLC.Amount as MasterLCValue
+							,PLCV.Amount as PresentLCValue
+							,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate,PurchaseCur.Code AS MasterLCcurrency,PLC.LCRef PurchaseLCRefNo
 							,PONo= isnull( STUFF((select distinct ','+xpomap.POId
+							from  dbo.PurchaseLC XVD 
+							Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+							LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
+							where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
-
-                    from  dbo.PurchaseLC XVD 
-					Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN trn.PurchaseDocAcceptancePOMap xpomap on xpomap.PurchaseDocAcceptanceId=xp.Id
-                    where XVD.Id=PLC.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
-                    ,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
-                    dbo.PurchaseLC XVD 
-					Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
-                    LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
-                    where XVD.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'') 
+							,GRNNo= isnull( STUFF((select distinct ','+xgrnmap.GRNId from
+							dbo.PurchaseLC XVD 
+							Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
+							LEFT JOIN trn.GRNAcceptanceMap xgrnmap on xgrnmap.PurchaseDocumentAcceptanceId=xp.Id
+							where XVD.Id=XP.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'') 
 
                             from PurchaseLC PLC
                             left outer join scs.Currency PurchaseCur on PurchaseCur.Id= PLC.CurrencyId
                             left outer join mst.BankMaster bm on bm.id=PLC.OpeningBankMasterId
                             left outer join hkp.Bank b on b.id= bm.BankId
-                           -- left outer join mst.Destination fd on fd.id= PLC.FinalDestinationId
                             left outer join hkp.Party as P on P.Id=PLC.VendorId
                             left join dbo.Contract c on c.Id=PLC.ContractId
 							left join dbo.MasterLC MLC on MLC.Id=c.MasterLCId
-							join HKP.Party XCU ON XCU.Id=c.CustomerId
+							left join HKP.Party XCU ON XCU.Id=c.CustomerId
 							LEFT JOIN SCS.Currency XC ON XC.Id=PLC.CurrencyId
 
                             left join contractfund as cf on cf.ContractId= c.Id and cf.FundUtilization='Purchase'
@@ -416,8 +425,7 @@ namespace Aplos.Areas.Commercial.Controllers
 				 											inner join trn.SalesOrder SO on SO.MasterOrderItemId=XMOI.Id
 				 											inner join Contract XC on XC.Id=SO.ContractId
 				 									left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-				 										where C.Id=XC.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')			 																		,
-				 																		
+				 										where C.Id=XC.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')			 																		,				 																		
 				 						 c.Id As ContractNo,CurOrder.Code AS MasterOrderCurrency
 				                ,SUM(so.Qty) AS ContractOrderQty,sum(so.qty*so.rate) AS ContractOrderValue from MasterLC MLC
 				 				inner join Contract C on mlc.Id=c.MasterLCId
@@ -430,10 +438,10 @@ namespace Aplos.Areas.Commercial.Controllers
 							left outer join (select po.PurchaseLCId,SUM(pod.TransactionQty*pod.TransactionRate) AS POValue from trn.PurchaseOrder PO
 					            Left outer join  trn.PurchaseOrderDetail POD on pod.InventoryReceiveId=po.Id
                                 group by po.PurchaseLCId) AS PO on po.PurchaseLCId=plc.Id
+							left join  (select top 1 PurchaseLCId,AmendmentDate,Amount from PurchaseLCVersion order by AddedDate desc) PLCV on PLCV.PurchaseLCId = PLC.Id 
 
-							left outer join  PurchaseLCVersion PLCV on PLCV.PurchaseLCId = PLC.Id 
-
-                            " + datePic + "";
+                            " + datePic + "" +
+                            "order by PLC.LCDate";
                 }
 
                 var data = _sqlRepository.GetDataCollection(sql);
@@ -444,99 +452,6 @@ namespace Aplos.Areas.Commercial.Controllers
                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
 
             }
-
-
-            //return View();
         }
-
-
-    //    public DataTable GetLcData(string MasterLCId, string ContractId, string PLCId)
-    //    {
-    //        try
-    //        {
-    //            var wc = "";
-    //            if (basedOn == "contract")
-    //            {
-    //                wc = "C.Id in (" + ContractId + @")";
-    //            }
-    //            else if (basedOn == "masterLC")
-    //            {
-    //                wc = "mlc.Id in(" + MasterLCId + @")";
-    //            }
-    //            else
-    //            {
-    //                wc = "plc.id in (" + PLCId + @")";
-    //            }
-
-    //            string sql = @"select cus.UserName as Customer,  mlc.Id as MasterLCId,  mlc.LCRef as MasterLCRefNo, MLC.Amount as MasterLCValue , cur.Code AS MasterLCcurrency
-    //            , format( MLC.LCDate,'dd-MMM-yyyy') as MasterLCOpeningDate
-
-    //            ,c.id as ContractId,c.ContractNo, cov.Buyer,cov.ContractOrderQty,cov.ContractOrderValue ,cov.MasterOrderCurrency
-    //             , cfc.Percentage as CommissionPercentage                     ,cf.Percentage as PurchaseMargin
-
-    //             ,plc.id as PurchaseLcId ,plc.LCRef as PurchaseLCRefNo ,  P.UserName as vendor, PLC.Amount as PurchaseLcOpeningValue   ,curPLC.Code AS PurchasePLCurrency                                  
-    //             ,format(PLC.LCDate, 'dd-MMM-yyyy')As PurchaseLCOpeningDate  , PLCV.Amount as PresentLCValue				                        
-    //             ,format( PLCV.AmendmentDate, 'dd-MMM-yyyy') AS LastAmendmentDate ,format( PLC.AmendmentDate,'dd-MMM-yyyy')as AmendmentDate , po.POValue
-    //             from MasterLC MLC			                       
-										
-    //               left join [dbo].[Contract] as c on c.MasterLCId=MLC.Id
-    //               left join contractfund as cf on cf.ContractId= c.Id and cf.FundUtilization='Purchase'
-    //               left join contractfund as cfc on cfc.ContractId= c.Id and cfc.FundUtilization='LessCommission'
-    //               left join scs.Currency cur on cur.id=MLC.CurrencyId
-    //               left outer join hkp.Party  as Cus on Cus.Id=mlc.CustomerId                                    
-                                       
-    //                left outer join (select  buyer=STUFF((select distinct ','+XB.UserName from 
-				//									trn.MasterOrder XMO 
-													
-				//												left outer join trn.MasterOrderItem XMOI on XMO.Id=XMOI.MasterOrderId
-				//												inner join trn.SalesOrder SO on SO.MasterOrderItemId=XMOI.Id
-				//												inner join Contract XC on XC.Id=SO.ContractId
-				//										left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-				//											where C.Id=XC.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-				//																			,
-																							
-				//							 c.Id As ContractNo,CurOrder.Code AS MasterOrderCurrency
-				//	,SUM(so.Qty) AS ContractOrderQty,sum(so.qty*so.rate) AS ContractOrderValue from MasterLC MLC
-				//					inner join Contract C on mlc.Id=c.MasterLCId
-    //                                LEFT JOIN TRN.SalesOrder so on c.Id=so.ContractId
-				//					left outer join trn.MasterOrderItem moi on moi.id=so.MasterOrderItemId
-
-				//					inner join trn.MasterOrder mo on moi.MasterOrderId=mo.Id 
-									
-				//					left join scs.Currency CurOrder on CurOrder.id=mo.CurrencyId
-				//					group by c.Id,CurOrder.Code) AS COV on cov.ContractNo=c.Id                                     
-                                        
-				
-			 //   left outer join PurchaseLC PLC on PLC.ContractId= c.Id
-				//left join scs.Currency curPLC on curPLC.id=PLC.CurrencyId
-				//left outer join  PurchaseLCVersion PLCV on PLCV.PurchaseLCId = PLC.Id 
-				//				 and PLCV.ID=(select TOP 1 Id from PurchaseLCVersion where PurchaseLCId=PLC.Id ORDER BY [Version] DESC)
-				//left join hkp.Party P on p.id= plc.VendorId
-
-			 //   left outer join (select po.PurchaseLCId,SUM(pod.TransactionQty*pod.TransactionRate) AS POValue from trn.PurchaseOrder PO
-				//Left outer join  trn.PurchaseOrderDetail POD on pod.InventoryReceiveId=po.Id
-				//group by po.PurchaseLCId) AS PO on po.PurchaseLCId=plc.Id             
-
-		     
-			 //  where " + wc + @" 
-    //           and PLC.LCDate between '" + fromDate + "' and '" + toDate + @"' 
-    //            order by MLC.id, c.id, plc.id";
-
-
-    //            ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-    //            objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1"); ;
-
-    //            return _sqlRepository.GetDataTable(sql);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            throw ex;
-    //        }
-
-    //    }
-
-        
-
-
     }
 }

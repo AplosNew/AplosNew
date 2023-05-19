@@ -1,12 +1,17 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Security.Core;
+using Library.Service.Enums;
+using Library.Service.Logs;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
@@ -25,6 +30,184 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+
+        public ActionResult VehicleMovementRequisition()
+        {
+            return View();
+        }
+
+        #region VehicleMaster
+        public JsonResult GetVehicleMasterData()
+        {
+            string sql = @"select VM.*, FM.FuelType from [HKP].[VehicleMaster] VM
+                            LEFT JOIN HKP.FuelMaster FM on FM.Id = VM.FuelTypeId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult CreateVehicleMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+
+                string TableName = "HKP.VehicleMaster";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Insert }); ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public JsonResult deleteVehicleMaster(string id)
+        {
+            try
+            {
+                string TableName = "[HKP].[VehicleMaster]";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        #endregion VehicleMaster
+
+        #region VehicleMovement
+        public JsonResult GetVehicleMovementData()
+        {
+            string sql = @"
+Select VM.*, FLM.UserName FromLocation, TLM.UserName ToLocation from [HKP].[VehicleMovement] VM
+left join HKP.LocationMaster FLM on FLM.Id = VM.FromLocationId
+Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
+";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        
+
+        public void CreateVehicleMovement(Dictionary<string, object> data)
+        {
+            try
+            {
+
+                string TableName = "[HKP].[VehicleMovement]";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveVehicleMovement(Dictionary<string, object> data)
+
+        {
+            try
+            {
+                CreateVehicleMovement(data);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public JsonResult deleteVehicleMovement(string id)
+        {
+            try
+            {
+                string TableName = "[HKP].[VehicleMovement]";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
+        #endregion VehicleMovement
 
         #region Purpose Master
         public JsonResult GetList()
@@ -99,46 +282,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        public Dictionary<string, object> CreateNewVehicleMovement(Dictionary<string, object> data)
-        {
-            try
-            {
+        
 
-                string TableName = "TRN.VehicleMovementMaster";
-                DataSet dsMaster;
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-               
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data Master update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return data;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        
 
         public void DeletePurpose(string id)
         {
@@ -322,7 +468,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                  CreateNewLocation(data);
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Sequence = GetLocationSequence(), Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -361,7 +507,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 DeletePurpose(id);
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false, Sequence = GetLocationSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -373,6 +519,231 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
         #endregion LocationMaster
+
+        #region VehicleReq
+        public JsonResult GetVehicleRequisitiontData()
+        {
+            string sql = @"Select VMR.* , PM.UserName Purpose, EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode
+                            from [TRN].[VehicleMovementRequisition] VMR
+                            left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+       
+        public void CreateVehicleRequisition(Dictionary<string, object> data)
+        {
+            try
+            {
+
+                string TableName = "[TRN].[VehicleMovementRequisition]";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+               
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveVehicleRequisition(Dictionary<string, object> data)
+
+        {
+            try
+            {
+                CreateVehicleRequisition(data);
+                return Json(new { Error = false,  Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public JsonResult deleteVehicleRequisition(string id)
+        {
+            try
+            {
+                string TableName = "[TRN].[VehicleMovement]";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
+        #endregion VehicleReq
+
+        #region Fuel
+        public JsonResult GetFuelData()
+        {
+            string sql = @"Select * from HKP.FuelMaster";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult SaveFuelMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableName = "HKP.FuelMaster";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                 return Json(new { Error = false, Message = AplosMessage.Insert });
+
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
+         }
+
+        public ActionResult DeleteFuel(string id)
+        {
+            try
+            {
+                string TableName = "HKP.FuelMaster";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false,  Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        #endregion Fuel
+
+        #region Get
+        public JsonResult GetFromToLocationList()
+        {
+            string sql = @"Select Id Value, UserName Text from HKP.LocationMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetPurposeList()
+        {
+            string sql = @"Select Id Value, UserName Text from HKP.PurposeMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public GridModel GetEmployeeListByWhom(GridParameter parameters, string companyId, string plantId, string partyAccountGroupId, string partyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            WHERE EI.CompanyId='" + companyId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
+
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetEmployeeListByWhom(GridParameter parameters, string plantId, string partyAccountGroupId, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(plantId))
+            {
+                plantId = identity.PlantId;
+            }
+            return Json(GetEmployeeListByWhom(parameters, identity.CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetFuelList()
+        {
+            string sql = @"Select Id Value, FuelType Text from HKP.FuelMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion Get
 
     }
 }

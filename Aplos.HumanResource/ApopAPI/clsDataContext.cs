@@ -3704,6 +3704,43 @@ where   po.Id = '" + POId + "' and ps.ProcessId = '" + ProcessId + "'";
             }
         }
 
+        public void GetShift(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct apd.ShiftSystemID Value,sd.ShiftDefinationName Name from AttdnProcessData apd
+left join ShiftDefination sd on sd.systemid = apd.ShiftSystemID 
+where  WorkDate = DATEADD(day, -1, CAST(GETDATE() AS date))
+";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetProductionStatus(out List<Default2> DataList)
         {
             clsConnectionManager objCon = null;
@@ -4442,7 +4479,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations)
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations,string entityid)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4453,8 +4490,8 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             try
             {
                 #region Sql
-                strSQL1 = @"select distinct LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
-DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus,
+                strSQL1 = @" select ROW_NUMBER() OVER(ORDER BY (SELECT 1)) AS SrNo,  LTY.Code LeaveCode,EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
@@ -4507,18 +4544,42 @@ left join ResidenceMaster RM on RM.Id = RA.ResidenceId
 
 LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
 "where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1" +
-"and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "' and sd.SystemID = '" + shiftid + "'  and Hg.Id = '" + groupid + "'";
+"and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
 
-                if(locations != null)
+                if (inmis == "IN" || inmis == "IM" || inmis == "W")
                 {
-                    strSQL = strSQL1 + " and  RM.Location = '" + locations + "'";
+                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis + "'";
+                }
+                if (entityid != null && shiftid == null && locations == null)
+                {
+                    strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'";
+                }
+                if (entityid == null && shiftid != null && locations == null)
+                {
+                    strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'";
+                }
+                if (entityid == null && shiftid == null && locations != null)
+                {
+                    strSQL = strSQL + " and  RM.Location = '" + locations + "'";
+                }
+                if (entityid != null && shiftid != null && locations == null)
+                {
+                    strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
+                }
+                if (entityid == null && shiftid != null && locations != null)
+                {
+                    strSQL = strSQL + "  and sd.SystemID =  '" + shiftid + "'" + " and  RM.Location = '" + locations + "'";
+                }
+                if (entityid != null && shiftid == null && locations != null)
+                {
+                    strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'";
+                }
+                if (entityid != null && shiftid != null && locations != null)
+                {
+                    strSQL = strSQL + " and  RM.Location = '" + locations + "'" + "  and MBGT.EntityId =  '" + entityid + "'" + "  and sd.SystemID =  '" + shiftid + "'";
                 }
 
-                if (inmis ==  "IN" || inmis == "IM" || inmis == "W")
-                {
-                    strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis +"' order by Diffenence Asc";
-                }
-               
+
                 #endregion Sql
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -4528,6 +4589,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                 {
                     DataList.Add(new AttendanceReport
                     {
+                        SrNo = dsRef.Tables[0].Rows[i]["SrNo"].ToString(),
                         LeaveCode = dsRef.Tables[0].Rows[i]["LeaveCode"].ToString(),
                         SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
                         EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
@@ -4556,6 +4618,8 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         ToDayIN = dsRef.Tables[0].Rows[i]["ToDayIN"].ToString(),
                         Diffenence = dsRef.Tables[0].Rows[i]["Diffenence"].ToString(),
                         RawDayStatus = dsRef.Tables[0].Rows[i]["RawDayStatus"].ToString(),
+                        EntityId = dsRef.Tables[0].Rows[i]["EntityId"].ToString(),
+                        EntityName = dsRef.Tables[0].Rows[i]["EntityName"].ToString(),
                        
                     });
                 }
@@ -5320,6 +5384,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
     #region Attendance
     public class AttendanceReport
     {
+        public string SrNo { get; set; }
         public string LeaveCode { get; set; }
         public string SystemID { get; set; }
         public string EMPCode { get; set; }
@@ -5348,6 +5413,8 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
         public string ToDayIN { get; set; }
         public string Diffenence { get; set; }
         public string RawDayStatus { get; set; }
+        public string EntityId { get; set; }
+        public string EntityName { get; set; }
        
     }
 
