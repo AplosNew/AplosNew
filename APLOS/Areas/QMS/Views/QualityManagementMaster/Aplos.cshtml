@@ -1,527 +1,564 @@
-﻿<togglable name="Quality Management Master"></togglable>
-<div class="form-elements form-horizontal">
-    <div class="row" ng-form="QualityManagementMasterForm">
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Schedule Code<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Schedule Code" ng-model="scheduleNew.ScheduleCode " class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Standared Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standared Nam" ng-model="scheduleNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Responsible Persone Bgt Code<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Responsible Persone Bgt Code" ng-disabled="true" ng-model="scheduleNew.ResponsiblePersoneBgtCode" class="form-control" maxlength="100" required autocomplete="off">
+﻿<div class="site-tab">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" ng-class="{ active: isSetPRM(1) }"><a ng-click="setTabPRM(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Quality Management Master</a></li>
+        <li role="presentation" ng-class="{ active: isSetPRM(2) }"><a ng-click="setTabPRM(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Parameter Master</a></li>
+        <li role="presentation" ng-class="{ active: isSetPRM(2) }"><a ng-click="setTabPRM(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Frequency</a></li>
+    </ul>
+</div>
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPRM(1), active: isSetPRM(1) }">
+        <togglable name="Quality Management Master"></togglable>
+        <div class="form-elements form-horizontal">
+            <div class="row" ng-form="QualityManagementMasterForm">
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Schedule Code<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Schedule Code" ng-model="scheduleNew.ScheduleCode " class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
                     </div>
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Standared Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Standared Nam" ng-model="scheduleNew.StandaredName" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Responsible Persone Bgt Code<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Responsible Persone Bgt Code" ng-disabled="true" ng-model="scheduleNew.ResponsiblePersoneBgtCode" class="form-control" maxlength="100" required autocomplete="off">
+                            </div>
+                            <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                <button ng-click="selectBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="User Name" ng-model="scheduleNew.UserName" class="form-control" required maxlength="100" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Schedule Days<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="number" name="Schedule Days" ng-model="scheduleNew.ScheduleDays" class="form-control" required maxlength="100" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Remarks" ng-model="scheduleNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                        </div>
                     </div>
                 </div>
-            </div>
-         
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="User Name" ng-model="scheduleNew.UserName" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Schedule Days<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="number" name="Schedule Days" ng-model="scheduleNew.ScheduleDays" class="form-control" required maxlength="100" autocomplete="off">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
                 </div>
             </div>
             <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <div class="clearfix"></div>
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(0) }"><a ng-click="setTab(0)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Activity Group</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetActivityGroupList()" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Parameter</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(0), active: isSet(0) }">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div id="GridEntity" ej-grid e-datasource="QualityManagementMasterEntityList" e-templaterefresh="refreshTemplateEntity" e-recorddoubleclick=""
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateEntity" e-template="#checkboxTemplateEntity" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                <div e-column e-field="EntityType" e-headertext="Entity Type" e-width="100"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="checkboxTemplateEntity">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateEntity">
+                            <input type="checkbox" id="Eheadchk" />
+                        </script>
+                        <script type="text/template" id="Remarks">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                            </div>
+                        </script>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-disabled="scheduleNew.Id===null" ng-click="EntitySave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div role="tabpanel" ng-form="QualityManagementAGForm" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Activity Group Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input name="Activity Group Name" ng-model="ActivityGroupNew.ActivityGroupName" class="form-control" required maxlength="100" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Remarks" ng-model="ActivityGroupNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-disabled="scheduleNew.Id===null" ng-click="ActivityGroupSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                            <li> <button ng-click="removeAGModal($index,ActivityGroupNew.Id);" ng-disabled="ActivityGroupNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                            <li> <button ng-click="ActivityGroupClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                    <div id="GridActivityGroup" ej-grid e-datasource="QualityManagementActivityGroupList" e-recorddoubleclick="GetQMActivityGroupDetails"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                            <div e-column e-field="ActivityGroupName" e-headertext="Activity Group Name" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div style="color:black;" id="GridProcess" ej-grid e-datasource="QualityManagementProcessList"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                             e-recorddoubleclick="" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshTemplateProcess">
+                            <div e-columns>
+                                <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProcess" e-template="#checkboxTemplateProcess" e-textalign="center" e-width="30"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                <div e-column e-field="Code" e-headertext="Process Code" e-width="100"></div>
+                                <div e-column e-template="#ActivityGroup" e-headertext="Activity Group" e-width="200"></div>
+                                <div e-column e-template="#ProcessRemarks" e-headertext="Remarks" e-width="200"></div>
+                            </div>
+                        </div>
+
+                        <script type="text/template" id="checkboxTemplateProcess">
+                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        </script>
+                        <script type="text/x-jsrender" id="headerTemplateProcess">
+                            <input type="checkbox" id="Pheadchk" />
+                        </script>
+                        <script type="text/template" id="ActivityGroup">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="data.ActivityGroupId" name="ActivityGroup"
+                                        ng-options="item.Value as item.Text for item in $parent.ActivityGroupList">
+                                </select>
+                            </div>
+                        </script>
+                        <script type="text/template" id="ProcessRemarks">
+                            <div class="col-sm-10" style="padding:0px;">
+                                <input type="text" name="Process Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
+                            </div>
+                        </script>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-disabled="scheduleNew.Id===null" ng-click="ProcessSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                    <div class="row" ng-form="QualityManagementParameterItemForm">
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">SNO<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="SNO" ng-disabled="true" ng-model="ItemNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Parameter Name<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ItemNew.ParameterId" name="ActivityGroup"
+                                                ng-options="item.Value as item.Text for item in ParameterItemList">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">IsAuditable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="ItemNew.IsAuditable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Critical Level<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ItemNew.CriticalLevel" name="Critical Level" required
+                                                ng-options="item.Value as item.Text for item in CriticalLevelLists">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Order Specific</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="ItemNew.OrderSpecific" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ItemNew.ProcessId" name="Process" ng-change="GetParameterProcessAGList(ItemNew.ProcessId)"
+                                                ng-options="item.Value as item.Text for item in ParameterProcessList">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Activity Group</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Activity Group" ng-disabled="true" ng-model="ItemNew.ActivityGroup" class="form-control" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" ng-show="ItemNew.IsAuditable==true">By Whom</label>
+                                <div class="col-sm-8">
+                                    <div class="col-sm-10" style="padding:0px;">
+                                        <input type="text" name="By Whome" ng-disabled="true" ng-show="ItemNew.IsAuditable==true" ng-model="ItemNew.ByWhom" class="form-control" maxlength="100" autocomplete="off">
+                                    </div>
+                                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                        <button ng-click="selectByWhomeBudgetCode();" ng-show="ItemNew.IsAuditable==true" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">General</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="ItemNew.General" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ItemNew.Category" name="Critical Level" required
+                                                ng-options="item.Value as item.Text for item in CategoryLists">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Exception Days</label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="ExceptionDays" ng-model="ItemNew.ExceptionDays" class="form-control" required maxlength="10" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Report Applicable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="ItemNew.ReportApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Is Std Applicable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="ItemNew.IsStdApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-3 col-md-3">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="col-sm-10" style="padding:0px;">
+                                        <input type="text" name="UOM" ng-disabled="true" ng-model="ItemNew.UOM" class="form-control" maxlength="100" required autocomplete="off">
+                                    </div>
+                                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                        <button ng-click="selectUOM();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Max<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="Maximum Points" ng-model="ItemNew.Max" class="form-control" required maxlength="10" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Min<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="Minimum Points" ng-model="ItemNew.Min" class="form-control" required maxlength="10" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-disabled="scheduleNew.Id===null" ng-click="ItemSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                                <li> <button ng-click="removeRowModal($index,ItemNew.Id);" ng-disabled="ItemNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                                <li> <button ng-click="ItemClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                        @*<div class="col-xs-12 col-sm-12 col-md-12">*@
+                        <div id="GridItem" ej-grid e-datasource="ScheduleItemList" e-recorddoubleclick="GetItemDetails"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="100"></div>
+                                <div e-column e-field="SNO" e-headertext="SNO" e-width="100"></div>
+                                <div e-column e-field="ParameterName" e-headertext="Parameter Name" e-width="100"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                <div e-column e-field="AGroup" e-headertext="Activity Group" e-width="100"></div>
+                                <div e-column e-field="CriticalLevel" e-headertext="Critical Level" e-width="100"></div>
+                                <div e-column e-field="Category" e-headertext="Category" e-width="100"></div>
+                                <div e-column e-field="IsAuditable" e-headertext="Is Auditable" e-width="100"></div>
+                                <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="100"></div>
+                                <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
+                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                                <div e-column e-field="ExceptionDays" e-headertext="Exception Days" e-width="100"></div>
+                                <div e-column e-template="#Parameter" e-headertext="Child Parameter" e-width="100"></div>
+                                <div e-column e-template="#Frequency" e-headertext="Frequency Details" e-width="100"></div>
+                            </div>
+                        </div>
+                        <script type="text/template" id="Parameter">
+                            <div class="form-group">
+                                <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click=";$parent.GetItemDetails(this);$parent.getParameterPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </script>
+                        <script type="text/template" id="Frequency">
+                            <div class="form-group">
+                                <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                                    <div class="common-btn">
+                                        <ul class="list-inline text-left">
+                                            <li><button ng-click="$parent.getFrequencyPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive aplos-grid-toggle">
+            <div id="GridQualityManagementMaster" ej-grid e-datasource="QualityManagementMasterList" e-recorddoubleclick="GetDetails"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
+                <div e-columns>
+                    <div e-column e-field="Id" e-headertext="Quality Id" e-visible="false" e-width="50"></div>
+                    <div e-column e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
+                    <div e-column e-field="StandaredName" e-headertext="Standard Name" e-width="100"></div>
+                    <div e-column e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
+                    <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
+                    <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
+                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetPRM(2), active: isSetPRM(2) }">
+        <togglable name="Parameter Master"></togglable>
+        <div class="form-elements form-horizontal">
+            <div class="row" ng-form="ParameterForm">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{ModelNew.EmployeeCode}}</span>
+                                <input type="text" name="Responsible Person" ng-model="ModelNew.EmployeeName" class="form-control" required readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Active</label>
+                        <div class="col-sm-8">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="ModelNew.IsActive" tabindex="8">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                        <div class="col-sm-4 show-message">
+                            <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                        </div>
+                    </div>
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remarks</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveParaMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                        <li> <button ng-click="removeParameter($index,ModelNew.Id);" ng-disabled="ModelNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                        <li> <button ng-click="ClearParameter();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive aplos-grid-toggle">
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-field="Sequence" e-headertext="Seq" e-width="80"></div>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-width="100"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="130"></div>
+
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                        <div e-column e-field="IsActive" e-headertext="IsActive" e-width="50"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <confirm-modal></confirm-modal>
+    </div>
+    <div role="tabpanel" ng-form="FrequencyDetailsForm" class="tab-pane fade" ng-class="{ 'in':isSetPRM(3), active: isSetPRM(3) }">
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">SNO</label>
+                <div class="col-sm-8">
+                    <input type="text" name="SNO" ng-model="FrequencyNew.SNO" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Name</label>
+                <div class="col-sm-8">
+                    <input type="text" name="User Name" ng-model="FrequencyNew.UserName" class="form-control" maxlength="100" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group">
                 <label class="col-sm-4 control-label">Remarks</label>
                 <div class="col-sm-8">
-                    <input type="text" name="Remarks" ng-model="scheduleNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                    <input type="text" name="Remarks" ng-model="FrequencyNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
         </div>
         <div class="common-btn">
             <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                <li> <button ng-click="Delete();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                <li> <button ng-click="FrequencySave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                <li> <button ng-click="removeFrequency($index,FrequencyNew.Id);" ng-disabled="FrequencyNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                <li> <button ng-click="FrequencyClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
-    </div>
-    <div class="form-group">
-        <label class="col-sm-12 control-label"></label>
-        <label class="col-sm-12 control-label"></label>
-    </div>
-    <div class="clearfix"></div>
-    <div class="site-tab">
-        <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" ng-class="{ active: isSet(0) }"><a ng-click="setTab(0)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity</a></li>
-            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">Activity Group</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetActivityGroupList()" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Item</a></li>
-        </ul>
-    </div>
-    <div class="tab-content">
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(0), active: isSet(0) }">
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div id="GridEntity" ej-grid e-datasource="QualityManagementMasterEntityList" e-templaterefresh="refreshTemplateEntity" e-recorddoubleclick=""
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateEntity" e-template="#checkboxTemplateEntity" e-textalign="center" e-width="30"></div>
-                        <div e-column e-field="Id" e-headertext="Id" e-width="50" e-visible="false"></div>
-                        <div e-column e-field="EntityType" e-headertext="Entity Type" e-width="100"></div>
-                        <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
-                        <div e-column e-field="Code" e-headertext="Code" e-width="100"></div>
-                        <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
-                    </div>
-                </div>
-                <script type="text/template" id="checkboxTemplateEntity">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-                </script>
-                <script type="text/x-jsrender" id="headerTemplateEntity">
-                    <input type="checkbox" id="Eheadchk" />
-                </script>
-                <script type="text/template" id="Remarks">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
-                    </div>
-                </script>
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="EntitySave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                </ul>
-            </div>
-        </div>
-        <div role="tabpanel" ng-form="QualityManagementAGForm" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Activity Group Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input name="Activity Group Name" ng-model="ActivityGroupNew.ActivityGroupName" class="form-control" required maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="Remarks" ng-model="ActivityGroupNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="ActivityGroupSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeAGModal($index,ActivityGroupNew.Id);" ng-disabled="ActivityGroupNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="ActivityGroupClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-            <div id="GridActivityGroup" ej-grid e-datasource="QualityManagementActivityGroupList" e-recorddoubleclick="GetQMActivityGroupDetails"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
-                    <div e-column e-field="ActivityGroupName" e-headertext="Activity Group Name" e-width="100"></div>
-                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-                </div>
-            </div>
-        </div>
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div style="color:black;" id="GridProcess" ej-grid e-datasource="QualityManagementProcessList"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                     e-recorddoubleclick="" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-templaterefresh="refreshTemplateProcess">
-                    <div e-columns>
-                        <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProcess" e-template="#checkboxTemplateProcess" e-textalign="center" e-width="30"></div>
-                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
-                        <div e-column e-field="Code" e-headertext="Process Code" e-width="100"></div>
-                        <div e-column e-template="#ActivityGroup" e-headertext="Activity Group" e-width="200"></div>
-                        <div e-column e-template="#ProcessRemarks" e-headertext="Remarks" e-width="200"></div>
-                    </div>
-                </div>
-
-                <script type="text/template" id="checkboxTemplateProcess">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-                </script>
-                <script type="text/x-jsrender" id="headerTemplateProcess">
-                    <input type="checkbox" id="Pheadchk" />
-                </script>
-                <script type="text/template" id="ActivityGroup">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="data.ActivityGroupId" name="ActivityGroup"
-                                ng-options="item.Value as item.Text for item in $parent.ActivityGroupList">
-                        </select>
-                    </div>
-                </script>
-                <script type="text/template" id="ProcessRemarks">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Process Remarks" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
-                    </div>
-                </script>
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="ProcessSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                </ul>
-            </div>
-        </div>
-
-        <div role="tabpanel" ng-form="SkillManagementItemForm" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-            <div class="col-xs-12 col-sm-3 col-md-3">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">SNO<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="SNO" ng-disabled="true" ng-model="ItemNew.SNO" class="form-control" required maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Name" ng-model="ItemNew.ItemName" class="form-control" required maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">IsAuditable</label>
-                    <div class="col-sm-8">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="ItemNew.IsAuditable" tabindex="8">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Critical Level<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="ItemNew.CriticalLevel" name="Critical Level" required
-                                    ng-options="item.Value as item.Text for item in CriticalLevelLists">
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="ItemNew.ProcessId" name="ActivityGroup"
-                                    ng-options="item.Value as item.Text for item in PerformanceGroupList">
-                            </select> 
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Activity Group</label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="ItemMinutes" ng-model="ActivityGroup" class="form-control" required maxlength="10" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" ng-show="ItemNew.IsAuditable==true">By Whom</label>
-                    <div class="col-sm-8">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="By Whome" ng-disabled="true" ng-show="ItemNew.IsAuditable==true" ng-model="ItemNew.ByWhom" class="form-control" maxlength="100" autocomplete="off">
-                        </div>
-                        <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                            <button ng-click="selectByWhomeBudgetCode();" ng-show="ItemNew.IsAuditable==true" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="Remarks" ng-model="ItemNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Category<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="ItemNew.Category" name="Critical Level" required
-                                    ng-options="item.Value as item.Text for item in CategoryLists">
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Exception Days</label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="ExceptionDays" ng-model="ItemNew.ExceptionDays" class="form-control" required maxlength="10" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Report Applicable</label>
-                    <div class="col-sm-8">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="ItemNew.ReportApplicable" tabindex="8">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Is Std Applicable</label>
-                    <div class="col-sm-8">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="ItemNew.IsStdApplicable" tabindex="8">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">UOM<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <div class="col-sm-10" style="padding:0px;">
-                            <input type="text" name="UOM" ng-disabled="true" ng-model="ItemNew.UOM" class="form-control" maxlength="100" required autocomplete="off">
-                        </div>
-                        <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                            <button ng-click="selectUOM();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Max<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Maximum Points" ng-model="ItemNew.Max" class="form-control" required maxlength="10" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Min<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Minimum Points" ng-model="ItemNew.Max" class="form-control" required maxlength="10" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="ItemSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeRowModal($index,ItemNew.Id);" ng-disabled="ItemNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="ItemClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-            @*<div class="col-xs-12 col-sm-12 col-md-12">*@
-            <div id="GridItem" ej-grid e-datasource="ScheduleItemList" e-recorddoubleclick="GetItemDetails"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Item Id" e-visible="false" e-width="3"></div>
-                    <div e-column e-field="SNO" e-headertext="SNO" e-width="3"></div>
-                    <div e-column e-field="PerformanceGroup" e-headertext="Performance Group" e-width="3"></div>
-                    <div e-column e-field="ItemName" e-headertext="Item Name" e-width="3"></div>
-                    <div e-column e-field="ItemMinutes" e-headertext="Item Minutes" e-width="3"></div>
-                    <div e-column e-field="CriticalLevel" e-headertext="Critical Level" e-width="3"></div>
-                    <div e-column e-field="IsAuditable" e-headertext="Is Auditable" e-width="3"></div>
-                    <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="3"></div>
-                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-                    <div e-column e-field="ExceptionDays" e-headertext="Exception Days" e-width="3"></div>
-                    <div e-column e-template="#Parameter" e-headertext="Child Parameter" e-width="2"></div>
-                </div>
-            </div>
-            <script type="text/template" id="Parameter">
-                <div class="form-group">
-                    <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
-                        <div class="common-btn">
-                            <ul class="list-inline text-left">
-                                <li><button ng-click=";$parent.GetItemDetails(this);$parent.getParameterPopup(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </script>
-            @*</div>*@
-        </div>
-        <div role="tabpanel" ng-form="SkillManagementBudgetForm" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">SNO</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="SNO" ng-disabled="true" ng-model="PersonBudgetNew.SNO" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Group</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="PersonBudgetNew.Group" name="Group"
-                                    ng-options="item.Value as item.Text for item in GroupList">
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <label class="col-sm-4 control-label">Budget Code</label>
-                <div class="col-sm-8">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Budget Code" ng-disabled="true" ng-model="PersonBudgetNew.PersonBudgetCode" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectPersonBudgetCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="BudgetCodeSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeBudgetCodeModal($index,PersonBudgetNew.Id);" ng-disabled="PersonBudgetNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="BudgetCodeClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-            @*<div class="col-xs-12 col-sm-12 col-md-12">*@
-            <div id="GridPersonBudgetCode" ej-grid e-datasource="ScheduleBudgetCodeList" e-recorddoubleclick="GetBudgetCodeDetails"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
-                    <div e-column e-field="SNO" e-headertext="SNO" e-width="3"></div>
-                    <div e-column e-field="PersonBudgetCode" e-headertext="Budget Code" e-width="3"></div>
-                    <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
-                    <div e-column e-field="Position" e-headertext="Position" e-width="3"></div>
-                    <div e-column e-field="Department" e-headertext="Department" e-width="3"></div>
-                    <div e-column e-field="Section" e-headertext="Section" e-width="3"></div>
-                    <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="3"></div>
-                    <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="3"></div>
-                    <div e-column e-field="Activity" e-headertext="Activity" e-width="3"></div>
-                    <div e-column e-field="Group" e-headertext="Group" e-width="3"></div>
-                </div>
-            </div>
-            @*</div>*@
-        </div>
-        <div role="tabpanel" ng-form="SkillManagementTeamDefinitionForm" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">SNO</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="SNO" ng-disabled="true" ng-model="TeamDefinitionNew.SNO" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <label class="col-sm-4 control-label">Team Definition Name</label>
-                <div class="col-sm-8">
-                    <div class="col-sm-10" style="padding:0px;">
-                        <input type="text" name="Team Name" ng-disabled="true" ng-model="TeamDefinitionNew.TeamDefinition" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="selectTeamDefinition();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="TeamDefinitionSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeTeamDefinitionModal($index,TeamDefinitionNew.Id);" ng-disabled="TeamDefinitionNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="TeamDefinitionClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-            <div id="GridTeamDefinition" ej-grid e-datasource="ScheduleTeamDefinitionList" e-recorddoubleclick="GetTeamDefinitionDetails"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
-                    <div e-column e-field="SNO" e-headertext="SNO" e-width="3"></div>
-                    <div e-column e-field="TeamName" e-headertext="Team Definition Name" e-width="3"></div>
-                </div>
-            </div>
-        </div>
-        <div role="tabpanel" ng-form="SkillManagementGradingForm" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Performance Group</label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="GradeNew.PerformanceGroup" name="Performance Group"
-                                    ng-options="item.Value as item.Text for item in PerformanceGroupList">
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Grade2</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="Grade 2" ng-model="GradeNew.Grade2" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Grade4</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="Grade 3" ng-model="GradeNew.Grade4" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Grade1</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="Grade 1" ng-model="GradeNew.Grade1" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Grade3</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="Grade 4" ng-model="GradeNew.Grade3" class="form-control" maxlength="100" autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-disabled="scheduleNew.Id===null" ng-click="GradingSave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                    <li> <button ng-click="removeGradingModal($index,GradeNew.Id);" ng-disabled="GradeNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
-                    <li> <button ng-click="GradingClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-            <div id="GridGrading" ej-grid e-datasource="ScheduleGradingList" e-recorddoubleclick="GetGradingDetails"
-                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                <div e-columns>
-                    <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="3"></div>
-                    <div e-column e-field="PerformanceGroup" e-headertext="Performance Group" e-width="100"></div>
-                    <div e-column e-field="Grade1" e-headertext="Grade1" e-width="100"></div>
-                    <div e-column e-field="Grade2" e-headertext="Grade2" e-width="100"></div>
-                    <div e-column e-field="Grade3" e-headertext="Grade3" e-width="100"></div>
-                    <div e-column e-field="Grade4" e-headertext="Grade4" e-width="100"></div>
-                </div>
+        <div id="GridFrequency" ej-grid e-datasource="FrequencyList" e-recorddoubleclick="GetFrequencyDetails"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                <div e-column e-field="SNO" e-headertext="SNO" e-width="100"></div>
+                <div e-column e-field="UserName" e-headertext="UserName" e-width="100"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
             </div>
         </div>
     </div>
 </div>
-<div class="table-responsive aplos-grid-toggle">
-    <div id="GridQualityManagementMaster" ej-grid e-datasource="QualityManagementMasterList" e-recorddoubleclick="GetDetails"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true">
-        <div e-columns>
-            <div e-column e-field="Id" e-headertext="Quality Id" e-visible="false" e-width="50"></div>
-            <div e-column e-field="ScheduleCode" e-headertext="Schedule Code" e-width="100"></div>
-            <div e-column e-field="StandaredName" e-headertext="Standard Name" e-width="100"></div>
-            <div e-column e-field="ScheduleDays" e-headertext="Schedule Days" e-width="100"></div>
-            <div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>
-            <div e-column e-field="ResponsiblePersoneBgtCode" e-headertext="Responsible Person Bgt Code" e-width="100"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
-        </div>
-    </div>
-</div>
-<confirm-modal></confirm-modal>
-
 <div class="modal fade site-modal in" id="BudgetCodePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
@@ -649,36 +686,37 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="PersonBudgetCodePopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header">Budget Code <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Double click to Select an Budget Code</p>
-                        <div style="color:black;" id="GridPersonBudgetCode" ej-grid e-datasource="PersonBudgetCodeList"
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridEntity" ej-grid e-datasource="ResponsiblePersonList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                             e-recorddoubleclick="doublePersonBudgetCode">
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true" e-responsive="true"
+                             e-recorddoubleclick="doubleEmploye">
                             <div e-columns>
-                                <div e-column e-type="Number" e-field="ManPowerBudgetId" e-headertext="Id" e-visible="false" e-width="30"></div>
-                                <div e-column e-type="Number" e-field="Code" e-headertext="Code" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Entity" e-headertext="Entity" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Position" e-headertext="Position" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Department" e-headertext="Department" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Section" e-headertext="Section" e-width="30"></div>
-                                <div e-column e-type="String" e-field="SubSection" e-headertext="Sub Section" e-width="30"></div>
-                                <div e-column e-type="String" e-field="LegalDesignation" e-headertext="Legal Designation" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Activity" e-headertext="Activity" e-width="30"></div>
+                                <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="100"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="50"></div>
+                                <div e-column e-field="Designation" e-headertext="Designation" e-width="50"></div>
+                                <div e-column e-field="GivenDesignation" e-headertext="DesiGivenDesignationgnation" e-width="50"></div>
                             </div>
+
                         </div>
                     </div>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="closePersonBudgetCodePopUp();" class="btn"><i class=""></i> Close</button>
+                            <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 
@@ -687,57 +725,23 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="TeamDefinitionPopUp" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="UOMPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
-            <div class="modal-header">Team Definition<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">UOM<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Double click to Select an Team Name</p>
-                        <div style="color:black;" id="GridTeamDefinition" ej-grid e-datasource="TeamDefinitionList"
+                        <p>Double click to Select an UOM</p>
+                        <div style="color:black;" id="GridUOM" ej-grid e-datasource="UOMList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                             e-recorddoubleclick="doubleTeamDefinition">
+                             e-recorddoubleclick="doubleUOM">
                             <div e-columns>
-                                <div e-column e-type="String" e-field="Id" e-headertext="Id" e-width="30"></div>
-                                <div e-column e-type="String" e-field="Code" e-headertext="Code" e-width="30"></div>
-                                <div e-column e-type="String" e-field="UserName" e-headertext="Team Name" e-width="30"></div>
-                                <div e-column e-type="String" e-field="ShortName" e-headertext="Short Name" e-width="30"></div>
-                                <div e-column e-type="String" e-field="StandardName" e-headertext="Standard Name" e-width="30"></div>
-                                <div e-column e-type="String" e-field="TeamLeader" e-headertext="Team   Leader" e-width="30"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li>
-                            <button ng-click="closeTeamDefinitionPopUp();" class="btn"><i class=""></i> Close</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade site-modal in" id="DepartmentPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content">
-            <div class="modal-header">Department<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <p>Double click to select an Department</p>
-                        <div style="color:black;" id="GridDepartment" ej-grid e-datasource="DepartmentList"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
-                             e-recorddoubleclick="doubleDepartment">
-                            <div e-columns>
-                                <div e-column e-field="DepartmentId" e-headertext="Id" e-width="30"></div>
+                                <div e-column e-field="UOMId" e-headertext="Id" e-width="30"></div>
                                 <div e-column e-field="Code" e-headertext="Code" e-width="30"></div>
                                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="30"></div>
-                                <div e-column e-field="Department" e-headertext="User Name" e-width="30"></div>
+                                <div e-column e-field="UOM" e-headertext="User Name" e-width="30"></div>
                             </div>
                         </div>
                     </div>
@@ -745,7 +749,7 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="closeDepartmentPopUp();" class="btn"><i class=""></i> Close</button>
+                            <button ng-click="closeUOMPopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 
@@ -754,11 +758,68 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="FrequencyValuePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Frequency Value List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please select Frequency Value</p>
+                        <div style="color:black;" id="GridFrequencyValuePopup" ej-grid e-datasource="ParameterFrequencyList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="" e-templaterefresh="refreshTemplateReasonValue">
+                            <div e-columns>
+                                <div e-column e-field="FrequencyId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="UserName" e-headertext="Frequency Name" e-width="30"></div>
+                                <div e-column e-template="#QA" e-headertext="QA" e-width="10"></div>
+                                <div e-column e-template="#Quality" e-headertext="Quality" e-width="10"></div>
+                                <div e-column e-template="#Management" e-headertext="Management" e-width="10"></div>
+                            </div>
+
+                            <script type="text/template" id="QA">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="data.QA" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </script>
+                            <script type="text/template" id="Quality">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="data.Quality" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </script>
+                            <script type="text/template" id="Management">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="data.Management" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-center">
+                        <li>
+                            <button ng-click="closeFrequencyValuePopup();" class="btn"><i class=""></i> Close</button>
+                            <button ng-click="SaveFrequencyValue();" class="btn"><i class=""></i> Save</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmRemoveParameter" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteParameter();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRemoveFrequency" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteFrequency();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveAG" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeLevelRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveItem" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeItemRow();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmRemoveBudgetCode" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeBudgetCodeRow();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmRemoveTeamDefinition" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeTeamDefinitionRow();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmRemoveGrading" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeGradeRow();"></confirm-archive-generic>
-
 
 

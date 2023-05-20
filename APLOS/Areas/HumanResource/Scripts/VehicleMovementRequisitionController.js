@@ -75,7 +75,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFieldsMovement();
+                    $scope.VehicleRequisitionModel.Id = response.data.Id;
+                    //ClearFieldsMovement();
                     $scope.GetVehicleRequisitiontData();
 
                 }
@@ -187,4 +188,76 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
 
     // #endregion MovementMaster
 
+    $scope.FromLocationList = [];
+    $scope.GetFromToLocationList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetFromToLocationList",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.FromLocationList = response.data;
+
+        });
+    }
+    $scope.GetFromToLocationList();
+
+   document.getElementById("reqHideShowId").style.display = "none";
+
+    $scope.RequisitionObj = {
+        Id: null,
+        FromLocationId: null,
+        ToLocationId:null,
+    };
+    $scope.RequisitionList = [];
+    $scope.CreateBlankRows = function () {       
+        document.getElementById("reqHideShowId").style.display = "block";        
+        for (var i = 0; i < 2; i++) {
+            var obj = angular.copy($scope.RequisitionObj);
+            
+            $scope.RequisitionList.push(obj);
+           
+        }
+
+    }
+    //$scope.CreateBlankRows();
+
+    $scope.AssignToLocInFromLoc = function (LocationId, index) {
+        $scope.RequisitionList[index + 1].FromLocationId = LocationId;
+
+    }
+
+    // Save
+    $scope.SaveRequisitionChid = function () {
+        $scope.ChkdRequisitionList = [];
+        for (var i = 0; i < $scope.RequisitionList.length; i++) {
+            if ($scope.RequisitionList[i].isSelected) {
+                $scope.ChkdRequisitionList.push($scope.RequisitionList[i]);
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveRequisitionChid',
+            data: {
+                'data': $scope.ChkdRequisitionList,
+                'headerId': $scope.VehicleRequisitionModel.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+
+        }
+    }
+
+    
 }
