@@ -4,18 +4,22 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $rootScope.title = "QualityManagementMaster";
     $scope.CriticalLevelLists = [];
     $scope.CategoryLists = [];
+    $scope.ModelList = [];
     $scope.Action = 'Save';
     $scope.path = 'QMS/QualityManagementMaster/';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.getSeqUrl = $scope.path + 'getautosequence';
+    $scope.saveUrlParaMaster = $scope.path + 'createParaMaster';
+    $scope.deleteUrl = $scope.path + 'delete/';
     $scope.saveUrlEntity = $scope.path + 'createEntity';
     $scope.saveUrlActivityGroup = $scope.path + 'createActivityGroup';
     $scope.saveUrlProcess = $scope.path + 'createProcess';
-    //$scope.saveUrlItem = $scope.path + 'createItem';
-    //$scope.saveUrlParameter = $scope.path + 'createParameter';
-    //$scope.saveUrlBudgetCode = $scope.path + 'createBudgetCode';
-    //$scope.saveUrlTeamDefinition = $scope.path + 'createTeamDefinition';
-    //$scope.saveUrlGrading = $scope.path + 'createGrading';
+    $scope.saveUrlItem = $scope.path + 'createItem';
+    $scope.saveUrlParameter = $scope.path + 'createParameter';
+    $scope.saveUrlFrequency = $scope.path + 'createFrequency';
+    $scope.saveUrlFrequencyValue = $scope.path + 'createFrequencyValue';
     
+   
     $scope.CriticalLevelLists = [
         {
             'Value': 'Normal',
@@ -50,35 +54,51 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     ];
     
-    $scope.PerformanceGroupList = [];
-    $scope.GetPerformanceGroupList = function (pid) {
+    $scope.ParameterProcessList = [];
+    $scope.GetParameterProcessList = function (pid) {
         $http({
             method: 'GET',
-            url: 'QMS/QualityManagementMaster/GetPerformanceGroupList?ScheduleId=' + pid
+            url: 'QMS/QualityManagementMaster/GetParameterProcessList?ScheduleId=' + pid
         }).then(function successCallback(response) {
-            $scope.PerformanceGroupList = response.data;
+            $scope.ParameterProcessList = response.data;
         });
     }
-    $scope.GetPerformanceGroupList();
+    $scope.GetParameterProcessList();
 
-    $scope.GroupList = [
-        {
-            'Value': '1',
-            'Text': '1'
-        },
-        {
-            'Value': '2',
-            'Text': '2'
-        },
-        {
-            'Value': '3',
-            'Text': '3'
-        },
-        {
-            'Value': '4',
-            'Text': '4'
+    $scope.FrequencyList = [];
+    $scope.getFrequency = function () {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/getFrequency'
+        }).then(function successCallback(response) {
+            $scope.FrequencyList = response.data;
         }
-    ];
+        )
+    }
+    $scope.getFrequency();
+
+    $scope.GetFrequencyDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/getFrequencyData?FrequencyId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.FrequencyNew = response.data.frequency[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.GetParameterProcessAGList = function (pid) {
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityManagementMaster/GetParameterProcessAGList?ScheduleId=' + $scope.ScheduleMasterId + '&ProcessId=' + pid
+        }).then(function successCallback(response) {
+            $scope.ItemNew.ActivityGroup = response.data[0].ActivityGroupName;
+        });
+    }
+
     $scope.schedule = {
         Id: null
         , ScheduleCode: null
@@ -91,6 +111,197 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
 
+    $scope.ModelTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        UserName: null,
+        StandardName: null,
+        ShortName: null,
+        IsActive: true,
+        Remarks: null,
+        EmployeeName: null,
+        EmployeeCode: null,
+        EmpSystemId: null
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.OpeEmployeePopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('show');
+        $scope.GetResponsiblePerson();
+    }
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+
+    }
+
+    $scope.ResponsiblePersonList = [];
+    $scope.GetResponsiblePerson = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetResponsiblePerson',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ResponsiblePersonList = resp.data;
+        });
+
+    }
+
+    $scope.doubleEmploye = function (e) {
+        $scope.ModelNew.EmpSystemId = e.data.EmpSystemId;
+        $scope.ModelNew.EmployeeName = e.data.EmployeeName;
+        $scope.ModelNew.EmployeeCode = e.data.EmployeeCode;
+
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.Sequence = data;
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
+    $scope.getData = function () {
+        $http.get('Productions/ParameterMaster/GetList')
+            .then(
+                function successCallback(response) {
+                    $scope.ModelList = response.data;
+                    ClearFields(response.data.Sequence);
+                    $scope.GetSequence();
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    }
+    $scope.getData();
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.EmployeeId = args.data.ResponsiblePerson;
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+           
+        }
+    };
+
+    $scope.SaveParaMaster = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlParaMaster,
+            data: {
+                'data': $scope.ModelNew,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                ClearFields(response.data.Sequence);
+                $scope.getData();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.removeParameter = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempPId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveParameter')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteParameter = function () {
+        if (!baseService.isUndefinedOrNull($scope.tempPId)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.tempPId,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.removeFrequency = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempFId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveFrequency')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.DeleteFrequency = function () {
+        $http({
+            method: 'POST',
+            url: 'QMS/QualityManagementMaster/FrequencyDelete?id=' + $scope.tempFId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getFrequency();
+                FrequencyClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.ClearParameter = function () {
+        ClearFields();
+        $scope.GetSequence();
+        return true;
+    };
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.ModelTemp = {
+            Id: null,
+            Sequence: 0,
+            Code: null,
+            UserName: null,
+            StandardName: null,
+            ShortName: null,
+            IsActive: true,
+            Remarks: null,
+            EmployeeName: null,
+            EmployeeCode: null,
+            EmpSystemId: null
+        };
+
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    }
+
     $scope.ActivityGroup = {
         Id: null
         , QMID: null
@@ -102,7 +313,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.Item = {
         Id: null
         , SNO: null
-        , ItemName: null
+        , ParameterId: null
         , CriticalLevel: null
         , Category: null
         , IsAuditable: null
@@ -110,12 +321,13 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , ByWhom:null
         , Remarks: null
         , QMID: null
-        , ActivityGroupId: null
         , ActivityGroup: null
         , ProcessId: null
         , ExceptionDays: null
         , ReportApplicable: true
         , IsStdApplicable: true
+        , OrderSpecific: true
+        , General: true
         , UOMId: null
         , UOM: null
         , Max: null
@@ -131,6 +343,14 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         , ItemId:null
     }
     $scope.ParameterNew = Object.assign({}, $scope.Parameter);
+
+    $scope.Frequency = {
+        Id: null
+        , SNO: null
+        , UserName: null
+        , Remarks: null
+    }
+    $scope.FrequencyNew = Object.assign({}, $scope.Frequency);
 
     $scope.ProcessList = [];
     $scope.GetProcessList = function () {
@@ -168,14 +388,10 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             $scope.LoadEntityDetails($scope.ScheduleMasterId);
             $scope.LoadQMActivityGroupDetails($scope.ScheduleMasterId);
             $scope.LoadProcessDetails($scope.ScheduleMasterId);
-            //$scope.GeneratSkillLevelSequenceNo($scope.ScheduleMasterId);
-            //$scope.LoadItemDetails($scope.ScheduleMasterId);
-            //$scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
-            //$scope.LoadBudgetCodeDetails($scope.ScheduleMasterId);
-            //$scope.GeneratPersonBudgetSequenceNo($scope.ScheduleMasterId);
-            //$scope.LoadTeamDefinitionDetails($scope.ScheduleMasterId);
-            //$scope.LoadGradingDetails($scope.ScheduleMasterId);
-            /*$scope.GeneratTeamDefinitionSequenceNo($scope.ScheduleMasterId);*/
+            $scope.GetParameterProcessList($scope.ScheduleMasterId);
+            $scope.LoadItemDetails($scope.ScheduleMasterId);
+            $scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
+           
 
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
@@ -466,6 +682,16 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     };
 
+    $scope.ParameterItemList = [];
+    $scope.GetParameterItemList = function () {
+        $http({
+            method: 'GET',
+            url: 'QMS/QualityManagementMaster/GetParameterItemList'
+        }).then(function successCallback(response) {
+            $scope.ParameterItemList = response.data;
+        });
+    }
+    $scope.GetParameterItemList();
 
     $scope.GeneratItemSequenceNo = function () {
         $http({
@@ -543,91 +769,36 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         angular.element(document.querySelector('#ByWhomPop')).modal('hide');
     }
 
-    $scope.selectPersonBudgetCode = function () {
-        $scope.getPersonBudgetCode();
-        angular.element(document.querySelector('#PersonBudgetCodePopUp')).modal('show');
+    $scope.selectUOM = function () {
+        $scope.getUOM();
+        angular.element(document.querySelector('#UOMPopUp')).modal('show');
     }
 
-    $scope.PersonBudgetCodeList = [];
-    $scope.getPersonBudgetCode = function () {
+    $scope.UOMList = [];
+    $scope.getUOM = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetPersonBudgetCode',
+            url: $scope.path + 'GetUOM',
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.PersonBudgetCodeList = resp.data;
+            $scope.UOMList = resp.data;
         });
     }
 
-    $scope.doublePersonBudgetCode = function (e) {
-        $scope.PersonBudgetNew.PersonBudgetCodeId = e.data.ManPowerBudgetId;
-        $scope.PersonBudgetNew.PersonBudgetCode = e.data.Code;
-        angular.element(document.querySelector('#PersonBudgetCodePopUp')).modal('hide');
+    $scope.doubleUOM = function (e) {
+        $scope.ItemNew.UOMId = e.data.UOMId;
+        $scope.ItemNew.UOM = e.data.UOM;
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
     }
 
-    $scope.closePersonBudgetCodePopUp = function () {
-        angular.element(document.querySelector('#PersonBudgetCodePopUp')).modal('hide');
-    }
-
-    $scope.selectTeamDefinition = function () {
-        $scope.getTeamDefinition();
-        angular.element(document.querySelector('#TeamDefinitionPopUp')).modal('show');
-    }
-
-    $scope.TeamDefinitionList = [];
-    $scope.getTeamDefinition = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetTeamDefinition',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.TeamDefinitionList = resp.data;
-        });
-    }
-
-    $scope.doubleTeamDefinition = function (e) {
-        $scope.TeamDefinitionNew.TeamDefinitionId = e.data.Id;
-        $scope.TeamDefinitionNew.TeamDefinition = e.data.UserName;
-        angular.element(document.querySelector('#TeamDefinitionPopUp')).modal('hide');
-    }
-
-    $scope.closeTeamDefinitionPopUp = function () {
-        angular.element(document.querySelector('#TeamDefinitionPopUp')).modal('hide');
-    }
-
-    $scope.selectDepartment = function () {
-        $scope.getDepartment();
-        angular.element(document.querySelector('#DepartmentPopUp')).modal('show');
-    }
-
-    $scope.DepartmentList = [];
-    $scope.getDepartment = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'GetDepartment',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.DepartmentList = resp.data;
-        });
-    }
-
-    $scope.doubleDepartment = function (e) {
-        $scope.scheduleNew.DepartmentId = e.data.DepartmentId;
-        $scope.scheduleNew.Department = e.data.Department;
-        angular.element(document.querySelector('#DepartmentPopUp')).modal('hide');
-    }
-
-    $scope.closeDepartmentPopUp = function () {
-        angular.element(document.querySelector('#DepartmentPopUp')).modal('hide');
+    $scope.closeUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
     }
 
    
-
-   
-
     $scope.ItemSave = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.SkillManagementItemForm.$valid) {
+        if ($scope.QualityManagementParameterItemForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrlItem,
@@ -652,85 +823,26 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         }
     };
 
-    $scope.BudgetCodeSave = function () {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlBudgetCode,
-                data: {
-                    'BudgetCodeData': $scope.PersonBudgetNew,
-                    'Pid': $scope.scheduleNew.Id
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.LoadBudgetCodeDetails($scope.scheduleNew.Id);
-                    BudgetCodeClearFields($scope.GeneratPersonBudgetSequenceNo($scope.scheduleNew.Id));
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-    };
-
-    $scope.TeamDefinitionSave = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveUrlTeamDefinition,
-            data: {
-                'TeamDefinitionData': $scope.TeamDefinitionNew,
-                'Pid': $scope.scheduleNew.Id
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadTeamDefinitionDetails($scope.scheduleNew.Id);
-                TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+    $scope.removeRowModal = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveItem')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
         }
     };
 
-    $scope.GradingSave = function () {
-        $http({
-            method: 'POST',
-            url:$scope.saveUrlGrading,
-            data: {
-                'GradingData': $scope.GradeNew,
-                'Pid': $scope.scheduleNew.Id
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadGradingDetails($scope.scheduleNew.Id);
-                GradingClearFields();
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-    };
-
+    
     $scope.ParameterLists = [];
     $scope.getParameterPopup = function (data) {
         $scope.NewObject = data.data;
         var ItemId = $scope.ItemNew.Id;
         $scope.ItemNew.Id = ItemId;
         try {
-            $http.get('QMS/QualityManagementMaster/getParameterData?ItemId=' + $scope.NewObject.Id)
+            $http.get('QMS/QualityManagementMaster/getParameterData?ParameterId=' + $scope.NewObject.Id)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
@@ -748,7 +860,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
     $scope.getParameter = function (data) {
         try {
-            $http.get('QMS/QualityManagementMaster/getParameterData?ItemId=' + data)
+            $http.get('QMS/QualityManagementMaster/getParameterData?ParameterId=' + data)
                 .then(
                     function successCallback(response) {
                         $scope.ParameterLists = response.data;
@@ -760,7 +872,6 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         } catch (e) {
             ShowResult(e, 'failure');
         }
-
     };
 
     $scope.GetParameterDetails = function (args) {
@@ -799,6 +910,90 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             }
     };
 
+    $scope.FrequencySave = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrlFrequency,
+            data: {
+                'FrequencyData': $scope.FrequencyNew
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getFrequency();
+                FrequencyClearFields();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+
+    $scope.ParameterId = null;
+    $scope.ParameterFrequencyList = [];
+    $scope.getFrequencyPopup = function (data) {
+        $scope.NewObject = data.data;
+        $scope.ParameterId = $scope.NewObject.Id;
+        $http({
+
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadFrequencyList?ParameterId=' + $scope.ParameterId
+        }).then(function successCallback(response) {
+            $scope.ParameterFrequencyList = response.data;
+            var gridObj = $("#GridFrequencyValuePopup").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#FrequencyValuePopup')).modal('show');
+        }
+        )
+    }
+
+    $scope.closeFrequencyValuePopup = function () {
+        angular.element(document.querySelector('#FrequencyValuePopup')).modal('hide');
+    }
+
+    $scope.SaveFrequencyValue = function () {
+        try {
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ParameterFrequencyList.length; i++) {
+               /* if ($scope.ParameterFrequencyList[i].QA==true) {*/
+                    $scope.ParameterFrequencyList[i].ParameterId = $scope.ParameterId;
+                    $scope.SaveList.push($scope.ParameterFrequencyList[i]);
+               /* }*/
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlFrequencyValue,
+                data: { 'ParameterFrequencyData': $scope.SaveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
+
+    $scope.tabPRM = 1;
+    $scope.setTabPRM = function (newTab) {
+        $scope.tabPRM = newTab;
+    };
+
+    $scope.isSetPRM = function (tabNum) {
+        return $scope.tabPRM === tabNum;
+    };
 
     $scope.tab = 0;
     $scope.setTab = function (newTab) {
@@ -810,18 +1005,6 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         return $scope.tab === tabNum;
     };
 
-    $scope.GetSkillLevelDetails = function (args) {
-        $http({
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadSkillLevelEditData?LevelId=' + args.data.Id
-        }).then(function successCallback(response) {
-            $scope.SkillLevelNew = response.data.skilllevel[0];
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        }
-        )
-    }
     $scope.GetItemDetails = function (args) {
         $http({
             method: 'Get',
@@ -835,43 +1018,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         )
     }
     
-    $scope.GetBudgetCodeDetails = function (args) {
-        $http({
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadBudgetCodeEditData?BudgetCodeId=' + args.data.Id
-        }).then(function successCallback(response) {
-            $scope.PersonBudgetNew = response.data.PersonBudget[0];
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        }
-        )
-    }
-    $scope.GetTeamDefinitionDetails = function (args) {
-        $http({
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadTeamDefinitionEditData?TeamDefinitionId=' + args.data.Id
-        }).then(function successCallback(response) {
-            $scope.TeamDefinitionNew = response.data.TeamDefinition[0];
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        }
-        )
-    }
-
-    $scope.GetGradingDetails = function (args) {
-        $http({
-            method: 'Get',
-            url: 'QMS/QualityManagementMaster/LoadGradingEditData?GradeId=' + args.data.Id
-        }).then(function successCallback(response) {
-            $scope.GradeNew = response.data.Grade[0];
-            if (!$rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
-        }
-        )
-    }
+  
     $scope.Clear = function () {
         ScheduleClearFields();
     };
@@ -880,25 +1027,16 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         ActivityGroupClearFields();
     };
 
-    $scope.SkillLevelClear = function () {
-        SkillLevelClearFields($scope.GeneratSkillLevelSequenceNo($scope.scheduleNew.Id));
-    };
     $scope.ItemClear = function () {
         ItemClearFields($scope.GeneratItemSequenceNo($scope.scheduleNew.Id));
     };
     $scope.SaveParameterClear = function () {
         ParameterClearFields();
     };
-    $scope.BudgetCodeClear = function () {
-        BudgetCodeClearFields($scope.GeneratPersonBudgetSequenceNo($scope.scheduleNew.Id));
+    $scope.FrequencyClear = function () {
+        FrequencyClearFields();
     };
-
-    $scope.TeamDefinitionClear = function () {
-        TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
-    };
-    $scope.GradingClear = function () {
-        GradingClearFields();
-    };
+   
     function ScheduleClearFields() {
         $scope.Action = "Save";
         $scope.scheduleNew = Object.assign({}, $scope.schedule);
@@ -908,86 +1046,23 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         $scope.ActivityGroupNew = Object.assign({}, $scope.ActivityGroup);
     }
 
-    function SkillLevelClearFields(seq) {
-        $scope.Action = "Save";
-        $scope.SkillLevelNew = Object.assign({}, $scope.SkillLevel);
-        $scope.SkillLevelNew.SNO = seq;
-    }
-
     function ItemClearFields(seq) {
         $scope.Action = "Save";
         $scope.ItemNew = Object.assign({}, $scope.Item);
         $scope.ItemNew.SNO = seq;
     }
 
-    function BudgetCodeClearFields(seq) {
-        $scope.Action = "Save";
-        $scope.PersonBudgetNew = Object.assign({}, $scope.PersonBudget);
-        $scope.PersonBudgetNew.SNO = seq;
-    }
-
-    function TeamDefinitionClearFields(seq) {
-        $scope.Action = "Save";
-        $scope.TeamDefinitionNew = Object.assign({}, $scope.TeamDefinition);
-        $scope.TeamDefinitionNew.SNO = seq;
-    }
-
+   
     function ParameterClearFields() {
         $scope.Action = "Save";
         $scope.ParameterNew = Object.assign({}, $scope.Parameter);
     }
-    function GradingClearFields() {
-        $scope.Action = "Save";
-        $scope.GradeNew = Object.assign({}, $scope.Grade);
-    }
 
-   
-    $scope.removeRowModal = function (index,data) {
-        try {
-            $scope.popUpIndex = index;
-            $scope.tempId = data;
-            $scope.message_confirmation = "Are you sure you want to delete?";
-            angular.element(document.querySelector('#confirmRemoveItem')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-    
-    
-    $scope.removeBudgetCodeModal = function (index, data) {
-        try {
-            $scope.popUpIndex = index;
-            $scope.tempbudgetId = data;
-            $scope.message_confirmation = "Are you sure you want to delete?";
-            angular.element(document.querySelector('#confirmRemoveBudgetCode')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-    $scope.removeTeamDefinitionModal = function (index, data) {
-        try {
-            $scope.popUpIndex = index;
-            $scope.tempTeamId = data;
-            $scope.message_confirmation = "Are you sure you want to delete?";
-            angular.element(document.querySelector('#confirmRemoveTeamDefinition')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-    $scope.removeGradingModal = function (index, data) {
-        try {
-            $scope.popUpIndex = index;
-            $scope.tempGradeId = data;
-            $scope.message_confirmation = "Are you sure you want to delete?";
-            angular.element(document.querySelector('#confirmRemoveGrading')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
+    function FrequencyClearFields() {
+        $scope.Action = "Save";
+        $scope.FrequencyNew = Object.assign({}, $scope.Frequency);
+    }
+  
     $scope.removeItemRow = function () {
         $http({
             method: 'POST',
@@ -1007,65 +1082,4 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             }
         });
     };
-
-    
-    
-    $scope.removeBudgetCodeRow = function () {
-        $http({
-            method: 'POST',
-            url: 'QMS/QualityManagementMaster/BudgetCodeDelete?id=' + $scope.tempbudgetId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadBudgetCodeDetails($scope.scheduleNew.Id);
-                BudgetCodeClearFields($scope.GeneratPersonBudgetSequenceNo($scope.scheduleNew.Id));
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
-    $scope.removeTeamDefinitionRow = function () {
-        $http({
-            method: 'POST',
-            url: 'QMS/QualityManagementMaster/TeamDefinitionDelete?id=' + $scope.tempTeamId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadTeamDefinitionDetails($scope.scheduleNew.Id);
-                TeamDefinitionClearFields($scope.GeneratTeamDefinitionSequenceNo($scope.scheduleNew.Id));
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
-    $scope.removeGradeRow = function () {
-        $http({
-            method: 'POST',
-            url: 'QMS/QualityManagementMaster/GradingDelete?id=' + $scope.tempGradeId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.LoadGradingDetails($scope.scheduleNew.Id);
-                GradingClearFields();
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
-    
 }

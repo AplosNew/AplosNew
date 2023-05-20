@@ -52,11 +52,11 @@ function OutsourcingConfig($routeProvider, $locationProvider) {
 
         //--------------------
         .when('/jw-activity', {
-            templateUrl: 'Outsourcing/JWActivity',
+            templateUrl: 'Outsourcing/JWActivity/aplos',
             controller: 'jwActivityController'
         })
         .when('/jw-location', {
-            templateUrl: 'Outsourcing/JWLocation',
+            templateUrl: 'Outsourcing/JWLocation/aplos',
             controller: 'jwLocationController'
         })
         .when('/jw-transformation', {
@@ -64,7 +64,7 @@ function OutsourcingConfig($routeProvider, $locationProvider) {
             controller: 'jwTransformationMasterController'
         })
         .when('/jw-item', {
-            templateUrl: 'Outsourcing/JWItem',
+            templateUrl: 'Outsourcing/JWItem/aplos',
             controller: 'jwItemController'
         })
         .when('/os-po', {

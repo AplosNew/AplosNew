@@ -1,9 +1,10 @@
 ﻿'use strict';
-jwActivityController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$controller'];
-function jwActivityController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter,$controller) {
-    $rootScope.title = 'Job Work Activity';
+AdditionalInfoController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function AdditionalInfoController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Additional Info';
+    $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'Outsourcing/JWActivity/';
+    $scope.path = 'SalesManagements/AdditionalInfo/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -11,61 +12,21 @@ function jwActivityController(cboService, commonMessage, $scope, $rootScope, bas
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
-    $scope.jobWorkTypeList = [];
-    cboService.getEnumCbo("enum/GetJobWorkTypeEnumCbo", function (result) {
-        $scope.jobWorkTypeList = result;
-    });
 
-    $scope.getEmp = function (obj) {
-        $scope.ModelNew.ResponsiblePersonId = obj.data.SystemId;
-        $scope.ModelNew.ResponsiblePersonName = obj.data.EmployeeName;
-        angular.element(document.querySelector('#responsiblePersonPopUp')).modal('hide');
-    };
-
-    $scope.employeeList = [];
-    $scope.showAllEmployeeListPopUp = function () {
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'Outsourcing/JWItem/EmployeeListAll'
-        }).then(function successCallback(response) {
-            if (response.data.length > 0) {
-                $scope.employeeList = response.data;
-                angular.element(document.querySelector('#responsiblePersonPopUp')).modal('show');
-            }
-            else {
-                ShowResult("No Data Found", 'failure');
-            }
-        });
-    };
-    $scope.serviceCboList = [];
-    $http.get('Setups/CompanyServiceMaster/GetCboList')
-        .then(function (response) {
-            $scope.serviceCboList = response.data;
-        });
-    $scope.productionPrcoessList = [];
-    $http.get('Outsourcing/JWActivity/GetProductionProcessList')
-        .then(function (response) {
-            $scope.productionPrcoessList = response.data;
-        });
 
     $scope.getData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            //data: { column: $scope.searchBy, value: $scope.search },
+            data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
-        }).then(function successCallback(response) {
+        }).then(function successCallback(response) {          
             $scope.ModelList = response.data;
+            ClearFields(response.data.Sequence);
+            $scope.GetSequence();
         });
-    };
+    }
     $scope.getData();
-
-    //#region Partial View
-    $controller("employeeBaseController", { $scope: $scope, $http: $http });
-    $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    $scope.materialType = ['Asset', 'Consumable', 'Spare', 'RawMaterial'];
-    //#endregion
 
     $scope.ModelTemp = {
         Id: null,
@@ -74,14 +35,21 @@ function jwActivityController(cboService, commonMessage, $scope, $rootScope, bas
         ShortName: null,
         StandardName: null,
         UserName: null,
-        Type: null,
-        ResponsiblePersonId: null,
+        Description: null,
         Remarks: null,
-        ProcessId: null,
-        ServiceId: null,
-        ResponsiblePersonName :null
+        Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.CategoryList = [
+        { Value: 'SalesOrder', Text: 'Sales Order' },
+        { Value: 'SalesInvoice', Text: 'Sales Invoice' }
+    ];
+    $scope.charecterTypeList = [
+        {Value:'Text',Text:"Text"},
+        { Value: 'DateTime', Text:"DateTime"},
+        { Value: 'Decimal', Text:"Decimal"}
+    ];
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
@@ -90,25 +58,6 @@ function jwActivityController(cboService, commonMessage, $scope, $rootScope, bas
         });
     };
     $scope.GetSequence();
-
-$scope.selectResponsiblePersonPopUp = function (index, id) {
-        $scope.updateResponsiblePersonIndex = index;
-        $scope.selectedResponsiblePerson = id;
-    };
-$scope.updateResponsiblePersonIndex = -1;
- $scope.closeResponsiblePersonPopUp = function () {
-        if ($scope.updateResponsiblePersonIndex !== -1) {
-            var employee = $scope.employeeList[$scope.updateResponsiblePersonIndex];
-            $scope.ModelNew.ResponsiblePersonName = employee.EmployeeName;
-            $scope.ModelNew.ResponsiblePersonId = employee.SystemId;
-        }
-      angular.element(document.querySelector("#responsiblePersonPopUp")).modal("hide");
-    };
-   $scope.clearResponsiblePerson = function()
-{
-        $scope.ModelNew.ResponsiblePersonName = null;
-            $scope.ModelNew.ResponsiblePersonId = null;
-}
 
     $scope.Get = function (args) {
 
@@ -120,7 +69,6 @@ $scope.updateResponsiblePersonIndex = -1;
     };
 
     $scope.Save = function () {
-      
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
@@ -166,7 +114,6 @@ $scope.updateResponsiblePersonIndex = -1;
             });
         }
     };
-
 
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());

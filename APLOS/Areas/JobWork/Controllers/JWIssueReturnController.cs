@@ -116,29 +116,17 @@ namespace Aplos.Areas.JobWork.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (Type == "Value Added")
             {
-                //sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
-                //                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate
-                //                           ,FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
-                //                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                //                           from dbo.OSTransformationPO vac left join ORG.Entity e on e.Id=vac.EntityId
-                //                           left join HKP.Party p on p.Id=vac.PartyId
-                //                           WHERE " + strkey + " and POType='OSValueAddedPO' order by ValueAddedDate desc ";
-
+                 
 
                 sql = @"select * from(
 							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-									--,IR.PODate
 									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 									, CP.UserName AS PartyAccountGroupName
 									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-									--, IR.GateEntryNo
-									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
 									
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -147,19 +135,16 @@ namespace Aplos.Areas.JobWork.Controllers
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 									,isnull(pgl.CtnId,0) CtnId
 									,IR.AddedBy
-                                    --,PLC.LCANo PurchaseLC
 									,ISNULL(Cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
                                     ,isnull(PLC.LCRef,'') as PurchaseLC
-									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
                                   ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
 									,IR.ContractId
 									,IR.OrderSpecific
-									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
@@ -169,9 +154,6 @@ namespace Aplos.Areas.JobWork.Controllers
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
-                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
-						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
-						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
 						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
 						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 
@@ -201,14 +183,10 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
 						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
 						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
-						--where II.JWContractId='JWP98'
 						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='OSTransformationPO'  --IR.AddedBy='Shashank' And
-                        --AND IR.CheckedBy IS NOT NULL 
 						AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
-						--Order by IR.PODate DESC
 						and IR.POType='JWValueAddedPO'
 
 						UNION All
@@ -391,29 +369,16 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             }
             if (Type == "Transformation")
             {
-                //       sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime]
-                //                           ,FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                //                           FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                //                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                //                           from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
-                //left join HKP.Party p on p.Id=tc.PartyId
-                //                           WHERE " + strkey + " and POType='OSTransformationPO' order by tc.PODate desc";
-
                 sql = @"	
 						select * from(
 							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-									--,IR.PODate
 									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 									, CP.UserName AS PartyAccountGroupName
 									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-									--, IR.GateEntryNo
-									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
 									
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -422,12 +387,10 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 									,isnull(pgl.CtnId,0) CtnId
 									,IR.AddedBy
-                                    --,PLC.LCANo PurchaseLC
 									,ISNULL(Cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
                                     ,isnull(PLC.LCRef,'') as PurchaseLC
-									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
                                   ,eI.EmployeeName CheckedBy
@@ -444,9 +407,6 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
-                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
-						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
-						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
 						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
 						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 
@@ -476,14 +436,10 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
                         left join (select SUM(IID.TransactionQty) as TotalQty, Sum(IIH.TotalMaterialBooksCurrencyAmount) as TotalAmt ,II.JWContractId
 						from TRN.InventoryIssue II left join TRN.InventoryIssueDetail IID on II.Id=IID.InventoryIssueId
 						left join TRN.InventoryIssueHistory IIH on IIH.InventoryIssueDetailId=IID.Id
-						--where II.JWContractId='JWP98'
 						group by II.JWContractId) TT on TT.JWContractId=IR.Id
 						WHERE " + strkey + @" and  IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='JWTransformationPO'  --IR.AddedBy='Shashank' And
-                        --AND IR.CheckedBy IS NOT NULL 
-						AND IR.CheckedByStatus='Pending' 
+						--AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
-						--Order by IR.PODate DESC
 						and IR.POType='JWTransformationPO'
 
 						UNION All
@@ -676,14 +632,6 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             if (TabType == "Value Added")
             {
-                //       sql = @"select vac.Id,TabType='Value Added', vac.EntityId,vac.PartyId,vac.Remarks,FORMAT(vac.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5)
-                //                           ,vac.[Time],108)[VACTime],FORMAT(vac.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                //                           FORMAT(vac.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(vac.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate
-                //                           ,e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                //                           from dbo.OSTransformationPO vac left join ORG.Entity e on e.Id=vac.EntityId
-                //left join HKP.Party p on p.Id=vac.PartyId
-                //                           WHERE vac.Id='" + Id + "' order by ValueAddedDate desc ";
-
                 sql = @"select * from(
 							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Value Added'
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
@@ -933,27 +881,16 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
             }
             if (TabType == "Transformation")
             {
-                //       sql = @"select tc.Id,TabType='Transformation', tc.EntityId,tc.PartyId,tc.Remarks,FORMAT(tc.PODate,'dd-MMM-yyyy') as ValueAddedDate,CONVERT(varchar(5),tc.[Time],108)[VACTime],FORMAT(tc.ProcessStartDate,'dd-MMM-yyyy') as VAProcessStartDate,
-                //                           FORMAT(tc.ProcessEndDate,'dd-MMM-yyyy') as VAProcessEndDate,FORMAT(tc.ContractClosingDate,'dd-MMM-yyyy') as VAContractClosingDate,
-                //                           e.UserName as Entity,p.Code as PartyCode, p.UserName as PartyName
-                //                           from dbo.OSTransformationPO tc left join ORG.Entity e on e.Id=tc.EntityId
-                //left join HKP.Party p on p.Id=tc.PartyId
-                //                           WHERE tc.Id='"+ Id + @"' order by tc.PODate desc";
-
+                
                 sql = @"select * from(
 							SELECT  ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-									--,IR.PODate
 									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 									, CP.UserName AS PartyAccountGroupName
 									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-									--, IR.GateEntryNo
-									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
 									
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -962,18 +899,15 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 									,isnull(pgl.CtnId,0) CtnId
 									,IR.AddedBy
-                                    --,PLC.LCANo PurchaseLC
 									,ISNULL(Cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
-									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
                                   ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
 									,IR.ContractId
 									,IR.OrderSpecific
-									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
@@ -983,9 +917,6 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
-                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
-						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
-						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
 						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
 						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 
@@ -1012,9 +943,7 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN (Select count(Id) as CtnId,POID from TRN.PurchaseOrderApprovalLog where Status='Approved' group by POID) as pgl  on pgl.POID=IR.Id
 						left join ORG.Entity E on E.Id=IR.EntityId
 						WHERE IR.PlantId='" + identity.PlantId + @"' 
-                        --AND IR.POType='JWTransformationPO'  --IR.AddedBy='Shashank' And
-                        --AND IR.CheckedBy IS NOT NULL 
-						AND IR.CheckedByStatus='Pending' 
+						--AND IR.CheckedByStatus='Pending' 
 						AND isnull(IR.IsClosed,0)=0 
 						--Order by IR.PODate DESC
 						and IR.POType='JWTransformationPO'
@@ -1025,17 +954,12 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						--DECLARE @plantId VARCHAR(10)='20171';
 							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-									--,IR.PODate
 									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 									, CP.UserName AS PartyAccountGroupName
 									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-									--, IR.GateEntryNo
-									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
 									
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -1044,11 +968,9 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 									,isnull(pgl.CtnId,0) CtnId
 									,IR.AddedBy
-                                    --,PLC.LCANo PurchaseLC
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
-									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
                              ,eI.EmployeeName CheckedBy
@@ -1065,9 +987,6 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
                         
-                        --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
-						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
-						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
 						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
 						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 
@@ -1096,29 +1015,21 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						AND IR.CheckedByStatus IS NULL 
 						AND IR.AuthorizedByStatus IS NULL						
 						 And IR.PlantId='" + identity.PlantId + @"' 
-                       --AND IR.POType='JWTransformationPO'--AND IR.AddedBy='Shashank'
 
                         AND isnull(IR.IsClosed,0)=0 
-						--Order by IR.PODate DESC
 						and IR.POType='JWTransformationPO'
                         And IR.Id='" + Id + @"'
 
 						UNION All
 
-						--DECLARE @plantId VARCHAR(10)='20171';
 							SELECT ROW_NUMBER()  OVER (ORDER BY  IR.Id) AS SiNo,IR.Id,TabType='Transformation'
 									, REPLACE(CONVERT(CHAR(11), IR.PODate, 106),' ','-') AS PODate
-									--,IR.PODate
 									, IR.CompanyGroupId,    IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 									, CP.UserName AS PartyAccountGroupName
 									,    IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
-									--, IR.GateEntryNo
-									--, REPLACE(CONVERT(CHAR(11), IR.EntryDate, 106),' ','-') AS EntryDate
 									, IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 									, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106),' ','-') AS MatureDate
 									
-									--, IR.AlongwithInvoice
-									--, IR.InvoiceNo, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 									, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
 									, IRD.TransactionQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount
 									,ROUND(IRD.BaseAmount, 2) BaseAmount
@@ -1127,18 +1038,15 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 									,isnull(pgl.CtnId,0) CtnId
 									,IR.AddedBy
-                                    --,PLC.LCANo PurchaseLC
 									,ISNULL(cn.ContractNo,'') ContractNo
 									, ISNULL(MLC.Id,'') MasterLCNo
 							        ,ISNULL(MLC.LCRef,'') LCRef
-									--,Par1.UserName Customer
 									,IR.CheckedByStatus AS CheckedByStatus
 									,IR.AuthorizedByStatus AS AuthorizedByStatus
                                    ,eI.EmployeeName CheckedBy
 									,eI1 .EmployeeName ApprovedBy
 									,IR.ContractId
 									,IR.OrderSpecific
-									--,IR.PurchaseLCId
 									,Par.UserName CustomerName,PT.PaymentMode,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById, DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
                         ,IR.DeliveryInstruction,IR.SpecialInstruction
 						,IR.EntityId,E.UserName as Entity,FORMAT(IR.ProcessStartDate,'dd-MMM-yyyy') as TConProcessStartDate,
@@ -1147,10 +1055,6 @@ LEFT JOIN (SELECT A.JWTransformationPOId, SUM(A.Quantity) AS TransactionQty, SUM
 						FROM JWTransformationPO AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
 						LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 									ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
-                         --LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=IR.PurchaseLCId 
-						--LEFT JOIN [dbo].[Contract] Ctc ON Ctc.Id = PLC.ContractId
-                        
-						--LEFT JOIN [HKP].[Party] Par1 ON Par1.Id= Ctc.CustomerId
 						LEFT JOIN dbo.EmployeeInformation eI ON eI.SystemId=IR.CheckedBy
 						LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=IR.AuthorizedBy
 						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id

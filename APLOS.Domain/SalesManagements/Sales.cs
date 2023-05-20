@@ -32,6 +32,7 @@ namespace Library.Model.SalesManagements
         public DateTime? EXPDate { get; set; }
         public string SourceType { get; set; }
         public bool IsAdditionalInfoApplicable { get; set; }
+        public bool IsIncentiveApplicable { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

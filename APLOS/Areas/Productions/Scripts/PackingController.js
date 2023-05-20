@@ -1063,6 +1063,16 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         }
     }
 
+    $scope.PackingListXLReport = function (obj) {
+        try {
+            var file_src = $scope.path + "PackingListXLReport?reportFormat=" + 'Excel' + '&PackingId=' + obj.data.PackingId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
 
 
     $scope.PackingIdForReport = "";

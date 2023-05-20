@@ -31,7 +31,6 @@ namespace Aplos.Areas.Attendances.Controllers
     public class GoodWorkController : BaseController
     {
         #region Constructor
-        string TableName = "HKP.TaskAppliedOn";
         private readonly ISqlRepository _sqlRepository;
         private readonly AccountVoucherReportService _accountVoucherReportService;
         clsSales clsSales = new clsSales();
@@ -48,34 +47,237 @@ namespace Aplos.Areas.Attendances.Controllers
             return View();
         }
 
-        //Good Work
-
-        [HttpGet, Authorize]
-        public JsonResult GetEmployeeListByPlant(GridParameter parameters)
+        //Load Employee
+        [HttpGet]
+        public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_accountVoucherReportService.EmployeeListByPayable(parameters, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+            string sql = string.Empty;
+            var ec = ""; var dep = ""; var sec = ""; var subsec = ""; var des = "";
+            if (empCategory != "null")
+            {
+                ec = "and EC.Id in ('" + empCategory + @"')";
+            }
+            if (department != "null")
+            {
+                dep = "and DP.Id in ('" + department + @"')";
+            }
+            if (section != "null")
+            {
+                sec = "and EI.SectionId in ('" + section + @"')";
+            }
+            if (subSection != "null")
+            {
+                subsec = "and EI.SubSectionId in ('" + subSection + @"')";
+            }
+            if (designation != "null")
+            {
+                des = "and EI.GivenDesignationId in ('" + designation + @"')";
+            }
+            try
+            {
+                sql = @"SELECT '' Id,0 CheckBoxSelect, EI.SystemId
+                         ,EI.EmployeeCode
+                         ,EI.EmployeeName,ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric
+                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
+                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
+                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
+                         , DG.UserName LegalDesignation
+                         ,S.UserName Section,SS.UserName SubSection, DP.UserName Department
+                         , PMB.Code,PR.UserName PositionName
+                         ,EI.EmployeeStatus
+						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
+                         FROM dbo.Employeeinformation EI
+                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
+                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
+                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
+                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
+                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId	
+                         LEFT join MST.DesignationMaster DM on DM.DesignationId=EI.GivenDesignationId
+						 LEFT join HKP.EmployeeCategory EC on EC.Id=DM.EmployeeCategoryId
+                         LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+                         LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + "  " + dep + @"  " + sec + "   " + subsec + "   " + des + @" 
+                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            var data = _sqlRepository.GetDataCollection(sql);
+            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetGoodWorkDataList(string empId)
+        public ActionResult GetEmployeeCategoryList()
         {
-            string sql = @"SELECT '' Id,Emp.SystemId,EMP.EmployeeName,EMP.EmployeeCode,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
-                                        ,GWD.FromTime,GWD.ToTime,GWD.Purpose,GWD.PurposeCategory
-                                        ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
-                                        FROM EmployeeInformation EMP
-                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-										left join GoodworkDetail GWD on GWD.EmpSystemId=EMP.SystemId
-										left join EmployeeInformation EmI on EmI.SystemId=GWD.ApprovedById
-                            WHERE  EMP.SystemId= '" + empId + "'";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                clsDiscreteAllowanceReport ep = new clsDiscreteAllowanceReport();
+                return Json(ep.GetEmployeeCategoryList(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+        //Load Employee
+
+        //Good Work
+
+        public ActionResult DeleteChildUrl(string Id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.GoodWorkDetail where Id='" + Id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateGoodWork(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkDetail)
+        {
+            try
+            {
+                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+                DataSet dsMaster;
+                DataSet dsDetail;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from GoodWork where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].DefaultView.Count == 0)
+                {
+                    if (_Id == "")
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("GoodWork", out _Id);
+                    }
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
+                }
+
+                #endregion data update
+
+                #region Good Work Detail
+
+                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                con.OpenDataSetThroughAdapter("select * from GoodWorkDetail where GoodWorkId='" + _MasterId + "'", out dsDetail, false, "1");
+                int ccount = 0;
+                if (goodWorkDetail != null)
+                {
+                    foreach (var item in goodWorkDetail)
+                    {
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        if (dv.Count == 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            item["Id"] = detailid;
+                            item["goodWorkId"] = _MasterId;
+                            item["EmpSystemId"] = item["SystemId"];
+                            item["FromTime"] = item["FromTime"];
+                            item["ToTime"] = item["ToTime"];
+                            item["Purpose"] = item["Purpose"];
+                            item["PurposeCategory"] = item["PurposeCategory"];
+                            item["ApprovedById"] = item["ApprovedById"];
+                            item["Minute"] = item["CalculatedTime"];
+                            item["Remarks"] = item["Remarks"];
+
+                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
+                        }
+                        if (dv.Count > 0)
+                        {
+                            ccount++;
+                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
+                            DataRow drmo = dv[0].Row;
+                            drmo.BeginEdit();
+                            drmo["Id"] = detailid;
+                            item["goodWorkId"] = _MasterId;
+                            item["EmpSystemId"] = item["SystemId"];
+                            item["FromTime"] = item["FromTime"];
+                            item["ToTime"] = item["ToTime"];
+                            item["Purpose"] = item["Purpose"];
+                            item["PurposeCategory"] = item["PurposeCategory"];
+                            item["ApprovedById"] = item["ApprovedById"];
+                            item["CalculatedTime"] = item["Minute"];
+                            item["Remarks"] = item["Remarks"];
+                            drmo.EndEdit();
+
+                        }
+                    }
+                }
+
+                #endregion Good Work Detail
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail);
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult Delete(string Id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from dbo.GoodWorkDetail where GoodWorkId='" + Id + "'");
+                con.executeQuery("delete from dbo.GoodWork where Id='" + Id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetGoodWorkList()
+        {
+            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks
+                                    from GoodWork GW
+                                    left join ShiftDefination S on S.SystemId=GW.ShiftId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetMinute(GoodWorkTransaction data)
+        {
+            var ts = data.ToTime.Subtract(data.FromTime);
+            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -85,16 +287,9 @@ namespace Aplos.Areas.Attendances.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
-
-        [Authorize, HttpPost]
-        public ActionResult GetMinute(GoodWorkTransaction data)
-        {
-            var ts = data.ToTime.Subtract(data.FromTime);
-            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
-        }
         public ActionResult GetGoodWorkDetailCenter(string goodWorkId)
         {
-            string str = @"select EI.EmployeeCode,EI.EmployeeName,'13:16 PM' FromTime,'13:21 PM' ToTime,GWD.Purpose,GWD.PurposeCategory
+            string str = @"select GWD.Id,EI.EmployeeCode,EI.EmployeeName,GWD.FromTime,GWD.ToTime,GWD.Purpose,GWD.PurposeCategory
                             ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
 							,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
                             from GoodworkDetail GWD 
@@ -106,6 +301,33 @@ namespace Aplos.Areas.Attendances.Controllers
                             where GWD.GoodWorkId in ('" + goodWorkId + "')";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
+
+
+
+
+
+        //[HttpGet, Authorize]
+        //public JsonResult GetGoodWorkDataList(string empId)
+        //{
+        //    string sql = @"SELECT '' Id,Emp.SystemId,EMP.EmployeeName,EMP.EmployeeCode,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+        //                                ,GWD.FromTime,GWD.ToTime,GWD.Purpose,GWD.PurposeCategory
+        //                                ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
+        //                                FROM EmployeeInformation EMP
+        //                                LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+        //                                LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+        //                                LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+        //                                LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+        //                                LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+        //                                LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+        //                                LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+								//		left join GoodworkDetail GWD on GWD.EmpSystemId=EMP.SystemId
+								//		left join EmployeeInformation EmI on EmI.SystemId=GWD.ApprovedById
+        //                    WHERE  EMP.SystemId= '" + empId + "'";
+
+        //    return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        //}
+
+      
         public class GoodWorkTransaction
         {
             #region Scalar Properties
@@ -286,191 +508,11 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region Good Work
 
-        [HttpGet, Authorize]
-        public ActionResult GetEmployeeCategoryList()
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                clsDiscreteAllowanceReport ep = new clsDiscreteAllowanceReport();
-                return Json(ep.GetEmployeeCategoryList(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-        [HttpPost]
-        public JsonResult CreateGoodWork(Dictionary<string, object> data, List<Dictionary<string, object>> goodWorkDetail)
-        {
-            try
-            {
-                MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
-                DataSet dsMaster;
-                DataSet dsDetail;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from GoodWork where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
 
-                string _Id = "";
 
-                #region data update
-                if (dsMaster.Tables[0].DefaultView.Count == 0)
-                {
-                    if (_Id == "")
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("GoodWork", out _Id);
-                    }
-                    data["Id"] = _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    data["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data);
-                }
 
-                #endregion data update
 
-                #region Good Work Detail
-
-                string _MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                con.OpenDataSetThroughAdapter("select * from GoodWorkDetail where GoodWorkId='" + _MasterId + "'", out dsDetail, false, "1");
-                int ccount = 0;
-                if (goodWorkDetail != null)
-                {
-                    foreach (var item in goodWorkDetail)
-                    {
-                        DataView dv = new DataView(dsDetail.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-                        if (dv.Count == 0)
-                        {
-                            ccount++;
-                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
-                            item["Id"] = detailid;
-                            item["goodWorkId"] = _MasterId;
-                            item["EmpSystemId"] = item["SystemId"];
-                            item["FromTime"] = item["FromTime"];
-                            item["ToTime"] = item["ToTime"];
-                            item["Purpose"] = item["Purpose"];
-                            item["PurposeCategory"] = item["PurposeCategory"];
-                            item["ApprovedById"] = item["ApprovedById"];
-                            item["Minute"] = item["CalculatedTime"];
-                            item["Remarks"] = item["Remarks"];
-
-                            materialCommonService.AddNewRowD(dsDetail.Tables[0], item);
-                        }
-                        if (dv.Count > 0)
-                        {
-                            ccount++;
-                            string detailid = materialCommonService.MakePK(_MasterId, ccount, 2);
-                            DataRow drmo = dv[0].Row;
-                            drmo.BeginEdit();
-                            drmo["Id"] = detailid;
-                            item["goodWorkId"] = _MasterId;
-                            item["EmpSystemId"] = item["SystemId"];
-                            item["FromTime"] = item["FromTime"];
-                            item["ToTime"] = item["ToTime"];
-                            item["Purpose"] = item["Purpose"];
-                            item["PurposeCategory"] = item["PurposeCategory"];
-                            item["ApprovedById"] = item["ApprovedById"];
-                            item["CalculatedTime"] = item["Minute"];
-                            item["Remarks"] = item["Remarks"];
-                            drmo.EndEdit();
-
-                        }
-                    }
-                }
-
-                #endregion Good Work Detail
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsDetail);
-
-                return Json(new { Error = false, Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetGoodWorkList()
-        {
-            string sql = @"select GW.Id,format(GW.WorkDate,'dd-MMM-yyyy') WorkDate,S.UserName Shift,GW.Remarks
-                                    from GoodWork GW
-                                    left join ShiftDefination S on S.SystemId=GW.ShiftId";
-
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
-
-        //Load Employee
-        [HttpGet]
-        public ActionResult LoadEmployeelist(string empCategory, string department, string section, string subSection, string designation)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = string.Empty;
-            var ec = ""; var dep = ""; var sec = ""; var subsec = ""; var des = "";
-            if (empCategory != "null")
-            {
-                ec = "and EI.EmployeeCategorySystemID in ('" + empCategory + @"')";
-            } 
-            if (department != "null")
-            {
-                dep = "and EI.DepartmentId in ('" + department + @"')";
-            }
-            if (section != "null")
-            {
-                sec = "and EI.SectionId in ('" + section + @"')";
-            }
-            if (subSection != "null")
-            {
-                subsec = "and EI.SubSectionId in ('" + subSection + @"')";
-            }
-            if (designation != "null")
-            {
-                des = "and EI.GivenDesignationId in ('" + designation + @"')";
-            }
-            try
-            {
-                sql = @"SELECT 0 CheckBoxSelect, EI.SystemId
-                         ,EI.EmployeeCode
-                         ,EI.EmployeeName,ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric
-                         , FORMAT(EI.DOB,'dd-MMM-yyyy') DOB
-                         , FORMAT(EI.DOJ,'dd-MMM-yyyy') DOJ
-                         , FORMAT(EI.DOS,'dd-MMM-yyyy') DOS
-                         , DG.UserName LegalDesignation
-                         , DP.UserName Department
-                         , PMB.Code,PR.UserName PositionName
-                         ,EI.EmployeeStatus
-						 ,OTTitle = case when EI.ExcludeOT=0 then 'Yes' else 'No' end
-                         FROM dbo.Employeeinformation EI
-                         LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id							 
-                         LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
-                         LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
-                         LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id                       
-                         LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
-                         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
-                         WHERE  EI.PlantId='" + identity.PlantId + @"'  " + ec + "  " + dep +@"  "+sec+"   "+ subsec +"   "+ des +@" 
-                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-            var data = _sqlRepository.GetDataCollection(sql);
-            JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
-        }
-
-        //Load Employee
 
         // [HttpGet, Authorize]
         // public ActionResult GetUserEditControlDetailList(string userEditControlId)
@@ -484,40 +526,8 @@ namespace Aplos.Areas.Attendances.Controllers
         //     return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         // }
 
-        // public ActionResult Delete(string Id)
-        // {
-        //     try
-        //     {
-        //         ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //         con.BeginTransaction();
-        //         con.executeQuery("delete from dbo.UserEditControlDetail where UserEditControlId='" + Id + "'");
-        //         con.executeQuery("delete from dbo.UserEditControl where Id='" + Id + "'");
-        //         con.CommitTransaction();
 
-        //         return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-        //     }
-        // }
 
-        // public ActionResult DeleteChildUrl(string Id)
-        // {
-        //     try
-        //     {
-        //         ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //         con.BeginTransaction();
-        //         con.executeQuery("delete from dbo.GoodWorkDetail where Id='" + Id + "'");
-        //         con.CommitTransaction();
-
-        //         return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-        //     }
-        // }
 
         // [Authorize, HttpGet]
         // public JsonResult GetHreflist(GridParameter parameters)

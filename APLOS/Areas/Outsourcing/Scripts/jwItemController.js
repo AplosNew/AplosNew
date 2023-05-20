@@ -3,7 +3,7 @@ jwItemController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope
 function jwItemController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
     $rootScope.title = 'Job Work Item';
     $scope.ModelList = [];
-    $scope.path = 'JobWork/JWItem/';
+    $scope.path = 'Outsourcing/JWItem/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -23,7 +23,7 @@ function jwItemController(cboService, commonMessage, $scope, $rootScope, baseSer
             $scope.ModelList = response.data;
         });
     };
-    $scope.getData();
+    //$scope.getData();
     $scope.unitOfMeasurementList = [];
     
     cboService.getUoMCbo(function (result) {
@@ -58,7 +58,7 @@ function jwItemController(cboService, commonMessage, $scope, $rootScope, baseSer
             $scope.ModelNew.Sequence = data;
         });
     };
-    $scope.GetSequence();
+    //$scope.GetSequence();
 
     $scope.selectResponsiblePersonPopUp = function (index, id) {
         $scope.updateResponsiblePersonIndex = index;
