@@ -231,7 +231,10 @@ namespace Library.OrderManagement.Sales
         {
             try
             {
-                string sql = @"Select * from [dbo].[SalesAdditionalInfo] Where SalesId='" + salesId + "'";
+                string sql = @"SELECT Flag=CAST(CASE WHEN SA.Id IS NULL THEN 0 ELSE 1 END AS bit),A.UserName,SA.Id,SA.SalesId
+,A.Id AdditionalInfoId,SA.Value,SA.Remarks,A.CharecterType,'' CharType,''datepic
+FROM [HKP].[AdditionalInfo] A
+OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.Id AND SalesId='" + salesId + @"') SA";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
