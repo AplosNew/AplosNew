@@ -31,8 +31,8 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
     $scope.SalesId = null;
     $scope.ShowAdditionalPopup = function (obj) {
-        $scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
-        $scope.modelNew = Object.assign({}, $scope.model);
+        //$scope.model = { Id: null, SalesId: null, PostCode: null, ShippingDate: null, ShippingBill: null, RodTepAmount: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        //$scope.modelNew = Object.assign({}, $scope.model);
         $scope.SalesAdditionalInfoDataList = [];
         $scope.SalesId = obj.data.Id;
         $scope.GetSalesAdditionalInfoData();
@@ -51,18 +51,12 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
     $scope.Action = "Save";
     $scope.Save = function () {
         try {
-            $scope.modelNew.SalesId = $scope.SalesId;
-            if (baseService.isUndefinedOrNull($scope.modelNew.PostCode)) {
-                throw "Post Code is required.";
-            }
-            if (baseService.isUndefinedOrNull($scope.modelNew.ShippingDate)) {
-                throw "Shipping Date is required.";
-            }
-            if (baseService.isUndefinedOrNull($scope.modelNew.ShippingBill)) {
-                throw "Shipping Bill is required.";
-            }
-            if (baseService.isUndefinedOrNull($scope.modelNew.RodTepAmount)) {
-                throw "RodTep Amount is required.";
+            for (var i = 0; i < $scope.SalesAdditionalInfoDataList.length; i++) {
+                if ($scope.SalesAdditionalInfoDataList[i].Flag) {
+                    if (baseService.isUndefinedOrNull($scope.SalesAdditionalInfoDataList[i].Value)) {
+                        throw "Value is required for " + $scope.SalesAdditionalInfoDataList[i].UserName+".";
+                    }
+                }
             }
 
             if ($scope.Action == "Save") {
@@ -70,7 +64,8 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     method: 'POST',
                     url: 'SalesManagements/Sales/CreateSalesAdditionalInfo',
                     data: {
-                        'data': $scope.modelNew
+                        'data': $scope.SalesAdditionalInfoDataList,
+                        'salesId': $scope.SalesId
                     },
                     dataType: 'JSON'
                     , contentType: "application/json charset=utf-8"
@@ -80,15 +75,13 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.GetSalesAdditionalInfoData();
-                        $scope.Clear();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 };
             }
         } catch (e) {
-            ShowResult(e, "failure",'detailpopup');
+            ShowResult(e, "failure", 'detailpopup');
         }
     };
 
@@ -99,6 +92,20 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
+                        for (var i = 0; i < response.data.length; i++) {
+                            response.data[i].SalesId = $scope.SalesId;
+
+                            if (response.data[i].CharecterType == "Text" || response.data[i].CharecterType == "DateTime") {
+                                response.data[i].CharType = "text";
+                            }
+                            else {
+                                response.data[i].CharType = "number";
+                            }
+                            if (response.data[i].CharecterType == "DateTime") {
+                                response.data[i].datepic = 'datepicker';
+                            }
+                        }
+
                         $scope.SalesAdditionalInfoDataList = response.data;
                     }
                 },
