@@ -18,7 +18,9 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
     $scope.saveUrlParameter = $scope.path + 'createParameter';
     $scope.saveUrlFrequency = $scope.path + 'createFrequency';
     $scope.saveUrlFrequencyValue = $scope.path + 'createFrequencyValue';
-    
+    $scope.saveUrlMachine = $scope.path + 'createMachine';
+    $scope.saveUrlProduct = $scope.path + 'createProduct';
+    $scope.saveUrlWorkCenter = $scope.path + 'createWorkCenter';
    
     $scope.CriticalLevelLists = [
         {
@@ -391,8 +393,9 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
             $scope.GetParameterProcessList($scope.ScheduleMasterId);
             $scope.LoadItemDetails($scope.ScheduleMasterId);
             $scope.GeneratItemSequenceNo($scope.ScheduleMasterId);
-           
-
+            $scope.LoadMachineDetails($scope.ScheduleMasterId);
+            $scope.LoadProductDetails($scope.ScheduleMasterId);
+            $scope.LoadWorkCenterDetails($scope.ScheduleMasterId);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -494,6 +497,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 url: $scope.saveUrlEntity,
                 data: {
                     "DataList": $scope.SaveList,
+                    "Pid": $scope.scheduleNew.Id
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -661,6 +665,7 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
                 url: $scope.saveUrlProcess,
                 data: {
                     "DataList": $scope.SaveList,
+                    "Pid": $scope.scheduleNew.Id
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -671,6 +676,222 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
 
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadProcessDetails($scope.scheduleNew.Id);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.QualityManagementMasterMachineList = [];
+    $scope.LoadMachineDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadMachineDetails?ScheduleId=' + pid
+        }).then(function successCallback(response) {
+            $scope.QualityManagementMasterMachineList = response.data;
+        }
+        )
+    }
+
+    $scope.refreshTemplateMachine = function (args) {
+        $("#Mheadchk").ejCheckBox({ "change": CheckBoxSelectAllMachine });
+    };
+    function CheckBoxSelectAllMachine(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridMachine").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QualityManagementMasterMachineList.length; i++) {
+                $scope.QualityManagementMasterMachineList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridMachine").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.MachineSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.QualityManagementMasterMachineList.length; i++) {
+                if ($scope.QualityManagementMasterMachineList[i].Flag == true) {
+                    $scope.QualityManagementMasterMachineList[i].QMID = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.QualityManagementMasterMachineList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlMachine,
+                data: {
+                    "DataList": $scope.SaveList,
+                    "Pid": $scope.scheduleNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadMachineDetails($scope.scheduleNew.Id);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.QualityManagementMasterProductList = [];
+    $scope.LoadProductDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadProductDetails?ScheduleId=' + pid
+        }).then(function successCallback(response) {
+            $scope.QualityManagementMasterProductList = response.data;
+        }
+        )
+    }
+
+    $scope.refreshTemplateProduct = function (args) {
+        $("#Pheadchk").ejCheckBox({ "change": CheckBoxSelectAllProduct });
+    };
+    function CheckBoxSelectAllProduct(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridProduct").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QualityManagementMasterProductList.length; i++) {
+                $scope.QualityManagementMasterProductList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridProduct").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.ProductSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.QualityManagementMasterProductList.length; i++) {
+                if ($scope.QualityManagementMasterProductList[i].Flag == true) {
+                    $scope.QualityManagementMasterProductList[i].QMID = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.QualityManagementMasterProductList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlProduct,
+                data: {
+                    "DataList": $scope.SaveList,
+                    "Pid": $scope.scheduleNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadProductDetails($scope.scheduleNew.Id);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.QualityManagementMasterWorkCenterList = [];
+    $scope.LoadWorkCenterDetails = function (pid) {
+        $http({
+
+            method: 'Get',
+            url: 'QMS/QualityManagementMaster/LoadWorkCenterDetails?ScheduleId=' + pid
+        }).then(function successCallback(response) {
+            $scope.QualityManagementMasterWorkCenterList = response.data;
+        }
+        )
+    }
+
+    $scope.refreshTemplateWorkCenter = function (args) {
+        $("#Wheadchk").ejCheckBox({ "change": CheckBoxSelectAllWorkCenter });
+    };
+    function CheckBoxSelectAllWorkCenter(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridWorkCenter").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QualityManagementMasterWorkCenterList.length; i++) {
+                $scope.QualityManagementMasterWorkCenterList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridWorkCenter").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.WorkCenterSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.QualityManagementMasterWorkCenterList.length; i++) {
+                if ($scope.QualityManagementMasterWorkCenterList[i].Flag == true) {
+                    $scope.QualityManagementMasterWorkCenterList[i].QMID = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.QualityManagementMasterWorkCenterList[i]);
+                }
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlWorkCenter,
+                data: {
+                    "DataList": $scope.SaveList,
+                    "Pid": $scope.scheduleNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadWorkCenterDetails($scope.scheduleNew.Id);
                     $scope.Action = 'Save';
                 }
 
@@ -959,15 +1180,18 @@ function QualityManagementMasterController(cboService, commonMessage, $scope, $r
         try {
             $scope.SaveList = [];
             for (var i = 0; i < $scope.ParameterFrequencyList.length; i++) {
-               /* if ($scope.ParameterFrequencyList[i].QA==true) {*/
+                if ($scope.ParameterFrequencyList[i].QA == true || $scope.ParameterFrequencyList[i].Quality == true || $scope.ParameterFrequencyList[i].Management == true) {
                     $scope.ParameterFrequencyList[i].ParameterId = $scope.ParameterId;
                     $scope.SaveList.push($scope.ParameterFrequencyList[i]);
-               /* }*/
+                }
             }
             $http({
                 method: 'POST',
                 url: $scope.saveUrlFrequencyValue,
-                data: { 'ParameterFrequencyData': $scope.SaveList },
+                data: {
+                    'ParameterFrequencyData': $scope.SaveList,
+                    'ParameterId': $scope.ParameterId
+                },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

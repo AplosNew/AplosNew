@@ -29542,7 +29542,8 @@ namespace Library.Service.HumanResources
                                     LEFT OUTER JOIN hkp.Designation dsg on dsg.id=PO.DesignationId
                                     --LEFT OUTER JOIN SalaryProcChild SPC ON SPC.EmpInfoSystemID = E.SystemId
                                   WHERE DOJ<='" + toDate + @"' AND (DOS is null OR DOS>= '" + fromDate + "') and e.plantId='" + plantId + @"' and e.GroupID='" + companyGroupId + @"' " + wcManual + @"
-                                     ) DD ORDER BY ISNULL(EmployeeCodePreFix,''),EmployeeCodeNumeric";
+                                     --and e.SystemId not in(1800165,1800124,1800146,1800138,1800112,1800088)
+) DD ORDER BY ISNULL(EmployeeCodePreFix,''),EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(cmdText);
             }
