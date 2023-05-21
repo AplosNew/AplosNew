@@ -48,14 +48,100 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
         $scope.modelNew = Object.assign({}, $scope.model);
         angular.element(document.querySelector('#detailpopup')).modal('hide');
     }
+
+    $scope.monthList = [
+        { 'Value': "1", 'Text': "Jan", 'Days': 31 },
+        { 'Value': "2", 'Text': "Feb", 'Days': 28 },
+        { 'Value': "3", 'Text': "Mar", 'Days': 31 },
+        { 'Value': "4", 'Text': "Apr", 'Days': 30 },
+        { 'Value': "5", 'Text': "May", 'Days': 31 },
+        { 'Value': "6", 'Text': "Jun", 'Days': 30 },
+        { 'Value': "7", 'Text': "Jul", 'Days': 31 },
+        { 'Value': "8", 'Text': "Aug", 'Days': 31 },
+        { 'Value': "9", 'Text': "Sep", 'Days': 30 },
+        { 'Value': "10", 'Text': "Oct", 'Days': 31 },
+        { 'Value': "11", 'Text': "Nov", 'Days': 30 },
+        { 'Value': "12", 'Text': "Dec", 'Days': 31 }
+    ];
+
+    function validatedate(dateText) {
+
+        if (dateText) {
+            try {
+                var errorMessage = "";
+                var monthNO = 0;
+                var daysPerMonth = 0;
+                var splitComponents = dateText.split('-');
+                if (splitComponents.length > 0) {
+                    var day = parseInt(splitComponents[0]);
+                    var month = splitComponents[1];
+                    var year = parseInt(splitComponents[2]);
+
+                    if (isNaN(day) || isNaN(year)) {
+                        errorMessage = "The day and year need to be numbers";
+                        throw errorMessage;
+                        return false;
+                    }
+
+                    var monthName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    if (monthName.includes(month)) {
+                        for (var i = 0; i < $scope.monthList.length; i++) {
+                            if ($scope.monthList[i].Text == month) {
+                                monthNO = $scope.monthList[i].Value;
+                                daysPerMonth = $scope.monthList[i].Days;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        throw "The day and year need to be positive values greater than 0";
+                    }
+
+                    if (day <= 0 || year <= 0) {
+                        throw "The day and year need to be positive values greater than 0";
+                    }
+
+                    if (errorMessage == "") {
+                        // assuming no leap year by default
+                        //var daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                        if (year % 4 == 0) {
+                            // current year is a leap year
+                            daysPerMonth = 29;
+                        }
+
+                        if (day > daysPerMonth) {
+                            errorMessage = "Number of days are more than those allowed for the month";
+                        }
+                    }
+                } else {
+                    throw errorMessage = "Please enter the date in dd-MMM-yyyy format.";
+                }
+
+                if (errorMessage) {
+                    throw errorMessage;
+                    return false;
+                }
+            } catch (e) {
+                throw e;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     $scope.Action = "Save";
     $scope.Save = function () {
         try {
             for (var i = 0; i < $scope.SalesAdditionalInfoDataList.length; i++) {
                 if ($scope.SalesAdditionalInfoDataList[i].Flag) {
                     if (baseService.isUndefinedOrNull($scope.SalesAdditionalInfoDataList[i].Value)) {
-                        throw "Value is required for " + $scope.SalesAdditionalInfoDataList[i].UserName+".";
+                        throw "Value is required for " + $scope.SalesAdditionalInfoDataList[i].UserName + ".";
                     }
+                }
+
+                if ($scope.SalesAdditionalInfoDataList[i].CharecterType == "DateTime") {
+                    validatedate($scope.SalesAdditionalInfoDataList[i].Value);
                 }
             }
 
