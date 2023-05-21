@@ -534,7 +534,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         {
             try
             {
-
+                
                 string TableName = "[TRN].[VehicleMovementRequisition]";
                 DataSet dsMaster;
 
@@ -568,6 +568,53 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
 
             }
             catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult SaveRequisitionChid(List<Dictionary<string, object>> data, string headerId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsChild;
+                string _Id = "";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                var id = "";
+                foreach (var item in data)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+
+                con.OpenDataSetThroughAdapter($"select * from TRN.VehicleMovementRequisitionChild where VehicleMovementRequisitionId = '{headerId}'", out dsChild, false, "1");
+                foreach (var item in data)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("MachineMasterTransaction", out _Id);
+                    DataRow dr = dsChild.Tables[0].NewRow();
+                    dr["Id"] = _Id;
+                    dr["VehicleMovementRequisitionId"] = headerId;
+                    dr["FromLocationId"] = item["FromLocationId"];
+                    dr["ToLocationId"] = item["ToLocationId"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsChild.Tables[0].Rows.Add(dr);
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return Json(new { Error = false, Data = data ,Message = AplosMessage.Insert });
+            }
+            catch(Exception ex)
             {
                 throw ex;
             }

@@ -1682,11 +1682,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreateSalesAdditionalInfo(Dictionary<string, object> data)
+        public ActionResult CreateSalesAdditionalInfo(List<Dictionary<string, object>> data, string salesId)
         {
             try
             {
-                SaveSalesAdditionalInfodata(data);
+                SaveSalesAdditionalInfodata(data, salesId);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1695,7 +1695,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
 
-        private void SaveSalesAdditionalInfodata(Dictionary<string, object> data)
+        private void SaveSalesAdditionalInfodata(List<Dictionary<string, object>> data, string salesId)
         {
             try
             {
@@ -1703,24 +1703,30 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 {
                     DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesAdditionalInfo", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.SalesAdditionalInfo Where SalesId='"+ salesId + "'", out dsMaster, false, "1");
 
-
-                    DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "Id='" + data["Id"] + "'";
-
-                    if (dv.Count == 0)
+                    foreach (var item in data)
                     {
-                        data["Id"] = GetPK();
-                        data["SalesId"] = data["SalesId"];
-                        AddNewRow(dsMaster.Tables[0], data);
-                    }
-                    else
-                    {
-                        DataRow drmo = dv[0].Row;
-                        EditRow(drmo, data);
-                    }
+                        if (Convert.ToBoolean(item["Flag"])==true)
+                        {
+                            DataView dv = new DataView(dsMaster.Tables[0]);
+                            dv.RowFilter = "AdditionalInfoId='" + item["AdditionalInfoId"] + "' AND SalesId='"+ item["SalesId"] + "' ";
 
+
+                            if (dv.Count == 0)
+                            {
+                                item["Id"] = GetPK();
+                                item["SalesId"] = salesId;
+
+                                AddNewRow(dsMaster.Tables[0], item);
+                            }
+                            else
+                            {
+                                DataRow drmo = dv[0].Row;
+                                EditRow(drmo, item);
+                            } 
+                        }
+                    }
 
 
                     clsStaticInfo obj = new clsStaticInfo();

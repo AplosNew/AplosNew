@@ -569,6 +569,20 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetSevenDaysAttendance(string Empcode)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
+            return activelists;
+        }
+
+        public List<EmpInformation> GetEmpInformation(string Empcode)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmpInformation(out List<EmpInformation> activelists, Empcode);
+            return activelists;
+        }
+
         public List<Locations> GetLocation()
         {
             clsDataContext clsData = new clsDataContext();
@@ -576,6 +590,12 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetShift()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetShift(out List<Default2> activelists);
+            return activelists;
+        }
         public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid)
         {
             clsDataContext clsData = new clsDataContext();
