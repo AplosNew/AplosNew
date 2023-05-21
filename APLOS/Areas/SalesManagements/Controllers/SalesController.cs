@@ -429,7 +429,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPackingSalesDetailDataBySales(string salesId,string packingId)
+        public ActionResult GetPackingSalesDetailDataBySales(string salesId, string packingId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
@@ -437,7 +437,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetItemScanChildData(string salesId,string packingId,string soId)
+        public ActionResult GetItemScanChildData(string salesId, string packingId, string soId)
         {
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
             return Json(accountsSalesService.GetItemScanChildData(salesId, packingId, soId), JsonRequestBehavior.AllowGet);
@@ -452,25 +452,38 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         [HttpPost]
         public JsonResult SaveSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList
-            , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList)
+            , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList, List<Dictionary<string, object>> itemScanCildNewList)
         {
             try
             {
-                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList);
-                return Json(new {Id= _id, Message = string.Format(AplosMessage.Success +" Sales Return No <b>" + _id + "</b>"  ) });
+                if (itemScanCildNewList != null)
+                {
+                    foreach (var item in itemScanCildNewList)
+                    {
+                        item["Id"] = null;
+                        item["Booked"] = 0;
+                        item["IsDespatch"] = 0;
+                        item["ReturnNetWeight"] = 0;
+                    }
+                }
+                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList, itemScanCildNewList);
+                return Json(new { Id = _id, Message = string.Format(AplosMessage.Success + " Sales Return No <b>" + _id + "</b>") });
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-        private string InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList,  List<Dictionary<string, object>> itemScanCildList)
+        private string InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList
+            , List<Dictionary<string, object>> itemScanCildList, List<Dictionary<string, object>> itemScanCildNewList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
             DataSet dsDetail;
             DataSet dstax;
             DataSet dsitemscanChild;
+            DataSet dsitemscanChildNew;
+            string TableName = "dbo.ItemScanChild";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             try
@@ -480,13 +493,15 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
+                //string itemScanChildNewsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 //string poUpdateLogsql = "SELECT Top(1) * FROM [TRN].[PurchaseOrderUpdateLog] WHERE 1=2";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlmaster, out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
                 objCon.OpenDataSetThroughAdapter(taxsql, out dstax, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
-
+                //objCon.OpenDataSetThroughAdapter(itemScanChildNewsql, out dsitemscanChildNew, false, "1");
+                objCon.getDataSet("Select * from dbo.ItemScanChild where 1=2", out dsitemscanChildNew);
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     DataRow dr = dsMaster.Tables[0].NewRow();
@@ -511,11 +526,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 {
                     foreach (var item in detaildataList)
                     {
+                        int Index = 0; string _itemNewId = "";
                         DataView dv = new DataView(dsDetail.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'"; 
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
                         if (dv.Count == 0)
                         {
-                            ccount++; 
+                            ccount++;
                             string detailid = materialCommonService.MakePK(_Id, ccount, 2);
                             item["Id"] = detailid;
                             item["SalesReturnId"] = _Id;
@@ -534,7 +550,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                             if (taxList != null)
                             {
-                                foreach (var tx in taxList.Where(r=>r["SalesMaterialId"].ToString()== item["SalesMaterialId"].ToString()))
+                                foreach (var tx in taxList.Where(r => r["SalesMaterialId"].ToString() == item["SalesMaterialId"].ToString()))
                                 {
                                     DataView dvtx = new DataView(dstax.Tables[0]);
                                     dvtx.RowFilter = "Id='" + tx["Id"] + "'";
@@ -554,6 +570,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                                 }
                             }
+
                             if (itemScanCildList != null)
                             {
                                 foreach (var scitem in itemScanCildList.Where(r => r["SalesId"].ToString() == item["SalesId"].ToString()
@@ -578,13 +595,34 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
                                 }
                             }
+                            if (itemScanCildNewList != null)
+                            {
+                                foreach (var scitemNew in itemScanCildNewList)
+                                {
+                                    Index++;
+                                    DataView dvnewitem = new DataView(dsitemscanChildNew.Tables[0]);
+                                    dvnewitem.RowFilter = "Id='" + scitemNew["Id"] + "' ";
+                                    if (dv.Count == 0)
+                                    {
+                                        if (_itemNewId == "")
+                                        {
+                                            clsGenID genid = new clsGenID();
+                                            genid.GenID(TableName, out _itemNewId);
+                                        }
+                                        scitemNew["Id"] = "SC" + _itemNewId + "-" + Index;
+                                        scitemNew["SalesId"] = DBNull.Value;
+                                        AddNewRowD(dsitemscanChildNew.Tables[0], scitemNew);
+                                    }
+                                }
+                            }
+
                         }
-                        
+
                     }
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild);
+                obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild, dsitemscanChildNew);
                 return _Id;
             }
             catch (Exception ex)
@@ -592,8 +630,50 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 throw (ex);
             }
         }
+        private void AddNewRowD(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow(); foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedBy"] = identity.Name;
+            dt.Rows.Add(dr);
+        }
+        
+        private void CopyRow(DataRow drSource, ref DataRow drDestination)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
+            {
+                try
+                {
+                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
 
-       
+                }
+                catch (Exception ex)
+                {
+                }
+                try
+                {
+                    drDestination["AddedBy"] = identity.Name;
+                    drDestination["AddedDate"] = DateTime.Now;
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+
+        }
+
         private string GetSalesReturnPK()
         {
             string sID = string.Empty;
