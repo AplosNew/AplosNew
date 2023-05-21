@@ -333,16 +333,18 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                DataSet EntityCount, AGCount, ItemCount, ProcessCount;
+                DataSet EntityCount, AGCount, ItemCount, ProcessCount, MachineCount, ProductCount, WorkCenterCount;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementEntity] where QMID='" + id + "'", out EntityCount, false, "1");
                 conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementActivityGroup] where QMID ='" + id + "'", out AGCount, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementItem] where SMID ='" + id + "'", out ItemCount, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementPersonBudgetCode] where SMID ='" + id + "'", out BudgetCount, false, "1");
-                //conRack.OpenDataSetThroughAdapter("select * from [TRN].[SkillManagementTeamDefinition] where SMID ='" + id + "'", out TeamCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementParameterItem] where QMID ='" + id + "'", out ItemCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementProcess] where QMID ='" + id + "'", out ProcessCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementMachine] where QMID ='" + id + "'", out MachineCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementProduct] where QMID ='" + id + "'", out ProductCount, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityManagementWorkCenter] where QMID ='" + id + "'", out WorkCenterCount, false, "1");
 
-                if (EntityCount.Tables[0].Rows.Count == 0 || AGCount.Tables[0].Rows.Count == 0)
+                if (EntityCount.Tables[0].Rows.Count == 0 && AGCount.Tables[0].Rows.Count == 0 && ItemCount.Tables[0].Rows.Count == 0 && ProcessCount.Tables[0].Rows.Count == 0 && MachineCount.Tables[0].Rows.Count == 0 && ProductCount.Tables[0].Rows.Count == 0 && WorkCenterCount.Tables[0].Rows.Count == 0)
                 {
 
                     conC.BeginTransaction();
@@ -394,9 +396,49 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult LoadMachineDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN QMM.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QMM.Id,MM.Id MachineMasterId,MM.UserName Machine, MC.UserName Category, MSC.UserName SubCategory
+                            from MST.MachineMaster MM
+							LEFT JOIN [MST].[QualityManagementMachine] QMM ON QMM.MachineMasterId=MM.Id and QMM.QMID='"+ ScheduleId + @"'
+							left join HKP.MachineCategory MC on MC.Id = MM.MachineCategoryId
+                            left join HKP.MachineSubCategory MSC on MSC.Id = MM.MachineSubCategoryId
+                            where MM.Active = 1 order by QMM.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
-        [Authorize, HttpPost]
-        public ActionResult createEntity(List<Dictionary<string, object>> DataList)
+        [Authorize, HttpGet]
+        public ActionResult LoadProductDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN QMP.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QMP.Id,PM.Id ProductMasterId,PM.Code, PM.StandardName Product,PG.UserName ProductCategory, PSC.UserName ProductSubCategory
+                            from MST.ProductMaster PM
+							LEFT JOIN [MST].[QualityManagementProduct] QMP ON QMP.ProductMasterId=PM.Id and QMP.QMID='" + ScheduleId + @"'
+							LEFT JOIN HKP.ProductCategory PG on PG.Id = PM.ProductCategoryId
+                            LEFT JOIN HKP.ProductSubCategory PSC on PSC.Id = PM.ProductSubCategoryId
+                            where PM.Active = 1 order by QMP.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadWorkCenterDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN QMW.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QMW.Id,WM.Id as WorkCenterMasterId, WM.Code ,WM.UserName Workcenter, WC.UserName WorkcenterCategory, WCS.UserName WorkcenterSubCategory, P.UserName Process, WM.Capacity, UOM.UserName UOM 
+                            from SCS.WorkCenterMaster WM
+							LEFT JOIN [MST].[QualityManagementWorkCenter] QMW ON QMW.WorkCenterMasterId=WM.Id and QMW.QMID='" + ScheduleId + @"'
+							LEFT JOIN HKP.WorkCenterCategory WC on WC.Id = WM.WorkCenterCategoryId
+                            LEFT JOIN HKP.WorkCenterSubCategory WCS on WCS.Id = WM.WorkCenterSubcategoryId
+                            left join HKP.Process P on P.Id = WM.ProcessId
+                            LEFT JOIN SCS.UnitOfMeasurement UOM on UOM.Id = WM.UoMId 
+                            where WM.Active = 1 order by QMW.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult createEntity(List<Dictionary<string, object>> DataList, string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -405,11 +447,17 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             string _Id, Id = string.Empty;
             try
             {
+
+
                 objCon = new ConnectionManager.DAL.ConManager("1");
-
-
+                
                 if (DataList != null)
                 {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                    conC.CommitTransaction();
+
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
@@ -457,7 +505,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             return Json(new { activitygroup = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public JsonResult createActivityGroup(Dictionary<string, object> ActivityGroupData, string Pid)
         {
             try
@@ -513,7 +561,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult ActivityGroupDelete(string id)
         {
             try
@@ -531,8 +579,8 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             }
         }
 
-        [Authorize, HttpPost]
-        public ActionResult createProcess(List<Dictionary<string, object>> DataList)
+        [HttpPost]
+        public ActionResult createProcess(List<Dictionary<string, object>> DataList,string Pid)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -546,6 +594,11 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
 
                 if (DataList != null)
                 {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                    conC.CommitTransaction();
+
                     foreach (var item in DataList)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
@@ -576,7 +629,7 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult ItemDelete(string id)
         {
             try
@@ -788,7 +841,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
             }
         }
-        [Authorize, HttpPost]
+        [HttpPost]
         public JsonResult CreateParameter(Dictionary<string, object> ParameterData, string Pid)
         {
             try
@@ -837,7 +890,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public JsonResult createFrequency(Dictionary<string, object> FrequencyData)
         {
             try
@@ -885,7 +938,7 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
         }
 
         [HttpPost]
-        public JsonResult createFrequencyValue(List<Dictionary<string, object>> ParameterFrequencyData)
+        public JsonResult createFrequencyValue(List<Dictionary<string, object>> ParameterFrequencyData, string ParameterId)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -900,6 +953,11 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
                 if (ParameterFrequencyData != null)
                 {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where ParameterId='" + ParameterId + "'");
+                    conC.CommitTransaction();
+
                     foreach (var item in ParameterFrequencyData)
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
@@ -924,6 +982,159 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
                 else
                 {
                     throw new Exception("Please select atleast one value and proceed.");
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult createMachine(List<Dictionary<string, object>> DataList, string Pid)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityManagementMachine]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                    conC.CommitTransaction();
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QMM" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult createProduct(List<Dictionary<string, object>> DataList, string Pid)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityManagementProduct]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                    conC.CommitTransaction();
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QMP" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult createWorkCenter(List<Dictionary<string, object>> DataList, string Pid)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityManagementWorkCenter]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                    conC.CommitTransaction();
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QMW" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
                 }
                 return Json(new { Message = AplosMessage.Insert });
 
