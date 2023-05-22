@@ -913,5 +913,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
                 controller: 'VehicleMovementRequisitionController'
             })
 
+        .when('/vehicle-req-approval',
+            {
+                templateUrl: 'humanresource/VehicleMovementMaster/VehicleReqForApprove',
+                controller: 'VehicleReqForApproveController'
+            })
         ;
 }
