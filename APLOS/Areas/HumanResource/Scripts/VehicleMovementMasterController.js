@@ -4,6 +4,7 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     //$rootScope.title = "Vehicle Movement Master";
     $scope.path = 'HumanResource/VehicleMovementMaster/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
+
     
     
     // #region TAB CHANGE
@@ -588,9 +589,8 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     }
 
     // #endregion Fuel Master
-
     
-
+    // #region Get Fun
     $scope.FromLocationList = [];
     $scope.GetFromToLocationList = function () {
         $http({
@@ -617,6 +617,178 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
         });
     }
     $scope.GetFuelList();
+    // #endregion Get Fun
+    // Driver master
+
+    // #region Driver Master
+    $scope.DriverTemp = {
+        Id: null,
+        DriverName: null,
+        DriverCode: null,
+        DriverId: null,
+        DriverName: null,
+        LicenseNumber: null,
+        ExpiryDate: null,
+        Grade: null,
+        AllowDutyHoursPerWeek: null
+    };
+    $scope.DriverMasterModel = Object.assign({}, $scope.DriverTemp);
+
+    $scope.DriverGet = function () {
+        $scope.DriverMasterModel = Object.assign({}, args.data);
+        $scope.ActionDM = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.DriverMasterList = [];
+    $scope.GetDriverMasterData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDriverMasterData",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DriverMasterList = response.data;
+
+        });
+    }
+    $scope.GetDriverMasterData();
+
+    $scope.SaveDriverMaster = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.DriverMasterForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveDriverMaster',
+                data: {
+                    'data': $scope.DriverMasterModel,
+
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFieldsDM();
+                    $scope.GetDriverMasterData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteDriverMaster = function () {
+        if (!baseService.isUndefinedOrNull($scope.DriverMasterModel.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'DeleteDriverMaster' + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFieldsDM();
+                    $scope.GetDriverMasterData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearDM = function () {
+        ClearFieldsVM();
+        return true;
+    };
+
+    function ClearFieldsDM() {
+        $scope.ActionDM = 'Save';
+
+        $scope.DriverMasterModel = {
+            Id: null,
+            DriverName: null,
+            EmpSystemId: null,
+            EmployeeCode: null,
+            EmployeeName: null,
+            LicenseNumber: null,
+            ExpiryDate: null,
+            Grade: null,
+            AllowDutyHoursPerWeek: null
+        };
+        $scope.DriverMasterModel = Object.assign({}, $scope.DriverTemp);
+    }
+    // #endregion Driver Master
+
+
+    // #region Employee popup
+    $scope.employeeParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
+        searchBy: 'EmployeeCode',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.Name = null;
+    $scope.employeeList = [];
+    $scope.showEmployeeListPopUp = function (name) {
+        try {
+            $scope.Name = name;
+            $scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        $scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#employeePopUps')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployeePopUp = function (index, data) {
+        $scope.employeeIndex = index;
+
+        $scope.DriverMasterModel.DriverId = data.SystemId;
+        $scope.DriverMasterModel.DriverName = data.EmployeeName;
+        $scope.DriverMasterModel.DriverCode = data.EmployeeCode;
+
+        angular.element(document.querySelector('#employeePopUps')).modal('hide');
+        $scope.Name = null;
+    };
+
+    $scope.hideEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUps')).modal('hide');
+    };
+
+    // #endregion Employee popup
+
     
    
 }

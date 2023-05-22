@@ -2065,6 +2065,7 @@
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportComController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
@@ -4676,6 +4677,8 @@
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_VehicleMovement.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_FuelMaster.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleMovementRequisition.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_DriverMaster.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleReqForApprove.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

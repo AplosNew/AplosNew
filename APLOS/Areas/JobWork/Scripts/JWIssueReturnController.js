@@ -937,6 +937,7 @@ function JWIssueReturnController($window, cboService, commonMessage, $scope, $ro
 
 
 	}
+
 	$scope.GetRate = [];
 	$scope.GetLotNoRate = function (RowData) {
 		$scope.GetRate = [];

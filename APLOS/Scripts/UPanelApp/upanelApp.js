@@ -1174,6 +1174,7 @@ upanelApp.controller("GoodWorkController", GoodWorkController)
 upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
 upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterController)
 upanelApp.controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
+upanelApp.controller("VehicleReqForApproveController", VehicleReqForApproveController)
 
 
 upanelApp.config(AccessControllerConfig);
