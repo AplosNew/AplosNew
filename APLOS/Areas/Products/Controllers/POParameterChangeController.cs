@@ -186,6 +186,7 @@ namespace Aplos.Areas.Products.Controllers
                     dr["TotalTaxAmount"] = data.TotalTaxAmount;
                     dr["BaseQty"] = data.BaseQty;
                     dr["BaseAmount"] = data.BaseAmount;
+                    dr["DeliveryDate"] = data.DeliveryDate;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
@@ -293,6 +294,7 @@ namespace Aplos.Areas.Products.Controllers
                                 dr["BaseQty"] = Convert.ToDecimal(item["TransactionQty"].ToString());
                                 dr["WithInvoiceRate"] = Convert.ToDecimal(item["TransactionRate"].ToString());
                                 dr["AfterInvoiceRate"] = Convert.ToDecimal(item["TransactionRate"].ToString());
+                                //dr["DeliveryDate"] = item["DeliveryDate"].ToString();
                                 if (dr["TransactionUoMId"].ToString() == dr["BaseUOMId"].ToString())
                                 {
                                     dr["BaseUoMFactor"] = 1;
