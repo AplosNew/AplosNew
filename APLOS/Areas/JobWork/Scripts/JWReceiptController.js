@@ -3111,14 +3111,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 			}
 		});
 	}
-	//$scope.AllTabPrint = function (z) {
-	//	//debugger;
-	//	var x = "#" + z;
-	//	var gridObj = $(x).data("ejGrid");
-	//	var data = gridObj.getSelectedRecords()[0];
-	//	location.href = " GoodsReceiveNote/GRNReport?grnId=" + data.Id;
-	//};
-
+	
 	$scope.valuePassInDelModal = function (id) {
 		$scope.id = id;
 		$scope.message = 'Are you sure want to permanently delete this?';
@@ -3130,7 +3123,6 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 			$http({
 				method: 'POST',
 				url: 'Products/GoodsReceiveNote/JWDetailDelete?receiveDetailId=' + $scope.id
-				//url: $scope.detailDeleteUrl + $scope.id
 			}).then(function successCallback(response) {
 				if (response.data.Error === true)
 					ShowResult(response.data.Message, 'failure');
@@ -3149,20 +3141,17 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 	};
 
 	$scope.Delete = function () {
-		//debugger;
 		if (baseService.arrayLength($scope.inventoryMaterialList) === 0 && baseService.arrayLength($scope.inventoryMaterialListPO) === 0) {
 			if (!baseService.isUndefinedOrNull($scope.ReceiptTransformation.Id)) {
 				$http({
 					method: 'POST',
 					url: 'Products/GoodsReceiveNote/JWDeleteGRN?Id=' + $scope.ReceiptTransformation.Id,
-					//url: $scope.deleteUrl + $scope.productNew.Id,//deleteGRNBYPO
 					dataType: 'JSON'
 				}).then(function (response) {
 					if (response.data.Error === true)
 						ShowResult(response.data.Message, 'failure');
 					else {
 						ShowResult('Data Deleted Successfully', 'success');
-						//$scope.getDataList();
 						$scope.ClearReceiptTransChildTab();
 					}
 					function errorCallBack(response) {
@@ -3174,10 +3163,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 		else
 			ShowResult('First delete all line item.', 'failure');
 	};
-	// end
-
-	// GET If Material Issue Or Not
-
+	
 	$scope.GetMaterialInputList = [];
 	$scope.GetIssuedMatInputList = [];
 	$scope.GetIfIssuedOrNot = function (x) {
@@ -3344,4 +3330,143 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
         }
     }
 
+	$scope.SelectMaterialPlanning = function () {
+		if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueDate)) {
+			ShowResult("Select the issue date");
+			return false;
+		}
+		if (baseService.isUndefinedOrNull($scope.IssueTransformation.EntityId)) {
+			ShowResult("Select the Entity");
+			return false;
+		}
+		if (baseService.isUndefinedOrNull($scope.IssueTransformation.MaterialStorageId)) {
+			ShowResult("Select the Material Storage");
+			return false;
+		}
+		if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueType)) {
+			ShowResult("Select the type");
+			return false;
+		}
+		if (baseService.isUndefinedOrNull($scope.IssueTransformation.EmpName)) {
+			ShowResult("Select the wby whom");
+			return false;
+		}
+		$scope.detailModel = {
+			Id: null
+			, InventoryReveiveId: null
+			, InventoryMaterialId: null
+			, MaterialMasterId: null
+			, MaterialMasterName: null
+			, ArticleId: null
+			, ArticleName: null
+			, MaterialTypeName: null
+			, OurStyleName: null
+			, Description: null
+			, MaterialGroupMasterName: null
+			, ProductMasterName: null
+			, IsOurStyleRequired: false
+			, IsProductMstRequired: false
+			, FirstCharacteristicsId: null
+			, FirstCharacteristicsValueId: null
+			, SecondCharacteristicsId: null
+			, SecondCharacteristicsValueId: null
+			, ThirdCharacteristicsId: null
+			, ThirdCharacteristicsValueId: null
+			, TransactionQty: null
+			, TransactionUoMId: null
+			, TransactionUoM: null
+			, BaseQty: null
+			, BaseUOMId: null
+			, BaseUoM: null
+			, BaseUoMFactor: null
+			, TransactionRate: null
+			, TotalQty: 0
+			, AvgRate: null
+			, AvgAmount: null
+			, PolicyRate: null
+			, PolicyAmount: null
+			, Policy: null
+			, ActivityName: null
+			, BudgetMasterId: null
+			, ActivityId: null
+			, IssueId: null
+			, CostCenterId: null
+		};
+		var SelectedData = [];
+		for (var i = 0; i < $scope.IssueTransformationChildList.length; i++) {
+			if ($scope.IssueTransformationChildList[i].isSelected == true)
+				SelectedData.push($scope.IssueTransformationChildList[i]);
+		}
+
+		if (baseService.isUndefinedOrNull($scope.IssueTransformation.Id)) {
+			$http({
+				method: 'POST',
+				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate },
+				url: $scope.path + 'GetMaterialInputData'
+			}).then(function successCallback(response) {
+				$scope.MaterialInputList = response.data;
+				$scope.MatInputListLocal = response.data;
+				if ($scope.MaterialInputList.length > 0) {
+					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
+						var Id = $scope.MaterialInputList[a].JWTransformationPODetailId;
+						var ArticleId = $scope.MaterialInputList[a].ArticleId;
+
+						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
+							if ($scope.MatInputListLocal[b].JWTransformationPODetailId != Id) {
+								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
+									ShowResult("Common Input Material is there");
+									return false;
+								}
+							}
+						}
+					}
+				}
+
+				$scope.detailList = response.data;
+				for (var i = 0; i < $scope.detailList.length; i++) {
+					$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+				}
+
+				if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
+					$scope.CostCenterLoadNew();
+				}
+			});
+		}
+		else {
+			$http({
+				method: 'POST',
+				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate, TransIssueId: $scope.TransIssueId },
+				url: $scope.path + 'GetMaterialInputData'
+			}).then(function successCallback(response) {
+				$scope.MaterialInputList = response.data;
+				$scope.MatInputListLocal = response.data;
+				if ($scope.MaterialInputList.length > 0) {
+					for (var a = 0; a < $scope.MaterialInputList.length; a++) {
+						var Id = $scope.MaterialInputList[a].JWTransformationPODetailId;
+						var ArticleId = $scope.MaterialInputList[a].ArticleId;
+
+						for (var b = 0; b < $scope.MatInputListLocal.length; b++) {
+							if ($scope.MatInputListLocal[b].JWTransformationPODetailId != Id) {
+								if ($scope.MatInputListLocal[b].ArticleId == ArticleId) {
+									ShowResult("Common Input Material is there");
+									return false;
+								}
+							}
+						}
+					}
+				}
+
+				$scope.detailList = response.data;
+				for (var i = 0; i < $scope.detailList.length; i++) {
+					$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+					$scope.detailList[i].isSelectedMatInput = true;
+				}
+
+				if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
+					$scope.CostCenterLoadNew();
+				}
+			});
+		}
+
+	}
 }
