@@ -4455,8 +4455,11 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value  ,DayStatus as Name from AttdnProcessData
-where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and DATEADD(day, -1, CAST(GETDATE() AS date)) and EmpSystemID = '" + Empcode + "'";
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
+case when DayStatus   is  null then InStatus
+else DayStatus end as Name
+from AttdnProcessData
+where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
