@@ -77,7 +77,8 @@ namespace Aplos.Areas.IE.Controllers
             {
                 sqlCondition = $"where MMT.Id = '{headerid}'";
             }
-            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM 
+            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  where  WCM.StandardName is not null order by WCM.StandardName 
+
 --left join SCS.WorkCenterMaster WCM on MMT.WorkCenterId = WCM.Id
 " + sqlCondition + "";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
