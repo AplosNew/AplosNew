@@ -94,7 +94,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                         }
                     }
                     else {
-                        throw "The day and year need to be positive values greater than 0";
+                        throw "Invalid Month Name.";
                     }
 
                     if (day <= 0 || year <= 0) {
