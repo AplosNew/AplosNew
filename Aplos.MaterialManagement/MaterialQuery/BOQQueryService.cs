@@ -662,7 +662,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,'' QualityStatus
                             	,IRD.TransactionUoMId POUoMId
                             	,IRD.Tolerance
-                            	,IRD.RefferenceNo
+                            	,IRD.RefferenceNo,IRD.DeliveryDate
                             FROM TRN.POBOQMAP AS poboq
 							JOIN BOQ boq ON boq.Id=poboq.BOQDetailId
 							LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.Id=poboq.PODetailId
@@ -685,7 +685,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             LEFT JOIN (
                             	SELECT BOQDetailId,SUM(TransactionQty) TransactionQty,SUM(BaseQty) BaseQty
                             	FROM trn.POBOQMAP 
-                            	WHERE  BOQDetailId IN ( SELECT BOQDetailId FROM TRN.POBOQMAP WHERE PODetailId='"+poDetailId+ @"') AND PODetailId NOT IN ('" + poDetailId + @"')
+                            	WHERE  BOQDetailId IN ( SELECT BOQDetailId FROM TRN.POBOQMAP WHERE PODetailId='" + poDetailId+ @"') AND PODetailId NOT IN ('" + poDetailId + @"')
                             	GROUP BY BOQDetailId
                             	) aa ON aa.BOQDetailId = poboq.BOQDetailId
                             WHERE IRD.QtyStatus = 0
