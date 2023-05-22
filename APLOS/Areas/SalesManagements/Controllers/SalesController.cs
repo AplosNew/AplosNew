@@ -649,31 +649,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
             dt.Rows.Add(dr);
         }
         
-        private void CopyRow(DataRow drSource, ref DataRow drDestination)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
-            {
-                try
-                {
-                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
-
-                }
-                catch (Exception ex)
-                {
-                }
-                try
-                {
-                    drDestination["AddedBy"] = identity.Name;
-                    drDestination["AddedDate"] = DateTime.Now;
-                }
-                catch (Exception ex)
-                {
-                }
-            }
-
-        }
-
         private string GetSalesReturnPK()
         {
             string sID = string.Empty;
