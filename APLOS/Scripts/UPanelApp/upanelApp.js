@@ -262,6 +262,7 @@ upanelApp.controller("manualOutTimeController", manualOutTimeController);
 upanelApp.controller("masterOrderController", masterOrderController);
 upanelApp.controller("masterOrderSalesController", masterOrderSalesController);
 upanelApp.controller("masterOrderSalesPostController", masterOrderSalesPostController);
+upanelApp.controller("salesIncentiveController", salesIncentiveController);
 upanelApp.controller("materialAttributeMasterController", MaterialAttributeMasterController);
 upanelApp.controller("materialAttributeValueController", MaterialAttributeValueController);
 upanelApp.controller("MaterialBudgetController", MaterialBudgetController);
