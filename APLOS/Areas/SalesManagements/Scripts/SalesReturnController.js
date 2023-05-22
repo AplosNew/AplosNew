@@ -454,9 +454,20 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 }
             }
         }
+        if ($scope.productNew.SourceType == 'Packing') {
+            $scope.itemScanNewListForSales = [];
+            $scope.itemScanNewListForSales = $scope.tempitemScanList.slice();
+            //for (var n = 0; n < newitemScanList.length; n++) {
+            //    //newitemScanList[n].Id = null;
+            //    //newitemScanList[n].Booked = 0;
+            //    //newitemScanList[n].IsDespatch = 0;
+            //    //newitemScanList[n].ReturnNetWeight = 0;
+            //    $scope.itemScanNewListForSales.push(newitemScanList[n]);
+            //}
+        }
         return false;
     }
-
+    $scope.itemScanNewListForSales = [];
     $scope.Save = function () {
         $scope.IsSaveButtonDisable = true;
         $scope.Validation();
@@ -471,6 +482,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                         , 'detaildataList': $scope.newList
                         , 'taxList': $scope.newtaxList
                         , 'itemScanCildList': $scope.tempitemScanList
+                        , 'itemScanCildNewList': $scope.itemScanNewListForSales
                     }
                     , dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -521,7 +533,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 getInvTaxList();
             });
     }
-
     function getItemScanChildByPackingId(salesId, packingId) {
         $scope.tempitemScanList = [];
         if ($scope.productNew.SourceType == 'Packing') {

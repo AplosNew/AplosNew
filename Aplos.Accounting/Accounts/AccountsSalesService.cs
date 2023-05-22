@@ -2563,7 +2563,7 @@ namespace Library.Accounting.Accounts
 		public List<Dictionary<string, object>> GetItemScanChildDataByPackingId(string salesId, string packingId, string soId)
 		{
 
-			var cmdText = @"SELECT isc.Id,isc.SalesId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight,isc.NetWeight ReturnNetWeight,isc.Shade,isc.Booked,isc.IsDespatch
+			var cmdText = @"SELECT isc.Id,isc.MasterId,isc.POId,isc.ProductCode,isc.AddedBy,isc.AddedDate,isc.Cones,isc.PackedBy,isc.SalesId,isc.LocMasterId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight,isc.NetWeight ReturnNetWeight,isc.Shade,isc.Booked,isc.IsDespatch
 								,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
                                 left join trn.POLotReference pol on pol.Id = isc.PackingId
                                 left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
