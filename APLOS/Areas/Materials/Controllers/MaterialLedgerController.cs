@@ -311,15 +311,48 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate, string GRNNo, string SheetName)
+        //public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate, string GRNNo, string SheetName)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+
+        //        string fileName = "";
+        //        fileName = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, GRNNo, "Purchase Register Report GRN Wise " + FromDate + " To " + ToDate + "");
+        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+        public ActionResult PurchaseRegisterGRNWiseReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+                    dt.Columns.Add(item);
+                }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+                        dr[item] = data[i][item];
+                    }
+                    dt.Rows.Add(dr);
+                }
                 string fileName = "";
-                fileName = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate,GRNNo, "Purchase Register Report GRN Wise " + FromDate + " To " + ToDate + "");
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                fileName = obj.CreatePurchaseRegisterGRNWiseReportSheet(dt, "", reportFileName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -391,23 +424,62 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate,string PartyId)
+        //public ActionResult PurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate,string PartyId)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+
+        //        string fileName = "";
+        //        fileName = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Purchase Report Register Party Wise" + FromDate + " To " + ToDate + "");
+        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        throw ex;
+        //    }
+        //}
+        public ActionResult PurchaseRegisterPartyWiseReport(List<Dictionary<string, object>> data, string reportFileName)
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
 
                 string fileName = "";
-                fileName = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Purchase Report Register Party Wise" + FromDate + " To " + ToDate + "");
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                fileName = obj.CreatePurchaseRegisterPartyWiseReportSheet(dt, "", reportFileName);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
+
 
         [Authorize, HttpPost]
         public JsonResult PurchaseRegisterItemWiseData(string fromDate, string toDate, string Type)
@@ -432,18 +504,54 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult PurchaseRegisterItemWiseReport(string plantId, string fromDate, string toDate,string SLNo,string SheetName)
+        //public ActionResult PurchaseRegisterItemWiseReport(string plantId, string fromDate, string toDate,string SLNo,string SheetName)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    plantId = identity.PlantId;
+        //    InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+
+        //    string fileName = "";
+        //    fileName = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, SLNo, "Purchase Register Item Wise " + fromDate + " To " + toDate + "");
+        //    return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+
+        //}
+
+        public ActionResult PurchaseRegisterItemWiseReport(List<Dictionary<string, object>> data, string reportFileName)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+                    dt.Columns.Add(item);
+                }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+                        dr[item] = data[i][item];
+                    }
+                    dt.Rows.Add(dr);
+                }
 
-            string fileName = "";
-            fileName = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, SLNo, "Purchase Register Item Wise " + fromDate + " To " + toDate + "");
-            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-
-
+                string fileName = "";
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                fileName = obj.CreatePurchaseRegisterReportSheet(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+
 
         [HttpPost, Authorize]
         public ActionResult GetOtherPurchaseRegisterInvoiceData(string PlantId, string ToDate, string FromDate)
@@ -503,24 +611,24 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { NewData, Message = AplosMessage.Success });
         }
 
-        [HttpPost, Authorize]
-        public ActionResult OtherPurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate, string PartyId)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+        //[HttpPost, Authorize]
+        //public ActionResult OtherPurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate, string PartyId)
+        //{
+        //    try
+        //    {
+        //        var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //        InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
 
-                string fileName = "";
-                fileName = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Purchase Report Register Party Wise" + FromDate + " To " + ToDate + "");
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
+        //        string fileName = "";
+        //        fileName = obj.CreateOtherPurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Purchase Report Register Party Wise" + FromDate + " To " + ToDate + "");
+        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-                throw ex;
-            }
-        }
+        //        throw ex;
+        //    }
+        //}
 
 
 
