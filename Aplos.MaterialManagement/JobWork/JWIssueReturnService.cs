@@ -312,8 +312,8 @@ group by uom.Id --,mi.Id
 ,Isnull(ab.TotalQty,0) TotalQty, Isnull(cd.PostingQty,0) PostingQty, Isnull(ef.ApprovedQty,0) ApprovedQty, Isnull(gh.UnApprovedQty,0) UnApprovedQty
 from dbo.JWTransformationPOInputMaterial mi
 left join HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
 left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
 left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
 left join dbo.JWTransformationPODetail mp on mp.Id=mi.JWTransformationPODetailId
@@ -352,8 +352,8 @@ Left join(select mi.Id,mi.JWTransformationPODetailId, jwi.UserName as JWOutputIt
         ,TotalQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
         from dbo.JWTransformationPOInputMaterial mi
         left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+        left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
         left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
         left join dbo.JWTransformationPODetail mp on mp.Id=mi.JWTransformationPODetailId
@@ -404,9 +404,8 @@ Left JOIN (select mi.Id,mi.JWTransformationPODetailId, jwi.UserName as JWOutputI
                         ,0 TotalQty,  PostingQty =(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 ApprovedQty, 0 UnApprovedQty
                         from dbo.JWTransformationPOInputMaterial mi
                         left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-                        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
-
                         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+                        left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
                         left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
                         left join dbo.JWTransformationPODetail mp on mp.Id=mi.JWTransformationPODetailId
@@ -457,9 +456,8 @@ Left join (select mi.Id,mi.JWTransformationPODetailId, jwi.UserName as JWOutputI
             ,0TotalQty, 0 PostingQty,  ApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0)))), 0 UnApprovedQty
             from dbo.JWTransformationPOInputMaterial mi
             left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-            left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
-
             left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+            left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
             left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
 left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
             left join dbo.JWTransformationPODetail mp on mp.Id=mi.JWTransformationPODetailId
@@ -511,9 +509,8 @@ left JOIn(
                         ,0 TotalQty, 0 PostingQty, 0 ApprovedQty,  UnApprovedQty=(((SUM(ISNULL(IRD.BaseQty,0)) - SUM(ISNULL(IRD.BaseIssueQty, 0))-SUM(ISNULL(IRD.PurchaseReturnQty, 0)))+SUM(ISNULL(IRD.IssueReturnQty, 0))-SUM(ISNULL(IRD.ReductionByAdjustmentQty, 0))-SUM(ISNULL(IRD.InventorySalesQty, 0))-SUM(ISNULL(IRD.InventoryScrapQty, 0))))
                         from dbo.JWTransformationPOInputMaterial mi
                         left join  HKP.JobWorkItem jwii on jwii.Id=mi.JobWorkItemId
-                        left join MST.MaterialMaster mm on mm.Id=jwii.MaterialMasterId
-
                         left join MST.MaterialMasterArticle mma on mma.Id=mi.ArticleId
+                        left join MST.MaterialMaster mm on mm.Id=mma.MaterialMasterId
                         left join scs.UnitOfMeasurement uom on uom.Id=mm.BaseUOMId
                         left join scs.UnitOfMeasurement uomm on uomm.Id=jwii.UOMId
                         left join dbo.JWTransformationPODetail mp on mp.Id=mi.JWTransformationPODetailId
