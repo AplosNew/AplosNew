@@ -114,10 +114,10 @@
                                     <td>{{x.UserName}}</td>
                                     <td>
                                         <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic == 'datepicker'">
-                                            <input type="{{x.CharType}}" name="Value" ng-model="data.Value" class="form-control">
+                                            <input type="text" name="Value" ng-model="x.Value" class="form-control">
                                         </div>
                                         <div class="col-sm-10" style="padding:0px; width:100%;" ng-hide="x.datepic != 'datepicker'">
-                                            <input type="{{x.CharType}}" name="Value" datepicker ng-model="data.Value" class="form-control">
+                                            <input type="text" name="Value" placeholder="dd-MMM-yyyy" ng-model="x.Value" class="form-control">
                                         </div>
                                     </td>
                                     <td><input type="text" ng-model="x.Remarks" ng-maxlength="250" style="color:black;" class="form-control" /></td>
