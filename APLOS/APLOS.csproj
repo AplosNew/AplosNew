@@ -1789,6 +1789,7 @@
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetReportTreeViewController.js" />
+    <Content Include="Areas\Accounts\Scripts\lcLedgerReportController.js" />
     <Content Include="Areas\Accounts\Scripts\inventoryIssueReturnJournalController.js" />
     <Content Include="Areas\Accounts\Scripts\ManagementChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\parkedReportController.js" />
@@ -4679,6 +4680,7 @@
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleMovementRequisition.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_DriverMaster.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleReqForApprove.cshtml" />
+    <Content Include="Areas\Accounts\Views\LCLedgerReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
