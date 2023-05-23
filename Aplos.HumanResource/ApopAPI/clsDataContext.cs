@@ -5005,8 +5005,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         dr["Date"] = item.Date;
                         dr["Time"] = item.Time;
                         dr["EmployeeCode"] = item.EmployeeCode;
-                        dr["InScan"] = item.InScan;
-                        dr["OutScan"] = item.OutScan;
+                        dr["InandOut"] = item.InandOut;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
@@ -5024,8 +5023,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                         dr["Date"] = item.Date;
                         dr["Time"] = item.Time;
                         dr["EmployeeCode"] = item.EmployeeCode;
-                        dr["InScan"] = item.InScan;
-                        dr["OutScan"] = item.OutScan;
+                        dr["InandOut"] = item.InandOut;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
@@ -5530,8 +5528,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
         public string EmployeeCode { get; set; }
         public string Date { get; set; }
         public string Time { get; set; }
-        public string InScan { get; set; }
-        public string OutScan { get; set; }
+        public string InandOut { get; set; }
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string AddedFromIP { get; set; }
