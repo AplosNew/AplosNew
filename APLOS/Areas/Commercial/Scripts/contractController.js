@@ -62,7 +62,8 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         FinalDestinationId: null,
         PortOfLandingId: null,
         CurrencyId: null,
-        IsClose: null
+        IsClose: null,
+        BankId: null
     };
     $scope.lcMasterNew = Object.assign({}, $scope.lcMaster);
 
@@ -122,7 +123,13 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.searchParty = '';
     }
 
-
+    $scope.bankList = [];
+    $http({
+        method: "GET",
+        url: "banks/bank/getbanklistcbo"
+    }).then(function successCallback(response) {
+        $scope.bankList = response.data;
+    });
 
     $scope.bankMasterList = [];
     bankService.getBankMasterCboListByPlant(function (result) {
