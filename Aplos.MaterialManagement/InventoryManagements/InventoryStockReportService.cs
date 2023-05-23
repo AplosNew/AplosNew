@@ -775,11 +775,11 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                        --Issue Return
-                        Left join (select IH.InventoryMaterialId,sum(IH.Qty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.Qty)*sum(IRD.MaterialTranRate)) IssueReturnAmount from trn.InventoryIssueReturnHistory IH
+                        Left join (select IH.InventoryMaterialId,II.MaterialStorageId,sum(IH.Qty) Qty, (sum(IH.Qty*IRD.MaterialTranRate)) IssueReturnAmount  from trn.InventoryIssueReturnHistory IH
 									 Left join trn.InventoryIssueReturn II ON II.Id=IH.InventoryIssueReturnId
 									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
-									 	WHERE convert(Date,II.IssueDate) <= '" + toDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IH.InventoryMaterialId
-								 )IssueReturnData ON IssueReturnData.InventoryMaterialId=IM.Id 
+									 	WHERE convert(Date,II.IssueDate) <= '" + toDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IH.InventoryMaterialId,II.MaterialStorageId
+								 )IssueReturnData ON IssueReturnData.InventoryMaterialId=IM.Id and IssueReturnData.MaterialStorageId=IRS.MaterialStorageId
 					    --Purchase return
                        Left join (select IH.InventoryMaterialId,II.MaterialStorageId,sum(IH.TransactionQty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.TransactionQty*IRD.MaterialTranRate)) PurchaseReturnAmount 
 					                 from trn.PurchaseReturnDetail IH
