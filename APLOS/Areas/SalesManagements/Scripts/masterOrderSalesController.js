@@ -2161,11 +2161,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     $scope.selectedMasterOrderList = [];
     function MakeData() {
-       // $scope.selectedMasterOrderList = [];
         try {
             for (var i = 0; i < $scope.masterOrderList.length; i++) {
                 var getRow = $filter("filter")($scope.selectedMasterOrderList, { "selectedMasterOrderList": $scope.masterOrderList[i].MasterOrderId, "MasterOrderItemId": $scope.masterOrderList[i].MasterOrderItemId });
-                //var getRow = $filter("filter")($scope.selectedMasterOrderList, { "selectedMasterOrderList": $scope.masterOrderList[i].MasterOrderId });
                 if (getRow.length == 0) {
                     if ($scope.masterOrderList[i].Active == true) {
                         var ob = {};
@@ -2453,11 +2451,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     $scope.materialtaxCategoryList = [];
     $scope.selectedMasterOrderItemList = [];
     function MakeItemData() {
-        //$scope.selectedMasterOrderItemList = [];
         for (var i = 0; i < $scope.masterOrderItemList.length; i++) {
-            //if ($scope.masterOrderItemList[i].Balance != 0 && $scope.masterOrderItemList[i].Balance > 0) {
             if (checkItemExist($scope.selectedMasterOrderItemList, $scope.masterOrderItemList[i].SONo, $scope.masterOrderItemList[i].MaterialMasterId, $scope.masterOrderItemList[i].ArticleId, $scope.masterOrderItemList[i].FirstCharacteristicsValueId, $scope.masterOrderItemList[i].SecondCharacteristicsValueId) === false) {
-                //if (checkItemExist($scope.selectedMasterOrderItemList, $scope.masterOrderItemList[i].SONo, $scope.masterOrderItemList[i].MasterOrderItemId) === false) {
                 if ($scope.masterOrderItemList[i].Active == true) {
                     $scope.CheckMaterialArticleSKU($scope.masterOrderItemList[i]);
                     if ($scope.mValid == true) {
@@ -2495,14 +2490,12 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
                         moi.BaseQty = $scope.masterOrderItemList[i].Qty;
                         moi.TransactionQty = $scope.masterOrderItemList[i].PlanQty;
-                        moi.BaseAmount = $scope.masterOrderItemList[i].Qty * $scope.masterOrderItemList[i].Rate;
+                        moi.BaseAmount = $scope.masterOrderItemList[i].PlanQty * $scope.masterOrderItemList[i].Rate;
                         moi.TransactionAmount = 0;
                         moi.NetAmount = 0;
                         moi.TaxAmount = 0;
 
                         moi.TaxList = $scope.materialtaxCategoryList;
-                        //$scope.salesVM.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
-                        //moi.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
                         moi.HSNCodeId = $scope.masterOrderItemList[i].HSNCodeId;
                         $scope.salesVM.MasterOrderId = $scope.masterOrderItemList[i].MasterOrderId;
                         moi.ExistSalesQty = $scope.masterOrderItemList[i].ExistSalesQty;
