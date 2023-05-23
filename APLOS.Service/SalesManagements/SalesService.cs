@@ -26,6 +26,7 @@ using System.Reflection;
 using Library.Model.OrderManagements;
 using Library.Service.Extension.Accounts;
 using Library.Service.Extension;
+using Library.Model.Productions;
 
 namespace Library.Service.SalesManagements
 {
@@ -62,6 +63,7 @@ namespace Library.Service.SalesManagements
         private readonly IRepositoryAsync<Library.Model.Inventory.InventorySales> _SalesRepository;
         private readonly IRepositoryAsync<Library.Model.Inventory.InventorySalesDetail> _SalesDetailService;
         private readonly IRepositoryAsync<Library.Model.Inventory.InventorySalesHistory> _SalesHistoryService;
+        private readonly IRepositoryAsync<ItemScanChild> _ItemScanChildDataService;
         public SalesService(
              IInvoiceService invoiceService
             , IVoucherService voucherService
@@ -94,6 +96,7 @@ namespace Library.Service.SalesManagements
             , IRepositoryAsync<Library.Model.Inventory.InventorySales> SalesRepository
             , IRepositoryAsync<Library.Model.Inventory.InventorySalesDetail> SalesDetailService
             , IRepositoryAsync<Library.Model.Inventory.InventorySalesHistory> SalesHistoryService
+            , IRepositoryAsync<ItemScanChild> ItemScanChildDataService
             )
         {
             _unitOfWork = unitOfWork;
@@ -128,6 +131,7 @@ namespace Library.Service.SalesManagements
             _SalesRepository = SalesRepository;
             _SalesDetailService = SalesDetailService;
             _SalesHistoryService = SalesHistoryService;
+            _ItemScanChildDataService = ItemScanChildDataService;
 
         }
 
@@ -3028,7 +3032,7 @@ namespace Library.Service.SalesManagements
 
         #region Packing Integration
 
-        public void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsDetail, DataSet dsHistory)
+        public void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsDetail, DataSet dsHistory, DataSet dsItemScanData)
         {
             var flag = false;
             try
@@ -3212,6 +3216,21 @@ namespace Library.Service.SalesManagements
                                 _salesTaxRepository.Insert(salesTax);
                             }
                         }
+
+                        if (dsItemScanData.Tables[0].Rows.Count > 0)
+                        {
+                            dsItemScanData.Tables[0].DefaultView.RowFilter="SOId='"+ salesMaterialVM.SalesOrderId + "'";
+                            
+                            for (int i = 0; i < dsItemScanData.Tables[0].DefaultView.Count; i++)
+                            {
+                               var childData= _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
+                                childData.SalesMaterialId = salesMaterial.Id;
+                                childData.SalesId = sales.Id;
+                                _ItemScanChildDataService.Update(childData);
+                            }
+
+                        }
+
                     }
                 }
                 currentSalesMaterialId = 0;
@@ -3377,7 +3396,7 @@ namespace Library.Service.SalesManagements
             }
         }
 
-        public void PackingInvoiceUpdate(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
+        public void PackingInvoiceUpdate(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsItemScanData)
         {
             var flag = false;
             try
@@ -3661,7 +3680,20 @@ namespace Library.Service.SalesManagements
                             }
                         }
 
+                        if (dsItemScanData.Tables[0].Rows.Count > 0)
+                        {
+                            dsItemScanData.Tables[0].DefaultView.RowFilter = "SOId='" + salesMaterialVM.SalesOrderId + "'";
 
+                            for (int i = 0; i < dsItemScanData.Tables[0].DefaultView.Count; i++)
+                            {
+                                var childData = _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
+                                childData.SalesMaterialId = salesMaterialVM.Id;
+                                childData.SalesId = sales.Id;
+                                childData.ReturnNetWeight = 0;
+                                _ItemScanChildDataService.Update(childData);
+                            }
+
+                        }
                     }
                 }
 
@@ -4468,4 +4500,6 @@ namespace Library.Service.SalesManagements
             }
         }
     }
+
+   
 }

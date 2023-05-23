@@ -653,32 +653,25 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         var un = "";
         $scope.stndName = "";
         $scope.srtName = "";
+        var finalCon = "";
+        var fcon = "";
         for (var i = 0; i < $scope.attributeList.length; i++) {
+           
             if (i === 0) {
-                $scope.srtName = $scope.attributeList[i].MaterialAttributeValueFreeText;
-                un = $scope.attributeList[i].MaterialAttributeValueFreeText;
-            }
-            ////else {
-            ////    $scope.stndName = $scope.attributeList[i].MaterialAttributeValueFreeText;
-            ////}
-
-            if (i === 0) {
-                $scope.stndName += $scope.attributeList[i].MaterialAttributeValueFreeText;
-                $scope.un += $scope.attributeList[i].MaterialAttributeValueFreeText;
+                fcon= (baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText) == true ? "" : $scope.attributeList[i].MaterialAttributeValueFreeText) + (baseService.isUndefinedOrNull($scope.attributeList[i].JoiningParameter) == true ? "" : $scope.attributeList[i].JoiningParameter);
+                $scope.stndName += fcon;
+                $scope.srtName += fcon;
+                un += fcon;
             } else {
-                $scope.stndName += $scope.attributeList[i].JoiningParameter + $scope.attributeList[i].MaterialAttributeValueFreeText; 
-                un += $scope.attributeList[i].JoiningParameter + $scope.attributeList[i].MaterialAttributeValueFreeText; 
+                finalCon = baseService.isUndefinedOrNull($scope.attributeList[i].JoiningParameter) == true ? "" : $scope.attributeList[i].JoiningParameter + baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText) == true ? "" : $scope.attributeList[i].MaterialAttributeValueFreeText;
+                $scope.stndName = $scope.stndName +" "+ (finalCon == null ? "" : finalCon);
+                $scope.srtName = $scope.srtName + " " + (finalCon == null ? "" : finalCon);
+                un = un + " " + (finalCon == null ? "" : finalCon);
             }
         }
 
-        if (baseService.isUndefinedOrNull($scope.stndName)) {
-            $scope.articleNew.ShortName = $scope.srtName;
-            $scope.articleNew.StandardName = $scope.srtName;
-        } else {
-
-            $scope.articleNew.ShortName = $scope.srtName + "-" + $scope.stndName;
-            $scope.articleNew.StandardName = $scope.srtName + "-" + $scope.stndName;
-        }
+        $scope.articleNew.ShortName = $scope.stndName;
+        $scope.articleNew.StandardName = $scope.stndName;
         $scope.articleNew.UserName = un;
     }
 
@@ -897,6 +890,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , Code: null
         , PartyId: null
         , PartyName: null
+        , ArticlePartyName: null
         , UserGroup: null
         , Remark: null
     };
@@ -931,6 +925,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         try {
             if (baseService.isUndefinedOrNull($scope.articleAlias.PartyId)) {
                 throw "Party is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.articleAlias.ArticlePartyName)) {
+                throw "Article Party Name is required.";
             }
             if (baseService.isUndefinedOrNull($scope.articleAlias.UserGroup)) {
                 throw "User Group is required.";

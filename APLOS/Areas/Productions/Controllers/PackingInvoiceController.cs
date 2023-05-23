@@ -100,7 +100,7 @@ namespace Aplos.Areas.Productions.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             DataSet dsDetail;
-            DataSet dsHistory, dsScanData;
+            DataSet dsHistory, dsScanData,dsItemScanData;
             if (salesMaterialVMList != null)
             {
                 foreach (var item in salesMaterialVMList)
@@ -145,42 +145,12 @@ namespace Aplos.Areas.Productions.Controllers
             }
             GetIssueDetail(PackingId, out dsDetail);
             GetIssueHistory(PackingId, out dsHistory);
+            GetItemScanChildData(PackingId, out dsItemScanData);
 
 
-            _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList, dsDetail, dsHistory);
+            _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList, dsDetail, dsHistory, dsItemScanData);
 
-            #region ItemScanChild
-
-            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-            string sql = @"Select * from dbo.ItemScanChild Where PackingId IN(
-                                            Select Id from trn.POLotReference Where PackingLineItemId IN (
-                                            Select PackingLineItemId from trn.PackingLineItem Where PackingId IN(" + PackingId + ")))";
-            con.OpenDataSetThroughAdapter(sql, out dsScanData, false, "1");
-
-            if (dsScanData.Tables[0].Rows.Count > 0)
-            {
-                for (int j = 0; j < dsScanData.Tables[0].Rows.Count; j++)
-                {
-                    dsScanData.Tables[0].DefaultView.RowFilter = "Id='" + dsScanData.Tables[0].Rows[j]["Id"].ToString() + "'";
-
-                    if (dsScanData.Tables[0].DefaultView.Count > 0)
-                    {
-                        //edit
-                        DataRow dr = dsScanData.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-
-                        dr["SalesId"] = voucherVM.Id;
-                        dr["IsDespatch"] = true;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr.EndEdit();
-                    }
-                }
-            }
-
-            clsStaticInfo obj = new clsStaticInfo();
-            obj.SaveDataSets(dsScanData);
-            #endregion
+            
 
             return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
         }
@@ -206,7 +176,28 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-       
+        public void GetItemScanChildData(string packingid, out DataSet dsRef)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                string sql = @"Select * from trn.PackingLineItem  PLI
+LEFT JOIN 
+(							
+Select SC.Id,SC.MasterId,ISNULL(sc.NetWeight,0) Qty,PackingLineItemId from trn.POLotReference po
+left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1 
+Where SC.Id<>''
+)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
+								Where PLI.PackingId IN(" + packingid + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public void GetIssueDetail(string packingid, out DataSet dsRef)
         {
             try
@@ -231,6 +222,8 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpPost]
         public JsonResult Edit(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
         {
+            string PackingId = "";
+            DataSet dsItemScanData;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
             voucherVM.CompanyId = identity.CompanyId;
@@ -266,10 +259,19 @@ namespace Aplos.Areas.Productions.Controllers
                     item.Qty = Convert.ToDecimal(data["Qty"].ToString());
                     item.Amount = Convert.ToDecimal(data["Amount"].ToString());
                     item.ProductLibraryId = data["ProductLibraryId"].ToString();
+
+                    if (PackingId == "")
+                    {
+                        PackingId = "'" + item.PackingId + "'";
+                    }
+                    else
+                    {
+                        PackingId += ",'" + item.PackingId + "'";
+                    }
                 }
             }
-
-            _salesService.PackingInvoiceUpdate(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList);
+            GetItemScanChildData(PackingId, out dsItemScanData);
+            _salesService.PackingInvoiceUpdate(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList, dsItemScanData);
             return Json(new { Data = voucherVM, Message = AplosMessage.Updated + "Invoice No: " + voucherVM.Id + "" });
         }
 

@@ -185,6 +185,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
                         ob.EntityId = $scope.PackingList[i].EntityId;
+                        $scope.salesVM.PartyId = $scope.PackingList[i].CustomerId;
                         if (checkExistCustomer($scope.selectedPackingList, ob.PartyId)) {
                             if (checkExistList($scope.selectedPackingList, ob.PackingId) === false) {
 
@@ -204,8 +205,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                                 ob.AddedDate = $scope.PackingList[i].AddedDate;
                                 ob.InActiveDate = $scope.PackingList[i].InActiveDate;
 
-                                $scope.selectedPackingList.push(ob);
                                 $scope.getPartyPlant();
+                                $scope.selectedPackingList.push(ob);
 
                             }
                         }

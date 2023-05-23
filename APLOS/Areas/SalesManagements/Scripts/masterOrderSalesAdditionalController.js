@@ -78,7 +78,7 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
                     var year = parseInt(splitComponents[2]);
 
                     if (isNaN(day) || isNaN(year)) {
-                        errorMessage = "The day and year need to be numbers";
+                        errorMessage = "Please enter the date in dd-MMM-yyyy format.";
                         throw errorMessage;
                         return false;
                     }
@@ -142,6 +142,13 @@ function masterOrderSalesAdditionalController(cboService, commonMessage, $window
 
                 if ($scope.SalesAdditionalInfoDataList[i].CharecterType == "DateTime") {
                     validatedate($scope.SalesAdditionalInfoDataList[i].Value);
+                }
+
+
+                if ($scope.SalesAdditionalInfoDataList[i].CharecterType == "Decimal") {
+                    if (isNaN($scope.SalesAdditionalInfoDataList[i].Value)) {
+                        throw "Number is required for " + $scope.SalesAdditionalInfoDataList[i].UserName + ".";
+                    }
                 }
             }
 
