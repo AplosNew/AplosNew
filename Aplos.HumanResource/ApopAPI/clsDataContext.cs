@@ -4455,8 +4455,11 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value  ,DayStatus as Name from AttdnProcessData
-where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and DATEADD(day, -1, CAST(GETDATE() AS date)) and EmpSystemID = '" + Empcode + "'";
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
+case when DayStatus   is  null then InStatus
+else DayStatus end as Name
+from AttdnProcessData
+where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -4969,6 +4972,87 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
         #endregion Aman C
 
+
+        #region seven days attendance
+        public string PostPlantinoutcontrl(IEnumerable<Plantcontrol> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.PlantInOutControl";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Plantcontrol> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.PlantInOutControl where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (Plantcontrol item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+
+                        dr["Id"] = _Id;
+                        dr["Date"] = item.Date;
+                        dr["Time"] = item.Time;
+                        dr["EmployeeCode"] = item.EmployeeCode;
+                        dr["InScan"] = item.InScan;
+                        dr["OutScan"] = item.OutScan;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["Date"] = item.Date;
+                        dr["Time"] = item.Time;
+                        dr["EmployeeCode"] = item.EmployeeCode;
+                        dr["InScan"] = item.InScan;
+                        dr["OutScan"] = item.OutScan;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                        dr.EndEdit();
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
+        #endregion seven days attendance
+
     }
 
 
@@ -5438,6 +5522,24 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
         public string ProcessReviewStatus { get; set; }
         public string ProcessBalanceProd { get; set; }
     }
+
+
+    public class Plantcontrol
+    {
+        public string Id { get; set; }
+        public string EmployeeCode { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public string InScan { get; set; }
+        public string OutScan { get; set; }
+        public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
     #endregion WrittenBy Aman
 
     public class closeTask
@@ -5562,4 +5664,6 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
     }
 
     #endregion Aman c
+
+
 }

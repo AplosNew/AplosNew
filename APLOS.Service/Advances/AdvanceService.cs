@@ -3564,7 +3564,7 @@ namespace Library.Service.Advances
                                 IVD.WrittenOffAmount AS Received, IVD.Amount-IVD.WrittenOffAmount AS Balance, 0 DrAmount, 0 CrAmount,
 								CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 								GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion,
-								HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
+								HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion,IV.InventoryReceiveId GRNNo
                                 FROM [TRN].[EmployeePayableDetail] AS IVD
                                 LEFT JOIN [TRN].[EmployeePayable] AS IV ON IVD.EmployeePayableId=IV.Id
                                 LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.EmployeePayableDetailId=IVD.Id

@@ -649,31 +649,6 @@ namespace Aplos.Areas.SalesManagements.Controllers
             dt.Rows.Add(dr);
         }
         
-        private void CopyRow(DataRow drSource, ref DataRow drDestination)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            for (int COL = 0; COL < drSource.Table.Columns.Count; COL++)
-            {
-                try
-                {
-                    drDestination[drSource.Table.Columns[COL].ColumnName] = drSource[drSource.Table.Columns[COL].ColumnName];
-
-                }
-                catch (Exception ex)
-                {
-                }
-                try
-                {
-                    drDestination["AddedBy"] = identity.Name;
-                    drDestination["AddedDate"] = DateTime.Now;
-                }
-                catch (Exception ex)
-                {
-                }
-            }
-
-        }
-
         private string GetSalesReturnPK()
         {
             string sID = string.Empty;
@@ -1357,6 +1332,109 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
             return Json(new { Message = AplosMessage.Posted });
         }
+        #endregion
+
+        #region Sales Incentive
+
+        [Authorize, HttpGet]
+        public ActionResult SalesIncentive()
+        {
+            return View("~/Areas/SalesManagements/Views/SalesIncentive.cshtml");
+        }
+        //public ActionResult MasterOrderSalesPost()
+        //{
+        //    return View("~/Areas/SalesManagements/Views/MasterOrderSalesPost.cshtml");
+        //}
+
+        [HttpGet, Authorize]
+        public ActionResult GetMasterOrderSalesIncentiveList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+            return Json(_accountsSalesService.GetMasterOrderSalesIncentiveList(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetMasterOrderSalesDetailList(string salesId, string partyAccountGroup)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+        //    return Json(_accountsSalesService.GetMasterOrderSalesDetailList(identity.CompanyGroupId, identity.CompanyId, salesId, partyAccountGroup), JsonRequestBehavior.AllowGet);
+        //}
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetMasterOrderSalesServiceDetailList(string salesId, string partyAccountGroup)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+        //    return Json(_accountsSalesService.GetMasterOrderSalesServiceDetailList(identity.CompanyGroupId, identity.CompanyId, salesId, partyAccountGroup), JsonRequestBehavior.AllowGet);
+        //}
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetMasterOrderSalesReceivableList(string salesId, string taxApplicable, string partyAccountGroup)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+        //    return Json(_accountsSalesService.GetMasterOrderSalesReceivable(identity.CompanyId, identity.PlantId, salesId, taxApplicable, partyAccountGroup), JsonRequestBehavior.AllowGet);
+        //}
+
+        //[HttpPost, Authorize]
+        //public JsonResult GetMasterOrderSalesPostedList(string column, string value)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    AccountsSalesService _accountsSalesService = new AccountsSalesService(_sqlRepository);
+        //    JsonResult json = Json(_accountsSalesService.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+        //    json.MaxJsonLength = int.MaxValue;
+        //    return json;
+        //}
+
+
+        //[HttpPost, Authorize]
+        //public JsonResult GetPostedMasterOrderSalesList(string column, string value)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    JsonResult json = Json(clsSales.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
+        //    json.MaxJsonLength = int.MaxValue;
+        //    return json;
+        //}
+
+        //[HttpPost]
+        //public ActionResult DeleteMasterOrderSalePost(string salesId, string voucherId, string deletedRemarks)
+        //{
+        //    if (deletedRemarks == null || deletedRemarks == "")
+        //        throw new CustomException("Deleted Remarks is required!");
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    _salesService.DeleteMasterOrderSalePost(identity.CompanyId, identity.PlantId, salesId, voucherId, deletedRemarks);
+
+        //    return Json(new { Message = AplosMessage.Deleted });
+        //}
+
+
+
+
+        //[HttpPost]
+        //public JsonResult PostMasterOrderSales(VoucherViewModel sales, IEnumerable<SalesMaterialViewModel> salesDetailVMList
+        //    , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    sales.CompanyGroupId = identity.CompanyGroupId;
+        //    sales.CompanyId = identity.CompanyId;
+        //    sales.PlantId = identity.PlantId;
+        //    if (salesDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != salesDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
+        //        throw new CustomException("Dr Cr Amount not equal");
+        //    foreach (var item in salesDetailVMList)
+        //    {
+        //        if (item.GLGeneralInfoId == null)
+        //            throw new CustomException("GL is not found");
+        //        if (item.BudgetMasterId == null)
+        //            throw new CustomException("Budget is not found");
+        //        if (item.ActivityId == null)
+        //            throw new CustomException("Activity is not found");
+        //    }
+        //    _salesService.MasterOrderSalesPost(sales, salesDetailVMList, salesMaterialDetailGLList, salesServiceDetailGLList);
+
+        //    return Json(new { Message = AplosMessage.Posted });
+        //}
         #endregion
 
         #region Additional Tax

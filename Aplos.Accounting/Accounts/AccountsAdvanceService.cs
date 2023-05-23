@@ -137,7 +137,7 @@ namespace Library.Accounting.Accounts
             parameters.CmdText = @"SELECT * FROM 
 (SELECT AD.CompanyId, AD.PlantId,AD.CurrencyId, C.Code AS CurrencyCode, (select TOP 1 GLGeneralInfoId from [TRN].[AdvanceDetail] 
 							        where EmployeeId=AD.EmployeeId) GLGeneralInfoId, AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName
-                                , DP.UserName Department,DSG.UserName Designation
+                                , DP.UserName Department,LD.UserName Designation
 								,  (select TOP 1 BudgetMasterId from [TRN].[AdvanceDetail] 
 							        where EmployeeId=AD.EmployeeId)BudgetMasterId,  (select TOP 1 ActivityId from [TRN].[AdvanceDetail] 
 							        where EmployeeId=AD.EmployeeId)ActivityId
@@ -149,12 +149,12 @@ namespace Library.Accounting.Accounts
                                 INNER JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AD.EmployeeId
                                 LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-								 LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
-								 LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+								LEFT JOIN ORG.Department DP on DP.Id=PR.DepartmentId
+								LEFT JOIN [HKP].[LegalDesignation] LD ON LD.Id=EI.LegalDesignationId
                                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=AD.CurrencyId
                                 WHERE  AD.CompanyGroupId='" + companyGroupId + @"' AND AD.CompanyId='" + companyId + @"' AND AD.PlantId='" + plantId + @"' AND AD.EmployeeId<>'' AND ISNULL(AD.AdvanceId,'') <>'' 
                                 AND AD.SourceType in ('EmployeeAdvance', 'InterTransaction') AND ISNULL(AD.JournalType,'')<>'Salary'
-                                GROUP BY AD.CompanyId, AD.PlantId, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName, DP.UserName,DSG.UserName)X
+                                GROUP BY AD.CompanyId, AD.PlantId, AD.CurrencyId, C.Code , AD.EmployeeId, EI.EmployeeCode, EI.EmployeeName, DP.UserName,LD.UserName)X
                                 WHERE X.Balance > 0 ";
             
             return _sqlRepository.GetGridData(parameters);

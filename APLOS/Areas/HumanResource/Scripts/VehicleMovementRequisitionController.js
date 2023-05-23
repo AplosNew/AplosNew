@@ -27,19 +27,14 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
 
-    $scope.GetMovementSequence = function () {
-        cboService.getSequence($scope.getMovementSeqUrl, function (data) {
-            $scope.VehicleRequisitionTemp.Sequence = data;
-            $scope.VehicleRequisitionModel.Sequence = data;
-        });
-    };
-    //$scope.GetMovementSequence();
+   
 
     $scope.GetVehicleRequisition = function (args) {
 
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
         $scope.MovementAction = 'Update';
         if (!$rootScope.isCollapsed) {
+          //  $scope.GetVehicleRequisitionChildData();
             $rootScope.toggle();
         }
     };
@@ -58,6 +53,20 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         });
     }
     $scope.GetVehicleRequisitiontData();
+
+    $scope.GetVehicleRequisitionChildData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetVehicleRequisitionChildData",
+            data: { 'headerid': $scope.VehicleRequisitionModel.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.RequisitionList = response.data;
+            $scope.ToLocationListBasedOnFromLoc($scope.FromLocationId);
+            $scope.CreateBlankRows();
+
+        });
+    }
 
     $scope.SaveMovement = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -201,6 +210,19 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         });
     }
     $scope.GetFromToLocationList();
+
+    $scope.ToLocListBasedOnFromLocList = [];
+    $scope.ToLocationListBasedOnFromLoc = function (FromLocationId) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "ToLocationListBasedOnFromLoc",
+            data: { 'fromlocId': FromLocationId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ToLocListBasedOnFromLocList = response.data;
+
+        });
+    }
 
    document.getElementById("reqHideShowId").style.display = "none";
 

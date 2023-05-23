@@ -805,10 +805,6 @@
 									
 								</div>
 								<div class="common-btn">
-									@*<ul class="list-inline text-right">
-										<li> <button ng-click="SaveReceiptTransformation();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-										<li> <button ng-click="ClearReceiptTransformation();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-									</ul>*@
 								</div>
 							</div>
 
@@ -816,7 +812,7 @@
 								<div class="tab-design" id="tab_show">
 									<div class="site-tab">
 										<ul class="nav nav-tabs" role="tablist">
-											<li role="presentation" ng-class="{ active: Set(1) }"><a ng-click="settheTab(1)" href="" aria-controls="OSOutput" role="tab" data-toggle="tab">JW Output</a></li>
+											<li role="presentation" ng-class="{ active: Set(1) }"><a ng-click="settheTab(1)" href="" aria-controls="OSOutput" role="tab" data-toggle="tab">JW Receipt</a></li>
 											<li role="presentation" ng-class="{ active: Set(2) }"><a ng-click="settheTab(2)" href="" aria-controls="ByProduct" role="tab" data-toggle="tab">By Product</a></li>
 										</ul>
 									</div>
@@ -826,14 +822,8 @@
 
 												<table class="table table-striped">
 													<thead>
-														<tr @*ng-show="inventoryMaterialListPO.length"*@>
+														<tr >
 															<th>
-																@*<div class="checkbox-site text-center">
-																		<label>
-																			<input type="checkbox" ng-click="CheckAll($event);">
-																			<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-																		</label>
-																	</div>*@
 															</th>
 															<th>JWTMasterId</th>
 															<th>JWTDetailId</th>
@@ -849,16 +839,12 @@
 															<th colspan="2">ContractQty</th>
 															<th>OtherGRNReceived</th>
 															<th>CurrentGRNReceived</th>
-
 															<th ng-hide="false">Balance</th>
 															<th>IsClosed</th>
 															<th>ShortageQty</th>
-
-
 															<th>RejectionQty</th>
 															<th>ApprovedQty</th>
 															<th>NetQty</th>
-
 															<th>MaterialRate(TRN)</th>
 															<th>MaterialAmount(TRN)</th>
 															<th>Discount</th>
@@ -879,9 +865,8 @@
 
 													</thead>
 													<tbody>
-                                                        <tr ng-repeat="x in inventoryMaterialList" @*ng-show="inventoryMaterialListPO.length"*@>
+                                                        <tr ng-repeat="x in inventoryMaterialList">
                                                             <td>
-
                                                                 <div class="checkbox-site">
                                                                     <label>
                                                                         <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-change="GetIfIssuedOrNot(x);ValWOMatQty(x);" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
@@ -893,7 +878,6 @@
                                                             <td>{{x.JWTransformationPODetailId}}</td>
                                                             <td>{{x.JWOutputItem}}</td>
                                                             <td>{{x.JobWorkActivity}}</td>
-
                                                             <td>{{x.MaterialGroupMasterName}}</td>
                                                             <td>{{x.UserName}}</td>
                                                             <td>{{x.StandardName}}</td>
@@ -908,20 +892,10 @@
 
                                                             <td>{{x.PlanQuantity}}</td>
                                                             <td class="text-right">{{x.TransactionUoM}}</td>
-
-
-
                                                             <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.GRNRcvQty" ng-disabled="true"></td>
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);GetIfIssuedOrNot(x);ValWOMatQty(x);" width="200" ng-model="x.TransactionQty" @*ng-disabled="AcceptanceId!=null || x.Balance===0"*@></td>  @* x.enableid && ng-keyup="calculateAmount(x);"*@
-
                                                             <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.Balance" ng-disabled="true"></td>
-
-
-
-
                                                             <td>
-
                                                                 <div class="checkbox-site">
                                                                     <label>
                                                                         <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.POClosStatus" ng-disabled="true">
@@ -929,46 +903,25 @@
                                                                     </label>
                                                                 </div>
                                                             </td>
-
-
-                                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.ShortageQty" ng-disabled="false"></td>*@  @*ng-keyup="calculateAmount(x);"*@
-                                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>*@  @* x.enableid ng-keyup="calculateAmount(x);"*@
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="200" ng-model="x.ShortageQty" ng-disabled="x.StandardName==null"></td>  @*ng-keyup="calculateAmount(x);"*@
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled="x.StandardName==null"></td>  @* x.enableid ng-keyup="calculateAmount(x);"*@
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.NetQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
-
-
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TrnAmount" ng-disabled="true"></td>
-                                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscount1(x)" ng-model="x.DiscountAmount" ng-disabled="false"></td>*@
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscount1(x)" ng-model="x.DiscountAmount" ng-disabled="x.StandardName==null"></td>
-
                                                             <td class="text-right" style="width:200px;"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="200" ng-model="x.BaseTaxAmount" ng-disabled="true"></td>
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ServiceCharge" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ServiceTax" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalMaterialTranAmount" ng-disabled="true"></td>
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalMaterialBaseAmount" ng-disabled="true"></td>
-
-
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.ShortageRate"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.ShortageValue"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionRate"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionValue"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionClamRate"></td>
-
-
                                                             <td>{{x.CountryName}}</td>
                                                             <td>{{x.MaterialDetail}}</td>
-
-                                                            @*<td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
-        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
-        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>*@
-
                                                             <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="x.StandardName==null"></td>
                                                             <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="x.StandardName==null"></td>
                                                             <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="x.StandardName==null"></td>
@@ -987,17 +940,12 @@
 
                                                             <td class="text-right">
                                                                 <ul class="list-inline action-list">
-                                                                    @*<li><buxtton ng-click="getReceiveTaxListPOValueSet(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Others Info" ><i class="glyphicon glyphicon-info-sign"></i></button></li>*@
-                                                                    @*<li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>*@
-                                                                    @*<li><button ng-click="GRNAllowcationForSOInSavingTime(x, MaterialMasterId,x.InventoryReceiveDetailId,x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-hide="x.PurchaseDocumentAcceptanceId===null">Allocation For SO</button></li>
-                <li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
-                                                                    @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
                                                                     <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                                                 </ul>
                                                             </td>
                                                             <td></td>
                                                         </tr>
-														<tr @*ng-show="inventoryMaterialListPO.length"*@>
+														<tr>
 															<td></td>
 															<td colspan="11" class="text-right"><strong>Total : </strong></td>
 
@@ -1044,129 +992,22 @@
 													</tbody>
 												</table>
 											</div>
-											@*<div class="row">
-													<div ng-form name="JWOutputForm" class="form-horizontal form-element-ctrl">
-														<div class="col-xs-12 content-container-fluid" style="color:black;overflow:scroll">
-															<div style="color:black;overflow:scroll" id="GridReceiptTransChildTab" ej-grid e-datasource="ReceiptTransChildList"
-																 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-																 e-allowselection="true" e-filtersettings-filterType="excel">
-																<div e-columns>
-																	<div e-column e-template="#checkedPBSChildTabItem" e-width="20"></div>
+                                            <div class="common-btn" style="padding-right: 15px;">
+                                                <ul class="list-inline text-right">
+                                                    <li>
+                                                        <button ng-click="SelectMaterialPlanning();" @*ng-disabled="IssueTransformation.Id==null"*@ tabindex="17" class="btn">Select</button>
 
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="JWTMasterID" e-width="50"></div>
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="JWTDetailID" e-width="50"></div>
-
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="Job Work Output Item" e-width="50"></div>
-																	<div e-column e-type="string" e-field="JobWorkActivity" e-headertext="Job Work Activity" e-width="50"></div>
-
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="Material Group" e-width="50"></div>
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="Material" e-width="50"></div>
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="Article" e-width="50"></div>
-
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="SKU1" e-width="50"></div>
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="SKU2" e-width="50"></div>
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="SKU3" e-width="50"></div>
-
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="Storage Location" e-width="50"></div>
-
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="Total Planned Quantity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="TotalReceivedQty" e-headertext="Total Received Quantity" e-width="50"></div>
-																	<div e-column e-template="#ReceivedQty" e-headertext="Received Quantity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="ToReceive" e-headertext="To Receive" e-width="50"></div>
-
-
-
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="IsClosed" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="ShortageQty" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="RejectionQty" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="ApprovedQty" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="NetQty" e-width="50"></div>
-
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="MaterialTrnRate" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="MaterialTrnAmount" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="Discount" e-width="50"></div>
-
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="Tax" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="ServiceCharge" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="ServiceTax" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="Tax" e-width="50"></div>
-
-
-																	<div e-column e-template="#Remarks" e-headertext="Remarks" e-width="50" style="height: 20px;"></div>
-
-																</div>
-															</div>
-															<script type="text/template" id="checkedPBSChildTabItem">
-																<input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
-															</script>
-															<script type="text/ng-template" id="ReceivedQty">
-
-																<input type="text" ng-model="data.ReceivedQty" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
-															</script>
-															<script type="text/template" id="Remarks">
-																<div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-																	<input type="text" ng-model="data.Remarks" ng-maxlength="250" style="color:black;" tabindex="16" class="form-control" />
-																</div>
-															</script>
-
-														</div>
-
-														<div class="col-xs-12 content-container-fluid" style="color:black;overflow:scroll" ng-show="Enablegrid">
-															<div style="color:black;overflow:scroll" id="GridReceiptTransChildByIdTab" ej-grid e-datasource="ReceiptTransChildByIdList"
-																 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-																 e-allowselection="true" e-filtersettings-filterType="excel">
-																<div e-columns>
-
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="Job Work Output Item" e-width="50"></div>
-																	<div e-column e-type="string" e-field="JobWorkActivity" e-headertext="Job Work Activity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="50"></div>
-																	<div e-column e-type="string" e-field="PlanQuantity" e-headertext="Total Planned Quantity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="TotalReceivedQty" e-headertext="Total Received Quantity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="ToReceive" e-headertext="To Receive" e-width="50"></div>
-																	<div e-column e-type="string" e-field="ReceivedQty" e-headertext="Received Quantity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
-
-																	<div e-column e-template="#PopUpGradeWise" e-headertext="Grade Wise Quantity" e-width="20"></div>
-
-
-																</div>
-															</div>
-															<script type="text/template" id="PopUpGradeWise">
-																<div class="common-btn">
-																	<ul class="list-inline text-left">
-																		<li><button ng-click="$parent.ConfirmGradewisePopUp(data);" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign" style="top: 1px;"></i></button></li>
-																	</ul>
-																</div>
-															</script>
-
-														</div>
-
-														<div class="common-btn" style="padding-right: 15px;">
-															<ul class="list-inline text-right">
-																<li>
-																	<button ng-click="SaveReceiptTransChildTab();" tabindex="17" ng-disabled="ReceiptTransformation.Id==null" ng-show="showbtn" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
-																	<button ng-click="ClearReceiptTransChildTab();" tabindex="18" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
-
-																</li>
-															</ul>
-														</div>
-
-													</div>
-												</div>*@
+                                                    </li>
+                                                </ul>
+                                            </div>
 										</div>
 										<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':Set(2), active: Set(2) }">
 											<div class="table-responsive modal-table table-wrapper-scroll-y">
 
 												<table class="table table-striped">
 													<thead>
-														<tr @*ng-show="inventoryMaterialListPO.length"*@>
+														<tr>
 															<th>
-																@*<div class="checkbox-site text-center">
-																		<label>
-																			<input type="checkbox" ng-click="CheckAll($event);">
-																			<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-																		</label>
-																	</div>*@
 															</th>
 															<th>JWTMasterId</th>
 															<th>JWTDetailId</th>
@@ -1212,7 +1053,7 @@
 
 													</thead>
 													<tbody>
-                                                        <tr ng-repeat="x in inventoryMaterialListPO" @*ng-show="inventoryMaterialListPO.length"*@>
+                                                        <tr ng-repeat="x in inventoryMaterialListPO" >
                                                             <td>
 
                                                                 <div class="checkbox-site">
@@ -1262,48 +1103,25 @@
                                                                     </label>
                                                                 </div>
                                                             </td>
-
-
-                                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountByProduct(x,$index);" width="200" ng-model="x.ShortageQty" ng-disabled="false"></td>*@  @*ng-keyup="calculateAmount(x);"*@
-                                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountByProduct(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>*@  @* x.enableid ng-keyup="calculateAmount(x);"*@
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountByProduct(x,$index);" width="200" ng-model="x.ShortageQty" ng-disabled="x.StandardName==null"></td>
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmountByProduct(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled="x.StandardName==null"></td>
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.NetQty" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
-
-
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TrnAmount" ng-disabled="true"></td>
-                                                            @*<td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscount(x,$index)" ng-model="x.DiscountAmount" ng-disabled="false"></td>*@
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscount(x,$index)" ng-model="x.DiscountAmount" ng-disabled="x.StandardName==null"></td>
-
-
                                                             <td class="text-right" style="width:200px;"><input type="text" n-decimals="{{2}}" class="form-control text-right" width="200" ng-model="x.BaseTaxAmount" ng-disabled="true"></td>
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ServiceCharge" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.ServiceTax" ng-disabled="true"></td>  @*ng-keyup="calculateAmount(x);"*@
-
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalMaterialTranAmount" ng-disabled="true"></td>
                                                             <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalMaterialBaseAmount" ng-disabled="true"></td>
-
-
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.ShortageRate"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.ShortageValue"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionRate"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionValue"></td>
                                                             <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionClamRate"></td>
-
-
-
-
                                                             <td>{{x.CountryName}}</td>
                                                             <td>{{x.MaterialDetail}}</td>
-
-                                                            @*<td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
-        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
-        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>*@
 
                                                             <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="x.StandardName==null"></td>
                                                             <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="x.StandardName==null"></td>
@@ -1323,17 +1141,12 @@
 
                                                             <td class="text-right">
                                                                 <ul class="list-inline action-list">
-                                                                    @*<li><buxtton ng-click="getReceiveTaxListPOValueSet(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Others Info" ><i class="glyphicon glyphicon-info-sign"></i></button></li>*@
-                                                                    @*<li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>*@
-                                                                    @*<li><button ng-click="GRNAllowcationForSOInSavingTime(x, MaterialMasterId,x.InventoryReceiveDetailId,x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-hide="x.PurchaseDocumentAcceptanceId===null">Allocation For SO</button></li>
-                <li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
-                                                                    @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
                                                                     <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                                                 </ul>
                                                             </td>
                                                             <td></td>
                                                         </tr>
-														<tr @*ng-show="inventoryMaterialListPO.length"*@>
+														<tr>
 															<td></td>
 															<td colspan="11" class="text-right"><strong>Total : </strong></td>
 
@@ -1380,53 +1193,7 @@
 													</tbody>
 												</table>
 											</div>
-											@*<div class="row">
-													<div ng-form name="ByProductForm" class="form-horizontal form-element-ctrl">
-														<div class="col-xs-12 content-container-fluid" style="color:black;overflow:scroll">
-															<div style="color:black;overflow:scroll" id="GridByProductTab" ej-grid e-datasource="ByProductList"
-																 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-																 e-allowselection="true" e-filtersettings-filterType="excel">
-																<div e-columns>
-																	<div e-column e-template="#checkedMaterialInputItem" e-width="15"></div>
-																	<div e-column e-type="string" e-field="JWOutputItem" e-headertext="JW Output item" e-width="50"></div>
-																	<div e-column e-type="string" e-field="ByProductItem" e-headertext="By Product Item" e-width="50"></div>
-																	<div e-column e-type="string" e-field="ByProductMaterial" e-headertext="By Product Material" e-width="50"></div>
-																	<div e-column e-type="string" e-field="ByProductArticle" e-headertext="By Product Article" e-width="50"></div>
-																	<div e-column e-type="string" e-field="TotalReqQty" e-headertext="Total Required Quantity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="TotalReceivedQty" e-headertext="Total Received Quantity" e-width="50"></div>
-																	<div e-column e-type="string" e-field="ToReceive" e-headertext="To Receive" e-width="50"></div>
-
-																	<div e-column e-template="#ReceiveQuantity" e-headertext="Receive Quantity" e-width="50"></div>
-
-																	<div e-column e-template="#Remarks" e-headertext="Remarks" e-width="50" style="height: 20px;"></div>
-
-																</div>
-															</div>
-															<script type="text/template" id="checkedMaterialInputItem">
-																<input type="checkbox" ej-checkbox class="nodetext" e-value="data.isSelected" e-checked="data.isSelected" />
-															</script>
-															<script type="text/ng-template" id="ReceiveQuantity">
-																<input type="text" ng-model="data.ReceiveQuantity" class="form-control" maxlength="15" e-width="100" onkeypress="return OnlyNumber(event)">
-															</script>
-
-															<script type="text/template" id="Remarks">
-																<div class="col-sm-10" style="padding:0px; width:600px;height:20px;">
-																	<input type="text" ng-model="data.Remarks" ng-maxlength="250" style="color:black;" tabindex="16" class="form-control" />
-																</div>
-															</script>
-														</div>
-
-														<div class="common-btn" style="padding-right: 15px;">
-															<ul class="list-inline text-right">
-																<li>
-																	<button ng-click="SaveByProduct();" tabindex="17" ng-disabled="ReceiptTransformation.Id==null" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button>
-																	<button ng-click="ClearByProductTab();" tabindex="18" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button>
-
-																</li>
-															</ul>
-														</div>
-													</div>
-												</div>*@
+											
 										</div>
 
 										<div class="common-btn" style="padding-right: 15px;">
