@@ -439,6 +439,7 @@
     <Compile Include="Configurations\Payrolls\PayrollGroupConfiguration.cs" />
     <Compile Include="Configurations\Payrolls\RetentionAllowanceMasterConfiguration.cs" />
     <Compile Include="Configurations\Payrolls\XLUploadDetailConfiguration.cs" />
+    <Compile Include="Configurations\Productions\ItemScanChildDataConfiguration.cs" />
     <Compile Include="Configurations\Productions\ProductionBookingPeriodConfiguration.cs" />
     <Compile Include="Configurations\Productions\ProductionBooking\ProductionSummaryDetailConfiguration.cs" />
     <Compile Include="Configurations\Productions\ProductionBooking\ProductionSummaryConfiguration.cs" />
@@ -815,6 +816,7 @@
     <Compile Include="Payrolls\RetentionAllowanceMaster.cs" />
     <Compile Include="Payrolls\XLUploadMaster.cs" />
     <Compile Include="Payrolls\XLUploadDetail.cs" />
+    <Compile Include="Productions\ItemScanChildData.cs" />
     <Compile Include="Productions\PackingScanUploadedData.cs" />
     <Compile Include="Productions\PackingScanUpload.cs" />
     <Compile Include="Productions\ProductionBookingPeriod.cs" />
