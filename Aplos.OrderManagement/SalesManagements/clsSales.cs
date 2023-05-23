@@ -63,7 +63,7 @@ namespace Library.OrderManagement.Sales
                             , hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
                             
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
-                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),mma.HSNCodeId,mo.InvoicingPartyPlantId
+                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),mma.HSNCodeId,PP.Id InvoicingPartyPlantId
 							, Qty=case when SCH.CharacteristicsValueId<>''  then SCH.Qty
 										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
 										else SO.Qty end
@@ -86,6 +86,8 @@ namespace Library.OrderManagement.Sales
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
                     JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id
                     JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+					JOIN [HKP].[Party] P ON P.Id = MO.PartyId
+					JOIN [HKP].[PartyPlant] PP ON PP.PartyId=P.Id
                     LEFT JOIN [MST].[MaterialMasterArticle] AS MMA ON MOI.ArticleId = MMA.Id
                     LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                     LEFT JOIN dbo.EmployeeInformation AS EMP ON EMP.SystemId = SO.ResponsiblePersonId
@@ -351,13 +353,15 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 							, hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
                             
 							,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
-							, isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),ISNULL(MM.HSNCodeId,MMA.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode,mo.InvoicingPartyPlantId
+							, isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),ISNULL(MM.HSNCodeId,MMA.HSNCodeId)HSNCodeId,ISNULL(HM.Code,HA.Code)HSNCode,PP.Id InvoicingPartyPlantId
 							,POLR.Qty,POLR.PlanQty,Balance=POLR.PlanQty-POLR.Qty,TransactionQty=POLR.Qty,TransactionAmount=POLR.Qty*SO.Rate
 							,BaseRate=SO.Rate,TransactionRate=SO.Rate,BaseQty=POLR.Qty,TransactionQty=POLR.Qty,BaseAmount=POLR.Qty*SO.Rate,POLR.Qty SalesQty,'' GoodsDescription
 							FROM [TRN].[SalesOrder] AS SO
 							JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
 							JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id
 							JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+							JOIN [HKP].[Party] P ON P.Id = MO.PartyId
+					        JOIN [HKP].[PartyPlant] PP ON PP.PartyId=P.Id
 							LEFT JOIN [MST].[MaterialMasterArticle] AS MMA ON MOI.ArticleId = MMA.Id
 							LEFT JOIN HKP.HSNCode HM ON HM.Id=MM.HSNCodeId
 							LEFT JOIN HKP.HSNCode HA ON HA.Id=MMA.HSNCodeId

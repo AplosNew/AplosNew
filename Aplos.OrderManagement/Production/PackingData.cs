@@ -998,14 +998,21 @@ order by pk.Date  DESC";
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
                              JOIN
-                            (SELECT PLI.PackingId,CP.PaymentTermId,PT.Code,PT.UserName,CP.IsPaymentTermChangeable
+                            (SELECT PLI.PackingId,CP.PaymentTermId,PT.Code,PT.UserName,CP.IsPaymentTermChangeable,POLR.Qty
                                FROM  trn.PackingLineItem PLI 
                             LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
                             LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
                             LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
-                            ) A ON A.PackingId=pk.PackingId                            
+LEFT JOIN 
+(							
+Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLineItemId from trn.POLotReference po
+							left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1
+							 GROUP BY PackingLineItemId 
+							Having ISNULL(SUM(sc.NetWeight),0)!=0
+)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
+                            ) A ON A.PackingId=pk.PackingId AND A.Qty<>0                               
                             WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
                 return _sqlRepository.GetDataCollection(str);
             }

@@ -576,6 +576,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/GeneralLedgerReport.cshtml");
         }
+        public ActionResult LCLedgerReport()
+        {
+            return View("~/Areas/Accounts/Views/LCLedgerReport.cshtml");
+        }
         public ActionResult GSTLedgerReport()
         {
             return View("~/Areas/Accounts/Views/GSTLedgerReport.cshtml");
