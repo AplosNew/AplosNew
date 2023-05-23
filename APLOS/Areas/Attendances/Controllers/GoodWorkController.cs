@@ -217,15 +217,15 @@ namespace Aplos.Areas.Attendances.Controllers
                             DataRow drmo = dv[0].Row;
                             drmo.BeginEdit();
                             drmo["Id"] = detailid;
-                            item["goodWorkId"] = _MasterId;
-                            item["EmpSystemId"] = item["SystemId"];
-                            item["FromTime"] = item["FromTime"];
-                            item["ToTime"] = item["ToTime"];
-                            item["Purpose"] = item["Purpose"];
-                            item["PurposeCategory"] = item["PurposeCategory"];
-                            item["ApprovedById"] = item["ApprovedById"];
-                            item["CalculatedTime"] = item["Minute"];
-                            item["Remarks"] = item["Remarks"];
+                            drmo["goodWorkId"] = _MasterId;
+                            drmo["EmpSystemId"] = item["SystemId"];
+                            drmo["FromTime"] = item["FromTime"];
+                            drmo["ToTime"] = item["ToTime"];
+                            drmo["Purpose"] = item["Purpose"];
+                            drmo["PurposeCategory"] = item["PurposeCategory"];
+                            drmo["ApprovedById"] = item["ApprovedById"];
+                            drmo["Minute"] = item["CalculatedTime"];
+                            drmo["Remarks"] = item["Remarks"];
                             drmo.EndEdit();
 
                         }
@@ -289,8 +289,10 @@ namespace Aplos.Areas.Attendances.Controllers
         }
         public ActionResult GetGoodWorkDetailCenter(string goodWorkId)
         {
-            string str = @"select GWD.Id,EI.EmployeeCode,EI.EmployeeName,GWD.FromTime,GWD.ToTime,GWD.Purpose,GWD.PurposeCategory
-                            ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
+            string str = @"select GWD.Id,EI.SystemId,EI.EmployeeCode,EI.EmployeeName
+							,format(GWD.FromTime,'hh:m') FromTime,format(GWD.ToTime,'hh:m') ToTime,GWD.Minute CalculatedTime
+							,GWD.Purpose,GWD.PurposeCategory,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode
+                            ,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
 							,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department
                             from GoodworkDetail GWD 
                             left join EmployeeInformation EI on EI.SystemId=GWD.EmpSystemId
@@ -303,31 +305,6 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
 
-
-
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetGoodWorkDataList(string empId)
-        //{
-        //    string sql = @"SELECT '' Id,Emp.SystemId,EMP.EmployeeName,EMP.EmployeeCode,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
-        //                                ,GWD.FromTime,GWD.ToTime,GWD.Purpose,GWD.PurposeCategory
-        //                                ,EmI.SystemId ApprovedById,EmI.EmployeeCode ApprovedByCode,EmI.EmployeeName ApprovedByName,GWD.[Minute],GWD.Remarks
-        //                                FROM EmployeeInformation EMP
-        //                                LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-        //                                LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-        //                                LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-        //                                LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-        //                                LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-        //                                LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-        //                                LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-								//		left join GoodworkDetail GWD on GWD.EmpSystemId=EMP.SystemId
-								//		left join EmployeeInformation EmI on EmI.SystemId=GWD.ApprovedById
-        //                    WHERE  EMP.SystemId= '" + empId + "'";
-
-        //    return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        //}
-
-      
         public class GoodWorkTransaction
         {
             #region Scalar Properties
@@ -375,88 +352,6 @@ namespace Aplos.Areas.Attendances.Controllers
 
             #endregion Audit Properties
         }
-
-        //Good Work
-        //[HttpPost, Authorize]
-        //public ActionResult GetList()
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    string sql = @"SELECT * FROM " + TableName;
-        //    DataTable dt = _sqlRepository.GetDataTable(sql);
-        //    foreach (TaskAppliedOnEnum _data in Enum.GetValues(typeof(TaskAppliedOnEnum)))
-        //    {
-        //        dt.DefaultView.RowFilter = "TaskAppliedOnEnum='" + _data.ToString() + "'";
-        //        if (dt.DefaultView.Count == 0)
-        //        {
-        //            DataRow dr = dt.NewRow();
-        //            dr["TaskAppliedOnEnum"] = _data.ToString();
-        //            dt.Rows.Add(dr);
-        //        }
-        //    }
-        //    dt.DefaultView.RowFilter = null;
-
-        //    return Json(Helpers.CustomJsonResult.DataTableToJson(dt), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpPost]
-        //public JsonResult Create(List<Dictionary<string, object>> data)
-        //{
-        //    try
-        //    {
-        //        DataSet dsMaster;
-        //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-        //        con.OpenDataSetThroughAdapter("select * from " + TableName, out dsMaster, false, "1");
-
-        //        string _Id = "";
-
-
-
-
-        //        #region data update
-
-        //        bplib.clsGenID genid;
-        //        for (int i = 0; i < data.Count; i++)
-        //        {
-        //            if (data[i]["UserName"] != null)
-        //            {
-        //                dsMaster.Tables[0].DefaultView.RowFilter = "TaskAppliedOnEnum='" + data[i]["TaskAppliedOnEnum"].ToString() + "'";
-        //                if (dsMaster.Tables[0].DefaultView.Count == 0)
-        //                {
-        //                    if (_Id == "")
-        //                    {
-        //                        genid = new bplib.clsGenID();
-        //                        genid.GenID(TableName, out _Id);
-        //                    }
-        //                    data[i]["Id"] = "A" + _Id + (i + 1).ToString();
-        //                    AddNewRow(dsMaster.Tables[0], data[i]);
-        //                }
-        //                else
-        //                {
-
-        //                    EditRow(dsMaster.Tables[0].DefaultView[0].Row, data[i]);
-        //                }
-        //            }
-
-        //        }
-
-        //        #endregion data update
-
-
-        //        clsStaticInfo _info = new clsStaticInfo();
-        //        _info.SaveDataSets(dsMaster);
-
-
-        //        return Json(new { Error = false, Message = AplosMessage.Updated });
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //        return Json(new { Error = true, Message = ex.Message });
-
-        //    }
-        //}
-
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -506,62 +401,5 @@ namespace Aplos.Areas.Attendances.Controllers
             dr.EndEdit();
         }
 
-        #region Good Work
-
-
-
-
-
-
-
-        // [HttpGet, Authorize]
-        // public ActionResult GetUserEditControlDetailList(string userEditControlId)
-        // {
-        //     string sql = @"select UEC.*,UECD.Href,MM.Description,MM.Controller
-        //                     from UserEditControl UEC
-        //left join UserEditControlDetail UECD on UECD.UserEditControlId=UEC.Id
-        //left join [MST].[MenuMaster] MM on MM.Href=UECD.Href
-        //                     where UEC.Id = '" + userEditControlId + "'";
-
-        //     return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        // }
-
-
-
-
-        // [Authorize, HttpGet]
-        // public JsonResult GetHreflist(GridParameter parameters)
-        // {
-        //     return Json(GetHreflistData(parameters), JsonRequestBehavior.AllowGet);
-        // }
-
-        // public GridModel GetHreflistData(GridParameter parameters)
-        // {
-        //     try
-        //     {
-        //         parameters.CmdText = @"select Id,Description, Controller, Href from [MST].[MenuMaster]";
-        //         return _sqlRepository.GetGridData(parameters);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         throw new CustomException(ex.Message, ex,
-        //         Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //         ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
-        //     }
-        // }
-
-        // [HttpGet, Authorize]
-        // public JsonResult GetHrefDatasList(string hrefId)
-        // {
-        //     string sql = @"select UECD.Id,UECD.UserEditControlId,MM.Description,MM.Controller,MM.Href
-        //from [MST].[MenuMaster] MM 
-        //left join UserEditControlDetail UECD on UECD.Href=MM.Href
-        //left join UserEditControl UEC on UEC.Id=UECD.UserEditControlId
-        //                     where UEC.UserId = '" + hrefId + "'";
-
-        //     return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        // }
-
-        #endregion Good Work
     }
 }
