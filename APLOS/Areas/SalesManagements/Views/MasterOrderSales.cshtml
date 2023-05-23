@@ -247,7 +247,8 @@
                                                 <th>SKU2</th>
                                                 <th>SOType</th>
                                                 <th>Rate</th>
-                                                <th>Qty</th>
+                                                <th>SOQty</th>
+                                                <th>Plan Qty</th>
                                                 <th>Other Sales Qty</th>
                                                 <th>Sales Qty</th>
                                                 <th>Balance</th>
@@ -273,6 +274,7 @@
                                                 <td>{{x.SKU2}}</td>
                                                 <td>{{x.SOType}}</td>
                                                 <td>{{x.Rate}}</td>
+                                                <td class="text-right">{{x.BaseQty | number:2}}</td>
                                                 <td class="text-right">{{x.TransactionQty | number:2}}</td>
                                                 <td class="text-right">{{x.ExistSalesQty | number:2}}</td>
                                                 <td class="text-right">
