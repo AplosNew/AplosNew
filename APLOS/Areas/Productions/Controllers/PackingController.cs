@@ -1560,7 +1560,7 @@ namespace Aplos.Areas.Productions.Controllers
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = det.getGroupFinishedStocksReport(Loc);
+            var data = det.getGroupFinishedStocksReport(Loc, FromDate, ToDate);
 
             var data1 = det.getAllFinishedStocksReport(Loc, ToDate, FromDate);
 
