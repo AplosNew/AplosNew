@@ -657,17 +657,10 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         var fcon = "";
         for (var i = 0; i < $scope.attributeList.length; i++) {
            
-            if (i === 0) {
-                fcon= (baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText) == true ? "" : $scope.attributeList[i].MaterialAttributeValueFreeText) + (baseService.isUndefinedOrNull($scope.attributeList[i].JoiningParameter) == true ? "" : $scope.attributeList[i].JoiningParameter);
-                $scope.stndName += fcon;
-                $scope.srtName += fcon;
-                un += fcon;
-            } else {
-                finalCon = baseService.isUndefinedOrNull($scope.attributeList[i].JoiningParameter) == true ? "" : $scope.attributeList[i].JoiningParameter + baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText) == true ? "" : $scope.attributeList[i].MaterialAttributeValueFreeText;
-                $scope.stndName = $scope.stndName +" "+ (finalCon == null ? "" : finalCon);
-                $scope.srtName = $scope.srtName + " " + (finalCon == null ? "" : finalCon);
-                un = un + " " + (finalCon == null ? "" : finalCon);
-            }
+            finalCon = (baseService.isUndefinedOrNull($scope.attributeList[i].MaterialAttributeValueFreeText) == true ? "" : $scope.attributeList[i].MaterialAttributeValueFreeText) + (baseService.isUndefinedOrNull($scope.attributeList[i].JoiningParameter) == true ? "" : $scope.attributeList[i].JoiningParameter);
+            $scope.stndName = $scope.stndName + " " + (finalCon == null ? "" : finalCon);
+            $scope.srtName = $scope.srtName + " " + (finalCon == null ? "" : finalCon);
+            un = un + " " + (finalCon == null ? "" : finalCon);
         }
 
         $scope.articleNew.ShortName = $scope.stndName;
