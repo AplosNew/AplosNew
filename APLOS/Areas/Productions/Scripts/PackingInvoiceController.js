@@ -267,7 +267,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
         }).then(function (response) {
             $scope.salesOrderNewList = response.data;
-
             angular.element(document.querySelector('#salesOrderItemPopUp')).modal('show');
         });
     }
@@ -285,7 +284,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
                 if ($scope.salesOrderNewList[i].Active == true) {
                     var ob = {};
-                    ob.MasterOrderId= $scope.salesOrderNewList[i].MasterOrderId;
+                    ob.Id = null;
+                    ob.SalesId = $scope.salesVM.Id;
+                    ob.MasterOrderId = $scope.salesOrderNewList[i].MasterOrderId;
                     ob.MasterOrderItemId = $scope.salesOrderNewList[i].MasterOrderItemId;
                     ob.MaterialMasterArticleName = $scope.salesOrderNewList[i].MaterialMasterArticleName;
                     ob.MaterialMasterName = $scope.salesOrderNewList[i].MaterialMasterName;
@@ -387,13 +388,13 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $scope.materialtaxCategoryList = response.data;
 
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
-                if ($scope.salesOrderList[i].SONo === soId) {
+                if ($scope.salesOrderList[i].SONo === soId && baseService.isUndefinedOrNull($scope.salesOrderList[i].Id)) {
                     $scope.salesOrderList[i].TaxList = $scope.materialtaxCategoryList;
                     for (var j = 0; j < $scope.salesOrderList[i].TaxList.length; j++) {
                         $scope.calculateHSNTaxAmount($scope.salesOrderList[i].TaxList[j], transactionAmount);
                     }
+                    $scope.CalculateTransactionAmount($scope.salesOrderList[i]);
                 }
-                $scope.CalculateTransactionAmount($scope.salesOrderList[i]);
             }
         });
     }
@@ -523,7 +524,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             if (flag === 'billTo') {
                 $scope.salesVM.InvoicingState = null;
                 $scope.salesVM.InvoicingGSTIN = null;
-                return $scope.productNew.InvoicingByAddress = null;
+                return $scope.salesVM.InvoicingByAddress = null;
             }
             else if (flag === 'shipTo') {
                 $scope.salesVM.DeliveryState = null;
@@ -647,7 +648,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             BooksCurrencyTransactionAmount: null,
             BooksCurrencyTaxAmount: null,
             BooksCurrencyBaseRate: null,
-            IsPark: 1
+            IsPark: 1,
+            IsAdditionalInfoApplicable: true,
+            IsIncentiveApplicable: false
         };
 
         $scope.materialMaster = {
@@ -1439,8 +1442,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                         ShowResult(response.data.Message, 'success');
                         $scope.mateId = null;
                         $scope.salesMaterialList.splice($scope.mateIndex, 1);
-                        $scope.getData();
-                        $scope.Clear();
+                        $scope.GetSalesMaterialData($scope.salesVM.Id);
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
