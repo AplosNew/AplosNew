@@ -304,6 +304,9 @@
                                                 </td>
                                                 <td></td>
                                                 <td class="text-right">
+                                                    <strong>{{selectedMasterOrderItemList | sumByKey : 'BaseQty'| setDecimal:2 | number:2}}</strong>
+                                                </td>
+                                                <td class="text-right">
                                                     <strong>{{selectedMasterOrderItemList | sumByKey : 'TransactionQty'| setDecimal:2 | number:2}}</strong>
                                                 </td>
                                                 <td class="text-right">

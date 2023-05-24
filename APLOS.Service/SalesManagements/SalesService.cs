@@ -1865,49 +1865,43 @@ namespace Library.Service.SalesManagements
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                var sales = _salesRepository.Find(voucherVM.Id);
 
-                var sales = new Sales
-                {
-                    CompanyGroupId = voucherVM.CompanyGroupId,
-                    CompanyId = voucherVM.CompanyId,
-                    PlantId = voucherVM.PlantId,
-                    EntityId = voucherVM.EntityId,
-                    //DocDate = voucherVM.DocDate,
+                sales.CompanyGroupId = voucherVM.CompanyGroupId;
+                sales.CompanyId = voucherVM.CompanyId;
+                sales.PlantId = voucherVM.PlantId;
+                sales.EntityId = voucherVM.EntityId;
 
-                    CurrencyId = voucherVM.CurrencyId,
-                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                    BaseNoOfDays = voucherVM.BaseNoOfDays,
-                    BaseOnDueDate = voucherVM.BaseOnDueDate,
-                    DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId,
-                    EntryDate = voucherVM.VoucherDate,
-                    InvoiceDate = voucherVM.InvoiceDate,
-                    InvoicingPartyPlantId = voucherVM.InvoicingPartyPlantId,
-                    MatureDate = voucherVM.MatureDate,
-                    PartyId = voucherVM.PartyId,
-                    PartyType = voucherVM.PartyType,
-                    Narration = voucherVM.Narration,
-                    PaymentTermId = voucherVM.PaymentTermId,
-                    RowState = RowState.Parked.ToString(),
-                    DeliveryByAddress = voucherVM.DeliveryByAddress,
-                    InvoicingByAddress = voucherVM.InvoicingByAddress,
-                    ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
-                    BLNumber = voucherVM.BLNumber,
-                    ItemDescription = voucherVM.ItemDescription,
-                    BLDate = voucherVM.BLDate,
-                    EXPDate = voucherVM.EXPDate,
-                    EXPFromNo = voucherVM.EXPFromNo,
-                    IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
-                    AddedBy = voucherVM.AddedBy,
-                    AddedDate = voucherVM.AddedDate,
-                    AddedFromIP = voucherVM.AddedFromIP,
-                    UpdatedBy = voucherVM.UpdatedBy,
-                    UpdatedDate = voucherVM.UpdatedDate,
-                    UpdatedFromIP = voucherVM.UpdatedFromIP,
-                    SourceType = "MasterOrderSales",
+                sales.CurrencyId = voucherVM.CurrencyId;
+                sales.ToCurrencyRate = voucherVM.CompanyCurrencyRate;
+                sales.BaseNoOfDays = voucherVM.BaseNoOfDays;
+                sales.BaseOnDueDate = voucherVM.BaseOnDueDate;
+                sales.DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId;
+                sales.EntryDate = voucherVM.VoucherDate;
+                sales.InvoiceDate = voucherVM.InvoiceDate;
+                sales.InvoicingPartyPlantId = voucherVM.InvoicingPartyPlantId;
+                sales.MatureDate = voucherVM.MatureDate;
+                sales.PartyId = voucherVM.PartyId;
+                sales.PartyType = voucherVM.PartyType;
+                sales.Narration = voucherVM.Narration;
+                sales.PaymentTermId = voucherVM.PaymentTermId;
+                sales.RowState = RowState.Parked.ToString();
+                sales.DeliveryByAddress = voucherVM.DeliveryByAddress;
+                sales.InvoicingByAddress = voucherVM.InvoicingByAddress;
+                sales.ComercialInvoiceNo = voucherVM.ComercialInvoiceNo;
+                sales.BLNumber = voucherVM.BLNumber;
+                sales.ItemDescription = voucherVM.ItemDescription;
+                sales.BLDate = voucherVM.BLDate;
+                sales.EXPDate = voucherVM.EXPDate;
+                sales.EXPFromNo = voucherVM.EXPFromNo;
+                sales.IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable;
+                sales.UpdatedBy = voucherVM.UpdatedBy;
+                sales.UpdatedDate = voucherVM.UpdatedDate;
+                sales.UpdatedFromIP = voucherVM.UpdatedFromIP;
+                sales.SourceType = "MasterOrderSales";
 
-                    ModelState = ModelState.Modified,
-                    Id = voucherVM.Id
-                };
+                sales.ModelState = ModelState.Modified;
+                   
                 sales.DocRefNo = sales.Id;
                 sales.InvoiceNo = sales.Id;
                 AuditService.UpdatedLog(sales);
