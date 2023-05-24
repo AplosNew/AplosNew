@@ -55,9 +55,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             "name": "Currency",
             "value": "Currency"
         },
-         {
-             "name": "Status",
-             "value": "RowState"
+        {
+            "name": "Status",
+            "value": "RowState"
         }
     ];
 
@@ -370,7 +370,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 obj.TransactionQty = $scope.selectedMasterOrderItemTempList[i].Balance + $scope.selectedMasterOrderItemTempList[i].ExistSalesQty;
 
                 obj.Balance = $scope.selectedMasterOrderItemTempList[i].Balance;
-                              
+
                 obj.TaxAmount = $scope.selectedMasterOrderItemTempList[i].TaxAmount;
 
                 obj.ServiceCharge = $scope.selectedMasterOrderItemTempList[i].ServiceCharge;
@@ -418,7 +418,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         }
     }
     $scope.indx = -1;
-    
+
 
     $scope.GetSalesServiceData = function (salesId) {
         $http({
@@ -551,7 +551,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             method: "GET",
             url: "SalesManagements/Sales/GetMasterOrderDataByMasterOrderId?masterOrderId=" + MasterOrderId + '&masterOrderItemId=' + MasterOrderItemId + '&salesId=' + salesId
         }).then(function (response) {
-            $scope.selectedMasterOrderList = response.data;
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.selectedMasterOrderList = response.data;
+            }
         });
     };
 
@@ -669,7 +671,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             $scope.PDate = $scope.salesVM.PostingDate;
             $scope.VDate = $scope.salesVM.VoucherDate;
             $scope.AddedDate = $scope.salesVM.AddedDate;
-            
+
 
             if ($scope.salesVM.IsPark == 0) {
                 throw "Posted data cann't save or update.";
@@ -835,7 +837,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             CompanyId: null,
             PartyId: null,
             EntityId: null,
-            ItemDescription:null,
+            ItemDescription: null,
             PartyName: null,
             CurrencyId: null,
             PartyType: "Customer",
@@ -873,7 +875,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             BooksCurrencyTransactionAmount: null,
             BooksCurrencyTaxAmount: null,
             BooksCurrencyBaseRate: null,
-            IsPark: 1
+            IsPark: 1,
+            IsAdditionalInfoApplicable: true,
+            IsIncentiveApplicable: false
         };
 
         $scope.materialMaster = {
@@ -965,7 +969,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         angular.element(document.querySelector("#materialmastersearchpopup")).modal("hide");
     };
 
-    function getTaxCategoryList(hsnCodeId, soId, transactionAmount, FirstCharacteristicsValueId,SecondCharacteristicsValueId) {
+    function getTaxCategoryList(hsnCodeId, soId, transactionAmount, FirstCharacteristicsValueId, SecondCharacteristicsValueId) {
         $http({
             method: 'GET',
             url: 'SalesManagements/Sales/GetTaxCategoryList?receiveId=' + $scope.salesVM.InvoicingPartyPlantId + '&hsnCodeId=' + hsnCodeId + '&PODate=' + $scope.salesVM.InvoiceDate
@@ -1188,14 +1192,14 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     $scope.closeServiceTaxPopUp = function () {
         var salesData = $scope.chargesList[$scope.currentServiceRow];
         $scope.chargesList[$scope.currentServiceRow].TaxAmount = 0;
-       // $scope.chargesList[$scope.currentServiceRow].Amount = 0;
+        // $scope.chargesList[$scope.currentServiceRow].Amount = 0;
         angular.forEach($scope.receiveTaxList, function (item) {
             $scope.chargesList[$scope.currentServiceRow].TaxAmount += item.Amount;
         });
         $scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount + $scope.chargesList[$scope.currentServiceRow].TaxAmount;
         //$scope.chargesList[$scope.currentServiceRow].NetAmount = $scope.chargesList[$scope.currentServiceRow].Amount;
 
-       
+
         angular.element(document.querySelector('#ServiceChargeTaxPopUp')).modal('hide');
     };
 
@@ -2161,11 +2165,9 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     $scope.selectedMasterOrderList = [];
     function MakeData() {
-       // $scope.selectedMasterOrderList = [];
         try {
             for (var i = 0; i < $scope.masterOrderList.length; i++) {
                 var getRow = $filter("filter")($scope.selectedMasterOrderList, { "selectedMasterOrderList": $scope.masterOrderList[i].MasterOrderId, "MasterOrderItemId": $scope.masterOrderList[i].MasterOrderItemId });
-                //var getRow = $filter("filter")($scope.selectedMasterOrderList, { "selectedMasterOrderList": $scope.masterOrderList[i].MasterOrderId });
                 if (getRow.length == 0) {
                     if ($scope.masterOrderList[i].Active == true) {
                         var ob = {};
@@ -2453,11 +2455,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     $scope.materialtaxCategoryList = [];
     $scope.selectedMasterOrderItemList = [];
     function MakeItemData() {
-        //$scope.selectedMasterOrderItemList = [];
         for (var i = 0; i < $scope.masterOrderItemList.length; i++) {
-            //if ($scope.masterOrderItemList[i].Balance != 0 && $scope.masterOrderItemList[i].Balance > 0) {
             if (checkItemExist($scope.selectedMasterOrderItemList, $scope.masterOrderItemList[i].SONo, $scope.masterOrderItemList[i].MaterialMasterId, $scope.masterOrderItemList[i].ArticleId, $scope.masterOrderItemList[i].FirstCharacteristicsValueId, $scope.masterOrderItemList[i].SecondCharacteristicsValueId) === false) {
-                //if (checkItemExist($scope.selectedMasterOrderItemList, $scope.masterOrderItemList[i].SONo, $scope.masterOrderItemList[i].MasterOrderItemId) === false) {
                 if ($scope.masterOrderItemList[i].Active == true) {
                     $scope.CheckMaterialArticleSKU($scope.masterOrderItemList[i]);
                     if ($scope.mValid == true) {
@@ -2495,14 +2494,12 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
                         moi.BaseQty = $scope.masterOrderItemList[i].Qty;
                         moi.TransactionQty = $scope.masterOrderItemList[i].PlanQty;
-                        moi.BaseAmount = $scope.masterOrderItemList[i].Qty * $scope.masterOrderItemList[i].Rate;
+                        moi.BaseAmount = $scope.masterOrderItemList[i].PlanQty * $scope.masterOrderItemList[i].Rate;
                         moi.TransactionAmount = 0;
                         moi.NetAmount = 0;
                         moi.TaxAmount = 0;
 
                         moi.TaxList = $scope.materialtaxCategoryList;
-                        //$scope.salesVM.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
-                        //moi.InvoicingPartyPlantId = $scope.masterOrderItemList[i].InvoicingPartyPlantId;
                         moi.HSNCodeId = $scope.masterOrderItemList[i].HSNCodeId;
                         $scope.salesVM.MasterOrderId = $scope.masterOrderItemList[i].MasterOrderId;
                         moi.ExistSalesQty = $scope.masterOrderItemList[i].ExistSalesQty;
@@ -2877,7 +2874,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     function ClearPostSalesFields() {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
-       
+
     $scope.showPartyPopUp = function (flg) {
         $scope.flag = flg;
         if ($scope.flag === 'Transport' || $scope.flag === 'CNF') {
@@ -2923,32 +2920,32 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     }
 
     $scope.closePartyPopUp = function (x) {
-       
-            var party = x.data;
-            $scope.salesVM.PartyName = party.UserName;
-            $scope.salesVM.PartyId = party.Id;
-            $scope.salesVM.PaymentTermId = party.PaymentTermId;
-            $scope.salesVM.CurrencyId = party.CurrencyId;
-            $scope.GetCurrencyExchangeRateList();
-            $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
-            $scope.partyPlantList = [];
-            $scope.getCboPartyPlantList(party.Id, function (result) {
-                $scope.partyPlantList = result;
-                angular.forEach($scope.partyPlantList, function (item, i) {
-                    if (item.IsDefault) {
-                        $scope.partyPlantId = item.Value;
-                        $scope.salesVM.InvoicingPartyPlantId = item.Value;
-                        $scope.salesVM.DeliveryPartyPlantId = item.Value;
-                        $scope.salesVM.InvoicingByAddress = item.Address1;
-                        $scope.salesVM.DeliveryByAddress = item.Address1;
-                        $scope.salesVM.InvoicingState = item.StateName;
-                        $scope.salesVM.InvoicingGSTIN = item.GSTIN;
-                        $scope.salesVM.DeliveryState = item.StateName;
-                        $scope.salesVM.DeliveryGSTIN = item.GSTIN;
-                        $scope.salesVM.InvoicingStateId = item.StateId;
-                    }
-                });
+
+        var party = x.data;
+        $scope.salesVM.PartyName = party.UserName;
+        $scope.salesVM.PartyId = party.Id;
+        $scope.salesVM.PaymentTermId = party.PaymentTermId;
+        $scope.salesVM.CurrencyId = party.CurrencyId;
+        $scope.GetCurrencyExchangeRateList();
+        $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
+        $scope.partyPlantList = [];
+        $scope.getCboPartyPlantList(party.Id, function (result) {
+            $scope.partyPlantList = result;
+            angular.forEach($scope.partyPlantList, function (item, i) {
+                if (item.IsDefault) {
+                    $scope.partyPlantId = item.Value;
+                    $scope.salesVM.InvoicingPartyPlantId = item.Value;
+                    $scope.salesVM.DeliveryPartyPlantId = item.Value;
+                    $scope.salesVM.InvoicingByAddress = item.Address1;
+                    $scope.salesVM.DeliveryByAddress = item.Address1;
+                    $scope.salesVM.InvoicingState = item.StateName;
+                    $scope.salesVM.InvoicingGSTIN = item.GSTIN;
+                    $scope.salesVM.DeliveryState = item.StateName;
+                    $scope.salesVM.DeliveryGSTIN = item.GSTIN;
+                    $scope.salesVM.InvoicingStateId = item.StateId;
+                }
             });
+        });
         $scope.partyType = "Customer";
         $scope.flag = null;
         $scope.hidePartyPopUp();
