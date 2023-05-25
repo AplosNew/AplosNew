@@ -357,4 +357,31 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         }
     };
     // #endregion Delete
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.ModelNew = {
+            Id: null,
+            EntityId: null,
+            Entity: null,
+            DetentionId: null,
+            FromTime: null,
+            ToTime: null,
+            Date: null,
+            ResponsiblePersonId: null,
+            ResponsiblePerson: null,
+            ProcessId: null,
+            Process: null,
+            ShiftId: null,
+            Shift: null,
+        };
+        $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
+        $scope.WorkcenterList = [];
+
+    }
 }

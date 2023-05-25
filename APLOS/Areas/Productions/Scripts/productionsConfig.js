@@ -354,5 +354,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/WCWorkStationsControlReport/Aplos',
             controller: 'WCWorkStationsControlReportController'
         })
+        .when('/workcenter-wise-issue-control', {
+            templateUrl: 'Productions/ProductionIssueControl/AplosWC',
+            controller: 'ProductionIssueControlController'
+        })
         ;
 }

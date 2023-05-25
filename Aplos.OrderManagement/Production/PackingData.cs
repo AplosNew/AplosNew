@@ -1192,13 +1192,25 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
             try
             {
                 string loc = "";
+                string tempDate = "";
                 if (Loc == "All")
                 {
                     loc = "";
                 }
                 else
                 {
-                    loc = "AND R.ToStorageLocId = '" + Loc + "'";
+                    loc = " AND R.ToStorageLocId = '" + Loc + "'";
+                }
+                if(!string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
+                {
+                    tempDate = " AND convert(Date,S.AddedDate) between '" + FromDate + "' and '" + ToDate + @"'";
+                } else if (string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
+                {
+                    tempDate = " AND convert(Date,S.AddedDate) <= '" + ToDate + @"'";
+                }
+                else
+                {
+                    tempDate = " ";
                 }
                 var str = @"Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
                             (Select Stuff((
@@ -1211,8 +1223,9 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
-                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' AND R.ToLocation <> 'JW Sale-Dye' " + loc + @"
-                            AND M.StandardName is not null AND S.SalesId IS NULL AND S.AddedDate between '"+ FromDate + "' and '"+ToDate+@"'
+                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' 
+                            AND R.ToLocation <> 'JW Sale-Dye' " + loc + @" "+ tempDate + @"
+                            AND M.StandardName is not null AND S.SalesId IS NULL 
                             group by  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                             order by M.StandardName , S.LotNo";
                 return _sqlRepository.GetDataTable(str);
