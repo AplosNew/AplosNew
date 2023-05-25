@@ -36,6 +36,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
+        public ActionResult VehicleReqForApprove()
+        {
+            return View();
+        }
+
         #region VehicleMaster
         public JsonResult GetVehicleMasterData()
         {
@@ -520,13 +525,106 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         }
         #endregion LocationMaster
 
+        #region Driver Master
+        public JsonResult GetDriverMasterData()
+        {
+            string sql = @"Select DM.*, EI.EmployeeName DriverName from HKP.DriverMaster DM
+                        left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult SaveDriverMaster(Dictionary<string, object> data)
+        {
+            try
+            {
+
+                string TableName = "HKP.DriverMaster";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                #region validations
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where User = '" + data["DriverId"] + "' and Id <>'" + data["Id"] + "'", out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Driver Name already exists!!!");               
+                #endregion validations
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data ,Sequence = GetLocationSequence(), Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult DeleteDriverMaster(string id)
+        {
+            try
+            {
+                string TableName = "HKP.DriverMaster";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+        #endregion Driver Master
+
         #region VehicleReq
         public JsonResult GetVehicleRequisitiontData()
         {
-            string sql = @"Select VMR.* , PM.UserName Purpose, EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode
-                            from [TRN].[VehicleMovementRequisition] VMR
+            string sql = @"Select VMR.Id, Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
+,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department
+                            from [TRN].[VehicleMovementRequisition] VMR							
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
-                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId";
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetVehicleRequisitionChildData(string headerid)
+        {
+            string sql = @"select VRC.*, FLM.UserName FromLocation, TLM.UserName ToLocation from TRN.VehicleMovementRequisitionChild VRC
+                            LEFT JOIN HKP.LocationMaster FLM on FLM.Id = VRC.FromLocationId
+                            LEFT JOIN HKP.LocationMaster TLM on TLM.Id = VRC.ToLocationId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
        
@@ -737,10 +835,63 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         }
         #endregion Fuel
 
+        #region VehicleApproval
+        public ActionResult SaveVehicleAllocation(Dictionary<string, object> data, string reqId) 
+        {
+            try
+            {
+                string TableName = "TRN.VehicleAllocation";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    data["VehicleRequesitionId"] = reqId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false,  Message = AplosMessage.Insert });
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+
+        }
+
+       
+        #endregion VehicleApproval
+
         #region Get
         public JsonResult GetFromToLocationList()
         {
             string sql = @"Select Id Value, UserName Text from HKP.LocationMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult ToLocationListBasedOnFromLoc(string fromlocId)
+        {
+            string sql = @"select TLM.Id Value, TLM.UserName Text from HKP.VehicleMovement VM
+                            left join HKP.LocationMaster FLM on FLM.Id = VM.FromLocationId
+                            left join  HKP.LocationMaster TLM on TLM.Id = VM.ToLocationId
+                            where VM.FromLocationId = '"+ fromlocId + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -787,6 +938,19 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         public JsonResult GetFuelList()
         {
             string sql = @"Select Id Value, FuelType Text from HKP.FuelMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetVehicleList()
+        {
+            string sql = @"Select Id Value, VehicleName Text from HKP.VehicleMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetDriverList()
+        {
+            string sql = @"select DM.Id Value, EI.EmployeeName Text from HKP.DriverMaster DM
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

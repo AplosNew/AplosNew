@@ -152,7 +152,7 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     objRpt = new clsReport(_sqlRepository);
 
-                    var data = det.getGroupFinishedStocksReport(Loc);
+                    var data = det.getGroupFinishedStocksReport(Loc, FromDate, ToDate);
                     objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
                     objRpt.SelectedPlant(identity.PlantId, out dsFactory);
 
@@ -410,7 +410,7 @@ namespace Aplos.Areas.Productions.Controllers
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = det.getGroupFinishedStocksReport(Loc);
+            var data = det.getGroupFinishedStocksReport(Loc, FromDate, ToDate);
 
             var data1 = det.getAllFinishedStocksReport(Loc, ToDate, FromDate);
 

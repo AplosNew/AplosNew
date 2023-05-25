@@ -48,11 +48,12 @@ LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId
 where so.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 ,ItemNo=isnull(STUFF((select distinct ','+I.Id from TRN.MasterOrderItem I 
 INNER JOIN TRN.SalesOrder SO ON SO.MasterOrderItemId=I.Id
-where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),''),B.UserName Bank
                             FROM [dbo].[Contract] C
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
-							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
+							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id
+                            LEFT JOIN HKP.Bank B ON B.Id=C.BankId
                             WHERE C.PlantId='" + PlantId + "') AS TEMP WHERE " + strkey + " ORDER BY TEMP.AddedDate desc";
                 return _sqlRepository.GetDataCollection(sql, null);
             }

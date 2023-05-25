@@ -183,6 +183,7 @@ upanelApp.controller("InOutGatePassController", InOutGatePassController);
 upanelApp.controller("GatePassEmployeeController", GatePassEmployeeController);
 upanelApp.controller("generalLedgerOpeningBalanceReportController", generalLedgerOpeningBalanceReportController);
 upanelApp.controller("generalLedgerReportController", generalLedgerReportController);
+upanelApp.controller("lcLedgerReportController", lcLedgerReportController);
 upanelApp.controller("generalLedgerGSTReportController", generalLedgerGSTReportController);
 upanelApp.controller("glMappingController", glMappingController);
 upanelApp.controller("grnApprovalController", grnApprovalController);
@@ -262,6 +263,7 @@ upanelApp.controller("manualOutTimeController", manualOutTimeController);
 upanelApp.controller("masterOrderController", masterOrderController);
 upanelApp.controller("masterOrderSalesController", masterOrderSalesController);
 upanelApp.controller("masterOrderSalesPostController", masterOrderSalesPostController);
+upanelApp.controller("salesIncentiveController", salesIncentiveController);
 upanelApp.controller("materialAttributeMasterController", MaterialAttributeMasterController);
 upanelApp.controller("materialAttributeValueController", MaterialAttributeValueController);
 upanelApp.controller("MaterialBudgetController", MaterialBudgetController);
@@ -1173,6 +1175,7 @@ upanelApp.controller("GoodWorkController", GoodWorkController)
 upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
 upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterController)
 upanelApp.controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
+upanelApp.controller("VehicleReqForApproveController", VehicleReqForApproveController)
 upanelApp.controller("ProductionIssueControlController", ProductionIssueControlController)
 
 

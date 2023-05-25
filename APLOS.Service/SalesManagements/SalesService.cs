@@ -26,6 +26,7 @@ using System.Reflection;
 using Library.Model.OrderManagements;
 using Library.Service.Extension.Accounts;
 using Library.Service.Extension;
+using Library.Model.Productions;
 
 namespace Library.Service.SalesManagements
 {
@@ -62,6 +63,7 @@ namespace Library.Service.SalesManagements
         private readonly IRepositoryAsync<Library.Model.Inventory.InventorySales> _SalesRepository;
         private readonly IRepositoryAsync<Library.Model.Inventory.InventorySalesDetail> _SalesDetailService;
         private readonly IRepositoryAsync<Library.Model.Inventory.InventorySalesHistory> _SalesHistoryService;
+        private readonly IRepositoryAsync<ItemScanChild> _ItemScanChildDataService;
         public SalesService(
              IInvoiceService invoiceService
             , IVoucherService voucherService
@@ -94,6 +96,7 @@ namespace Library.Service.SalesManagements
             , IRepositoryAsync<Library.Model.Inventory.InventorySales> SalesRepository
             , IRepositoryAsync<Library.Model.Inventory.InventorySalesDetail> SalesDetailService
             , IRepositoryAsync<Library.Model.Inventory.InventorySalesHistory> SalesHistoryService
+            , IRepositoryAsync<ItemScanChild> ItemScanChildDataService
             )
         {
             _unitOfWork = unitOfWork;
@@ -128,6 +131,7 @@ namespace Library.Service.SalesManagements
             _SalesRepository = SalesRepository;
             _SalesDetailService = SalesDetailService;
             _SalesHistoryService = SalesHistoryService;
+            _ItemScanChildDataService = ItemScanChildDataService;
 
         }
 
@@ -1861,49 +1865,43 @@ namespace Library.Service.SalesManagements
                 _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
                 _unitOfWork.BeginTransaction();
                 flag = true;
+                var sales = _salesRepository.Find(voucherVM.Id);
 
-                var sales = new Sales
-                {
-                    CompanyGroupId = voucherVM.CompanyGroupId,
-                    CompanyId = voucherVM.CompanyId,
-                    PlantId = voucherVM.PlantId,
-                    EntityId = voucherVM.EntityId,
-                    //DocDate = voucherVM.DocDate,
+                sales.CompanyGroupId = voucherVM.CompanyGroupId;
+                sales.CompanyId = voucherVM.CompanyId;
+                sales.PlantId = voucherVM.PlantId;
+                sales.EntityId = voucherVM.EntityId;
 
-                    CurrencyId = voucherVM.CurrencyId,
-                    ToCurrencyRate = voucherVM.CompanyCurrencyRate,
-                    BaseNoOfDays = voucherVM.BaseNoOfDays,
-                    BaseOnDueDate = voucherVM.BaseOnDueDate,
-                    DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId,
-                    EntryDate = voucherVM.VoucherDate,
-                    InvoiceDate = voucherVM.InvoiceDate,
-                    InvoicingPartyPlantId = voucherVM.InvoicingPartyPlantId,
-                    MatureDate = voucherVM.MatureDate,
-                    PartyId = voucherVM.PartyId,
-                    PartyType = voucherVM.PartyType,
-                    Narration = voucherVM.Narration,
-                    PaymentTermId = voucherVM.PaymentTermId,
-                    RowState = RowState.Parked.ToString(),
-                    DeliveryByAddress = voucherVM.DeliveryByAddress,
-                    InvoicingByAddress = voucherVM.InvoicingByAddress,
-                    ComercialInvoiceNo = voucherVM.ComercialInvoiceNo,
-                    BLNumber = voucherVM.BLNumber,
-                    ItemDescription = voucherVM.ItemDescription,
-                    BLDate = voucherVM.BLDate,
-                    EXPDate = voucherVM.EXPDate,
-                    EXPFromNo = voucherVM.EXPFromNo,
-                    IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable,
-                    AddedBy = voucherVM.AddedBy,
-                    AddedDate = voucherVM.AddedDate,
-                    AddedFromIP = voucherVM.AddedFromIP,
-                    UpdatedBy = voucherVM.UpdatedBy,
-                    UpdatedDate = voucherVM.UpdatedDate,
-                    UpdatedFromIP = voucherVM.UpdatedFromIP,
-                    SourceType = "MasterOrderSales",
+                sales.CurrencyId = voucherVM.CurrencyId;
+                sales.ToCurrencyRate = voucherVM.CompanyCurrencyRate;
+                sales.BaseNoOfDays = voucherVM.BaseNoOfDays;
+                sales.BaseOnDueDate = voucherVM.BaseOnDueDate;
+                sales.DeliveryPartyPlantId = voucherVM.DeliveryPartyPlantId;
+                sales.EntryDate = voucherVM.VoucherDate;
+                sales.InvoiceDate = voucherVM.InvoiceDate;
+                sales.InvoicingPartyPlantId = voucherVM.InvoicingPartyPlantId;
+                sales.MatureDate = voucherVM.MatureDate;
+                sales.PartyId = voucherVM.PartyId;
+                sales.PartyType = voucherVM.PartyType;
+                sales.Narration = voucherVM.Narration;
+                sales.PaymentTermId = voucherVM.PaymentTermId;
+                sales.RowState = RowState.Parked.ToString();
+                sales.DeliveryByAddress = voucherVM.DeliveryByAddress;
+                sales.InvoicingByAddress = voucherVM.InvoicingByAddress;
+                sales.ComercialInvoiceNo = voucherVM.ComercialInvoiceNo;
+                sales.BLNumber = voucherVM.BLNumber;
+                sales.ItemDescription = voucherVM.ItemDescription;
+                sales.BLDate = voucherVM.BLDate;
+                sales.EXPDate = voucherVM.EXPDate;
+                sales.EXPFromNo = voucherVM.EXPFromNo;
+                sales.IsAdditionalInfoApplicable = voucherVM.IsAdditionalInfoApplicable;
+                sales.UpdatedBy = voucherVM.UpdatedBy;
+                sales.UpdatedDate = voucherVM.UpdatedDate;
+                sales.UpdatedFromIP = voucherVM.UpdatedFromIP;
+                sales.SourceType = "MasterOrderSales";
 
-                    ModelState = ModelState.Modified,
-                    Id = voucherVM.Id
-                };
+                sales.ModelState = ModelState.Modified;
+                   
                 sales.DocRefNo = sales.Id;
                 sales.InvoiceNo = sales.Id;
                 AuditService.UpdatedLog(sales);
@@ -3028,7 +3026,7 @@ namespace Library.Service.SalesManagements
 
         #region Packing Integration
 
-        public void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsDetail, DataSet dsHistory)
+        public void PackingInvoiceInsert(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsDetail, DataSet dsHistory, DataSet dsItemScanData)
         {
             var flag = false;
             try
@@ -3212,6 +3210,21 @@ namespace Library.Service.SalesManagements
                                 _salesTaxRepository.Insert(salesTax);
                             }
                         }
+
+                        if (dsItemScanData.Tables[0].Rows.Count > 0)
+                        {
+                            dsItemScanData.Tables[0].DefaultView.RowFilter="SOId='"+ salesMaterialVM.SalesOrderId + "'";
+                            
+                            for (int i = 0; i < dsItemScanData.Tables[0].DefaultView.Count; i++)
+                            {
+                               var childData= _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
+                                childData.SalesMaterialId = salesMaterial.Id;
+                                childData.SalesId = sales.Id;
+                                _ItemScanChildDataService.InsertOrUpdateGraph(childData);
+                            }
+
+                        }
+
                     }
                 }
                 currentSalesMaterialId = 0;
@@ -3377,7 +3390,7 @@ namespace Library.Service.SalesManagements
             }
         }
 
-        public void PackingInvoiceUpdate(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList)
+        public void PackingInvoiceUpdate(VoucherViewModel voucherVM, IEnumerable<SalesMaterialViewModel> salesMaterialVMList, IEnumerable<SalesPacking> selectedPackingList, IEnumerable<SalesServiceViewModel> salesServiceVMList, DataSet dsItemScanData)
         {
             var flag = false;
             try
@@ -3661,7 +3674,20 @@ namespace Library.Service.SalesManagements
                             }
                         }
 
+                        if (dsItemScanData.Tables[0].Rows.Count > 0)
+                        {
+                            dsItemScanData.Tables[0].DefaultView.RowFilter = "SOId='" + salesMaterialVM.SalesOrderId + "'";
 
+                            for (int i = 0; i < dsItemScanData.Tables[0].DefaultView.Count; i++)
+                            {
+                                var childData = _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
+                                childData.SalesMaterialId = salesMaterialVM.Id;
+                                childData.SalesId = sales.Id;
+                                childData.ReturnNetWeight = 0;
+                                _ItemScanChildDataService.InsertOrUpdateGraph(childData);
+                            }
+
+                        }
                     }
                 }
 
@@ -4468,4 +4494,6 @@ namespace Library.Service.SalesManagements
             }
         }
     }
+
+   
 }

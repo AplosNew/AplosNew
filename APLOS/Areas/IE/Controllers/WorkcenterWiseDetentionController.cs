@@ -66,7 +66,7 @@ namespace Aplos.Areas.IE.Controllers
             var sqlCondition = "";
             if (headerid == null || headerid == "")
             {
-                sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}'";
+                sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and WCM.StandardName is not null";
             }
             //else if(entityid != null || entityid != "" && processid != null || processid != ""  && headerid != null || headerid != "")
             //{
@@ -77,9 +77,10 @@ namespace Aplos.Areas.IE.Controllers
             {
                 sqlCondition = $"where MMT.Id = '{headerid}'";
             }
-            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM 
+            string str = @"SELECT distinct WCM.Id WorkcenterId, WCM.StandardName, '' Id ,'' EntityId, '' DetentionId,  '' FromTime, '' ToTime, '' [Date] , '' ProcessId, '' ShiftId ,'' Minute, '' Detention , ''ResponsiblePersonId,'' Remark FROM  SCS.WorkCenterMaster WCM  
+
 --left join SCS.WorkCenterMaster WCM on MMT.WorkCenterId = WCM.Id
-" + sqlCondition + "";
+" + sqlCondition + " order by WCM.StandardName";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
@@ -278,11 +279,10 @@ where DetentionMasterId='" + detentionId + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId,  MMT.ProcessId,  MMT.ShiftId,  MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
-,E.UserName Entity,DM.DetentionUserName Detention, FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
-										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift
-										,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter,
-                                         MMT.DetentionCodeId,DM.DetentionCode DetentionCode, EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode, EI.SystemId ResponsiblePersonId
+            var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId,  MMT.ProcessId,  MMT.ShiftId
+,E.UserName Entity,DM.DetentionUserName Detention, FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process, FORMAT(MMT.FromTime, 'hh:mm:ss')FromTime,FORMAT(MMT.ToTime, 'hh:mm:ss') ToTime,MMT.Minute,SD.UserName Shift
+,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter,MMT.DetentionCodeId,DM.DetentionCode DetentionCode, EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode, EI.SystemId ResponsiblePersonId
+,  MMT.Remark ,MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 			                            from MachineMasterTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId										
 										left join DetentionMaster DM on DM.Id=MMT.DetentionId									
@@ -290,7 +290,9 @@ where DetentionMasterId='" + detentionId + "'";
 										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-                                        order by MMT.Date DESC";
+										where MMT.addedby = 'nitesh' and  Date between dateadd(month,datediff(month,0,getdate()),0)
+										and dateadd(day,-1,dateadd(month,datediff(month,-1,getdate()),0))
+                                        order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') ASC";
             //where MMT.Id = '4'
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

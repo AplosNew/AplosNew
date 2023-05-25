@@ -4446,6 +4446,101 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             }
         }
 
+        public void GetSevenDaysAttendance(out List<Default2> DataList, string Empcode)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
+case when DayStatus   is  null then InStatus
+else DayStatus end as Name
+from AttdnProcessData
+where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetEmpInformation(out List<EmpInformation> DataList, string Empcode)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<EmpInformation>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct EMP.SystemID,EMP.EmployeeCode EMPCode, EMP.EmployeeName EmployeeName, SC.StandardName Section,SBC.StandardName SubSection, 
+DSG.StandardName Designation ,MBGT.Code BudgetCode, sd.ShiftDefinationName Shift , format(Emp.DOJ , 'yyyy-MMM-dd') DOJ, EC.UserName as EmpType
+
+From EmployeeInformation EMP 
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Section SC on SC.Id = EMP.SectionId
+left join ORG.SubSection SBC on SBC.Id = EMP.SubSectionId
+LEFT JOIN hkp.Designation DSG on DSG.id = Emp.DesignationSystemID
+left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
+left join ORG.Position POS on POS.Id = MBGT.PositionId
+left join mst.DesignationMaster DM on DM.DesignationId = POS.DesignationId
+left join HKP.EmployeeCategory EC on EC.Id = Dm.EmployeeCategoryId
+where Emp.EmployeeCode = '" + Empcode + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new EmpInformation
+                    {
+                        SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
+                        EMPCode = dsRef.Tables[0].Rows[i]["EMPCode"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        Section = dsRef.Tables[0].Rows[i]["Section"].ToString(),
+                        SubSection = dsRef.Tables[0].Rows[i]["SubSection"].ToString(),
+                        Designation = dsRef.Tables[0].Rows[i]["Designation"].ToString(),
+                        BudgetCode = dsRef.Tables[0].Rows[i]["BudgetCode"].ToString(),
+                        Shift = dsRef.Tables[0].Rows[i]["Shift"].ToString(),
+                        DOJ = dsRef.Tables[0].Rows[i]["DOJ"].ToString(),
+                        EmpType = dsRef.Tables[0].Rows[i]["EmpType"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
         public void GetLocation(out List<Locations> DataList)
         {
             clsConnectionManager objCon = null;
@@ -4876,6 +4971,85 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
 
         #endregion Aman C
+
+
+        #region seven days attendance
+        public string PostPlantinoutcontrl(IEnumerable<Plantcontrol> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.PlantInOutControl";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Plantcontrol> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.PlantInOutControl where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (Plantcontrol item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+
+                        dr["Id"] = _Id;
+                        dr["Date"] = item.Date;
+                        dr["Time"] = item.Time;
+                        dr["EmployeeCode"] = item.EmployeeCode;
+                        dr["InandOut"] = item.InandOut;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["Date"] = item.Date;
+                        dr["Time"] = item.Time;
+                        dr["EmployeeCode"] = item.EmployeeCode;
+                        dr["InandOut"] = item.InandOut;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = item.UpdatedDate;
+                        dr["UpdatedFromIP"] = item.UpdatedFromIP;
+
+
+                        dr.EndEdit();
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
+        #endregion seven days attendance
 
     }
 
@@ -5346,6 +5520,23 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
         public string ProcessReviewStatus { get; set; }
         public string ProcessBalanceProd { get; set; }
     }
+
+
+    public class Plantcontrol
+    {
+        public string Id { get; set; }
+        public string EmployeeCode { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public string InandOut { get; set; }
+        public string AddedBy { get; set; }
+        public DateTime AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
     #endregion WrittenBy Aman
 
     public class closeTask
@@ -5422,6 +5613,20 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
     {
         public string Location { get; set; } = "";
     }
+
+    public class EmpInformation
+    {
+        public string SystemID { get; set; } = "";
+        public string EMPCode { get; set; } = "";
+        public string EmployeeName { get; set; } = "";
+        public string Section { get; set; } = "";
+        public string SubSection { get; set; } = "";
+        public string Designation { get; set; } = "";
+        public string BudgetCode { get; set; } = "";
+        public string Shift { get; set; } = "";
+        public string DOJ { get; set; } = "";
+        public string EmpType { get; set; } = "";
+    }
     #endregion Attendance
 
     #region Aman c
@@ -5456,4 +5661,6 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
     }
 
     #endregion Aman c
+
+
 }

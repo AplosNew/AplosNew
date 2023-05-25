@@ -569,6 +569,20 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetSevenDaysAttendance(string Empcode)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
+            return activelists;
+        }
+
+        public List<EmpInformation> GetEmpInformation(string Empcode)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmpInformation(out List<EmpInformation> activelists, Empcode);
+            return activelists;
+        }
+
         public List<Locations> GetLocation()
         {
             clsDataContext clsData = new clsDataContext();
@@ -628,6 +642,23 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
         #endregion Aman c
+
+
+        #region Seven Days Attendance 
+        public string PostPlantinoutcontrl([FromBody] IEnumerable<Plantcontrol> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostPlantinoutcontrl(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Seven Days Attendance 
 
     }
 }

@@ -6,6 +6,7 @@
             <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Purpose Master</a></li>            
             <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Location Master</a></li>            
             <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Fuel Master</a></li>            
+            <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="general" role="tab" data-toggle="tab">Driver Master</a></li>            
         </ul>
     </div>
     <div class="tab-content">
@@ -30,7 +31,13 @@
         </div>
         @*   TAB -5 *@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
-           @Html.Partial("~/Areas/HumanResource/Views/VehicleMovementMaster/_FuelMaster.cshtml")
+            @Html.Partial("~/Areas/HumanResource/Views/VehicleMovementMaster/_FuelMaster.cshtml")
+
+        </div>
+
+        @*   TAB -6 *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
+            @Html.Partial("~/Areas/HumanResource/Views/VehicleMovementMaster/_DriverMaster.cshtml")
 
         </div>
 

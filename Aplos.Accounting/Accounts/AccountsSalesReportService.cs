@@ -1168,7 +1168,7 @@ namespace Library.Accounting.Accounts
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo
-            ,AddedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.AddedBy END
+            ,AddedBy=CASE WHEN US.FullName<>'' THEN US.FullName ELSE V.AddedBy END
             ,PostedBy=CASE WHEN U.FullName<>'' THEN U.FullName ELSE V.PostedBy END
             , UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
             , P.UserName AS Party, PP.UserName AS VendorPlant,bj.PartyType
@@ -1176,11 +1176,13 @@ namespace Library.Accounting.Accounts
 	        ,FY.FiscalYearName
             FROM [TRN].[AdjustmentNote] AS BJ
             LEFT JOIN [TRN].[Voucher] AS V ON V.Id=BJ.VoucherId
+			LEFT JOIN TRN.SalesReturn SR ON SR.VoucherId=V.Id
             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
             LEFT JOIN [HKP].[Party] AS P ON P.Id=BJ.PartyId
             LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=BJ.PartyPlantId
             LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
             LEFT JOIN SEC.[User] U ON U.UserId=V.AddedBy
+            LEFT JOIN SEC.[User] US ON US.UserId=SR.AddedBy
 	        LEFT JOIN [SCS].[FiscalYear] AS FY ON FY.Id=V.FiscalYearId
             WHERE BJ.Archive=0 AND BJ.CompanyGroupId='" + companyGroupId + "' AND BJ.CompanyId='" + companyId + "' AND BJ.PlantId='" + plantId + "'  AND BJ.VoucherId='" + voucherId + "' AND BJ.SourceType='" + sourceType + "'" +
             "";

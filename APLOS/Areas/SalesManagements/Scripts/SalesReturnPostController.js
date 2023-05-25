@@ -495,4 +495,8 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open($scope.path + 'GetSalesReturnCreditNoteReport?reportFormat=' + reportFormat + '&voucherId=' + data.VoucherId + '&sourceType=' + data.SourceType);
     };
+
+    $scope.LocalTaxInvoiceReport = function (data) {
+        location.href = "Sales/SalesReturnReport?salesReturnId=" + data.Id;
+    };
 }

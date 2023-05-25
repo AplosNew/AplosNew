@@ -526,6 +526,14 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
             "Value": "DocDate"
         },
         {
+            "Text": "DocRefNo",
+            "Value": "DocRefNo"
+        },
+        {
+            "Text": "GRNNo",
+            "Value": "GRNNo"
+        },
+        {
             "Text": "Currency",
             "Value": "CurrencyCode"
         }

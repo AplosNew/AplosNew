@@ -2597,14 +2597,14 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                 {
 
                                     drLocal["LeaveDays"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim()) + BroughtForward;
-                                    drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim()) + BroughtForward - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
+                                    drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim()) + BroughtForward - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Availed"].ToString().Trim());
                                     //TotalEarn = BroughtForward + DaysCanBeSanctioned;
                                 }
                                 else
                                 {
                                     //TotalEarn = DaysCanBeSanctioned;
                                     drLocal["LeaveDays"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim());
-                                    drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim()) - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
+                                    drLocal["Balance"] = Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["CurrentAllocationDCBS"].ToString().Trim()) - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Availed"].ToString().Trim());
                                 }
 
 
@@ -2615,7 +2615,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                                 #region 02
 
                                 drLocal["LeaveDays"] = TotalEarn;
-                                drLocal["Balance"] = TotalEarn - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Applied"].ToString().Trim());
+                                drLocal["Balance"] = TotalEarn - Convert.ToDecimal(dsLvAllo.Tables[0].Rows[i]["Availed"].ToString().Trim());
 
                                 #endregion
                             }
