@@ -925,6 +925,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/TaxReport/DebitNoteCreditNoteTaxReport",
             controller: "debitNoteCreditNoteTaxReportController"
         })
+        .when("/payment-pending-setOff", {
+            templateUrl: "Accounts/TaxReport/PaymentPendingforSetOffReport",
+            controller: "paymentPendingforSetOffReportController"
+        })
     
         .when("/gst-payable-sales", {
             templateUrl: "Accounts/TaxReport/GSTPayableSalesReport",

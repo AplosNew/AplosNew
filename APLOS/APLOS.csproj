@@ -1787,6 +1787,7 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
+    <Content Include="Areas\Accounts\Scripts\paymentPendingforSetOffReportController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetReportTreeViewController.js" />
     <Content Include="Areas\Accounts\Scripts\lcLedgerReportController.js" />
@@ -4681,6 +4682,7 @@
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_DriverMaster.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleReqForApprove.cshtml" />
     <Content Include="Areas\Accounts\Views\LCLedgerReport.cshtml" />
+    <Content Include="Areas\Accounts\Views\TaxReport\PaymentPendingforSetOffReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

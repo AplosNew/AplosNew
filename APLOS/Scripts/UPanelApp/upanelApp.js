@@ -184,6 +184,7 @@ upanelApp.controller("GatePassEmployeeController", GatePassEmployeeController);
 upanelApp.controller("generalLedgerOpeningBalanceReportController", generalLedgerOpeningBalanceReportController);
 upanelApp.controller("generalLedgerReportController", generalLedgerReportController);
 upanelApp.controller("lcLedgerReportController", lcLedgerReportController);
+upanelApp.controller("paymentPendingforSetOffReportController", paymentPendingforSetOffReportController);
 upanelApp.controller("generalLedgerGSTReportController", generalLedgerGSTReportController);
 upanelApp.controller("glMappingController", glMappingController);
 upanelApp.controller("grnApprovalController", grnApprovalController);
