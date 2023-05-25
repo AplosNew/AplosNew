@@ -1,11 +1,11 @@
 ﻿<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
 <script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
-@*<togglable name="{{FormTitle}}"></togglable>*@
-<div>
+<togglable name="{{FormTitle}}"></togglable>
+@*<div>
     <h4>{{FormTitle}}</h4>
     <hr/>
-</div>
+</div>*@
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="container-fluid">
         <div class="row">
@@ -152,13 +152,13 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
             <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
 </div>
 
-@*<div class="table-responsive aplos-grid-toggle">
+<div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-recorddoubleclick="Get" e-load="loadGridEdit" e-datasource="GriddataMachineMasterData"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
@@ -175,7 +175,7 @@
             <div e-column e-field="Remark" e-headertext="Remark" e-width="15"></div>
         </div>
     </div>
-</div>*@
+</div>
 
 @* #<!-- #region name -->*@
 

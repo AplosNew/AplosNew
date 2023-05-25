@@ -45,6 +45,7 @@
                                 <div e-column e-type="string" e-field="CustomerName" e-headertext="Customer" e-width="150"></div>
                                 <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="150"></div>
                                 <div e-column e-type="string" e-field="ItemNo" e-headertext="ItemNo" e-width="150"></div>
+                                <div e-column e-type="string" e-field="Bank" e-headertext="Bank" e-width="150"></div>
                                 <div e-column e-field="IsLC" e-headertext="IsLC" e-width="50"></div>
                                 <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
 
@@ -234,6 +235,17 @@
                                                 <input type="text" style="width: 66px;" n-decimals="4" ng-disabled="modelNew.IsBusinessDevelopmentChargesApplicable===false" ng-model="modelNew.BusinessDevelopmentChargeValue" class="form-control" tabindex="4">
                                             </div>
                                             <label class="col-sm-2 control-label">{{modelNew.Currency}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Bank</label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select id="bankId" class="form-control" name="Bank" ng-model="modelNew.BankId"   tabindex="5">
+                                                <option value="">--Select--</option>
+                                                <option ng-repeat="option in bankList" value="{{option.Value}}">{{option.Text}}</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>

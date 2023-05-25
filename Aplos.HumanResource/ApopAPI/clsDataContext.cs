@@ -5027,7 +5027,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedDate"] = item.UpdatedDate;
                         dr["UpdatedFromIP"] = item.UpdatedFromIP;
 
 

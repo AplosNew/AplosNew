@@ -2992,6 +2992,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 		if ($scope.ModelNew.TabType == "Transformation") {
 			var x = $event;
 			var Id = x.data.Id;
+			$scope.TransIssueId = x.data.Id;
 			$scope.Action = 'Update';
 			//ClearFields();		
 			$scope.ReceiptTransformation = x.data;
@@ -3331,23 +3332,23 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
     }
 
 	$scope.SelectMaterialPlanning = function () {
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueDate)) {
-			ShowResult("Select the issue date");
-			return false;
-		}
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.EntityId)) {
-			ShowResult("Select the Entity");
-			return false;
-		}
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.MaterialStorageId)) {
+		//if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.IssueDate)) {
+		//	ShowResult("Select the issue date");
+		//	return false;
+		//}
+		//if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.EntityId)) {
+		//	ShowResult("Select the Entity");
+		//	return false;
+		//}
+		if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.MaterialStorageId)) {
 			ShowResult("Select the Material Storage");
 			return false;
 		}
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.IssueType)) {
-			ShowResult("Select the type");
-			return false;
-		}
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.EmpName)) {
+		//if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.Type)) {
+		//	ShowResult("Select the type");
+		//	return false;
+		//}
+		if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.ByWhomName)) {
 			ShowResult("Select the wby whom");
 			return false;
 		}
@@ -3393,16 +3394,16 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 			, CostCenterId: null
 		};
 		var SelectedData = [];
-		for (var i = 0; i < $scope.IssueTransformationChildList.length; i++) {
-			if ($scope.IssueTransformationChildList[i].isSelected == true)
-				SelectedData.push($scope.IssueTransformationChildList[i]);
+		for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+			if ($scope.inventoryMaterialList[i].check == true)
+				SelectedData.push($scope.inventoryMaterialList[i]);
 		}
 
-		if (baseService.isUndefinedOrNull($scope.IssueTransformation.Id)) {
+		if (baseService.isUndefinedOrNull($scope.ReceiptTransformation.Id)) {
 			$http({
 				method: 'POST',
-				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate },
-				url: $scope.path + 'GetMaterialInputData'
+				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.ReceiptTransformation.MaterialStorageId, IssueDate: $scope.ReceiptTransformation.DocDate },
+				url: 'JobWork/JWIssueReturn/GetMaterialInputData'
 			}).then(function successCallback(response) {
 				$scope.MaterialInputList = response.data;
 				$scope.MatInputListLocal = response.data;
@@ -3424,7 +3425,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 
 				$scope.detailList = response.data;
 				for (var i = 0; i < $scope.detailList.length; i++) {
-					$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+					$scope.detailList[i].MaterialStorageId = $scope.ReceiptTransformation.MaterialStorageId;
 				}
 
 				if ($scope.MaterialInputList.length > 0 && $scope.detailList.length > 0) {
@@ -3435,8 +3436,8 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 		else {
 			$http({
 				method: 'POST',
-				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.IssueTransformation.MaterialStorageIdInventory, IssueDate: $scope.IssueTransformation.IssueDate, TransIssueId: $scope.TransIssueId },
-				url: $scope.path + 'GetMaterialInputData'
+				data: { SelectedMaterialPlanningData: SelectedData, OrderSpecific: $scope.Transformation.OrderSpecific, MaterialStorageIdInventory: $scope.ReceiptTransformation.MaterialStorageId, IssueDate: $scope.ReceiptTransformation.DocDate, TransIssueId: $scope.TransIssueId },
+				url: 'JobWork/JWIssueReturn/GetMaterialInputData'
 			}).then(function successCallback(response) {
 				$scope.MaterialInputList = response.data;
 				$scope.MatInputListLocal = response.data;
@@ -3458,7 +3459,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 
 				$scope.detailList = response.data;
 				for (var i = 0; i < $scope.detailList.length; i++) {
-					$scope.detailList[i].MaterialStorageId = $scope.IssueTransformation.MaterialStorageIdInventory;
+					$scope.detailList[i].MaterialStorageId = $scope.ReceiptTransformation.MaterialStorageIdInventory;
 					$scope.detailList[i].isSelectedMatInput = true;
 				}
 
