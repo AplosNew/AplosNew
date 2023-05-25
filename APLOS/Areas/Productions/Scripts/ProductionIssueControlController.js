@@ -2291,7 +2291,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
         if (!baseService.isUndefinedOrNull(master.data.Id)) {
             $http({
                 method: 'POST',
-                url: 'Productions/productionSummary/DeleteMasterWC?id=' + master.data.Id,
+                url: 'Productions/ProductionControlIssue/DeleteMasterWC?id=' + master.data.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
