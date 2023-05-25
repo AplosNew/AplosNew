@@ -1390,25 +1390,25 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[edCRow, 5].Text = "TOTAL";
                 sheet.Range[edCRow, 5].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 1, edCRow, 5].Merge();
-                sheet.Range[edCRow, 6].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(GrossConsumption)", null)); ;
+                sheet.Range[edCRow, 6].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(GrossConsumption)", null)); 
                 sheet.Range[edCRow, 6].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 6].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 6, edCRow, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[edCRow, 6, edCRow, 6].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet.Range[edCRow, 7].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(ValueLoss)", null)); ;
+                sheet.Range[edCRow, 7].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(ValueLoss)", null)); 
                 sheet.Range[edCRow, 7].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 7].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 7, edCRow, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[edCRow, 7, edCRow, 7].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet.Range[edCRow, 9].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(TotalConsumption)", null)); ;
+                sheet.Range[edCRow, 9].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(TotalConsumption)", null)); 
                 sheet.Range[edCRow, 9].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 9].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 9, edCRow, 9].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[edCRow, 9, edCRow, 9].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet.Range[edCRow, 10].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(IssueQty)", null)); ;
+                sheet.Range[edCRow, 10].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(IssueQty)", null)); 
                 sheet.Range[edCRow, 10].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 10].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 10, edCRow, 10].VerticalAlignment = ExcelVAlign.VAlignTop;

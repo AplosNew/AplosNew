@@ -54,10 +54,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
-        public ActionResult AplosSFG()
-        {
-            return View();
-        }
+        //public ActionResult AplosSFG()
+        //{
+        //    return View();
+        //}
 
         public ActionResult AplosInOut()
         {
@@ -1310,10 +1310,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
 
                 conC.BeginTransaction();
-                conC.executeQuery("delete from TRN.ProductionReasonValue where ProductionId ='" + id + @"'");
-                conC.executeQuery("delete from MachineMasterTransaction where ProductionSummaryId ='" + id + @"'");
-                conC.executeQuery("delete from ProductionSummaryParameterValue where ProductionSummaryId ='" + id + @"'");
-                conC.executeQuery("delete from [TRN].[ProductionSummary] where Id ='" + id + @"'");
+                conC.executeQuery("delete from [TRN].[ProductionIssueControl] where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
