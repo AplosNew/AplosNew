@@ -2948,6 +2948,19 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetIssueList(string processId)
+        {
+            string sql = @"SELECT distinct ID.Id [Value],ID.IssueName [Text] FROM [MST].[IssueDetails] ID
+ WHERE ID.ProcessId='" + processId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetPeriodList(string IssueId)
+        {
+            string sql = @"select distinct WTD.Id [Value],WTD.PeriodName +' (' + format(WTD.FromTime,'hh:mm tt')+' - ' + format(WTD.ToTime,'hh:mm tt')+')' as  [Text] from [MST].[WCProcessTimeDetails] WTD where WTD.IssueId='" + IssueId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetAllShiftList()
         {
             string sql = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
