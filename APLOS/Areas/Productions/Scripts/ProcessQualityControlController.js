@@ -1,27 +1,31 @@
 ﻿'use strict';
-ProductionSummaryWCController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "Production Booking";
+ProcessQualityControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function ProcessQualityControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "Process/Quality Issue Control";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.productionSummaryes = [];
     $scope.gradeList = [];
-    $scope.path = 'Productions/productionSummary/';
+    $scope.PeriodCategoryList = [];
+    $scope.path = 'Productions/ProcessQualityControl/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.saveUrlWC = $scope.path + 'createWC';
-    $scope.UpdateUrlWC = $scope.path + 'UpdateWC';
+    //$scope.saveUrl = $scope.path + 'create';
+    //$scope.saveUrlWC = $scope.path + 'createWC';
+    //$scope.UpdateUrlWC = $scope.path + 'UpdateWC';
+    $scope.saveUrlIssue = $scope.path + 'createIssue';
     $scope.saveUrlReason = $scope.path + 'createReason';
-    $scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
-    $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
-    $scope.saveDetailUrl = $scope.path + 'createDetail';
-    $scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
-    $scope.updateUrl = $scope.path + 'edit';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.TotalSalesOrderQty = 0;
-    $scope.TotalProductionBookingQty = 0;
-    $scope.RemainQty = 0;
-    $scope.DetentionSum = 0;
+    $scope.saveUrlTime = $scope.path + 'createTime';
+    $scope.saveUrlPICValue = $scope.path + 'create';
+    //$scope.saveUrlReasonValue = $scope.path + 'createReasonValue';
+    //$scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
+    //$scope.saveDetailUrl = $scope.path + 'createDetail';
+    //$scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
+    //$scope.updateUrl = $scope.path + 'edit';
+    //$scope.deleteUrl = $scope.path + 'delete/';
+    //$scope.TotalSalesOrderQty = 0;
+    //$scope.TotalProductionBookingQty = 0;
+    //$scope.RemainQty = 0;
+    //$scope.DetentionSum = 0;
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -49,6 +53,21 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
     ];
 
+    $scope.PeriodCategoryList = [
+        {
+            'Value': 'Normal',
+            'Text': 'Normal'
+        },
+        {
+            'Value': 'Important',
+            'Text': 'Important'
+        },
+        {
+            'Value': 'Critical',
+            'Text': 'Critical'
+        }
+    ];
+
     $scope.productionSummary = {
         Id: null,
         PlantId: null,
@@ -56,43 +75,21 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         ProcessId: null,
         ProductionInChargeId: null,
         ProductionInCharge: null,
-        MasterOrderNo: null,
-        SalesOrderId: null,
-        MasterOrderItemId: null,
         ProductionOrderId: null,
-        MaterialMasterId: null,
-        MaterialMaster: null,
-        ArticleId: null,
-        Article: null,
         WorkCenterMasterId: null,
         ProductionDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
         ProductionShiftId: null,
-        ProductionGrade: $scope.gradeList[0].Value,
-        Quantity: 0,
-        ScanQty: 0,
-        QtyWithoutScan: 0,
-        UOM: 0,
-        MOQty: 0,
-        ExtraP: 0,
-        WastageP: 0,
-        CharCount: 0,
-        ProductionBookingLevel: null,
-        MentorId: null,
-        MentorName: null,
+        Value: 0,
+        UOM: null,
         ResponsiblePersonId: null,
         ResponsiblePersonName: null,
         InCharge: null,
         InChargeId: null,
-        InTime: null,
-        OutTime: null,
-        ConsumeHour: 0,
-        ManPower: 0,
         Remarks: null,
-        CheckedBy: null,
-        CheckedByName: null,
         LotNumber: null,
-        DetentionSum: 0,
-        PPQFlag: false
+        PeriodId: null,
+        IssueId: null,
+        ReasonId: null
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -123,29 +120,37 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         refreshSerial();
     }
 
-    $scope.Reason = {
+    $scope.Issue = {
         Id: null,
         ProcessId: null,
+        IssueName: null,
+        UOMId: null,
+        Remarks: null,
+    };
+    $scope.IssueNew = Object.assign({}, $scope.Issue);
+
+    $scope.Reason = {
+        Id: null,
+        IssueId: null,
         ReasonName: null,
     };
     $scope.ReasonNew = Object.assign({}, $scope.Reason);
 
-    $scope.ProcessReasonList = [];
-    $scope.GetProcessReasonList = function () {
-        $http({
-            method: 'GET',
-            url: 'Productions/productionSummary/GetProcessReasonList'
-        }).then(function successCallback(response) {
-            $scope.ProcessReasonList = response.data;
-        });
-    }
-    $scope.GetProcessReasonList();
+    $scope.Time = {
+        Id: null,
+        PeriodName: null,
+        PeriodCategory: null,
+        IssueId: null,
+        FromTime: null,
+        ToTime: null,
+    };
+    $scope.TimeNew = Object.assign({}, $scope.Time);
 
     $scope.ReasonList = [];
     $scope.LoadReasonDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/productionSummary/LoadReasonDetails'
+            url: 'Productions/ProcessQualityControl/LoadReasonDetails'
         }).then(function successCallback(response) {
             $scope.ReasonList = response.data;
         }
@@ -153,12 +158,48 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     }
     $scope.LoadReasonDetails();
 
+    $scope.ReasonGridList = [];
+    $scope.GetReasonGridList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/ProcessQualityControl/GetReasonGridList?IssueId=' + $scope.productionSummaryNew.IssueId
+        }).then(function successCallback(response) {
+            $scope.ReasonGridList = response.data;
+        });
+    }
+    $scope.GetReasonGridList();
+
+    $scope.TimeList = [];
+    $scope.LoadTimeDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadTimeDetails'
+        }).then(function successCallback(response) {
+            $scope.TimeList = response.data;
+        }
+        )
+    }
+    $scope.LoadTimeDetails();
+
     $scope.GetReasonDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/productionSummary/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
+            url: 'Productions/ProcessQualityControl/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ReasonNew = response.data.Reason[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.GetTimeDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadTimeDetailsEditData?TimeId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.TimeNew = response.data.Time[0];
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -199,6 +240,182 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.Action = "Save";
         $scope.ReasonNew = Object.assign({}, $scope.Reason);
     }
+
+    $scope.TimeSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.TimeDetailsForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlTime,
+                data: {
+                    'TimeData': $scope.TimeNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadTimeDetails();
+                    TimeClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.TimeClear = function () {
+        TimeClearFields();
+    };
+
+    function TimeClearFields() {
+        $scope.Action = "Save";
+        $scope.TimeNew = Object.assign({}, $scope.Time);
+    }
+
+    $scope.TimeIssueList = [];
+    $scope.LoadTimeIssueListDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadTimeIssueDetails'
+        }).then(function successCallback(response) {
+            $scope.TimeIssueList = response.data;
+        }
+        )
+    }
+    $scope.LoadTimeIssueListDetails();
+
+    $scope.selectUOM = function () {
+        $scope.getUOM();
+        angular.element(document.querySelector('#UOMPopUp')).modal('show');
+    }
+
+    $scope.UOMList = [];
+    $scope.getUOM = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetUOM',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.UOMList = resp.data;
+        });
+    }
+
+    $scope.doubleUOM = function (e) {
+        $scope.IssueNew.UOMId = e.data.UOMId;
+        $scope.IssueNew.UOM = e.data.UOM;
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
+    }
+
+    $scope.closeUOMPopUp = function () {
+        angular.element(document.querySelector('#UOMPopUp')).modal('hide');
+    }
+
+    $scope.IssueReasonList = [];
+    $scope.GetIssueReasonList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/ProcessQualityControl/GetIssueReasonList'
+        }).then(function successCallback(response) {
+            $scope.IssueReasonList = response.data;
+        });
+    }
+    $scope.GetIssueReasonList();
+
+    $scope.IssueList = [];
+    $scope.LoadIssueDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadIssueDetails'
+        }).then(function successCallback(response) {
+            $scope.IssueList = response.data;
+        }
+        )
+    }
+    $scope.LoadIssueDetails();
+
+    $scope.GetIssueDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadIssueDetailsEditData?IssueId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.IssueNew = response.data.Issue[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.IssueSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.IssueDetailsForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlIssue,
+                data: {
+                    'IssueData': $scope.IssueNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadIssueDetails();
+                    IssueClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.IssueClear = function () {
+        IssueClearFields();
+    };
+
+    function IssueClearFields() {
+        $scope.Action = "Save";
+        $scope.IssueNew = Object.assign({}, $scope.Issue);
+    }
+
+    $scope.SaveWCPIC = function (data) {
+        try {
+            if (baseService.isUndefinedOrNull(data.data.Value)) {
+                throw "Please enter Value and proceed";
+            }
+            data.data.ProcessId = $scope.productionSummaryNew.ProcessId;
+            data.data.EntityId = $scope.productionSummaryNew.EntityId;
+            data.data.ProductionDate = $scope.productionSummaryNew.ProductionDate;
+            data.data.ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
+            data.data.IssueId = $scope.productionSummaryNew.IssueId;
+            data.data.PeriodId = $scope.productionSummaryNew.PeriodId;
+            data.data.ProductionInChargeId = $scope.productionSummaryNew.ProductionInChargeId;
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlPICValue,
+                data: { 'ProcessQualityControlData': data.data },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+
+        }
+    };
 
     $scope.ProductionId = null;
     $scope.ProductionReasonList = [];
@@ -420,7 +637,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
-            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId)
+            $http.get('Productions/ProcessQualityControl/GetWCProcessCboPIC?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId + '&IssueId=' + $scope.productionSummaryNew.IssueId + '&PeriodId=' + $scope.productionSummaryNew.PeriodId)
                 .then(function (response) {
                     $scope.wcList = response.data;
                     for (var i = 0; i < $scope.wcList.length; i++) {
@@ -783,6 +1000,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             CheckField("Process", $scope.productionSummaryNew.ProcessId);
             CheckField("Production Date", $scope.productionSummaryNew.ProductionDate);
             CheckField("Shift", $scope.productionSummaryNew.ProductionShiftId);
+            CheckField("Issue", $scope.productionSummaryNew.IssueId);
+            CheckField("Period", $scope.productionSummaryNew.PeriodId);
         } catch (ex) {
             throw ex;
         }
@@ -810,6 +1029,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             else {
                 $scope.IsVisible = true;
             }
+            $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
             //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -1513,13 +1733,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 $scope.productionSummaryNew.SalesOrderId = null;
             }
 
-            if ($scope.BookingLevel === 'MasterOrderItem')
-            {
+            if ($scope.BookingLevel === 'MasterOrderItem') {
                 $scope.productionSummaryNew.MasterOrderItemId = $scope.ItemId;
             }
 
-            if ($scope.BookingLevel === 'SalesOrder')
-            {
+            if ($scope.BookingLevel === 'SalesOrder') {
                 $scope.productionSummaryNew.SalesOrderId = $scope.SOId;
             }
 
@@ -1578,7 +1796,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             //{
             //    $scope.productionSummaryNew.PPQFlag = true;
             //}
-            if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
+            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
                 throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
             }
 
@@ -1781,8 +1999,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             //    }
             //}
 
-            if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
-                throw "If Current Total Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
+            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
+                throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
             }
 
             $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
@@ -1794,8 +2012,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
                 }
             }
-            else
-            { 
+            else {
                 $scope.productionSummaryNew.PPQFlag = false;
             }
             //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.RemainingQtyValue)) {
@@ -1934,7 +2151,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             //}
 
             if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
-                throw "If Current Total Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
+                throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
             }
 
             $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
@@ -2074,7 +2291,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         if (!baseService.isUndefinedOrNull(master.data.Id)) {
             $http({
                 method: 'POST',
-                url: 'Productions/productionSummary/DeleteMasterWC?id=' + master.data.Id,
+                url: 'Productions/ProductionControlIssue/DeleteMasterWC?id=' + master.data.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -2636,6 +2853,32 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             });
     }
 
+    $scope.IssueHeaderList = [];
+    $scope.GetIssueList = function (PId) {
+        $http.get('Productions/ProcessQualityControl/GetIssueList?processId=' + PId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.IssueHeaderList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.IssueId = $scope.IssueHeaderList[0].Value;
+                    }
+                }
+            });
+    }
+
+    $scope.PeriodHeaderList = [];
+    $scope.GetPeriodList = function (PId) {
+        $http.get('Productions/ProcessQualityControl/GetPeriodList?IssueId=' + PId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.PeriodHeaderList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.PeriodId = $scope.PeriodHeaderList[0].Value;
+                    }
+                }
+            });
+    }
+
     $scope.selectGridIncharge = function (data) {
         $scope.Newobject = data.data;
         $scope.getsI();
@@ -2734,7 +2977,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.MasterOrderItemList = resp.data;
         });
     }
-    
+
     $scope.ItemId = null;
     $scope.selectMasterOrderItem = function (e) {
         $scope.NewobjectMOI.MasterOrderItemId = e.data.MasterOrderItemId;
