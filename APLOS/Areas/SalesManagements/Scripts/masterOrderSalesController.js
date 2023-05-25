@@ -1845,8 +1845,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                         $scope.mateId = null;
                         $scope.salesMaterialList.splice($scope.mateIndex, 1);
                         $scope.GetSalesMaterialData($scope.salesVM.Id);
-                        //$scope.getData();
-                        //$scope.Clear();
+                     
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');

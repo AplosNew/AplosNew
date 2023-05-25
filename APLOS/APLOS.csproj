@@ -629,6 +629,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionIssueControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\RunningMachineSetUpTargetController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
@@ -2236,6 +2237,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionIssueControlController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlController.js" />
     <Content Include="Areas\Productions\Scripts\RunningMachineSetUpTargetController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
@@ -4681,6 +4683,12 @@
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_DriverMaster.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleReqForApprove.cshtml" />
     <Content Include="Areas\Accounts\Views\LCLedgerReport.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionIssueControl\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionIssueControl\Aplos1.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosInOut.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosSFG.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosWC.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionIssueControl\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
