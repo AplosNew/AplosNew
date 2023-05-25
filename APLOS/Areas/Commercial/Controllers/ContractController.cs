@@ -480,6 +480,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["DeliveryPartyPlantId"] = data.DeliveryPartyPlantId;
                     dr["InvoicingByAddress"] = data.InvoicingByAddress;
                     dr["DeliveryByAddress"] = data.DeliveryByAddress;
+                    dr["BankId"] = data.BankId;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -3302,6 +3303,7 @@ namespace Aplos.Areas.Commercial.Controllers
         public string UDNo { get; set; }
         public string FileNo { get; set; }
         public string MasterLCId { get; set; }
+        public string BankId { get; set; }
         public string Description { get; set; }
         public string Remarks { get; set; }
         public decimal TotalQty { get; set; }

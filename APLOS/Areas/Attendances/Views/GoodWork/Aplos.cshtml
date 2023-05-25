@@ -1,4 +1,7 @@
 ﻿<togglable name="{{title}}"></togglable>
+<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -32,7 +35,6 @@
                 </div>
             </div>
         </div>
-
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Designation<sup>*</sup></label>
             <div class="col-sm-6 show-message">
@@ -41,6 +43,26 @@
                         <option value="All">--Select--</option>
                         <option ng-repeat="option in designationList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">From Time<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="input-group bootstrap-timepicker timepicker">
+                    <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="7">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">To Time<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="input-group bootstrap-timepicker timepicker">
+                    <input id="ToTime" type="text" class="form-control" ng-model="ModelNew.ToTime" ng-change="getMinute();" e-width="100" tabindex="7">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                 </div>
             </div>
         </div>
@@ -86,7 +108,12 @@
                 <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="8"></textarea>
             </div>
         </div>
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Calculated Minute<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="number" class="form-control" name="CalculatedTime" ng-model="ModelNew.CalculatedTime" e-width="100" disabled />
+            </div>
+        </div>
     </div>
 
     <ul class="col-md-6 common-btn list-inline text-left">
@@ -110,30 +137,15 @@
                     <th>SubSection</th>
                     <th>Section</th>
                     <th>Department</th>
-                    <th>Remove</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="x in GoodWorkList" ng-class="{selected : x.Id==null}">
                     <td>{{x.EmployeeCode}}</td>
                     <td>{{x.EmployeeName}}</td>
-                    @*<td><input id="FromTime" type="time" timepicker class="form-control" ng-model="x.FromTime" ng-change="getMinute(x,$index);"></td>*@
-                    <td>
-                        <div class="input-group bootstrap-timepicker timepicker">
-                            <input id="FromTime" type="text" class="form-control" ng-model="x.FromTime" ng-change="getMinute(x,$index);" e-width="100" tabindex="7">
-                            <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                        </div>
-                    </td>
-
-                    @*<td><input id="ToTime" type="time" timepicker class="form-control" ng-model="x.ToTime" ng-change="getMinute(x,$index);"></td>*@
-                <td>
-                    <div class="input-group bootstrap-timepicker timepicker">
-                        <input id="ToTime" type="text" class="form-control" ng-model="x.ToTime" ng-change="getMinute(x,$index);" e-width="100" tabindex="7">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                    </div>
-                </td>
-
-
+                    <td>{{x.FromTime}}</td>
+                    <td>{{x.ToTime}}</td>
 
                     <td><input type="text" name="Purpose" ng-model="x.Purpose" class="form-control" maxlength="15" required tabindex="3"></td>
                     <td>
@@ -158,6 +170,10 @@
                     <td>{{x.Department}}</td>
 
                     <td class="text-right">
+                        <button ng-click="$parent.selectEdit(x,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Edit">
+                            <i class="glyphicon glyphicon-edit"></i>
+                        </button>
+                    
                         <button ng-click="$parent.removeRow(x)" @*data-toggle="modal"*@ ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
                             <i class="glyphicon glyphicon-remove"></i>
                         </button>
@@ -176,6 +192,7 @@
     </div>
 </div>
 <confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(bankReconciliationUploadId)"></confirm-archive-generic>
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteRow()"></confirm-archive-generic>
 
 
 <div class="table-responsive aplos-grid-toggle">
@@ -325,7 +342,7 @@
                                 <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                                 <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                                 <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-width="80"></div>
-                                <div e-column e-field="OTTitle" e-headertext="Is OT & Title" e-width="80"></div>
+                                <div e-column e-field="OTTitle" e-headertext="Is OT EnTitle" e-width="80"></div>
                             </div>
                         </div>
                         <script type="text/template" id="checkboxTemplate4">
@@ -345,3 +362,56 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade site-modal in" id="EditPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Edit Minute<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-6">
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">From Time</label>
+                        <div class="col-sm-6">
+                            <div class="input-group bootstrap-timepicker timepicker">
+                                <input id="FromTime" type="text" class="form-control" ng-model="ModelNewtemp.FromTime" ng-change="getMinuteEdit();" e-width="100" tabindex="7">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">To Time</label>
+                        <div class="col-sm-6">
+                            <div class="input-group bootstrap-timepicker timepicker">
+                                <input id="ToTime" type="text" class="form-control" ng-model="ModelNewtemp.ToTime" ng-change="getMinuteEdit();" e-width="100" tabindex="7">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">Calculated Minute</label>
+                        <div class="col-sm-6">
+                            <input type="number" class="form-control" name="CalculatedTime" ng-model="ModelNewtemp.CalculatedTime" e-width="100" disabled />
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li>
+                        <button ng-click="closeEditPopUp();" class="btn"><i class=""></i> Close</button>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+

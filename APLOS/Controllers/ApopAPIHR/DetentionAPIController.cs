@@ -643,5 +643,22 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Aman c
 
+
+        #region Seven Days Attendance 
+        public string PostPlantinoutcontrl([FromBody] IEnumerable<Plantcontrol> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostPlantinoutcontrl(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Seven Days Attendance 
+
     }
 }
