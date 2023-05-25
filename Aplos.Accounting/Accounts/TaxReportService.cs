@@ -6302,6 +6302,403 @@ UNION ALL
                 throw ex;
             }
         }
+        public IWorkbook GetAdvancePaymentPendingforSetOffReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
+        {
+            clsReport objRpt = null;
+            clsReport objRptSR = null;
+            try
+            {
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
+                var reportUtility = new ReportUtility();
+                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+                var sheet1 = workbook.Worksheets[0];
+
+                #region Logo
+                string strPath = "";
+                Image companyLogo = null;
+                try
+                {
+                    DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + companyId + @"'");
+
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());  // IDCardEng.xlsx
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                #endregion
+                objRpt = new clsReport();
+
+                objRptSR = new clsReport(_sqlRepository);
+
+                DataTable dtGStReceivableF3 = null;
+                dtGStReceivableF3 = GetAdvancePaymentPendingforSetOffReportSQL(companyGroupId, companyId, plantId);
+                if (dtGStReceivableF3.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                DataTable dtCmp = objRptSR.SelectedCompanyDT(plantId);
+
+                DataTable dtFactory = objRptSR.SelectedPlantDT(plantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+                xlsRow = 5;
+
+                int iType = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party Type";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iVoucherRowId = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Voucher Row Id";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iVoucherNo = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Voucher No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iPartyName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Party Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                xlsCol++;
+                
+                int iPostingDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iDocDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iReviewDate = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Review Date";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iDocRefNo = xlsCol; 
+                sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 20;
+                xlsCol++;
+
+                int iNarration = xlsCol; 
+                sheet1.Range[xlsRow, xlsCol].Text = "Narration";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                xlsCol++;
+
+                int iGL = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "GL";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                xlsCol++;
+
+                int iBudget = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Budget";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                xlsCol++;
+
+                int iActivity = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Activity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 25;
+                xlsCol++;
+
+                int iResponsiblePerson = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Responsible Person";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18;
+                xlsCol++;
+
+                int iPaymentSource = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Payment Source";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18;
+                xlsCol++;
+
+                int iBankName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Bank Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iCashName = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Cash Name";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iCurrencyCode = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Currency";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
+                int iReceivable = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Receivable";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iReceived = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Received";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iBalance = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Balance";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iBookReceivable = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Book Receivable";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iBookReceived = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Book Received";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
+
+                int iBookBalance = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Book Balance";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                endXlsCol = xlsCol;
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+               
+                int startRow = 0;
+                int perStartRow = 0;
+                
+                xlsRow++;
+                startRow = xlsRow;
+                perStartRow = xlsRow;
+                
+                for (int i = 0; i < dtGStReceivableF3.Rows.Count; i++)
+                {
+                    sheet1.Range[xlsRow, iType].Text = dtGStReceivableF3.Rows[i]["PartyType"].ToString();
+                    sheet1.Range[xlsRow, iVoucherRowId].Text = dtGStReceivableF3.Rows[i]["VoucherRowId"].ToString();
+                    sheet1.Range[xlsRow, iVoucherNo].Text = dtGStReceivableF3.Rows[i]["VoucherNo"].ToString();
+                    sheet1.Range[xlsRow, iPartyName].Text = dtGStReceivableF3.Rows[i]["PartyName"].ToString();
+                    sheet1.Range[xlsRow, iPostingDate].Text = dtGStReceivableF3.Rows[i]["PostingDate"].ToString();
+                    sheet1.Range[xlsRow, iDocDate].Text = dtGStReceivableF3.Rows[i]["DocDate"].ToString();
+                    sheet1.Range[xlsRow, iReviewDate].Text = dtGStReceivableF3.Rows[i]["ReviewDate"].ToString();
+                    sheet1.Range[xlsRow, iDocRefNo].Text = dtGStReceivableF3.Rows[i]["DocRefNo"].ToString();
+                    
+                    
+                    sheet1.Range[xlsRow, iNarration].Text = dtGStReceivableF3.Rows[i]["Narration"].ToString();
+                    sheet1.Range[xlsRow, iGL].Text = dtGStReceivableF3.Rows[i]["GL"].ToString();
+                    sheet1.Range[xlsRow, iBudget].Text = dtGStReceivableF3.Rows[i]["Budget"].ToString();
+                    sheet1.Range[xlsRow, iActivity].Text = dtGStReceivableF3.Rows[i]["Activity"].ToString();
+                    sheet1.Range[xlsRow, iResponsiblePerson].Text = dtGStReceivableF3.Rows[i]["ResponsiblePerson"].ToString();
+                    sheet1.Range[xlsRow, iPaymentSource].Text = dtGStReceivableF3.Rows[i]["PaymentSource"].ToString();
+                    sheet1.Range[xlsRow, iBankName].Text = dtGStReceivableF3.Rows[i]["BankName"].ToString();
+                    sheet1.Range[xlsRow, iCashName].Text = dtGStReceivableF3.Rows[i]["CashName"].ToString();
+                    sheet1.Range[xlsRow, iCurrencyCode].Text = dtGStReceivableF3.Rows[i]["CurrencyCode"].ToString();
+                    
+
+                    sheet1.Range[xlsRow, iReceivable].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["Receivable"].ToString());
+                    sheet1.Range[xlsRow, iReceivable].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet1.Range[xlsRow, iReceived].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["Received"].ToString());
+                    sheet1.Range[xlsRow, iReceived].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet1.Range[xlsRow, iBalance].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["Balance"].ToString());
+                    sheet1.Range[xlsRow, iBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet1.Range[xlsRow, iBookReceivable].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["BookReceivable"].ToString());
+                    sheet1.Range[xlsRow, iBookReceivable].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet1.Range[xlsRow, iBookReceived].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["BookReceived"].ToString());
+                    sheet1.Range[xlsRow, iBookReceived].NumberFormat = "#,##0.00;(#,##0.00)";
+                    sheet1.Range[xlsRow, iBookBalance].Number = clsStaticInfo.dbl(dtGStReceivableF3.Rows[i]["BookBalance"].ToString());
+                    sheet1.Range[xlsRow, iBookBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    xlsRow++;
+                    
+                }
+                sheet1[perStartRow, iType, xlsRow - 1, iType].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iVoucherRowId, xlsRow - 1, iVoucherRowId].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iVoucherNo, xlsRow - 1, iVoucherNo].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPartyName, xlsRow - 1, iPartyName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iDocDate, xlsRow - 1, iDocDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iReviewDate, xlsRow - 1, iReviewDate].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
+                
+                sheet1[perStartRow, iNarration, xlsRow - 1, iNarration].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iGL, xlsRow - 1, iGL].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBudget, xlsRow - 1, iBudget].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iActivity, xlsRow - 1, iActivity].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iResponsiblePerson, xlsRow - 1, iResponsiblePerson].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iPaymentSource, xlsRow - 1, iPaymentSource].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBankName, xlsRow - 1, iBankName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iCashName, xlsRow - 1, iCashName].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iCurrencyCode, xlsRow - 1, iCurrencyCode].BorderAround(ExcelLineStyle.Hair);
+                
+                sheet1[perStartRow, iReceivable, xlsRow - 1, iReceivable].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iReceived, xlsRow - 1, iReceived].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBalance, xlsRow - 1, iBalance].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBookReceivable, xlsRow - 1, iBookReceivable].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBookReceived, xlsRow - 1, iBookReceived].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iBookBalance, xlsRow - 1, iBookBalance].BorderAround(ExcelLineStyle.Hair);
+
+                #region ******************Report Header******************
+
+
+                xlsRow = 1;
+                xlsCol = 3;
+                try
+                {
+                    if (companyLogo != null)
+                    {
+
+                        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(3);
+                        int totalWidthPixel = (int)(totalWidth * 7.5);
+                        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+
+                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                        IPictureShape pic = null;
+
+                        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+                       
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+
+                FactoryName = string.Empty;
+
+                string FactoryAddress = string.Empty;
+
+                if (dtCmp.Rows.Count > 0)
+                {
+                    CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = CmpName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryName = dtFactory.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryName;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 14;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryAddress = dtFactory.Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, 3].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, 3].Text = "Advance Payment Pending for Set Off Report ";
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                #endregion Page SetupLineItemType
+                sheet1.Range[6, 1, 6, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+
+                sheet1.Name = "Advance Payment Pending for Set Off Report";
+                return workbook;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
 
         public IWorkbook GetGSTPayableSalesReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
@@ -9831,6 +10228,130 @@ UNION ALL
                             where V.PlantId='" + plantId + @"'
 							and V.PostingDate BETWEEN '" + fromDate + "' AND '" + toDate + @"'
                             AND v.SourceType IN ('DebitNote','CreditNote','InventoryReturnPayable','VendorPayment') ";
+            return _sqlRepository.GetDataTable(strSql);
+        }
+        private DataTable GetAdvancePaymentPendingforSetOffReportSQL(string companyGroupId, string companyId, string plantId)
+        {
+            string strSql = "";
+            strSql = @"Declare @CompanyGroupId nvarchar(50)='" + companyGroupId + @"',@CompanyId nvarchar(50)='" + companyId + @"',@PlantId nvarchar(50)='" + plantId + @"'
+
+SELECT  X.PartyType,X.VoucherRowId,X.VoucherNo,X.EmployeeName PartyName,X.PostingDate,X.DocDate,X.ReviewDate,X.DocRefNo,X.Narration
+,X.GL ,X.Budget ,X.Activity ,X.ResponsiblePerson,X.PaymentSource,x.BankName,x.CashName,X.CurrencyCode
+,X.Receivable,X.Received,X.Balance,X.Receivable BookReceivable,X.Received BookReceived,X.Balance BookBalance
+FROM (SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherRowId, VD.EntityId
+								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GL , AM.EmployeeId, EI.EmployeeCode, EI.EmployeeName
+								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS Budget , AD.ActivityId, A.Code AS ActivityCode, A.UserName AS Activity , V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration, AD.Amount AS Receivable, AD.WrittenOffAmount+ISNULL(SAVW.SalaryWrittenOffAmount,0) AS Received, 0 DrAmount, 0 CrAmount
+                                , AD.Amount-AD.WrittenOffAmount-ISNULL(SAVW.SalaryWrittenOffAmount,0)AS Balance,ETT.UserName EmployeeTransactionTypeName
+                                ,CASE WHEN ETT.UserName='Employee Salary' THEN 'Salary' ELSE 'General' END JournalType,AM.PaymentSource,EIR.EmployeeName ResponsiblePerson , Replace(CONVERT(VARCHAR(11), AM.ReviewDate, 106), ' ', '-') AS ReviewDate
+								,BKM.AccountTitle BankName,CKM.UserName CashName
+                                FROM [TRN].[AdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+								LEFT JOIN [MST].[BankMaster] AS BKM ON BKM.Id=AM.BankMasterId
+								LEFT JOIN [MST].[CashMaster] AS CKM ON CKM.Id=AM.CashMasterId
+                                LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=AM.EmployeeId
+                                LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=AM.ResponsiblePersonId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
+                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
+                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+                                LEFT JOIN [HKP].[EmployeeTransactionType] AS ETT ON ETT.Id=AM.EmployeeTransactionTypeId
+								LEFT JOIN (SELECT SUM(ARS.InstallmentAmount)SalaryWrittenOffAmount,ADV.Id AdvanceId
+                                    FROM  [TRN].EmployeeAdvanceDeduction EAD 
+                                    LEFT JOIN dbo.AdvanceReqSchedule  ARS ON EAD.AdvanceReqScheduleId=ARS.Id
+                                    INNER JOIN [TRN].EmployeeSalaryAdvance ESA ON ESA.Id=ARS.EmployeeSalaryAdvanceId
+                                    INNER JOIN [TRN].[Advance] ADV ON ADV.VoucherId=ESA.VoucherId
+                                    LEFT JOIN DBO.SalaryLock SL ON SL.YearNo=ARS.YearNo AND SL.MonthNo=ARS.MonthNo AND SL.EmpSystemId=ESA.EmployeeId AND SL.PayableVoucherId IS NULL
+									GROUP BY ADV.Id) SAVW ON SAVW.AdvanceId=AD.AdvanceId
+								
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 
+								AND AM.SourceType in ('EmployeeAdvance','InterTransaction')
+                                AND AM.CompanyGroupId=@CompanyGroupId AND AM.CompanyId=@CompanyId AND AM.PlantId=@PlantId AND AM.EmployeeId<>'' )X
+
+UNION ALL
+SELECT  X.PartyType,X.VoucherRowId,X.VoucherNo,X.PartyName,X.PostingDate,X.DocDate,X.ReviewDate,X.DocRefNo,X.Narration
+,X.GL ,X.Budget ,X.Activity ,X.ResponsiblePerson,X.PaymentSource,x.BankName,x.CashName,X.CurrencyCode
+,X.Receivable,X.Received,X.Balance,X.BookReceivable,X.BookReceived,X.BookBalance
+FROM (SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId,P.Code AS  PartyCode, P.UserName As PartyName, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherRowId, VD.EntityId
+								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GL
+								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS Budget, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS Activity, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration,AM.PaymentSource,EIR.EmployeeName ResponsiblePerson , Replace(CONVERT(VARCHAR(11), AM.ReviewDate, 106), ' ', '-') AS ReviewDate
+								,BKM.AccountTitle BankName,CKM.UserName CashName, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received  , AD.Amount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyRate,CC.CompanyCurrencyAmount BookReceivable ,ISNULL(AW.AdvanceWriteOffBooksAmount,0)BookReceived
+								,ISNULL(CC.CompanyCurrencyAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0)BookBalance
+                                FROM [TRN].[AdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+								LEFT JOIN [MST].[BankMaster] AS BKM ON BKM.Id=AM.BankMasterId
+								LEFT JOIN [MST].[CashMaster] AS CKM ON CKM.Id=AM.CashMasterId
+								LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=AM.ResponsiblePersonId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
+                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=AM.PartyId
+                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+								LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@CompanyId
+							    ) AS CC ON CC.VoucherDetailId=VD.Id
+								 LEFT JOIN (select SUM(VDCW.CrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+														INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+														INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+														LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=AD.AdvanceId
+							  
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType='VendorAdvance' AND AM.PartyType='Vendor' 
+                                AND AM.CompanyGroupId=@CompanyGroupId AND AM.CompanyId=@CompanyId AND AM.PlantId=@PlantId  )X
+								
+UNION ALL
+SELECT  X.PartyType,X.VoucherRowId,X.VoucherNo,X.PartyName,X.PostingDate,X.DocDate,X.ReviewDate,X.DocRefNo,X.Narration
+,X.GL ,X.Budget ,X.Activity ,X.ResponsiblePerson,X.PaymentSource,x.BankName,x.CashName,X.CurrencyCode
+,X.Receivable,X.Received,X.Balance,X.BookReceivable,X.BookReceived,X.BookBalance
+FROM (SELECT AD.AdvanceId, AD.Id AS AdvanceDetailId, AD.PartyType, AD.CompanyId, AD.PlantId, AM.PartyId, AM.PartyPlantId,P.Code AS  PartyCode, P.UserName As PartyName, PP.UserName AS PartyPlantName, AM.AdvanceNo, AM.VoucherId, VD.Id AS VoucherRowId, VD.EntityId
+								, EN.UserName AS EntityName, AM.CurrencyId, C.Code AS CurrencyCode, AD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GL
+								, AD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS Budget, AD.ActivityId, A.Code AS ActivityCode, A.UserName AS Activity, V.VoucherNo, Replace(CONVERT(VARCHAR(11), AM.DocDate, 106), ' ', '-') AS DocDate
+                                , Replace(CONVERT(VARCHAR(11), AM.PostingDate, 106), ' ', '-') AS PostingDate, AM.DocRefNo, AM.Narration,AM.PaymentSource,EIR.EmployeeName ResponsiblePerson , Replace(CONVERT(VARCHAR(11), AM.ReviewDate, 106), ' ', '-') AS ReviewDate
+								,BKM.AccountTitle BankName,CKM.UserName CashName, AD.Amount AS Receivable, AD.WrittenOffAmount AS Received  , AD.Amount-AD.WrittenOffAmount AS Balance, CC.CompanyCurrencyRate,CC.CompanyCurrencyAmount BookReceivable ,ISNULL(AW.AdvanceWriteOffBooksAmount,0)BookReceived
+								,ISNULL(CC.CompanyCurrencyAmount,0)- ISNULL(AW.AdvanceWriteOffBooksAmount,0)BookBalance
+                                FROM [TRN].[AdvanceDetail] AS AD
+                                LEFT JOIN [TRN].[Advance] AS AM ON AD.AdvanceId=AM.Id
+                                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdvanceDetailId=AD.Id
+                                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+								LEFT JOIN [MST].[BankMaster] AS BKM ON BKM.Id=AM.BankMasterId
+								LEFT JOIN [MST].[CashMaster] AS CKM ON CKM.Id=AM.CashMasterId
+								LEFT JOIN [dbo].[EmployeeInformation] AS EIR ON EIR.SystemId=AM.ResponsiblePersonId
+                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=AD.GLGeneralInfoId
+                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=AD.BudgetMasterId
+                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=AD.ActivityId
+                                LEFT JOIN [SCS].[Currency] AS C ON C.Id=AM.CurrencyId
+                                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=AM.EntityId
+                                LEFT JOIN [HKP].[Party] AS P ON P.Id=AM.PartyId
+                                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AM.PartyPlantId
+								LEFT JOIN (
+								    SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+								    FROM [TRN].[VoucherDetailCurrency] AS VDC
+								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@CompanyId
+							    ) AS CC ON CC.VoucherDetailId=VD.Id
+								 LEFT JOIN (select SUM(VDCW.DrAmount)AdvanceWriteOffBooksAmount,AdvanceId from [TRN].[AdvanceWriteOffDetail] AWD
+														INNER JOIN  [TRN].[VoucherDetail] VDW ON VDW.AdvanceWriteOffDetailId=AWD.Id
+														INNER JOIN  [TRN].[VoucherDetailCurrency] AS VDCW ON VDCW.VoucherDetailId=VDW.Id
+														LEFT JOIN [TRN].[AdvanceWriteOff] AW ON AW.Id=AWD.AdvanceWriteOffId WHERE AW.IsPark=0 AND AW.Archive=0 GROUP BY AdvanceId)AW ON AW.AdvanceId=AD.AdvanceId
+							  
+                                WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType='CustomerAdvance' AND AM.PartyType='Customer' 
+                                AND AM.CompanyGroupId=@CompanyGroupId AND AM.CompanyId=@CompanyId AND AM.PlantId=@PlantId  )X ";
             return _sqlRepository.GetDataTable(strSql);
         }
 
