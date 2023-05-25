@@ -4686,7 +4686,6 @@
     <Content Include="Areas\Productions\Views\ProductionIssueControl\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\Aplos1.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosInOut.cshtml" />
-    <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosSFG.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosWC.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
