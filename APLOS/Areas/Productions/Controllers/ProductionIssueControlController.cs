@@ -54,10 +54,10 @@ namespace Aplos.Areas.Productions.Controllers
         {
             return View();
         }
-        public ActionResult AplosSFG()
-        {
-            return View();
-        }
+        //public ActionResult AplosSFG()
+        //{
+        //    return View();
+        //}
 
         public ActionResult AplosInOut()
         {

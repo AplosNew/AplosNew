@@ -5,6 +5,7 @@ using System.Data;
 using OTSBD;
 using Library.Crosscutting.Security;
 using System.Threading;
+using System.Linq;
 
 
 namespace Library.OrderManagement.Production
@@ -1193,41 +1194,71 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
             {
                 string loc = "";
                 string tempDate = "";
+                string tempCurrentDate = "";
                 if (Loc == "All")
                 {
                     loc = "";
                 }
                 else
                 {
-                    loc = " AND R.ToStorageLocId = '" + Loc + "'";
+                    loc = " AND R.ToStorageLocId = '" + Loc + "' ";
                 }
                 if(!string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
                 {
-                    tempDate = " AND convert(Date,S.AddedDate) between '" + FromDate + "' and '" + ToDate + @"'";
+                    tempDate = " AND convert(Date,S.AddedDate) between '" + FromDate + "' AND '" + ToDate + @"' ";
+                    tempCurrentDate = " AND convert(Date,S.AddedDate) between '" + FromDate + "' AND '" + DateTime.Now.ToString() + @"' ";
                 } else if (string.IsNullOrEmpty(FromDate) && !string.IsNullOrEmpty(ToDate))
                 {
-                    tempDate = " AND convert(Date,S.AddedDate) <= '" + ToDate + @"'";
+                    tempDate = " AND convert(Date,S.AddedDate) <= '" + ToDate + @"' ";
+                    tempCurrentDate = " AND convert(Date,S.AddedDate) <= '" + DateTime.Now.ToString() + @"' ";
                 }
                 else
                 {
                     tempDate = " ";
+                    tempCurrentDate = " ";
                 }
-                var str = @"Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
-                            (Select Stuff((
+                var str = @"select x.StandardName,x.ProductCode,x.POId,x.LotNo,sum(x.Bags) Bags,sum(x.BagSize) BagSize,sum(x.NtWt) NtWt,sum(x.GtWt) GtWt,sum(x.ActualBags) ActualBags,sum(x.ActualNtWt) ActualNtWt,sum(x.ActualGtWt) ActualGtWt,x.ProdDetails 
+                            FROM (
+                             Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
+                              0 ActualBags,0 ActualNtWt, 0 ActualGtWt,
+							(Select Stuff((
                             Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
-                            from dbo.ProductLibraryAttribute pla
-                            where pla.ProductLibraryId = P.Id
-                            for XML PATH('')
+                            FROM dbo.ProductLibraryAttribute pla
+                            WHERE pla.ProductLibraryId = P.Id
+                            FOR XML PATH('')
                             ) , 1, 2, '')) as ProdDetails
-                            from ItemScanChild S 
+                            FROM ItemScanChild S 
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
-                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' 
-                            AND R.ToLocation <> 'JW Sale-Dye' " + loc + @" "+ tempDate + @"
-                            AND M.StandardName is not null AND S.SalesId IS NULL 
-                            group by  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
-                            order by M.StandardName , S.LotNo";
+                            WHERE S.Booked = 'False' AND R.ToLocation NOT IN ( 'JOB WORK LOCATION','DyeHouse','PACKING', 'JW Sale-Dye')
+                             " + tempDate + @"
+                            AND M.StandardName IS NOT NULL AND S.SalesId IS NULL 
+                            GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
+                           
+							UNION ALL
+
+							Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , 0 NtWt, 0 GtWt,
+                             Count(S.RefNo) as ActualBags,Sum(S.NetWeight) as ActualNtWt, Sum(S.GWeight) as ActualGtWt,
+							(Select Stuff((
+                            Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+                            FROM dbo.ProductLibraryAttribute pla
+                            WHERE pla.ProductLibraryId = P.Id
+                            FOR XML PATH('')
+                            ) , 1, 2, '')) as ProdDetails
+                            FROM ItemScanChild S 
+                            LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
+                            LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+                            LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
+                            WHERE S.Booked = 'False' AND R.ToLocation NOT IN ( 'JOB WORK LOCATION','DyeHouse','PACKING', 'JW Sale-Dye')
+                             " + tempCurrentDate + @"
+                            AND M.StandardName IS NOT NULL AND S.SalesId IS NULL 
+                            GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
+                            
+							) x
+							GROUP BY x.StandardName,x.ProductCode,x.POId,x.LotNo,x.ProdDetails 
+							ORDER BY X.StandardName , X.LotNo DESC
+							";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
