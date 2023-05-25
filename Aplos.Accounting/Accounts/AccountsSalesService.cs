@@ -2783,8 +2783,8 @@ namespace Library.Accounting.Accounts
 						, T.Dr, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnDetailId
 					FROM (
 						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
-							,  IRD.PostDrGLGeneralInfoId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
-							,IRD.PostDrBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,IRD.PostDrActivityId ActivityId,A.Code ActivityCode 
+							,  IRD.PostCrGLGeneralInfoId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
+							,IRD.PostCrBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,IRD.PostCrActivityId ActivityId,A.Code ActivityCode 
 							,A.UserName ActivityName  , SUM(PRD.BooksCurrencyTransactionAmount) AS Dr , NULL Cr
 							, SUM(PRD.BooksCurrencyTransactionAmount) AS Amount
                             ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId,PRD.Id SalesReturnDetailId
@@ -2797,7 +2797,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON IRD.PostCrActivityId= A.Id
 						WHERE PRD.SalesReturnId=@receiveId
-						GROUP BY MM.MaterialGroupMasterId, IRD.PostDrGLGeneralInfoId, GL.AccountCode, GL.UserName, IRD.PostDrBudgetMasterId, B.Code, B.UserName, IRD.PostDrActivityId, A.Code, A.UserName
+						GROUP BY MM.MaterialGroupMasterId, IRD.PostCrGLGeneralInfoId, GL.AccountCode, GL.UserName, IRD.PostCrBudgetMasterId, B.Code, B.UserName, IRD.PostCrActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId,IRD.Id,PRD.Id
                     ) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId

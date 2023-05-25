@@ -233,20 +233,7 @@ function SalesReturnPostController(accountService, $window, cboService, commonMe
     }
 
     function reArrangeReturnJournalList(list, newList, newInvRecDetailList) {
-        //var svcList = ($filter('filter')(list, { OtherName: 'Svc' }, true));
-        //for (var t = 0; t < baseService.arrayLength(svcList); t++) {
-        //    var row = svcList[t];
-        //    if (row.OtherName === 'Svc' && row.TrnType === 'Dr') {
-        //        var taxList = ($filter('filter')(list, { OtherName: 'Svc', TrnType: 'Dr', GLGeneralInfoId: row.GLGeneralInfoId, BudgetMasterId: row.BudgetMasterId, ActivityId: row.ActivityId }, true));
-        //        row.Amount = parseFloat(row.Amount) / parseFloat(baseService.arrayLength(taxList));
-        //        assignSvcInTax(row, list, 'Dr');
-        //    }
-        //    else if (row.OtherName === 'Svc' && row.TrnType === 'Cr') {
-        //        var taxList = ($filter('filter')(list, { OtherName: 'Svc', TrnType: 'Cr', GLGeneralInfoId: row.GLGeneralInfoId, BudgetMasterId: row.BudgetMasterId, ActivityId: row.ActivityId }, true));
-        //        row.Amount = parseFloat(row.Amount) / parseFloat(baseService.arrayLength(taxList));
-        //        assignSvcInTax(row, list, 'Cr');
-        //    }
-        //}
+        
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             var row = list[i];
             if (row.OtherName === 'Tax' && row.TrnType === 'Dr' && row.Dr > 0) {

@@ -1308,11 +1308,11 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, COL + 6].Text = "P.Code." + ": " + dtOrder.Rows[0]["Code"].ToString();
 
                 sheet.Range[ROW, COL + 7].Text = "Checked Status" + ": " + dtOrder.Rows[0]["CheckedByStatus"].ToString();
-                sheet.Range[ROW, COL + 7, ROW, COL + 9].Merge();
+                sheet.Range[ROW, COL + 7, ROW, COL + 11].Merge();
 
-                sheet.Range[ROW, 1, ROW + 1, 10].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW + 1, 10].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW + 1, 10].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW + 1, 11].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW + 1, 11].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
 
 
                 ROW = 6; COL = 1;
@@ -1325,13 +1325,13 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, COL + 6].Text = "Shade" + ": " + dtOrder.Rows[0]["Shade"].ToString();
                 sheet.Range[ROW, COL + 6].ColumnWidth = 14;
                 sheet.Range[ROW, COL + 7].Text = "Approved Status: " + dtOrder.Rows[0]["AuthorizedByStatus"].ToString();
-                sheet.Range[ROW, COL + 7, ROW, COL + 9].Merge();
+                sheet.Range[ROW, COL + 7, ROW, COL + 11].Merge();
 
-                sheet.Range[ROW, 1, ROW + 1, 10].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW + 1, 10].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW + 1, 10].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW + 1, 11].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW + 1, 11].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
 
-                sheet.Range[7, 1, 7, COL + 10].Merge();
+                sheet.Range[7, 1, 7, COL + 11].Merge();
                 ROW = 7; COL = 1;
                 ROW++;
                 #region ColumnsHeader
@@ -1345,7 +1345,9 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet[ROW, COL].Text = "Value Loss"; sheet[ROW, COL].ColumnWidth = 19; int colVL = COL; COL++;
                 sheet[ROW, COL].Text = "UOM"; sheet[ROW, COL].ColumnWidth = 8; int colUoM = COL; COL++;
                 sheet[ROW, COL].Text = "Total Qty"; sheet[ROW, COL].ColumnWidth = 8; int colTQ = COL; COL++;
-                sheet[ROW, COL].Text = "Issue Qty"; sheet[ROW, COL].ColumnWidth = 8; int colIQ = COL;
+                sheet[ROW, COL].Text = "Plan Qty"; sheet[ROW, COL].ColumnWidth = 8; int colPQ = COL; COL++;
+                sheet[ROW, COL].Text = "Issued Qty"; sheet[ROW, COL].ColumnWidth = 8; int colIQ = COL; COL++;
+                sheet[ROW, COL].Text = "Balance Qty"; sheet[ROW, COL].ColumnWidth = 8; int colBQ = COL;
 
                 int endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.White;
@@ -1377,9 +1379,18 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet[ROW, colTQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["TotalConsumption"].ToString());
                     sheet.Range[ROW, colTQ].VerticalAlignment = ExcelVAlign.VAlignTop;
                     sheet.Range[ROW, colTQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet[ROW, colIQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["IssueQty"].ToString());
+                    sheet[ROW, colPQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["IssueQty"].ToString());
+                    sheet.Range[ROW, colPQ].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.Range[ROW, colPQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                    sheet[ROW, colIQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualIssue"].ToString());
                     sheet.Range[ROW, colIQ].VerticalAlignment = ExcelVAlign.VAlignTop;
                     sheet.Range[ROW, colIQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                    sheet[ROW, colBQ].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["Balance"].ToString());
+                    sheet.Range[ROW, colBQ].VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.Range[ROW, colBQ].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -1413,6 +1424,18 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[edCRow, 10].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 10, edCRow, 10].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[edCRow, 10, edCRow, 10].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet.Range[edCRow, 11].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(IssueQty)", null));
+                sheet.Range[edCRow, 11].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet.Range[edCRow, 11].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 11, edCRow, 11].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[edCRow, 11, edCRow, 11].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet.Range[edCRow, 12].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(IssueQty)", null));
+                sheet.Range[edCRow, 12].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                sheet.Range[edCRow, 12].CellStyle.Font.Bold = true;
+                sheet.Range[edCRow, 12, edCRow, 12].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[edCRow, 12, edCRow, 12].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderInside(ExcelLineStyle.Hair);
