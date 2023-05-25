@@ -79,6 +79,16 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [Authorize, HttpGet]
+        public JsonResult GetProcessIssueList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from HKP.Process where Active=1";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetIssueReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

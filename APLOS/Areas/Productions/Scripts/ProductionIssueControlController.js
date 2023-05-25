@@ -146,6 +146,17 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     };
     $scope.TimeNew = Object.assign({}, $scope.Time);
 
+    $scope.ProcessIssueList = [];
+    $scope.GetProcessIssueList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/ProductionIssueControl/GetProcessIssueList'
+        }).then(function successCallback(response) {
+            $scope.ProcessIssueList = response.data;
+        });
+    }
+    $scope.GetProcessIssueList();
+
     $scope.ReasonList = [];
     $scope.LoadReasonDetails = function () {
         $http({
