@@ -2606,6 +2606,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     // $scope.partyType = "Vendor";
 
     $scope.getPostSalesData = function () {
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $http.get("Commercial/PostSalesInvoice/GetListBySalesId?SalesId=" + $scope.salesVM.Id)
             .then(
                 function successCallback(response) {
@@ -2874,12 +2875,18 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
 
-    $scope.showPartyPopUp = function (flg) {
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.showVendorPopUp = function (flg) {
         $scope.flag = flg;
+        $scope.GetVendorPopUpData();
+        angular.element(document.querySelector('#vendorPopUp')).modal('show');
+    };
+
+    $scope.GetVendorPopUpData = function () {
         if ($scope.flag === 'Transport' || $scope.flag === 'CNF') {
             $scope.partyType = 'Vendor';
         }
-        $scope.searchByParty = "UserName"; $scope.searchParty = "";
+
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
         $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
@@ -2892,13 +2899,12 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         }).then(function successCallback(response) {
             $scope.partyList = response.data;
         });
-        angular.element(document.querySelector('#partyPopUpNew')).modal('show');
     };
 
-    $scope.closePartyPopUpNew = function () {
-        angular.element(document.querySelector('#partyPopUpNew')).modal('hide');
+    $scope.closevendorPopUpNew = function () {
+        angular.element(document.querySelector('#vendorPopUp')).modal('hide');
         $scope.hidePartyPopUp();
-        $scope.partyType = "Customer";
+        //$scope.partyType = "Customer";
     }
 
     $scope.SetVendorData = function (obj) {
@@ -2914,8 +2920,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             $scope.ModelNew.TransportAgentCode = party.Code;
             $scope.ModelNew.TransportAgentName = party.UserName;
         }
-        $scope.partyType = "Customer";
-        angular.element(document.querySelector('#partyPopUpNew')).modal('hide');
+        $scope.searchByParty = "UserName"; $scope.searchParty = "";
+        angular.element(document.querySelector('#vendorPopUp')).modal('hide');
     }
 
     $scope.closePartyPopUp = function (x) {
@@ -2949,6 +2955,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         $scope.flag = null;
         $scope.hidePartyPopUp();
     };
+
 
     //#endregion PostInvoice
 
