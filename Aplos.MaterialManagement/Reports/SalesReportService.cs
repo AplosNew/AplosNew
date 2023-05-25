@@ -1465,7 +1465,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             }
             catch (Exception ex)
             {
-                throw ex;
+                
             }
 
             document.Close();
