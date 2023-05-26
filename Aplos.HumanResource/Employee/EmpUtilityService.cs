@@ -506,7 +506,7 @@ namespace Library.Service.EmployeeServices
 
                 List<Updatebudgetcode> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate = '2023-05-25 00:00:00.000'  and EmpSystemID='" + Empsystemid + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate = convert(date, getdate())  and EmpSystemID ='" + Empsystemid + "'", out dsMaster, false, "1");
 
 
                 foreach (Updatebudgetcode item in DataToSave)
@@ -531,9 +531,9 @@ namespace Library.Service.EmployeeServices
 
                 // string MasterId = SaveDatax(items[0].EmpSystemID, "");
 
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                return MasterId;
-               // return "true";                     
+               // string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+              //  return MasterId;
+                return "true";                     
 
             }
             catch (Exception ex)
