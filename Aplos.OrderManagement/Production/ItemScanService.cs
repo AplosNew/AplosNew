@@ -305,6 +305,7 @@ namespace Library.Service.EmployeeServices
                         dr["Booked"] = 0;
                         dr["IsDespatch"] = 0;
                         dr["PackingId"] = DBNull.Value;
+                        dr["ReturnNetWeight"] = 0;
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }

@@ -2936,8 +2936,10 @@ namespace Library.MaterialManagement.Inventory
                             	LEFT JOIN (select Distinct PDAA.Id,AcceptanceDate,AcceptanceNo,ACMAP.GRNId from TRN.GRNAcceptanceMap ACMAP 
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
-							LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                            LEFT JOIN trn.MasterOrder AS mo ON mo.ContractId=CNO.Id
+                            LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
+                            LEFT JOIN TRN.SalesOrder SO on SO.ContractId=CNO.Id
+                            LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=SO.MasterOrderItemId
+                            LEFT JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
 							LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	                        --LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                             Left Join TRN.MaterialRequsitionDetails MRD ON MRD.Id=POD.RequisitionDetailId
@@ -3119,7 +3121,9 @@ namespace Library.MaterialManagement.Inventory
 									left Join trn.PurchaseDocAcceptance  PDAA ON PDAA.Id=ACMAP.PurchaseDocumentAcceptanceId
 									)PDA ON PDA.GRNId=IR.Id
 							LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                            LEFT JOIN trn.MasterOrder AS mo ON mo.ContractId=CNO.Id
+                            LEFT JOIN TRN.SalesOrder SO on SO.ContractId=CNO.Id
+                            LEFT JOIN trn.MasterOrderItem AS moi ON moi.Id=SO.MasterOrderItemId
+                            LEFT JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
 							LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	                        --LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                             Left Join TRN.MaterialRequsitionDetails MRD ON MRD.Id=POD.RequisitionDetailId

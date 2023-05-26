@@ -47,7 +47,6 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
 
 
     $scope.GetVehicleMovement = function (args) {
-
         $scope.VehicleMovement = Object.assign({}, args.data);
         $scope.ActionVM = 'Update';
         if (!$rootScope.isCollapsed) {
