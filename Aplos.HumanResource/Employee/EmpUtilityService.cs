@@ -493,7 +493,7 @@ namespace Library.Service.EmployeeServices
 
 
 
-        public string Createx(IEnumerable<Updatebudgetcode> DataToSave)
+        public string Createx(IEnumerable<Updatebudgetcode> DataToSave, string Empsystemid) 
         {
             try
             {
@@ -506,7 +506,7 @@ namespace Library.Service.EmployeeServices
 
                 List<Updatebudgetcode> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate = convert(date, getdate())  and EmpSystemID='" + items[0].EmpSystemID + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate = '2023-05-25 00:00:00.000'  and EmpSystemID='" + Empsystemid + "'", out dsMaster, false, "1");
 
 
                 foreach (Updatebudgetcode item in DataToSave)
