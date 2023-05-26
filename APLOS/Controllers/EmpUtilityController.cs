@@ -160,7 +160,7 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
-        public string UpdateBudgetCode([FromBody] IEnumerable<EmployeeInformationViewModel> DataToSave)
+        public string UpdateBudgetCode([FromBody] IEnumerable<Updatebudgetcode> DataToSave)
         {
             try
             {
