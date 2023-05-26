@@ -109,7 +109,7 @@
                                 <div class="input-group">
                                     <input type="text" name="Customer" ng-model="salesVM.PartyName" class="form-control" readonly>
                                     <span class="input-group-btn">
-                                        <button ng-click="showPartyPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                                         <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
                                     </span>
                                 </div>
@@ -695,7 +695,7 @@
                                     <div class="input-group">
                                         <input type="text" name="Transport Agent" ng-model="ModelNew.TransportAgentName" class="form-control" readonly>
                                         <span class="input-group-btn">
-                                            <button ng-click="showPartyPopUp('Transport');" class="btn single-small-btn" tabindex="19"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="showVendorPopUp('Transport');" class="btn single-small-btn" tabindex="19"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                 </div>
@@ -776,7 +776,7 @@
                                     <div class="input-group">
                                         <input type="text" name="CNF Agent" ng-model="ModelNew.CNFAgentName" tabindex="29" class="form-control" readonly>
                                         <span class="input-group-btn">
-                                            <button ng-click="showPartyPopUp('CNF');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="showVendorPopUp('CNF');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                 </div>
@@ -1435,10 +1435,10 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="partyPopUpNew" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="CustomerPopUpNew" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg ">
         <div class="modal-content">
-            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUpNew();">&times;</button></div>
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closeCustomerPopUpNew();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -1452,10 +1452,62 @@
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="ShowCustomerPopUpNew()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <button type="button" ng-click="ShowCustomerPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" id="customerPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="SetCustomerData"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeCustomerPopUpNew();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="vendorPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closevendorPopUpNew();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="GetVendorPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="GetVendorPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
                                 </div>
                             </div>
                         </div>
@@ -1479,13 +1531,14 @@
                     </div>
                 </div>
                 <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="closePartyPopUpNew();" class="btn"> Close</button></li>
+                    <li><button ng-click="closevendorPopUpNew();" class="btn"> Close</button></li>
                 </ul>
                 <i>**Showing top 100 {{partyType}} order by Code</i>
             </div>
         </div>
     </div>
 </div>
+
 
 <div class="loader" data-loader>
     Please wait

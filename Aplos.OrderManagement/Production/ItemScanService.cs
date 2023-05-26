@@ -305,6 +305,7 @@ namespace Library.Service.EmployeeServices
                         dr["Booked"] = 0;
                         dr["IsDespatch"] = 0;
                         dr["PackingId"] = DBNull.Value;
+                        dr["ReturnNetWeight"] = 0;
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
@@ -318,7 +319,6 @@ namespace Library.Service.EmployeeServices
                     else if (Inventchk == true && counter != 1 && filter != 1)
                     {
                         inventory = inventory + item.RefNo + " ";
-
                     }
                     else
                     {
