@@ -516,7 +516,7 @@ namespace Library.Service.EmployeeServices
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["BudgetCode"] = item.BudgetId;
+                        dr["BudgetId"] = item.BudgetId;
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["DateUpdated"] = System.DateTime.Now.ToString();
 
