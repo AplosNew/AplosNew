@@ -629,6 +629,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProcessQualityControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionIssueControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\RunningMachineSetUpTargetController.cs" />
@@ -2238,6 +2239,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\ProcessQualityControlController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionIssueControlController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlController.js" />
     <Content Include="Areas\Productions\Scripts\RunningMachineSetUpTargetController.js" />
@@ -4687,10 +4689,14 @@
     <Content Include="Areas\Productions\Views\ProductionIssueControl\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\Aplos1.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosInOut.cshtml" />
-    <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosSFG.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\AplosWC.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionIssueControl\Report.cshtml" />
     <Content Include="Areas\Accounts\Views\TaxReport\PaymentPendingforSetOffReport.cshtml" />
+    <Content Include="Areas\Productions\Views\ProcessQualityControl\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProcessQualityControl\Aplos1.cshtml" />
+    <Content Include="Areas\Productions\Views\ProcessQualityControl\AplosInOut.cshtml" />
+    <Content Include="Areas\Productions\Views\ProcessQualityControl\AplosWC.cshtml" />
+    <Content Include="Areas\Productions\Views\ProcessQualityControl\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

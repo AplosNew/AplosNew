@@ -597,7 +597,9 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             }
                             if (itemScanCildNewList != null)
                             {
-                                foreach (var scitemNew in itemScanCildNewList)
+                                foreach (var scitemNew in itemScanCildNewList.Where(r => r["SalesId"].ToString() == item["SalesId"].ToString()
+                                    && r["ActualPackingId"].ToString() == item["PackingId"].ToString()
+                                    && r["SalesOrderId"].ToString() == item["SalesOrderId"].ToString()))
                                 {
                                     Index++;
                                     DataView dvnewitem = new DataView(dsitemscanChildNew.Tables[0]);

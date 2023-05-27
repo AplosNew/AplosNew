@@ -26,7 +26,7 @@ using Library.Service.Systems;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class ProductionIssueControlController : BaseController
+    public class ProcessQualityControlController : BaseController
     {
         ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         private readonly IPKGeneratorService _pkGeneratorService;
@@ -35,7 +35,7 @@ namespace Aplos.Areas.Productions.Controllers
         /// <summary>   The ProductionSummaryService service. </summary>
         private readonly IProductionSummaryService _ProductionSummaryService;
 
-        public ProductionIssueControlController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
+        public ProcessQualityControlController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
         {
             _ProductionSummaryService = ProductionSummaryService;
             _sqlRepository = sqlRepository;
@@ -88,12 +88,23 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetDepartment()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select D.Id DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
+						                ,D.UserName DepartmentName,D.Description,D.Remarks 
+						                from ORG.Department D";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetIssueReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,IssueName as Text from [MST].[IssueDetails]";
+            var sql = @"select Id as Value,IssueName as Text from [MST].[QualityIssueDetails]";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -102,7 +113,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult LoadIssueDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,(select UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Id=ID.UOMId) as UOM from [MST].[IssueDetails] ID";
+            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,(select UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Id=ID.UOMId) as UOM from [MST].[QualityIssueDetails] ID";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -111,7 +122,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,(select UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Id=ID.UOMId) as UOM from [MST].[IssueDetails] ID where ID.Id='" + IssueId + @"'";
+            string sql = @"select *,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,(select UM.UserName UOM from scs.UnitOfMeasurement UM where UM.Id=ID.UOMId) as UOM from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
             return Json(new { Issue = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
@@ -131,12 +142,12 @@ namespace Aplos.Areas.Productions.Controllers
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[IssueDetails] where IssueName='" + IssueData["IssueName"] + "' and ProcessId='" + IssueData["ProcessId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where IssueName='" + IssueData["IssueName"] + "' and ProcessId='" + IssueData["ProcessId"] + "'", out DataSet dsItemDetailsIssueNameValidation, false, "1");
 
                 DataSet dsIssueDetails;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[IssueDetails] where Id='" + IssueData["Id"] + "'", out dsIssueDetails, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueDetails] where Id='" + IssueData["Id"] + "'", out dsIssueDetails, false, "1");
                 string _Id = "";
 
                 #region data update
@@ -144,13 +155,13 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     if (dsItemDetailsIssueNameValidation.Tables[0].Rows.Count > 0)
                     {
-                        throw new Exception("Item Name Already Exist.");
+                        throw new Exception("Issue Name Already Exist.");
                     }
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("IssueDetails", out _Id);
-                        _Id = "PID" + _Id;
+                        genid.GenID("QualityIssueDetails", out _Id);
+                        _Id = "QID" + _Id;
                         IssueData["Id"] = _Id;
                         AddNewRow(dsIssueDetails.Tables[0], IssueData);
                     }
@@ -182,7 +193,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult LoadReasonDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,(select ID.IssueName from [MST].[IssueDetails] ID where ID.Id=RD.IssueId) as IssueName from [MST].[WCProcessReasonDetails] RD";
+            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=RD.IssueId) as IssueName from [MST].[WCProcessReasonDetails] RD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -191,7 +202,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select *,(select ID.IssueName from [MST].[IssueDetails] ID where ID.Id=RD.IssueId) as IssueName from [MST].[WCProcessReasonDetails] RD where RD.Id='" + ReasonId + @"'";
+            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=RD.IssueId) as IssueName from [MST].[WCProcessReasonDetails] RD where RD.Id='" + ReasonId + @"'";
             return Json(new { Reason = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
@@ -253,7 +264,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult LoadTimeIssueDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select ID.Id as Value,ID.IssueName as Text from [MST].[IssueDetails] ID";
+            string sql = @"select ID.Id as Value,ID.IssueName as Text from [MST].[QualityIssueDetails] ID";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -261,7 +272,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult LoadTimeDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,(select ID.IssueName from [MST].[IssueDetails] ID where ID.Id=TD.IssueId) as IssueName,format(TD.FromTime,'hh:mm tt') as FTime,format(TD.ToTime,'hh:mm tt') as TTime from [MST].[WCProcessTimeDetails] TD";
+            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=TD.IssueId) as IssueName,format(TD.FromTime,'hh:mm tt') as FTime,format(TD.ToTime,'hh:mm tt') as TTime from [MST].[WCProcessTimeDetails] TD";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -270,7 +281,7 @@ namespace Aplos.Areas.Productions.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select *,(select ID.IssueName from [MST].[IssueDetails] ID where ID.Id=TD.IssueId) as IssueName,format(TD.FromTime,'hh:mm tt') as FTime,format(TD.ToTime,'hh:mm tt') as TTime from [MST].[WCProcessTimeDetails] TD where TD.Id='" + TimeId + @"'";
+            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=TD.IssueId) as IssueName,format(TD.FromTime,'hh:mm tt') as FTime,format(TD.ToTime,'hh:mm tt') as TTime from [MST].[WCProcessTimeDetails] TD where TD.Id='" + TimeId + @"'";
             return Json(new { Time = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 

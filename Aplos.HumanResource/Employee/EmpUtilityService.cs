@@ -228,15 +228,17 @@ namespace Library.Service.EmployeeServices
         {
             try
             {
-                var Sql = @"select emp.SystemId as EmpId,emp.EmployeeName as Name,emp.EmployeeCode,emp.EmploymentType,mb.Code AS BudgetCode,mb.Id as BudgetCodeId,
+                var Sql = @"select emp.SystemId as EmpId,emp.EmployeeName as Name,apd.WorkDate,emp.EmployeeCode,emp.EmploymentType,mb.Code AS BudgetCode,mb.Id as BudgetCodeId,
                         dx.StandardName as Department,emp.EmployeeGroupSystemID,dx.Id as DepartmentId,CONVERT(VARCHAR(12),emp.DOJ,107) as DOJ,l.Id as LegalDesignationId,l.StandardName as LegalDesignation,
                         d.StandardName as Designation,
                                d.Id as DesignationId
-                                from dbo.EmployeeInformation emp left join hkp.Designation d
-                    on d.Id=emp.DesignationSystemID left join org.Department dx on dx.Id=emp.DepartmentId
-					LEFT JOIN MST.ManpowerBudget MB ON emp.BudgetCode = MB.Id
+                                from dbo.AttdnProcessData apd
+								 left join dbo.EmployeeInformation emp on emp.SystemId = apd.EmpSystemID 
+								left join hkp.Designation d on d.Id=emp.DesignationSystemID
+								left join org.Department dx on dx.Id=emp.DepartmentId
+					LEFT JOIN MST.ManpowerBudget MB ON apd.BudgetId = MB.Id
 					left join hkp.LegalDesignation l on l.Id=emp.LegalDesignationId
-                                where EmployeeCode='" + Code + "'AND emp.EmployeeStatus='Active'";
+                                where EmployeeCode='" + Code + "' and apd.WorkDate = convert(date, getdate())";
 
                        return _sqlRepository.GetDataCollection(Sql, null);
             }
@@ -491,7 +493,59 @@ namespace Library.Service.EmployeeServices
 
 
 
-        public string Createx(IEnumerable<EmployeeInformationViewModel> DataToSave)
+        public string Createx(IEnumerable<Updatebudgetcode> DataToSave, string Empsystemid) 
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<Updatebudgetcode> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where WorkDate = convert(date, getdate())  and EmpSystemID ='" + Empsystemid + "'", out dsMaster, false, "1");
+
+
+                foreach (Updatebudgetcode item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["BudgetId"] = item.BudgetId;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["DateUpdated"] = System.DateTime.Now.ToString();
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                // string MasterId = SaveDatax(items[0].EmpSystemID, "");
+
+               // string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+              //  return MasterId;
+                return "true";                     
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        // For Test 
+
+        public string Creatextest(IEnumerable<EmployeeInformationViewModel> DataToSave)
         {
             try
             {
@@ -543,14 +597,14 @@ namespace Library.Service.EmployeeServices
                     }
                 }
 
-                //clsStaticInfo _info = new clsStaticInfo();
-                //_info.SaveDataSets(dsMaster);
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
 
 
-                // string MasterId = SaveDatax(items[0].SystemId, items[0].prevbudgetCode, items[0].LegalDesignationId, items[0].prevdesgnId, items[0].AddedBy, items[0].AddedFromIP, "");
-                //return MasterId;
-                return "true"; //Stopping It for Now 
-                     
+                 string MasterId = SaveDatax(items[0].SystemId, items[0].prevbudgetCode, items[0].LegalDesignationId, items[0].prevdesgnId, items[0].AddedBy, items[0].AddedFromIP, "");
+                return MasterId;
+               // return "true"; //Stopping It for Now 
+
 
             }
             catch (Exception ex)
@@ -558,7 +612,6 @@ namespace Library.Service.EmployeeServices
                 throw (ex);
             }
         }
-
 
         public IEnumerable<object> GetBudgetCode(string GpId, string CompId,string PlntId)
         {
@@ -1017,7 +1070,18 @@ namespace Library.Service.EmployeeServices
         public string DesignationSystemID { get; set; }
       
     }
-    
+
+    public class Updatebudgetcode
+    {
+        public string EmpSystemID { get; set; }
+        public string BudgetId { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? DateUpdated { get; set; }
+
+    }
+
+
+
     public class PhysicalVerifyModel
     {
         public string AddedBy { get; set; }

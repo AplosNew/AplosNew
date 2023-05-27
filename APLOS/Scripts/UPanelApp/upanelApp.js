@@ -1178,7 +1178,7 @@ upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterCon
 upanelApp.controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
 upanelApp.controller("VehicleReqForApproveController", VehicleReqForApproveController)
 upanelApp.controller("ProductionIssueControlController", ProductionIssueControlController)
-
+upanelApp.controller("ProcessQualityControlController", ProcessQualityControlController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

@@ -1,0 +1,611 @@
+﻿<style>
+    .ifchange {
+        background-color: #f54b4b;
+    }
+
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+
+<h3 class="site-heading" style="cursor:unset;"><span class="glyphicon glyphicon-info-sign"></span> Production Booking</h3>
+<div class="form-element-ctrl form-horizontal row" ng-form="modelForm">
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.EntityId" ng-change="loadProcessList(productionSummaryNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+            </div>
+
+        </div>
+        <h3 class="site-heading" style="cursor:unset;height:25px;"></h3>
+        <div class="form-group" show-errors ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="productionSummaryNew.WorkCenterMasterId" name="Work Center" ng-options="item.Value as item.Text for item in wcList" ng-change="getLineGrid();getProdQty();getMentorAndRespPersonByWCM();" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">{{ProductionLevel}}<sup>*</sup></label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="SalesOrder" ng-show="productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'" ng-model="productionSummaryNew.SalesOrderId" class="form-control" readonly>
+                    <input type="text" name="SalesOrder" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductionOrder'" ng-model="productionSummaryNew.ProductionOrderId" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="getMaterialMasterbyTypePopUp('');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-2 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Material Master</label>
+            <div class="col-sm-5">
+                <label class="control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">{{productionSummaryNew.MaterialMaster}}</label>
+            </div>
+
+            <label class="col-sm-2 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Article</label>
+            <div class="col-sm-3" style="margin-left: -50px;">
+                <label class="control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">{{productionSummaryNew.Article}}</label>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors ng-show="IsGo===true">
+            <label class="col-sm-3 control-label">Produced Quantity<sup>*</sup></label>
+            <div class="col-sm-3 show-message" style="padding-right:0;">
+                <input type="text" class="form-control" ng-disabled="PQEnable" n-decimals="2" placeholder="Produced Quantity" ng-model="productionSummaryNew.Quantity">
+            </div>
+            <div class="col-sm-1" style="padding-left:0px;">
+                <label class="control-label">{{productionSummaryNew.UOM}}</label>
+            </div>
+
+            <label class="col-sm-2 control-label">Grade<sup>*</sup></label>
+            <div class="col-sm-3 show-message" style="padding-right:-1px;">
+                <div class="select-style">
+                    <select class="form-control" ng-model="productionSummaryNew.ProductionGrade" placeholder="Grade" name="ProductionGrade" ng-options="item.Value as item.Text for item in gradeList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Total Production</label>
+            <div class="col-sm-8">
+                <label class="control-label" style="color:blue">{{ProdQtyCount}}</label>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="loadWC(productionSummaryNew.ProcessId);getProdLevel();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label"></label>
+
+            <div class="col-sm-2 show-message" style="padding-right:0;">
+                <button ng-click="masterGo(true);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button>
+            </div>
+            <div class="col-sm-2 show-message" style="padding-left:0;">
+                <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-12 control-label"></label>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-12 control-label"></label>
+        </div>
+        <div class="form-group" ng-show="IsGo===true" style="margin-top: 18px;">
+            <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Master Order</label>
+            <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
+                <div class="input-group">
+                    <label class="control-label">{{productionSummaryNew.Customer}}({{productionSummaryNew.MasterOrderNo}})</label>
+                    <span class="input-group-btn">
+                        <button ng-click="showOrderDetail();" ng-disabled="productionSummaryNew.MasterOrderNo===null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-info-sign"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">PO Number</label>
+            <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
+                <label class="control-label">{{productionSummaryNew.PONumber}}</label>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Mentor</label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Mentor" ng-model="productionSummaryNew.MentorName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp('Mentor');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="ClearEmployee('Mentor')" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Responsible Person</label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Responsible Person" ng-model="productionSummaryNew.ResponsiblePersonName" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showEmployeeListPopUp('ResponsiblePerson');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="ClearEmployee('ResponsiblePerson')" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-xs-12" ng-show="IsGo===true">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li><button ng-click="showFirstPopup(productionSummaryNew);" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'" class="btn" tabindex="9"><i class="glyphicon glyphicon-list"></i> SKU</button></li>
+            </ul>
+        </div>
+            
+    </div>
+    <div class="clearfix"></div>
+    <div class="common-btn" ng-show="IsGo===true">
+        <ul class="list-inline text-right">
+            <li><button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+            <li><button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+    <div class="table-responsive modal-table" ng-show="IsGo===true && LineGridList.length>0">
+        <table class="table table-striped text-left" ng-show="productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
+            <thead>
+                <tr>
+                    @*<th ng-repeat="h in SearchLineGridList">{{h.Text}}</th>*@
+                    <th>Action</th>
+                    <th>Production Order</th>
+                    <th>Master Order</th>
+                    <th>Sales Order</th>
+                    <th>Customer</th>
+                    <th>PO Number</th>
+                    <th>Material</th>
+                    <th>Article</th>
+                    <th>Grade</th>
+                    <th>Produced Qty</th>
+                    <th>Production Booking Period</th>
+                    @*<th>SKU</th>*@
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in LineGridList">
+                    <td>
+                        <ul class="list-inline action-list">
+                            <li>
+                                <button ng-click="Get(x.Id, $index);" class="btn-action tooltip-here" data-placement="top" title="Edit" tooltip><i class="glyphicon glyphicon-pencil"></i></button>
+                                <button ng-click="deleteMaster(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tooltip><i class="glyphicon glyphicon-remove"></i></button>
+                            </li>
+                        </ul>
+                    </td>
+                    <td>{{x.MasterOrderNo}}</td>
+                    <td>{{x.MasterOrderNo}}</td>
+                    <td>{{x.SalesOrderId}}</td>
+                    <td>{{x.Customer}}</td>
+                    <td>{{x.PONumber}}</td>
+                    <td>{{x.MaterialMaster}}</td>
+                    <td>{{x.Article}}</td>
+                    <td>{{x.ProductionGrade}}</td>
+                    <td>{{x.Quantity}}</td>
+                    <td>{{x.ProductionBookingPeriod}}</td>
+                    @*<td>
+                <button ng-click="showFirstPopup(x);" class="btn single-small-btn" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'"><i class="cr-icon glyphicon glyphicon-list"></i></button>
+            </td>*@
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-striped text-left" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductionOrder'">
+            <thead>
+                <tr>
+                    @*<th ng-repeat="h in SearchLineGridList">{{h.Text}}</th>*@
+                    <th>Action</th>
+                    <th>Production Order</th>
+                    <th>Production Date</th>
+                    <th>Grade</th>
+                    <th>Produced Qty</th>
+                    <th>Production Booking Period</th>
+                    @*<th>SKU</th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @*<tr dir-paginate="x in LineGridList  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'LineGridList'"
+                    total-items="mmPopUpParameters.total_count" ng-dblclick="selectLineItem(x);">*@
+                    <tr ng-repeat="x in LineGridList">
+                    <td>
+                        <ul class="list-inline action-list">
+                            <li>
+                                <button ng-click="Get(x.Id, $index)" class="btn-action tooltip-here" data-placement="top" title="Edit" tooltip><i class="glyphicon glyphicon-pencil"></i></button>
+                                <button ng-click="deleteMaster(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tooltip><i class="glyphicon glyphicon-remove"></i></button>
+                            </li>
+                        </ul>
+                    </td>
+                    <td>{{x.ProductionOrderId}}</td>
+                    <td>{{x.ProductionDate}}</td>
+                    <td>{{x.ProductionGrade}}</td>
+                    <td>{{x.Quantity}}</td>
+                    <td>{{x.ProductionBookingPeriod}}</td>
+                    @*<td>
+                        <button class="btn single-small-btn" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'"><i class="cr-icon glyphicon glyphicon-list"> </i></button>
+                    </td>*@
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SOItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Sales Order Item<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div style="color:black;" id="SOGrid" ej-grid e-datasource="SOItemList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
+                     e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="MasterOrderNo" e-headertext="MasterOrderNo" e-width="75"></div>
+                        <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderNo" e-width="80"></div>
+                        <div e-column e-field="SalesOrderId" e-headertext="SalesOrderNo" e-width="80"></div>
+                        <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                        <div e-column e-field="PONumber" e-headertext="PO Number" e-width="80"></div>
+                        <div e-column e-field="RemainingQty" e-headertext="Remaining Qty" e-width="80"></div>
+                        <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                        <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
+                        <div e-column e-field="Article" e-headertext="Article" e-width="80"></div>
+                        <div e-column e-field="ProductMasterName" e-headertext="Product" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Production Order<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div style="color:black;" id="Grid" ej-grid e-datasource="SOItemList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-recorddoubleclick="selectSOItem"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="ProductionOrderId" e-headertext="ProductionOrderNo" e-width="80"></div>
+                        <div e-column e-field="ProductCategory" e-headertext="Product Category" e-width="80"></div>
+                        <div e-column e-field="Product" e-headertext="Product" e-width="80"></div>
+                        <div e-column e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                        <div e-column e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                        <div e-column e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>
+                        <div e-column e-field="RequiredTimeUnit" e-headertext="Required Time Unit" e-width="80"></div>
+                        <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                        <div e-column e-field="LSD" e-headertext="LSD" e-width="80"></div>
+                        <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- #region First Characteristics -->
+<div class="modal fade site-modal in" id="firstPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SKU <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-element-ctrl form-horizontal">
+
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{{ProductionSummaryDetail[0].FirstChar}}</th>
+                                <th>Qty</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in ProductionSummaryDetail">
+                                <td>{{x.FirstCharValue}}</td>
+                                <td><input type="text" class="form-control" ng-model="x.Qty" ng-change="countProductQty();" n-decimals="2"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        @*<li><button ng-click="SaveDetail();char1Save();" class="btn"><i class=""></i> Save</button></li>*@
+                        <li><button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                        <li><button ng-click="closeCharPopUp();" class="btn"><i class=""></i> Close</button></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion First Characteristics -->
+<!-- #region Second Characteristics -->
+<div class="modal fade site-modal in" id="secondPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SKU <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="modal-body">
+                    <div class="col-xs-12 col-sm-6 col-md-6 form-elements">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Characteristics Value</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="CharacteristicsValueId" name="Characteristics Value" ng-change="getCharInfo();"
+                                            ng-options="item.Value as item.Text for item in characteristicsValueList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-xs-12">
+                        <div class="form-elements form-horizontal table-responsive modal-table">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ProductionSummaryDetail[0].SecondChar}}</th>
+                                            <th>Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in ProductionSummaryDetail">
+                                            <td>{{x.SecondCharValue}}</td>
+                                            <td><input type="text" n-decimals="2" class="form-control" ng-model="x.Qty" ng-change="countProductQty();"></td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            @*<table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>{{rowName}}</th>
+                                            <th ng-repeat="x in skuList[0].childList">
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true"
+                                                            ng-change="chvChange(x.CharacteristicsValueId, $index);">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control">
+                                                </div>
+                                            </th>
+                                            <th ng-click="addSkuMatrixColumn()"> Add </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in skuList">
+                                            <td>
+                                                <div class="select-style">
+                                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <input type="text" ng-model="x.ValueFreeText" class="form-control">
+                                                </div>
+                                            </td>
+                                            <td ng-repeat="y in x.childList">
+                                                <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        @*<li> <button ng-click="charSave();" class="btn"><i class=""></i> Save</button></li>*@
+                        <li><button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                        <li><button ng-click="closeCharPopUp();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Second Characteristics -->
+<!-- #region Third Characteristics -->
+<div class="modal fade site-modal in" id="thirdPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">SKU <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{{char1.Name}}<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select name="Order Status" class="form-control" ng-model="char1.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char1.Id }:true">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{rowName}}</th>
+                            <th ng-repeat="x in skuList[0].childList">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char3.Id }:true"
+                                            ng-change="chvChange(x.CharacteristicsValueId, $index);">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="text" ng-model="x.ValueFreeText" ng-keyup="chvKeyChange(x.ValueFreeText, $index);" class="form-control">
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="x in skuList">
+                            <td>
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="x.CharacteristicsValueId" ng-options="item.Value as item.Text for item in charValueList|filter:{ CharacteristicsId: char2.Id }:true">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input type="text" ng-model="x.ValueFreeText" class="form-control">
+                                </div>
+                            </td>
+                            <td ng-repeat="y in x.childList">
+                                <input type="text" only-numbers ng-model="y.Qty" ng-keyup="sumQty(x, $parent.$index );" class="form-control text-right">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="common-btn" style="padding-right: 15px;">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="charSave();" class="btn"><i class=""></i> Save</button></li>
+                        <li><button ng-click="closeCharPopUp();" class="btn">Close</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #endregion Third Characteristics -->
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">{{popUpTitle}}<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in employeeFilterList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
