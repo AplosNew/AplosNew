@@ -1,13 +1,13 @@
 ﻿'use strict';
-ProductionIssueControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function ProductionIssueControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "WC Wise Production/Process Issue Control";
+ProcessQualityControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function ProcessQualityControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "Process/Quality Issue Control";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.productionSummaryes = [];
-    $scope.gradeList = [];
+    $scope.IssueTypeList = [];
     $scope.PeriodCategoryList = [];
-    $scope.path = 'Productions/ProductionIssueControl/';
+    $scope.path = 'Productions/ProcessQualityControl/';
     $scope.getListUrl = $scope.path + 'getlist';
     //$scope.saveUrl = $scope.path + 'create';
     //$scope.saveUrlWC = $scope.path + 'createWC';
@@ -38,19 +38,15 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
         return $scope.tab === tabNum;
     };
 
-    $scope.gradeList = [
+    $scope.IssueTypeList = [
         {
-            'Value': 'A',
-            'Text': 'A'
+            'Value': 'Order',
+            'Text': 'Order'
         },
         {
-            'Value': 'B',
-            'Text': 'B'
+            'Value': 'General',
+            'Text': 'General'
         },
-        {
-            'Value': 'C',
-            'Text': 'C'
-        }
     ];
 
     $scope.PeriodCategoryList = [
@@ -124,7 +120,12 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
         Id: null,
         ProcessId: null,
         IssueName: null,
-        UOMId: null,
+        DepartmentId: null,
+        Department: null,
+        IssueType: null,
+        IssueCategory: null,
+        PositionCodeId: null,
+        PositionCode: null,
         Remarks: null,
     };
     $scope.IssueNew = Object.assign({}, $scope.Issue);
@@ -150,7 +151,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.GetProcessIssueList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProductionIssueControl/GetProcessIssueList'
+            url: 'Productions/ProcessQualityControl/GetProcessIssueList'
         }).then(function successCallback(response) {
             $scope.ProcessIssueList = response.data;
         });
@@ -161,7 +162,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.LoadReasonDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProductionIssueControl/LoadReasonDetails'
+            url: 'Productions/ProcessQualityControl/LoadReasonDetails'
         }).then(function successCallback(response) {
             $scope.ReasonList = response.data;
         }
@@ -173,7 +174,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.GetReasonGridList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProductionIssueControl/GetReasonGridList?IssueId=' + $scope.productionSummaryNew.IssueId
+            url: 'Productions/ProcessQualityControl/GetReasonGridList?IssueId=' + $scope.productionSummaryNew.IssueId
         }).then(function successCallback(response) {
             $scope.ReasonGridList = response.data;
         });
@@ -184,7 +185,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.LoadTimeDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProductionIssueControl/LoadTimeDetails'
+            url: 'Productions/ProcessQualityControl/LoadTimeDetails'
         }).then(function successCallback(response) {
             $scope.TimeList = response.data;
         }
@@ -195,7 +196,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.GetReasonDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProductionIssueControl/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
+            url: 'Productions/ProcessQualityControl/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ReasonNew = response.data.Reason[0];
             if (!$rootScope.isCollapsed) {
@@ -208,7 +209,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.GetTimeDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProductionIssueControl/LoadTimeDetailsEditData?TimeId=' + args.data.Id
+            url: 'Productions/ProcessQualityControl/LoadTimeDetailsEditData?TimeId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.TimeNew = response.data.Time[0];
             if (!$rootScope.isCollapsed) {
@@ -290,7 +291,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.LoadTimeIssueListDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProductionIssueControl/LoadTimeIssueDetails'
+            url: 'Productions/ProcessQualityControl/LoadTimeIssueDetails'
         }).then(function successCallback(response) {
             $scope.TimeIssueList = response.data;
         }
@@ -324,11 +325,37 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
         angular.element(document.querySelector('#UOMPopUp')).modal('hide');
     }
 
+    $scope.selectDepartment = function () {
+        $scope.getDepartment();
+        angular.element(document.querySelector('#DepartmentPop')).modal('show');
+    }
+
+    $scope.DepartmentList = [];
+    $scope.getDepartment = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetDepartment',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DepartmentList = resp.data;
+        });
+    }
+
+    $scope.doubleDepartment = function (e) {
+        $scope.IssueNew.DepartmentId = e.data.DepartmentId;
+        $scope.IssueNew.Department = e.data.DepartmentName;
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+    }
+
+    $scope.closeDepartmentPopUp = function () {
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+    }
+
     $scope.IssueReasonList = [];
     $scope.GetIssueReasonList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProductionIssueControl/GetIssueReasonList'
+            url: 'Productions/ProcessQualityControl/GetIssueReasonList'
         }).then(function successCallback(response) {
             $scope.IssueReasonList = response.data;
         });
@@ -339,7 +366,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.LoadIssueDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProductionIssueControl/LoadIssueDetails'
+            url: 'Productions/ProcessQualityControl/LoadIssueDetails'
         }).then(function successCallback(response) {
             $scope.IssueList = response.data;
         }
@@ -350,7 +377,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.GetIssueDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProductionIssueControl/LoadIssueDetailsEditData?IssueId=' + args.data.Id
+            url: 'Productions/ProcessQualityControl/LoadIssueDetailsEditData?IssueId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.IssueNew = response.data.Issue[0];
             if (!$rootScope.isCollapsed) {
@@ -409,7 +436,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
             $http({
                 method: 'POST',
                 url: $scope.saveUrlPICValue,
-                data: { 'ProductionIssueControlData': data.data },
+                data: { 'ProcessQualityControlData': data.data },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -648,7 +675,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
-            $http.get('Productions/ProductionIssueControl/GetWCProcessCboPIC?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId + '&IssueId=' + $scope.productionSummaryNew.IssueId + '&PeriodId=' + $scope.productionSummaryNew.PeriodId)
+            $http.get('Productions/ProcessQualityControl/GetWCProcessCboPIC?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId + '&IssueId=' + $scope.productionSummaryNew.IssueId + '&PeriodId=' + $scope.productionSummaryNew.PeriodId)
                 .then(function (response) {
                     $scope.wcList = response.data;
                     for (var i = 0; i < $scope.wcList.length; i++) {
@@ -2455,402 +2482,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
         $scope.wcList = [];
     }
 
-    $scope.ProcessDetention = {
-        Id: null,
-        ProductionSummaryId: null,
-        EntityId: null,
-        ProcessId: null,
-        ShiftId: null,
-        Date: null,
-        WorkCenterMasterId: null,
-        DepartmentId: null,
-        DetentionId: null,
-        ResponsiblePersonId: null,
-        WorkCenter: null,
-        Detention: null,
-        DetentionType: null,
-        DetentionTypeId: null,
-        Department: null,
-        ResponsiblePerson: null,
-        Remark: null,
-        FromTime: null,
-        ToTime: null,
-        Minute: null,
-    };
-
-    $scope.ProductionSummaryId = null;
-    $scope.productionSummaryNew.DetentionSum = 0;
-    $scope.ProcessDetentionLists = [];
-    $scope.getProcessDetentionPopupPoPUp = function (data) {
-        $scope.NewObject = data.data;
-        var processid = $scope.productionSummaryNew.ProcessId;
-        var entityid = $scope.productionSummaryNew.EntityId;
-        var productiondate = $scope.productionSummaryNew.ProductionDate;
-        var shiftid = $scope.productionSummaryNew.ProductionShiftId;
-        $scope.productionSummaryNew = data.data;
-        $scope.ProductionSummaryId = $scope.productionSummaryNew.Id;
-        $scope.productionSummaryNew.ProcessId = processid;
-        $scope.productionSummaryNew.EntityId = entityid;
-        $scope.productionSummaryNew.ProductionDate = productiondate;
-        $scope.productionSummaryNew.ProductionShiftId = shiftid;
-        $scope.productionSummaryNew.workCenter = data.data.WorkCenter;
-        $scope.productionSummaryNew.workCenterId = data.data.WorkCenterMasterId;
-        try {
-            ValidationMaster();
-            $scope.ProcessDetentionLists = [];
-            for (var i = 1; i < 6; i++) {
-                var obj = angular.copy($scope.ProcessDetention);
-                obj.Id = null;
-                obj.ProductionSummaryId = $scope.ProductionSummaryId;
-                obj.ProcessId = $scope.productionSummaryNew.ProcessId;
-                obj.EntityId = $scope.productionSummaryNew.EntityId;
-                obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
-                obj.ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
-                obj.workCenter = $scope.productionSummaryNew.workCenterId;
-                obj.Sequence = i;
-                $scope.ProcessDetentionLists.push(obj);
-            }
-
-            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId + '&ProductionSummaryId=' + data.data.Id)
-                .then(
-                    function successCallback(response) {
-                        /*$scope.ProcessDetentionLists = response.data;*/
-                        if (response.data.length > 0) {
-
-                            for (var j = 0; j < response.data.length; j++) {
-                                for (var k = 0; k < $scope.ProcessDetentionLists.length; k++) {
-                                    if ($scope.ProcessDetentionLists[k].Sequence == response.data[j].Sequence) {
-                                        $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
-                                        $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
-                                        $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
-                                        $scope.ProcessDetentionLists[k].ProductionSummaryId = response.data[j].ProductionSummaryId;
-                                        $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
-                                        $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
-                                        $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
-                                        $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
-                                        $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
-                                        $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
-                                        $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
-                                        //$scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
-                                        //$scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
-                                        $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
-                                        $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
-                                        $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
-                                        $scope.ProcessDetentionLists[k].Remark = response.data[j].Remark;
-                                    }
-
-                                }
-                            }
-
-                        }
-                    },
-                    function errorCallback(response) {
-                        ShowResult(response, 'failure');
-                    });
-            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-            angular.element(document.querySelector('#articlePoUp')).modal('show');
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-
-    };
-
-
-    $scope.getProcessDetention = function () {
-        try {
-            $scope.ProcessDetentionLists = [];
-            for (var i = 1; i < 6; i++) {
-                var obj = angular.copy($scope.ProcessDetention);
-                obj.Id = null;
-                obj.ProductionSummaryId = $scope.ProductionSummaryId;
-                obj.ProcessId = $scope.productionSummaryNew.ProcessId;
-                obj.EntityId = $scope.productionSummaryNew.EntityId;
-                obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
-                obj.ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
-                obj.workCenter = $scope.productionSummaryNew.workCenterId;
-                obj.Sequence = i;
-                $scope.ProcessDetentionLists.push(obj);
-            }
-
-            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId + '&ProductionSummaryId=' + $scope.ProductionSummaryId)
-                .then(
-                    function successCallback(response) {
-                        if (response.data.length > 0) {
-
-                            for (var j = 0; j < response.data.length; j++) {
-                                for (var k = 0; k < $scope.ProcessDetentionLists.length; k++) {
-                                    if ($scope.ProcessDetentionLists[k].Sequence == response.data[j].Sequence) {
-                                        $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
-                                        $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
-                                        $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
-                                        $scope.ProcessDetentionLists[k].ProductionSummaryId = response.data[j].ProductionSummaryId;
-                                        $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
-                                        $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
-                                        $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
-                                        $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
-                                        $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
-                                        $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
-                                        $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
-                                        //$scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
-                                        $scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
-                                        $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
-                                        $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
-                                        $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
-                                        $scope.ProcessDetentionLists[k].Remark = response.data[j].Remark;
-                                    }
-                                }
-                            }
-
-                        }
-                    },
-                    function errorCallback(response) {
-                        ShowResult(response, 'failure');
-                    });
-            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-
-    };
-
-    $scope.LoadDetentionList = function () {
-        try {
-            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId + '&ProductionSummaryId=' + $scope.ProductionSummaryId)
-                .then(function (response) {
-                    $scope.ProcessDetentionLists = response.data;
-                });
-        } catch (ex) {
-            ShowResult(ex, 'Info');
-        }
-    };
-
-    //$scope.DetentionTypeList = [];
-    //$scope.GetDetentionTypeList = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'IE/MachineMasterTransaction/GetDetentionTypeList'
-    //    }).then(function successCallback(response) {
-    //        $scope.DetentionTypeList = response.data;
-    //    });
-    //}
-
-
-    var currRow = null;
-    $scope.DetentionList = [];
-    $scope.GetDetentionList = function (data) {
-        var gridObj = $("#ProductionSummaryDetentionWC").ejGrid("instance");
-        currRow = gridObj.model.currentViewData[this.element.closest("tr").index()];
-        $http({
-            method: 'GET',
-            url: 'IE/MachineMasterTransaction/GetDetentionListWC?DetentiontypeId=' + currRow.DetentionTypeId
-        }).then(function successCallback(response) {
-            currRow.DetentionList = response.data;
-            //if (response.data.length > 0)
-            //{
-            //    currRow.DetentionList = response.data;
-            //    for (i = 0; i < response.data.length; i++)
-            //    {
-            //        if (response.data[i].Value == currRow.DetentionId)
-            //        {
-            //            currRow.DetentionId = response.data[i].Value;
-
-            //            break;
-            //        }
-            //    }
-            //}
-            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-
-        });
-    };
-
-    $scope.selectDepartment = function (data) {
-        $scope.Newobject = data.data;
-        $scope.getsD();
-        $scope.NewObject.DetentionId = null;
-        $scope.NewObject.DetentionList = null;
-        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-        angular.element(document.querySelector('#DepartmentPop')).modal('show');
-    }
-
-    $scope.DepartmentList = [];
-    $scope.getsD = function () {
-        $http({
-            method: 'POST',
-            url: 'IE/MachineMasterTransaction/GetDetentionDepartment',
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.DepartmentList = resp.data;
-        });
-    }
-
-    $scope.doubleDepartment = function (e) {
-        $scope.Newobject.DepartmentId = e.data.DepartmentId;
-        $scope.Newobject.DepartmentName = e.data.DepartmentName;
-        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
-        $scope.getDetentionTypeListByDepartment($scope.Newobject.DepartmentId);
-        $scope.getDetentionListByDepartment($scope.Newobject.DepartmentId);
-    }
-
-    $scope.closeDepartmentPopUp = function () {
-        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
-    }
-
-    $scope.selectResponsible = function (data) {
-        $scope.Newobject = data.data;
-        $scope.Newobject.DetentionId = data.data.DetentionId;
-        $scope.getsR();
-        angular.element(document.querySelector('#ResponiblePersonPop')).modal('show');
-    }
-
-    $scope.ResponsibleList = [];
-    $scope.getsR = function () {
-        $http({
-            method: 'POST',
-            url: 'IE/MachineMasterTransaction/GetDetentionResponsible?detentionId=' + $scope.Newobject.DetentionId,
-            dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.ResponsibleList = resp.data;
-        });
-    }
-
-    $scope.doubleResponsible = function (e) {
-        $scope.Newobject.ResponsiblePersonId = e.data.ResponsiblePersonId;
-        $scope.Newobject.ResponsiblePerson = e.data.ResponsiblePerson;
-        angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
-    }
-
-    $scope.closeResponsiblePopUp = function () {
-        angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
-    }
-
-    $scope.getDetentionTypeListByDepartment = function (departmentid) {
-        $http({
-            method: 'GET',
-            url: 'IE/MachineMasterTransaction/getDetentionTypeListByDepartment?departmentid=' + departmentid
-        }).then(function successCallback(response) {
-            //$scope.DetentionList = null;
-            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-                if ($scope.ProcessDetentionLists[i].DetentionId == null) {
-                    $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
-                }
-            }
-            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-        });
-    }
-    $scope.getDetentionListByDepartment = function (departmentid) {
-        $scope.Newobject.DetentionList = null;
-        $http({
-            method: 'GET',
-            url: 'IE/MachineMasterTransaction/getDetentionListByDepartment?departmentid=' + departmentid
-        }).then(function successCallback(response) {
-            //$scope.DetentionList = null;
-            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-                if ($scope.ProcessDetentionLists[i].DetentionId == null) {
-                    $scope.ProcessDetentionLists[i].DetentionList = response.data;
-                }
-            }
-            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-        });
-    }
-
-    $scope.refreshTemplateProductionSummaryDetentionWC = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllDetentionWorkCenter });
-    };
-    function CheckBoxSelectAllDetentionWorkCenter(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-
-        var filtered = $("#ProductionSummaryDetentionWC").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.wcList.length; i++) {
-                $scope.ProcessDetentionLists[i].Flag = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].Flag = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-    };
-
-    $scope.SaveDetentionWC = function () {
-        try {
-
-            $scope.DetentionSaveList = [];
-            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-                //if ($scope.ProcessDetentionLists[i].Flag == true)
-                if (!baseService.isUndefinedOrNull($scope.ProcessDetentionLists[i].Minute)) {
-                    $scope.ProcessDetentionLists[i].ProductionSummaryId = $scope.productionSummaryNew.Id;
-                    $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
-                    $scope.ProcessDetentionLists[i].ProcessId = $scope.productionSummaryNew.ProcessId;
-                    $scope.ProcessDetentionLists[i].Date = $scope.productionSummaryNew.ProductionDate;
-                    $scope.ProcessDetentionLists[i].shiftid = $scope.productionSummaryNew.ProductionShiftId;
-                    $scope.ProcessDetentionLists[i].WorkCenterId = $scope.productionSummaryNew.WorkCenterMasterId;
-                    $scope.DetentionSaveList.push($scope.ProcessDetentionLists[i]);
-                }
-            }
-
-
-            $http({
-                method: 'POST',
-                url: $scope.saveUrlDetentionWC,
-                data: {
-                    "DataList": $scope.DetentionSaveList,
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-
-                    ShowResult(response.data.Message, 'success');
-                    $scope.Action = 'Save';
-                    var Sum = 0;
-                    for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-                        if (!baseService.isUndefinedOrNull($scope.ProcessDetentionLists[i].Minute)) {
-                            Sum = parseInt(Sum) + parseInt($scope.ProcessDetentionLists[i].Minute);
-                        }
-
-                    }
-                    $scope.NewObject.SumMin = Sum;
-                    $scope.getProcessDetention();
-                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
-                    gridObj.refreshContent();
-                    gridObj.refreshTemplate();
-                    //$scope.loadWC();
-                }
-                angular.element(document.querySelector('#articlePoUp')).modal('hide');
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-        } catch (ex) {
-            ShowResult(ex, 'Info');
-        }
-    };
-
-    $scope.getMinute = function () {
-        try {
-            $scope.MinuteUrl = 'IE/MachineMasterTransaction/GetMinute/'
-            $http({
-                method: 'POST',
-                url: $scope.MinuteUrl,
-                data: { 'data': $scope.Newobject },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.Newobject.Minute = response.data;
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-
-    }
-
+   
     $scope.shiftList = [];
     $scope.GetShiftList = function () {
         $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
@@ -2866,7 +2498,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
 
     $scope.IssueHeaderList = [];
     $scope.GetIssueList = function (PId) {
-        $http.get('Productions/ProductionIssueControl/GetIssueList?processId=' + PId)
+        $http.get('Productions/ProcessQualityControl/GetIssueList?processId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.IssueHeaderList = response.data;
@@ -2879,7 +2511,7 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
 
     $scope.PeriodHeaderList = [];
     $scope.GetPeriodList = function (PId) {
-        $http.get('Productions/ProductionIssueControl/GetPeriodList?IssueId=' + PId)
+        $http.get('Productions/ProcessQualityControl/GetPeriodList?IssueId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.PeriodHeaderList = response.data;
