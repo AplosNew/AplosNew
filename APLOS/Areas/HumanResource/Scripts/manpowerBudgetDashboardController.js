@@ -774,7 +774,14 @@ function manpowerBudgetDashboardController(cboService, $scope, $rootScope, $rout
                     filterSettings: { filterType: "excel" },
                     allowScrolling: true,
                     minWidth: 400,
-                    isResponsive: true
+                    isResponsive: true,
+                    //e-summaryrows="TotalCashAmount"
+
+                    title: "Total", summaryColumns: [
+                        {
+                            summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Proposed", dataMember: "Proposed", format: "{0:N2}"
+                        }],
+                    showCaptionSummary: true
                 });
                 $scope.dataGrid = "#ManpowerBudgetDetail";
 
@@ -784,6 +791,14 @@ function manpowerBudgetDashboardController(cboService, $scope, $rootScope, $rout
 
         });
     };
+
+    //$scope.TotalCashAmount = [{
+    //    title: "Total", summaryColumns: [
+    //        {
+    //            summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksCashBalance", dataMember: "BooksCashBalance", format: "{0:N2}"
+    //        }],
+    //    showCaptionSummary: true
+    //}];
 
     $scope.ExcessSummaryParameters = {
         limit: 10,

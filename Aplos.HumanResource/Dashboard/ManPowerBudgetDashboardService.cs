@@ -1147,8 +1147,9 @@ namespace Library.HumanResource.Dashboard
                                   LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId =  em.GivenDesignationId
                                   LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                  " + Join + @"
-                                  where EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + dStatus + @"
-                                  AND em.GroupID  = '" + companyGroupId + @"' and  em.CompanyId= '" + companyId + @"' " + wc + @" " + EmployeeCategory + @"";
+                                  where EmployeeStatus = 'Active' AND MB.Active = 1  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + dStatus + @"
+                                  --AND em.GroupID  = '" + companyGroupId + @"' 
+                                    and  em.CompanyId= '" + companyId + @"' " + wc + @" " + EmployeeCategory + @"";
                 return _sqlRepository.GetDataCollection(strSql);
             }
             catch (Exception ex)
@@ -1688,86 +1689,52 @@ namespace Library.HumanResource.Dashboard
                     }
                 }
 
-                sqlText = @"SELECT m.Id MbId,Code BudgetCode
-                                ,ISNULL(e.TotalManpower,0) as onRole
-                                ,ISNULL(b.TotalNumber,0) as Proposed
-                                ,Excess = CASE
-                                  WHEN ISNULL(TotalManpower,0) - isNull(TotalNumber,0) > 0
-                                  THEN ISNULL(TotalManpower,0) - isNull(TotalNumber,0)
-                                  ELSE 0 end
-                                ,Short = CASE
-                                  WHEN ISNULL(TotalNumber,0) - isNull(TotalManpower,0) > 0
-                                  THEN ISNULL(TotalNumber,0) - isNull(TotalManpower,0)
-                                  ELSE 0 end
-                                 ,m.Code budgetCodeE
-                                ,m.GroupName
-                                ,m.CompanyId
-                                ,m.CName as CompanyName
-                                " + cListextM + @"
-                                ,Designation
-                                ,m.DesGName
-                                ,EmployeeCategory
-                                from
-                                ----------------------------1 bc--------------------------------------
-                                (SELECT  MB.Code,MB.Id,Cg.Id as CgId,Cg.UserName as GroupName, c.Id as CompanyId, c.UserName as CName " + cListext + @"
-                                    ,Des.UserName Designation,EmpC.UserName EmployeeCategory,DesG.UserName DesGName
-                                      from [MST].[ManpowerBudget]  MB
-                                      LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                      LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
-                                      LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                      LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                                      LEFT JOIN [HKP].Designation Des ON Des.Id = Po.DesignationId
-                                      LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = Des.Id
-                                      LEFT JOIN [HKP].DesignationGroup DesG ON DesG.Id = DesM.DesignationGroupId
-                                      LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-                                      " + join + @"
-                                      WHERE Cg.Id = '" + companyGroupId + @"' " + wc + @" " + EmployeeCategory + @" AND MB.Active = 1
-                                )  m
-                                    -----------------------2e--------------------------------
-                                LEFT OUTER JOIN
-                                (SELECT count(em.SystemID) TotalManpower,BudgetCode,em.GroupID
-                                      FROM [dbo].[EmployeeInformation]  em
-                                      LEFT outer join [MST].[ManpowerBudget] AS MB  on MB.Id = em.BudgetCode
-                                      LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                      LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= C.Id
-                                      LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                      LEFT outer JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+                sqlText = @"Select MB.Id MbId,MB.Code BudgetCode,ISNULL(emp.TotalManpower,0) as onRole,ISNULL(MBD.TotalNumber,0) as Proposed
+										,Excess = CASE
+										  WHEN ISNULL(emp.TotalManpower,0) - isNull(MBD.TotalNumber,0) > 0
+										  THEN ISNULL(emp.TotalManpower,0) - isNull(MBD.TotalNumber,0)
+										  ELSE 0 end
+										,Short = CASE
+										  WHEN ISNULL(MBD.TotalNumber,0) - isNull(emp.TotalManpower,0) > 0
+										  THEN ISNULL(MBD.TotalNumber,0) - isNull(emp.TotalManpower,0)
+										  ELSE 0 end
+										  ,MB.Code budgetCodeE,Cg.UserName as GroupName,MB.CompanyId
+										, c.UserName as CompanyName
+										,Plant.UserName  Plant,Division.UserName  Division,Department.UserName  Department
+										,SubDivision.UserName  SubDivision,Section.UserName  Section,Unit.UserName  Unit
+										,SubSection.UserName  SubSection,ShiftDefination.UserName  ShiftDefination
+										,Des.UserName Designation,EmpC.UserName EmployeeCategory,DesG.UserName DesGName
+										,EmpC.UserName EmployeeCategory
+											
+                            			from [MST].[ManpowerBudgetDetail] MBD
+										left join [MST].[ManpowerBudget]  MB on MB.Id=MBD.ManpowerBudgetId 
+										LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+										LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+										LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+										LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+										LEFT JOIN [HKP].Designation Des ON Des.Id = Po.DesignationId
+										LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = Des.Id
+										LEFT JOIN [HKP].DesignationGroup DesG ON DesG.Id = DesM.DesignationGroupId
+										LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+										LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+										LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
+										LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+										LEFT JOIN [ORG].[SubDivision] ON SubDivision.Id = E.SubDivisionId
+										LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+										LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+										LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+										LEFT JOIN [ShiftDefination] ON ShiftDefination.SystemId = MB.ShiftDefinationId
 
-									  LEFT JOIN [HKP].Designation GDes ON GDes.Id = EM.GivenDesignationId
-								      LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
-								      LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+										left outer join (SELECT count(em.SystemID) TotalManpower,BudgetCode,em.GroupID,EmployeeCurrentStatus,EmployeeStatus,em.CompanyId
+										FROM [dbo].[EmployeeInformation]  em
+										LEFT outer join [MST].[ManpowerBudget] AS M  on M.Id = em.BudgetCode      
+										WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') 
+                                        group by BudgetCode,em.GroupID,EmployeeCurrentStatus,EmployeeStatus,em.CompanyId
+										) emp ON MB.Id=emp.BudgetCode
 
-                                     " + join + @"
-                                      WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + @"
-                                        AND em.GroupID = '" + companyGroupId + @"' " + EmployeeCategory + @"
-                                        group by BudgetCode,em.GroupID
-                                ) e ON m.Id=e.BudgetCode and e.GroupID = m.CgId
-                                     -------------------------3b--------------------------------------------------------
-                                LEFT OUTER JOIN
-                                (
-                                 SELECT MBD.TotalNumber, ManpowerBudgetId,Cg.Id, C.Id as cid from
-                                 (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
-									FROM [MST].[ManpowerBudgetDetail]
-									WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + date + @"')
-									ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
-                                 ) MBD
-                                 LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
-                                 LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                 LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
-                                 LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                 LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
 
-								LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
-								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = PO.DesignationId
-								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-                                 " + join + @"
-                                 WHERE CG.Id = '" + companyGroupId + @"' " + DStatus + @" " + wc + @" " + EmployeeCategory + @"
-                                 ) B
-                                 ON m.id = b.ManpowerBudgetId AND b.Id = m.CgId AND B.cid = m.CompanyId
-             	                		 WHERE TotalNumber>0
-                                 GROUP BY m.Code,GroupName,CompanyId,m.Id,b.ManpowerBudgetId,TotalManpower,TotalNumber,CName " + cListextM + @"
-                                 ,Designation,EmployeeCategory, m.DesGName";
+									where MB.Active = 1  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + @"                                  
+                                     " + wc + @" " + EmployeeCategory + @"";
                 return _sqlRepository.GetDataCollection(sqlText);
             }
             catch (Exception ex)
