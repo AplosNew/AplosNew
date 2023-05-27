@@ -837,6 +837,11 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         #endregion Fuel
 
         #region VehicleApproval
+        //public ActionResult GetVehicleAllocation()
+        //{
+
+        //}
+
         public ActionResult SaveVehicleAllocation(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata) 
         {
             try
