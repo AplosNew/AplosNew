@@ -290,7 +290,7 @@ where DetentionMasterId='" + detentionId + "'";
 										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-										where MMT.addedby = 'nitesh' and  Date between dateadd(month,datediff(month,0,getdate()),0)
+										where MMT.addedby in ('nitesh', 'talwinders') and  Date between dateadd(month,datediff(month,0,getdate()),0)
 										and dateadd(day,-1,dateadd(month,datediff(month,-1,getdate()),0))
                                         order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') ASC";
             //where MMT.Id = '4'

@@ -611,12 +611,13 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         #region VehicleReq
         public JsonResult GetVehicleRequisitiontData()
         {
-            string sql = @"Select VMR.Id, Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
+            string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
 ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department
                             from [TRN].[VehicleMovementRequisition] VMR							
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId";
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            where VMR.AppliedId is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -836,14 +837,32 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         #endregion Fuel
 
         #region VehicleApproval
-        public ActionResult SaveVehicleAllocation(Dictionary<string, object> data, string reqId) 
+        public ActionResult SaveVehicleAllocation(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata) 
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                #region Requisition
+                string ReqTable = "[TRN].[VehicleMovementRequisition]";
+                DataSet dsRequisition;
+                var id = "";
+                foreach (var item in reqdata)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                con.OpenDataSetThroughAdapter($"select * from [TRN].[VehicleMovementRequisition]  where Id in ({id})", out dsRequisition, false, "1");
+                
+
+                
+                #endregion Requisition
+                
+
                 string TableName = "TRN.VehicleAllocation";
                 DataSet dsMaster;
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -855,7 +874,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
                     data["Id"] = _Id;
-                    data["VehicleRequesitionId"] = reqId;
+                    
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -866,8 +885,28 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                 }
                 #endregion data update
 
+                foreach (var item in reqdata)
+                {
+
+                    DataView dv = new DataView(dsRequisition.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["AppliedId"] = _Id;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                }
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster, dsRequisition);
                 return Json(new { Error = false,  Message = AplosMessage.Insert });
             }
             catch (Exception ex) {
