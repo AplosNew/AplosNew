@@ -543,6 +543,76 @@ namespace Library.Service.EmployeeServices
         }
 
 
+        // For Test 
+
+        public string Creatextest(IEnumerable<EmployeeInformationViewModel> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.EmployeeInformation";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<EmployeeInformationViewModel> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where SystemId='" + items[0].SystemId + "'", out dsMaster, false, "1");
+
+
+                foreach (EmployeeInformationViewModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["BudgetCode"] = item.BudgetCode;
+                        dr["PositionID"] = item.PositionID;
+                        dr["DepartmentId"] = item.DepartmentId;
+                        dr["DivisionId"] = item.DivisionId;
+                        dr["SectionId"] = item.SectionId;
+                        dr["SubSectionId"] = item.SubSectionId;
+                        dr["UnitId"] = item.UnitId;
+                        if (item.LineId != null)
+                        {
+                            dr["LineId"] = item.LineId;
+                        }
+                        dr["DesignationSystemID"] = item.DesignationSystemID;
+                        dr["DesignationGroupId"] = item.DesignationGroupId;
+                        if (item.EmployeeGroupSystemID != null)
+                        {
+                            dr["EmployeeGroupSystemID"] = item.EmployeeGroupSystemID;
+                        }
+                        dr["EmploymentType"] = item.EmploymentType;
+                        dr["SubDivisionId"] = item.SubDivisionId;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["DateAdded"] = System.DateTime.Now.ToString();
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["DateUpdated"] = System.DateTime.Now.ToString();
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                 string MasterId = SaveDatax(items[0].SystemId, items[0].prevbudgetCode, items[0].LegalDesignationId, items[0].prevdesgnId, items[0].AddedBy, items[0].AddedFromIP, "");
+                return MasterId;
+               // return "true"; //Stopping It for Now 
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         public IEnumerable<object> GetBudgetCode(string GpId, string CompId,string PlntId)
         {
             try
