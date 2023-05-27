@@ -2328,11 +2328,11 @@ namespace Library.Accounting.Accounts
                                 ,'' NoteForAccounts,IVS.SourceType
                     FROM [TRN].[Sales] AS IVS 
 					LEFT JOIN [HKP].[Party] AS P ON IVS.PartyId=P.Id
-					 JOIN (SELECT isc.SalesId,pli.PackingId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
+					 JOIN (SELECT isc.SalesId,pli.PackingId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
 					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
 					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
 					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
-					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId) ISC ON ISC.SalesId=IVS.Id
+					group by isc.SalesId,pli.PackingId) ISC ON ISC.SalesId=IVS.Id
 
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.PartyId AND CP.PlantId=IVS.PlantId
