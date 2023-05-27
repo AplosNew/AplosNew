@@ -319,7 +319,6 @@ namespace Library.Service.EmployeeServices
                     else if (Inventchk == true && counter != 1 && filter != 1)
                     {
                         inventory = inventory + item.RefNo + " ";
-
                     }
                     else
                     {

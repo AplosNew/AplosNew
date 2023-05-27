@@ -127,7 +127,8 @@ order by Sequence
                             left join ORG.SubSection SS on P.SubSectionId = SS.Id
                             left join ORG.Division DSN on P.DivisionId = DSN.Id
                             left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-                            left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id";
+                            left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
+                            where BGT.Active = 1";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
         }
@@ -169,7 +170,7 @@ left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
 left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
-where BGT.EntityId in ("+Entity+ @") and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
+where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1 and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
 ";
 
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
