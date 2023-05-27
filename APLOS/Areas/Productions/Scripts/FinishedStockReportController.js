@@ -6,7 +6,7 @@ function FinishedStockReportController(cboService, commonMessage, $scope, $rootS
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.LocList = [];
-
+    $scope.ToDate = $filter("dateFiltering")(Date.now());
     function getLocations() {
         $http({
             method: 'GET',

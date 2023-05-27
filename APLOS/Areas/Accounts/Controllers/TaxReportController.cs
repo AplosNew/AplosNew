@@ -234,11 +234,27 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         [HttpGet, Authorize]
-        public ActionResult GetAdvancePaymentPendingforSetOffReport(ReportFormat reportFormat, string fromDate, string toDate)
+        public ActionResult GetPaymentPendingforSetOffReport(ReportFormat reportFormat, string reportType, string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _taxReportServiceService.GetAdvancePaymentPendingforSetOffReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
-            var reportFileName = DateTime.Now.ToString("yyMMdd") + "AdvancePaymentPendingforSetOffReport";
+            Syncfusion.XlsIO.IWorkbook workbook = null;
+            var reportFileName = "";
+            if(reportType== "Advance")
+            {
+                workbook = _taxReportServiceService.GetAdvancePaymentPendingforSetOffReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
+                reportFileName = DateTime.Now.ToString("yyMMdd") + "AdvancePaymentPendingforSetOffReport";
+            }
+            if (reportType == "DebitNote")
+            {
+                workbook = _taxReportServiceService.GetDebitNotePaymentPendingforSetOffReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
+                reportFileName = DateTime.Now.ToString("yyMMdd") + "DebitNotePaymentPendingforSetOffReport";
+            }
+            if (reportType == "CreditNote")
+            {
+                workbook = _taxReportServiceService.GetCreditNotePaymentPendingforSetOffReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, identity.Name);
+                reportFileName = DateTime.Now.ToString("yyMMdd") + "CreditNotePaymentPendingforSetOffReport";
+            }
+
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
