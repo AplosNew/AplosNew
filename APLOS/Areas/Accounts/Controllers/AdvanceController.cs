@@ -2804,11 +2804,11 @@ namespace Aplos.Areas.Accounts.Controllers
 								    VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.CrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
 								    FROM [TRN].[VoucherDetailCurrency] AS VDC
 								    JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20171'
-							    ) AS CC ON CC.VoucherDetailId=VD.Id
+								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                                ) AS CC ON CC.VoucherDetailId=VD.Id
 							    
                                 WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType in ('EmployeeAdvance','InterTransaction')
-                                AND AM.CompanyGroupId='CG20171' AND AM.CompanyId='C20171' AND AM.PlantId='20171' AND AM.EmployeeId<>'' ");
+                                AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.EmployeeId<>'' ");
 
             if (dtEmployeeAdvanceDueList.Rows.Count == 0)
                 throw new Exception("No data found");

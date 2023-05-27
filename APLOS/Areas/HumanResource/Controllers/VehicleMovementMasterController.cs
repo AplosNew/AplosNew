@@ -611,10 +611,13 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         #region VehicleReq
         public JsonResult GetVehicleRequisitiontData()
         {
-            string sql = @"Select VMR.* , PM.UserName Purpose, EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode
-                            from [TRN].[VehicleMovementRequisition] VMR
+            string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
+,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department
+                            from [TRN].[VehicleMovementRequisition] VMR							
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
-                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId";
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            where VMR.AppliedId is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -833,6 +836,93 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         }
         #endregion Fuel
 
+        #region VehicleApproval
+        //public ActionResult GetVehicleAllocation()
+        //{
+
+        //}
+
+        public ActionResult SaveVehicleAllocation(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata) 
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                #region Requisition
+                string ReqTable = "[TRN].[VehicleMovementRequisition]";
+                DataSet dsRequisition;
+                var id = "";
+                foreach (var item in reqdata)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                con.OpenDataSetThroughAdapter($"select * from [TRN].[VehicleMovementRequisition]  where Id in ({id})", out dsRequisition, false, "1");
+                
+
+                
+                #endregion Requisition
+                
+
+                string TableName = "TRN.VehicleAllocation";
+                DataSet dsMaster;
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                foreach (var item in reqdata)
+                {
+
+                    DataView dv = new DataView(dsRequisition.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["AppliedId"] = _Id;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsRequisition);
+                return Json(new { Error = false,  Message = AplosMessage.Insert });
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+
+        }
+
+       
+        #endregion VehicleApproval
+
         #region Get
         public JsonResult GetFromToLocationList()
         {
@@ -892,6 +982,19 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         public JsonResult GetFuelList()
         {
             string sql = @"Select Id Value, FuelType Text from HKP.FuelMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetVehicleList()
+        {
+            string sql = @"Select Id Value, VehicleName Text from HKP.VehicleMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetDriverList()
+        {
+            string sql = @"select DM.Id Value, EI.EmployeeName Text from HKP.DriverMaster DM
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

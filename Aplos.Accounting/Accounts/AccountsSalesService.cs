@@ -2328,11 +2328,11 @@ namespace Library.Accounting.Accounts
                                 ,'' NoteForAccounts,IVS.SourceType
                     FROM [TRN].[Sales] AS IVS 
 					LEFT JOIN [HKP].[Party] AS P ON IVS.PartyId=P.Id
-					 JOIN (SELECT isc.SalesId,pli.PackingId,plr.PackingLineItemId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
+					 JOIN (SELECT isc.SalesId,pli.PackingId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
 					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
 					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
 					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
-					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId) ISC ON ISC.SalesId=IVS.Id
+					group by isc.SalesId,pli.PackingId) ISC ON ISC.SalesId=IVS.Id
 
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 			                    ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Customer') AS CP ON CP.PartyId=IVS.PartyId AND CP.PlantId=IVS.PlantId
@@ -2783,8 +2783,8 @@ namespace Library.Accounting.Accounts
 						, T.Dr, T.Cr, T.Amount, T.IsAsset,T.InventoryReceiveDetailId,T.SalesReturnDetailId
 					FROM (
 						SELECT  'Material' AS OtherName, 'Dr' AS TrnType, MM.MaterialGroupMasterId, NULL AS TaxCategoryId,MM.FixedAssetMasterId
-							,  IRD.PostDrGLGeneralInfoId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
-							,IRD.PostDrBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,IRD.PostDrActivityId ActivityId,A.Code ActivityCode 
+							,  IRD.PostCrGLGeneralInfoId  GLGeneralInfoId , GL.AccountCode  GLGeneralInfoCode  ,GL.UserName GLGeneralInfoName
+							,IRD.PostCrBudgetMasterId BudgetMasterId  ,B.Code BudgetCode  ,B.UserName BudgetName  ,IRD.PostCrActivityId ActivityId,A.Code ActivityCode 
 							,A.UserName ActivityName  , SUM(PRD.BooksCurrencyTransactionAmount) AS Dr , NULL Cr
 							, SUM(PRD.BooksCurrencyTransactionAmount) AS Amount
                             ,MM.IsAsset,IRD.Id AS  InventoryReceiveDetailId,PRD.Id SalesReturnDetailId
@@ -2797,7 +2797,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 						LEFT JOIN [HKP].[Activity] AS A ON IRD.PostCrActivityId= A.Id
 						WHERE PRD.SalesReturnId=@receiveId
-						GROUP BY MM.MaterialGroupMasterId, IRD.PostDrGLGeneralInfoId, GL.AccountCode, GL.UserName, IRD.PostDrBudgetMasterId, B.Code, B.UserName, IRD.PostDrActivityId, A.Code, A.UserName
+						GROUP BY MM.MaterialGroupMasterId, IRD.PostCrGLGeneralInfoId, GL.AccountCode, GL.UserName, IRD.PostCrBudgetMasterId, B.Code, B.UserName, IRD.PostCrActivityId, A.Code, A.UserName
 					    ,MM.IsAsset,MM.FixedAssetMasterId,IRD.Id,PRD.Id
                     ) AS T
 					GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId

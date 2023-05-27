@@ -1,6 +1,6 @@
 ﻿'use strict';
-PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', 'bankService'];
-function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService, bankService) {
+PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', 'bankService','$window'];
+function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService, bankService, $window) {
     $rootScope.title = 'Packing Invoice';
     $scope.path = 'Productions/PackingInvoice/';
     $controller("partyBaseController", { $scope: $scope, $http: $http });
@@ -1528,6 +1528,64 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+
+    $scope.ShowCustomerPopUpNew = function () {
+        $scope.partyType = "Customer";
+        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
+    };
+
+    $scope.SetCustomerData = function (obj) {
+        var party = obj.data;
+        $scope.salesVM.PartyName = party.UserName;
+        $scope.salesVM.PartyId = party.Id;
+        $scope.salesVM.PaymentTermId = party.PaymentTermId;
+        $scope.salesVM.CurrencyId = party.CurrencyId;
+        $scope.GetCurrencyExchangeRateList();
+        $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
+        $scope.partyPlantList = [];
+        $scope.getCboPartyPlantList(party.Id, function (result) {
+            $scope.partyPlantList = result;
+            angular.forEach($scope.partyPlantList, function (item, i) {
+                if (item.IsDefault) {
+                    $scope.partyPlantId = item.Value;
+                    $scope.salesVM.InvoicingPartyPlantId = item.Value;
+                    $scope.salesVM.DeliveryPartyPlantId = item.Value;
+                    $scope.salesVM.InvoicingByAddress = item.Address1;
+                    $scope.salesVM.DeliveryByAddress = item.Address1;
+                    $scope.salesVM.InvoicingState = item.StateName;
+                    $scope.salesVM.InvoicingGSTIN = item.GSTIN;
+                    $scope.salesVM.DeliveryState = item.StateName;
+                    $scope.salesVM.DeliveryGSTIN = item.GSTIN;
+                    $scope.salesVM.InvoicingStateId = item.StateId;
+                }
+            });
+        });
+        $scope.partyType = "Customer";
+        $scope.flag = null;
+        $scope.hidePartyPopUp();
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.searchParty = '';
+    }
+
+    $scope.closeCustomerPopUpNew = function () {
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.hidePartyPopUp();
+        $scope.partyType = "Customer";
+        $scope.searchParty = '';
+    }
+
     //#region Additional TAX Code
     $scope.advanceTax = { TotalSumAfterTCSVal: 0 };
     $scope.advanceTaxesList = [];
@@ -1713,6 +1771,8 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     // $scope.partyType = "Vendor";
 
     $scope.getPostSalesData = function () {
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
         $http.get("Commercial/PostSalesInvoice/GetListBySalesId?SalesId=" + $scope.salesVM.Id)
             .then(
                 function successCallback(response) {
@@ -1984,13 +2044,18 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
 
-
-    $scope.showPartyPopUp = function (flg) {
+    $scope.searchByParty = "UserName"; $scope.searchParty = "";
+    $scope.showVendorPopUp = function (flg) {
         $scope.flag = flg;
+        $scope.GetVendorPopUpData();
+        angular.element(document.querySelector('#vendorPopUp')).modal('show');
+    };
+
+    $scope.GetVendorPopUpData = function () {
         if ($scope.flag === 'Transport' || $scope.flag === 'CNF') {
             $scope.partyType = 'Vendor';
         }
-        $scope.searchByParty = "UserName"; $scope.searchParty = "";
+
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
         $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
@@ -2003,13 +2068,13 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }).then(function successCallback(response) {
             $scope.partyList = response.data;
         });
-        angular.element(document.querySelector('#partyPopUpNew')).modal('show');
     };
 
-    $scope.closePartyPopUpNew = function () {
-        angular.element(document.querySelector('#partyPopUpNew')).modal('hide');
+
+    $scope.closevendorPopUpNew = function () {
+        angular.element(document.querySelector('#vendorPopUp')).modal('hide');
         $scope.hidePartyPopUp();
-        $scope.partyType = "Customer";
+        //$scope.partyType = "Customer";
     }
 
     $scope.SetVendorData = function (obj) {
@@ -2025,41 +2090,11 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $scope.ModelNew.TransportAgentCode = party.Code;
             $scope.ModelNew.TransportAgentName = party.UserName;
         }
-        $scope.partyType = "Customer";
-        angular.element(document.querySelector('#partyPopUpNew')).modal('hide');
+        $scope.searchByParty = "UserName"; $scope.searchParty = "";
+        angular.element(document.querySelector('#vendorPopUp')).modal('hide');
     }
 
-    $scope.closePartyPopUp = function (x) {
-
-        var party = x.data;
-        $scope.salesVM.PartyName = party.UserName;
-        $scope.salesVM.PartyId = party.Id;
-        $scope.salesVM.PaymentTermId = party.PaymentTermId;
-        $scope.salesVM.CurrencyId = party.CurrencyId;
-        $scope.GetCurrencyExchangeRateList();
-        $scope.changePaymentTerm($scope.salesVM.PaymentTermId);
-        $scope.partyPlantList = [];
-        $scope.getCboPartyPlantList(party.Id, function (result) {
-            $scope.partyPlantList = result;
-            angular.forEach($scope.partyPlantList, function (item, i) {
-                if (item.IsDefault) {
-                    $scope.partyPlantId = item.Value;
-                    $scope.salesVM.InvoicingPartyPlantId = item.Value;
-                    $scope.salesVM.DeliveryPartyPlantId = item.Value;
-                    $scope.salesVM.InvoicingByAddress = item.Address1;
-                    $scope.salesVM.DeliveryByAddress = item.Address1;
-                    $scope.salesVM.InvoicingState = item.StateName;
-                    $scope.salesVM.InvoicingGSTIN = item.GSTIN;
-                    $scope.salesVM.DeliveryState = item.StateName;
-                    $scope.salesVM.DeliveryGSTIN = item.GSTIN;
-                    $scope.salesVM.InvoicingStateId = item.StateId;
-                }
-            });
-        });
-        $scope.partyType = "Customer";
-        $scope.flag = null;
-        $scope.hidePartyPopUp();
-    };
+   
 
     //#endregion PostInvoice
 

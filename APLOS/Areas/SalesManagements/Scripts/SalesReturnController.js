@@ -77,30 +77,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#SalespopUp')).modal('show');
     };
 
-    //$scope.getUpdateData = function (data) {
-    //    $scope.product = data.data;
-    //    $scope.product.Id = data.data.Id;
-    //    $scope.product.SalesId = data.data.Id;
-    //    $scope.product.SalesDate = data.data.SalesDateNew;
-    //    $scope.product.InvoicingPartyPlantId = data.data.InvoicingPartyPlantId;
-    //    $scope.productNew = Object.assign({}, $scope.product);
-    //    $scope.materialStockList = [];
-    //    $scope.specificStockList = [];
-    //    getIssueDetailList();
-    //    getInvTaxList();
-    //    getServiceChargeList();
-    //    $scope.productNew.TaxOption = 'Yes';
-    //    $scope.productNew.TaxOptionMat = 'Yes';
-    //    $scope.productNew.TaxOptionService = 'Yes';
-    //    $scope.productNew.TaxOptionServiceModify = 'Yes';
-    //    $scope.productNew.TaxOptionAddiTax = 'Yes';
-    //    //$scope.getTaxCodeByTaxYearWithhold($scope.productNew.SalesDate);
-
-    //    $scope.Action = 'Update';
-    //    if (!$rootScope.isCollapsed) {
-    //        $rootScope.toggle();
-    //    }
-    //};
 
 
     $scope.selectDoubleClick = function (data) {
@@ -439,7 +415,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 $scope.newList.push($scope.detailList[i])
                 angular.forEach($scope.taxlist, function (a) {
                     if (a.SalesMaterialId == $scope.detailList[i].SalesMaterialId) {
-                        a.Amount = ($scope.detailList[i].Amount * a.Percentage) / 100
+                        a.Amount = (($scope.detailList[i].Amount * a.Percentage) / 100).toFixed(2)
                         $scope.newtaxList.push(a);
                     }
                 });
@@ -457,13 +433,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         if ($scope.productNew.SourceType == 'Packing') {
             $scope.itemScanNewListForSales = [];
             $scope.itemScanNewListForSales = $scope.tempitemScanList.slice();
-            //for (var n = 0; n < newitemScanList.length; n++) {
-            //    //newitemScanList[n].Id = null;
-            //    //newitemScanList[n].Booked = 0;
-            //    //newitemScanList[n].IsDespatch = 0;
-            //    //newitemScanList[n].ReturnNetWeight = 0;
-            //    $scope.itemScanNewListForSales.push(newitemScanList[n]);
-            //}
         }
         return false;
     }

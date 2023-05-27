@@ -479,7 +479,7 @@ namespace Library.Service.Productions
                             Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then POQ.POQty else 0 end POQty,
                               Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 else 0 end ProcessPlanQty,
 isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,
-        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,
+        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,
 (select MA.StandardName from trn.salesorder SO
 left outer join trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
@@ -580,6 +580,34 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
                         group by WorkCenterId,ProductionSummaryId) SM ON SM.WorkCenterId = wc.Id and SM.ProductionSummaryId = pw.Id
                         where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '" + entityId + "' order by wc.UserName";
               return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetCboWCPIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId)
+        {
+            var sql = @"select distinct wc.Id as WorkCenterMasterId,pw.ProcessId,pw.EntityId,pw.ProductionDate,pw.ProductionShiftId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,PI.EmployeeName as ProductionInCharge,pw.ProductionInChargeId,
+isnull(pw.ProductionOrderId,(select top 1 ProductionOrderId from TRN.[ProductionIssueControl] where ProcessId = '" + ProcessId + "' and EntityId = '" + entityId + "' and ProductionShiftId='" + shiftId + "' and WorkCenterMasterId=wc.Id AND IssueId = '" + IssueId + "' AND PeriodId= '" + PeriodId + @"' order by AddedDate desc)) as ProductionOrderId,
+isnull(pw.LotNumber, (select top 1 LotNumber from TRN.ProductionIssueControl where ProcessId = '" + ProcessId + "' and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + "' and WorkCenterMasterId = wc.Id AND IssueId = '" + IssueId + "' AND PeriodId = '" + PeriodId + @"' order by AddedDate desc)) as LotNumber,
+isnull(R.EmployeeName, (select EmployeeName from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.ProductionIssueControl where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + "' and WorkCenterMasterID = WC.Id AND IssueId = '" + IssueId + "' AND PeriodId = '" + PeriodId + @"' order by AddedDate desc))) as ResponsiblePerson,
+isnull(R.SystemId, (select SystemId from EmployeeInformation where SystemId = (select top 1 ResponsiblePersonId from TRN.ProductionIssueControl where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + "' and WorkCenterMasterID = WC.Id AND IssueId = '" + IssueId + "' AND PeriodId = '" + PeriodId + @"' order by AddedDate desc))) as ResponsiblePersonId,
+isnull(I.EmployeeName, (select EmployeeName from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.ProductionIssueControl where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + "' and WorkCenterMasterID = WC.Id AND IssueId = '" + IssueId + "' AND PeriodId = '" + PeriodId + @"' order by AddedDate desc))) as InCharge,
+isnull(I.SystemId, (select SystemId from EmployeeInformation where SystemId = (select top 1 InChargeId from TRN.ProductionIssueControl where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + "' and WorkCenterMasterID = WC.Id AND IssueId = '" + IssueId + "' AND PeriodId = '" + PeriodId + @"' order by AddedDate desc))) as InChargeId,
+pw.Value,pw.ReasonId,pw.PeriodId,pw.IssueId,pw.Remarks,U.UserName UOM,
+Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
+left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+ where Pod.ProductionOrderId = isnull(pw.ProductionOrderId, (select top 1 ProductionOrderId from TRN.ProductionIssueControl where ProcessId = '" + ProcessId + "'  and EntityId = '" + entityId + "' and ProductionShiftId = '" + shiftId + "' and WorkCenterMasterId = wc.Id AND IssueId = '" + IssueId + "' AND PeriodId = '" + PeriodId + @"' order by AddedDate desc))    for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+FROM SCS.WorkCenterMaster wc
+LEFT JOIN TRN.[ProductionIssueControl] pw ON pw.WorkCenterMasterId = wc.Id AND pw.ProcessId = '" + ProcessId + @"'
+AND pw.EntityId = '" + entityId + "' AND pw.ProductionDate = '" + productionDate + "' AND pw.ProductionShiftId = '" + shiftId + @"'
+AND pw.IssueId = '" + IssueId + "' AND pw.PeriodId = '" + PeriodId + @"'
+LEFT JOIN EmployeeInformation PI ON pw.ProductionInChargeId = PI.SystemId
+LEFT JOIN EmployeeInformation R ON pw.ResponsiblePersonId = R.SystemId
+LEFT JOIN EmployeeInformation I ON pw.InChargeId = I.SystemId
+LEFT JOIN MST.IssueDetails ID ON ID.Id = '" + IssueId + @"'
+LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = ID.UOMId
+where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '" + entityId + "' order by wc.UserName";
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)
