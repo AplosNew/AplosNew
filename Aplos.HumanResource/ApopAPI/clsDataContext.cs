@@ -4661,7 +4661,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                 {
                     strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'";
                 }
-                if (tbs != null && longabsent != null)
+                if (tbs == null && longabsent == null)
                 {
                     strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null";
                 }
