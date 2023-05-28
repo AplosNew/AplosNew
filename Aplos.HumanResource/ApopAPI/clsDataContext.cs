@@ -4412,7 +4412,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         }
 
         #region Attendance
-        public void GetUserGroup(out List<Default2> DataList)
+        public void GetUserGroup(out List<Default2> DataList , string EmpsysId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4421,7 +4421,11 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select id as Value, UserGroup as Name  from HKP.HRReportGroupMaster";
+                strSQL = @"select distinct RGM.id as Value, RGM.UserGroup as Name from TRN.HrreportmasterResponsiblePerson RP
+left join HKP.HRReportMaster HRM on HRM.Id = RP.HRReportMasterId
+left join TRN.HRReportMasterChild  HRC on  HRC.HRReportMasterId = HRM.Id
+left join TRN.HRReportMasterBudgetUserGroup BG on BG.HRReportMasterChildId = HRC.Id
+left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSystemId = '" + EmpsysId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -4484,6 +4488,44 @@ where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() a
             }
         }
 
+
+        public void GetSevenDaysAttendanceDefault(out List<Default2> DataList, string Empcode)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
+case when DayStatus   is  null then InStatus
+else DayStatus end as Name
+from AttdnProcessData
+where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
 
         public void GetEmpInformation(out List<EmpInformation> DataList, string Empcode)
         {
@@ -4657,9 +4699,9 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                 {
                     strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'";
                 }
-                if (tbs != null && longabsent != null)
+                if (tbs == null && longabsent == null)
                 {
-                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus In ('TBS' , 'LONG ABSENTEEISM')";
+                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null";
                 }
 
                 if (entityid != null && shiftid == null && locations == null)
