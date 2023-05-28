@@ -206,6 +206,7 @@
                         <thead>
                             <tr>
                                 <th ng-show="prdProcessSetList.length>1">Sort</th>
+                                <th>Relay Sequence</th>
                                 <th>Process</th>
                                 <th style="width: 74px;">Base Process</th>
                                 <th>+/-</th>
@@ -229,6 +230,7 @@
                                     <br />
                                     <span ng-show="!$last" ng-click="moveDown($index, prdProcessSetList, x.Sequence)"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
                                 </td>
+                                <td><input type="text" name="Relay Sequence" ng-model="x.RelaySequence" class="form-control" style="width: 80px;"></td>
                                 <td>{{x.ProcessName}}</td>
                                 <td class="text-center">
                                     <div class="radio">
