@@ -693,6 +693,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionStartDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionOrderCategory - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colRate - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colCM - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colShippedQty - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colBalShipment - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colPlan - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colToPlan - 1].Axis = PivotAxisTypes.Row;
                 //pivotTable.Fields[colLSD - 1].Axis = PivotAxisTypes.Row;
                 //pivotTable.Fields[colMainrawMaterialDate - 1].Axis = PivotAxisTypes.Row;
                 //pivotTable.Fields[colOtherRawMaterialDate - 1].Axis = PivotAxisTypes.Row;
@@ -707,36 +714,36 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 //pivotTable.Fields[colInputRemarks - 1].Axis = PivotAxisTypes.Row;
                 //pivotTable.Fields[colInputStatus - 1].Axis = PivotAxisTypes.Row;
 
+                //IPivotField field = pivotTable.Fields[colShippedQty - 1];
 
-                IPivotField field = pivotTable.Fields[colRate - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "Rate", PivotSubtotalTypes.Sum);
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "Rate", PivotSubtotalTypes.Sum);
 
-                field = pivotTable.Fields[colCM - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "CM", PivotSubtotalTypes.Sum);
-
-
-                field = pivotTable.Fields[colSOQty - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
-
-                field = pivotTable.Fields[colShippedQty - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "Shipped Qty", PivotSubtotalTypes.Sum);
-
-                field = pivotTable.Fields[colBalShipment - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                pivotTable.DataFields.Add(field, "Bal Shipment", PivotSubtotalTypes.Sum);
+                //field = pivotTable.Fields[colCM - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "CM", PivotSubtotalTypes.Sum);
 
 
-                field = pivotTable.Fields[colPlan - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
-                pivotTable.DataFields.Add(field, "Plan", PivotSubtotalTypes.Sum);
+                //field = pivotTable.Fields[colSOQty - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
 
-                field = pivotTable.Fields[colToPlan - 1];
-                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
-                pivotTable.DataFields.Add(field, "To Plan", PivotSubtotalTypes.Sum);
+                //field = pivotTable.Fields[colShippedQty - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "Shipped Qty", PivotSubtotalTypes.Sum);
+
+                //field = pivotTable.Fields[colBalShipment - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                //pivotTable.DataFields.Add(field, "Bal Shipment", PivotSubtotalTypes.Sum);
+
+
+                //field = pivotTable.Fields[colPlan - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
+                //pivotTable.DataFields.Add(field, "Plan", PivotSubtotalTypes.Sum);
+
+                //field = pivotTable.Fields[colToPlan - 1];
+                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
+                //pivotTable.DataFields.Add(field, "To Plan", PivotSubtotalTypes.Sum);
 
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)

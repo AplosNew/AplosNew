@@ -4574,7 +4574,7 @@ where Emp.EmployeeCode = '" + Empcode + "'";
             }
         }
 
-        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations,string entityid)
+        public void GetAttdnreport(out List<AttendanceReport> DataList, string date, string shiftid, string groupid , string inmis,string locations,string entityid , string tbs , string longabsent)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4641,10 +4641,27 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 "where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1" +
 "and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
 
+               
+
                 if (inmis == "IN" || inmis == "IM" || inmis == "W")
                 {
                     strSQL = strSQL1 + "and (case when apd.WeeklyStatus = 'W' then 'W' when(select top 1 rw.PTime from AttdnRawData rw where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate order by rw.PTime asc) is null then 'IM' else 'IN' end) = '" + inmis + "'";
                 }
+
+                if (tbs != null && longabsent == null)
+                {
+                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'TBS'";
+                }
+
+                if (tbs == null && longabsent != null)
+                {
+                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus = 'LONG ABSENTEEISM'";
+                }
+                if (tbs != null && longabsent != null)
+                {
+                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus In ('TBS' , 'LONG ABSENTEEISM')";
+                }
+
                 if (entityid != null && shiftid == null && locations == null)
                 {
                     strSQL = strSQL + "  and MBGT.EntityId =  '" + entityid + "'";
