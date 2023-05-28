@@ -4412,7 +4412,7 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
         }
 
         #region Attendance
-        public void GetUserGroup(out List<Default2> DataList)
+        public void GetUserGroup(out List<Default2> DataList , string EmpsysId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -4421,7 +4421,11 @@ where ProductionBookingProcessParameterId='" + ParameterId + "' and EntryState =
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select id as Value, UserGroup as Name  from HKP.HRReportGroupMaster";
+                strSQL = @"select distinct RGM.id as Value, RGM.UserGroup as Name from TRN.HrreportmasterResponsiblePerson RP
+left join HKP.HRReportMaster HRM on HRM.Id = RP.HRReportMasterId
+left join TRN.HRReportMasterChild  HRC on  HRC.HRReportMasterId = HRM.Id
+left join TRN.HRReportMasterBudgetUserGroup BG on BG.HRReportMasterChildId = HRC.Id
+left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSystemId = '" + EmpsysId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -4659,7 +4663,7 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
                 }
                 if (tbs != null && longabsent != null)
                 {
-                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus In ('TBS' , 'LONG ABSENTEEISM')";
+                    strSQL = strSQL + " and Emp.EmployeeCurrentStatus is null";
                 }
 
                 if (entityid != null && shiftid == null && locations == null)

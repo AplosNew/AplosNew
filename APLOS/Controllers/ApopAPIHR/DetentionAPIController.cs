@@ -562,10 +562,10 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Sales Return
 
         #region Attedance
-        public List<Default2> GetUserGroup()
+        public List<Default2> GetUserGroup(string EmpsysId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetUserGroup(out List<Default2> activelists);
+            clsData.GetUserGroup(out List<Default2> activelists , EmpsysId);
             return activelists;
         }
 
