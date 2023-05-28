@@ -576,6 +576,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetSevenDaysAttendanceDefault(string Empcode)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
+            return activelists;
+        }
+
         public List<EmpInformation> GetEmpInformation(string Empcode)
         {
             clsDataContext clsData = new clsDataContext();

@@ -4489,6 +4489,44 @@ where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() a
         }
 
 
+        public void GetSevenDaysAttendanceDefault(out List<Default2> DataList, string Empcode)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
+case when DayStatus   is  null then InStatus
+else DayStatus end as Name
+from AttdnProcessData
+where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetEmpInformation(out List<EmpInformation> DataList, string Empcode)
         {
             clsConnectionManager objCon = null;
