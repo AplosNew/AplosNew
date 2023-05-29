@@ -443,6 +443,37 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
     };
     //==========================================================mlv Return=====================================================
 
+    //#region  OtherStatus    
+
+    $scope.OtherStatusEmpcbx = function (args) {
+        $("#cbxheadOtherStatus").ejCheckBox({ "change": OtherStatusEmps });
+    };
+
+    function OtherStatusEmps(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridDifferentStatus").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.EmployeeList_diffStatus.length; i++) {
+                $scope.EmployeeList_diffStatus[i].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridDifferentStatus").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    //#endregion
+
 
     $scope.employees = [];
     $scope.LockEmpList = [];
@@ -539,6 +570,7 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
             $scope.AllDataset.dtActive = data_dtActive;
             //$scope.AllDataset.dtActive = $scope.EmployeeList_active;
             $scope.AllDataset.dtNewlyJoined = $scope.EmployeeList_newlyjoined;
+            $scope.AllDataset.dtNewlyJoined = $scope.EmployeeList_diffStatus;
             $scope.AllDataset.dtSND = $scope.EmployeeList_ssnd;
             $scope.AllDataset.dtSNA = $scope.EmployeeList_ssna;
 

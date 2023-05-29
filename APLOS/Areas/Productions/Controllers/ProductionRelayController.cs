@@ -252,19 +252,19 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
 							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
 							left outer join HKP.Process CP on CP.Id=PSS.ProcessId				
 
-							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
+							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.RelaySequence DESC)
 							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
 							and PPR.id=(select A.Id from (
-							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[RelaySequence] desc) AS RNK,P.*
 							from TRN.ProductionOrderProcessSet P 							
-							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.RelaySequence<PSS.RelaySequence) AS A where a.RNK=1)
 							left outer join HKP.Process P on p.Id=PPR.ProcessId
 
 						    left join trn.ProductionOrderProcessSet NPR ON PSS.ProductionOrderId=PO.Id 
 							and NPR.id=(select A.Id from (
-							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] ASC) AS RNK,P.*
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[RelaySequence] ASC) AS RNK,P.*
 							from TRN.ProductionOrderProcessSet P 							
-							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence>PSS.sequence) AS A where a.RNK=1)
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.RelaySequence>PSS.RelaySequence) AS A where a.RNK=1)
 							left outer join HKP.Process NP on NP.Id=NPR.ProcessId
 
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR
@@ -402,19 +402,19 @@ PreviousProcessWIP=isnull( PreviousProcessPR.ProductionQtyAtPR,0)-isnull(Current
 							left join trn.ProductionOrderProcessSet PSS ON PSS.ProductionOrderId=PO.Id
 							left outer join HKP.Process CP on CP.Id=PSS.ProcessId				
 
-							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.Sequence DESC)
+							left join trn.ProductionOrderProcessSet PLST ON PLST.ProductionOrderId=PO.Id and PLST.Id=(select top 1 Id from trn.ProductionOrderProcessSet XP where XP.ProductionOrderId=PO.Id order by XP.RelaySequence DESC)
 							left join trn.ProductionOrderProcessSet PPR ON PSS.ProductionOrderId=PO.Id 
 							and PPR.id=(select A.Id from (
-							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] desc) AS RNK,P.*
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[RelaySequence] desc) AS RNK,P.*
 							from TRN.ProductionOrderProcessSet P 							
-							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence<PSS.sequence) AS A where a.RNK=1)
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.RelaySequence<PSS.RelaySequence) AS A where a.RNK=1)
 							left outer join HKP.Process P on p.Id=PPR.ProcessId
 
 						    left join trn.ProductionOrderProcessSet NPR ON PSS.ProductionOrderId=PO.Id 
 							and NPR.id=(select A.Id from (
-							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[sequence] ASC) AS RNK,P.*
+							select DENSE_RANK() over (partition by p.ProductionOrderId order by P.[RelaySequence] ASC) AS RNK,P.*
 							from TRN.ProductionOrderProcessSet P 							
-							where p.ProductionOrderId=PSS.ProductionOrderId AND P.Sequence>PSS.sequence) AS A where a.RNK=1)
+							where p.ProductionOrderId=PSS.ProductionOrderId AND P.RelaySequence>PSS.RelaySequence) AS A where a.RNK=1)
 							left outer join HKP.Process NP on NP.Id=NPR.ProcessId
 
                              LEFT OUTER JOIN (SELECT s.ProductionOrderId,s.ProcessId,SUM(s.Quantity) AS ProductionQtyAtPR

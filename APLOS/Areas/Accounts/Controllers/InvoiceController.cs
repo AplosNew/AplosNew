@@ -34,6 +34,8 @@ using System.Web;
 using System.Web.Mvc;
 using OTSBD;
 using Library.Service.Advances;
+using Syncfusion.Pdf;
+using Syncfusion.ExcelToPdfConverter;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -1064,6 +1066,59 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetCustomerInvoiceReceiptBanksReportPdf(ReportFormat reportFormat, string invoiceWriteOffGroupNo)
+        {
+            try
+            {
+                
+                AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var workbook = _accInvoiceReportService.GetCustomerInvoiceReceiptBanksReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, invoiceWriteOffGroupNo, SourceType.CustomerBanksReceipt.ToString());
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        PdfDocument document = new PdfDocument();
+                        ExcelToPdfConverterSettings settings = new ExcelToPdfConverterSettings();
+                        settings.TemplateDocument = document;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document = converter1.Convert(settings);
+                        }
+                        document.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+                        return null;
+
+                    case ReportFormat.PdfView:
+                        PdfDocument document1 = new PdfDocument();
+                        ExcelToPdfConverterSettings settings1 = new ExcelToPdfConverterSettings();
+                        settings1.TemplateDocument = document1;
+                        for (int i = 0; i < workbook.Worksheets.Count; i++)
+                        {
+                            ExcelToPdfConverter converter1 = new ExcelToPdfConverter(workbook.Worksheets[i]);
+                            document1 = converter1.Convert(settings1);
+                        }
+                        document1.Save(reportFileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Open);
+                        //return RenderReportAsPdf(document1, reportFileName);
+                        return RenderReportAsPdf(workbook, reportFileName);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
         [HttpGet, Authorize]
         public ActionResult CustomerInvoiceDetailsReceiptBanksReport(ReportFormat reportFormat, string invoiceWriteOffGroupNo)
         {

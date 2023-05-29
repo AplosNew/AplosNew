@@ -1108,6 +1108,7 @@ function ProductionOrderController(cboService, commonMessage, $scope, $rootScope
             , ArticleName: null
             , Qty: 100
             , UOMId: null
+            , RelaySequence: data.RelaySequence
             , ProductionBookingLevel: data.ProductionBookingLevel
         });
         UomCboByFGMaterialMaster(data.MaterialMasterId);

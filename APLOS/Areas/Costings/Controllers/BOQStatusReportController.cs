@@ -57,14 +57,14 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                var sql = @"SELECT distinct BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
-							,SO.Id SOId,CPO.PONumber PONo
+                var sql = @"SELECT distinct CPO.PONumber PONo, BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
+							,SO.Id SOId 
                              FROM BOQ  boq
 							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
 							  left join trn.SalesOrder SO on SO.CostingBOQMasterId=BOM.Id
 							  left join HKP.Party PC on PC.Id=BOM.CustomerId
 							 left join TRN.MasterOrder MO on MO.PartyId=PC.Id
-                             left  join [TRN].[CustomerPO] CPO on CPO.MasterOrderId=MO.Id
+                             left  join [TRN].[CustomerPO] CPO on CPO.Id=SO.CustomerPOId
                              left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
                              where BOM.CustomerId <>''  
 							  and moi.OrderCostingMasterTemplateId<>''";

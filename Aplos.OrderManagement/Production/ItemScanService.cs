@@ -305,7 +305,7 @@ namespace Library.Service.EmployeeServices
                         dr["Booked"] = 0;
                         dr["IsDespatch"] = 0;
                         dr["PackingId"] = DBNull.Value;
-                        dr["ReturnNetWeight"] = 0;
+                        dr["ReturnNetWeight"] = item.ReturnNetWeight;
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
@@ -953,6 +953,8 @@ namespace Library.Service.EmployeeServices
         public string Booked { get; set; }
         public string IsDespatch { get; set; }
         public string PackingId { get; set; }
+        public string ReturnNetWeight { get; set; }
+
     }
 
     public class ItemScanChildSalesReturn
