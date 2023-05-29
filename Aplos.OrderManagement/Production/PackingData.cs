@@ -1217,7 +1217,7 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                     tempDate = " ";
                     tempCurrentDate = " ";
                 }
-                var str = @"select x.StandardName,x.ProductCode,x.POId,x.LotNo,x.Bags ,x.BagSize BagSize,sum(x.NtWt) NtWt,sum(x.GtWt) GtWt,sum(x.ActualBags) ActualBags,sum(x.ActualNtWt) ActualNtWt,sum(x.ActualGtWt) ActualGtWt,x.ProdDetails 
+                var str = @"select x.StandardName,x.ProductCode,x.POId,x.LotNo,sum(x.Bags) Bags,x.BagSize BagSize,sum(x.NtWt) NtWt,sum(x.GtWt) GtWt,sum(x.ActualBags) ActualBags,sum(x.ActualNtWt) ActualNtWt,sum(x.ActualGtWt) ActualGtWt,x.ProdDetails 
                             FROM (
                              Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
                               0 ActualBags,0 ActualNtWt, 0 ActualGtWt,
@@ -1238,7 +1238,7 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                            
 							UNION ALL
 
-							Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , 0 NtWt, 0 GtWt,
+							Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, 0 Bags, S.NetWeight as BagSize , 0 NtWt, 0 GtWt,
                              Count(S.RefNo) as ActualBags,Sum(S.NetWeight) as ActualNtWt, Sum(S.GWeight) as ActualGtWt,
 							(Select Stuff((
                             Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
@@ -1256,7 +1256,7 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                             GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                             
 							) x
-							GROUP BY x.StandardName,x.ProductCode,x.POId,x.LotNo,x.ProdDetails,x.Bags ,x.BagSize
+							GROUP BY x.StandardName,x.ProductCode,x.POId,x.LotNo,x.ProdDetails ,x.BagSize
 							ORDER BY X.StandardName , X.LotNo DESC
 							";
                 return _sqlRepository.GetDataTable(str);
