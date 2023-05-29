@@ -41,6 +41,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
+        public ActionResult VehicleInOut()
+        {
+            return View();
+        }
+
         #region VehicleMaster
         public JsonResult GetVehicleMasterData()
         {
@@ -611,12 +616,24 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         #region VehicleReq
         public JsonResult GetVehicleRequisitiontData()
         {
-            string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
+            string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
 ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department
+,STUFF((Select ',' + FLM.UserName
+							from TRN.VehicleMovementRequisitionChild VRC
+							LEFT JOIN HKP.LocationMaster FLM on FLM.Id = VRC.FromLocationId
+							where VehicleMovementRequisitionId = VMR.Id
+							FOR XML PATH('')),1,1,'') FromLocation
+
+							,STUFF((Select ',' + TLM.UserName
+							from TRN.VehicleMovementRequisitionChild VRC
+							LEFT JOIN HKP.LocationMaster TLM on TLM.Id = VRC.ToLocationId
+							where VehicleMovementRequisitionId = VMR.Id
+							FOR XML PATH('')),1,1,'') ToLocation
+
                             from [TRN].[VehicleMovementRequisition] VMR							
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
                             where VMR.AppliedId is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -629,6 +646,8 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
        
+        
+
         public void CreateVehicleRequisition(Dictionary<string, object> data)
         {
             try
@@ -837,10 +856,42 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         #endregion Fuel
 
         #region VehicleApproval
-        //public ActionResult GetVehicleAllocation()
-        //{
+        public ActionResult GetVehicleAllocation()
+        {
+            string sql = @"select VA.Id, FORMAT(VA.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VA.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VA.FromTime, 'hh:mm tt')FromTime, FORMAT(VA.ToTime, 'hh:mm tt')ToTime
+                        ,VM.VehicleName, EI.EmployeeName DriverName, VA.DriverMasterId, VA.VehicleMasterId
+                        from TRN.VehicleAllocation VA
+                        left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+                        left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+                        left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
-        //}
+
+        }
+
+        public JsonResult GetMergedRequisition(string appliedid)
+        {
+            string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm:ss tt') FromTime, Format(VMR.ToTime,'hh:mm:ss tt')ToTime, VMR.PersonalOfficial
+                            ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName ByWhom, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department
+                            ,STUFF((Select ',' + FLM.UserName
+							from TRN.VehicleMovementRequisitionChild VRC
+							LEFT JOIN HKP.LocationMaster FLM on FLM.Id = VRC.FromLocationId
+							where VehicleMovementRequisitionId = VMR.Id
+							FOR XML PATH('')),1,1,'') FromLocation
+
+							,STUFF((Select ',' + TLM.UserName
+							from TRN.VehicleMovementRequisitionChild VRC
+							LEFT JOIN HKP.LocationMaster TLM on TLM.Id = VRC.ToLocationId
+							where VehicleMovementRequisitionId = VMR.Id
+							FOR XML PATH('')),1,1,'') ToLocation
+                                    
+                            from [TRN].[VehicleMovementRequisition] VMR							
+                            left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                            left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            where VMR.AppliedId = '"+ appliedid + "'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult SaveVehicleAllocation(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata) 
         {
@@ -920,8 +971,155 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
 
         }
 
-       
+
         #endregion VehicleApproval
+
+        #region VehicleIn
+        public JsonResult GetVehicleInData()
+        {
+            string sql = @"select FORMAT(InDate, 'dd-MMM-yyy')InDate, FORMAT(InTime, 'hh:mm tt')InTime, InKillometer, InRemarks from TRN.VehicleMovementInOut";
+            return Json(_sqlRepository.GetDataCollection(sql));
+        }
+
+        public JsonResult SaveVehicleIn(Dictionary<string, object> data, string headerId)
+        {
+            try
+            {
+                string TableName = "TRN.VehicleMovementInOut";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    data["VehicleAllocationId"] = headerId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["VehicleAllocationId"] = headerId;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public ActionResult DeleteVehicleIn(string id)
+        {
+            try
+            {
+                string TableName = "TRN.VehicleMovementInOut";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        #endregion VehicleIn
+
+        #region VehicleOut
+        public JsonResult GetVehicleOutData()
+        {
+            string sql = @"select FORMAT(OutDate, 'dd-MMM-yyy')OutDate, FORMAT(OutTime, 'hh:mm tt')OutTime, OutKillometer, OutRemarks from TRN.VehicleMovementInOut";
+            return Json(_sqlRepository.GetDataCollection(sql));
+        }
+
+        public JsonResult SaveVehicleOut(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableName = "TRN.VehicleMovementInOut";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public ActionResult DeleteVehicleOut(string id)
+        {
+            try
+            {
+                string TableName = "TRN.VehicleMovementInOut";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        #endregion VehicleOut
 
         #region Get
         public JsonResult GetFromToLocationList()
