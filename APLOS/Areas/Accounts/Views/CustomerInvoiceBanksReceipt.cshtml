@@ -455,6 +455,7 @@
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.InvoiceWriteOffGroupNo);" href="" class="btn btn-action tooltip-here">Delete</a></li>
 
                         <li><a class="btn btn-action" href="Accounts/invoice/CustomerInvoiceReceiptBanksReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&invoiceWriteOffGroupNo={{x.InvoiceWriteOffGroupNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li><button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Pdf" ng-click="PrintData(x);" style="margin: -6px;"></i></button></li>
                         <li><a class="btn btn-action" href="Accounts/invoice/CustomerInvoiceDetailsReceiptBanksReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&invoiceWriteOffGroupNo={{x.InvoiceWriteOffGroupNo}}" target="_blank"><i class="fa fa-file-excel-o" style="color:yellow"></i></a></li>
                     </ul>
                 </td>

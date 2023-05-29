@@ -3220,7 +3220,9 @@ namespace Library.Service.SalesManagements
                                var childData= _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
                                 childData.SalesMaterialId = salesMaterial.Id;
                                 childData.SalesId = sales.Id;
-                                _ItemScanChildDataService.InsertOrUpdateGraph(childData);
+                                childData.ReturnNetWeight = 0;
+                                childData.ModelState = ModelState.Modified;
+                                _ItemScanChildDataService.Update(childData);
                             }
 
                         }
@@ -3684,7 +3686,8 @@ namespace Library.Service.SalesManagements
                                 childData.SalesMaterialId = salesMaterialVM.Id;
                                 childData.SalesId = sales.Id;
                                 childData.ReturnNetWeight = 0;
-                                _ItemScanChildDataService.InsertOrUpdateGraph(childData);
+                                childData.ModelState = ModelState.Modified;
+                                _ItemScanChildDataService.Update(childData);
                             }
 
                         }

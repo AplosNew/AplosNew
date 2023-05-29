@@ -574,7 +574,8 @@ namespace Library.Service.OrderManagements
 					                        WHEN MMPS.PartyId<>'' THEN PRT.UserName
 					                        ELSE PRT.UserName END
                                 , MMPS.MaterialMasterId, MM.UserName AS MaterialMasterName
-	                                    , MMPS.ArticleId, ART.StandardName AS ArticleName,MMPS.Qty,MMPS.UOMId,MMPS.ProductionBookingLevel
+	                            , MMPS.ArticleId, ART.StandardName AS ArticleName,MMPS.Qty,MMPS.UOMId,MMPS.ProductionBookingLevel
+                                ,RelaySequence=CASE WHEN MMPS.RelaySequence=0 THEN P.Sequence ELSE MMPS.RelaySequence END
                         FROM [TRN].[ProductionOrderProcessSet] AS MMPS
                         LEFT JOIN HKP.Process AS P ON MMPS.ProcessId=P.Id
                         LEFT JOIN ORG.Entity AS EWC ON MMPS.EntityIdWithinCompany=EWC.Id

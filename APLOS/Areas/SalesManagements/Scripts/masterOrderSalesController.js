@@ -2501,7 +2501,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                         moi.TaxList = $scope.materialtaxCategoryList;
                         moi.HSNCodeId = $scope.masterOrderItemList[i].HSNCodeId;
                         $scope.salesVM.MasterOrderId = $scope.masterOrderItemList[i].MasterOrderId;
-                        moi.ExistSalesQty = $scope.masterOrderItemList[i].ExistSalesQty;
+                        moi.ExistSalesQty = (baseService.isUndefinedOrNull($scope.masterOrderItemList[i].ExistSalesQty) == true ? 0 : $scope.masterOrderItemList[i].ExistSalesQty);
                         moi.Balance = $scope.masterOrderItemList[i].Balance;
 
                         $scope.selectedMasterOrderItemList.push(moi);

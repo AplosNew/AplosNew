@@ -2957,7 +2957,6 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 					$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].POQty - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
 					$scope.inventoryMaterialList[i].ApprovedQty = ($scope.inventoryMaterialList[i].TransactionQty - ($scope.inventoryMaterialList[i].ShortageQty + $scope.inventoryMaterialList[i].RejectionQty));
 					$scope.inventoryMaterialList[i].NetQty = ($scope.inventoryMaterialList[i].TransactionQty - $scope.inventoryMaterialList[i].ShortageQty);
-
 				}
 				else {
 					$scope.inventoryMaterialList[i].Balance = ($scope.inventoryMaterialList[i].POQty - ($scope.inventoryMaterialList[i].GRNRcvQty + $scope.inventoryMaterialList[i].TransactionQty));
@@ -2969,7 +2968,6 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 						$scope.inventoryMaterialList[i].TrnAmount = (($scope.inventoryMaterialList[i].NetQty * $scope.inventoryMaterialList[i].TransactionRate) - data.DiscountAmount).toFixed(2);
 						$scope.inventoryMaterialList[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)).toFixed(2);
 						$scope.inventoryMaterialList[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialList[i].TrnAmount) + parseFloat(data.BaseTaxAmount) + parseFloat($scope.inventoryMaterialList[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.ReceiptTransformation.ToCurrencyRate).toFixed(2);
-
 					}
 				}
 				else {
@@ -2981,10 +2979,7 @@ function JWReceiptController($window, cboService, commonMessage, $scope, $rootSc
 				}
 			}
 		}
-
-
 	};
-
 
 
 	$scope.recorddoubleclickFromMasterGrid = function ($event) {

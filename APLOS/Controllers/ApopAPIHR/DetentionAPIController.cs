@@ -562,14 +562,21 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Sales Return
 
         #region Attedance
-        public List<Default2> GetUserGroup()
+        public List<Default2> GetUserGroup(string EmpsysId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetUserGroup(out List<Default2> activelists);
+            clsData.GetUserGroup(out List<Default2> activelists , EmpsysId);
             return activelists;
         }
 
         public List<Default2> GetSevenDaysAttendance(string Empcode)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
+            return activelists;
+        }
+
+        public List<Default2> GetSevenDaysAttendanceDefault(string Empcode) 
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
@@ -596,10 +603,10 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetShift(out List<Default2> activelists);
             return activelists;
         }
-        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid)
+        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid);
+            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid , tbs, longabsent);
             return activelists;
         }
         #endregion Attedance
