@@ -1352,5 +1352,17 @@ function customerInvoiceBanksReceiptController(bankService, cboService, commonMe
     //    //}
     //};
 
+    $scope.PrintData = function (data) {
+        try {
+           
+            $scope.ReportFormat = 'Pdf';
+            var url = 'Accounts/invoice/GetCustomerInvoiceReceiptBanksReportPdf?reportFormat=' + $scope.ReportFormat + '&invoiceWriteOffGroupNo=' + data.InvoiceWriteOffGroupNo;
+            $rootScope.report(url);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
 
 }
