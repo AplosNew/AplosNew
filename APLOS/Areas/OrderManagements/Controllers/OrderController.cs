@@ -690,14 +690,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 pivotTable.Fields[colSalesOrderStatus - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionStatus - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionStartDate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colProductionOrderCategory - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colRate - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colCM - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colSOQty - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colShippedQty - 1].Axis = PivotAxisTypes.Row;
-                pivotTable.Fields[colBalShipment - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colShippedQty - 1].Axis = PivotAxisTypes.Row;
+                //pivotTable.Fields[colBalShipment - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colPlan - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colToPlan - 1].Axis = PivotAxisTypes.Row;
                 //pivotTable.Fields[colLSD - 1].Axis = PivotAxisTypes.Row;
@@ -714,7 +713,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 //pivotTable.Fields[colInputRemarks - 1].Axis = PivotAxisTypes.Row;
                 //pivotTable.Fields[colInputStatus - 1].Axis = PivotAxisTypes.Row;
 
-                //IPivotField field = pivotTable.Fields[colShippedQty - 1];
+                IPivotField field = pivotTable.Fields[colShippedQty - 1];
 
                 //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 //pivotTable.DataFields.Add(field, "Rate", PivotSubtotalTypes.Sum);
@@ -728,9 +727,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 //pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
 
-                //field = pivotTable.Fields[colShippedQty - 1];
+                field = pivotTable.Fields[colShippedQty - 1];
+                field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+                pivotTable.DataFields.Add(field, "Shipped Qty", PivotSubtotalTypes.Sum);
+
+                //int colB = colShippedQty + 1;
+                //field = pivotTable.Fields[colB - 1];
                 //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //pivotTable.DataFields.Add(field, "Shipped Qty", PivotSubtotalTypes.Sum);
+                //pivotTable.DataFields.Add(field, "Bal Shipment", colSOQty - colShippedQty);
+
+
+                //  pivotTable.Fields[colB - 1].Axis = PivotAxisTypes.Row;
 
                 //field = pivotTable.Fields[colBalShipment - 1];
                 //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
@@ -748,8 +755,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                 for (int i = 0; i < pivotTable.Fields.Count; i++)
                 {
-                    if (i == colPlant - 1 || i == colEntity - 1 || i == colResponsiblePerson - 1 || i == colCustomer - 1 || i == colBuyer - 1)
-                        continue;
+                    if (i == colPlant - 1 || i == colEntity - 1 || i == colResponsiblePerson - 1 || i == colCustomer - 1 || i == colBuyer - 1|| i == colCommitmentDate - 1 || i == colBuyerRefNo - 1 || i == colArticle - 1 || i == colDeliveryDate - 1 || i == colPlanExFactoryDate - 1
+                        || i == colRate - 1 || i == colSalesOrderStatus - 1 || i == colProductionOrderId - 1 || i == colProductionStatus - 1 || i == colProductionStartDate - 1 || i == colProductionOrderCategory - 1 || i == colCM - 1 || i == colSOQty - 1 || i == colPlan - 1 || i == colToPlan - 1)
                     pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
                 }
 
