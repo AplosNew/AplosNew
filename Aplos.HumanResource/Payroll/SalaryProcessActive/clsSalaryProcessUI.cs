@@ -573,7 +573,7 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
                 strSQL = @"SELECT distinct Convert(bit, 'False') IsSelectSlrProc,
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
-                                  REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
+                                  REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeCurrentStatus, E.EmployeeGroupSystemID UserGroupSystemID,
                                   E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
@@ -1515,7 +1515,7 @@ and isnull(locka.EmpSystemId,'')=''
                                                 ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										        ,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
 										        ,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode
-
+                                                ,E.EmployeeCurrentStatus
                                             FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
                                         LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
