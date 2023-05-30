@@ -1414,6 +1414,20 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
             }
         }
 
+        [Authorize, HttpPost]
+        public JsonResult GetJWMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData, string OrderSpecific, string MaterialStorageIdInventory, string IssueDate, string TransIssueId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                return Json(JWTIR.GetJWMaterialInputData(SelectedMaterialPlanningData, OrderSpecific, MaterialStorageIdInventory, IssueDate, TransIssueId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetIssuedDetailList(string ArticleId, string MaterialId, string MaterialInputId, string ContractId)
         {
