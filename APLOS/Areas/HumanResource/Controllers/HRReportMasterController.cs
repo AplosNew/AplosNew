@@ -154,7 +154,7 @@ order by Sequence
 
             
 
-            bgtQuery = @"select HMC.Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
+            bgtQuery = @"select ''Id, HMC.Active , E.UserName Entity, D.UserName Division, DT.UserName Department, S.UserName Section, SS.UserName SubSection
 , DSG.UserName Designation, A.UserName Activity,SDF.UserName [Shift], P.Code PositionCode
 , P.UserName Position ,BGT.Code BudgetCode, BGT.Id ManpowerBudgetId --, isSelected=CAST (CASE WHEN HMC.Id IS NULL THEN 0 ELSE 1 END AS bit)
 from  MST.ManpowerBudget BGT 
@@ -169,7 +169,7 @@ left join ORG.Section S on P.SectionId = S.Id
 left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Division DSN on P.DivisionId = DSN.Id
 left join HKP.Designation DSG ON P.DesignationId = DSG.Id
-left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
+--left join [TRN].[HRReportMasterChild] HMC on HMC.ManpowerBudgetId = BGT.Id
 where BGT.EntityId in ("+Entity+ @") and BGT.Active = 1 and BGT.Id not in(select ManpowerBudgetId from [TRN].[HRReportMasterChild] where HMC.HRReportMasterId = '"+id+@"')
 ";
 
@@ -201,14 +201,15 @@ order by HMC.ManpowerBudgetId DESC";
             return Json(_sqlRepository.GetDataCollection(bgtQuery), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult GetEmployee()
+        public ActionResult GetEmployee(string headerid)
         {
             try
             {
                 var str = @"select ''Id, ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
                             FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
                             LDSG.StandardName as Designation, SC.UserName as Section,
-                            SBC.UserName as SubSection from dbo.EmployeeInformation ei
+                            SBC.UserName as SubSection --, isSelected=CAST (CASE WHEN HRP.Id IS NULL THEN 0 ELSE 1 END AS bit)
+							from dbo.EmployeeInformation ei
                             LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
                             LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
                             left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
@@ -224,8 +225,9 @@ order by HMC.ManpowerBudgetId DESC";
                             left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
                             left join SalaryRuleMaster SRM on srm.systemid = ei.salaryrulemastersystemid
                             left join ResidenceGroup RG on RG.Id = ei.ResidenceGroupId
-                            left join TransportGroup TG on TG.Id = ei.TransportGroupId          
-                            where ei.EmployeeStatus = 'Active'";
+                            left join TransportGroup TG on TG.Id = ei.TransportGroupId 
+							--left join TRN.HRReportMasterResponsiblePerson HRP on HRP.EmpSystemId = ei.SystemId
+                            where ei.EmployeeStatus = 'Active' and ei.SystemId not in (select EmpSystemId from TRN.HRReportMasterResponsiblePerson where HRReportMasterId = '"+ headerid + "')";
                 return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -238,13 +240,13 @@ order by HMC.ManpowerBudgetId DESC";
         {
             try
             {
-                var str = @"select HRP.Id, HRP.Active , isSelected = case when HRP.Active = 1 then HRP.Active else 0 end
+                var str = @"select HRP.Id, HRP.HRReportMasterId ,HRP.Active 
   , ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
                             FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
                             LDSG.StandardName as Designation, SC.UserName as Section,
-                            SBC.UserName as SubSection 
-							from (select * from TRN.HRReportMasterResponsiblePerson where HRReportMasterId = '" + headerId + @"') HRP
-							FULL JOIN dbo.EmployeeInformation ei on ei.SystemId = HRP.EmpSystemId
+                            SBC.UserName as SubSection , isSelected=CAST (CASE WHEN HRP.Id IS NULL THEN 0 ELSE 1 END AS bit)
+							from (select * from TRN.HRReportMasterResponsiblePerson where HRReportMasterId = '" + headerId + @"' and Active = 1) HRP
+							left JOIN dbo.EmployeeInformation ei on ei.SystemId = HRP.EmpSystemId
 							left join HKP.HRReportMaster HPM on HPM.Id = HRP.HRReportMasterId
                             LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
                             LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
@@ -557,14 +559,16 @@ order by HMC.ManpowerBudgetId DESC";
                     {
 
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableNameChildA, out _Id);
-
-                        DataRow dr = dsChildA.Tables[0].NewRow();
-
-                        dr["Active"] = 0;
                         
-                        EditRow(dr, item);
-                        
+
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+
+                        dr["Active"] = false;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
                     }
                     else
                     {
@@ -682,6 +686,37 @@ order by HMC.ManpowerBudgetId DESC";
                 con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
 
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
+        public JsonResult DeleteResponsiblePerson(List<Dictionary<string,object>> data)
+        {
+            try
+            {
+                var id = "";
+                foreach (var item in data)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                string TableName = "TRN.HRReportMasterResponsiblePerson";
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery($"delete from {TableName} where id in ({id})");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

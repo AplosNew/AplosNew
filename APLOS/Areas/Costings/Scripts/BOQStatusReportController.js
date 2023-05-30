@@ -21,6 +21,42 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
         return $scope.tab === tabNum;
     };
 
+    
+    $scope.filters = [];
+    $scope.getBOQStatusFilters = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getBOQFilters',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.filters = response.data;
+            var columnList = [
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'BuyerReferenceNo', width: 20, headerText: "Buyer Reference No", type: "string" },
+                { field: 'OwnReferenceNo', width: 20, headerText: "Own Reference No", type: "string" },
+                { field: 'MasterOrderId', width: 20, headerText: "Master Order Id", type: "string" },
+                { field: 'LineItemId', width: 20, headerText: "Line Item Id", type: "string" },
+                { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
+                { field: 'PONo', width: 20, headerText: "PO No", type: "string" },
+
+            ];
+            $("#filters").ejGrid({
+                dataSource: $scope.filters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
+            });
+
+            var gridObj = $("#filters").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#filters").children('.e-pager.e-js.e-pager').hide();
+            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#filters").children('.e-gridcontent').hide();
+        });
+    }
+    $scope.getBOQStatusFilters();
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -57,43 +93,21 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
         }
         return string;
     }
-    //#region The Filters 
 
-    $scope.filters = [];
-    $scope.getBOQStatusFilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getBOQFilters',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.filters = response.data;
-            var columnList = [
-                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-                { field: 'BuyerReferenceNo', width: 20, headerText: "Buyer Reference No", type: "string" },
-                { field: 'OwnReferenceNo', width: 20, headerText: "Own Reference No", type: "string" },
-                { field: 'MasterOrderId', width: 20, headerText: "Master Order Id", type: "string" },
-                { field: 'LineItemId', width: 20, headerText: "Line Item Id", type: "string" },
-                { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
-                { field: 'PONo', width: 20, headerText: "PO No", type: "string" },
+    $scope.clearFilters = function () {
 
-            ];
-            $("#filters").ejGrid({
-                dataSource: $scope.filters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
-            });
+        var gridObj = $("#filters").data("ejGrid");
+        gridObj.clearFiltering();
+    }
 
-            var gridObj = $("#filters").data("ejGrid");
+    $scope.refreshPage = function (e) {
+        if (e.requestType == "paging") {
+            var gridObj = $("#slabGrid").data("ejGrid");
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
-            $("#filters").children('.e-pager.e-js.e-pager').hide();
-            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#filters").children('.e-gridcontent').hide();
-        });
+        }
+        var k = 100;
     }
-    $scope.getBOQStatusFilters();
 
     //new
     $scope.BOQStausData = [];

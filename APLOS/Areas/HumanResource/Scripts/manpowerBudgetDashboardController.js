@@ -1163,4 +1163,36 @@ function manpowerBudgetDashboardController(cboService, $scope, $rootScope, $rout
             }
         }
     };
+
+    $scope.OnRoleEmpReportXLx = function () {
+        var dataList = [];
+        var g = $("#onRoleEmpGridDetail").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.onRoleEmpList;
+        }
+
+        $scope.fileName = 'Man Power Budget On Role Report.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: "HumanResource/ManpowerBudgetDashboard/OnRoleEmployeeReport",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
 }
