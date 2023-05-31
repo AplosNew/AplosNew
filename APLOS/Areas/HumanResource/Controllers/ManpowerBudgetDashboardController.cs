@@ -3,7 +3,9 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Service.Organizations;
 using Library.ViewModel.Accounts;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -145,6 +147,134 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult WPBudgetCodeWiseEmpList(IEnumerable<ChartColumnList> ChartColumnList, string budgetCode)
         {
             return Json(_hrDashboardService.WpBudgetCodeWiseEmpList(ChartColumnList, budgetCode), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult OnRoleEmployeeReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+                    dt.Columns.Add(item);
+                }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+                        dr[item] = data[i][item];
+                    }
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = _hrDashboardService.CreateOnRoleEmployeeReportSheet(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult BudgetEmployeeReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+                    dt.Columns.Add(item);
+                }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+                        dr[item] = data[i][item];
+                    }
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = _hrDashboardService.CreateBudgetEmployeeReportReportSheet(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult ShortEmployeeReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+                    dt.Columns.Add(item);
+                }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+                        dr[item] = data[i][item];
+                    }
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = _hrDashboardService.CreateShortEmployeeReportReportSheet(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult ExcessEmployeeReport(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+                    dt.Columns.Add(item);
+                }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+                        dr[item] = data[i][item];
+                    }
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = _hrDashboardService.CreateExcessEmployeeReportReportSheet(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
     }

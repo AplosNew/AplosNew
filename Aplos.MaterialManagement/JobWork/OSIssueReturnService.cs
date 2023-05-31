@@ -1960,6 +1960,7 @@ public class MaterialPlanning
     public string MaterialLocation { get; set; }
 
     public string MaterialStorageIdInventory { get; set; } 
+    public string JWTransformationPODetailId { get; set; } 
     
 
     #endregion Scalar Properties

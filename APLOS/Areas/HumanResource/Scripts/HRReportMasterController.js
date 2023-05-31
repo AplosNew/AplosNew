@@ -51,7 +51,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     // #region ALL POP UPs
     // POP OPEN
     $scope.selectEmployee = function () {
-
+        $scope.getEmployee($scope.ModelNew.Id);
         angular.element(document.querySelector('#EmployeePop')).modal('show');
     }
 
@@ -104,7 +104,8 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
             $rootScope.toggle();
             $scope.GetBudget($scope.ModelNew.Id);
             $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
-            
+            $scope.GetSavedResponsiblePerson($scope.ModelNew.Id)
+            //$scope.getEmployee($scope.ModelNew.Id);
         }
 
     };
@@ -226,15 +227,16 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
         });
     }
 
-   
-    $scope.GetSavedResponsiblePerson = function () {
+
+    $scope.SavedEmployeeList = [];
+    $scope.GetSavedResponsiblePerson = function (empSystemId) {
         $http({
             method: 'POST',
             url: $scope.path + "GetSavedResponsiblePerson",
             data: { 'headerId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.EmployeeList = response.data;
+            $scope.SavedEmployeeList = response.data;
         })
     }
     // #endregion Get Fun
@@ -277,6 +279,7 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                     $scope.ModelNew.Id = response.data.Id;
                     //ClearFields(response.data.Sequence);
                     $scope.getData();
+                    $scope.getEmployee($scope.ModelNew.Id);
 
                 }
             }), function errorCallBack(response) {
@@ -507,17 +510,18 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
     // #region Responsible person Tab
 
     $scope.EmployeeList = [];
-    $scope.getEmployee = function () {
+    $scope.getEmployee = function (headerId) {
         $http({
             method: 'POST',
             url: $scope.path + "getEmployee",
+            data: { 'headerid': headerId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
         });
     }
 
-    $scope.getEmployee();
+    //$scope.getEmployee();
 
     $scope.Save_One_or_MultipleResPers = function () {
         $scope.CheckedResponsiblePersonList = [];
@@ -544,44 +548,91 @@ function HRReportMasterController(cboService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.ModelNew.Id = $scope.ModelNew.Id;
                     for (var i = 0; i < $scope.CheckedResponsiblePersonList.length; i++) {
 
                         if ($scope.CheckedResponsiblePersonList[i].isSelected) {
                             $scope.CheckedResponsiblePersonList[i].isSelected = false;
                         }
                     }
+                    $scope.getEmployee($scope.ModelNew.Id);
+                    $scope.GetSavedResponsiblePerson($scope.ModelNew.Id);
                     angular.element(document.querySelector('#EmployeePop')).modal('hide');
                 }
             });
         }
-        else if ($scope.ActionC === 'Update Responsible Person') {
-            $scope.UnCheckedResponsiblePersonList = [];
-            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+       
+    }
 
-                if ($scope.EmployeeList[i].isSelected == false) {
-                    $scope.UnCheckedResponsiblePersonList.push($scope.BudgetList[i]);
-                }
+    $scope.UpdateResponsiblePerson = function () {
+        $scope.CheckedResponsiblePersonList = [];
+        for (var i = 0; i < $scope.SavedEmployeeList.length; i++) {
+
+            if ($scope.SavedEmployeeList[i].isSelected == false) {
+                $scope.CheckedResponsiblePersonList.push($scope.SavedEmployeeList[i]);
             }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Save_One_or_MultipleResPers',
+            data: {
+                'chkRespersonList': $scope.CheckedResponsiblePersonList,
+
+                'headerid': $scope.ModelNew.Id
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.ModelNew.Id = $scope.ModelNew.Id;
+                //for (var i = 0; i < $scope.CheckedResponsiblePersonList.length; i++) {
+
+                //    if ($scope.CheckedResponsiblePersonList[i].isSelected) {
+                //        $scope.CheckedResponsiblePersonList[i].isSelected = false;
+                //    }
+                //}
+                $scope.getEmployee($scope.ModelNew.Id);
+                $scope.GetSavedResponsiblePerson($scope.ModelNew.Id);
+                
+            }
+        });
+    }
+    
+    $scope.DeleteResponsiblePerson = function () {
+        $scope.CheckedResponsiblePersonList = [];
+        for (var i = 0; i < $scope.SavedEmployeeList.length; i++) {
+
+            if ($scope.SavedEmployeeList[i].isSelected == false) {
+                $scope.CheckedResponsiblePersonList.push($scope.SavedEmployeeList[i]);
+            }
+        }
+
+        
             $http({
                 method: 'POST',
-                url: $scope.path + 'Save_One_or_MultipleResPers',
-                data: {
-                    'unchkBgtList': $scope.UnCheckedBudgetCodeList,
-                    //'usersubgroup': $scope.UserSubGroupId,
-                    'headerid': $scope.ModelNew.Id
-                },
-                dataType: 'JSON',
+                url: 'HumanResource/HRReportMaster/DeleteResponsiblePerson',
+                data: { 'data': $scope.CheckedResponsiblePersonList},
+                dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
-                    
+                    ShowResult(response.data.Message, 'success');  
+                    $scope.getEmployee($scope.ModelNew.Id);
+                    $scope.GetSavedResponsiblePerson($scope.ModelNew.Id);
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
                 }
             });
-        }
-    }
+       
+    };
+
     // #endregion Responsible person Tab
 
     $scope.UnchkOfCheckedItem = function () {

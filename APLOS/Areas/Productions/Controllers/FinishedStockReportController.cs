@@ -177,17 +177,33 @@ namespace Aplos.Areas.Productions.Controllers
 
                     #region ColumnHeaderVariables              
                     int cArticle = 0; int cProductCode = 0; int ColProdDet = 0; int ColPOId = 0; int cLot = 0; var cBagSize = 0; var cBag = 0; int ColNtWt = 0; int ColGWt = 0;
+                    int ColActualBags = 0; int ColActualNtWt = 0; int ColActualGtWt = 0;
                     #endregion
                     #region ColumnHeaders
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Article",50, ExcelHAlign.HAlignCenter); cArticle = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Code", 14, ExcelHAlign.HAlignCenter); cProductCode = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Details", 25, ExcelHAlign.HAlignCenter); ColProdDet = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POId", 14, ExcelHAlign.HAlignCenter); ColPOId = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Lot No", 14, ExcelHAlign.HAlignCenter); cLot = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag Size", 14, ExcelHAlign.HAlignCenter); cBagSize = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag", 14, ExcelHAlign.HAlignCenter); cBag = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Net Weight", 14, ExcelHAlign.HAlignCenter); ColNtWt = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Weight", 14, ExcelHAlign.HAlignCenter); ColGWt = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Article",50, ExcelHAlign.HAlignCenter); 
+                    cArticle = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Code", 14, ExcelHAlign.HAlignCenter); 
+                    cProductCode = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Details", 25, ExcelHAlign.HAlignCenter); 
+                    ColProdDet = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POId", 14, ExcelHAlign.HAlignCenter); 
+                    ColPOId = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Lot No", 14, ExcelHAlign.HAlignCenter); 
+                    cLot = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag Size", 14, ExcelHAlign.HAlignCenter); 
+                    cBagSize = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag", 14, ExcelHAlign.HAlignCenter); 
+                    cBag = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Net Weight", 14, ExcelHAlign.HAlignCenter); 
+                    ColNtWt = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Weight", 14, ExcelHAlign.HAlignCenter); 
+                    ColGWt = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Bags", 14, ExcelHAlign.HAlignCenter); 
+                    ColActualBags = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Net Weight", 18, ExcelHAlign.HAlignCenter); 
+                    ColActualNtWt = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Gross Weight", 20, ExcelHAlign.HAlignCenter); 
+                    ColActualGtWt = xlsCol; xlsCol++;
 
                     endXlsCol = xlsCol;
                     sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -234,7 +250,10 @@ namespace Aplos.Areas.Productions.Controllers
                                     sheet1.Range[xlsRow, cBag].Formula = "=SUM(" + ru.GetColumnNameForXls(cBag) + catFRow + ":" + ru.GetColumnNameForXls(cBag) + (xlsRow - 1) + ")";
                                     sheet1.Range[xlsRow, ColNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColNtWt) + (xlsRow - 1) + ")";
                                     sheet1.Range[xlsRow, ColGWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColGWt) + catFRow + ":" + ru.GetColumnNameForXls(ColGWt) + (xlsRow - 1) + ")";
-                                    sheet1.Range[xlsRow, cBag, xlsRow, ColGWt].CellStyle.Font.Bold = true;
+                                    sheet1.Range[xlsRow, ColActualBags].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualBags) + catFRow + ":" + ru.GetColumnNameForXls(ColActualBags) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, ColActualNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualNtWt) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, ColActualGtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualGtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualGtWt) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, cBag, xlsRow, ColActualGtWt].CellStyle.Font.Bold = true;
 
                                     xlsRow++;
                                 }
@@ -285,7 +304,14 @@ namespace Aplos.Areas.Productions.Controllers
                             sheet1.Range[xlsRow, ColNtWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                             SetCellText(sheet1, xlsRow, ColGWt, Convert.ToDouble(data.Rows[i]["GtWt"].ToString()));
                             sheet1.Range[xlsRow, ColGWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                            sheet1.Range[xlsRow, cBagSize, xlsRow, ColGWt].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                            SetCellText(sheet1, xlsRow, ColActualBags, Convert.ToDouble(data.Rows[i]["ActualBags"].ToString()));
+                            sheet1.Range[xlsRow, ColActualBags].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            SetCellText(sheet1, xlsRow, ColActualNtWt, Convert.ToDouble(data.Rows[i]["ActualNtWt"].ToString()));
+                            sheet1.Range[xlsRow, ColActualNtWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            SetCellText(sheet1, xlsRow, ColActualGtWt, Convert.ToDouble(data.Rows[i]["ActualGtWt"].ToString()));
+                            sheet1.Range[xlsRow, ColActualGtWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            sheet1.Range[xlsRow, cBagSize, xlsRow, ColActualGtWt].HorizontalAlignment = ExcelHAlign.HAlignRight;
                             xlsRow++;
                         }//for emp count
 
@@ -296,7 +322,10 @@ namespace Aplos.Areas.Productions.Controllers
                         sheet1.Range[xlsRow, cBag].Formula = "=SUM(" + ru.GetColumnNameForXls(cBag) + catFRow + ":" + ru.GetColumnNameForXls(cBag) + (xlsRow - 1) + ")";
                         sheet1.Range[xlsRow, ColNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColNtWt) + (xlsRow - 1) + ")";
                         sheet1.Range[xlsRow, ColGWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColGWt) + catFRow + ":" + ru.GetColumnNameForXls(ColGWt) + (xlsRow - 1) + ")";
-                        sheet1.Range[xlsRow, cBag, xlsRow, ColGWt].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, ColActualBags].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualBags) + catFRow + ":" + ru.GetColumnNameForXls(ColActualBags) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, ColActualNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualNtWt) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, ColActualGtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualGtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualGtWt) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, cBag, xlsRow, ColActualGtWt].CellStyle.Font.Bold = true;
                         xlsRow++;
                         #endregion
 
@@ -308,7 +337,10 @@ namespace Aplos.Areas.Productions.Controllers
                         sheet1.Range[xlsRow, cBag].Formula = GetFormulaGrandTotal(al, cBag);
                         sheet1.Range[xlsRow, ColNtWt].Formula = GetFormulaGrandTotal(al, ColNtWt);
                         sheet1.Range[xlsRow, ColGWt].Formula = GetFormulaGrandTotal(al, ColGWt);
-                        sheet1.Range[xlsRow, cBag, xlsRow, ColGWt].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, ColActualBags].Formula = GetFormulaGrandTotal(al, ColActualBags);
+                        sheet1.Range[xlsRow, ColActualNtWt].Formula = GetFormulaGrandTotal(al, ColActualNtWt);
+                        sheet1.Range[xlsRow, ColActualGtWt].Formula = GetFormulaGrandTotal(al, ColActualGtWt);
+                        sheet1.Range[xlsRow, cBag, xlsRow, ColActualGtWt].CellStyle.Font.Bold = true;
 
                         #endregion
 

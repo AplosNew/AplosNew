@@ -364,7 +364,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                           #region Active and other
                           string _active_emps = string.Empty;
                           string _all_emps = string.Empty;
-                          GetEmpDelimitedActiveAndNewlyJoined(alldataset.dtActive, alldataset.dtNewlyJoined, out _active_emps);
+                          GetEmpDelimitedActiveAndNewlyJoined(alldataset.dtActive, alldataset.dtNewlyJoined, alldataset.dtDifferentStatus,out _active_emps);
                           GetEmpDelimited(alldataset.dtPresetZero, ref _active_emps);
                           _all_emps = _active_emps;
 
@@ -708,7 +708,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 throw ex;
             }
         }
-        void GetEmpDelimitedActiveAndNewlyJoined(List<ActiveEmp> ListActive, List<ActiveEmp> ListNJ, out string empids)
+        void GetEmpDelimitedActiveAndNewlyJoined(List<ActiveEmp> ListActive, List<ActiveEmp> ListNJ, List<ActiveEmp> ListDS, out string empids)
         {
             empids = string.Empty;
             try
@@ -733,6 +733,23 @@ namespace Aplos.Areas.Payrolls.Controllers
                 if (ListNJ != null)
                 {
                     foreach (var obj in ListNJ)
+                    {
+                        if (obj.IsSelectSlrProc)
+                        {
+                            if (empids.Length == 0)
+                            {
+                                empids = "'" + obj.EmpSystemID + "'";
+                            }
+                            else
+                            {
+                                empids += ",'" + obj.EmpSystemID + "'";
+                            }
+                        }//if
+                    }
+                }//null
+                if (ListDS != null)
+                {
+                    foreach (var obj in ListDS)
                     {
                         if (obj.IsSelectSlrProc)
                         {

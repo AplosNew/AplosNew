@@ -289,9 +289,7 @@ Where SC.Id<>''
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                //if (CheckUsing(id))
-                //    throw new CustomException("First delete Operation!");
-
+               
                 strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesId='" + id + "'";
                 strASQL = "DELETE FROM TRN.SalesAdditionalTax WHERE SalesId='" + id + "'";
                 strSSQL = "DELETE FROM TRN.SalesService WHERE SalesId='" + id + "'";
