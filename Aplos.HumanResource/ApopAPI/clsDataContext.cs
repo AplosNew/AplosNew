@@ -5107,11 +5107,51 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
 
         }
+
+
         #endregion seven days attendance
 
 
         #region Budget Code Change
-        public string PostBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave, string EmpsysId , string WorkDate)
+
+        public void GetNewBudgetCode(out List<TempBudgetCode> DataList, string EmpsysId, string WorkDate)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<TempBudgetCode>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select * from dbo.TempBudgetCodeChange where EmpSystemId='" + EmpsysId + "' and WorkDate = '" + WorkDate + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new TempBudgetCode
+                    {
+                        EmpSystemId = dsRef.Tables[0].Rows[i]["EmpSystemId"].ToString(),
+                        ExistingBudgetId = dsRef.Tables[0].Rows[i]["ExistingBudgetId"].ToString(),
+                        NewBudgetId = dsRef.Tables[0].Rows[i]["NewBudgetId"].ToString(),
+                        WorkDate = dsRef.Tables[0].Rows[i]["WorkDate"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave)
         {
             try
             {
@@ -5122,7 +5162,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                     return "";
                 List<TempBudgetCode> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where EmpSystemId='" + EmpsysId + "' and WorkDate = '" + WorkDate + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where Id='" + items[0].Id + "'", out dsMaster, false, "1");
 
                 foreach (TempBudgetCode item in DataToSave)
                 {
@@ -5152,7 +5192,43 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                    else
+                   
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
+
+
+
+        public string PostUpdateBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave, string EmpsysId, string WorkDate)
+        {
+            try
+            {
+                DataSet dsMaster;
+              //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<TempBudgetCode> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where EmpSystemId='" + EmpsysId + "' and WorkDate = '" + WorkDate + "'", out dsMaster, false, "1");
+
+                foreach (TempBudgetCode item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
                     {
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
@@ -5169,22 +5245,25 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
 
                         dr.EndEdit();
-                    }
 
+                    }
                 }
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                return MasterId;
+
+                // string MasterId = SaveDatax(items[0].EmpSystemID, "");
+
+                // string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                //  return MasterId;
+                return "true";
 
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                throw (ex);
             }
-
-
         }
         #endregion Budget Code Change
 
