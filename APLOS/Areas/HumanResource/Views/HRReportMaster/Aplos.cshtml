@@ -1,5 +1,4 @@
-﻿
-<div class="tab-design">
+﻿<div class="tab-design">
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSetHeader(1) }"><a ng-click="setTabHeader(1)" href="" aria-controls="general" role="tab" data-toggle="tab">HR Report Master</a></li>
@@ -248,14 +247,47 @@
                             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                                 <div ng-form>
                                     <div class="form-group">
-
-
                                         <div class="col-sm-8" style="display:flex">
                                             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-                                            @*<input type="text" name="" ng-model="Employee" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">*@
                                             <button ng-click="selectEmployee()" class="btn" style="background:#3E445A; color:#FFF;border-radius:0"><i class="glyphicon glyphicon-search"></i></button>
                                         </div>
 
+                                    </div>
+                                    <div class="row">
+
+                                        <div style="color:black;" id="SavedGridEmployee" ej-grid e-datasource="SavedEmployeeList" e-recorddoubleclick="selectEmpDetail"
+                                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                                            <div e-columns>
+                                                <div e-column e-headertext="Check / Uncheck" e-template="#checkboxRPTemplate" e-textalign="center" e-width="100"></div>
+
+                                                <div e-column e-field="SystemId" e-headertext="System Id" e-width="100"></div>
+
+                                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+
+                                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                                            </div>
+                                        </div>
+                                        <script type="text/template" id="checkboxRPTemplate">
+                                            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+                                        </script>
+
+                                        <script type="text/template" id="userRPId">
+                                            <button style="color: #f3f3ec;background-color: #1c1f32;height: 25px; padding-top:1px; padding-bottom:1px; border-radius:0" class="btn"><i class="glyphicon glyphicon-menu-hamburger" title="Print Report" style="margin: -6px;" ng-click="$parent.OpenUserGroupPopUp(this)"></i></button>
+
+                                        </script>
+                                        <div class="common-btn">
+                                            <ul class="list-inline text-right">
+                                                <li> <button ng-click="DeleteResponsiblePerson();" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                                @*<li> <button ng-click="UpdateSavedBudgetCode();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>*@
+
+                                            </ul>
+
+                                        </div>
                                     </div>
                                     @Html.Partial("~/Areas/HumanResource/Views/HRReportMaster/_ResponsiblePerson.cshtml")
                                 </div>
