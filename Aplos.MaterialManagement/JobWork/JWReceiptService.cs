@@ -815,80 +815,19 @@ namespace Library.MaterialManagement.JobWork
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select
-                        tc.Id JWTransformationPOId
-                        ,mp.Id JWTransformationPODetailId
-                        ,jwi.UserName as JWOutputItem
-                        ,jwa.UserName as JobWorkActivity
-                        , MGM.UserName AS MaterialGroupMasterName
-                        , MM.Id MaterialMasterId
-                        , MM.UserName
-                        , mma.Id ArticleId
-                        , mma.StandardName as StandardName
-                        ,null MaterialStorageId
-                        ,TUoM.Id BaseUOMId
-
-                        ,mp.FirstCharacteristicsId,mp.FirstCharacteristicsValueId
-						   ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue
-						   ,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId
-                                ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue
-								,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId
-                                ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue
-   
-                       -- , null FirstCharacteristicsId, null  FirstCharacteristics
-                        --, null FirstCharacteristicsValueId, null  FirstCharacteristicsValue
-                        --, null SecondCharacteristicsId, null  SecondCharacteristics
-                        --, null SecondCharacteristicsValueId, null SecondCharacteristicsValue
-                        --, null ThirdCharacteristicsId, null ThirdCharacteristics
-                        --, null ThirdCharacteristicsValueId, null  ThirdCharacteristicsValue
-                        --, SUM(mp.Quantity) as PlanQuantity
-                        --,TotalReceivedQty=ISNULL( kk.TotalReceivedQuantity,'0')
-                        --,ToReceive= Sum(mp.Quantity)- ISNULL( kk.TotalReceivedQuantity,'0')
-                        , mp.Quantity AS PlanQuantity
-                         , ISNULL(rcvqty.TransactionQty,'0') AS GRNRcvQty             
-                        ,0 AS TransactionQty
-                        ,ISNULL(mp.Quantity,0)- ISNULL(rcvqty.TransactionQty,'0') As Balance
-                        ,null QtyStatus
-                         , TransactionUoMId=CASE when mp.OutputMaterialUOMId IS NULL THEN mp.TransactionUoMId ELSE mp.OutputMaterialUOMId END
+                string sql = @"select  tc.Id JWTransformationPOId  ,mp.Id JWTransformationPODetailId  ,jwi.UserName as JWOutputItem ,jwa.UserName as JobWorkActivity  , MGM.UserName AS MaterialGroupMasterName
+                        , MM.Id MaterialMasterId  , MM.UserName  , mma.Id ArticleId  , mma.StandardName as StandardName  ,null MaterialStorageId  ,TUoM.Id BaseUOMId 
+						,mp.FirstCharacteristicsId ,mp.FirstCharacteristicsValueId ,ISNULL(FChar.UserName,'') FirstCharacteristics,ISNULL(FCharValue.UserName,'') FirstCharacteristicsValue  
+						,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId ,ISNULL(SChar.UserName,'') SecondCharacteristics,ISNULL(SCharValue.UserName,'') SecondCharacteristicsValue ,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId
+                        ,ISNULL(TChar.UserName,'') ThirdCharacteristics,ISNULL(TCharValue.UserName,'') ThirdCharacteristicsValue , mp.Quantity AS PlanQuantity
+                         , ISNULL(rcvqty.TransactionQty,'0') AS GRNRcvQty  ,0 AS TransactionQty ,ISNULL(mp.Quantity,0)- ISNULL(rcvqty.TransactionQty,'0') As Balance
+                        ,null QtyStatus , TransactionUoMId=CASE when mp.OutputMaterialUOMId IS NULL THEN mp.TransactionUoMId ELSE mp.OutputMaterialUOMId END
                         , TransactionUoM= CASE when mp.OutputMaterialUOMId  IS NULL then TUoM1.UserName ELSE TUoM.UserName END
-                        , 0 TransactionRate
-                        , null  CurrencyName
-                        , 0 ToCurrencyRate
-                        ,0 TransactionAmount
-                        ,0 AS TrnAmount  
-                        ,0 AS BaseTaxAmount
-                        ,0 AS TaxAmount
-                        , 0 AS ChargesAmount
-                        ,0 AS  ServiceCharge
-                        , 0 AS ServiceTax
-                        , null CountryId
-                        ,'True' enableid
-                        ,null POMaterialTaxList                            
-                        ,0 AS TotalMaterialTranAmount
-                        , 0 AS ToTalMaterialBooksCurrencyAmount
-                        ,null InvoicingByAddress
-                        ,null DeliveryByAddress
-                        ,null RequisitionId
-                        ,null RequisitionDetailId
-                        ,0 ShortageQty
-                        ,0 RejectionQty
-                        ,null MaterialDetail
-                        ,null AS [check] 
-                        ,null MaterialDetail
-                        ,null PurchaseDocAcceptanceDetailId
-                        ,0 POClosStatus
-                        ,null CountryName
-                        ,null CountryId 
-                        ,MM.IsAsset
-                        ,0 TotalTaxAmount
-                        ,0 GrossAmount
-                        ,0 DiscountAmount
-                        ,'' QualityStatus
-                        ,null POUoMId
-                        ,0 Tolerance--,sum(CC3.GrossConsumption*vvvv.Rate) GrossConsumption--,sum(vvvv.Rate) Rate
-                        --,(CC3.GrossConsumption*vvvv.Rate) GrossConsumption
-                        --,GrossConsumption=isnull((CC3.GrossConsumption*vvvv.Rate),'0')
-						,vvvv.ConsumptionAmount as GrossConsumption
+                        , 0 TransactionRate , null  CurrencyName , 0 ToCurrencyRate ,0 TransactionAmount ,0 AS TrnAmount  ,0 AS BaseTaxAmount ,0 AS TaxAmount
+                        , 0 AS ChargesAmount ,0 AS  ServiceCharge  , 0 AS ServiceTax  , null CountryId  ,'True' enableid ,null POMaterialTaxList ,0 AS TotalMaterialTranAmount
+                        , 0 AS ToTalMaterialBooksCurrencyAmount ,null InvoicingByAddress ,null DeliveryByAddress ,null RequisitionId ,null RequisitionDetailId ,0 ShortageQty
+                        ,0 RejectionQty ,null MaterialDetail ,null AS [check]  ,null MaterialDetail  ,null PurchaseDocAcceptanceDetailId ,0 POClosStatus ,null CountryName
+                        ,null CountryId ,MM.IsAsset ,0 TotalTaxAmount ,0 GrossAmount ,0 DiscountAmount ,'' QualityStatus ,null POUoMId ,0 Tolerance ,vvvv.ConsumptionAmount as GrossConsumption
                         from dbo.JWTransformationPODetail mp 
                         left join dbo.JWTransformationPO tc on tc.Id=mp.JWTransformationPOId
                         left join hkp.JobWorkActivity jwa on jwa.Id=mp.JobActivityId
@@ -896,34 +835,17 @@ namespace Library.MaterialManagement.JobWork
                         left join MST.MaterialMasterArticle mma on mma.Id=mp.ArticleId
                         left JOIN MST.MaterialMaster AS MM ON MM.Id=mma.MaterialMasterId
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-                        --LEFT JOIN MST.MaterialMasterArticle AS ART ON IRD.ArticleId=ART.Id
-                        --LEFT JOIN HKP.Characteristics AS FC ON IRD.FirstCharacteristicsId=FC.Id
-                        --LEFT JOIN HKP.Characteristics AS SC ON IRD.SecondCharacteristicsId=SC.Id
-                        --LEFT JOIN HKP.Characteristics AS TC ON IRD.ThirdCharacteristicsId=TC.Id
-                        --LEFT JOIN HKP.CharacteristicsValue AS FCV ON IRD.FirstCharacteristicsValueId=FCV.Id
-                        --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IRD.SecondCharacteristicsValueId=SCV.Id
-                        --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IRD.ThirdCharacteristicsValueId=TCV.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON mp.OutputMaterialUOMId=TUoM.Id
-                        	LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId=TUoM1.Id
-
-                         LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = mp.FirstCharacteristicsId
-                            LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = mp.FirstCharacteristicsValueId
-                            LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = mp.SecondCharacteristicsId
-                            LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = mp.SecondCharacteristicsValueId
-                            LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = mp.ThirdCharacteristicsId
-                            LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = mp.ThirdCharacteristicsValueId
-
-                        --left join (select Sum(IRD.TransactionQty) as TotalReceivedQuantity,IR.TransformationContractId from TRN.InventoryReceiveDetail IRD left join TRN.InventoryReceive IR
-                        --on IRD.InventoryReceiveId=IR.Id where MaterialFor='JWOUTPUTMaterial' group by IR.TransformationContractId)
-                        --kk on kk.TransformationContractId=mp.OSTransformationPOId
+                        LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON mp.TransactionUoMId=TUoM1.Id
+                        LEFT JOIN [HKP].[Characteristics]  FChar  ON FChar.Id = mp.FirstCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   FCharValue  ON FCharValue.Id = mp.FirstCharacteristicsValueId
+                        LEFT JOIN [HKP].[Characteristics]   SChar  ON SChar.Id = mp.SecondCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   SCharValue  ON SCharValue.Id = mp.SecondCharacteristicsValueId
+                        LEFT JOIN [HKP].[Characteristics]   TChar  ON TChar.Id = mp.ThirdCharacteristicsId
+                        LEFT JOIN [HKP].[CharacteristicsValue]   TCharValue  ON TCharValue.Id = mp.ThirdCharacteristicsValueId
                         left join (
-                        --select OSTransformationPODetailId, Sum(GrossConsumption) GrossConsumption  from dbo.OSTransformationPOInputMaterial 
-                        --group by OSTransformationPODetailId
                          select Sum(x.GrossConsumption) as GrossConsumption ,x.JWTransformationPODetailId
-									from (
-									--Select GrossConsumption, OSTransformationPODetailId from dbo.OSTransformationPOInputMaterial 
-									--group by ArticleId, OSTransformationPODetailId,GrossConsumption
-                                    Select GrossConsumption, JWTransformationPODetailId from dbo.JWTransformationPOInputMaterial mi
+									from ( Select GrossConsumption, JWTransformationPODetailId from dbo.JWTransformationPOInputMaterial mi
 									left join TRN.InventoryIssueDetail IID on IID.JWTransformationPOId=mi.JWTransformationPODetailId
 									left join TRN.InventoryIssue II on II.Id=IID.InventoryIssueId
 									where II.JobWorkContractId='"+ PKId + @"'
@@ -931,20 +853,7 @@ namespace Library.MaterialManagement.JobWork
 									) x group by x.JWTransformationPODetailId
                          )CC3 ON CC3.JWTransformationPODetailId=mp.Id
                         left join(select JWTransformationPODetailId, Sum(isnull(TransactionQty,0)) TransactionQty from trn.InventoryReceiveDetail group by JWTransformationPODetailId)rcvqty ON rcvqty.JWTransformationPODetailId=mp.Id
-                        left join( --select  mp1.Id ,II.JWContractId 
-								 --,sum(IID.PolicyAmount/IID.TransactionQty) Rate
-                                 --,sum(IID.PolicyAmount) PolicyAmt,sum(IID.TransactionQty) TQty
-								 --,Rate=round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4)
-								 --FROM trn.InventoryIssueDetail IID
-								 --left join trn.InventoryIssue II On II.Id=IID.InventoryIssueId
-								 --left join trn.InventoryMaterial IM ON IM.Id=IID.InventoryMaterialId
-								 --left JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
-								 --left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
-								 --left join dbo.OSTransformationPO tc on tc.Id=II.JWContractId
-								 --left join dbo.OSTransformationPODetail mp1 ON mp1.OSTransformationPOId=Tc.Id								
-								 --group by  mp1.Id,II.JWContractId 
-
-                                   select  IID.JWTransformationPOId,II.JobWorkContractId 
+                        left join(  select  IID.JWTransformationPOId,II.JobWorkContractId 
 								 ,sum(IID.PolicyAmount) PolicyAmt,sum(IID.TransactionQty) TQty
 								 ,Rate=round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4)
                                  ,ConsumptionAmount= (round((sum(IID.PolicyAmount) / sum(IID.TransactionQty)),4) * sum(IID.TransactionQty))
@@ -954,13 +863,12 @@ namespace Library.MaterialManagement.JobWork
 								 left JOIN MST.MaterialMaster AS MM ON MM.Id=IM.MaterialMasterId
 								 left join MST.MaterialMasterArticle mma on mma.Id=IM.ArticleId
 								 left join dbo.JWTransformationPO tc on tc.Id=II.JobWorkContractId
-								 where II.JobWorkContractId='"+ PKId + @"'
+								 where II.JobWorkContractId='" + PKId + @"'
 								 group by II.JobWorkContractId,IID.JWTransformationPOId
                                  )vvvv ON vvvv.JobWorkContractId=tc.Id and vvvv.JWTransformationPOId=mp.Id
-                        where tc.Id='" + PKId + @"' 
-                         group by mp.Quantity ,ISNULL(rcvqty.TransactionQty,'0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName--,kk.TotalReceivedQuantity
+                        where tc.Id='" + PKId + @"'
+                         group by mp.Quantity ,ISNULL(rcvqty.TransactionQty,'0'),mp.Id,jwi.UserName, mma.StandardName,jwa.UserName 
                         , MGM.UserName, MM.Id, MM.UserName, mma.Id ,MM.IsAsset,tc.Id, TUoM.Id, TUoM.UserName,TUoM.Id,TUoM1.Id,TUoM1.UserName,mp.TransactionUoMId , mp.OutputMaterialUOMId
-                         --,CC3.GrossConsumption,vvvv.Rate
                          ,vvvv.ConsumptionAmount,FChar.UserName,FCharValue.UserName,SChar.UserName,SCharValue.UserName ,TChar.UserName,TCharValue.UserName
 						 ,mp.FirstCharacteristicsId,mp.FirstCharacteristicsValueId,mp.SecondCharacteristicsId,mp.SecondCharacteristicsValueId
 						 ,mp.ThirdCharacteristicsId,mp.ThirdCharacteristicsValueId";

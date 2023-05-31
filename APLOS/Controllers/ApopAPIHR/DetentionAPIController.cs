@@ -667,5 +667,23 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Seven Days Attendance 
 
+
+        #region Budget Code Change 
+        [HttpPost]
+        public string PostBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave , string EmpsysId, string WorkDate)
+        {
+            try
+            {
+                string Id = clsData.PostBudgetCodeChange(DataToSave , EmpsysId, WorkDate);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Budget Code Change 
+
     }
 }
