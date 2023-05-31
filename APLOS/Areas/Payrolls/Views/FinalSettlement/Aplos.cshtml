@@ -690,33 +690,18 @@
             <div class="modal-header">Employee Information<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="row">
-                    <div style="color:black;"
-                         id="GridEmployeeInfoList"
-                         e-recorddoubleclick="SelectEmployee"
-                         ej-grid e-datasource="EmployeeInformationList"
-                         e-gridlines="vertical"
-                         e-allowfiltering="true"
-                         e-allowpaging="true"
-                         e-allowsorting="true"
-                         e-allowselection="true"
-                         e-pagesettings-pagesize="25"
-                         e-filtersettings-filterType="excel" e-allowtouch="true">
+                    <div style="color:black;" id="GridEmployee" ej-grid e-datasource="EmployeeInformationList" e-allowscrolling="true"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true" e-pagesettings-pagesize="25"
+                         e-allowselection="false" e-filtersettings-filterType="excel" e-recorddoubleclick="SelectEmployee">
                         <div e-columns>
                             <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
                             <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="70"></div>
-                            <div e-column e-field="DOS" e-headertext="DOS" e-width="70"></div>
+                            <div e-column e-field="DOJ" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOJ" e-width="70"></div>
+                            <div e-column e-field="DOS" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="DOS" e-width="70"></div>
                             <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
                             <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                             <div e-column e-field="EntityName" e-headertext="Entity" e-width="80"></div>
                         </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="common-btn" style="padding-right: 15px;">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="closeSOPopUp();" class="btn">Apply</button></li>
-                        </ul>
                     </div>
                 </div>
             </div>

@@ -193,11 +193,7 @@ function finalSettlementController(commonMessage, $scope, $rootScope, baseServic
     $scope.LoadEmployeeList = function () {
         try {
            
-            var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
-            eDialog.open();
-
-
-
+            angular.element(document.querySelector('#dialogEmployeeInfo')).modal('show');
 
             $http.get($scope.getEmployeeListUrl)
                 .then(function successCallback(response) {
@@ -219,14 +215,11 @@ function finalSettlementController(commonMessage, $scope, $rootScope, baseServic
         }
     };
     $scope.EmployeeModel = {};
-    $scope.SelectEmployee = function () {
+    $scope.SelectEmployee = function (obj) {
         try {
            
-            var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
-             $scope.EmployeeModel = gridObj.getSelectedRecords()[0];        
-
-            var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
-            eDialog.close();
+            $scope.EmployeeModel = obj.data;
+            angular.element(document.querySelector('#dialogEmployeeInfo')).modal('hide');
 
             $http.get($scope.getSTSCUrl + '?EmpSystemId=' + $scope.EmployeeModel.SystemId)
                 .then(function successCallback(response) {
