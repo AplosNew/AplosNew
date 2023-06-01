@@ -165,7 +165,7 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
     };
 
     $scope.Calculate = function () {
-        $scope.EmpSalaryInfo.WorkingDays = $scope.EmployeeModel.TotalWorkingDays
+        $scope.EmpSalaryInfo.WorkingDays = $scope.EmployeeModel.TotalWorkingDays;
 
         if (!angular.isUndefinedOrNull($scope.EmployeeModel.TotalWorkingDays)) {
             CalculateR($scope.EmpSalaryInfo);
@@ -178,8 +178,8 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
             var totalDays = 0;
             var totalAmount = 0;
             for (var i = 0; i < list.length; i++) {
-                totalDays = $scope.EmpSalaryInfo.WorkingDays;
-                totalAmount += list[i].TotalEarnedAmount;
+                //totalDays = $scope.EmpSalaryInfo.WorkingDays;
+                totalAmount += list[i].Gross;
             }
 
             if (baseService.isUndefinedOrNull($scope.EmployeeModel.AdditionalAmount)) {
@@ -194,8 +194,8 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
 
             $scope.EmployeeModel.TotalEarning = totalAmount.toFixed(2);
             
-            //$scope.EmployeeModel.TotalWorkingDays = totalDays;
-            var wrate = totalAmount / totalDays;
+            $scope.EmployeeModel.TotalWorkingDays = 26;
+            var wrate = totalAmount / 26;
             $scope.EmployeeModel.WageRate = wrate.toFixed(2);//AdditionalAmountAfter          
 
             if (baseService.isUndefinedOrNull($scope.EmployeeModel.AdditionalAmountBefore)) {
@@ -263,8 +263,8 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
             var totalDays = 0;
             var totalAmount = 0;
             for (var i = 0; i < list.length; i++) {
-                totalDays += list[i].WorkingDays;
-                totalAmount += list[i].TotalEarnedAmount;
+                //totalDays += list[i].WorkingDays;
+                totalAmount += list[i].Gross;
             }
 
             if (baseService.isUndefinedOrNull($scope.EmployeeModel.AdditionalAmount)) {
@@ -278,8 +278,8 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
             totalAmount -= parseFloat($scope.EmployeeModel.Deduction);
 
             $scope.EmployeeModel.TotalEarning = totalAmount.toFixed(2);
-            //$scope.EmployeeModel.TotalWorkingDays = totalDays;
-            var wrate = totalAmount / totalDays;
+            $scope.EmployeeModel.TotalWorkingDays = 26;
+            var wrate = totalAmount / 26;
             $scope.EmployeeModel.WageRate = wrate.toFixed(2);//AdditionalAmountAfter          
 
             if (baseService.isUndefinedOrNull($scope.EmployeeModel.AdditionalAmountBefore)) {

@@ -5114,6 +5114,82 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
         #region Budget Code Change
 
+        public string PostChangeBudgetCode(IEnumerable<TempBudgetCode> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.TempBudgetCodeChange";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<TempBudgetCode> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (TempBudgetCode item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = _Id;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
+                        dr["NewBudgetId"] = item.NewBudgetId;
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
+                        dr["NewBudgetId"] = item.NewBudgetId;
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["Remarks"] = item.Remarks;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
+
+
         public void GetNewBudgetCode(out List<TempBudgetCode> DataList, string EmpsysId, string WorkDate)
         {
             clsConnectionManager objCon = null;
