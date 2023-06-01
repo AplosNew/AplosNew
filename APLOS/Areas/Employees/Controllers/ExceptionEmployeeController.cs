@@ -34,7 +34,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ExceptionEmployeeController(
 
               ILeaveTransectionService leaveTransactionService
-              ,ISqlRepository sqlRepository
+              , ISqlRepository sqlRepository
             , IRestService restService
              , IRestDetailsService restDetailsService
             , IUnitOfWork U
@@ -58,7 +58,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion -- Pages
 
         #region -- Operations
-       
+
 
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter parameters)
@@ -75,7 +75,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetAllEmployeeList(GridParameter parameters, string sectionId, string subSectionId, string departmentId, bool isOTEntitle,string AttendanceRestDate)
+        public ActionResult GetAllEmployeeList(GridParameter parameters, string sectionId, string subSectionId, string departmentId, bool isOTEntitle, string AttendanceRestDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_restService.GetAllEmployeeForEx(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, sectionId, subSectionId, departmentId, isOTEntitle, AttendanceRestDate), JsonRequestBehavior.AllowGet);
@@ -94,9 +94,9 @@ namespace Aplos.Areas.Employees.Controllers
                                    , PR.DesignationId
                                 ,PG.StandardName PayRollGroupName
                                 , PG.Id PayRollGroupId
-                                 , ld.UserName LegalDesignation, Section.UserName Section
-                                From EmployeeInformation EI
-                                INNER JOIN ExceptionEmployee EE ON EE.EmpSystemId = EI.SystemId
+                                 , ld.UserName LegalDesignation, Section.UserName Section,FORMAT(EE.EffectiveDate,'dd-MMM-yyyy')EffectiveDate
+                                From ExceptionEmployee EE 
+                                LEFT JOIN EmployeeInformation EI ON EE.EmpSystemId = EI.SystemId
                                 LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode = PMB.Id
                                 LEFT JOIN ORG.Position PR ON PMB.PositionId = PR.Id
                                 LEFT JOIN HKP.Designation DSG ON PR.DesignationId = DSG.Id
@@ -108,9 +108,9 @@ namespace Aplos.Areas.Employees.Controllers
                                 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId = EI.GivenDesignationId
                                 LEFT JOIN HKP.DesignationGroup DeG ON DeG.Id = DM.DesignationGroupId
                                 LEFT JOIN[ORG].[Section] ON Section.Id = PR.SectionId
-                                 WHERE EI.PlantId='" + identity.PlantId + @"'  ";
+                                 WHERE EI.PlantId='" + identity.PlantId + @"' ORDER BY EE.AddedDate DESC";
 
-           var data= _sqlRepository.GetDataCollection(sql);
+            var data = _sqlRepository.GetDataCollection(sql);
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -121,28 +121,22 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             List<string> ExcEmployeeList = new List<string>();
-            foreach (var item in empList)
-            {
-                ExcEmployeeList.Add(item.EmpSystemId);
-            }
-            
+
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsExceptionEmployeeList;         
-        
+            DataSet dsExceptionEmployeeList;
+
             try
             {
-
-                //SELECT * FROM [dbo].[ExceptionEmployee] WHERE PlantId='' AND EmpSystemId=''
                 string sql = @"SELECT * FROM [dbo].[ExceptionEmployee] WHERE PlantId='" + identity.PlantId + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsExceptionEmployeeList, false, "1");
-                
-                if (ExcEmployeeList.Count>0)
+
+                if (empList != null)
                 {
-                    for (int i = 0; i < ExcEmployeeList.Count; i++)
+                    foreach (var item in empList)
                     {
                         DataView dvExceptionEmployeeList = new DataView(dsExceptionEmployeeList.Tables[0]);
-                        dvExceptionEmployeeList.RowFilter = "EmpSystemId='" + ExcEmployeeList[i].ToString() + "' AND PlantId='" + identity.PlantId + "'";
+                        dvExceptionEmployeeList.RowFilter = "EmpSystemId='" + item.EmpSystemId.ToString() + "' AND PlantId='" + identity.PlantId + "'";
                         if (dvExceptionEmployeeList.Count == 0)
                         {
                             string sID = string.Empty;
@@ -150,12 +144,13 @@ namespace Aplos.Areas.Employees.Controllers
                             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ExceptionEmployee", out sID);
                             DataRow dr = dsExceptionEmployeeList.Tables[0].NewRow();
                             dr["Id"] = "EX" + sID;
-                            dr["EmpSystemId"] = ExcEmployeeList[i].ToString();
+                            dr["EmpSystemId"] = item.EmpSystemId.ToString();
                             dr["PlantId"] = identity.PlantId;
                             dr["IsActive"] = true;
                             dr["IsForever"] = true;
                             dr["WorkDate"] = System.DateTime.Now.ToString();
                             dr["ExpirationDate"] = System.DateTime.Now.ToString();
+                            dr["EffectiveDate"] = item.EffectiveDate;
                             dr["ExceptionCategory"] = "Salary Process";
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -164,7 +159,7 @@ namespace Aplos.Areas.Employees.Controllers
                             dr["UpdatedDate"] = System.DateTime.Now.ToString();
                             dr["UpdatedFromIP"] = identity.IPAddress;
                             dsExceptionEmployeeList.Tables[0].Rows.Add(dr);
-                            
+
                         }
                         else
                         {
@@ -173,11 +168,12 @@ namespace Aplos.Areas.Employees.Controllers
 
                             dr.BeginEdit();
                             dr["PlantId"] = identity.PlantId;
-                            dr["EmpSystemId"] = ExcEmployeeList[i].ToString();
+                            dr["EmpSystemId"] = item.EmpSystemId.ToString();
                             dr["IsActive"] = true;
                             dr["IsForever"] = true;
                             dr["WorkDate"] = System.DateTime.Now.ToString();
                             dr["ExpirationDate"] = System.DateTime.Now.ToString();
+                            dr["EffectiveDate"] = item.EffectiveDate;
                             dr["ExceptionCategory"] = "Salary Process";
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -187,22 +183,21 @@ namespace Aplos.Areas.Employees.Controllers
                         }
                         dvExceptionEmployeeList.RowFilter = null;
                     }
+
                 }
-                
+
                 clsStaticInfo obj = new clsStaticInfo();
                 obj.SaveDataSets(dsExceptionEmployeeList);
-
-
             }
             catch (Exception ex)
             {
 
                 throw (ex);
             }
-            
 
-           //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           // _restService.Insert(rest, identity.PlantId, restDetails);
+
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            // _restService.Insert(rest, identity.PlantId, restDetails);
             return Json(new { Message = AplosMessage.Success });
         }
 
@@ -211,14 +206,14 @@ namespace Aplos.Areas.Employees.Controllers
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsExceptionEmployeeList;
-            
+
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 //SELECT * FROM [dbo].[ExceptionEmployee] WHERE PlantId='' AND EmpSystemId=''
                 string sql = @"Delete FROM [dbo].[ExceptionEmployee] WHERE  EmpSystemId='" + EmpId + @"'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsExceptionEmployeeList, false, "1");               
+                objCon.OpenDataSetThroughAdapter(sql, out dsExceptionEmployeeList, false, "1");
 
             }
             catch (Exception ex)
@@ -229,7 +224,7 @@ namespace Aplos.Areas.Employees.Controllers
 
             return Json(new { Message = AplosMessage.Deleted });
         }
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult DeleteDetail(string id)
         {
             _restDetailsService.DeleteDetail(id);
@@ -248,21 +243,22 @@ namespace Aplos.Areas.Employees.Controllers
             public bool IsForever { get; set; }
             public string WorkDate { get; set; }
             public DateTime ExpirationDate { get; set; }
+            public DateTime? EffectiveDate { get; set; }
             public string Region { get; set; }
 
             public string AddedBy { get; set; }
-            
+
             [NeverUpdate]
             public DateTime AddedDate { get; set; }
 
             [NeverUpdate]
             public string AddedFromIP { get; set; }
-            
+
             public string UpdatedBy { get; set; }
-            
+
             public DateTime? UpdatedDate { get; set; }
-            
-            public string UpdatedFromIP { get; set; }           
+
+            public string UpdatedFromIP { get; set; }
 
         }
 

@@ -160,7 +160,12 @@ function exceptionEmployeeController(commonMessage, $scope, $rootScope, baseServ
         try {
 
             if ($scope.tempList.length == 0) {
-                throw 'Please Select At least One Employee......';
+                throw 'Please Select Employee......';
+            }
+            for (var i = 0; i < $scope.tempList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.tempList[i].EffectiveDate)) {
+                    throw "Effective Date is required for Employee" + $scope.tempList[i].EmployeeCode + "";
+                }
             }
 
             angular.copy($scope.restNew, $scope.rest);
@@ -227,11 +232,10 @@ function exceptionEmployeeController(commonMessage, $scope, $rootScope, baseServ
     $scope.employeeInformation = {};
     $scope.message_confirmation = null;
     $scope.commandExceptionEmployeeDelete = function (obj) {
-        var gridObj = $("#GridEmpWise").data("ejGrid");
-        var data = gridObj.getSelectedRecords()[0];
-        $scope.employeeInformation = data;
+       
+        $scope.employeeInformation = obj.data;
         if (!baseService.isUndefinedOrNull($scope.employeeInformation.SystemID))
-            $scope.message_confirmation = 'Are you sure to remove This Employee  [ ' + $scope.employeeInformation.EmployeeCode + ' ] Exception Employee list ?';
+            $scope.message_confirmation = 'Are you sure to remove This Employee  [ ' + $scope.employeeInformation.EmployeeCode + ' ] Exception Employee list?';
         angular.element(document.querySelector('#confirmPopUp')).modal('show');
     };
 
