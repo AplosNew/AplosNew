@@ -305,7 +305,7 @@ namespace Library.Service.HumanResources
 
                 parameters.CmdText = @"SELECT * FROM (SELECT 0 Active,EMP.SystemId EmpSystemId,EMP.EmployeeId,EMP.EmployeeName,EMP.EmployeeCode,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                      PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,EC.UserName EmployeeCategory,Se.UserName Section,SuS.UserName SubSection,P.UserName Plant
-,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric
+,emp.EmployeeCodePreFix,emp.EmployeeCodeNumeric,'' EffectiveDate
 									 FROM EmployeeInformation EMP
 									 LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
 									 LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -319,8 +319,7 @@ namespace Library.Service.HumanResources
                                      LEFT JOIN [ORG].Section AS Se ON Se.ID = EMP.SectionID
                                      LEFT JOIN [ORG].SubSection AS SuS ON SuS.ID = EMP.SubSectionID
                                      LEFT JOIN [ORG].Plant AS P ON P.Id = EMP.PlantId
-									 WHERE --(emp.DOJ <= '" + AttendanceRestDate + @"') and (DOS IS NULL OR EMP.DOS>='" + AttendanceRestDate + @"') and 
-                        EMP.PlantId='" + plantId + @"' AND EMP.GroupID='" + companyGroupId + @"' AND EMP.CompanyId='" + companyId + @"' " + wc + " " + ot + ") A ";
+									 WHERE EMP.PlantId='" + plantId + @"' AND  EMP.Employeestatus='Active' AND EMP.SystemId NOT IN (Select EmpSystemId from ExceptionEmployee) AND EMP.GroupID='" + companyGroupId + @"' AND EMP.CompanyId='" + companyId + @"' " + wc + " " + ot + ") A ";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
