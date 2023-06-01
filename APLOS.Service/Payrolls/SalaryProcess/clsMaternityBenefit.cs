@@ -358,6 +358,21 @@ namespace Library.Service.Payrolls.SalaryProcess
                 throw ex;
             }
         }
+        string GetPreviousMonthList(string LeaveStartDate)
+        {
+            string WC = " Where ";
+            try
+            {
+                var v = Convert.ToDateTime(LeaveStartDate).AddMonths(-1);
+                WC += "(YearNo=" + v.ToString("yyyy") + " and MonthNo=" + v.ToString("MM") + ")";
+                
+                return WC;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public List<Dictionary<string, object>> xxShowSalaryInfo(string EmpSystemId, string LeaveStartDate)
         {
@@ -421,55 +436,24 @@ namespace Library.Service.Payrolls.SalaryProcess
             try
             {
                 string WC = string.Empty;
-                WC = GetMonthList(LeaveStartDate);
+                WC = GetPreviousMonthList(LeaveStartDate);
                 var sql = @"select
                             YearNo,MonthNo,str(YearNo)+'-'+[MonthName] [MonthName],SalaryProcessMasterId
-                            ,isnull(StructureAmount,0) Gross,WorkingDays
-                            ,EffectiveDate
-                            ,isnull(BonusAmount,0) BonusAmount
-							,isnull(Advance,0) Advance
-                            ,TotalEarnedAmount=isnull(NetPay,0)+isnull(BonusAmount,0)+isnull(OtherAmount,0)+(isnull(Advance,0)*-1)
-                            ,EncashAmount,OtherAmount
-                            ,isnull(TotalGross,0) TotalGross
-                            ,isnull(NetPay,0) NetPay
+                            ,isnull(StructureAmount,0) Gross
                             from (--x
                             select m.MonthNo,m.YearNo
                             ,DateName( month , DateAdd( month , m.MonthNo , -1 )) [MonthName]
-                            --,h.SalaryHead
                             ,c.EntryAmount StructureAmount,c.DisbusmentAmount 
-                            --,att.TotalProcDate,att.TotalAbsent,att.TotalHoliDay,att.TotalLWP,att.TotalWeekOff
-                            ,WorkingDays = att.TotalProcDate-att.TotalAbsent-att.TotalHoliDay-att.TotalLWP-att.TotalWeekOff-att.TotalLv
-                            ,b.BonusAmount,b.EffectiveDate
-                            ,c.SlrProcMstSystemID SalaryProcessMasterId,convert(decimal,0) OtherAmount,convert(decimal,0) EncashAmount
-                            ,tg.DisbusmentAmount TotalGross
-                            ,np.DisbusmentAmount NetPay
-	                        ,ad.DisbusmentAmount Advance
+                            ,c.SlrProcMstSystemID SalaryProcessMasterId
+	                      
                             from
                             (
                             select * from SalaryProcChild where
                             SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'Gross'))
-                            )c
-                            
-                            left join
-                            (
-                            select * from SalaryProcChild where
-                            SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'TOTAL GROSS'))
-                            )tg on c.SlrProcMstSystemID=tg.SlrProcMstSystemID and tg.empinfosystemid='" + EmpSystemId + @"' 
-                            
-                            left join
-                            (
-                            select * from SalaryProcChild where
-                            SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'Net Payable'))
-                            )np on c.SlrProcMstSystemID=np.SlrProcMstSystemID and np.empinfosystemid='" + EmpSystemId + @"' 
-                            
-                            left join
-                            (
-                            select * from SalaryProcChild where
-                            SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'Advance'))
-                            )ad on c.SlrProcMstSystemID=ad.SlrProcMstSystemID and ad.empinfosystemid='" + EmpSystemId + @"'  
-
+                            )c                           
+                           
                             left join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
-                            left join SalaryProceAttdnData att on att.SlrProcMstSystemID=m.SystemID and att.EmpSystemID='" + EmpSystemId + @"' 
+                            left join SalaryProceAttdnData att on att.SlrProcMstSystemID=m.SystemID and att.EmpSystemID='" + EmpSystemId + @"'
                             left join (select c.*,m.EffectiveDate from BonusPaymentActual c left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
                             )b on b.EmpSystemID='" + EmpSystemId + @"'  and month(b.EffectiveDate)=m.MonthNo and YEAR(b.EffectiveDate)=m.YearNo
                             
@@ -477,7 +461,7 @@ namespace Library.Service.Payrolls.SalaryProcess
                             c.SlrProcMstSystemID in (
                             select SystemID from SalaryProcMaster " + WC + @"
                             )
-                            and c.EmpInfoSystemID='" + EmpSystemId + @"' 
+                            and c.EmpInfoSystemID='" + EmpSystemId + @"'
                             ) x";
 
                 var data = _sqlRepository.GetDataCollection(sql);

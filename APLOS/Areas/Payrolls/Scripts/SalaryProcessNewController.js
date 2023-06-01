@@ -570,7 +570,7 @@ function SalaryProcessNewController(addressService, fileReader, cboService, comm
             $scope.AllDataset.dtActive = data_dtActive;
             //$scope.AllDataset.dtActive = $scope.EmployeeList_active;
             $scope.AllDataset.dtNewlyJoined = $scope.EmployeeList_newlyjoined;
-            $scope.AllDataset.dtNewlyJoined = $scope.EmployeeList_diffStatus;
+         
             $scope.AllDataset.dtSND = $scope.EmployeeList_ssnd;
             $scope.AllDataset.dtSNA = $scope.EmployeeList_ssna;
 

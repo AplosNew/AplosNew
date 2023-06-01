@@ -72,6 +72,18 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
         AdditionalAmountAfter: 0
     };
 
+    $scope.employee = {
+        EmpSystemId: null,
+        LeaveTransactionId: null,
+        LeaveStartDate: null,
+        AdditionalAmount: 0,
+        Deduction: 0,
+        AdditionalAmountBefore: 0,
+        TotalEarning:0,
+        TotalWorkingDays: 26
+    };
+    $scope.EmployeeModel = Object.assign({}, $scope.employee);
+
     $scope.SeparationTypeList = [];
     $scope.getSeparationType = function () {
         try {
@@ -97,6 +109,7 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
     $scope.getSeparationType();
     $scope.EmpSalaryInfoShow = false;
     $scope.EmpSalaryInfo = [];
+    $scope.MonthlyGross = null;
     $scope.CalculateSalary = function () {
         try {
             var empid = $scope.EmployeeModel.EmpSystemId;
@@ -108,6 +121,7 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
                     }
                     else {
                         $scope.EmpSalaryInfo = response.data;
+                        
                     }
                 },
 
@@ -134,6 +148,7 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
                     }
                     else {
                         $scope.EmpSalaryInfo = response.data;
+                        $scope.MonthlyGross = response.data[0].Gross;
                         //CalculateRate($scope.EmpSalaryInfo);
                         $scope.EmpSalaryInfoShow = false;
                     }
@@ -178,7 +193,8 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
             totalAmount -= parseFloat($scope.EmployeeModel.Deduction);
 
             $scope.EmployeeModel.TotalEarning = totalAmount.toFixed(2);
-            $scope.EmployeeModel.TotalWorkingDays = totalDays;
+            
+            //$scope.EmployeeModel.TotalWorkingDays = totalDays;
             var wrate = totalAmount / totalDays;
             $scope.EmployeeModel.WageRate = wrate.toFixed(2);//AdditionalAmountAfter          
 
@@ -196,9 +212,9 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
             throw e;
         }
     }
-
+    
     $scope.CalculateRateUI = function () {
-        $scope.EmpSalaryInfo.WorkingDays = $scope.EmployeeModel.TotalWorkingDays
+        //$scope.EmpSalaryInfo.WorkingDays = $scope.EmployeeModel.TotalWorkingDays
         CalculateRate($scope.EmpSalaryInfo);
         $scope.EmpSalaryInfoShow = true;
     }
@@ -241,6 +257,7 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
         }
     }
 
+
     function CalculateRate(list) {
         try {
             var totalDays = 0;
@@ -261,7 +278,7 @@ function maternityBenefitController(commonMessage, $scope, $rootScope, baseServi
             totalAmount -= parseFloat($scope.EmployeeModel.Deduction);
 
             $scope.EmployeeModel.TotalEarning = totalAmount.toFixed(2);
-            $scope.EmployeeModel.TotalWorkingDays = totalDays;
+            //$scope.EmployeeModel.TotalWorkingDays = totalDays;
             var wrate = totalAmount / totalDays;
             $scope.EmployeeModel.WageRate = wrate.toFixed(2);//AdditionalAmountAfter          
 

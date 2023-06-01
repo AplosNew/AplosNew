@@ -7,13 +7,12 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
     $scope.SeparationTypes = [];
     $scope.path = 'Payrolls/FinalSettlement/';
     $scope.getSTListUrl = $scope.path + 'GetSeparationTypelist';
-    $scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChangeNew';
+    //$scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChangeNew';
+    $scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChange';
     $scope.getEmployeeListUrl = $scope.path + 'LoadEmployeelist';
     $scope.saveUrl = $scope.path + 'SaveFinalSettlementNew';
     $scope.getFSListUrl = $scope.path + 'GetEmployeeFinalSettlementlist';
     $scope.getDataForEditUrl = $scope.path + 'GetDataForEdit';
-
-
 
     $scope.getETListUrl = $scope.path + 'GetEmploymentTypelist';
  
@@ -193,9 +192,9 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
     $scope.LoadEmployeeList = function () {
         try {
            
-            var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
-            eDialog.open();
-
+            //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
+            //eDialog.open();
+            angular.element(document.querySelector('#dialogEmployeeInfo')).modal('show');
 
 
 
@@ -219,14 +218,16 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
         }
     };
     $scope.EmployeeModel = {};
-    $scope.SelectEmployee = function () {
+    $scope.SelectEmployee = function (obj) {
         try {
            
-            var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
-             $scope.EmployeeModel = gridObj.getSelectedRecords()[0];        
+           // var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
+            $scope.EmployeeModel = obj.data;
 
-            var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
-            eDialog.close();
+            //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
+            //eDialog.close();
+
+            angular.element(document.querySelector('#dialogEmployeeInfo')).modal('hide');
 
             $http.get($scope.getSTSCUrl + '?EmpSystemId=' + $scope.EmployeeModel.SystemId)
                 .then(function successCallback(response) {

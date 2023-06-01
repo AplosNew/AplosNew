@@ -128,7 +128,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                          LEFT JOIN HKP.LegalDesignation  DG on DG.Id=EI.LegalDesignationId
                          LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId				
                               WHERE EI.SystemId IN (SELECT EmployeeId FROM TRN.Resignation WHERE ApprovalStatus='Approved' ) AND EI.SystemId NOT IN (SELECT EmpSystemId FROM EmployeeFinalSettlement ) AND
-                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>''    ORDER BY  ei.EmployeeCodePreFix,ei.EmployeeCodeNumeric";
+                                    EI.PlantId='" + identity.PlantId + @"' and isnull(DOSDate,'')<>''    ORDER BY  ei.DOS DESC";
 
             }
             catch (Exception ex)
