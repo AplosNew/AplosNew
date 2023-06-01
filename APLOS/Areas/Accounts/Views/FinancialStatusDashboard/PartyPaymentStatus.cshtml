@@ -163,10 +163,10 @@
                                             <div e-column e-field="NoOfInvoice" e-template="#hLink" e-headertext="No Of Invoice" e-width="40"></div>
 
                                             @*<td class="text-right">
-                                 <ul class="list-inline action-list">
-                                     <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
-                                 </ul>
-                                </td>*@
+         <ul class="list-inline action-list">
+             <li><a href="{{bootPoint}}expense-booking-approved/{{x.Id}}" class="btn btn-action">View & Post</a></li>
+         </ul>
+        </td>*@
 
                                             <div e-column e-field="PartyCode" e-headertext="Party Code" e-width="60" e-textalign="right"></div>
                                             <div e-column e-field="PartyName" e-headertext="Party" e-width="150"></div>
@@ -176,8 +176,9 @@
                                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGross" e-headertext="Books Gross" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksSetOff" e-headertext="Books SetOff" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ActualBalance" e-headertext="Actual Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetBalance" e-headertext="Net Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
                                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LedgerBalanceAmount" e-headertext="Ledger Balance Amount" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                                            <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ActualBalance" e-headertext="Actual Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
                                             <div e-column e-field="WriteOffPendingPost" e-headertext="WriteOff Pending Post" e-width="50"></div>
                                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan30" e-headertext="OverDueMoreThan 30" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                             <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan15" e-headertext="OverDueMoreThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
@@ -396,8 +397,9 @@
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksGrossSales" e-headertext="Books Gross Sales" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksReceipts" e-headertext="Books Set-Off" e-width="80" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="BooksBalance" e-headertext="Books Balance" e-width="80" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ActualBalance" e-headertext="Actual Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="NetBalance" e-headertext="Net Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="LedgerBalanceAmount" e-headertext="Ledger Balance Amount" e-width="90" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="ActualBalance" e-headertext="Actual Balance" e-width="90" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-field="WriteOffPendingPost" e-headertext="WriteOff Pending Post" e-width="50"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan30" e-headertext="OverDueMoreThan 30" e-width="60" e-textalign="right" style="height: 20px;"></div>
                                         <div e-column e-type="numeric" e-format="{0:0.00}" e-field="OverDueMoreThan15" e-headertext="OverDueMoreThan 15" e-width="60" e-textalign="right" style="height: 20px;"></div>
