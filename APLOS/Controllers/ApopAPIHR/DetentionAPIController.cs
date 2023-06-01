@@ -670,6 +670,19 @@ namespace Aplos.Controllers.ApopAPIHR
 
         #region Budget Code Change 
 
+        public string PostChangeBudgetCode([FromBody] IEnumerable<TempBudgetCode> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostChangeBudgetCode(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
 
         public List<TempBudgetCode> GetNewBudgetCode(string EmpsysId, string WorkDate)
         {
