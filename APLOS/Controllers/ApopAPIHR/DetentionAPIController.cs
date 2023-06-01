@@ -691,20 +691,7 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        [HttpPost]
-        public string PostBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave)
-        {
-            try
-            {
-                string Id = clsData.PostBudgetCodeChange(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
+     
 
         public string PostUpdateBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave, string EmpsysId, string WorkDate)
         {
