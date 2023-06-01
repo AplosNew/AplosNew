@@ -1233,7 +1233,7 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
                             WHERE S.Booked = 'False' AND R.ToLocation NOT IN ( 'JOB WORK LOCATION','DyeHouse','PACKING', 'JW Sale-Dye')
                              " + tempDate + @"
-                            AND M.StandardName IS NOT NULL AND S.SalesId IS NULL AND S.PackingId <>''
+                            AND M.StandardName IS NOT NULL AND S.SalesId IS NULL 
                             GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                            
 							UNION ALL
@@ -1252,7 +1252,7 @@ WHERE  PLI.PackingId ='" + packingId + "' ORDER BY MMA.StandardName";
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
                             WHERE S.Booked = 'False' AND R.ToLocation NOT IN ( 'JOB WORK LOCATION','DyeHouse','PACKING', 'JW Sale-Dye')
                              " + tempCurrentDate + @"
-                            AND M.StandardName IS NOT NULL AND S.SalesId IS NULL AND S.PackingId <>''
+                            AND M.StandardName IS NOT NULL AND S.SalesId IS NULL 
                             GROUP BY  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                             
 							) x
