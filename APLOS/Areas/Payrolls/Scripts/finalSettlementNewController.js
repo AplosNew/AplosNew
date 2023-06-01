@@ -7,13 +7,12 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
     $scope.SeparationTypes = [];
     $scope.path = 'Payrolls/FinalSettlement/';
     $scope.getSTListUrl = $scope.path + 'GetSeparationTypelist';
-    $scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChangeNew';
+    //$scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChangeNew';
+    $scope.getSTSCUrl = $scope.path + 'SeparationTypeSelectedChange';
     $scope.getEmployeeListUrl = $scope.path + 'LoadEmployeelist';
     $scope.saveUrl = $scope.path + 'SaveFinalSettlementNew';
     $scope.getFSListUrl = $scope.path + 'GetEmployeeFinalSettlementlist';
     $scope.getDataForEditUrl = $scope.path + 'GetDataForEdit';
-
-
 
     $scope.getETListUrl = $scope.path + 'GetEmploymentTypelist';
  
@@ -219,11 +218,11 @@ function finalSettlementNewController(commonMessage, $scope, $rootScope, baseSer
         }
     };
     $scope.EmployeeModel = {};
-    $scope.SelectEmployee = function () {
+    $scope.SelectEmployee = function (obj) {
         try {
            
-            var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
-             $scope.EmployeeModel = gridObj.getSelectedRecords()[0];        
+           // var gridObj = $("#GridEmployeeInfoList").data("ejGrid");
+            $scope.EmployeeModel = obj.data;
 
             //var eDialog = $("#dialogEmployeeInfo").data("ejDialog");
             //eDialog.close();

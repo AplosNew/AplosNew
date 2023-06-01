@@ -4637,7 +4637,7 @@ else 'IN' end as RawDayStatus ,
 (select top 1 rw.PTime from AttdnRawData rw
 where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
-Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,A.ToDayIN, Diffenence=A.ToDayIN-MBGT.Deployment
+Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment 
 
 from AttdnProcessData apd 
 left Join EmployeeInformation EMP on EMP.SystemId = apd.EmpSystemID
@@ -4670,7 +4670,6 @@ left join hkp.Process PR on PR.Id = POS.ProcessId
 left join scs.District DT on DT.Id = emp.ParmDistrictID
 left join scs.[State] ST on ST.Id = EMP.ParmStateId
 left join dbo.PhysicalVerification pv on pv.EmpSystemID = apd.EmpSystemID and pv.WorkDate = apd.WorkDate
-left join dbo.AttdnRawData Ard on Ard.LogDownLoadNum = EMP.SystemId and Ard.PDate = apd.WorkDate
 left join TRN.HRReportMasterChild Hrg on Hrg.ManpowerBudgetId = Emp.BudgetCode
 left join TRN.HRReportMasterBudgetUserGroup HBG on HBG.HRReportMasterChildId = Hrg.Id
 left join HKP.HRReportGroupMaster Hg on Hg.Id = HBG.UserGroupId
@@ -4679,7 +4678,7 @@ left join LeaveType LTY on LTY.Id = LT.LTSystemID
 left join ResidenceAllocatedEmployees RA on RA.EmployeeSystemId = apd.EmpSystemID
 left join ResidenceMaster RM on RM.Id = RA.ResidenceId
 
-LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
+LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnProcessData Where WorkDate= '" + date + "' AND ISNULL(InTime,'')<>'' Group BY BudgetId) A ON A.BudgetId=MBGT.Id " +
 "where emp.employeecode is not null and emp.employeestatus = 'Active' and MBGT.code is not null and MBGT.Active = 1" +
 "and emp.employeecode NOT IN (2222229, 2222230)  and apd.WorkDate = '" + date + "'  and Hg.Id = '" + groupid + "'";
 
@@ -5108,7 +5107,189 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
 
 
         }
+
+
         #endregion seven days attendance
+
+
+        #region Budget Code Change
+
+        public void GetNewBudgetCode(out List<TempBudgetCode> DataList, string EmpsysId, string WorkDate)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<TempBudgetCode>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select * from dbo.TempBudgetCodeChange where EmpSystemId='" + EmpsysId + "' and WorkDate = '" + WorkDate + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new TempBudgetCode
+                    {
+                        EmpSystemId = dsRef.Tables[0].Rows[i]["EmpSystemId"].ToString(),
+                        ExistingBudgetId = dsRef.Tables[0].Rows[i]["ExistingBudgetId"].ToString(),
+                        NewBudgetId = dsRef.Tables[0].Rows[i]["NewBudgetId"].ToString(),
+                        WorkDate = dsRef.Tables[0].Rows[i]["WorkDate"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string TableName = "dbo.TempBudgetCodeChange";
+
+               // ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<TempBudgetCode> items = DataToSave.ToList();
+
+                string sql = @"select * from dbo.TempBudgetCodeChange where 1=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+              //  con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (TempBudgetCode item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+
+                        dr["Id"] =  _Id;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
+                        dr["NewBudgetId"] = item.NewBudgetId;
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
+                        dr["NewBudgetId"] = item.NewBudgetId;
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["Remarks"] = item.Remarks;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+                    }
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+        }
+
+
+
+        public string PostUpdateBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave, string EmpsysId, string WorkDate)
+        {
+            try
+            {
+                DataSet dsMaster;
+              //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<TempBudgetCode> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where EmpSystemId='" + EmpsysId + "' and WorkDate = '" + WorkDate + "'", out dsMaster, false, "1");
+
+                foreach (TempBudgetCode item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
+                        dr["NewBudgetId"] = item.NewBudgetId;
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["Remarks"] = item.Remarks;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                // string MasterId = SaveDatax(items[0].EmpSystemID, "");
+
+                // string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                //  return MasterId;
+                return "true";
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        #endregion Budget Code Change
 
     }
 
@@ -5720,6 +5901,22 @@ LEFT JOIN (Select COUNT(EmpSystemID) ToDayIN,BudgetId from dbo.AttdnProcessData 
     }
 
     #endregion Aman c
+
+    #region TempBudgetCode
+    public class TempBudgetCode
+    {
+        public string Id { get; set; }
+        public string EmpSystemId { get; set; }
+        public string ExistingBudgetId { get; set; }
+        public string NewBudgetId { get; set; }
+        public string WorkDate { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+    }
+    #endregion TempBudgetCode
 
 
 }

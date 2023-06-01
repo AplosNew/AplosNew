@@ -301,7 +301,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                                     LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID 
                                                     left join hkp.LegalDesignation ld on ld.Id=ei.LegalDesignationId
                             where eI.PlantID='" + plantId+@"' and WorkDate between '"+_FromDate+@"' and '"+_ToDate+@"'
-                            AND (ei.EmployeeStatus='Active')";
+                            ";
 
                 return _sqlRepository.GetDataCollection(sql, null);
             }
