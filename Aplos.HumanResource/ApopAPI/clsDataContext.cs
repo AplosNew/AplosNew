@@ -5192,20 +5192,38 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                   
+
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
+                        dr["NewBudgetId"] = item.NewBudgetId;
+                        dr["WorkDate"] = item.WorkDate;
+                        dr["Remarks"] = item.Remarks;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+                    }
+
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                //_info.SaveDataSets(dsMaster);
+               // string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                return MasterId;
+                return "true";
 
             }
             catch (Exception ex)
             {
                 return ex.ToString();
             }
-
 
         }
 
