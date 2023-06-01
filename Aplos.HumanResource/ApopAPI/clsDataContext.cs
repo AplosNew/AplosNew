@@ -5214,10 +5214,10 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
-                //_info.SaveDataSets(dsMaster);
-               // string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                return "true";
+                return MasterId;
 
             }
             catch (Exception ex)
