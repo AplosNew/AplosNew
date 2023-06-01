@@ -5155,14 +5155,20 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         {
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster;
                 string TableName = "dbo.TempBudgetCodeChange";
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+               // ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<TempBudgetCode> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+                string sql = @"select * from dbo.TempBudgetCodeChange where 1=1";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+              //  con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where Id='" + items[0].Id + "'", out dsMaster, false, "1");
 
                 foreach (TempBudgetCode item in DataToSave)
                 {
