@@ -1,0 +1,111 @@
+﻿<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending Schedule Trip</a></li>
+            @*<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle Allocation</a></li>*@
+
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="Grid">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        @*   TAB -2 *@
+        @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+        </div>*@
+    </div>
+
+</div>
+
+
+<div class="modal fade site-modal in" id="reqPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Add Vehicle & Driver <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+
+                <div class="form-elements form-horizontal" ng-form name="VehicleRequisitionForm">
+                    <input type="hidden" ng-model="VehicleRequisitionModel.Id">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="270" ej-timepicker name="Time" tabindex="4" required />
+
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Vehicle<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.VehicleMasterId" name="Purpose"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in VehicleList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="VehicleRequisitionModel.Remarks" maxlength="250" tabindex="7"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="270" ej-timepicker name="Time" tabindex="4" required />
+
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Driver<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.DriverMasterId" name="Purpose"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in DriverList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+
+                                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

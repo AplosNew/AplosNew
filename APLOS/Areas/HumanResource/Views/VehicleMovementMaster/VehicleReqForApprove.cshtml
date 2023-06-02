@@ -8,113 +8,70 @@
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div>
+                <div class="content-container-fluid" style="color:black;overflow:scroll">
+                    <div style="color:black;" ej-grid e-datasource="VehicleMovementReqList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="EditRequisitionPopup"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
+                         e-detailstemplate="requisitiondetailTemp"
+                         e-detailsdatabound="requisitiondetailgrid">
+                        <div e-columns>
+                            <div e-column e-headertext="Merged" e-template="#MergedCheckBox" e-width="15"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
+                            <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
+                            <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
+                            <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>                         
+                            <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="50"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                            <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
+                            <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
 
-            <fieldset class="scheduler-border">
-                <div>
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="VehicleMovementReqList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="PopupOpen"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-                             e-detailstemplate="detailTemp"
-                             e-detailsdatabound="detailgrid">
-                            <div e-columns>
-                                @*<div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="80"></div>*@
-                                <div e-column e-headertext="Merged" e-template="#MergedCheckBox" e-width="15"></div>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                                <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
-                                <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
-                                <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
-                                <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="50"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
-                                <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
-                                <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
-
-                            </div>
                         </div>
                     </div>
-                    @*<script type="text/template" id="ShowActionButtons">
-                    <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
-                    <button ng-click="$parent.XlsDownloadBinWiseGRNReport(this)" style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-download-alt" title="Convert in Excel" style="margin: -6px;"></i></button>
-
-                </script>*@
-                    <script type="text/template" id="MergedCheckBox">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="data.isMerge" e-checked="data.isMerge" tabindex="8">
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </script>
-                    <script id="tabGridContents" type="text/x-jsrender">
-                        <div class="tabcontrol" id="Test">
-                            <ul>
-                                <li><a href="#gridTab{{:Id}}">Requisition Details</a></li>
-
-                            </ul>
-                            <div id="gridTab{{:Id}}">
-                                <div id="detailGrid"></div>
-                            </div>
-
-                        </div>
-                    </script>
-
                 </div>
+                <script id="requisitiontabGridContents" type="text/x-jsrender">
+                    <div class="tabcontrol" id="Test">
+                        <ul>
+                            <li><a href="#gridTab{{:Id}}">Requisition Details</a></li>
 
-            </fieldset>
+                        </ul>
+                        <div id="gridTab{{:Id}}">
+                            <div id="requisitiondetailgrid"></div>
+                        </div>
+
+                    </div>
+                </script>
+                <script type="text/template" id="MergedCheckBox">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="data.isMerge" e-checked="data.isMerge" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </script>
+
+            </div>
+
+            
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="Test();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    <li> <button ng-click="MergeRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-check"></i> Apply</button></li>
 
-                    @*<li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                 </ul>
             </div>
         </div>
         @*   TAB -2 *@
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
 
-            <fieldset class="scheduler-border">
-                <div>
-                    <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="VehicleMovementReqList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick=""
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-                             e-detailstemplate="detailTemp"
-                             e-detailsdatabound="detailgrid">
-                            <div e-columns>
-                                <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="80"></div>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                                <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
-                                <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
-                                <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
-                                <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
-                                <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
-                                <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="50"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <script type="text/template" id="ShowActionButtons">
-                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-print" title="Print Report" ng-click="$parent.AllTabPrint('GriddataMasterONE');" style="margin: -6px;"></i></button>
-                        <button ng-click="$parent.XlsDownloadBinWiseGRNReport(this)" style="color: #f3f3ec;background-color: #1c1f32;height: 20px;padding-top:1px;" class="btn"><i class="glyphicon glyphicon-download-alt" title="Convert in Excel" style="margin: -6px;"></i></button>
-
-                    </script>
-                    <script id="tabGridContents" type="text/x-jsrender">
-                        <div class="tabcontrol" id="Test">
-                            <ul>
-                                <li><a href="#gridTab{{:Id}}">Requisition Details</a></li>
-
-                            </ul>
-                            <div id="gridTab{{:Id}}">
-                                <div id="detailGrid"></div>
-                            </div>
-
-                        </div>
-                    </script>
-
+        <div class="row">
+            <div class="col-md-12">
+                <div id="Grid">
                 </div>
-            </fieldset>
+            </div>
         </div>
+
+    </div>
     </div>
 
 </div>
@@ -127,32 +84,26 @@
             <div class="modal-body form-elements form-horizontal">
 
                 <div class="form-elements form-horizontal" ng-form name="VehicleRequisitionForm">
-                    <input type="hidden" ng-model="VehicleRequisitionModel.Id">
+                    <input type="hidden" ng-model="ApproveRequisitionModel.Id">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" datepicker class="form-control" required>
+                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ApproveRequisitionModel.FromDate" datepicker class="form-control" required>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="270" ej-timepicker name="Time" tabindex="4" required />
+                                    <input id="FromTime" e-value="ApproveRequisitionModel.FromTime" width="270" ej-timepicker name="Time" tabindex="4" required />
 
                                 </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Vehicle<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="VehicleRequisitionModel.VehicleMasterId" name="Purpose"
-                                                tabindex="2">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in VehicleList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
+                            </div> 
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="ApproveRequisitionModel.Remarks" maxlength="250" tabindex="7"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -160,28 +111,16 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" datepicker class="form-control" required>
+                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ApproveRequisitionModel.ToDate" datepicker class="form-control" required>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="270" ej-timepicker name="Time" tabindex="4" required />
+                                    <input id="ToTime" e-value="ApproveRequisitionModel.ToTime" width="270" ej-timepicker name="Time" tabindex="4" required />
 
                                 </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Driver<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="VehicleRequisitionModel.DriverMasterId" name="Purpose"
-                                                tabindex="2">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in DriverList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            </div>                           
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
                                     <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
@@ -199,6 +138,81 @@
     </div>
 </div>
 
+<div class="modal fade site-modal in" id="editreqPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Edit Requisition <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
 
+                <div class="form-elements form-horizontal" ng-form name="VehicleRequisitionForm">
+                    <input type="hidden" ng-model="VehicleRequisitionModel.Id">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.PurposeId" name="Purpose"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in PurposeList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">No. Of Passengers<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.NumberOfPassengers" name="NoOfPassengers"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Personal / Official<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.PersonalOfficial" name="Personal / Official"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option value="Personal">Personal</option>
+                                            <option value="Official">Official</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="VehicleRequisitionModel.Remarks" maxlength="250" tabindex="7"></textarea>
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+
+                                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 
 

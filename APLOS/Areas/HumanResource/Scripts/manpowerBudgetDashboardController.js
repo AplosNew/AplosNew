@@ -774,7 +774,14 @@ function manpowerBudgetDashboardController(cboService, $scope, $rootScope, $rout
                     filterSettings: { filterType: "excel" },
                     allowScrolling: true,
                     minWidth: 400,
-                    isResponsive: true
+                    isResponsive: true,
+                    //e-summaryrows="TotalCashAmount"
+
+                    title: "Total", summaryColumns: [
+                        {
+                            summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Proposed", dataMember: "Proposed", format: "{0:N2}"
+                        }],
+                    showCaptionSummary: true
                 });
                 $scope.dataGrid = "#ManpowerBudgetDetail";
 
@@ -784,6 +791,14 @@ function manpowerBudgetDashboardController(cboService, $scope, $rootScope, $rout
 
         });
     };
+
+    //$scope.TotalCashAmount = [{
+    //    title: "Total", summaryColumns: [
+    //        {
+    //            summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksCashBalance", dataMember: "BooksCashBalance", format: "{0:N2}"
+    //        }],
+    //    showCaptionSummary: true
+    //}];
 
     $scope.ExcessSummaryParameters = {
         limit: 10,
@@ -1148,4 +1163,36 @@ function manpowerBudgetDashboardController(cboService, $scope, $rootScope, $rout
             }
         }
     };
+
+    $scope.OnRoleEmpReportXLx = function () {
+        var dataList = [];
+        var g = $("#onRoleEmpGridDetail").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.onRoleEmpList;
+        }
+
+        $scope.fileName = 'Man Power Budget On Role Report.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: "HumanResource/ManpowerBudgetDashboard/OnRoleEmployeeReport",
+            data: { 'data': dataList, 'reportFileName': $scope.fileName },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
 }

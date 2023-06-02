@@ -1013,6 +1013,62 @@ group by ab.MaterialStorageId,gh.UnApprovedQty,ef.ApprovedQty,cd.PostingQty,ab.T
 
         }
 
+        public IEnumerable<object> GetJWMaterialInputData(IEnumerable<MaterialPlanning> SelectedMaterialPlanningData, string OrderSpecific, string MaterialStorageIdInventory, string IssueDate, string TransIssueId)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var MPId = "' '";
+                string sql = "";
+                foreach (var get in SelectedMaterialPlanningData)
+                {
+                    MPId += ",'" + get.JWTransformationPODetailId + "' ";
+
+                }
+
+                if (string.IsNullOrEmpty(TransIssueId))
+                {
+                    sql = @" select  mi.JWTransformationPODetailId, jwi.UserName as JWOutputItem,jwii.Id as JWInputItemId,jwii.UserName as JWInputItem
+                        ,mm.Id as InputMaterialId,mm.Id MaterialMasterId, mm.UserName as MaterialMaster,mm.Code as InputMaterialCode,mma.StandardName ArticleName, mma.Id ArticleId, uom.UserName as MMUnit
+                        ,RequiredQuantity = (mp.Quantity * mi.GrossConsumption),BalanceToIssue =case when mi.ArticleId is not null then(mp.Quantity * mi.GrossConsumption) - (ISNULL(kk.TotalQuantity, '0')) else (mp.Quantity * mi.GrossConsumption) - (ISNULL(BB.TotalQty, '0')) End
+                        ,TIRCTotalQty =case when mi.ArticleId is not null then kk.TotalQuantity else BB.TotalQty End
+                        , Sum(0) PlannedQty,0 IssuedQty,0 BalanceQty,0 PostingQuantity,null MaterialStorageId ,TransactionUoMId =case when mi.ArticleId is not null then uom.Id else uomm.Id End, BaseUoMId =case when mi.ArticleId is not null then uom.Id else uomm.Id End
+     , TransactionUoM =case when mi.ArticleId is not null then uom.UserName else uomm.UserName End,0 TotalQty, 0 PostingQty, 0 ApprovedQty, 0 UnApprovedQty
+       from dbo.JWTransformationPOInputMaterial mi
+                        left join HKP.JobWorkItem jwii on jwii.Id = mi.JobWorkItemId
+                        left join MST.MaterialMasterArticle mma on mma.Id = mi.ArticleId
+                        left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
+                        left join scs.UnitOfMeasurement uom on uom.Id = mm.BaseUOMId
+                        left join scs.UnitOfMeasurement uomm on uomm.Id = jwii.UOMId
+                        left join dbo.JWTransformationPODetail mp on mp.Id = mi.JWTransformationPODetailId
+                        left join HKP.JobWorkItem jwi on jwi.Id = mp.JobWorkItemMasterId
+                        left join trn.InventoryMaterial IM ON IM.MaterialMasterId = jwii.MaterialMasterId and IM.ArticleId = mi.ArticleId
+                        left join trn.InventoryReceiveDetail IRD ON IRD.InventoryMaterialId = IM.Id
+                        left join(select SUM(iid.TransactionQty) as TotalQuantity, II.JobWorkContractId FROM TRN.InventoryIssueDetail iid left join TRN.InventoryIssue II
+                        on iid.InventoryIssueId = II.Id group by II.JobWorkContractId
+                        ) kk on kk.JobWorkContractId = mp.JWTransformationPOId
+                        left join(select SUM(iid.TransactionQty) as TotalQty, II.JobWorkContractId, iid.JWTransformationPOId,iid.JobWorkTCInputId
+                        FROM TRN.InventoryIssueDetail iid
+                        left join TRN.InventoryIssue II on iid.InventoryIssueId = II.Id
+                        where iid.JWTransformationPOId in ("+ MPId + @")
+                        group by II.JobWorkContractId, iid.JWTransformationPOId,iid.JobWorkTCInputId
+			            ) BB on BB.JobWorkContractId = mp.JWTransformationPOId and BB.JWTransformationPOId = mp.Id and BB.JobWorkTCInputId = mi.JobWorkItemId
+                        where mi.JWTransformationPODetailId IN (" + MPId + @")
+                        group by uom.Id ,mm.Id, mm.UserName,mp.Quantity,mi.GrossConsumption,kk.TotalQuantity
+                        ,mi.JWTransformationPODetailId,jwi.UserName,jwii.UserName,uom.UserName,mm.Code,mma.StandardName,mma.Id
+                        ,jwii.Id,mi.ArticleId,uomm.Id,uomm.UserName,BB.TotalQty   ";
+                }
+
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
         public IEnumerable<object> GetIssuedDetailList(string ArticleId, string MaterialId, string MaterialInputId, string ContractId)
         {
             try

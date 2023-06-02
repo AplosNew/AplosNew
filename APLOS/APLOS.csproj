@@ -2069,6 +2069,8 @@
     <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportComController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleInOutController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
@@ -4699,6 +4701,9 @@
     <Content Include="Areas\Productions\Views\ProcessQualityControl\AplosInOut.cshtml" />
     <Content Include="Areas\Productions\Views\ProcessQualityControl\AplosWC.cshtml" />
     <Content Include="Areas\Productions\Views\ProcessQualityControl\Report.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleInOut.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_VehicleMovementInOut.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleMovement.cshtml" />
     <Content Include="Areas\Productions\Views\QualityControl\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\QualityControl\Aplos1.cshtml" />
     <Content Include="Areas\Productions\Views\QualityControl\AplosInOut.cshtml" />

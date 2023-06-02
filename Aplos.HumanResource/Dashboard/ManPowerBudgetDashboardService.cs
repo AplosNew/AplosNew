@@ -1,7 +1,9 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.ViewModel.Accounts;
@@ -10,9 +12,11 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.HumanResource.Dashboard
@@ -1147,8 +1151,9 @@ namespace Library.HumanResource.Dashboard
                                   LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId =  em.GivenDesignationId
                                   LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
                                  " + Join + @"
-                                  where EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + dStatus + @"
-                                  AND em.GroupID  = '" + companyGroupId + @"' and  em.CompanyId= '" + companyId + @"' " + wc + @" " + EmployeeCategory + @"";
+                                  where EmployeeStatus = 'Active' AND MB.Active = 1  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + dStatus + @"
+                                  --AND em.GroupID  = '" + companyGroupId + @"' 
+                                    and  em.CompanyId= '" + companyId + @"' " + wc + @" " + EmployeeCategory + @"";
                 return _sqlRepository.GetDataCollection(strSql);
             }
             catch (Exception ex)
@@ -1688,86 +1693,52 @@ namespace Library.HumanResource.Dashboard
                     }
                 }
 
-                sqlText = @"SELECT m.Id MbId,Code BudgetCode
-                                ,ISNULL(e.TotalManpower,0) as onRole
-                                ,ISNULL(b.TotalNumber,0) as Proposed
-                                ,Excess = CASE
-                                  WHEN ISNULL(TotalManpower,0) - isNull(TotalNumber,0) > 0
-                                  THEN ISNULL(TotalManpower,0) - isNull(TotalNumber,0)
-                                  ELSE 0 end
-                                ,Short = CASE
-                                  WHEN ISNULL(TotalNumber,0) - isNull(TotalManpower,0) > 0
-                                  THEN ISNULL(TotalNumber,0) - isNull(TotalManpower,0)
-                                  ELSE 0 end
-                                 ,m.Code budgetCodeE
-                                ,m.GroupName
-                                ,m.CompanyId
-                                ,m.CName as CompanyName
-                                " + cListextM + @"
-                                ,Designation
-                                ,m.DesGName
-                                ,EmployeeCategory
-                                from
-                                ----------------------------1 bc--------------------------------------
-                                (SELECT  MB.Code,MB.Id,Cg.Id as CgId,Cg.UserName as GroupName, c.Id as CompanyId, c.UserName as CName " + cListext + @"
-                                    ,Des.UserName Designation,EmpC.UserName EmployeeCategory,DesG.UserName DesGName
-                                      from [MST].[ManpowerBudget]  MB
-                                      LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                      LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
-                                      LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                      LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
-                                      LEFT JOIN [HKP].Designation Des ON Des.Id = Po.DesignationId
-                                      LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = Des.Id
-                                      LEFT JOIN [HKP].DesignationGroup DesG ON DesG.Id = DesM.DesignationGroupId
-                                      LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-                                      " + join + @"
-                                      WHERE Cg.Id = '" + companyGroupId + @"' " + wc + @" " + EmployeeCategory + @" AND MB.Active = 1
-                                )  m
-                                    -----------------------2e--------------------------------
-                                LEFT OUTER JOIN
-                                (SELECT count(em.SystemID) TotalManpower,BudgetCode,em.GroupID
-                                      FROM [dbo].[EmployeeInformation]  em
-                                      LEFT outer join [MST].[ManpowerBudget] AS MB  on MB.Id = em.BudgetCode
-                                      LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                      LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= C.Id
-                                      LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                      LEFT outer JOIN [ORG].[Position] AS PO ON PO.Id = MB.PositionId
+                sqlText = @"Select MB.Id MbId ,ISNULL(emp.TotalManpower,0) as onRole,ISNULL(MBD.TotalNumber,0) as Proposed
+										,Excess = CASE
+										  WHEN ISNULL(emp.TotalManpower,0) - isNull(MBD.TotalNumber,0) > 0
+										  THEN ISNULL(emp.TotalManpower,0) - isNull(MBD.TotalNumber,0)
+										  ELSE 0 end
+										,Short = CASE
+										  WHEN ISNULL(MBD.TotalNumber,0) - isNull(emp.TotalManpower,0) > 0
+										  THEN ISNULL(MBD.TotalNumber,0) - isNull(emp.TotalManpower,0)
+										  ELSE 0 end
+										  ,MB.Code BudgetCode,Cg.UserName as GroupName,MB.CompanyId
+										, c.UserName as CompanyName
+										,Plant.UserName  Plant,Division.UserName  Division,Department.UserName  Department
+										,SubDivision.UserName  SubDivision,Section.UserName  Section,Unit.UserName  Unit
+										,SubSection.UserName  SubSection,ShiftDefination.UserName  ShiftDefination
+										,Des.UserName Designation,EmpC.UserName EmployeeCategory
+										,EmpC.UserName EmployeeCategory
+											
+                            			from [MST].[ManpowerBudgetDetail] MBD
+										left join [MST].[ManpowerBudget]  MB on MB.Id=MBD.ManpowerBudgetId 
+										LEFT outer JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
+										LEFT outer JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id
+										LEFT outer JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
+										LEFT outer JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
+										LEFT JOIN [HKP].Designation Des ON Des.Id = Po.DesignationId
+										LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = Des.Id
+										LEFT JOIN [HKP].DesignationGroup DesG ON DesG.Id = DesM.DesignationGroupId
+										LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+										LEFT JOIN [ORG].[Plant] ON Plant.Id = E.PlantId
+										LEFT JOIN [ORG].[Division] ON Division.Id = E.DivisionId
+										LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+										LEFT JOIN [ORG].[SubDivision] ON SubDivision.Id = E.SubDivisionId
+										LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+										LEFT JOIN [ORG].[Unit] ON Unit.Id = E.UnitId
+										LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+										LEFT JOIN [ShiftDefination] ON ShiftDefination.SystemId = MB.ShiftDefinationId
 
-									  LEFT JOIN [HKP].Designation GDes ON GDes.Id = EM.GivenDesignationId
-								      LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = EM.GivenDesignationId
-								      LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
+										left outer join (SELECT count(em.SystemID) TotalManpower,BudgetCode,em.GroupID,EmployeeCurrentStatus,EmployeeStatus,em.CompanyId
+										FROM [dbo].[EmployeeInformation]  em
+										LEFT outer join [MST].[ManpowerBudget] AS M  on M.Id = em.BudgetCode      
+										WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') 
+                                        group by BudgetCode,em.GroupID,EmployeeCurrentStatus,EmployeeStatus,em.CompanyId
+										) emp ON MB.Id=emp.BudgetCode
 
-                                     " + join + @"
-                                      WHERE EmployeeStatus = 'Active'   AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + @"
-                                        AND em.GroupID = '" + companyGroupId + @"' " + EmployeeCategory + @"
-                                        group by BudgetCode,em.GroupID
-                                ) e ON m.Id=e.BudgetCode and e.GroupID = m.CgId
-                                     -------------------------3b--------------------------------------------------------
-                                LEFT OUTER JOIN
-                                (
-                                 SELECT MBD.TotalNumber, ManpowerBudgetId,Cg.Id, C.Id as cid from
-                                 (SELECT TOP 1 WITH TIES TotalNumber,ManpowerBudgetId,EffectiveDate
-									FROM [MST].[ManpowerBudgetDetail]
-									WHERE CONVERT(DATE,EffectiveDate) <= CONVERT(DATE,'" + date + @"')
-									ORDER BY ROW_NUMBER() OVER(PARTITION BY ManpowerBudgetId ORDER BY EffectiveDate DESC)
-                                 ) MBD
-                                 LEFT OUTER JOIN [MST].[ManpowerBudget] AS MB  on  Mb.Id = MBD.ManpowerBudgetId
-                                 LEFT OUTER JOIN [ORG].[CompanyGroup] AS Cg ON Cg.Id = MB.CompanyGroupId
-                                 LEFT OUTER JOIN [ORG].[Company] AS C ON C.CompanyGroupId = Cg.Id and mb.CompanyId= c.Id
-                                 LEFT OUTER JOIN [ORG].[Entity] AS E ON E.Id = MB.EntityId
-                                 LEFT OUTER JOIN [ORG].[Position] AS PO ON Po.Id = MB.PositionId
 
-								LEFT JOIN [HKP].Designation GDes ON GDes.Id = PO.DesignationId
-								    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = PO.DesignationId
-								    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId
-
-                                 " + join + @"
-                                 WHERE CG.Id = '" + companyGroupId + @"' " + DStatus + @" " + wc + @" " + EmployeeCategory + @"
-                                 ) B
-                                 ON m.id = b.ManpowerBudgetId AND b.Id = m.CgId AND B.cid = m.CompanyId
-             	                		 WHERE TotalNumber>0
-                                 GROUP BY m.Code,GroupName,CompanyId,m.Id,b.ManpowerBudgetId,TotalManpower,TotalNumber,CName " + cListextM + @"
-                                 ,Designation,EmployeeCategory, m.DesGName";
+									where MB.Active = 1  AND ISNULL(EmployeeCurrentStatus,'')  NOT IN ('TBS','LONG ABSENTEEISM') " + DStatus + @"                                  
+                                     " + wc + @" " + EmployeeCategory + @"";
                 return _sqlRepository.GetDataCollection(sqlText);
             }
             catch (Exception ex)
@@ -3308,6 +3279,808 @@ namespace Library.HumanResource.Dashboard
         }
 
         #endregion BudgetCode Wise Employee List
+
+        public string CreateOnRoleEmployeeReportSheet(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            ReportUtility reportUtility = new ReportUtility();
+
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Man Power Budget On Role Report";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+                #region columns
+
+                sheet[ROW, COL].Text = "Employee Name";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColEmployeeName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "DOJ";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColDOJ = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Budget Code";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColBudgetCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Given Designation";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColGivenDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int Coldesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColEmployeeCategory = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Salary";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColTotalSalary = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Company";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int ColCompany = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColPlant = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Division";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDivision = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDepartment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSubSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Unit";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColUnit = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shift Defination";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColShiftDefination = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Line";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColLine = COL;
+                
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                //int startRow = ROW;
+                int StartDataRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
+                    sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
+                    sheet[ROW, ColGivenDesignation].Text = data.Rows[i]["GivenDesignation"].ToString();
+                    sheet[ROW, Coldesignation].Text = data.Rows[i]["designation"].ToString();
+                    sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, ColTotalSalary].Number = clsStaticInfo.dbl(data.Rows[i]["TotalSalary"].ToString());
+                    sheet[ROW, ColCompany].Text = data.Rows[i]["Company"].ToString();
+                    sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
+                    sheet[ROW, ColDivision].Text = data.Rows[i]["Division"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, ColUnit].Text = data.Rows[i]["Unit"].ToString();
+                    sheet[ROW, ColShiftDefination].Text = data.Rows[i]["ShiftDefination"].ToString();
+                    sheet[ROW, ColLine].Text = data.Rows[i]["Line"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+
+                #region Total
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                sheet[ROW, ColTotalSalary - 1].Text = "Total";
+                sheet[ROW, ColTotalSalary - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                sheet[ROW, ColTotalSalary].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColTotalSalary) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColTotalSalary) + (ROW - 1).ToString() + ")";
+                sheet[ROW, ColTotalSalary].NumberFormat = "#,##0.00;(#,##0.00)";
+
+               
+                sheet.Range[ROW, ColTotalSalary - 1, ROW, COL].CellStyle.Font.Bold = true;
+
+                #endregion Total
+
+                sheet.AutoFilters.FilterRange = sheet.Range[StartDataRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartDataRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + StartDataRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Man Power Budget On Role Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string CreateBudgetEmployeeReportReportSheet(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            ReportUtility reportUtility = new ReportUtility();
+
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Man Power Budget Budgeted Report";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+                #region columns
+
+                sheet[ROW, COL].Text = "Budget Code";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColBudgetCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "on Role";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColonRole = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Proposed";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColProposed = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Excess";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColExcess = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Short";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColShort = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Group Name";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColGroupName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Company";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int ColCompany = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColPlant = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Division";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDivision = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDepartment = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Division";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColSubDivision = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSubSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Unit";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColUnit = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shift Defination";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColShiftDefination = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColEmployeeCategory = COL;
+                 
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                //int startRow = ROW;
+                int StartDataRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["BudgetCode"].ToString());
+                    sheet[ROW, ColonRole].Number = clsStaticInfo.dbl(data.Rows[i]["onRole"].ToString());
+                    sheet[ROW, ColProposed].Number = clsStaticInfo.dbl(data.Rows[i]["Proposed"].ToString());
+                    sheet[ROW, ColExcess].Number = clsStaticInfo.dbl(data.Rows[i]["Excess"].ToString());
+                    sheet[ROW, ColShort].Number = clsStaticInfo.dbl(data.Rows[i]["Short"].ToString());
+                    sheet[ROW, ColGroupName].Text = data.Rows[i]["GroupName"].ToString();
+                    sheet[ROW, ColCompany].Text = data.Rows[i]["CompanyName"].ToString();
+                    sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
+                    sheet[ROW, ColDivision].Text = data.Rows[i]["Division"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, ColSubDivision].Text = data.Rows[i]["SubDivision"].ToString();
+                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, ColUnit].Text = data.Rows[i]["Unit"].ToString();
+                    sheet[ROW, ColShiftDefination].Text = data.Rows[i]["ShiftDefination"].ToString();
+                    sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+
+                #region Total
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                
+                //sheet[ROW, ColBudgetCode - 1].Text = "Total";
+                //sheet[ROW, ColBudgetCode - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //sheet[ROW, ColBudgetCode].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColBudgetCode) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColBudgetCode) + (ROW - 1).ToString() + ")";
+                //sheet[ROW, ColBudgetCode].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                //sheet.Range[ROW, ColBudgetCode - 1, ROW, COL].CellStyle.Font.Bold = true;
+
+                #endregion Total
+
+                sheet.AutoFilters.FilterRange = sheet.Range[StartDataRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartDataRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + StartDataRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Man Power Budget Budgeted Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string CreateShortEmployeeReportReportSheet(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            ReportUtility reportUtility = new ReportUtility();
+
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Man Power Budget Budgeted Report";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+                #region columns
+
+                sheet[ROW, COL].Text = "Budget Code";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColBudgetCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "on Role";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColonRole = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Proposed";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColProposed = COL;
+                COL++;
+
+                //sheet[ROW, COL].Text = "Excess";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColExcess = COL;
+                //COL++;
+
+                sheet[ROW, COL].Text = "Short";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColShort = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Group Name";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColGroupName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Company";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int ColCompany = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColPlant = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Division";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDivision = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDepartment = COL;
+                COL++;
+
+                //sheet[ROW, COL].Text = "Sub Division";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //int ColSubDivision = COL;
+                //COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSubSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Unit";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColUnit = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shift Defination";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColShiftDefination = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColEmployeeCategory = COL;
+
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                //int startRow = ROW;
+                int StartDataRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["BudgetCode"].ToString());
+                    sheet[ROW, ColonRole].Number = clsStaticInfo.dbl(data.Rows[i]["onRole"].ToString());
+                    sheet[ROW, ColProposed].Number = clsStaticInfo.dbl(data.Rows[i]["Proposed"].ToString());
+                    //sheet[ROW, ColExcess].Number = clsStaticInfo.dbl(data.Rows[i]["Excess"].ToString());
+                    sheet[ROW, ColShort].Number = clsStaticInfo.dbl(data.Rows[i]["Short"].ToString());
+                    sheet[ROW, ColGroupName].Text = data.Rows[i]["GroupName"].ToString();
+                    sheet[ROW, ColCompany].Text = data.Rows[i]["CompanyName"].ToString();
+                    sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
+                    sheet[ROW, ColDivision].Text = data.Rows[i]["Division"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    //sheet[ROW, ColSubDivision].Text = data.Rows[i]["SubDivision"].ToString();
+                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, ColUnit].Text = data.Rows[i]["Unit"].ToString();
+                    sheet[ROW, ColShiftDefination].Text = data.Rows[i]["ShiftDefination"].ToString();
+                    sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+
+                #region Total
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                //sheet[ROW, ColBudgetCode - 1].Text = "Total";
+                //sheet[ROW, ColBudgetCode - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //sheet[ROW, ColBudgetCode].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColBudgetCode) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColBudgetCode) + (ROW - 1).ToString() + ")";
+                //sheet[ROW, ColBudgetCode].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                //sheet.Range[ROW, ColBudgetCode - 1, ROW, COL].CellStyle.Font.Bold = true;
+
+                #endregion Total
+
+                sheet.AutoFilters.FilterRange = sheet.Range[StartDataRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartDataRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + StartDataRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Man Power Budget Budgeted Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string CreateExcessEmployeeReportReportSheet(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+
+            ReportUtility reportUtility = new ReportUtility();
+
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Man Power Budget Budgeted Report";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+                #region columns
+
+                sheet[ROW, COL].Text = "Budget Code";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColBudgetCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "on Role";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColonRole = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Proposed";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColProposed = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Excess";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColExcess = COL;
+                COL++;
+
+                //sheet[ROW, COL].Text = "Short";
+                //sheet[ROW, COL].ColumnWidth = 15;
+                //int ColShort = COL;
+                //COL++;
+
+                sheet[ROW, COL].Text = "Group Name";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColGroupName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Company";
+                sheet[ROW, COL].ColumnWidth = 28;
+                int ColCompany = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Plant";
+                sheet[ROW, COL].ColumnWidth = 14;
+                int ColPlant = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Division";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDivision = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Department";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDepartment = COL;
+                COL++;
+
+                //sheet[ROW, COL].Text = "Sub Division";
+                //sheet[ROW, COL].ColumnWidth = 12;
+                //int ColSubDivision = COL;
+                //COL++;
+
+                sheet[ROW, COL].Text = "Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Sub Section";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColSubSection = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Unit";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColUnit = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Shift Defination";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColShiftDefination = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Designation";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColDesignation = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Employee Category";
+                sheet[ROW, COL].ColumnWidth = 13;
+                int ColEmployeeCategory = COL;
+
+                #endregion columns
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+                //int startRow = ROW;
+                int StartDataRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColBudgetCode].Number = clsStaticInfo.dbl(data.Rows[i]["BudgetCode"].ToString());
+                    sheet[ROW, ColonRole].Number = clsStaticInfo.dbl(data.Rows[i]["onRole"].ToString());
+                    sheet[ROW, ColProposed].Number = clsStaticInfo.dbl(data.Rows[i]["Proposed"].ToString());
+                    sheet[ROW, ColExcess].Number = clsStaticInfo.dbl(data.Rows[i]["Excess"].ToString());
+                    //sheet[ROW, ColShort].Number = clsStaticInfo.dbl(data.Rows[i]["Short"].ToString());
+                    sheet[ROW, ColGroupName].Text = data.Rows[i]["GroupName"].ToString();
+                    sheet[ROW, ColCompany].Text = data.Rows[i]["CompanyName"].ToString();
+                    sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
+                    sheet[ROW, ColDivision].Text = data.Rows[i]["Division"].ToString();
+                    sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                    //sheet[ROW, ColSubDivision].Text = data.Rows[i]["SubDivision"].ToString();
+                    sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                    sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                    sheet[ROW, ColUnit].Text = data.Rows[i]["Unit"].ToString();
+                    sheet[ROW, ColShiftDefination].Text = data.Rows[i]["ShiftDefination"].ToString();
+                    sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+
+                #region Total
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                //sheet[ROW, ColBudgetCode - 1].Text = "Total";
+                //sheet[ROW, ColBudgetCode - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //sheet[ROW, ColBudgetCode].Formula = "SUM(" + clsStaticInfo.GetxlsCol(ColBudgetCode) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(ColBudgetCode) + (ROW - 1).ToString() + ")";
+                //sheet[ROW, ColBudgetCode].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                //sheet.Range[ROW, ColBudgetCode - 1, ROW, COL].CellStyle.Font.Bold = true;
+
+                #endregion Total
+
+                sheet.AutoFilters.FilterRange = sheet.Range[StartDataRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[StartDataRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + StartDataRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Man Power Budget Budgeted Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }

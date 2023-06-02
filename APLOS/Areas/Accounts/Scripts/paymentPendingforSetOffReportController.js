@@ -7,13 +7,14 @@ function paymentPendingforSetOffReportController(addressService, cboService, $sc
 
     $scope.report = {
         BankMasterId: null,
-        ReportFormat: "Excel",      
+        ReportFormat: "Excel", 
+        ReportType: "Advance",
         FromDate: $filter("dateFiltering")(firstDay),
         ToDate: $filter("dateFiltering")(Date.now())
     };
 
     $scope.getReport = function () {
-        var url = "Accounts/TaxReport/GetAdvancePaymentPendingforSetOffReport?reportFormat=" + $scope.report.ReportFormat + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
+        var url = "Accounts/TaxReport/GetPaymentPendingforSetOffReport?reportFormat=" + $scope.report.ReportFormat + "&reportType=" + $scope.report.ReportType + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
         $rootScope.report(url);
     };
    

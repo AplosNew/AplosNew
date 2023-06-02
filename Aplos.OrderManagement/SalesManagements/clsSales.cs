@@ -63,7 +63,7 @@ namespace Library.OrderManagement.Sales
                             , hasFirst=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[FirstCharacteristics] WHERE SalesOrderId=SO.Id)
                             
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
-                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),mma.HSNCodeId,MO.InvoicingPartyPlantId
+                            , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id),ISNULL(mma.HSNCodeId,mm.HSNCodeId)HSNCodeId,MO.InvoicingPartyPlantId
 							, Qty=case when SCH.CharacteristicsValueId<>''  then SCH.Qty
 										when FCH.CharacteristicsValueId<>'' then FCH.Qty 
 										else SO.Qty end
@@ -387,7 +387,7 @@ OUTER APPLY(Select * from [dbo].[SalesAdditionalInfo] Where AdditionalInfoId=A.I
 							--Select SUM(BookQty) Qty, SUM(PlanQty) PlanQty,PackingLineItemId from trn.POLotReference 
 							--GROUP BY PackingLineItemId
 							Select ISNULL(SUM(sc.NetWeight),0) Qty, ISNULL(SUM(PlanQty),0) PlanQty,PackingLineItemId from trn.POLotReference po
-							left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1 and salesId is null
+							left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1 and SalesReturnId is null
 							 GROUP BY PackingLineItemId
 							)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
 							LEFT JOIN(

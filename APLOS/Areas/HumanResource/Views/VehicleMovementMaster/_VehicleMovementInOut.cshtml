@@ -1,0 +1,222 @@
+﻿<div class="modal fade site-modal in" id="vehicleInOutPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Vehicle Movement In & Out <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                
+                <div class="form-elements form-horizontal">
+                    @*<togglable></togglable>*@
+                    <div class="row" ng-form name="VehicleRequisitionForm">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <input type="hidden" ng-model="VehicleRequisitionModel.Id">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="260" ej-timepicker name="Time" tabindex="4" required />
+
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Vehicle<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.VehicleMasterId" name="Purpose"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in VehicleList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" datepicker class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="260" ej-timepicker name="Time" tabindex="4" required />
+
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Driver<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.DriverMasterId" name="Purpose"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in DriverList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+
+                                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-design">
+                        <div class="site-tab">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle In</a></li>
+                                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle Out</a></li>
+
+                            </ul>
+                        </div>
+                        <div class="tab-content">
+
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                                <div class="form-elements form-horizontal" ng-form name="VehicleInForm">
+                                    <input type="hidden" ng-model="VehicleInModel.Id">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" show-errors>
+                                                <label class="col-sm-4 control-label">In Date</label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input type="text" name="From Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleInModel.InDate" datepicker class="form-control">
+                                                </div>
+                                            </div>
+                                            <div class="form-group" show-errors>
+                                                <label class="col-sm-4 control-label">In Km</label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input type="text" name="InKillometer" ng-model="VehicleInModel.InKillometer" class="form-control" tabindex="5" maxlength="50">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" show-errors>
+                                                <label class="col-sm-4 control-label">In Time</label>
+                                                <div class="col-sm-8 show-message">
+
+                                                    <input id="ToTime" e-value="VehicleInModel.InTime" width="260" ej-timepicker name="InTime" tabindex="4" />
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">In Remarks</label>
+                                                <div class="col-sm-8">
+                                                    <textarea class="form-control" rows="2" ng-model="VehicleInModel.InRemarks" maxlength="250" tabindex="6"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-right">
+                                                    <li> <button ng-click="SaveVehicleIn();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                                    <li> <button ng-click="ClearIn();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="table-responsive">
+                            <div ej-grid e-recorddoubleclick="GetIn" e-datasource="VehicleInList" e-load="loadGridEdit"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                    <div e-column e-field="InDate" e-headertext="InDate" e-width="2"></div>
+                                    <div e-column e-field="InTime" e-headertext="InTime" e-width="3"></div>
+                                    <div e-column e-field="InKillometer" e-headertext="InKillometer" e-width="5"></div>
+                                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                                </div>
+                            </div>
+                        </div>
+                                </div>
+
+
+
+                            </div>
+                            @*   TAB -2 *@
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+                                <div class="form-elements form-horizontal" ng-form name="VehicleInForm">
+                                    @*<input type="hidden" ng-model="VehicleOutModel.Id">*@
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" show-errors>
+                                                <label class="col-sm-4 control-label">From Date</label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input type="text" name="From Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleInModel.OutDate" datepicker class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group" show-errors>
+                                                <label class="col-sm-4 control-label">Out Km.</label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input type="text" name="InKillo meter" ng-model="VehicleInModel.OutKillometer" class="form-control" tabindex="5" maxlength="50" />
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-xs-12 col-sm-6 col-md-6">
+                                            <div class="form-group" show-errors>
+                                                <label class="col-sm-4 control-label">Out Time</label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input id="InTime" e-value="VehicleInModel.OutTime" width="260" ej-timepicker name="OutTime" tabindex="4" />
+
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Remarks</label>
+                                                <div class="col-sm-8">
+                                                    <textarea class="form-control" rows="2" ng-model="VehicleInModel.OutRemarks" maxlength="250" tabindex="6"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="common-btn">
+                                                <ul class="list-inline text-right">
+                                                    <li> <button ng-click="SaveVehicleIn();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                                    <li> <button ng-click="Clearout();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="table-responsive">
+                                        <div ej-grid e-recorddoubleclick="GetOut" e-datasource="VehicleOutListData" e-load="loadGridEdit"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                                            <div e-columns>
+                                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                                                <div e-column e-field="OutDate" e-headertext="OutDate" e-width="2"></div>
+                                                <div e-column e-field="OutTime" e-headertext="OutTime" e-width="3"></div>
+                                                <div e-column e-field="OutKillometer" e-headertext="OutKillometer" e-width="5"></div>
+                                                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+

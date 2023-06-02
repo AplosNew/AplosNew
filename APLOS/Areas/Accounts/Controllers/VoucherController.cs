@@ -654,6 +654,28 @@ namespace Aplos.Areas.Accounts.Controllers
             
         }
         //General ledger report
+        //General LC report
+        [HttpGet, Authorize]
+        public ActionResult GetLCLedgerReport(ReportFormat reportFormat, string fromDate, string toDate, string lCRef)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            IWorkbook workbook = null;
+            workbook = _accountVoucherReportService.GetLCLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromDate, toDate, lCRef);
+
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " LC Ledger";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+        //General LC report
         [HttpGet, Authorize]
         public ActionResult GetGeneralLedgerGSTReport(ReportFormat reportFormat, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool active, bool IsGroupBy)
         {
@@ -726,7 +748,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/TrialBalanceReportPage.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult TrialBalanceReportCompanyLevel(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             AccountsTrialBalanceService accountsTrialBalanceService = new AccountsTrialBalanceService(_sqlRepository);
@@ -744,7 +766,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel,string partyId,string partyPlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

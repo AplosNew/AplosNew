@@ -314,6 +314,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     ob.FirstCharacteristicsId = $scope.salesOrderNewList[i].FirstCharacteristicsId;
                     ob.FirstCharacteristicsValueId = $scope.salesOrderNewList[i].FirstCharacteristicsValueId;
                     ob.HSNCodeId = $scope.salesOrderNewList[i].HSNCodeId;
+                    ob.HSNCode = $scope.salesOrderNewList[i].HSNCode;
                     ob.InvoicingPartyPlantId = $scope.salesOrderNewList[i].InvoicingPartyPlantId;
                     ob.IsFirstEntry = $scope.salesOrderNewList[i].IsFirstEntry;
                     ob.LSD = $scope.salesOrderNewList[i].LSD;

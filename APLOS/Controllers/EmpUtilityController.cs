@@ -160,11 +160,11 @@ namespace Aplos.Controllers
         }
 
         [HttpPost]
-        public string UpdateBudgetCode([FromBody] IEnumerable<EmployeeInformationViewModel> DataToSave)
+        public string UpdateBudgetCode([FromBody] IEnumerable<Updatebudgetcode> DataToSave , string Empsystemid)
         {
             try
             {
-                string Id = _emp.Createx(DataToSave);
+                string Id = _emp.Createx(DataToSave , Empsystemid);
                 return Id;
             }
             catch (Exception ex)
@@ -173,9 +173,27 @@ namespace Aplos.Controllers
 
             }
         }
-        
+
+        // Fro Test 
+
+        [HttpPost]
+        public string UpdateBudgetCodetest([FromBody] IEnumerable<EmployeeInformationViewModel> DataToSave)
+        {
+            try
+            {
+                string Id = _emp.Creatextest(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+
         /// For Status Check 
-            
+
         [HttpGet]
         public IHttpActionResult GetSeniorCode(string EmpId)
         {

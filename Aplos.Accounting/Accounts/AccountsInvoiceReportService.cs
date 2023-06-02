@@ -479,10 +479,22 @@ namespace Library.Accounting.Accounts
             int colusdDebit = 0;
             int colusdCradit = 0;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
+           // reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
+            sheet.Range[row, 1].Text = "Voucher No:";
+            sheet.Range[row, 1].CellStyle.Font.Bold = true;
+            sheet.Range[row, 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet.Range[row, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[row, 1].RowHeight = 24;
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
+            sheet.Range[row, 2].WrapText = true;
+            sheet.Range[row, 2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[row, 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Voucher Date");
+            sheet.Range[row, 3].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet.Range[row, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
             reportUtility.SetText(ref sheet, row, 4, header["VoucherDate"].ToString());
+            sheet.Range[row, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[row, 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
             row++;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");

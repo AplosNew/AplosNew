@@ -562,14 +562,21 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Sales Return
 
         #region Attedance
-        public List<Default2> GetUserGroup()
+        public List<Default2> GetUserGroup(string EmpsysId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetUserGroup(out List<Default2> activelists);
+            clsData.GetUserGroup(out List<Default2> activelists , EmpsysId);
             return activelists;
         }
 
         public List<Default2> GetSevenDaysAttendance(string Empcode)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
+            return activelists;
+        }
+
+        public List<Default2> GetSevenDaysAttendanceDefault(string Empcode) 
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
@@ -596,10 +603,10 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetShift(out List<Default2> activelists);
             return activelists;
         }
-        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid)
+        public List<AttendanceReport> GetAttdnreport(string date, string shiftid, string groupid, string inmis, string locations, string entityid, string tbs, string longabsent)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid);
+            clsData.GetAttdnreport(out List<AttendanceReport> activelists, date, shiftid, groupid, inmis, locations, entityid , tbs, longabsent);
             return activelists;
         }
         #endregion Attedance
@@ -659,6 +666,47 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
         #endregion Seven Days Attendance 
+
+
+        #region Budget Code Change 
+
+        public string PostChangeBudgetCode([FromBody] IEnumerable<TempBudgetCode> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostChangeBudgetCode(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public List<TempBudgetCode> GetNewBudgetCode(string EmpsysId, string WorkDate)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetNewBudgetCode(out List<TempBudgetCode> activelists, EmpsysId, WorkDate);
+            return activelists;
+        }
+
+     
+
+        public string PostUpdateBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave, string EmpsysId, string WorkDate)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateBudgetCodeChange(DataToSave, EmpsysId, WorkDate);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+        #endregion Budget Code Change 
 
     }
 }
