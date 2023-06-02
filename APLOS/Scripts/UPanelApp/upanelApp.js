@@ -1179,6 +1179,7 @@ upanelApp.controller("VehicleMovementRequisitionController", VehicleMovementRequ
 upanelApp.controller("VehicleReqForApproveController", VehicleReqForApproveController)
 upanelApp.controller("ProductionIssueControlController", ProductionIssueControlController)
 upanelApp.controller("ProcessQualityControlController", ProcessQualityControlController)
+upanelApp.controller("QualityControlController", QualityControlController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

@@ -26,7 +26,7 @@ using Library.Service.Systems;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class ProcessQualityControlController : BaseController
+    public class QualityControlController : BaseController
     {
         ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         private readonly IPKGeneratorService _pkGeneratorService;
@@ -35,7 +35,7 @@ namespace Aplos.Areas.Productions.Controllers
         /// <summary>   The ProductionSummaryService service. </summary>
         private readonly IProductionSummaryService _ProductionSummaryService;
 
-        public ProcessQualityControlController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
+        public QualityControlController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
         {
             _ProductionSummaryService = ProductionSummaryService;
             _sqlRepository = sqlRepository;
