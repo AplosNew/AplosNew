@@ -5154,24 +5154,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                    else
-                    {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
-                        dr["NewBudgetId"] = item.NewBudgetId;
-                        dr["WorkDate"] = item.WorkDate;
-                        dr["Remarks"] = item.Remarks;
-
-
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-
-
-                        dr.EndEdit();
-                    }
+                   
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
@@ -5227,87 +5210,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             }
         }
 
-        public string PostBudgetCodeChange(IEnumerable<TempBudgetCode> DataToSave)
-        {
-            try
-            {
-                ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster;
-                string TableName = "dbo.TempBudgetCodeChange";
-
-               // ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<TempBudgetCode> items = DataToSave.ToList();
-
-                string sql = @"select * from dbo.TempBudgetCodeChange where 1=1";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-              //  con.OpenDataSetThroughAdapter("select * from dbo.TempBudgetCodeChange where Id='" + items[0].Id + "'", out dsMaster, false, "1");
-
-                foreach (TempBudgetCode item in DataToSave)
-                {
-
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out string _Id);
-
-
-
-
-                        dr["Id"] =  _Id;
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
-                        dr["NewBudgetId"] = item.NewBudgetId;
-                        dr["WorkDate"] = item.WorkDate;
-                        dr["Remarks"] = item.Remarks;
-
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-
-                    }
-
-                    else
-                    {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["ExistingBudgetId"] = item.ExistingBudgetId;
-                        dr["NewBudgetId"] = item.NewBudgetId;
-                        dr["WorkDate"] = item.WorkDate;
-                        dr["Remarks"] = item.Remarks;
-
-
-                        dr["UpdatedBy"] = item.UpdatedBy;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-
-
-                        dr.EndEdit();
-                    }
-
-                }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                return MasterId;
-
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-
-        }
+       
 
 
 
@@ -5349,15 +5252,12 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                     }
                 }
 
+              
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-
-                // string MasterId = SaveDatax(items[0].EmpSystemID, "");
-
-                // string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                //  return MasterId;
-                return "true";
+                return MasterId;
 
             }
             catch (Exception ex)

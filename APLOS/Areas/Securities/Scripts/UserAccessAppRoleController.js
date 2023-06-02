@@ -91,8 +91,9 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
             else {
                
                 ShowResult(response.data.Message, 'success');
-                $scope.Action = 'Update';
+                $scope.Action = 'Save';
                 //ClearFields(response.data.Sequence);
+                $scope.GetUserAccessedIcon();
                 $scope.getData();
 
             }
