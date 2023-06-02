@@ -54,7 +54,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
 
         });
     }
-    $scope.GetTripData();
+    //$scope.GetTripData();
 
     $scope.RequisitionCildList = [];
     $scope.GetVehicleRequisitionChildData = function (headerId) {
@@ -111,56 +111,80 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
 
     // #region comment
     
-    $scope.GetVehicleReqTreeViewData = function (AppliedId, VehicleMovementRequisitionId) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetMergedRequisition",
-            data: { 'appliedid': AppliedId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.RequisitionMergedList = response.data;
+    $scope.GetVehicleReqTreeViewData = function () {
 
             $http({
                 method: 'POST',
-                url: $scope.path + "GetVehicleRequisitionChildData",
-                data: { 'headerId': VehicleMovementRequisitionId },
+                url: $scope.path + "GetTripData",
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.RequisitionChildList = response.data;
+                $scope.TripList = response.data;
 
-                $scope.loadGrid($scope.RequisitionMergedList, $scope.RequisitionChildList);
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetMergedRequisition",
+               // data: { 'appliedid': AppliedId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.RequisitionMergedList = response.data;
 
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetVehicleRequisitionChildData",
+                   // data: { 'headerId': VehicleMovementRequisitionId },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.RequisitionChildList = response.data;
+
+                    $scope.loadGrid($scope.RequisitionMergedList, $scope.RequisitionChildList, $scope.TripList);
+
+                });
             });
+
         });
+        
     }
 
-   
+    $scope.GetVehicleReqTreeViewData();
 
-    $scope.loadGrid = function (mergedreqData, reqChildData) {
+    $scope.loadGrid = function (mergedreqData, reqChildData, tripData) {
         $scope.RequisitionMergedList = mergedreqData;
         $scope.RequisitionChildList = reqChildData;
-
-        var gridObj = $("#detailGrid").data("ejGrid");
+        $scope.TripList = tripData;
+        var gridObj = $("#Grid").data("ejGrid");
 
         if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
 
-        $("#detailGrid").ejGrid({
-            dataSource: $scope.RequisitionMergedList,
-            
+        $("#Grid").ejGrid({
+            dataSource: $scope.TripList,
             allowSelection: true,
             selectionType: ej.Grid.SelectionType.Single,
             selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
-            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "FromLocation", "ToLocation", "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
+            cellSelected: $scope.VehicleAllocationPopup,
+            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime"],
 
             childGrid: {
-                dataSource: $scope.RequisitionChildList,
-                queryString: "VehicleMovementRequisitionId",               
-                columns: ["Id", "FromLocation", "ToLocation"]
-               
+
+                dataSource: $scope.RequisitionMergedList,
+                queryString: "AppliedId",
+                allowSelection: true,
+                selectionType: ej.Grid.SelectionType.Single,
+                selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
+                columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime",  "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
+
+                childGrid: {
+                    dataSource: $scope.RequisitionChildList,
+                    queryString: "VehicleMovementRequisitionId",
+                    columns: ["Id", "FromLocation", "ToLocation"]
+
+                }
             }
-        })
-       
-    }
+
+        }).render();
+
+    };
+
+
     //#endregion comment
 
     $scope.VehicleRequisitionTemp = {
@@ -208,4 +232,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
             }
 
     }
+
+    
+
 }
