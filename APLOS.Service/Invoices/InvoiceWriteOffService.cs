@@ -30,6 +30,7 @@ using Library.ViewModel.OrderManagements;
 using Library.ViewModel.Vouchers;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 
@@ -3361,6 +3362,21 @@ namespace Library.Service.Invoices
             try
             {
                 _unitOfWork.BeginTransaction();
+                ConnectionManager.DAL.ConManager objCon1;
+                DataSet dsMaster1 = null;
+                string setOffsql = @"select AWD.InvoiceWriteOffId,A.IsPark,V.IsPark,AW.IsPark,V.AddedDate ,VW.VoucherNo,VW.AddedDate from trn.AdjustmentNote A
+                                     LEFT JOIN TRN.Voucher V ON V.Id=A.VoucherId
+                                     LEFT JOIN TRN.InvoiceWriteOffDetail AWD ON AWD.AdjustmentNoteId=A.Id
+                                     LEFT JOIN TRN.InvoiceWriteOff AW ON AW.Id=AWD.InvoiceWriteOffId
+                                     LEFT JOIN TRN.Voucher VW ON VW.Id=AW.VoucherId
+                                     where  A.IsPark=1 AND AWD.InvoiceWriteOffId = '" + invoiceWriteOffId + "' ";
+                objCon1 = new ConnectionManager.DAL.ConManager("1");
+                objCon1.OpenDataSetThroughAdapter(setOffsql, out dsMaster1, false, "1");
+
+                if (dsMaster1.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Post not allowed!");
+                }
                 flag = true;
                 var financing = _invoiceWriteOffRepository.Find(invoiceWriteOffId);
                 CheckIsPosted(financing);
