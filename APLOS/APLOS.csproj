@@ -1789,6 +1789,7 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
+    <Content Include="Areas\Accounts\Scripts\GLControlController.js" />
     <Content Include="Areas\Accounts\Scripts\paymentPendingforSetOffReportController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetReportTreeViewController.js" />
@@ -4846,6 +4847,7 @@
     <Content Include="Areas\SalesManagements\Views\AdditionalInfo\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesIncentive.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_masterOrderSalesIncentiveDetailPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\GeneralAccountDeterminate\GlControl.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

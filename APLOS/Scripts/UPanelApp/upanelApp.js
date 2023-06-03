@@ -1180,6 +1180,7 @@ upanelApp.controller("VehicleReqForApproveController", VehicleReqForApproveContr
 upanelApp.controller("VehicleInOutController", VehicleInOutController)
 upanelApp.controller("ProductionIssueControlController", ProductionIssueControlController)
 upanelApp.controller("ProcessQualityControlController", ProcessQualityControlController)
+upanelApp.controller("GLControlController", GLControlController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
