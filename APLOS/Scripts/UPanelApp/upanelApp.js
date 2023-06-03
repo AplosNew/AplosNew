@@ -1181,6 +1181,7 @@ upanelApp.controller("VehicleInOutController", VehicleInOutController)
 upanelApp.controller("VehicleMovementController", VehicleMovementController)
 upanelApp.controller("ProductionIssueControlController", ProductionIssueControlController)
 upanelApp.controller("ProcessQualityControlController", ProcessQualityControlController)
+upanelApp.controller("QualityControlController", QualityControlController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
