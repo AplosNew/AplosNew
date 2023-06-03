@@ -187,7 +187,8 @@
                         <ul class="list-inline text-right">
                             <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardLatestReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank">Latest Report</a></li>
                             <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ProductionDate={{productionSummaryNew.ProductionDate}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a></li>
-                            <li><button ng-click="masterGo(true);getProdLevel();GetReasonGridList();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
+                            <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                            <li> <button ng-click="masterGo(true);getProdLevel();GetReasonGridList();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
                             <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
                         </ul>
                     </div>
@@ -196,9 +197,7 @@
         </div>
         <div class="col-xs-12">
             <div id="ProductionSummaryWC" ej-grid style="z-index:3;"
-                 e-templaterefresh="refreshTemplateProductionSummaryWC"
                  e-datasource="wcList"
-                 e-rowdatabound="onactivedatabound"
                  e-allowfiltering="true"
                  e-allowpaging="true"
                  e-allowsorting="true"
@@ -689,7 +688,7 @@
     <div class="bounce3"></div>
 </div>
 <!-- #region Detention -->
-<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+<!--<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Detention<button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -750,9 +749,9 @@
                              e-allowselection="true"
                              e-allowscrolling="true"
                              e-filtersettings-filterType="excel">
-                            <div e-columns>
+                            <div e-columns>-->
                                 @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryDetentionWC" e-template="#checkboxTemplateProductionSummaryDetentionWC" e-textalign="center" e-width="30"></div>*@
-                                <div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="false"></div>
+                                <!--<div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="false"></div>
                                 <div e-column e-field="Sequence" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="EntityId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="ProcessId" e-headertext="Id" e-width="50" e-visible="false"></div>
@@ -831,7 +830,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->
 <!-- #endregion -->
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -1137,7 +1136,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="ResponiblePersonPop" role="dialog" data-backdrop="static">
+@*<div class="modal fade site-modal in" id="ResponiblePersonPop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Responible Person List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -1171,7 +1170,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>*@
 <ej-dialog id="dialogSOItemsForProductionOrder" title=" Sales Order Detail" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-target="#POItemPopup" e-minheight="200" e-width="900" e-open="enableBtn">
 
