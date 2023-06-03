@@ -610,6 +610,18 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId)
+        {
+            var sql = @"select QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
+QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson from MST.QualityIssueItem QII
+LEFT JOIN TRN.[ProcessQualityIssueControl] QIC ON QIC.ItemId = QII.Id AND QIC.ProcessId = '" + ProcessId + "' and QIC.EntityId='" + entityId + "' and QIC.ProductionDate='" + productionDate + "' and QIC.ProductionShiftId='" + shiftId + "' and QIC.IssueId='" + IssueId + "' and QIC.PeriodId='" + PeriodId + @"'
+LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
+left Join MST.QualityGradeDetails QGD ON QGD.Id=QIC.GradeId
+LEFT JOIN EmployeeInformation R ON  R.SystemId = QIC.ResponsiblePersonId
+where QII.IssueId='" + IssueId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)
         {
             var sql = @"select B.Id,B.ProcessId,B.EntityId,B.ShiftId,B.Date,B.WorkCenterMasterId,B.WorkCenter,B.WorkStation,B.ResponsiblePerson,B.ResponsiblePersonId,B.InCharge,B.InChargeId,B.Remarks,B.ItemName,B.ColumnInfoId,B.Sequence,B.Column1,B.Column2,B.Column3,B.Column4

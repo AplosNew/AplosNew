@@ -93,16 +93,11 @@
 </style>
 <div class="site-tab">
     <ul class="nav nav-tabs" role="tablist">
-        @*<li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">QMS Issue Control</a></li>*@
-        <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Define Issue</a></li>
-        <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Reason Details</a></li>
-        <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Time Details</a></li>
-        <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="doc" role="tab" data-toggle="tab">Issue Item</a></li>
-        <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="doc" role="tab" data-toggle="tab">Grade</a></li>
+        <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">QMS Issue Control</a></li>
     </ul>
 </div>
 <div class="tab-content">
-    <!--<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="modelForm">
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
@@ -301,13 +296,13 @@
         </div>
         <div class="clearfix"></div>
         <div class="common-btn">
-            <ul class="list-inline text-right">-->
+            <ul class="list-inline text-right">
                 @* <li><button ng-click="SaveMasterWC();" ng-show="IsVisible" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>*@
-                <!--<li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
-    </div>-->
-    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+    </div>
+    @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="IssueDetailsForm">
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
@@ -683,7 +678,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 </div>
 
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
@@ -850,11 +845,12 @@
                         <div e-columns>
                             <div e-column e-template="#showSOList" e-headertext="" e-width="30"></div>
                             <div e-column e-type="string" e-field="POId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
                             <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="80"></div>
                             <div e-column e-type="string" e-field="BuyerOrder" e-headertext="Buyer Ord#" e-width="80"></div>
                             <div e-column e-type="string" e-field="OwnOrder" e-headertext="Own Ord#" e-width="80"></div>
                             <div e-column e-type="string" e-field="Description" e-headertext="Description" e-width="80"></div>
-                            @*<div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>*@
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Qty" e-headertext="Qty" e-width="80" e-textalign="right"></div>
                             <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="LSD" e-headertext="LSD" e-width="80"></div>
                             <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="CommitmentDate" e-headertext="Commitment Date" e-width="80"></div>
                             <div e-column e-type="string" e-field="ProductionStatus" e-headertext="Production Status" e-width="80"></div>

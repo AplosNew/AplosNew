@@ -23,6 +23,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         EmpSystemId: null,
         EmployeeName: null,
         ResponsiblePersonCode: null,
+        NumberOfPassengers:null,
         Remarks: null
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
