@@ -670,20 +670,11 @@ namespace Aplos.Controllers.ApopAPIHR
 
         #region Budget Code Change 
 
-
-        public List<TempBudgetCode> GetNewBudgetCode(string EmpsysId, string WorkDate)
-        {
-            clsDataContext clsData = new clsDataContext();
-            clsData.GetNewBudgetCode(out List<TempBudgetCode> activelists, EmpsysId, WorkDate);
-            return activelists;
-        }
-
-        [HttpPost]
-        public string PostBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave)
+        public string PostChangeBudgetCode([FromBody] IEnumerable<TempBudgetCode> DataToSave)
         {
             try
             {
-                string Id = clsData.PostBudgetCodeChange(DataToSave);
+                string Id = clsData.PostChangeBudgetCode(DataToSave);
                 return Id;
             }
             catch (Exception ex)
@@ -692,6 +683,15 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        public List<TempBudgetCode> GetNewBudgetCode(string EmpsysId, string WorkDate)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetNewBudgetCode(out List<TempBudgetCode> activelists, EmpsysId, WorkDate);
+            return activelists;
+        }
+
+     
 
         public string PostUpdateBudgetCodeChange([FromBody] IEnumerable<TempBudgetCode> DataToSave, string EmpsysId, string WorkDate)
         {

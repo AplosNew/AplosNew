@@ -748,7 +748,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/TrialBalanceReportPage.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult TrialBalanceReportCompanyLevel(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             AccountsTrialBalanceService accountsTrialBalanceService = new AccountsTrialBalanceService(_sqlRepository);
@@ -766,7 +766,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult TrialBalanceReport(ReportFormat reportFormat, string date, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel,string partyId,string partyPlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1199,7 +1199,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             return workbook;
         }
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult DateRangeWiseTrialBalanceReport(ReportFormat reportFormat, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel, bool isDetailLevel)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1217,7 +1217,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult DateRangeWiseTrialBalanceReportCompanyLevel(ReportFormat reportFormat, string fromDate, string toDate, bool isBudgetLevel, bool isActivityLevel,bool isDetailLevel)
         {
             AccountsTrialBalanceService accountsTrialBalanceService = new AccountsTrialBalanceService(_sqlRepository);

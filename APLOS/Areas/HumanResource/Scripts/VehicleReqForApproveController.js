@@ -4,6 +4,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     $rootScope.title = "Vehicle Requisition For Approval"
     $scope.path = 'HumanResource/VehicleMovementMaster/';
     $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleAllocation';
+    $scope.Action = 'Update';
 
     // #region TAB CHANGE
     $scope.tab = 1;
@@ -16,19 +17,31 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     };
     // #endregion TAB CHANGE
 
-    $scope.VehicleMovementReqList = [];
-    $scope.GetVehicleRequisitiontData = function () {
+    $scope.Get = function (args) {
+        $scope.VehicleRequisitionModel = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $scope.GetVehicleList();
+            $scope.GetDriverList();
+            angular.element(document.querySelector("#vehicleInOutPopup")).modal('show');
+            //$rootScope.toggle();
+        }
+    }
+
+    $scope.VehicleAllocationList = [];
+    $scope.GetVehicleAllocation = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetVehicleRequisitiontData",
-
+            url: $scope.path + "GetVehicleAllocation",
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.VehicleMovementReqList = response.data;
+            $scope.VehicleAllocationList = response.data;
 
         });
     }
-    $scope.GetVehicleRequisitiontData();
+    $scope.GetVehicleAllocation();
+
+   
 
     $scope.RequisitionMergedList = [];
     $scope.GetMergedRequisition = function (AppliedId, e) {
@@ -61,20 +74,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
         //debugger;
 
         var filteredData = e.data["Id"];
-        $scope.GetMergedRequisition(filteredData, e);
-    //    if (baseService.arrayLength($scope.RequisitionMergedList) > 0) {
-    //var data = ej.DataManager($scope.RequisitionMergedList).executeLocal(ej.Query().where("AppliedId", "equal", parseInt(filteredData), true).take(100));
-    //        e.detailsElement.find("#detailGrid").ejGrid({
-    //            dataSource: data,
-    //            allowSelection: true,
-    //            selectionType: ej.Grid.SelectionType.Single,
-    //            selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
-    //            cellSelected: $scope.tung,
-    //            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "FromLocation", "ToLocation", "ByWhom", "Department", "Purpose", "PersonalOfficial"]
-
-    //        });
-    //        e.detailsElement.find(".tabcontrol").ejTab();
-    //    }
+        $scope.GetMergedRequisition(filteredData, e);    
 
     }
 
@@ -92,46 +92,140 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     }
 
 
+    // #region 1st Tab
+    $scope.VehicleMovementReqList = [];
+    $scope.GetVehicleRequisitiontData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetVehicleRequisitiontDataForApproval",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.VehicleMovementReqList = response.data;
+
+        });
+    }
+    $scope.GetVehicleRequisitiontData();
+
     $scope.RequisitionList = [];
-    $scope.GetVehicleRequisitionChildData = function () {
+    $scope.GetVehicleRequisitionChildData = function (headerId, e) {
         $http({
             method: 'POST',
             url: $scope.path + "GetVehicleRequisitionChildData",
+            data: { 'headerId': headerId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RequisitionList = response.data;
+
+            if (baseService.arrayLength($scope.RequisitionList) > 0) {
+                var data = ej.DataManager($scope.RequisitionList).executeLocal(ej.Query().where("VehicleMovementRequisitionId", "equal", parseInt(headerId), true).take(100));
+                e.detailsElement.find("#requisitiondetailgrid").ejGrid({
+                    dataSource: data,
+                    allowSelection: true,
+                    selectionType: ej.Grid.SelectionType.Single,
+                    selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
+                    cellSelected: $scope.tung,
+                    columns: ["Id", "FromLocation", "ToLocation"]
+
+                });
+                e.detailsElement.find(".tabcontrol").ejTab();
+            }
 
         });
     }
     $scope.GetVehicleRequisitionChildData();
 
-    
 
-    $scope.VehicleList = [];
-    $scope.GetVehicleList = function () {
+    $scope.requisitiondetailTemp = "#requisitiontabGridContents";
+    $scope.requisitiondetailgrid = function requisitiondetailGridData(e) {
+        //debugger;
+
+        var filteredData = e.data["Id"];
+        $scope.GetVehicleRequisitionChildData(filteredData, e);
+
+    }
+    // #endregion 1st Tab
+
+
+    // #region comment
+
+    $scope.GetVehicleReqTreeViewData = function () {
+
         $http({
             method: 'POST',
-            url: $scope.path + "GetVehicleList",
+            url: $scope.path + "GetTripData",
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.VehicleList = response.data;
+            $scope.TripList = response.data;
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetMergedRequisition",
+                // data: { 'appliedid': AppliedId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.RequisitionMergedList = response.data;
+
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetVehicleRequisitionChildData",
+                    // data: { 'headerId': VehicleMovementRequisitionId },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.RequisitionChildList = response.data;
+
+                    $scope.loadGrid($scope.RequisitionMergedList, $scope.RequisitionChildList, $scope.TripList);
+
+                });
+            });
 
         });
+
     }
 
-    $scope.DriverList = [];
-    $scope.GetDriverList = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetDriverList",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.DriverList = response.data;
+    $scope.GetVehicleReqTreeViewData();
+
+    $scope.loadGrid = function (mergedreqData, reqChildData, tripData) {
+        $scope.RequisitionMergedList = mergedreqData;
+        $scope.RequisitionChildList = reqChildData;
+        $scope.TripList = tripData;
+        var gridObj = $("#Grid").data("ejGrid");
+
+        if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
+
+        $("#Grid").ejGrid({
+            dataSource: $scope.TripList,
+            allowSelection: true,
+            selectionType: ej.Grid.SelectionType.Single,
+            selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
             
-        });
-    }
+            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime"],
 
-    $scope.VehicleRequisitionTemp = {
+            childGrid: {
+
+                dataSource: $scope.RequisitionMergedList,
+                queryString: "AppliedId",
+                allowSelection: true,
+                selectionType: ej.Grid.SelectionType.Single,
+                selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
+                columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
+
+                childGrid: {
+                    dataSource: $scope.RequisitionChildList,
+                    queryString: "VehicleMovementRequisitionId",
+                    columns: ["Id", "FromLocation", "ToLocation"]
+
+                }
+            }
+
+        }).render();
+
+    };
+
+
+    //#endregion comment
+
+    $scope.ApproveRequisitionTemp = {
         Id: null,
         FromDate: null,
         ToDate: null,
@@ -141,7 +235,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
         DriverMasterId: null
 
     };
-    $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
+    $scope.ApproveRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
 
     // Save
     $scope.CheckedVehicleRequisitionModel = [];
@@ -182,8 +276,8 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
             }
             if ($scope.showApprovePopUp) {
                 angular.element(document.querySelector("#reqPopup")).modal('show');
-                $scope.GetDriverList();
-                $scope.GetVehicleList();
+                //$scope.GetDriverList();
+                //$scope.GetVehicleList();
             }
 
 
@@ -195,14 +289,15 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
     // #region 
     $scope.SaveVehicleAllocation = function () {
-        
+       
+       // $scope.MergeRows();
 
-       // if ($scope.VehicleRequisitionForm.$valid) {
+        if ($scope.isMergedList.length > 0) {
             $http({
                 method: 'POST',
                 url: $scope.saveVehicleReqUrl,
                 data: {
-                    'data': $scope.VehicleRequisitionModel,
+                    'data': $scope.ApproveRequisitionModel,
                     'reqdata': $scope.isMergedList
                 },
                 dataType: 'JSON'
@@ -222,23 +317,108 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                 ShowResult(response.data.Message, 'failure');
             }
 
-       // }
+        }
 
 
     }
     // #endregion
 
-    $scope.VehicleAllocationList = [];
-    $scope.GetVehicleAllocation = function () {
+    
+
+
+   
+
+    $scope.PurposeList = [];
+    $scope.GetPurposeList = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetVehicleAllocation",
+            url: $scope.path + "GetPurposeList",
+
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.VehicleAllocationList = response.data;
-            
+            $scope.PurposeList = response.data;
+
         });
     }
-    $scope.GetVehicleAllocation();
+    
+
+    $scope.VehicleRequisitionTemp = {
+        Id: null,
+        Date: null,
+        FromTime: null,
+        ToTime: null,
+        PurposeId: null,
+        PersonalOfficial: null,
+        EmpSystemId: null,
+        EmployeeName: null,
+        ResponsiblePersonCode: null,
+        NumberOfPassengers: null,
+        Remarks: null
+    };
+    $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
+
+    $scope.EditRequisitionPopup = function (args) {
+        $scope.VehicleRequisitionModel = Object.assign({}, args.data);
+        $scope.GetPurposeList();
+        angular.element(document.querySelector("#editreqPopup")).modal('show');
+    }
+
+    // #region Update Requisition
+    $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleRequisition';
+    $scope.SaveMovement = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.VehicleRequisitionForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveVehicleReqUrl,
+                data: {
+                    'data': $scope.VehicleRequisitionModel
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.VehicleRequisitionModel.Id = response.data.Id;
+                    //ClearFieldsMovement();
+                    $scope.GetVehicleRequisitiontData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+
+
+    $scope.ClearMovement = function () {
+        ClearFieldsMovement();
+        return true;
+    };
+
+    function ClearFieldsMovement() {
+        $scope.MovementAction = 'Save';
+        $scope.VehicleRequisitionModel = {
+            Id: null,
+            Date: null,
+            FromTime: null,
+            ToTime: null,
+            PurposeId: null,
+            PersonalOfficial: null,
+            EmpSystemId: null,
+            EmployeeName: null,
+            ResponsiblePersonCode: null,
+            NumberOfPassengers: null,
+            Remarks: null
+        };
+        $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
+
+
+    }
+    // #endregion Update Requisition
 
 }

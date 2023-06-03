@@ -629,6 +629,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\QualityControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessQualityControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionIssueControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlController.cs" />
@@ -2070,6 +2071,7 @@
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportComController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleInOutController.js" />
+    <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
@@ -2241,6 +2243,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\QualityControlController.js" />
     <Content Include="Areas\Productions\Scripts\ProcessQualityControlController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionIssueControlController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlController.js" />
@@ -4700,6 +4703,13 @@
     <Content Include="Areas\Productions\Views\ProcessQualityControl\AplosWC.cshtml" />
     <Content Include="Areas\Productions\Views\ProcessQualityControl\Report.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleInOut.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_VehicleMovementInOut.cshtml" />
+    <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleMovement.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\Aplos1.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\AplosInOut.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\AplosWC.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

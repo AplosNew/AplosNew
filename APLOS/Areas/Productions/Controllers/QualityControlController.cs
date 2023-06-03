@@ -26,7 +26,7 @@ using Library.Service.Systems;
 
 namespace Aplos.Areas.Productions.Controllers
 {
-    public class ProcessQualityControlController : BaseController
+    public class QualityControlController : BaseController
     {
         ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         private readonly IPKGeneratorService _pkGeneratorService;
@@ -35,7 +35,7 @@ namespace Aplos.Areas.Productions.Controllers
         /// <summary>   The ProductionSummaryService service. </summary>
         private readonly IProductionSummaryService _ProductionSummaryService;
 
-        public ProcessQualityControlController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
+        public QualityControlController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
         {
             _ProductionSummaryService = ProductionSummaryService;
             _sqlRepository = sqlRepository;
@@ -1307,6 +1307,55 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             return Json(_productionSummaryData.GetSFGSOItem(entityid, workCenterMasterId, productionLevel, processId, status, IsFirst, ProductionOrderId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public JsonResult createQC(Dictionary<string, object> QualityControlData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                DataSet dsQualityControlData;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityControl] where Id='" + QualityControlData["Id"] + "'", out dsQualityControlData, false, "1");
+                string _Id = "", Id = string.Empty;
+
+                #region data update
+                if (dsQualityControlData.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID("[TRN].[QualityControl]", out _Id);
+                    QualityControlData["Id"] = "QC" + _Id;
+                    QualityControlData["PlantId"] = identity.PlantId;
+                    AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
+
+                }
+                else
+                {
+                    _Id = QualityControlData["Id"].ToString();
+                    QualityControlData["PlantId"] = identity.PlantId;
+                    EditRow(dsQualityControlData.Tables[0].Rows[0], QualityControlData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsQualityControlData);
+
+                return Json(new { Error = false, Data = QualityControlData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
 
         [HttpPost]
         public JsonResult create(Dictionary<string, object> ProcessQualityControlData)
