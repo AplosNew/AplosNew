@@ -1700,7 +1700,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
 
                 conC.BeginTransaction();
-                conC.executeQuery("delete from [TRN].[ProcessQualityIssueControl] where Id ='" + id + @"'");
+                conC.executeQuery("delete from TRN.QualityControlDetails where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
