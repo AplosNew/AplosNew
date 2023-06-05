@@ -1704,7 +1704,21 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 	$scope.IssueSlipApprovedByListFn();
 
 
+	$scope.PrintMICData = function (data) {
+		location.href = 'Materials/MaterialIssueControl/GetMaterialIssueCheckApproveReportPdf?reportFormat=' + 'Pdf' + '&masterId=' + data.data.Id;
 
+	};
+
+	//$scope.PrintMICData = function (data) {
+	//	try {
+	//		$scope.ReportFormat = 'Pdf';
+	//		var url = 'Materials/MaterialIssueControl/GetMaterialIssueCheckApproveReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
+	//		$rootScope.report(url);
+
+	//	} catch (e) {
+	//		ShowResult(e, 'failure');
+	//	}
+	//};
 
 
 
