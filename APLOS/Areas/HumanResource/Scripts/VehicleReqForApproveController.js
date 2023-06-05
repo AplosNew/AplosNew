@@ -3,7 +3,7 @@ VehicleReqForApproveController.$inject = ["cboService", "commonMessage", "$scope
 function VehicleReqForApproveController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "Vehicle Requisition For Approval"
     $scope.path = 'HumanResource/VehicleMovementMaster/';
-    $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleAllocation';
+    $scope.saveTripUrl = $scope.path + 'SaveVehicleAllocation';
     $scope.Action = 'Update';
 
     // #region TAB CHANGE
@@ -224,18 +224,16 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
 
     //#endregion comment
-
+    var currentDate = new Date();
     $scope.ApproveRequisitionTemp = {
         Id: null,
-        FromDate: null,
+        FromDate: currentDate,
         ToDate: null,
-        FromTime: null,
+        FromTime: currentDate,
         ToTime: null,
-        VehicleMasterId: null,
-        DriverMasterId: null
-
+       
     };
-    $scope.ApproveRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
+    $scope.ApproveRequisitionModel = Object.assign({}, $scope.ApproveRequisitionTemp);
 
     // Save
     $scope.CheckedVehicleRequisitionModel = [];
@@ -288,14 +286,12 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     }
 
     // #region 
-    $scope.SaveVehicleAllocation = function () {
-       
-       // $scope.MergeRows();
+    $scope.SaveVehicleAllocation = function () {      
 
         if ($scope.isMergedList.length > 0) {
             $http({
                 method: 'POST',
-                url: $scope.saveVehicleReqUrl,
+                url: $scope.saveTripUrl,
                 data: {
                     'data': $scope.ApproveRequisitionModel,
                     'reqdata': $scope.isMergedList
@@ -323,11 +319,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     }
     // #endregion
 
-    
-
-
-   
-
+    // #region Update Requisition
     $scope.PurposeList = [];
     $scope.GetPurposeList = function () {
         $http({
@@ -340,8 +332,6 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
         });
     }
-    
-
     $scope.VehicleRequisitionTemp = {
         Id: null,
         Date: null,
@@ -363,7 +353,6 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
         angular.element(document.querySelector("#editreqPopup")).modal('show');
     }
 
-    // #region Update Requisition
     $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleRequisition';
     $scope.SaveMovement = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -382,8 +371,9 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.VehicleRequisitionModel.Id = response.data.Id;
+                    angular.element(document.querySelector("#editreqPopup")).modal('hide');
                     //ClearFieldsMovement();
-                    $scope.GetVehicleRequisitiontData();
+                    //$scope.GetVehicleRequisitiontData();
 
                 }
             }), function errorCallBack(response) {

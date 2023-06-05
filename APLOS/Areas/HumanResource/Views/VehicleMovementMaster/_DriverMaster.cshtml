@@ -54,7 +54,7 @@
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     
-                    <li> <button ng-click="SaveDriverMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                    <li> <button ng-click="SaveDriverMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionDM}}</button></li>
                     <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                     <li> <button ng-click="ClearDM();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
@@ -63,7 +63,7 @@
     </div>
     </div>
 <div class="table-responsive table-responsive aplos-grid-toggle" style="border:1px solid white">
-    <div id="vehiclemovementrequisId" e-datasource="DriverMasterList" ej-grid e-recorddoubleclick="GetVehicleRequisition" e-load="loadGridEdit"
+    <div id="vehiclemovementrequisId" e-datasource="DriverMasterList" ej-grid e-recorddoubleclick="GetDriverMaster" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>

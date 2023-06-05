@@ -2,7 +2,7 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending Schedule Trip</a></li>
-            @*<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle Allocation</a></li>*@
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved Trip</a></li>
 
         </ul>
     </div>
@@ -17,9 +17,14 @@
 
         </div>
         @*   TAB -2 *@
-        @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-
-        </div>*@
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="TripGrid">
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
 </div>
