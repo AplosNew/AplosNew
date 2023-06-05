@@ -3,7 +3,8 @@ VehicleMovementController.$inject = ["cboService", "commonMessage", "$scope", "$
 function VehicleMovementController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "Vehicle Requisition For Approval"
     $scope.path = 'HumanResource/VehicleMovementMaster/';
-    $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleAllocation';
+    //$scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleAllocation';
+    $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleDriverAllocation';
     $scope.Action = 'Update';
 
     // #region TAB CHANGE
@@ -108,6 +109,8 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
             
         });
     }
+
+    
 
     // #region comment
     
@@ -216,7 +219,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                 url: $scope.saveVehicleReqUrl,
                 data: {
                     'data': $scope.VehicleRequisitionModel,
-                    'reqdata': $scope.isMergedList
+                    'tripId': $scope.TripId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -225,7 +228,8 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                   
+                    $scope.GetTripApproved();
+                    $scope.GetTripData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -233,6 +237,63 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
 
     }
 
+
+    $scope.ApprovedTripList = [];
+    $scope.DataMappedWithTripList = [];
+    $scope.GetTripApproved = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDataMappedWithTrip",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DataMappedWithTripList = response.data;
+
+            $http({
+                method: 'POST',
+                
+                url: $scope.path + "GetTripApproved",
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.ApprovedTripList = response.data;
+                
+
+                $scope.loadTripFGridData($scope.DataMappedWithTripList, $scope.ApprovedTripList);
+            });
+        });
+    }
+    $scope.GetTripApproved();
+
+    $scope.loadTripFGridData = function (mwtData, gtaData) {
+        $scope.DataMappedWithTripList = mwtData;
+        $scope.ApprovedTripList = gtaData;
+        
+
+        var gridObj = $("#TripGrid").data("ejGrid");
+
+        if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
+
+        $("#TripGrid").ejGrid({
+            dataSource: $scope.DataMappedWithTripList,
+            allowSelection: true,
+            selectionType: ej.Grid.SelectionType.Single,
+            selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
+            cellSelected: $scope.VehicleAllocationPopup,
+            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "DriverName", "VehicleName", "VehicleNumber"],
+
+            childGrid: {
+
+                dataSource: $scope.ApprovedTripList,
+                queryString: "TripId",
+                allowSelection: true,
+                selectionType: ej.Grid.SelectionType.Single,
+                selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
+                columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime"],
+               
+            }
+
+        }).render();
+
+    }
     
 
 }

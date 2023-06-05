@@ -93,13 +93,7 @@
                                     <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ApproveRequisitionModel.FromDate" datepicker class="form-control" required>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input id="FromTime" e-value="ApproveRequisitionModel.FromTime" width="270" ej-timepicker name="Time" tabindex="4" required />
-
-                                </div>
-                            </div> 
+                            
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
                                 <div class="col-sm-8">
@@ -109,18 +103,25 @@
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ApproveRequisitionModel.ToDate" datepicker class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input id="ToTime" e-value="ApproveRequisitionModel.ToTime" width="270" ej-timepicker name="Time" tabindex="4" required />
+                                    <input id="FromTime" e-value="ApproveRequisitionModel.FromTime" width="270" ej-timepicker name="Time" tabindex="4" e-enabled ="false" required />
 
                                 </div>
-                            </div>                           
+                            </div>
+                            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ApproveRequisitionModel.ToDate" datepicker class="form-control" required>
+            </div>
+        </div>*@
+                            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input id="ToTime" e-value="ApproveRequisitionModel.ToTime" width="270" ej-timepicker name="Time" tabindex="4" required />
+
+            </div>
+        </div>*@
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
                                     <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
@@ -200,9 +201,9 @@
                             </div>
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
+                                    <li> <button ng-click="SaveMovement();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Update</button></li>
 
-                                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    @*<li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                                 </ul>
                             </div>
                         </div>
