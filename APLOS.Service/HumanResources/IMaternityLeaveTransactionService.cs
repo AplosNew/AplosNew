@@ -16,7 +16,7 @@ namespace Library.Service.HumanResources
         IEnumerable<object> getFixedOTemployee(string YearNo, string MonthNo,string plantId,string CompanyId);
         IEnumerable<object> GetPolicyData(string EffectiveDate,string plantId);
 
-        void CreateMaternityLeaveReportSheet(string companyId,string SystemId, string LanguageId,string plantId ,string UserName,string LeaveTransactionId);
+        void CreateMaternityLeaveReportSheet(string companyId,string SystemId, string LanguageId,string plantId ,string UserName,string LeaveTransactionId, string fromDate);
         IWorkbook EmpEncashReportOld(string fromDate, string toDate, string plantId, string companyGroupId);
         IEnumerable<object>Query(string empId);
 

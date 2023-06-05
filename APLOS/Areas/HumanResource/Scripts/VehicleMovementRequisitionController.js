@@ -5,9 +5,20 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.path = 'HumanResource/VehicleMovementMaster/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
 
+    // #region TAB CHANGE
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion TAB CHANGE
     // #region MovementMaster
     $scope.VehicleMovementReqList = [];
     $scope.MovementAction = 'Save';
+    $scope.MovementChildAction = 'Save';
     $scope.getMovementListUrl = $scope.path + 'GetMovementList';
     
     $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleRequisition';
@@ -34,8 +45,9 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
 
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
         $scope.MovementAction = 'Update';
+        $scope.MovementChildAction = 'Update';
         if (!$rootScope.isCollapsed) {
-          //  $scope.GetVehicleRequisitionChildData();
+           $scope.GetVehicleRequisitionChildData();
             $rootScope.toggle();
         }
     };
@@ -58,7 +70,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.GetVehicleRequisitionChildData = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetVehicleRequisitionChildData",
+            url: $scope.path + "GetVehicleRequisitionLocationData",
             data: { 'headerid': $scope.VehicleRequisitionModel.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -86,6 +98,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.VehicleRequisitionModel.Id = response.data.Id;
+                    $scope.CreateBlankRows();
                     //ClearFieldsMovement();
                     $scope.GetVehicleRequisitiontData();
 
@@ -97,6 +110,36 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         }
     };
 
+    $scope.SaveRequisitionChild = function () {
+        $scope.ChkdRequisitionList = [];
+        for (var i = 0; i < $scope.RequisitionList.length; i++) {
+            if ($scope.RequisitionList[i].isSelected) {
+                $scope.ChkdRequisitionList.push($scope.RequisitionList[i]);
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveRequisitionChild',
+            data: {
+                'data': $scope.ChkdRequisitionList,
+                'headerId': $scope.VehicleRequisitionModel.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+
+        }
+    }
     
 
     $scope.ClearMovement = function () {
@@ -115,6 +158,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             PersonalOfficial: null,
             EmpSystemId: null,
             EmployeeName: null,
+            ResponsiblePersonCode: null,
+            NumberOfPassengers: null,
             Remarks: null
         };
         $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
@@ -230,17 +275,26 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.RequisitionObj = {
         Id: null,
         FromLocationId: null,
-        ToLocationId:null,
+        ToLocationId: null,
+        WithoutPassenger:false
     };
     $scope.RequisitionList = [];
     $scope.CreateBlankRows = function () {       
-        document.getElementById("reqHideShowId").style.display = "block";        
-        for (var i = 0; i < 2; i++) {
-            var obj = angular.copy($scope.RequisitionObj);
-            
-            $scope.RequisitionList.push(obj);
-           
-        }
+        document.getElementById("reqHideShowId").style.display = "block"; 
+       
+            for (var i = 0; i < 2; i++) {
+                var obj = angular.copy($scope.RequisitionObj);
+
+                $scope.RequisitionList.push(obj);
+                if ($scope.VehicleRequisitionModel.NumberOfPassengers > 0) {
+                    $scope.RequisitionList[i].WithoutPassenger = true;
+                }
+
+
+            }
+       
+        
+        
 
     }
     //$scope.CreateBlankRows();
@@ -248,38 +302,6 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.AssignToLocInFromLoc = function (LocationId, index) {
         $scope.RequisitionList[index + 1].FromLocationId = LocationId;
 
-    }
-
-    // Save
-    $scope.SaveRequisitionChid = function () {
-        $scope.ChkdRequisitionList = [];
-        for (var i = 0; i < $scope.RequisitionList.length; i++) {
-            if ($scope.RequisitionList[i].isSelected) {
-                $scope.ChkdRequisitionList.push($scope.RequisitionList[i]);
-            }
-        }
-
-        $http({
-            method: 'POST',
-            url: $scope.path + 'SaveRequisitionChid',
-            data: {
-                'data': $scope.ChkdRequisitionList,
-                'headerId': $scope.VehicleRequisitionModel.Id
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-
-        }
     }
 
     

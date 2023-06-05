@@ -1704,7 +1704,10 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 	$scope.IssueSlipApprovedByListFn();
 
 
+	$scope.PrintMICData = function (data) {
+		location.href = 'Materials/MaterialIssueControl/GetMaterialIssueCheckApproveReportPdf?reportFormat=' + 'Pdf' + '&masterId=' + data.data.Id;
 
+	};
 
 
 

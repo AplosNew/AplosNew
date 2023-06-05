@@ -1012,5 +1012,9 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/ManagementChartAccountSetup/Aplos",
             controller: "ManagementChartAccountSetupController"
         })
+        .when("/gl-control", {
+            templateUrl: "Accounts/GeneralAccountDeterminate/GlControl",
+            controller: "GLControlController"
+        })
         ;
 } 
