@@ -1396,7 +1396,9 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 string strSql = string.Empty;
                 strSql = @"SELECT ROW_NUMBER() OVER(ORDER BY D.Id) SrNo,MS.PlanPercentage,FORMAT(MS.AddedDate,'dd-MMM-yyyy')AddedDate
                 ,D.ValueLoss,D.GrossConsumption*100 GrossConsumption,D.TotalConsumption
-				,D.PlanConsumption,ISNULL(IR.IssueQty,0) IssueQty,ISNULL(AIS.ActualIssue,0)ActualIssue,Balance=ISNULL(IR.IssueQty,0) -ISNULL(AIS.ActualIssue,0),D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks
+				,D.PlanConsumption,ISNULL(IR.IssueQty,0) IssueQty
+				,ISNULL(IDRM.Qty,0)ActualIssue,Balance=(ISNULL(IR.IssueQty,0) -ISNULL(IDRM.Qty,0))
+				,D.ArticleId,D.MaterialMasterId,D.StockRate,D.ActualIssueAmount,D.Remarks
 				,I.UserName Item,A.StandardName QBOQArticle
                 ,M.UserName MaterialMaster,um.Code as UoM,IRM.CheckedByStatus,IRM.AuthorizedByStatus,MS.POId,IRM.Id IssueSlipId,CC.UserName CostCenter
 				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
@@ -1415,14 +1417,19 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 left join [SCS].[UnitOfMeasurement] um on um.Id = i.UnitOfMeasurementId
                 LEFT JOIN MST.MaterialMaster M ON M.Id=D.MaterialMasterId
                 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
-				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId
-							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId)IR ON IR.MaterialIssueControlDetailId=D.Id
+				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId,Id
+							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId,Id)IR ON IR.MaterialIssueControlDetailId=D.Id
 				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId
-				LEFT JOIN(
-				Select SUM(IIH.Qty) ActualIssue,IR.IssueRequestMasterId from TRN.InventoryIssueHistory IIH
-				LEFT JOIN TRN.IssueRequest IR ON IR.Id=IIH.IssueRequestDetailId
-				Group BY IR.IssueRequestMasterId
-				)AIS ON AIS.IssueRequestMasterId=IRM.Id
+				
+				 LEFT JOIN (
+                                	SELECT aa.Id,sum(cc.Qty) Qty
+                                	FROM trn.IssueRequest aa
+                                	LEFT JOIN trn.IssueRequestMaster dd ON dd.id = aa.IssueRequestMasterId
+                                	LEFT JOIN [TRN].[IssueRequestBOQMap] bb ON bb.IssueRequestDetailId = aa.id
+                                	LEFT JOIN [TRN].[IssueDetailAndIssueRequestMap] cc ON cc.IssueRequestBOQMapId = bb.Id
+                                	WHERE cc.IssueRequestBOQMapId IS NOT NULL
+                                	GROUP BY aa.Id
+                                	) IDRM ON IDRM.Id = IR.id
                 WHERE D.MaterialIssueControlMasterId='" + masterId + "'";
 
                 dtOrder = _sqlRepository.GetDataTable(strSql);
