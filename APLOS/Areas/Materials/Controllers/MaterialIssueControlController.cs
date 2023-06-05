@@ -1425,13 +1425,13 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[edCRow, 10, edCRow, 10].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[edCRow, 10, edCRow, 10].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet.Range[edCRow, 11].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(IssueQty)", null));
+                sheet.Range[edCRow, 11].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(ActualIssue)", null));
                 sheet.Range[edCRow, 11].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 11].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 11, edCRow, 11].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[edCRow, 11, edCRow, 11].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet.Range[edCRow, 12].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(IssueQty)", null));
+                sheet.Range[edCRow, 12].Number = OTSBD.clsStaticInfo.dbl(dtOrder.Compute("SUM(Balance)", null));
                 sheet.Range[edCRow, 12].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                 sheet.Range[edCRow, 12].CellStyle.Font.Bold = true;
                 sheet.Range[edCRow, 12, edCRow, 12].VerticalAlignment = ExcelVAlign.VAlignTop;
