@@ -1709,17 +1709,6 @@ function IssueSlipController(addressService, $window,  cboService, commonMessage
 
 	};
 
-	//$scope.PrintMICData = function (data) {
-	//	try {
-	//		$scope.ReportFormat = 'Pdf';
-	//		var url = 'Materials/MaterialIssueControl/GetMaterialIssueCheckApproveReportPdf?reportFormat=' + $scope.ReportFormat + '&masterId=' + data.data.Id;
-	//		$rootScope.report(url);
-
-	//	} catch (e) {
-	//		ShowResult(e, 'failure');
-	//	}
-	//};
-
 
 
 
