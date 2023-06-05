@@ -2031,7 +2031,7 @@ LEFT JOIN (SELECT * FROM HKP.LocalLanguage WHERE SalaryHeadId IS NOT NULL) AS BS
 	                                        LEFT JOIN AttdnProcessData APD  ON APD.WorkDate = FOT.WorkDate and apd.EmpSystemID = FOT.EmpSystemID
 											LEFT JOIN DayType DT  ON DT.DayType = APD.DayStatus 
                                             --WHERE " + wcBasedOnSetting + @"
-WHERE 1 = 1 AND APD.DayStatus='P'
+WHERE 1 = 1 AND APD.DayStatus IN(Select DayType  from dbo.DayType where Category IN ('Late','Present')) AND APD.DayStatus NOT IN('WP','WL','HP','HL','CWP','CWL')
                                             ) dd
                                             WHERE WorkDate BETWEEN '" + para.FromDate + @"' and '" + para.ToDate + @"' and PlantID = '" + para.PlantId + @"'
                                             GROUP BY EmpSystemID,PlantID ) OT ON OT.EmpSystemID = MMDSA.EmpSystemID
