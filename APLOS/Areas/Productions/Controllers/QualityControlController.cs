@@ -1050,10 +1050,10 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId)
+        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
@@ -1314,6 +1314,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from MST.QualityIssueItem where IssueId='" + QualityControlData["IssueId"] + "'", out DataSet dsItemIssueValidation, false, "1");
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -1326,12 +1327,18 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 #region data update
                 if (dsQualityControlData.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("[TRN].[QualityControl]", out _Id);
-                    QualityControlData["Id"] = "QC" + _Id;
-                    QualityControlData["PlantId"] = identity.PlantId;
-                    AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
-
+                    if (dsItemIssueValidation.Tables[0].Rows.Count == 0)
+                    {
+                        throw new Exception("Items are not exists for selected Issue.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("[TRN].[QualityControl]", out _Id);
+                        QualityControlData["Id"] = "QC" + _Id;
+                        QualityControlData["PlantId"] = identity.PlantId;
+                        AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
+                    }
                 }
                 else
                 {
@@ -1358,7 +1365,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost]
-        public JsonResult create(Dictionary<string, object> ProcessQualityControlData)
+        public JsonResult create(Dictionary<string, object> QualityControlDetailsData)
         {
             try
             {
@@ -1367,36 +1374,36 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                DataSet dsProcessQualityControlData;
+                DataSet dsQualityControlDetailsData;
 
                 conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [TRN].[ProcessQualityIssueControl] where Id='" + ProcessQualityControlData["Id"] + "'", out dsProcessQualityControlData, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [TRN].[QualityControlDetails] where Id='" + QualityControlDetailsData["Id"] + "'", out dsQualityControlDetailsData, false, "1");
                 string _Id = "", Id = string.Empty;
 
                 #region data update
-                if (dsProcessQualityControlData.Tables[0].Rows.Count == 0)
+                if (dsQualityControlDetailsData.Tables[0].Rows.Count == 0)
                 {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("[TRN].[ProcessQualityIssueControl]", out _Id);
-                        ProcessQualityControlData["Id"] = "QIC" + _Id;
-                        ProcessQualityControlData["PlantId"] = identity.PlantId;
-                        AddNewRow(dsProcessQualityControlData.Tables[0], ProcessQualityControlData);
+                        genid.GenID("[TRN].[QualityControlDetails]", out _Id);
+                        QualityControlDetailsData["Id"] = "QCD" + _Id;
+                        QualityControlDetailsData["PlantId"] = identity.PlantId;
+                        AddNewRow(dsQualityControlDetailsData.Tables[0], QualityControlDetailsData);
                    
                 }
                 else
                 {
-                    _Id = ProcessQualityControlData["Id"].ToString();
-                    ProcessQualityControlData["PlantId"] = identity.PlantId;
-                    EditRow(dsProcessQualityControlData.Tables[0].Rows[0], ProcessQualityControlData);
+                    _Id = QualityControlDetailsData["Id"].ToString();
+                    QualityControlDetailsData["PlantId"] = identity.PlantId;
+                    EditRow(dsQualityControlDetailsData.Tables[0].Rows[0], QualityControlDetailsData);
                 }
                 #endregion data update
 
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsProcessQualityControlData);
+                _info.SaveDataSets(dsQualityControlDetailsData);
 
-                return Json(new { Error = false, Data = ProcessQualityControlData, Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = QualityControlDetailsData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
