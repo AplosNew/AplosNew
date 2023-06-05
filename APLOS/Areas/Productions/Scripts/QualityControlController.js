@@ -1,20 +1,21 @@
 ﻿'use strict';
-ProcessQualityControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function ProcessQualityControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "Process/Quality Issue Control";
+QualityControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function QualityControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "Quality Control";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.productionSummaryes = [];
     $scope.IssueTypeList = [];
     $scope.PeriodCategoryList = [];
     $scope.CriticalLevelLists = [];
-    $scope.path = 'Productions/ProcessQualityControl/';
+    $scope.path = 'Productions/QualityControl/';
     $scope.saveUrlIssue = $scope.path + 'createIssue';
     $scope.saveUrlReason = $scope.path + 'createReason';
     $scope.saveUrlTime = $scope.path + 'createTime';
     $scope.saveUrlQICValue = $scope.path + 'create';
     $scope.saveUrlIssueItem = $scope.path + 'createIssueItem';
     $scope.saveUrlGrade = $scope.path + 'createGrade';
+    $scope.saveUrl = $scope.path + 'createQC';
     $scope.CriticalLevelLists = [
         {
             'Value': 'High',
@@ -67,7 +68,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GeneratItemSequenceNo = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessQualityControl/GetItemAutoSequence'
+            url: 'Productions/QualityControl/GetItemAutoSequence'
         }).then(function successCallback(response) {
             $scope.IssueItemNew.SNO = response.data;
         });
@@ -77,14 +78,14 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GeneratGradeSequenceNo = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessQualityControl/GetGradeAutoSequence'
+            url: 'Productions/QualityControl/GetGradeAutoSequence'
         }).then(function successCallback(response) {
             $scope.GradeNew.SNO = response.data;
         });
     }
     $scope.GeneratGradeSequenceNo();
    
-    $scope.tab = 2;
+    $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
 
@@ -129,10 +130,8 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         ProductionInChargeId: null,
         ProductionInCharge: null,
         ProductionOrderId: null,
-        WorkCenterMasterId: null,
         ProductionDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
         ProductionShiftId: null,
-        Value: 0,
         UOM: null,
         ResponsiblePersonId: null,
         ResponsiblePersonName: null,
@@ -145,6 +144,19 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         GradeId: null
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
+
+    $scope.QualityControlDetails = {
+        Id: null,
+        QCId: null,
+        ItemId: null,
+        Value: 0,
+        ResponsiblePersonId: null,
+        ResponsiblePersonName: null,
+        Remarks: null,
+        ActionToBeTaken,
+        GradeId: null
+    };
+    $scope.QualityControlDetailsNew = Object.assign({}, $scope.QualityControlDetails);
 
     // Refreshing the serials
     function refreshSerial() {
@@ -208,7 +220,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetProcessIssueList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessQualityControl/GetProcessIssueList'
+            url: 'Productions/QualityControl/GetProcessIssueList'
         }).then(function successCallback(response) {
             $scope.ProcessIssueList = response.data;
         });
@@ -219,7 +231,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetIssueType = function (QId) {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessQualityControl/GetIssueType?IssueId=' + QId
+            url: 'Productions/QualityControl/GetIssueType?IssueId=' + QId
         }).then(function successCallback(response) {
             $scope.POIssueType = response.data[0].POIssueType;
         });
@@ -228,7 +240,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetChkInterval = function (QId) {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessQualityControl/GetChkInterval?IssueId=' + QId
+            url: 'Productions/QualityControl/GetChkInterval?IssueId=' + QId
         }).then(function successCallback(response) {
             $scope.IssueItemNew.CheckingInterval = response.data[0].CheckingInterval;
         });
@@ -238,7 +250,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.LoadReasonDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadReasonDetails'
+            url: 'Productions/QualityControl/LoadReasonDetails'
         }).then(function successCallback(response) {
             $scope.ReasonList = response.data;
         }
@@ -250,7 +262,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetGradeGridList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessQualityControl/GetGradeGridList'
+            url: 'Productions/QualityControl/GetGradeGridList'
         }).then(function successCallback(response) {
             $scope.GradeGridList = response.data;
         });
@@ -261,7 +273,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.LoadTimeDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadTimeDetails'
+            url: 'Productions/QualityControl/LoadTimeDetails'
         }).then(function successCallback(response) {
             $scope.TimeList = response.data;
         }
@@ -272,7 +284,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetReasonDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
+            url: 'Productions/QualityControl/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ReasonNew = response.data.Reason[0];
             if (!$rootScope.isCollapsed) {
@@ -285,7 +297,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetTimeDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadTimeDetailsEditData?TimeId=' + args.data.Id
+            url: 'Productions/QualityControl/LoadTimeDetailsEditData?TimeId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.TimeNew = response.data.Time[0];
             if (!$rootScope.isCollapsed) {
@@ -367,7 +379,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.LoadTimeIssueListDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadTimeIssueDetails'
+            url: 'Productions/QualityControl/LoadTimeIssueDetails'
         }).then(function successCallback(response) {
             $scope.TimeIssueList = response.data;
         }
@@ -379,7 +391,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.LoadIssueItemIssueListDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadIssueItemIssueDetails'
+            url: 'Productions/QualityControl/LoadIssueItemIssueDetails'
         }).then(function successCallback(response) {
             $scope.IssueItemIssueList = response.data;
         }
@@ -522,7 +534,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetIssueReasonList = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessQualityControl/GetIssueReasonList'
+            url: 'Productions/QualityControl/GetIssueReasonList'
         }).then(function successCallback(response) {
             $scope.IssueReasonList = response.data;
         });
@@ -533,7 +545,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.LoadIssueDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadIssueDetails'
+            url: 'Productions/QualityControl/LoadIssueDetails'
         }).then(function successCallback(response) {
             $scope.IssueList = response.data;
         }
@@ -544,7 +556,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetIssueDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadIssueDetailsEditData?IssueId=' + args.data.Id
+            url: 'Productions/QualityControl/LoadIssueDetailsEditData?IssueId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.IssueNew = response.data.Issue[0];
             if (!$rootScope.isCollapsed) {
@@ -592,7 +604,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.LoadIssueItemDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadIssueItemDetails'
+            url: 'Productions/QualityControl/LoadIssueItemDetails'
         }).then(function successCallback(response) {
             $scope.IssueItemList = response.data;
         }
@@ -603,7 +615,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetIssueItemDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadIssueItemDetailsEditData?ItemId=' + args.data.Id
+            url: 'Productions/QualityControl/LoadIssueItemDetailsEditData?ItemId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.IssueItemNew = response.data.IssueItem[0];
             if (!$rootScope.isCollapsed) {
@@ -651,7 +663,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.LoadGradeDetails = function () {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadGradeDetails'
+            url: 'Productions/QualityControl/LoadGradeDetails'
         }).then(function successCallback(response) {
             $scope.GradeList = response.data;
         }
@@ -662,7 +674,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.GetGradeDetails = function (args) {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadGradeDetailsEditData?GradeId=' + args.data.Id
+            url: 'Productions/QualityControl/LoadGradeDetailsEditData?GradeId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.GradeNew = response.data.Grade[0];
             if (!$rootScope.isCollapsed) {
@@ -720,7 +732,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.removeIssueRow = function () {
         $http({
             method: 'POST',
-            url: 'Productions/ProcessQualityControl/IssueDelete?id=' + $scope.tempIssueId,
+            url: 'Productions/QualityControl/IssueDelete?id=' + $scope.tempIssueId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -749,7 +761,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.removeReasonRow = function () {
         $http({
             method: 'POST',
-            url: 'Productions/ProcessQualityControl/ReasonDelete?id=' + $scope.tempReasonId,
+            url: 'Productions/QualityControl/ReasonDelete?id=' + $scope.tempReasonId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -778,7 +790,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.removeTimeRow = function () {
         $http({
             method: 'POST',
-            url: 'Productions/ProcessQualityControl/TimeDelete?id=' + $scope.tempTimeId,
+            url: 'Productions/QualityControl/TimeDelete?id=' + $scope.tempTimeId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -807,7 +819,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.removeIssueItemRow = function () {
         $http({
             method: 'POST',
-            url: 'Productions/ProcessQualityControl/IssueItemDelete?id=' + $scope.tempIssueItemId,
+            url: 'Productions/QualityControl/IssueItemDelete?id=' + $scope.tempIssueItemId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -836,7 +848,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.removeGradeRow = function () {
         $http({
             method: 'POST',
-            url: 'Productions/ProcessQualityControl/GradeDelete?id=' + $scope.tempGradeId,
+            url: 'Productions/QualityControl/GradeDelete?id=' + $scope.tempGradeId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -1107,7 +1119,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
-            $http.get('Productions/ProcessQualityControl/GetIssueCboQIC?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId + '&IssueId=' + $scope.productionSummaryNew.IssueId + '&PeriodId=' + $scope.productionSummaryNew.PeriodId)
+            $http.get('Productions/QualityControl/GetIssueCboQIC?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId + '&IssueId=' + $scope.productionSummaryNew.IssueId + '&PeriodId=' + $scope.productionSummaryNew.PeriodId)
                 .then(function (response) {
                     $scope.wcList = response.data;
                     for (var i = 0; i < $scope.wcList.length; i++) {
@@ -1620,7 +1632,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.ProductionOrderList = [];
     $scope.getProductionOrderPopUp = function () { 
         $scope.ProductionOrderList = [];
-        $http.get('Productions/ProcessQualityControl/GetQualityProductionOrderList?entityid=' + $scope.productionSummaryNew.EntityId  + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ToCloseAllowed=' + $scope.ToCloseAllowed)
+        $http.get('Productions/QualityControl/GetQualityProductionOrderList?entityid=' + $scope.productionSummaryNew.EntityId  + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ToCloseAllowed=' + $scope.ToCloseAllowed)
             .then(
                 function successCallback(response) {
                     $scope.ProductionOrderList = response.data;
@@ -2174,133 +2186,17 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     }
 
     $scope.CompareMaxValue = 0;
-    $scope.SaveMaster = function () {
-        try {
-            $scope.getProdLevel();
-            ValidationMaster();
-            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-                $scope.productionSummaryNew.MasterOrderItemId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-                $scope.productionSummaryNew.MasterOrderItemId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
-                $scope.productionSummaryNew.SalesOrderId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-            else {
-                $scope.productionSummaryNew.SalesOrderId = null;
-            }
-
-            if ($scope.BookingLevel === 'MasterOrderItem') {
-                $scope.productionSummaryNew.MasterOrderItemId = $scope.ItemId;
-            }
-
-            if ($scope.BookingLevel === 'SalesOrder') {
-                $scope.productionSummaryNew.SalesOrderId = $scope.SOId;
-            }
-
-            if ($scope.BookingLevel === 'ProductCode') {
-                $scope.productionSummaryNew.MasterOrderItemId = $scope.ItemId;
-            }
-
-
-
-            if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
-                throw "Future Date not allowed for Production Booking.";
-            }
-            $scope.productionSummaryNew.Quantity = $scope.productionSummaryNew.QtyWithoutScan;
-            CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            ValidationMaster();
-            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
-                if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
-                    ///
-                } else {
-                    throw "You have entered an invalid value for Lot Number.";
-                }
-            }
-            $scope.ProdQty = 0;
-
-            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
-                for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
-                    if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {
-                        $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
-                    }
-                }
-                $scope.productionSummaryNew.Quantity = $scope.ProdQty;
-                $scope.productionSummaryNew.QtyWithoutScan = $scope.ProdQty;
-            }
-            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
-                if ($scope.ProdQty === 0) {
-                    throw "SKU Qty is required.";
-                }
-            }
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.RemainQty) < 0) {
-            //        throw "Order Quantity dosen't available.";
-            //    }
-            //}
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.TotalPreviousProcessQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId!=202028)
-            //{
-            //    throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
-            //}
-
-            //$scope.CompareMaxValue = Math.max(parseFloat($scope.TotalProcessPlanQty), parseFloat($scope.TotalPreviousProcessQty))
-            //if (parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks)) {
-            //    throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
-            //}
-            //else
-            //{
-            //    $scope.productionSummaryNew.PPQFlag = true;
-            //}
-            if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
-                throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
-            }
-
-            $scope.CompareMaxValue = Math.max(parseFloat($scope.NewObject.ProcessPlanQty), parseFloat($scope.NewObject.POPreviousProdQty))
-            if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue) {
-                if (parseFloat($scope.NewObject.BookedQty) + parseFloat($scope.productionSummaryNew.Quantity) > $scope.CompareMaxValue && !baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
-                    $scope.productionSummaryNew.PPQFlag = true;
-                }
-                else {
-                    throw "You cannot booked greater than Current Process Plan Qty or Previous Process Booked Qty.";
-                }
-            }
-            else {
-                $scope.productionSummaryNew.PPQFlag = false;
-            }
-
-            if (parseFloat($scope.productionSummaryNew.Quantity) < 0) {
-                throw "Quantity should not be less than 0.";
-            }
-
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.RemainingQtyValue)) {
-            //    throw "Produced Quantity should not be greater than RemainingQtyValue.";
-            //}
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
-            //        throw "Produced Quantity should less than Order Quantity.";
-            //    }
-            //}
-
-            //if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.RemainingQty) && $scope.productionSummaryNew.Quantity > 0) {
-            //    throw "Produced Quantity should not be greater than Balance Quantity.";
-            //}
-
+    $scope.Save = function () {
+        //$scope.$broadcast('show-errors-check-validity');
+        //if ($scope.modelForm.$valid) {
+        try
+        {
+            ValidationPreMaster();
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
                 data: {
-                    "ps": $scope.productionSummaryNew,
-                    "psd": $scope.ProductionSummaryDetail,
-                    "ProcessParaList": $scope.ProcessParaList
+                    'QualityControlData': $scope.productionSummaryNew
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -2308,24 +2204,17 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-
                     ShowResult(response.data.Message, 'success');
-                    $scope.NewObject.Id = response.data.ProductionSummary.Id;
-                    $scope.ValidateProdQty($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.ProductionOrderId);
-                    var gridObj = $("#ProductionSummaryWC").data("ejGrid");
-                    gridObj.refreshContent();
-                    gridObj.refreshTemplate();
-                    //$scope.loadWC();
-                    $scope.Action = 'Save';
                 }
-                angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            };
-        } catch (ex) {
+            }
+        }
+        catch (ex) {
             ShowResult(ex, 'Info');
         }
     };
+
     $scope.refreshTemplateProductionSummaryWC = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWorkCenter });
     };
@@ -2753,7 +2642,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         if (!baseService.isUndefinedOrNull(master.data.Id)) {
             $http({
                 method: 'POST',
-                url: 'Productions/ProcessQualityControl/DeleteMasterWC?id=' + master.data.Id,
+                url: 'Productions/QualityControl/DeleteMasterWC?id=' + master.data.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -2922,7 +2811,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
 
     $scope.IssueHeaderList = [];
     $scope.GetIssueList = function (PId) {
-        $http.get('Productions/ProcessQualityControl/GetIssueList?processId=' + PId)
+        $http.get('Productions/QualityControl/GetIssueList?processId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.IssueHeaderList = response.data;
@@ -2936,7 +2825,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.PeriodHeaderList = [];
     $scope.GetPeriodList = function (PId) {
         $scope.PeriodHeaderList = null;
-        $http.get('Productions/ProcessQualityControl/GetPeriodList?IssueId=' + PId)
+        $http.get('Productions/QualityControl/GetPeriodList?IssueId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.PeriodHeaderList = response.data;

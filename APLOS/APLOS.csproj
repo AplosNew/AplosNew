@@ -629,6 +629,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\InputConfirmationController.cs" />
+    <Compile Include="Areas\Productions\Controllers\QualityControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessQualityControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionIssueControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlController.cs" />
@@ -1789,6 +1790,7 @@
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
+    <Content Include="Areas\Accounts\Scripts\GLControlController.js" />
     <Content Include="Areas\Accounts\Scripts\paymentPendingforSetOffReportController.js" />
     <Content Include="Areas\Accounts\Scripts\employeeAdvanceRequisitionHRController.js" />
     <Content Include="Areas\Accounts\Scripts\balanceSheetReportTreeViewController.js" />
@@ -2241,6 +2243,7 @@
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\Materials\Scripts\InputConfirmationController.js" />
+    <Content Include="Areas\Productions\Scripts\QualityControlController.js" />
     <Content Include="Areas\Productions\Scripts\ProcessQualityControlController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionIssueControlController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlController.js" />
@@ -4702,6 +4705,11 @@
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleInOut.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\_VehicleMovementInOut.cshtml" />
     <Content Include="Areas\HumanResource\Views\VehicleMovementMaster\VehicleMovement.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\Aplos1.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\AplosInOut.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\AplosWC.cshtml" />
+    <Content Include="Areas\Productions\Views\QualityControl\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4849,6 +4857,7 @@
     <Content Include="Areas\SalesManagements\Views\AdditionalInfo\Aplos.cshtml" />
     <Content Include="Areas\SalesManagements\Views\SalesIncentive.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_masterOrderSalesIncentiveDetailPopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\GeneralAccountDeterminate\GlControl.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />
