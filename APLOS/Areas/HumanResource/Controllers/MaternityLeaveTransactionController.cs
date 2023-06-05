@@ -185,12 +185,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         #region Maternity Leave Reports
         [HttpGet, Authorize]
-        public ActionResult MaternityLeaveReport(ReportFormat reportFormat, string SystemId,string LanguageId,string UserName,string LeaveTransactionId)
+        public ActionResult MaternityLeaveReport(ReportFormat reportFormat, string SystemId,string LanguageId,string UserName,string LeaveTransactionId, string fromDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                _maternityLeaveTransactionService.CreateMaternityLeaveReportSheet(identity.CompanyId, SystemId, LanguageId,identity.PlantId, UserName, LeaveTransactionId);//, strPathHindi, strPathEnglish, strPathBangla);
+                _maternityLeaveTransactionService.CreateMaternityLeaveReportSheet(identity.CompanyId, SystemId, LanguageId,identity.PlantId, UserName, LeaveTransactionId,  fromDate);//, strPathHindi, strPathEnglish, strPathBangla);
 
             }
 
