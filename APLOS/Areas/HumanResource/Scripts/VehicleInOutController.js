@@ -64,7 +64,8 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         FromTime: null,
         ToTime: null,
         VehicleMasterId: null,
-        DriverMasterId: null
+        DriverMasterId: null,
+        FromLocation:null
 
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
@@ -76,6 +77,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             $scope.GetVehicleList();
             $scope.GetDriverList();
             $rootScope.toggle();
+            
         }
     }
 
