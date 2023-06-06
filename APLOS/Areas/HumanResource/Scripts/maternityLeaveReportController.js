@@ -97,7 +97,8 @@ function maternityLeaveReportController(commonMessage, $scope, $rootScope, baseS
                 throw 'Please Select Language';
             }
             var datum = obj.data;                             
-            var url = 'HumanResource/MaternityLeaveTransaction/MaternityLeaveReport?reportFormat=' + $scope.NationlFestival.ReportFormat + '&SystemId=' + datum.SystemId + '&LanguageId=' + $scope.NationlFestival.LanguageId + '&UserName=' + $scope.UserName + '&LeaveTransactionId=' + datum.LeaveTransactionId;
+            var url = 'HumanResource/MaternityLeaveTransaction/MaternityLeaveReport?reportFormat=' + $scope.NationlFestival.ReportFormat + '&SystemId=' + datum.SystemId + '&LanguageId=' + $scope.NationlFestival.LanguageId + '&UserName=' + $scope.UserName + '&LeaveTransactionId=' + datum.LeaveTransactionId +'&fromDate='
+                + datum.FromDate;
                 $rootScope.report(url);
                 }
                    

@@ -138,7 +138,7 @@ namespace Library.Service.HumanResources
                     DateAdded = DateTime.Now//------------
                 };
 
-                _leaveTransactionDetailsService.InsertGraph(null, new List<string>(), new List<string>(),details, entity.FromDate, Convert.ToDateTime(entity.ToDate), 1, false);
+                _leaveTransactionDetailsService.InsertGraph(null, new List<string>(), new List<string>(), details, entity.FromDate, Convert.ToDateTime(entity.ToDate), 1, false);
 
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -584,7 +584,7 @@ namespace Library.Service.HumanResources
                     resultString += ",'" + allTexts[i] + "'";
             }
 
-            
+
             salaryHeadLists = subject;
 
             return resultString;
@@ -1001,7 +1001,7 @@ namespace Library.Service.HumanResources
                     sheet1.Range["A4" + ":" + oRU.GetColumnNameForXls(endXlsCol) + "4"].Merge();
                     sheet1.Range["A4" + ":" + oRU.GetColumnNameForXls(endXlsCol) + "4"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range["A4" + ":" + oRU.GetColumnNameForXls(endXlsCol) + "4"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-                   
+
                     oRU.PlantHeader(ref sheet1, endXlsCol, SheetHeader, plantId);
                     oRU.PageSetup(ref sheet1, 4, ExcelPageOrientation.Portrait);
 
@@ -2317,32 +2317,13 @@ where dc.plantid= '" + plantId + @"'
         #region new process
 
 
-        public DataTable GetQuery(string SystemId, string plantId, string LeaveTransactionId)
+
+
+        public void CreateMaternityLeaveReportSheet(string reportType, string SystemId, string LanguageId, string plantId, string UserName, string LeaveTransactionId, string fromDate)
         {
             try
             {
-
-                string sql = @"select mbd.StructureAmount,mbd.WorkingDays,mbd.EarnedAmount,mbd.BonusAmount
-					            ,left( DateName( month , DateAdd( month , mbd.MonthNo , -1 )),3) [MonthName]
-                                ,mbd.TotalEarnedAmount TotalAmount
-					            from MaternityBenefitDetail mbd
-                                left join MaternityBenefitMaster mbm on mbm.Id=mbd.MaternityBenefitMasterId
-                                left join [ORG].[Plant] p on p.Id=mbm.PlantId
-                                 where EmpSystemId='" + SystemId + @"' and PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'
-                                order by mbd.MonthNo ";
-                return _sqlRepository.GetDataTable(sql);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-
-        public void CreateMaternityLeaveReportSheet(string reportType, string SystemId, string LanguageId, string plantId, string UserName, string LeaveTransactionId)
-        {
-            try
-            {
+                fromDate = Convert.ToDateTime(fromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
                 #region Query 
                 var cmdText1 = @"SELECT EI.SystemId,EI.EmployeeNameLocal
                                     ,EI.EmployeeCode,LD.Name LegalDesignationLocal,SEC.Name Sectionlocal
@@ -2370,7 +2351,7 @@ where dc.plantid= '" + plantId + @"'
                                     ,AfterPercentageAmount=mbm.AfterAmount
                                     ,Rate=mbm.WageRate
                                     ,mbm.TotalWorkingDays TotalWorkingDays
-                                    ,mbd.TotalEarn + mbm.AdditionalAmount - mbm.Deduction as TotalEarn
+                                    ,isnull(c.EntryAmount,0) TotalEarn
                                     ,TotlaEarning=mbm.WageRate*mbm.LeaveDays
                                     ,BeforePercentageAmount=mbm.BeforeAmount
                                     --============================ 
@@ -2388,20 +2369,55 @@ where dc.plantid= '" + plantId + @"'
                                     left join MaternityBenefitMaster mbm on mbm.EmpSystemId=ei.SystemId
                                     LEFT JOIN (select sum(WorkingDays)as workingDays,sum(TotalEarnedAmount+EncashAmount+OtherAmount) as TotalEarn ,MaternityBenefitMasterId From MaternityBenefitDetail group by MaternityBenefitMasterId) mbd on mbd.MaternityBenefitMasterId=mbm.Id
                                     left join LeaveTransaction t on t.SystemID=mbm.LeaveTransactionId
-                                    where ei.SystemId ='" + SystemId + @"' and EI.PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'";
+                                   left join (
+									select top 1 SP.* from SalaryProcChild SP
+									left join SalaryProcMaster SPM on SPM.SystemID=SP.SlrProcMstSystemID
+									where
+									SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'Gross')) and EmpInfoSystemID='" + SystemId + @"'
+									and MonthNo=MONTH('" + fromDate + @"') and YearNo=year('" + fromDate + @"')
+									)c on c.EmpInfoSystemID='" + SystemId + @"'
 
-                var cmdText2 = @"select mbd.StructureAmount,mbd.WorkingDays,mbd.EarnedAmount,mbd.BonusAmount
-					            ,left( DateName( month , DateAdd( month , mbd.MonthNo , -1 )),3) [MonthName]
-                                ,mbd.TotalEarnedAmount TotalAmount
-					            from MaternityBenefitDetail mbd
-                                left join MaternityBenefitMaster mbm on mbm.Id=mbd.MaternityBenefitMasterId
-                                left join [ORG].[Plant] p on p.Id=mbm.PlantId
-                                 where EmpSystemId='" + SystemId + @"' and PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"' ";
+                                    where ei.SystemId ='" + SystemId + @"' and EI.PlantId='" + plantId + @"' and mbm.LeaveTransactionId='" + LeaveTransactionId + @"'";
+                
+                var cmdText2 = @"select
+                            YearNo,MonthNo
+                            ,left( DateName( month , DateAdd( month , MonthNo , -1 )),3) [MonthName]
+                            --,[MonthName]
+                            ,SalaryProcessMasterId
+                            ,isnull(StructureAmount,0) EarnedAmount
+                            ,isnull(StructureAmount,0) StructureAmount
+							,WorkingDays
+							,(isnull(StructureAmount,0)/WorkingDays)*112 TotalAmount
+                            from (--x
+                            select m.MonthNo,m.YearNo
+                            ,DateName( month , DateAdd( month , m.MonthNo , -1 )) [MonthName]
+                            ,c.EntryAmount StructureAmount,c.DisbusmentAmount 
+                            ,c.SlrProcMstSystemID SalaryProcessMasterId
+	                      ,mbm.TotalWorkingDays WorkingDays
+                            from
+                            (
+                            select * from SalaryProcChild where
+                            SalaryHeadID in (select SalaryHeadID from SalaryHead where HeadCategory in( 'Gross'))
+                            )c                           
+                           
+                            left join SalaryProcMaster m on m.SystemID=c.SlrProcMstSystemID
+                            left join SalaryProceAttdnData att on att.SlrProcMstSystemID=m.SystemID and att.EmpSystemID='" + SystemId + @"'
+                            left join (select c.*,m.EffectiveDate from BonusPaymentActual c left join [BonusPaymentActualMaster] m on m.SystemID=c.BnsMstSystemID
+                            )b on b.EmpSystemID='" + SystemId + @"'  and month(b.EffectiveDate)=m.MonthNo and YEAR(b.EffectiveDate)=m.YearNo
+                            
+							left join MaternityBenefitMaster mbm on mbm.empsystemid=c.EmpInfoSystemID
+
+                            where
+                            c.SlrProcMstSystemID in (
+                            select SystemID from SalaryProcMaster  Where MonthNo=MONTH('" + fromDate + @"') and YearNo=year('" + fromDate + @"')
+                            )
+                            and c.EmpInfoSystemID='" + SystemId + @"'
+                            ) x";
 
                 #endregion
 
                 var GetMaternityLeaveReport = _sqlRepository.GetDataTable(cmdText1);
-                var MonthWiseCalculation = _sqlRepository.GetDataTable(cmdText2);
+                DataTable dsHeader = _sqlRepository.GetDataTable(cmdText2);
 
                 string File = "Mlr" + UserName + plantId + ".xlsx";
                 string filepath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), File);
@@ -2450,8 +2466,6 @@ where dc.plantid= '" + plantId + @"'
 
                 }
 
-                DataTable dsHeader;
-                dsHeader = GetQuery(SystemId, plantId, LeaveTransactionId);
 
                 #region EmployeeInformation 
 

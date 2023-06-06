@@ -1,254 +1,241 @@
-﻿<togglable name="{{title}}"></togglable>
-<div class="form-elements form-horizontal" ng-form name="VehicleRequisitionForm">
-    <input type="hidden" ng-model="VehicleRequisitionModel.Id">
-    <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" datepicker class="form-control" required>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+﻿<div class="tab-design">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Create Requisition</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Requisition Status</a></li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
-                </div>
-            </div>
+            <togglable name="{{title}}"></togglable>
+            <div class="form-elements form-horizontal" ng-form name="VehicleRequisitionForm">
+                <input type="hidden" ng-model="VehicleRequisitionModel.Id">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" datepicker class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="420" ej-timepicker name="Time" tabindex="4" required />
 
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="VehicleRequisitionModel.PurposeId" name="Purpose"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in PurposeList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Purpose<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="VehicleRequisitionModel.PurposeId" name="Purpose"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in PurposeList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">No. Of Passengers<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="VehicleRequisitionModel.NumberOfPassengers" name="NoOfPassengers"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option value=0>0</option>
+                                        <option value=1>1</option>
+                                        <option value=2>2</option>
+                                        <option value=3>3</option>
+                                        <option value=4>4</option>
+                                        <option value=5>5</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="2" ng-model="VehicleRequisitionModel.Remarks" maxlength="250" tabindex="7"></textarea>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" datepicker class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="420" ej-timepicker name="Time" tabindex="4" required />
 
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">No. Of Passengers<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="VehicleRequisitionModel.NumberOfPassengers" name="NoOfPassengers"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Personal / Official<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="VehicleRequisitionModel.PersonalOfficial" name="Personal / Official"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option value="Personal">Personal</option>
+                                        <option value="Official">Official</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{VehicleRequisitionModel.ResponsiblePersonCode}}</span>
+                                    <input type="text" name="Responsible Person" ng-model="VehicleRequisitionModel.EmployeeName" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="SaveMovement();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{MovementAction}}</button></li>
+                                @* <li> <button ng-click="CreateBlankRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Add New Rows</button></li>*@
+                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-8">
-                    <textarea class="form-control" rows="2" ng-model="VehicleRequisitionModel.Remarks" maxlength="250" tabindex="7"></textarea>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" datepicker class="form-control" required>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="420" ej-timepicker name="Time" tabindex="4" required />
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table" id="reqHideShowId">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Apply</th>
+                                        <th>From Location</th>
+                                        <th>To Location</th>
+                                        <th>Remarks</th>
+                                        <th>Is Without passenger</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="data in RequisitionList">
+                                        <td class="text-right table-td">
+                                            <div class="checkbox-site">
+                                                <label>
+                                                    <input type="checkbox" ng-model="data.isSelected" e-checked="data.isSelected" tabindex="8">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group" show-errors>
 
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Personal / Official<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select class="form-control" ng-model="VehicleRequisitionModel.PersonalOfficial" name="Personal / Official"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option value="Personal">Personal</option>
-                            <option value="Official">Official</option>
-                        </select>
+                                                <div class="col-sm-12 show-message">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.FromLocationId" name="Detention" ng-change="ToLocationListBasedOnFromLoc(data.FromLocationId)"
+                                                                tabindex="2">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group" show-errors>
+
+                                                <div class="col-sm-12 show-message">
+                                                    <div class="select-style">
+                                                        <select class="form-control" ng-model="data.ToLocationId" name="Detention" ng-change="AssignToLocInFromLoc(data.ToLocationId, $index)"
+                                                                tabindex="2">
+                                                            <option value="">--Select--</option>
+                                                            <option ng-repeat="option in FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Remarks</label>
+                                                <div class="col-sm-8">
+                                                    <textarea class="form-control" rows="2" ng-model="VehicleRequisitionModel.Remarks" maxlength="250" tabindex="7"></textarea>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="checkbox-site">
+                                                <div class="col-sm-12 show-message">
+                                                    <label>
+                                                        <input type="checkbox" ng-model="data.WithoutPassenger" e-checked="data.WithoutPassenger" tabindex="8">
+                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+
+                                    <li> <button ng-click="SaveRequisitionChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{MovementChildAction}}</button></li>
+                                    <li> <button ng-click="CreateBlankRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Add New Rows</button></li>
+
+                                </ul>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="input-group">
-                        <span class="input-group-addon">{{VehicleRequisitionModel.ResponsiblePersonCode}}</span>
-                        <input type="text" name="Responsible Person" ng-model="VehicleRequisitionModel.EmployeeName" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="SaveMovement();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-                    <li> <button ng-click="CreateBlankRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Go</button></li>
-                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                </ul>
-            </div>
-        </div>
 
-        <div class="col-xs-12" >
-            <div class="table-responsive modal-table" id="reqHideShowId">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Apply</th>
-                            <th>From Location</th>
-                            <th>To Location</th>
-                            <th>Without passenger</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="data in RequisitionList">
-                            <td class="text-right table-td">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input type="checkbox" ng-model="data.isSelected" e-checked="data.isSelected" tabindex="8">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group" show-errors>
-
-                                    <div class="col-sm-12 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="data.FromLocationId" name="Detention" ng-change="ToLocationListBasedOnFromLoc(data.FromLocationId)"
-                                                    tabindex="2">
-                                                <option value="">--Select--</option>
-                                                <option ng-repeat="option in FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group" show-errors>
-
-                                    <div class="col-sm-12 show-message">
-                                        <div class="select-style">
-                                            <select class="form-control" ng-model="data.ToLocationId" name="Detention" ng-change="AssignToLocInFromLoc(data.ToLocationId, $index)"
-                                                    tabindex="2">
-                                                <option value="">--Select--</option>
-                                                <option ng-repeat="option in ToLocListBasedOnFromLocList" value="{{option.Value}}">{{option.Text}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><div class="checkbox-site">
-                                <div class="col-sm-12 show-message">
-                                    <label>
-                                        <input type="checkbox" ng-model="data.WithoutPassenger" e-checked="data.WithoutPassenger" tabindex="8">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
-                                </div>
-                                </div>
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-                </table>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-
-                        <li> <button ng-click="SaveRequisitionChid();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-
-                    </ul>
-                </div>
-            </div>
-        </div>
-        @*<div id="reqHideShowId" class="table-responsive" style="border:1px solid white">
-                <div id="RequisitionGrid" ej-grid e-datasource="RequisitionList" e-load="loadGridEdit"
+            <div class="table-responsive table-responsive aplos-grid-toggle" style="border:1px solid white">
+                <div id="vehiclemovementrequisId" e-datasource="VehicleMovementReqList" ej-grid e-recorddoubleclick="GetVehicleRequisition" e-load="loadGridEdit"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                        <div e-column e-headertext="Check / UnCheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
-                        <div e-column e-headertext="From Location" e-template="#FromLocation" e-textalign="center" e-width="100"></div>
-                        <div e-column e-headertext="To Location" e-template="#ToLocation" e-textalign="center" e-width="100"></div>
+                        <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
+                        <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
+                        <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
+                        <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
+                        <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
+                        <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="50"></div>
+                        <div e-column e-field="NumberOfPassengers" e-headertext="Number Of Passengers" e-width="50"></div>
                     </div>
                 </div>
-                <script type="text/template" id="checkboxUnallocationTemplate">
-                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
-                </script>
-                <script type="text/template" id="FromLocation">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">From Location<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="data.FromLocationId" name="Detention"
-                                        tabindex="2">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in $parent.FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </script>
-                <script type="text/template" id="ToLocation">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">To Location<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="data.ToLocationId" name="Detention" ng-change="$parent.AssignToLocInFromLoc(this)"
-                                        tabindex="2">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in $parent.FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </script>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
 
-                        <li> <button ng-click="SaveRequisitionChid();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
-
-                    </ul>
+            </div>
+        </div>
+        @*   TAB -2 *@
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="TripGrid">
+                    </div>
                 </div>
-            </div>*@
-
-
-    </div>
-</div>
-
-<div class="table-responsive table-responsive aplos-grid-toggle" style="border:1px solid white">
-    <div id="vehiclemovementrequisId" e-datasource="VehicleMovementReqList" ej-grid e-recorddoubleclick="GetVehicleRequisition" e-load="loadGridEdit"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-        <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-            <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
-            <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
-            <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
-            <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
-            <div e-column e-field="Purpose" e-headertext="Purpose" e-width="50"></div>
-            <div e-column e-field="PersonalOfficial" e-headertext="PersonalOfficialTemplate" e-width="50"></div>
-            <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="50"></div>
+            </div>
         </div>
     </div>
 
 </div>
+
+
 
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="RemoveVehicleMovement();"></confirm-archive-generic>
