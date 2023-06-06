@@ -16,7 +16,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" datepicker class="form-control" required>
+                                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.FromDate" ng-change="compareDate()"  datepicker class="form-control" required>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -48,7 +48,7 @@
                                     <select class="form-control" ng-model="VehicleRequisitionModel.NumberOfPassengers" name="NoOfPassengers"
                                             tabindex="2">
                                         <option value="">--Select--</option>
-                                        <option value=0>0</option>
+                                        <option value=0 selected>0</option>
                                         <option value=1>1</option>
                                         <option value=2>2</option>
                                         <option value=3>3</option>
@@ -70,7 +70,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" datepicker class="form-control" required>
+                                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleRequisitionModel.ToDate" ng-change="compareDate()" datepicker class="form-control" required>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -111,7 +111,7 @@
                                 <li> <button ng-click="SaveMovement();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{MovementAction}}</button></li>
                                 @* <li> <button ng-click="CreateBlankRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Add New Rows</button></li>*@
                                 <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                <li> <button ng-click="ClearMovement();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
                     </div>
@@ -143,7 +143,7 @@
 
                                                 <div class="col-sm-12 show-message">
                                                     <div class="select-style">
-                                                        <select class="form-control" ng-model="data.FromLocationId" name="Detention" ng-change="ToLocationListBasedOnFromLoc(data.FromLocationId)"
+                                                        <select class="form-control" ng-model="data.FromLocationId" name="Detention" ng-change="isSelectedAutoChecked(data.FromLocationId, $index)"
                                                                 tabindex="2">
                                                             <option value="">--Select--</option>
                                                             <option ng-repeat="option in FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
