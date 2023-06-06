@@ -1532,14 +1532,9 @@ and isnull(locka.EmpSystemId,'')=''
                                             WHERE (
 		                                            e.SystemId in (select systemid from EmployeeInformation where  EmployeeStatus='Active' and EmployeeCurrentStatus in (" + bplib.clsWebLib.EMP_OTHER_STATUS + @") and EmployeeCurrentStatusEffectiveDate<'" + sToDate + @"')
 		                                            )
-	                                            AND E.SystemId IN (
-		                                            SELECT EmpSystemID
-		                                            FROM AttdnDataMonthlySummary
-		                                            WHERE YearNo = Year('" + sFromDate + @"')
-			                                            AND MonthNo = Month('" + sFromDate + @"')			                                            
-			                                            AND PlantID = '" + sPlantID + @"'
-		                                            ) --not in
-	                                            AND E.PlantID = '" + sPlantID + @"'  
+	                                           -- AND E.SystemId IN (SELECT EmpSystemID FROM AttdnDataMonthlySummary WHERE YearNo = Year('" + sFromDate + @"') AND MonthNo = Month('" + sFromDate + @"') AND PlantID = '" + sPlantID + @"'
+		                                         --   ) --not in
+	                                          --  AND E.PlantID = '" + sPlantID + @"'  
 
                                             --Approved SP
                                                         and e.systemid not in

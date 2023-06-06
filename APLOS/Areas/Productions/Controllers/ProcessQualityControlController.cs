@@ -1050,10 +1050,10 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId)
+        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
