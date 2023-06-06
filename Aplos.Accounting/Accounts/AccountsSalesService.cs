@@ -2331,7 +2331,7 @@ namespace Library.Accounting.Accounts
 					 JOIN (SELECT isc.SalesId,pli.PackingId,sum(ReturnNetWeight) ReturnNetWeight FROM ItemScanChild isc 
 					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
 					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
-					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
+					where  isc.returnnetweight<>0 and isc.SalesReturnId is null 
 					group by isc.SalesId,pli.PackingId) ISC ON ISC.SalesId=IVS.Id
 
                     LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable,C.IsPaymentTermChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
