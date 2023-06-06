@@ -1,6 +1,6 @@
 ﻿'use strict';
-GLControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller'];
-function GLControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller) {
+GLControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService'];
+function GLControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService) {
     $rootScope.title = 'GL Control';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -8,6 +8,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'CreateGlControl';
+    $scope.saveConsumableUrl = $scope.path + 'CreateComsumable';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -90,7 +91,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             url: $scope.path + "GetGlControlList",
             data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
-        }).then(function successCallback(response) {          
+        }).then(function successCallback(response) {
             $scope.ModelList = response.data;
             ClearFields(response.data.Sequence);
             $scope.GetSequence();
@@ -139,6 +140,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.selectExpenseGL(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -184,6 +186,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'success');
                     ClearFields(response.data.Sequence);
                     $scope.getData();
+                    $scope.selectExpenseGL();
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -270,7 +273,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         , serverPagination: true
     };
     $scope.popUp = function () {
-        $scope.popUpUrl = $scope.path +'GetMaterialList';
+        $scope.popUpUrl = $scope.path + 'GetMaterialList';
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
                 .then(function (result) {
@@ -278,7 +281,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     $scope.popUpParameters.total_count = result.Total;
                     for (var i = 0; i < $scope.popUpDataList.length; i++) {
                         $scope.ModelNewMat.MaterialTypeId = $scope.popUpDataList[i].MaterialTypeId;
-                        $scope.ModelNewMat.MaterialGroupMasterId = $scope.popUpDataList[i].MaterialGroupMasterId; 
+                        $scope.ModelNewMat.MaterialGroupMasterId = $scope.popUpDataList[i].MaterialGroupMasterId;
                         $scope.ModelNewMat.MaterialMasterId = $scope.popUpDataList[i].Id;
                     }
                 }, function () {
@@ -315,20 +318,231 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
     $scope.BinHeadList = [];
     $scope.selectIDs = function (data) {
-            $http({
-                method: 'POST',
-                url: $scope.path + "selectIDs",
-                data: {
-                    'materialType': data.MaterialTypeId,
-                    'materialGroup': data.MaterialGroupMasterId,
-                    'materialMasterId': data.Id
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.BinHeadList = response.data;
-                //$scope.selectBinIDs();
-            })
+        $http({
+            method: 'POST',
+            url: $scope.path + "selectIDs",
+            data: {
+                'materialType': data.MaterialTypeId,
+                'materialGroup': data.MaterialGroupMasterId,
+                'materialMasterId': data.Id
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.BinHeadList = response.data;
+            //$scope.selectBinIDs();
+        })
     }
     // #endregion ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
-  
+
+    // #region ---------------------------------      Expense     -----------------------------------//
+    
+    $scope.report = {
+        GLName: null,
+        GLGeneralInfoId: null,
+        BudgetMasterId: null
+    };
+
+
+    $scope.glList = [];
+    $scope.getCompanyGLCboList = function () {
+        accountService.getCompanyGLCboList(function (result) {
+            $scope.glList = result;
+        });
+    };
+    $scope.getCompanyGLCboList();
+
+    $scope.budgetList = [];
+    $scope.getBudgetMasterCboList = function (glId) {
+        accountService.getBudgetMasterCboList(glId, function (result) {
+            $scope.budgetList = result;
+        });
+    };
+
+    $scope.activityList = [];
+    $scope.getBudgetMasterActivityCbo = function (budgetMasterId) {
+        accountService.getBudgetMasterActivityCbo(budgetMasterId, function (result) {
+            $scope.activityList = result;
+        });
+    };
+
+    $scope.searchglByList = [
+        {
+            "name": "Account Group",
+            "value": "AccountGroupName"
+        },
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "RefNo",
+            "value": "RefNo"
+        }
+    ];
+
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoCode",
+        searchBy: "ActivityName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.GetCOAICodeList = function () {
+        $scope.GLUrl1 = "Accounts/glitem/GetAllGLBudgetActivityList";
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase($scope.GLUrl1, pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLPopUp")).modal("show");
+        $scope.modalShow = true;
+        $scope.GetCOAICodeListData();
+    };
+
+    $scope.closeCOAICodeListPopUp = function () {
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
+
+    $scope.closeCOAICodeListPopUpSelected = function () {
+        if ($scope.rowSelected !== null) {
+            angular.element(document.querySelector("#GLPopUp")).modal("hide");
+        } else {
+            angular.element(document.querySelector("#cancelPopUp")).modal("show");
+        }
+    };
+
+    $scope.setSelected = function (data) {
+        //$scope.addRow(data);
+        $scope.selectGLBudget(data);
+        $scope.closeCOAICodeListPopUp();
+    };
+
+    $scope.ExpenseGLList = [];
+    $scope.selectGLBudget = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetExpenseGLData",
+            data: {
+                'glId': data.GLGeneralInfoId,
+                'budgetId': data.BudgetMasterId,
+                'activityId': data.ActivityId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ExpenseGLList = response.data;
+        })
+    }
+     
+    $scope.SaveConsumable = function () {
+        try {
+            var ConsumableList = [];
+            var ob = {};
+            for (var i = 0; i < $scope.ExpenseGLList.length; i++) {
+                ob.Id = null;
+                ob.GLGeneralInfoId = $scope.ExpenseGLList[i].GLGeneralInfoId;
+                ob.BudgetId = $scope.ExpenseGLList[i].BudgetMasterId;
+                ob.ActivityId = $scope.ExpenseGLList[i].ActivityId;
+                ConsumableList.push(ob);
+                ob = {};
+            }
+            if (ConsumableList.length == 0) {
+                throw "Please Select GL Control!";
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveConsumableUrl,
+                data: { 'ConsumableList': ConsumableList, 'glControlId': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Action = 'Update';
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    $scope.tempIndex = [];
+    $scope.RemoveExpense = function (data, index) {
+        $scope.tempIndex = index;
+        $scope.consumableId = data.Id;
+        if (baseService.isUndefinedOrNull(data.UserName))
+            $scope.message_confirmation = 'Are you sure want to remove this data....';
+        else
+            $scope.message_confirmation = 'Are you sure want to remove ?';
+        angular.element(document.querySelector('#confirmgenericPopUp')).modal('show');
+    };
+    $scope.RemoveRow = function () {
+        if (baseService.isUndefinedOrNull($scope.consumableId)) {
+            $scope.ExpenseGLList.splice($scope.tempIndex, 1);
+        }
+        else {
+            $http.get('Accounts/GeneralAccountDeterminate/DeleteConsumerable?Id=' + $scope.consumableId)
+                .then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.selectExpenseGL();
+                        //$scope.ClearConsumable();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+        }
+    };
+
+
+    $scope.selectExpenseGL = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetConsumableData",
+            data: {'glControlDetailId': data},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ExpenseGLList = response.data;
+        })
+    }
+
+    $scope.ClearConsumable = function () {
+        $scope.Action = 'Save';
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.selectExpenseGL = [];
+        return true;
+    };
+
+
+    // #endregion --------------------------------- Expense  -----------------------------------//
 }
