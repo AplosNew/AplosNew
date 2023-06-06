@@ -610,12 +610,12 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId)
+        public IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId)
         {
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
 QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
-LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId=QC.Id and QIC.ItemId=QII.Id
+LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='"+ PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
 left Join MST.QualityGradeDetails QGD ON QGD.Id=QIC.GradeId
 LEFT JOIN EmployeeInformation R ON  R.SystemId = QIC.ResponsiblePersonId
