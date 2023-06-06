@@ -268,6 +268,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         public ActionResult DeleteGlControl(string id)
         {
+            string sqlChild = @"select * from [MST].[GLControlDetail] where GLControlId = '" + id + "'";
             string sql = @"select * from [MST].[GLControlMaster] where Id = '" + id + "'";
             try
             {
@@ -275,6 +276,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new Exception("Select entry first");
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from [MST].[GLControlDetail] where GLControlId='" + id + "'");
                 con.executeQuery("delete from [MST].[GLControlMaster] where Id='" + id + "'");
                 con.CommitTransaction();
 
@@ -298,7 +300,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
         #endregion GL Control
 
-       
+
         [HttpGet, Authorize]
         public JsonResult GetMaterialList(GridParameter parameters)
         {
@@ -330,6 +332,119 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
+        [Authorize]
+        public ActionResult GetExpenseGLData(string glId, string budgetId, string activityId)
+        {
+            try
+            {
+                var sql = @"SELECT  distinct GLGI.Id AS GLGeneralInfoId,'' Id,GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
+                                    , B.BudgetMasterId, B.RefNo, B.BudgetCode, B.BudgetName
+									, A.ActivityId, A.ActivityCode, A.ActivityName--, GLTY.AccountType
+                                    FROM [HKP].[GLGeneralInfo] AS GLGI
+                                    LEFT JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN [HKP].[GLAccountType] AS GLTY ON GLTY.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.GLGeneralInfoId, BM.RefNo
+	                                    FROM [HKP].[Budget] AS B
+                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.BudgetId=B.Id
+                                    ) AS B ON B.GLGeneralInfoId=GLGI.Id
+                                    LEFT JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BA.BudgetMasterId
+	                                    FROM [HKP].[Activity] AS A
+	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
+                                    ) AS A ON A.BudgetMasterId=B.BudgetMasterId
+                             where GLGI.Id = '" + glId + "' and b.BudgetMasterId = '" + budgetId + "'" +
+                             "and a.ActivityId = '" + activityId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateComsumable(List<Dictionary<string, object>> ConsumableList, string glControlId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from [MST].[GLControlDetail] where GLControlId='" + glControlId + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+                #region data update
+                foreach (var item in ConsumableList)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("[MST].[GLControlDetail]", out _Id);
+
+                        item["Id"] =_Id;
+                        item["GLControlId"] = glControlId;
+                        AddNewRow(dsMaster.Tables[0], item);
+                    }
+                    else
+                    {
+                        _Id = item["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], item);
+                    }
+                }
+                #endregion data update
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        [Authorize]
+        public ActionResult GetConsumableData(string glControlDetailId)
+        {
+            try
+            {
+                var sql = @"select GLCD.Id,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetId
+						,B.UserName BudgetName,GLCD.ActivityId,A.UserName ActivityName
+						from mst.GLControldetail GLCD
+						left join [HKP].[GLGeneralInfo] glg on glg.Id=GLCD.GLGeneralInfoId
+						left join [HKP].[Budget] B on B.Id=GLCD.BudgetId
+						left join [HKP].[Activity] A on A.Id=GLCD.ActivityId
+						where GLCD.GLControlId= '" + glControlDetailId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult DeleteConsumerable(string id)
+        {
+            string sql = @"select * from [MST].[GLControlDetail] where Id = '" + id + "'";
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from [MST].[GLControlDetail] where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
     }
 }
