@@ -164,7 +164,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
             selectionType: ej.Grid.SelectionType.Single,
             selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
             cellSelected: $scope.VehicleAllocationPopup,
-            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime"],
+            columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime"],
 
             childGrid: {
 
@@ -173,12 +173,12 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                 allowSelection: true,
                 selectionType: ej.Grid.SelectionType.Single,
                 selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
-                columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime",  "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
+                columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime",  "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
 
                 childGrid: {
                     dataSource: $scope.RequisitionChildList,
                     queryString: "VehicleMovementRequisitionId",
-                    columns: ["Id", "FromLocation", "ToLocation"]
+                    columns: ["Row_Num", "FromLocation", "ToLocation"]
 
                 }
             }
@@ -207,7 +207,10 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
         $scope.TripId = args.data.Id;
         $scope.GetVehicleList();
         $scope.GetDriverList();
-
+        $scope.VehicleRequisitionModel.FromDate = args.data.FromDate;
+        $scope.VehicleRequisitionModel.Todate = args.data.Todate;
+        $scope.VehicleRequisitionModel.FromTime = args.data.FromTime;
+        $scope.VehicleRequisitionModel.ToTime = args.data.ToTime;
         angular.element(document.querySelector("#reqPopup")).modal('show');
     }
 
@@ -277,8 +280,8 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
             allowSelection: true,
             selectionType: ej.Grid.SelectionType.Single,
             selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
-            cellSelected: $scope.VehicleAllocationPopup,
-            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "DriverName", "VehicleName", "VehicleNumber"],
+           // cellSelected: $scope.VehicleAllocationPopup,
+            columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime", "DriverName", "VehicleName", "VehicleNumber"],
 
             childGrid: {
 
@@ -287,7 +290,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                 allowSelection: true,
                 selectionType: ej.Grid.SelectionType.Single,
                 selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
-                columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime"],
+                columns: ["Row_Num", "TripNumber" ,"FromDate", "ToDate", "FromTime", "ToTime"],
                
             }
 

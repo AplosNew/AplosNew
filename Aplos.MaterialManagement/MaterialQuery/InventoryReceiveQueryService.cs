@@ -7565,9 +7565,9 @@ namespace Aplos.MaterialManagement
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
                              , IRD.TransactionQty AS POQty,(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100) ToleranceQty
 							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)
-                            , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
+                            , ISNULL(GRND.GRNRcvQty,0)-ISNULL(GRND.PurchaseReturnQty,0) AS GRNRcvQty ,ISNULL(GRND.PurchaseReturnQty,0) PurchaseReturnQty                         
                             , '' AS TransactionQty
-                            , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
+                            , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)+ISNULL(GRND.PurchaseReturnQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
@@ -7591,7 +7591,7 @@ namespace Aplos.MaterialManagement
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'Approved' QualityStatus
 						,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo
                          FROM TRN.PurchaseOrderDetail AS IRD
-                        LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty FROM  TRN.InventoryReceiveDetail gd 
+                        LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty,isnull(sum(gd.PurchaseReturnQty),0) PurchaseReturnQty FROM  TRN.InventoryReceiveDetail gd 
 								JOIN trn.InventoryReceive ir on ir.Id=gd.InventoryReceiveId 
 								WHERE (isnull(ir.AuthorizedByStatus,'') NOT IN ('Reject','Hold'))  GROUP BY PODetailsId ) AS GRND ON GRND.PODetailsId=IRD.Id
 						--LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
@@ -7633,9 +7633,9 @@ namespace Aplos.MaterialManagement
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
                              , IRD.TransactionQty AS POQty,(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100) ToleranceQty
 							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)
-                            , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
+                            , ISNULL(GRND.GRNRcvQty,0)-ISNULL(GRND.PurchaseReturnQty,0) AS GRNRcvQty  ,ISNULL(GRND.PurchaseReturnQty,0) PurchaseReturnQty                          
                             , '' AS TransactionQty
-                            , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
+                            , (IRD.TransactionQty+(IRD.TransactionQty*(case when IRD.Tolerance<>0 then IRD.Tolerance else IR.Tolerance end)/100)-ISNULL(GRND.GRNRcvQty,0)+ISNULL(GRND.PurchaseReturnQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
@@ -7660,7 +7660,7 @@ namespace Aplos.MaterialManagement
 							,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo
 					    
                          FROM TRN.PurchaseOrderDetail AS IRD
-                        LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty FROM  TRN.InventoryReceiveDetail gd 
+                        LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty,isnull(sum(gd.PurchaseReturnQty),0) PurchaseReturnQty FROM  TRN.InventoryReceiveDetail gd 
 								JOIN trn.InventoryReceive ir on ir.Id=gd.InventoryReceiveId 
 								WHERE (isnull(ir.AuthorizedByStatus,'') NOT IN ('Reject','Hold'))  GROUP BY PODetailsId ) AS GRND ON GRND.PODetailsId=IRD.Id
 						--LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
