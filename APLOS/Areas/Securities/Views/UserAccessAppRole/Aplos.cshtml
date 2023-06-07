@@ -66,7 +66,7 @@
     </div>
 </div>
 
-<div class="table-responsive" style="margin-top: 10px; width:30% ">
+<div class="table-responsive" style="margin-top: 10px; width:100% ">
     <div id="GridEdit" ej-grid e-datasource="AccessedIcon" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
@@ -76,7 +76,7 @@
             <div e-column e-field="IconName" e-headertext="Icon Name" e-width="100"></div>
             <div e-column e-headertext="Actions" e-width="100">
                 <button style="color: #f3f3ec;background-color: #1c1f32;padding: 3px 7px 3px 6px;" class="btn">
-                    <i class="glyphicon glyphicon-trash" title="Delete" data-target="#confirmPopUp" ng-click="$parent.Remove();"></i>
+                    <i class="glyphicon glyphicon-trash" title="Delete" data-target="#confirmPopUp" ng-click="$parent.Delete(this);"></i>
                 </button>
               @* <button ng-click="RemoveLevel1s();" data-target="#confirmPopUp" ng-disabled="CheckIdUseLevel2s" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button>*@
 
@@ -84,5 +84,6 @@
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
+<confirm-modal></confirm-modal>
+@*<confirm-archive-generic modalid="confirmDetailPopUp" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="Delete(this.AccessedIcon);"></confirm-archive-generic>*@
 @Html.Partial("~/Areas/Securities/Views/UserAccessAppRole/_UserDetailPopUp.cshtml")
