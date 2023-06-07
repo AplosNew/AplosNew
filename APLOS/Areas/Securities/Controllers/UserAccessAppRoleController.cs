@@ -153,14 +153,14 @@ where Active = 1";
         {
             try
             {
-
+                
                 string TableName = "SEC.AppRoleMapping";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where UserId='" + id + "'");
+                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
                 con.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);

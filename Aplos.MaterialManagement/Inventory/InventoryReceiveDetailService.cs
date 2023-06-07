@@ -419,9 +419,7 @@ namespace Library.MaterialManagement.Inventory
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
             try
             {
-
                 _unitOfWork.BeginTransaction();
-
                 flag = true;
                 entity.GRNType = GRNType;
                 if (entity.Id == null)
