@@ -65,6 +65,7 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
     }
 
     $scope.DoubleClickedGetData = function (e) {
+        $scope.ModelNew.Id = e.data.Id;
         $scope.ModelNew.EmployeeId = e.data.EmployeeId;
         $scope.ModelNew.User = e.data.FullName;
         $scope.ModelNew.UserId = e.data.UserId;
@@ -91,8 +92,9 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
             else {
                
                 ShowResult(response.data.Message, 'success');
-                $scope.Action = 'Update';
+                $scope.Action = 'Save';
                 //ClearFields(response.data.Sequence);
+                $scope.GetUserAccessedIcon();
                 $scope.getData();
 
             }
@@ -111,12 +113,12 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
     }
 
 
-    $scope.Delete = function () {
+    $scope.Delete = function (x) {
         
             $http({
                 method: 'POST',
                 url: 'Securities/UserAccessAppRole/Delete',
-                data: { 'id': $scope.ModelNew.UserId},
+                data: { 'id': x.data.Id},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -124,9 +126,7 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    //$scope.chartOfAccountLevel5s.splice($scope.index, 1);
                     
-                    //ClearFields(response.data.Sequence);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, 'failure');
@@ -135,9 +135,9 @@ function UserAccessAppRoleController(cboService, baseService, $rootScope, $scope
     };
 
     $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
-    $scope.Remove = function () {
-
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id))
+    $scope.Remove = function (x) {
+        
+        if (!baseService.isUndefinedOrNull(x.data.Id))
             $scope.message_Detailconfirmation = 'Are you sure want to delete permanently';
         angular.element(document.querySelector('#confirmDetailPopUp')).modal('show');
     }

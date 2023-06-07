@@ -538,9 +538,9 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
-                worksheet[ROW, COL].Text = "Actual Balance";
+                worksheet[ROW, COL].Text = "Net Balance";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colActualBalance = COL;
+                int colNetBalance = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
@@ -548,6 +548,12 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLedgerBalanceAmount = COL;
                 worksheet[ROW, COL].ColumnWidth = 22;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Actual Balance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualBalance = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
                 worksheet[ROW, COL].Text = "WriteOff Pending Post";
@@ -679,6 +685,9 @@ namespace Library.Accounting.Accounts
 
                     worksheet[ROW, colWriteOffPendingPost].Text = dt.Rows[i]["WriteOffPendingPost"].ToString();
 
+                    worksheet[ROW, colNetBalance].Number = clsStaticInfo.dbl(dt.Rows[i]["NetBalance"].ToString());
+                    worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
                     worksheet[ROW, colLedgerBalanceAmount].Number = clsStaticInfo.dbl(dt.Rows[i]["LedgerBalanceAmount"].ToString());
                     worksheet[ROW, colLedgerBalanceAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -747,6 +756,10 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colNetBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colNetBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 worksheet[ROW, colActualBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colActualBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -4051,9 +4064,9 @@ namespace Library.Accounting.Accounts
                 COL++;
 
 
-                worksheet[ROW, COL].Text = "Actual Balance";
+                worksheet[ROW, COL].Text = "Net Balance";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int colActualBalance = COL;
+                int colNetBalance = COL;
                 worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
@@ -4061,6 +4074,12 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colLedgerBalanceAmount = COL;
                 worksheet[ROW, COL].ColumnWidth = 22;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Actual Balance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualBalance = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
                 worksheet[ROW, COL].Text = "WriteOff Pending Post";
@@ -4179,6 +4198,9 @@ namespace Library.Accounting.Accounts
                     worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksBalance"].ToString());
                     worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
+                    worksheet[ROW, colNetBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["NetBalance"].ToString());
+                    worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
                     worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["ActualBalance"].ToString());
                     worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -4238,6 +4260,10 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colNetBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colNetBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colNetBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colNetBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 worksheet[ROW, colActualBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colActualBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";

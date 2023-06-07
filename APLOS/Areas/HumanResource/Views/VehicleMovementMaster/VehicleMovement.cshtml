@@ -2,51 +2,28 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending Schedule Trip</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle Allocation</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved Trip</a></li>
 
         </ul>
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-            <div>
-                <div class="content-container-fluid" style="color:black;overflow:scroll">
-                    <div style="color:black;" id="GriddataMasterONE" ej-grid e-datasource="TripList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
-                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true"
-                         e-detailstemplate="detailTemp"
-                         e-detailsdatabound="detailgrid">
-                        <div e-columns>
-                          
-                            <div e-column e-field="Id" e-headertext="Id" e-width="20" e-isprimarykey="true" e-visible="true"></div>
-                            <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
-                            <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
-                            <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
-                            <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
-                            
-                        </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="Grid">
                     </div>
                 </div>
-                
-                <script id="tabGridContents" type="text/x-jsrender">
-                    <div class="tabcontrol" id="Test">
-                        <ul>
-                            <li><a href="#gridTab{{:Id}}">Requisition Details</a></li>
-
-                        </ul>
-                        <div id="gridTab{{:Id}}">
-                            <div id="detailGrid">
-                            </div>
-                        </div>
-
-                    </div>
-                </script>
-
             </div>
 
         </div>
         @*   TAB -2 *@
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-        
+        <div class="row">
+            <div class="col-md-12">
+                <div id="TripGrid">
+                </div>
+            </div>
+        </div>
     </div>
     </div>
 
@@ -56,7 +33,7 @@
 <div class="modal fade site-modal in" id="reqPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">Approve Requisition <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">Add Vehicle & Driver <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
 
                 <div class="form-elements form-horizontal" ng-form name="VehicleRequisitionForm">
@@ -74,6 +51,18 @@
                                 <div class="col-sm-8 show-message">
                                     <input id="FromTime" e-value="VehicleRequisitionModel.FromTime" width="270" ej-timepicker name="Time" tabindex="4" required />
 
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Vehicle Type<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.VehicleMasterId" name="Purpose"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in VehicleList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -95,6 +84,18 @@
                                 <div class="col-sm-8 show-message">
                                     <input id="ToTime" e-value="VehicleRequisitionModel.ToTime" width="270" ej-timepicker name="Time" tabindex="4" required />
 
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Driver<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="VehicleRequisitionModel.DriverMasterId" name="Purpose"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in DriverList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="common-btn">
