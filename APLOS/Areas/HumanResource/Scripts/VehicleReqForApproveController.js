@@ -3,7 +3,7 @@ VehicleReqForApproveController.$inject = ["cboService", "commonMessage", "$scope
 function VehicleReqForApproveController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "Vehicle Requisition For Approval"
     $scope.path = 'HumanResource/VehicleMovementMaster/';
-    $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleAllocation';
+    $scope.saveTripUrl = $scope.path + 'SaveVehicleAllocation';
     $scope.Action = 'Update';
 
     // #region TAB CHANGE
@@ -125,7 +125,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                     selectionType: ej.Grid.SelectionType.Single,
                     selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
                     cellSelected: $scope.tung,
-                    columns: ["Id", "FromLocation", "ToLocation"]
+                    columns: ["Row_Num", "FromLocation", "ToLocation"]
 
                 });
                 e.detailsElement.find(".tabcontrol").ejTab();
@@ -133,7 +133,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
         });
     }
-    $scope.GetVehicleRequisitionChildData();
+   // $scope.GetVehicleRequisitionChildData();
 
 
     $scope.requisitiondetailTemp = "#requisitiontabGridContents";
@@ -199,7 +199,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
             selectionType: ej.Grid.SelectionType.Single,
             selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
             
-            columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime"],
+            columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime"],
 
             childGrid: {
 
@@ -208,12 +208,12 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                 allowSelection: true,
                 selectionType: ej.Grid.SelectionType.Single,
                 selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
-                columns: ["Id", "FromDate", "ToDate", "FromTime", "ToTime", "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
+                columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime", "ByWhom", "Department", "Purpose", "PersonalOfficial", "AppliedId"],
 
                 childGrid: {
                     dataSource: $scope.RequisitionChildList,
                     queryString: "VehicleMovementRequisitionId",
-                    columns: ["Id", "FromLocation", "ToLocation"]
+                    columns: ["Row_Num", "FromLocation", "ToLocation"]
 
                 }
             }
@@ -224,18 +224,16 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
 
     //#endregion comment
-
+    var currentDate = new Date();
     $scope.ApproveRequisitionTemp = {
         Id: null,
         FromDate: null,
         ToDate: null,
         FromTime: null,
         ToTime: null,
-        VehicleMasterId: null,
-        DriverMasterId: null
-
+       
     };
-    $scope.ApproveRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
+    $scope.ApproveRequisitionModel = Object.assign({}, $scope.ApproveRequisitionTemp);
 
     // Save
     $scope.CheckedVehicleRequisitionModel = [];
@@ -244,9 +242,10 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     $scope.isMergedList = [];
     $scope.MergeRows = function () {
         try {
-            var FromDate = null;
+            var FromDate = null;  
             var ToDate = null;
-
+            var FromTime = null;
+            var ToTime = null;
             $scope.EqFromDateCheckList = [];
             $scope.EqFromTimeCheckList = [];
             $scope.isMergedList = [];
@@ -259,8 +258,11 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                     
                     if (baseService.isUndefinedOrNull(FromDate)) {
                         FromDate = $scope.VehicleMovementReqList[i].FromDate;
+                        ToDate = $scope.VehicleMovementReqList[i].ToDate;
+                        FromTime = $scope.VehicleMovementReqList[i].FromTime;
+                        ToTime = $scope.VehicleMovementReqList[i].ToTime;
                     }
-                    ToDate = $scope.VehicleMovementReqList[i].ToDate;
+                    //ToDate = $scope.VehicleMovementReqList[i].ToDate;
                 }
             }
 
@@ -275,9 +277,12 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                 }
             }
             if ($scope.showApprovePopUp) {
+                $scope.ApproveRequisitionModel.FromDate = FromDate;
+                $scope.ApproveRequisitionModel.ToDate = ToDate;
+                $scope.ApproveRequisitionModel.FromTime = FromTime;
+                $scope.ApproveRequisitionModel.ToTime = ToTime;
                 angular.element(document.querySelector("#reqPopup")).modal('show');
-                //$scope.GetDriverList();
-                //$scope.GetVehicleList();
+               
             }
 
 
@@ -287,15 +292,60 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
     }
 
+    $scope.OpenRejectPopup = function () {
+        angular.element(document.querySelector("#rejectReqPopup")).modal('show');
+    }
+
+    $scope.RequisitionRejectTemp = {
+        Id: null,
+        IsReject: true,
+        Remarks:null
+    }
+    $scope.RequisitionRejectModel = Object.assign({}, $scope.RequisitionRejectTemp);
+
+    $scope.SaveRejectRequisition = function () {
+        $scope.isMergedList = [];
+        for (var i = 0; i < $scope.VehicleMovementReqList.length; i++) {
+
+            if ($scope.VehicleMovementReqList[i].isMerge) {
+                $scope.isMergedList.push($scope.VehicleMovementReqList[i]);
+               
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'saveRejectForm',
+            data: {
+                'data': $scope.RequisitionRejectModel,
+                'reqdata': $scope.isMergedList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                angular.element(document.querySelector("#rejectReqPopup")).modal('hide');
+
+                $scope.GetVehicleRequisitiontData();
+                //$scope.GetVehicleAllocation();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    }
+
+
     // #region 
-    $scope.SaveVehicleAllocation = function () {
-       
-       // $scope.MergeRows();
+    $scope.SaveVehicleAllocation = function () {      
 
         if ($scope.isMergedList.length > 0) {
             $http({
                 method: 'POST',
-                url: $scope.saveVehicleReqUrl,
+                url: $scope.saveTripUrl,
                 data: {
                     'data': $scope.ApproveRequisitionModel,
                     'reqdata': $scope.isMergedList
@@ -323,11 +373,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     }
     // #endregion
 
-    
-
-
-   
-
+    // #region Update Requisition
     $scope.PurposeList = [];
     $scope.GetPurposeList = function () {
         $http({
@@ -340,8 +386,6 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
         });
     }
-    
-
     $scope.VehicleRequisitionTemp = {
         Id: null,
         Date: null,
@@ -363,7 +407,6 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
         angular.element(document.querySelector("#editreqPopup")).modal('show');
     }
 
-    // #region Update Requisition
     $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleRequisition';
     $scope.SaveMovement = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -382,8 +425,9 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.VehicleRequisitionModel.Id = response.data.Id;
+                    angular.element(document.querySelector("#editreqPopup")).modal('hide');
                     //ClearFieldsMovement();
-                    $scope.GetVehicleRequisitiontData();
+                    //$scope.GetVehicleRequisitiontData();
 
                 }
             }), function errorCallBack(response) {
@@ -420,5 +464,57 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
     }
     // #endregion Update Requisition
+
+    // #region Requisition Reject Tab
+    // #region Requisition Status
+    $scope.ApprovalReqList = [];
+    $scope.RequisitionChildList = [];
+    $scope.ReqStatusTreeViewData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "LoadRequisitionRejectGridData",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ApprovalReqList = response.data;
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetVehicleRequisitionChildData",
+                
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.RequisitionChildList = response.data;
+
+                $scope.LoadApprovalGrid($scope.ApprovalReqList, $scope.RequisitionChildList);
+
+            });
+        });
+    }
+    $scope.ReqStatusTreeViewData();
+
+    $scope.LoadApprovalGrid = function (arData,rcData) {
+        $scope.ApprovalReqList = arData;
+        $scope.RequisitionChildList = rcData;
+       
+        var gridObj = $("#TripGrid").data("ejGrid");
+
+        if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
+
+        $("#TripGrid").ejGrid({
+            dataSource: $scope.ApprovalReqList,           
+            columns: ["FromDate", "ToDate", "FromTime", "ToTime", "RequisitionStatus", "RejectionRemarks" ,"RejectBy"],
+
+           childGrid: {
+             dataSource: $scope.RequisitionChildList,
+             queryString: "VehicleMovementRequisitionId",
+               columns: ["Row_Num","FromLocation", "ToLocation"]
+
+            }
+
+        }).render();
+    }
+    // #endregion Requisition Status
+    // #endregion Requisition Reject Tab
 
 }

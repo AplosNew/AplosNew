@@ -163,6 +163,14 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     }
     $scope.VehicleMaster = Object.assign({}, $scope.VehicleMovementTemp);
 
+    $scope.GetVehicleMaster = function (args) {
+        $scope.VehicleMaster = Object.assign({}, args.data);
+        if (!$rootScope.isCollapsed) {
+            $scope.ActionVM = 'Update';
+            $rootScope.toggle();
+        }
+    }
+
     $scope.GetVehicleMasterData = function () {
         $http({
             method: 'POST',
@@ -633,7 +641,7 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
     };
     $scope.DriverMasterModel = Object.assign({}, $scope.DriverTemp);
 
-    $scope.DriverGet = function () {
+    $scope.GetDriverMaster = function (args) {
         $scope.DriverMasterModel = Object.assign({}, args.data);
         $scope.ActionDM = 'Update';
         if (!$rootScope.isCollapsed) {

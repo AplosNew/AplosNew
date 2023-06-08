@@ -143,7 +143,7 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button data-toggle="modal" ng-click="Remove()"  class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
         </ul>
     </div>
@@ -201,4 +201,5 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDsgPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmlngPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow()"></confirm-archive-generic>
