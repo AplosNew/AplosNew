@@ -813,7 +813,7 @@ namespace Library.Service.EmployeeServices
                         dr["BookedDate"] = DateTime.Now;
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["ReturnNetWeight"] = item.ReturnNetWeight;
-                        dr["Booked"] = false;
+                       // dr["Booked"] = false;   Booked is now 0 is stop 
                         dr.EndEdit();
                         PckId = item.PackingId;
                         BkQty += clsStaticInfo.dbl(dr["NetWeight"].ToString());
