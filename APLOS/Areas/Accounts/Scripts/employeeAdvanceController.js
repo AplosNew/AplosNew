@@ -284,9 +284,10 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
             $scope.voucher.RepaymentStartDate = $scope.DetailsList[0].InstallmentDate;
             $scope.voucher.TotalNoOfInstallment = $scope.DetailsList.length;
             $scope.voucher.NoOfInstallmentPerYear = $scope.DetailsList.length;
-            for (var i = 0; i < $scope.DetailsList.length; i++) {
-                $scope.TotalPayments += $scope.DetailsList[i].PrincipalAmount;
-            }
+            $scope.TotalPayments = $scope.advance.Amount;
+            //for (var i = 0; i < $scope.DetailsList.length; i++) {
+            //    $scope.TotalPayments += $scope.DetailsList[i].PrincipalAmount;
+            //}
 
         });
     }
@@ -484,7 +485,7 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                     return true;
                 }
                 else if ($scope.Action === "Update") {
-                    if ($scope.advance.IsPark == true) {
+                    //if ($scope.advance.IsPark == true) {
                         var Total = 0;
 
                         for (var i = 0; i < $scope.DetailsList.length; i++) {
@@ -517,10 +518,10 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
                             ShowResult(response.status.Message, "failure");
                         });
 
-                    }
-                    else {
-                        throw "In Post Mood";
-                    }
+                    //}
+                    //else {
+                    //    throw "In Post Mood";
+                    //}
                 }
             }
         } catch (e) {
@@ -712,105 +713,117 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
     $scope.TotalPayments = 0;
     $scope.TotalInterestPaid = 0;
     $scope.LoadRepamentDetail = function () {
+        if ($scope.Action == "Save") {
+            if ($scope.voucher.ProfitRate === '' || $scope.voucher.ProfitRate == 'undefined' || $scope.voucher.ProfitRate === null) {
+                $scope.voucher.ProfitRate = 0;
+            }
 
-        if ($scope.voucher.ProfitRate === '' || $scope.voucher.ProfitRate == 'undefined' || $scope.voucher.ProfitRate === null) {
-            $scope.voucher.ProfitRate = 0;
-        }
-        //if ($scope.voucher.IsSchedule) {
-        if ($scope.voucher.NoOfInstallmentPerYear < 12) {
-            $scope.voucher.LifeOfYear = 1;
+            if ($scope.voucher.NoOfInstallmentPerYear < 12) {
+                $scope.voucher.LifeOfYear = 1;
+            }
+            else {
+                $scope.voucher.LifeOfYear = $scope.voucher.NoOfInstallmentPerYear / 12;
+            }
+
+            $scope.voucher.Amount = $scope.advance.Amount;
+            $scope.loanRepaymentSchedulelist = [];
+            $("#loanDetails").children().remove();
+            var numberOfInstallment = $scope.voucher.NoOfInstallmentPerYear;
+            var actualAmount = parseFloat($scope.voucher.Amount);
+            var actualAmountWithoutProfit = parseFloat($scope.voucher.Amount);
+            var profitAmount = $scope.voucher.ProfitAmount;
+
+            var installmentPerYear = 12;
+            var rate = parseFloat((parseFloat($scope.voucher.ProfitRate) / 100) / installmentPerYear);
+
+
+            var disbursmentDate = $scope.voucher.DocDate;
+            var repaymentStartDate = $scope.voucher.RepaymentStartDate;
+            var installmentDate;
+            var payment = 0.00;
+            var profit = 0.00;
+            var principal = 0.00;
+
+            var totalPayment = 0.00;
+            var totalProfit = 0.00;
+            var totalPrincipal = 0.00;
+
+            var i = 0;
+
+            var idate;
+            var periodHtml = "<div class='SearchResult'> <table><thead><tr><td style='width:220px;'>Installment date</td><td style='width:100px;'>Installment no.</td><td style='text-align:right; width:120px;'>Payment</td><td style='text-align:right; width:120px;'>Interest</td><td style='text-align:right; width:120px;'>Principal</td><td style='text-align:right; width:120px;'>Loan</td></tr></thead>";
+
+            for (var i = 1; i <= numberOfInstallment; i++) {
+                if (i === 1) {
+                    installmentDate = new Date(repaymentStartDate);
+                    idate = installmentDate;
+                }
+                if (i > 1) {
+                    installmentDate = new Date((new Date(idate)).setMonth((new Date(idate)).getMonth() + (12 / installmentPerYear)));
+                    idate = installmentDate;
+                }
+                if (rate === 0) {
+                    payment = actualAmountWithoutProfit / numberOfInstallment;
+                }
+                else {
+                    payment = PMT(rate, numberOfInstallment, installmentPerYear, parseFloat($scope.voucher.Amount));
+                }
+                var iRate = parseFloat($scope.voucher.ProfitRate) / 100;
+                profit = (actualAmount * iRate) / installmentPerYear;
+
+                principal = payment - profit;
+
+                if (i === parseFloat(numberOfInstallment)) {
+                    actualAmount = parseFloat("0.00");
+                }
+                else {
+                    actualAmount = actualAmount - principal;
+                }
+                var schedule = new Object({
+                    InstallmentNo: i,
+                    InstallmentDate: new Date(idate),
+                    InstallmentAmount: payment,
+                    ProfitAmount: profit,
+                    PrincipalAmount: principal,
+                    Balance: actualAmount,
+                    ScheduleNo: 1
+                });
+                $scope.loanRepaymentSchedulelist.push(schedule);
+
+                totalPayment = totalPayment + payment;
+                totalProfit = totalProfit + profit;
+                totalPrincipal = totalPrincipal + principal;
+
+                $scope.TotalPayments = totalPayment.toFixed(2);
+                $scope.TotalInterestPaid = totalProfit.toFixed(2);
+
+                periodHtml += "<tr><td style ='width:220px;'>" + FormatDate(idate) + "</td><td style ='width:100px;'>" + i + "</td><td style='text-align:right; width:120px;'>" + payment.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + profit.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + principal.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + actualAmount.toFixed(2) + "</td></tr>";
+            }
+            $("#loanDetails").append(periodHtml);
+            $scope.voucher.ProfitAmount = totalProfit.toFixed(2);
+            return false;
         }
         else {
-            $scope.voucher.LifeOfYear = $scope.voucher.NoOfInstallmentPerYear / 12;
+            var numberOfInstallments = $scope.voucher.NoOfInstallmentPerYear;
+            var numberOfexistingschedule = $scope.DetailsList.length;
+            var installmentDates, idates = $scope.DetailsList[numberOfexistingschedule - 1].InstallmentDate;
+            var installmentPerYears = 12;
+            for (var i = 1; i <= numberOfInstallments - numberOfexistingschedule; i++) {
+                installmentDates = new Date((new Date(idates)).setMonth((new Date(idates)).getMonth() + (12 / installmentPerYears)));
+                idates = installmentDates;
+                var schedule = new Object({
+                    InstallmentNo: numberOfexistingschedule + i,
+                    InstallmentDate: FormatDate(idates),
+                    InstallmentAmount: 0,
+                    ProfitAmount: 0,
+                    PrincipalAmount: 0,
+                    Balance: 0,
+                    ScheduleNo: 1
+                });
+                $scope.DetailsList.push(schedule); 
+            }
         }
-
-        $scope.voucher.Amount = $scope.advance.Amount;
-        $scope.loanRepaymentSchedulelist = [];
-        $("#loanDetails").children().remove();
-        //var numberOfInstallment = $scope.voucher.TotalNoOfInstallment;
-        var numberOfInstallment = $scope.voucher.NoOfInstallmentPerYear;
-        var actualAmount = parseFloat($scope.voucher.Amount);
-        var actualAmountWithoutProfit = parseFloat($scope.voucher.Amount);
-        var profitAmount = $scope.voucher.ProfitAmount;
-        //var installmentPerYear = $scope.voucher.NoOfInstallmentPerYear;
-        var installmentPerYear = 12;
-        //if ($scope.voucher.NoOfInstallmentPerYear < 12) {           
-        //    installmentPerYear = $scope.voucher.NoOfInstallmentPerYear;
-        //}
-        var rate = parseFloat((parseFloat($scope.voucher.ProfitRate) / 100) / installmentPerYear);
-        //rate = parseFloat(rate.toFixed(2));
-        //var rate = parseFloat((parseInt($scope.voucher.ProfitRate) / 100) / installmentPerYear);
-        //console.log('rate', rate);
-        //console.log('rated', $scope.voucher.ProfitRate);
-
-        var disbursmentDate = $scope.voucher.DocDate;
-        var repaymentStartDate = $scope.voucher.RepaymentStartDate;
-        // var installmentDate = new Date(repaymentStartDate);
-        var installmentDate;
-        var payment = 0.00;
-        var profit = 0.00;
-        var principal = 0.00;
-
-        var totalPayment = 0.00;
-        var totalProfit = 0.00;
-        var totalPrincipal = 0.00;
-
-        var i = 0;
-
-        var idate;
-        var periodHtml = "<div class='SearchResult'> <table><thead><tr><td style='width:220px;'>Installment date</td><td style='width:100px;'>Installment no.</td><td style='text-align:right; width:120px;'>Payment</td><td style='text-align:right; width:120px;'>Interest</td><td style='text-align:right; width:120px;'>Principal</td><td style='text-align:right; width:120px;'>Loan</td></tr></thead>";
-        //periodHtml += "<tr><td>" + FormatDate(disbursmentDate) + " (Disbursement date)" + "</td><td>" + " " + "</td><td style='text-align:right'>" + payment.toFixed(2) + "</td><td style='text-align:right'>" + profit.toFixed(2) + "</td><td style='text-align:right'>" + principal.toFixed(2) + "</td><td style='text-align:right'>" + actualAmount.toFixed(2) + "</td></tr>";
-        for (var i = 1; i <= numberOfInstallment; i++) {
-            if (i === 1) {
-                installmentDate = new Date(repaymentStartDate);
-                idate = installmentDate;
-            }
-            if (i > 1) {
-                installmentDate = new Date((new Date(idate)).setMonth((new Date(idate)).getMonth() + (12 / installmentPerYear)));
-                idate = installmentDate;
-            }
-            if (rate === 0) {
-                payment = actualAmountWithoutProfit / numberOfInstallment;
-            }
-            else {
-                payment = PMT(rate, numberOfInstallment, installmentPerYear, parseFloat($scope.voucher.Amount));
-            }
-            var iRate = parseFloat($scope.voucher.ProfitRate) / 100;
-            profit = (actualAmount * iRate) / installmentPerYear;
-
-            principal = payment - profit;
-
-            if (i === parseFloat(numberOfInstallment)) {
-                actualAmount = parseFloat("0.00");
-            }
-            else {
-                actualAmount = actualAmount - principal;
-            }
-            var schedule = new Object({
-                InstallmentNo: i,
-                InstallmentDate: new Date(idate),
-                InstallmentAmount: payment,
-                ProfitAmount: profit,
-                PrincipalAmount: principal,
-                Balance: actualAmount,
-                ScheduleNo: 1
-            });
-            $scope.loanRepaymentSchedulelist.push(schedule);
-
-            totalPayment = totalPayment + payment;
-            totalProfit = totalProfit + profit;
-            totalPrincipal = totalPrincipal + principal;
-
-            $scope.TotalPayments = totalPayment.toFixed(2);
-            $scope.TotalInterestPaid = totalProfit.toFixed(2);
-
-            periodHtml += "<tr><td style ='width:220px;'>" + FormatDate(idate) + "</td><td style ='width:100px;'>" + i + "</td><td style='text-align:right; width:120px;'>" + payment.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + profit.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + principal.toFixed(2) + "</td><td style='text-align:right; width:120px;'>" + actualAmount.toFixed(2) + "</td></tr>";
-        }
-        //periodHtml += "<tr><td></td><td></td><td style='text-align:right;font-weight: bold'>" + totalPayment.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalProfit.toFixed(2) + "</td><td style='text-align:right;font-weight: bold'>" + totalPrincipal.toFixed(2) + "</td><td></tr></table></div>";
-        $("#loanDetails").append(periodHtml);
-        $scope.voucher.ProfitAmount = totalProfit.toFixed(2);
-        return false;
-        //}
+        
     };
 
     function PMT(rate, numberOfInstallment, installmentPerYear, actualAmount) {
@@ -849,12 +862,15 @@ function employeeAdvanceController(bankService, cboService, baseService, commonM
         }
     }
     $scope.ValueChange = function (data, index) {
-        data.PrincipalAmount = parseFloat(data.InstallmentAmount);
-        if (data.InstallmentNo == 1) {
-            data.Balance = $scope.TotalPayments - data.PrincipalAmount;
-        }
-        else {
-            data.Balance = ($scope.DetailsList[index - 1].Balance - data.PrincipalAmount);
-        }
+        for (var i = 0; i < $scope.DetailsList.length; i++) {
+            if ($scope.DetailsList[i].InstallmentNo == 1) {
+                $scope.DetailsList[i].PrincipalAmount = parseFloat($scope.DetailsList[i].InstallmentAmount);
+                $scope.DetailsList[i].Balance = parseFloat($scope.TotalPayments - $scope.DetailsList[i].PrincipalAmount).toFixed(2);
+            }
+            else {
+                $scope.DetailsList[i].PrincipalAmount = parseFloat($scope.DetailsList[i].InstallmentAmount);
+                $scope.DetailsList[i].Balance = parseFloat(($scope.DetailsList[i - 1].Balance - $scope.DetailsList[i].PrincipalAmount)).toFixed(2);
+            }
+          };
     }
 }
