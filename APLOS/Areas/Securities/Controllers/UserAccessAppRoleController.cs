@@ -37,7 +37,7 @@ namespace Aplos.Areas.Securities.Controllers
         [HttpGet, Authorize]
         public ActionResult getUser()
         {
-            string strSql = @"select E.EmployeeCode, U.Id AS UserId, U.EmployeeId, U.UserId AS [User], U.FullName, U.AuthToken , U.Active from SEC.[User] U
+            string strSql = @"select ''Id, E.EmployeeCode, U.Id AS UserId, U.EmployeeId, U.UserId AS [User], U.FullName, U.AuthToken , U.Active from SEC.[User] U
 left join EmployeeInformation E on E.SystemId = U.EmployeeId
 where Active = 1";
 
