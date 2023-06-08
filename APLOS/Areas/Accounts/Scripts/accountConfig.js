@@ -974,7 +974,7 @@ function accountConfig($routeProvider) {
         })
         .when('/incentive-master', {
             templateUrl: 'Accounts/Incentive/Aplos',
-            controller: 'IncentiveController'
+            controller: 'incentiveController'
         })
         .when('/incentive-receivable', {
             templateUrl: 'Accounts/Incentive/IncentiveReceivable',
