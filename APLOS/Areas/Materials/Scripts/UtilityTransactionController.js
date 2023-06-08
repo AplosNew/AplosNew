@@ -24,7 +24,8 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         Reading: 0,
         LastReading: 0,
         LastReadingDate: null,
-        LastReadingTime:null,
+        LastReadingTime: null,
+        MultiplyingFactor: null,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
