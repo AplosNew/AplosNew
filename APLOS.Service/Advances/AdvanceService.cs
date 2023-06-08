@@ -2567,7 +2567,7 @@ namespace Library.Service.Advances
 
                 // UPDATE Advance
                 var advance = Find(voucherVM.Id);
-                CheckIsPosted(advance);
+                //CheckIsPosted(advance);
                 voucherVM.CompanyId = advance.CompanyId;
 
                 _companyParallelCurrencyService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
@@ -2612,6 +2612,7 @@ namespace Library.Service.Advances
                 voucher.PostingDate = advance.PostingDate;
                 voucher.TaxYearId = advance.TaxYearId;
                 voucher.TaxYearPeriodId = advance.TaxYearPeriodId;
+                voucher.Narration = advance.Narration;
                 _voucherService.UpdateVoucher(voucher);
 
                 // Set Dr/Cr amount to local variable.
@@ -2862,8 +2863,21 @@ namespace Library.Service.Advances
                 if (null != DetailsList && DetailsList.Count() > 0)
                 {
                     foreach (var item in DetailsList)
-                    {
-                        _advanceReqScheduleRepository.Update(item);
+                    {  
+                        if(item.Id!=null)
+                        {
+                            item.YearNo = item.InstallmentDate.Year;
+                            item.MonthNo = item.InstallmentDate.Month;
+                            _advanceReqScheduleRepository.Update(item);
+                        }
+                        else
+                        {
+                            var employeeSalaryAdvance = _employeeSalaryAdvanceRepository.Find(DetailsList.FirstOrDefault().EmployeeSalaryAdvanceId);
+                            item.YearNo = item.InstallmentDate.Year;
+                            item.MonthNo = item.InstallmentDate.Month;
+                            InsertAdvanceReqSchedule(employeeSalaryAdvance, item, DetailsList.FirstOrDefault().RequisitionId);
+                        }
+                        
                     }
                 }
 
