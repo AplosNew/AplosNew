@@ -154,7 +154,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         if (baseService.arrayLength($scope.MaterialDataList) > 0) {
             for (var i = 0; i < $scope.MaterialDataList.length; i++) {
                 if (ids == "") {
-                    ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
+                    ids = "'','" + $scope.MaterialDataList[i].MaterialMasterId + "'";
                 }
                 else {
                     ids += ",'" + $scope.MaterialDataList[i].MaterialMasterId + "'";
@@ -313,12 +313,24 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#popUpId')).modal('hide');
     };
 
+
+    function checkItemExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].MaterialMasterId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.selectDoubleClick = function (data) {
-        $scope.model = data;
-        $scope.MaterialHSNCodeId = data.HSNCodeId;
-        //getAttribute();
-        //getArticle();
-        $scope.selectIDs(data);
+        if (checkItemExist($scope.MaterialDataList, data.Id) === false) {
+            $scope.MaterialDataList.push({
+                GLControlMasterId: $scope.ModelNew.Id,
+                MaterialMasterId: data.Id,
+                MaterialMaster: data.UserName
+            });
+        }
         $scope.closePopUp();
     };
 
@@ -375,68 +387,30 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.MaterialDataList.splice($scope.tempIndex, 1);
         $scope.DeleteMaterial($scope.materialId, $scope.materialMasterDataList);
     };
-     
+
     $scope.DeleteMaterial = function () {
 
         $http({
             method: 'POST',
             url: 'Accounts/GeneralAccountDeterminate/UpdateMaterial',
-            data: {'materialId': $scope.materialId, 'materialList': $scope.materialMasterDataList },
+            data: { 'materialId': $scope.materialId, 'materialList': $scope.materialMasterDataList },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                ShowResult(response.data.Message, 'success'); 
+                ShowResult(response.data.Message, 'success');
                 $scope.selectIDs();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
-         
+
     }
 
     // #endregion ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
-    // #region -------------------------------- Material -----------------------------------//
-
-    //$scope.SaveMaterial = function () {
-    //    try {
-    //        var MaterialList = [];
-    //        var ob = {};
-    //        for (var i = 0; i < $scope.MaterialDataList.length; i++) {
-    //            ob.Id = null;
-    //            ob.MaterialMasterId = $scope.MaterialDataList[i].MaterialMasterId;
-    //            MaterialList.push(ob);
-    //            ob = {};
-    //        }
-    //        if (MaterialList.length == 0) {
-    //            throw "Please Select GL Control!";
-    //        }
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.saveMaterialUrl,
-    //            data: { 'materialList': MaterialList, 'glControlId': $scope.ModelNew.Id },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                $scope.Action = 'Update';
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
-
-
-    // #endregion --------------------------------- Material  -----------------------------------//
 
     // #region ---------------------------------      Expense     -----------------------------------//
 
@@ -537,9 +511,23 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         }
     };
 
+    function checkConsumableExist(list, data) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].GLGeneralInfoId === data.GLGeneralInfoId && list[i].BudgetId === data.BudgetMasterId && list[i].ActivityId === data.ActivityId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.setSelected = function (data) {
-        //$scope.addRow(data);
-        $scope.selectGLBudget(data);
+        if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
+            $scope.ExpenseGLList.push({
+                GLGeneralInfoName: data.GLGeneralInfoName,
+                BudgetName: data.BudgetName,
+                ActivityName: data.ActivityName
+            });
+        }
         $scope.closeCOAICodeListPopUp();
     };
 

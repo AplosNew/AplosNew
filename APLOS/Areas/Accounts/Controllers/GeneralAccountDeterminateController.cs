@@ -230,7 +230,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 con.OpenDataSetThroughAdapter("select * from [MST].[GLControlMaster] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                string materialsql = "SELECT * FROM [MST].[MaterialMaster] WHERE Id  in ('" + materialId + "')";
+                string materialsql = "SELECT * FROM [MST].[MaterialMaster] WHERE Id  in (" + materialId + @")";
                 con.OpenDataSetThroughAdapter(materialsql, out dsMaterial, false, "1");
 
                 string _Id = "";
@@ -329,10 +329,10 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public JsonResult GetMaterialList(GridParameter parameters)
+        public JsonResult GetMaterialList(GridParameter parameters,string GlControlId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_materialMasterService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            return Json(_materialMasterService.MaterialQueryForGLControl(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize]
@@ -454,7 +454,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"select GLCD.Id,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetId
+                var sql = @"select GLCD.Id GLControldetailId,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetId
 						,B.UserName BudgetName,GLCD.ActivityId,A.UserName ActivityName
 						from mst.GLControldetail GLCD
 						left join [HKP].[GLGeneralInfo] glg on glg.Id=GLCD.GLGeneralInfoId
