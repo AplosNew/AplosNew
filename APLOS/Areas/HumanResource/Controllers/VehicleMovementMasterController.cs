@@ -1367,7 +1367,7 @@ where VA.TripId is not null";
 
         public JsonResult GetVehicleList()
         {
-            string sql = @"Select Id Value, VehicleName Text from HKP.VehicleMaster order by Text ";
+            string sql = @"Select Id Value, VehicleNumber Text from HKP.VehicleMaster order by Text ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

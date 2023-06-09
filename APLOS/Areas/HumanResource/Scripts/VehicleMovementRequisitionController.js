@@ -353,14 +353,15 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     }
     //$scope.CreateBlankRows();
     $scope.isSelectedAutoChecked = function (LocationId, index) {
-        $scope.RequisitionList[index].isSelected = true;
+        if ($scope.RequisitionList[index].FromLocationId != null)
+            $scope.RequisitionList[index].isSelected = true;
+
+        
     }
 
     $scope.AssignToLocInFromLoc = function (LocationId, index) {
         $scope.RequisitionList[index + 1].FromLocationId = LocationId;
-
-       
-
+       // $scope.isSelectedAutoChecked(LocationId, index);
     }
 
 

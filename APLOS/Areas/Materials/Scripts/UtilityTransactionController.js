@@ -94,6 +94,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
                 $scope.ModelNew.LastReading = response.data[0].LastReading;
                 $scope.ModelNew.LastReadingDate = response.data[0].LastReadingDate;
                 $scope.ModelNew.LastReadingTime = response.data[0].LastReadingTime;
+                $scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;
             });
         }
     }
