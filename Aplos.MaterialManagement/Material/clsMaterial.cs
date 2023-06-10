@@ -1397,7 +1397,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     strkey = column + " like '%" + value + "%'";
 
                 string sql = @"SELECT * FROM (
-SELECT M.*,ER.EmployeeCode ResponsiblePersonEmployeeCode,ER.EmployeeName ResponsiblePerson,EC.EmployeeCode CheckedByEmployeeCode,EC.EmployeeName CheckedBy,EN.UserName Entity,WCM.UserName WorkCenterMaster,P.UserName Process 
+SELECT M.*,FORMAT(M.ConfirmationDate,'dd-MMM-yyyy')CD,ER.EmployeeCode ResponsiblePersonEmployeeCode,ER.EmployeeName ResponsiblePerson,EC.EmployeeCode CheckedByEmployeeCode,EC.EmployeeName CheckedBy,EN.UserName Entity,WCM.UserName WorkCenterMaster,P.UserName Process 
 FROM dbo.InputConfirmationMaster M
 LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=M.ResponsiblePersonId
 LEFT JOIN dbo.EmployeeInformation EC ON EC.SystemId=M.CheckedById
