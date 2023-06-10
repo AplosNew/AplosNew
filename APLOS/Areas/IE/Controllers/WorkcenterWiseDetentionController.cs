@@ -68,11 +68,7 @@ namespace Aplos.Areas.IE.Controllers
             {
                 sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and WCM.StandardName is not null";
             }
-            //else if(entityid != null || entityid != "" && processid != null || processid != ""  && headerid != null || headerid != "")
-            //{
-            //    sqlCondition = $"where WCM.EntityId = '{entityid}' and WCM.ProcessId = '{processid}' and MMT.Id = '{headerid}'";
-            //}
-
+            
             else
             {
                 sqlCondition = $"where MMT.Id = '{headerid}'";
@@ -133,6 +129,17 @@ where DetentionMasterId='" + detentionId + "'";
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
+        }
+
+        public JsonResult GetSavedWorkCenterForUpdate(string entityid, string detentionid, string processid, string date, string shiftid, string minute)
+        {
+            string sql = @"	select MMT.Id, WCM.Id WorkcenterId, WCM.StandardName, MMT.Minute, MMT.DetentionId, DM.DetentionUserName from MachineMasterTransaction MMT
+	left join SCS.WorkCenterMaster WCM  on WCM.Id = MMT.WorkCenterId
+	left join DetentionMaster DM on DM.Id=MMT.DetentionId  
+	left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+	 where MMT.addedby in ('nitesh', 'talwinders') and  MMT.EntityId = '"+ entityid + @"' and MMT.DetentionId = '"+ detentionid + @"' and MMT.ProcessId = '"+ processid + @"' and format(MMT.Date, 'dd-MMM-yyyy') = '"+ date + @"' and MMT.ShiftId = '"+ shiftid + @"' and MMT.Minute = '"+ minute + @"'
+	 order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -202,26 +209,7 @@ where DetentionMasterId='" + detentionId + "'";
             }
         }
 
-        //[HttpPost]
-        //public JsonResult Create(List<Dictionary<string, object>> data)
-        //{
-        //    try
-        //    {
-        //        SaveMachineMasterTransactionData(data);
-        //        //if (DetentionParaList != null)
-        //        //{
-        //        //    SaveMasterOrderItemCostingRateData(DetentionParaList, data["Id"].ToString());
-        //        //}
-
-        //        return Json(new { Message = AplosMessage.Insert });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Error = true, ex.Message });
-        //    }
-
-        //}
-
+       
 
         #region AddDefaultColumn
         private void AddNewMachineMasterTransactionRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -279,7 +267,7 @@ where DetentionMasterId='" + detentionId + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"SELECT top(300) MMT.Id, MMT.EntityId, MMT.DetentionId,  MMT.ProcessId,  MMT.ShiftId
+            var sql = @"SELECT  MMT.Id, MMT.EntityId, MMT.DetentionId,  MMT.ProcessId,  MMT.ShiftId
 ,E.UserName Entity,DM.DetentionUserName Detention, FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process, FORMAT(MMT.FromTime, 'hh:mm:ss')FromTime,FORMAT(MMT.ToTime, 'hh:mm:ss') ToTime,MMT.Minute,SD.UserName Shift
 ,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter,MMT.DetentionCodeId,DM.DetentionCode DetentionCode, EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode, EI.SystemId ResponsiblePersonId
 ,  MMT.Remark ,MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
@@ -293,7 +281,7 @@ where DetentionMasterId='" + detentionId + "'";
 										where MMT.addedby in ('nitesh', 'talwinders') and  Format(MMT.AddedDate, 'dd-MMM-yyyy') between dateadd(month,datediff(month,0,getdate()),0)
 										and dateadd(day,-1,dateadd(month,datediff(month,-1,getdate()),0))
                                         order by FORMAT(MMT.AddedDate, 'dd-MMM-yyyy') DESC";
-            //where MMT.Id = '4'
+           
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
