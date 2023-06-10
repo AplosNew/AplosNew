@@ -708,5 +708,13 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Budget Code Change 
 
+        // Location
+        public List<Default2> GetCartoonLocation()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetCartoonLocation(out List<Default2> activelists);
+            return activelists;
+        }
+
     }
 }
