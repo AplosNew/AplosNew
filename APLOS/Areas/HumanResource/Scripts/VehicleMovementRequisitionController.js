@@ -62,7 +62,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         EmpSystemId: null,
         EmployeeName: null,
         ResponsiblePersonCode: null,
-        NumberOfPassengers:null,
+        NumberOfPassengers: null,
+        Name:null,
         Remarks: null
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
@@ -72,6 +73,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.GetVehicleRequisition = function (args) {
 
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
+        $scope.VehicleRequisitionModel.NumberOfPassengers = $scope.VehicleRequisitionModel.NumberOfPassengers.toString();
         $scope.MovementAction = 'Update';
         $scope.MovementChildAction = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -211,6 +213,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             EmployeeName: null,
             ResponsiblePersonCode: null,
             NumberOfPassengers: null,
+            Name: null,
             Remarks: null
         };
         $scope.RequisitionList = [];

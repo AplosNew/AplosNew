@@ -665,7 +665,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId
-                    where VMR.IsReject = 1 and  EI.SystemId = userid";
+                    where VMR.IsReject = 1";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -901,13 +901,23 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         public JsonResult GetVehicleRequisitiontDataForApproval()
         {
             string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial, VMR.NumberOfPassengers
-,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department                         
+,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department,                         
+FromLocation = stuff((select ', ' + LM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),
+
+							ToLocation =  stuff((select ', ' + TM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'')
 
                             from [TRN].[VehicleMovementRequisition] VMR							
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            where VMR.AppliedId is null and VMR.IsReject is null";
+                            where VMR.AppliedId is null and VMR.IsReject is null
+							order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

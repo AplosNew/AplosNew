@@ -623,6 +623,75 @@ where QII.IssueId='" + IssueId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetPOWiseData(string ProcessId, string entityId, string POId, string POStatus, string CustomerId, string IssueId)
+         {
+            string QCProcess="",QCEntity="",QCIssue="",QCPONO="";
+            if (ProcessId != "null")
+            {
+                QCProcess = @"and QC.ProcessId='"+ ProcessId + "'";
+            }
+            if (entityId != "null")
+            {
+                QCEntity = @"and QC.EntityId='" + entityId + "'";
+            }
+            if (ProcessId != "null")
+            {
+                QCIssue = @"and QC.IssueId='" + IssueId + "'";
+            }
+            if (POId != "null")
+            {
+                QCPONO = @"and QC.ProductionOrderId='" + POId + "'";
+            }
+            var sql = @"select distinct 
+format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
+format(DATEADD(hour, QID.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCTime,
+QC.ProductionOrderId as PONO,
+P.UserName QProcess,QID.IssueName QIssue,
+QCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName QPOStatus,
+Article = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
+left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+SONO = STUFF((select distinct ',' + sox.Id from trn.MasterOrderItem XMOI
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId = xmoi.Id
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId = sox.Id
+where podx.ProductionOrderId =  QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+ProductCode = STUFF((select distinct ',' + PM.Code from trn.ProductionOrderDetail Pod
+left outer JOIN trn.SalesOrder SO ON pod.SalesOrderId = so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
+left outer join mst.MaterialMaster mm on mm.id = MOI.MaterialMasterId
+left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
+left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
+where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+POQ.POQty,PQ.Qty ScheduleQty,ProdQ.ProducedQty,POQ.POQty-ProdQ.ProducedQty RemainingQty
+from MST.QualityIssueDetails  QID
+left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
+left join TRN.QualityControl QC on QC.IssueId=QID.Id
+left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
+left join hkp.Process P on P.Id=QC.ProcessId
+left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
+LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = QC.ProductionOrderId
+LEFT JOIN
+(SELECT SUM(SO.Qty) POQty, PD.ProductionOrderId FROM TRN.SalesOrder SO
+left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
+ where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+                            ) AS POQ ON POQ.ProductionOrderId = QC.ProductionOrderId
+left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.QualityControlDetails QD
+left join TRN.QualityControl Q on Q.Id=QD.QCId
+GROUP BY Q.ProductionOrderId
+) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
+where QID.IssueType in ('Order','General') " + QCProcess + " " + QCEntity + " " + QCIssue + " " + QCPONO + "";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)
         {
             var sql = @"select B.Id,B.ProcessId,B.EntityId,B.ShiftId,B.Date,B.WorkCenterMasterId,B.WorkCenter,B.WorkStation,B.ResponsiblePerson,B.ResponsiblePersonId,B.InCharge,B.InChargeId,B.Remarks,B.ItemName,B.ColumnInfoId,B.Sequence,B.Column1,B.Column2,B.Column3,B.Column4
