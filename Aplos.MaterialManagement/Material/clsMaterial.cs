@@ -556,7 +556,7 @@ GROUP BY M.ProductionOrderId
 
         public IEnumerable<object> GetSOItemList(string entityid, string ProductionOrderId)
         {
-            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,ICSO.Id,Flag =Convert(bit, 'False')
+            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,'' Id,Flag =Convert(bit, 'False')
 	                                ,ISNULL(so.Id,'') SOId,SO.CustomerPOId,CPO.PONumber,mm.Id MaterialMasterId,mm.UserName MaterialMaster,mma.Id ArticleId
 	                                ,ISNULL(mma.StandardName, '') SOArticle,b.Id CustomerId,b.UserName Customer,mo.TotalQty MOQty,ISNULL(u.UserName, '') UOM
 	                                ,moi.ExtraOrderPercentage [ExtraP],moi.OrderWastagePercentage [WastageP],ISNULL(mma.Id, '') ArticleId,mmc.CharCount
@@ -616,7 +616,7 @@ GROUP BY PC.OrderCostingMasterTemplateId) CMC ON CMC.OrderCostingMasterTemplateI
 LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost,Q.MasterOrderItemId FROM [dbo].[QuickBOQ] Q
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
-LEFT JOIN dbo.InputConfirmationSODetail ICSO ON ICSO.SOId=so.Id 
+ 
    WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
 
 
