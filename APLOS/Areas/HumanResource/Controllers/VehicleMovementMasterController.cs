@@ -665,7 +665,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId
-                    where VMR.IsReject = 1";
+                    where VMR.IsReject = 1 and  EI.SystemId = userid";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -1367,7 +1367,7 @@ where VA.TripId is not null";
 
         public JsonResult GetVehicleList()
         {
-            string sql = @"Select Id Value, VehicleName Text from HKP.VehicleMaster order by Text ";
+            string sql = @"Select Id Value, VehicleNumber Text from HKP.VehicleMaster order by Text ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

@@ -18,6 +18,7 @@ namespace Library.Service.Materials
         void UpdateDocument(string id);
         Dictionary<string, object> GetDocFile(string id);
         GridModel Query(GridParameter parameters, string groupId);
+        GridModel MaterialQueryForGLControl(GridParameter parameters,string groupId);
 
         IEnumerable<MaterialViewModel> GetBaseUoMConvertionFactorByMaterialMaster(string[] materialMasterIds, string[] alternativeUOMIds);
 

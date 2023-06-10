@@ -24,7 +24,8 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         Reading: 0,
         LastReading: 0,
         LastReadingDate: null,
-        LastReadingTime:null,
+        LastReadingTime: null,
+        MultiplyingFactor: null,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -93,6 +94,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
                 $scope.ModelNew.LastReading = response.data[0].LastReading;
                 $scope.ModelNew.LastReadingDate = response.data[0].LastReadingDate;
                 $scope.ModelNew.LastReadingTime = response.data[0].LastReadingTime;
+                $scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;
             });
         }
     }

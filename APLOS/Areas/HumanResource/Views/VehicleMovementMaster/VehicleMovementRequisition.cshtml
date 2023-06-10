@@ -32,7 +32,7 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select class="form-control" ng-model="VehicleRequisitionModel.PurposeId" name="Purpose"
-                                            tabindex="2">
+                                            tabindex="2" required>
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in PurposeList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
@@ -46,14 +46,10 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select class="form-control" ng-model="VehicleRequisitionModel.NumberOfPassengers" name="NoOfPassengers"
-                                            tabindex="2">
+                                            tabindex="2" required>
                                         <option value="">--Select--</option>
-                                        <option value=0 selected>0</option>
-                                        <option value=1>1</option>
-                                        <option value=2>2</option>
-                                        <option value=3>3</option>
-                                        <option value=4>4</option>
-                                        <option value=5>5</option>
+                                        <option ng-repeat="option in NoOfPassengers" value="{{option.value}}">{{option.name}}</option>
+                                        
                                     </select>
                                 </div>
                             </div>
@@ -81,11 +77,17 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label"> Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" ng-model="VehicleRequisitionModel.Name" class="form-control" required tabindex="5" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Personal / Official<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select class="form-control" ng-model="VehicleRequisitionModel.PersonalOfficial" name="Personal / Official"
-                                            tabindex="2">
+                                            tabindex="2" required>
                                         <option value="">--Select--</option>
                                         <option value="Personal">Personal</option>
                                         <option value="Official">Official</option>
@@ -98,7 +100,7 @@
                             <div class="col-sm-8 show-message">
                                 <div class="input-group">
                                     <span class="input-group-addon">{{VehicleRequisitionModel.ResponsiblePersonCode}}</span>
-                                    <input type="text" name="Responsible Person" ng-model="VehicleRequisitionModel.EmployeeName" class="form-control" readonly>
+                                    <input type="text" name="Responsible Person" ng-model="VehicleRequisitionModel.EmployeeName" class="form-control" readonly required>
                                     <span class="input-group-btn">
                                         <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     </span>
@@ -157,7 +159,7 @@
 
                                                 <div class="col-sm-12 show-message">
                                                     <div class="select-style">
-                                                        <select class="form-control" ng-model="data.ToLocationId" name="Detention" ng-change="AssignToLocInFromLoc(data.ToLocationId, $index)"
+                                                        <select class="form-control" ng-model="data.ToLocationId" name="Detention" ng-change="AssignToLocInFromLoc(data.ToLocationId, $index);"
                                                                 tabindex="2">
                                                             <option value="">--Select--</option>
                                                             <option ng-repeat="option in FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
