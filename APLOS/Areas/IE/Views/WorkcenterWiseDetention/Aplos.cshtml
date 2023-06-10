@@ -2,10 +2,7 @@
 <script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
 <togglable name="{{FormTitle}}"></togglable>
-@*<div>
-    <h4>{{FormTitle}}</h4>
-    <hr/>
-</div>*@
+
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="container-fluid">
         <div class="row">
@@ -63,7 +60,7 @@
                         </div>
                     </div>
                 </div>
-                
+
 
 
             </div>
@@ -83,14 +80,14 @@
                 <div class="mb-3 form-group" style="margin-right:4px" show-errors>
                     <label class="control-label">From Time<sup>*</sup></label>
                     @*<div class="show-message">
-                <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
-            </div>*@
+                            <input id="timepicker1" e-value="ModelNew.FromTime" width="328" ej-timepicker e-change="getMinute()" name="Time" tabindex="4" required />
+                        </div>*@
                     <div class="input-group bootstrap-timepicker timepicker">
                         <input id="FromTime" type="text" class="form-control" ng-model="ModelNew.FromTime" ng-change="getMinute();" e-width="100" tabindex="7">
                         <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
                     </div>
                 </div>
-                
+
             </div>
 
             <div class="col-xs-12 col-sm-3 col-md-3">
@@ -108,8 +105,8 @@
                 <div class="mb-3 form-group" style="margin-right:4px" show-errors>
                     <label class="control-label">To Time<sup>*</sup></label>
                     @*<div class="show-message">
-                <input id="timepicker2" e-value="ModelNew.ToTime" width="328" ej-timepicker name="Time" e-change="getMinute()" tabindex="4" required />
-            </div>*@
+                            <input id="timepicker2" e-value="ModelNew.ToTime" width="328" ej-timepicker name="Time" e-change="getMinute()" tabindex="4" required />
+                        </div>*@
 
                     <div class="input-group bootstrap-timepicker timepicker">
 
@@ -122,40 +119,78 @@
         </div>
     </div>
 
-    <div id="workcenterGrid" ej-grid e-datasource="WorkcenterList" e-load="loadGridEdit"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-        <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-            <div e-column e-headertext="Check / UnCheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Add Multiple Workcenter</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Update Workcenter</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                <div id="workcenterGrid" ej-grid e-datasource="WorkcenterList" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-headertext="Check / UnCheck" e-template="#checkboxUnallocationTemplate" e-textalign="center" e-width="60"></div>
 
-            <div e-column e-field="StandardName" e-headertext="Workcenter" e-width="100"></div>
-            <div e-column e-headertext="Detention" e-template="#Detention" e-textalign="center" e-width="100"></div>
-            <div e-column e-headertext="Responsible Person" e-template="#Responsibleperson" e-textalign="center" e-width="100"></div>
-            <div e-column e-headertext="Calculated Minute" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
+                        <div e-column e-field="StandardName" e-headertext="Workcenter" e-width="100"></div>
+                        <div e-column e-headertext="Detention" e-template="#Detention" e-textalign="center" e-width="100"></div>
+                        <div e-column e-headertext="Responsible Person" e-template="#Responsibleperson" e-textalign="center" e-width="100"></div>
+                        <div e-column e-headertext="Calculated Minute" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
+                    </div>
+                </div>
+                <script type="text/template" id="checkboxUnallocationTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+                </script>
+                <script type="text/template" id="Detention">
+                    <input type="text" class="form-control" name="Detention" ng-model="data.Detention" e-width="100" />
+                </script>
+                <script type="text/template" id="Responsibleperson">
+                    <input type="text" class="form-control" name="Responsible Person" ng-model="data.ResponsiblePerson" e-width="100" />
+                </script>
+                <script type="text/template" id="calculatedTime">
+                    <input type="text" class="form-control" name="Minute" ng-model="data.Minute" e-width="100" />
+                </script>
+
+
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
+                        <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="row">
+                    <div ej-grid e-datasource="MachineMasterDateForUpdate" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                            <div e-column e-headertext="Check / UnCheck" e-template="#checkboxUpdateTemplate" e-textalign="center" e-width="60"></div>
+
+                            <div e-column e-field="StandardName" e-headertext="Workcenter" e-width="100"></div>
+                            <div e-column e-headertext="DetentionUserName" e-template="#Detention" e-textalign="center" e-width="100"></div>
+                            <div e-column e-headertext="Responsible Person" e-template="#Responsibleperson" e-textalign="center" e-width="100"></div>
+                            <div e-column e-headertext="Calculated Minute" e-template="#calculatedTime" e-textalign="center" e-width="100"></div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button data-toggle="modal" ng-click="Delete();" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxUpdateTemplate">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
+                    </script>
+                </div>
+            </div>
         </div>
     </div>
-    <script type="text/template" id="checkboxUnallocationTemplate">
-        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" ng-model="data.Active" />
-    </script>
-    <script type="text/template" id="Detention">
-        <input type="text" class="form-control" name="Detention" ng-model="data.Detention" e-width="100" />
-    </script>
-    <script type="text/template" id="Responsibleperson">
-        <input type="text" class="form-control" name="Responsible Person" ng-model="data.ResponsiblePerson" e-width="100" />
-    </script>
-    <script type="text/template" id="calculatedTime">
-        <input type="text" class="form-control" name="Minute" ng-model="data.Minute" e-width="100" />
-    </script>
 
-
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-        </ul>
-    </div>
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
@@ -164,14 +199,14 @@
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Entity" e-headertext="Entity" e-width="12"></div>
-            <div e-column e-field="Detention" e-headertext="Detention" e-width="13"></div>          
-            <div e-column e-field="Date" e-headertext="Date" e-width="13"></div>           
+            <div e-column e-field="Detention" e-headertext="Detention" e-width="13"></div>
+            <div e-column e-field="Date" e-headertext="Date" e-width="13"></div>
             <div e-column e-field="Process" e-headertext="Process" e-width="15"></div>
             <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="15"></div>
             <div e-column e-field="FromTime" e-headertext="From Time" e-width="15"></div>
             <div e-column e-field="ToTime" e-headertext="To Time" e-width="15"></div>
             <div e-column e-field="Minute" e-headertext="Minute" e-width="15"></div>
-            <div e-column e-field="Shift" e-headertext="Shift" e-width="15"></div>          
+            <div e-column e-field="Shift" e-headertext="Shift" e-width="15"></div>
             <div e-column e-field="Remark" e-headertext="Remark" e-width="15"></div>
         </div>
     </div>

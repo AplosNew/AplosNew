@@ -556,6 +556,76 @@ GROUP BY M.ProductionOrderId
 
         public IEnumerable<object> GetSOItemList(string entityid, string ProductionOrderId)
         {
+            string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,'' Id,Flag =Convert(bit, 'False')
+	                                ,ISNULL(so.Id,'') SOId,SO.CustomerPOId,CPO.PONumber,mm.Id MaterialMasterId,mm.UserName MaterialMaster,mma.Id ArticleId
+	                                ,ISNULL(mma.StandardName, '') SOArticle,b.Id CustomerId,b.UserName Customer,mo.TotalQty MOQty,ISNULL(u.UserName, '') UOM
+	                                ,moi.ExtraOrderPercentage [ExtraP],moi.OrderWastagePercentage [WastageP],ISNULL(mma.Id, '') ArticleId,mmc.CharCount
+	                                ,ISNULL(POD.ProductionOrderId, '') POId,CBI.CostingBOQMasterId,moi.OrderCostingMasterTemplateId,B.UserName Buyer
+	                                ,PM.UserName AS ProductMasterName,PC.UserName AS ProductCategory,CEILING(SO.PlannedQty) PlannedQty
+                                    ,SO.Description,MO.BuyerReferenceNo BuyerOrder,MO.OwnReferenceNo OwnOrder,moi.BuyerReferenceNo BuyerItem,moi.OwnReferenceNo OwnItem
+									,(DMC.[Value]*R.ExchangeRate) ItemMaterialCost,(SDMC.[SOValue]*R.ExchangeRate) SOMaterialCost,CMC.TotalGrossAmount CostingMaterialCost
+									,ISNULL(QBOQ.BOQMaterialCost,0) BOQMaterialCost,SOTotalMaterailCost=CEILING(SO.PlannedQty)*SDMC.[SOValue]
+									,CostingTotalMaterialCost=CMC.TotalGrossAmount*CEILING(SO.PlannedQty),BOQTotalCost=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)
+									,TotalVarianceCostingVsSO=(CEILING(SO.PlannedQty)*SDMC.[SOValue])-(CMC.TotalGrossAmount*CEILING(SO.PlannedQty))
+									,TotalVarianceCostingVsBOQ=ISNULL(QBOQ.BOQMaterialCost,0)*CEILING(SO.PlannedQty)-CMC.TotalGrossAmount*CEILING(SO.PlannedQty)
+                                    ,0 PlanRate,0 PlantCost,0 TotalSOCostVsTotalPlanCost
+                                FROM TRN.ProductionOrderDetail POD
+                               LEFT JOIN (
+	                                SELECT SUM((isnull(qty, 0) * (1 + (isnull(moi.ExtraOrderPercentage, 0) / 100))) * (100 / (100 - isnull(moi.OrderWastagePercentage, 0)))) AS PlannedQty
+		                                ,s.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                FROM trn.SalesOrder AS s
+	                                INNER JOIN trn.MasterOrderItem AS moi ON moi.Id = s.MasterOrderItemId
+	                                GROUP BY S.Id,s.MasterOrderItemId,s.CustomerPOId,s.Description
+	                                ) so ON POD.SalesOrderId = SO.Id
+                                LEFT JOIN TRN.[MasterOrderItem] moi ON moi.id = so.MasterOrderItemId
+                                LEFT JOIN TRN.MasterOrder mo ON mo.id = moi.MasterOrderId
+                                LEFT JOIN [dbo].[MasterOrderExchangeRates] R ON R.TransactionId=mo.Id
+                                LEFT JOIN [dbo].[CostingBOQItems] CBI ON CBI.SalesOrderId=SO.Id
+                                LEFT JOIN HKP.Party b ON b.id = mo.PartyId
+                                LEFT JOIN SCS.UnitOfMeasurement u ON u.id = mo.TotalQtyUOMId
+                                LEFT JOIN MST.MaterialMaster mm ON mm.id = moi.MaterialMasterId
+                                LEFT JOIN MST.MaterialMasterArticle mma ON mma.id = moi.ArticleId
+                                LEFT JOIN (SELECT COUNT(Id) CharCount, MaterialMasterId	FROM [MST].[MaterialMasterCharacteristics] GROUP BY MaterialMasterId
+	                                ) mmc ON mmc.MaterialMasterId = mm.id
+                                LEFT JOIN HKP.Buyer BU ON BU.Id = mo.BuyerId
+                                LEFT JOIN [TRN].ProductDefinition AS PD ON PD.MaterialMasterId = MM.Id
+                                LEFT JOIN [MST].[ProductMaster] AS PM ON PD.ProductMasterId = PM.Id
+								left join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
+                                LEFT JOIN (SELECT PS.UserName, PO.Id ProductionOrderId FROM [HKP].[ProductionStatus] PS
+	                                INNER JOIN TRN.ProductionOrder PO ON PO.ProductionStatusId = PS.Id
+	                                ) OS ON OS.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
+                                LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
+                                LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
+                                LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id
+                                LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
+								LEFT JOIN(SELECT distinct MI.Id,MC.UserName,MC.[Value] 
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='DirectMaterialCost') DMC ON DMC.Id=MOI.Id
+								LEFT JOIN(SELECT distinct MC.SalesOrderId,MC.UserName,MC.[SOValue] 
+														FROM  dbo.SOCostingConfirmation MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														WHERE OLC.SOItemName='DirectMaterialCost') SDMC ON SDMC.SalesOrderId=so.Id
+LEFT JOIN(SELECT pc.OrderCostingMasterTemplateId,SUM(pc.GrossAmount)AS TotalGrossAmount FROM OrderProcurementCostingDirectMaterial AS pc  
+INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial'
+GROUP BY PC.OrderCostingMasterTemplateId) CMC ON CMC.OrderCostingMasterTemplateId=MOI.OrderCostingMasterTemplateId
+
+LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost,Q.MasterOrderItemId FROM [dbo].[QuickBOQ] Q
+INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
+inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
+ 
+   WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
+
+
+            return _sqlRepository.GetDataCollection(CmdText, null);
+        }
+
+
+        public IEnumerable<object> GetInputConfirmationSOItemList(string entityid, string ProductionOrderId,string masterId)
+        {
             string CmdText = @"SELECT DISTINCT mo.MasterOrderNo,moi.Id LineItemId,ICSO.Id,Flag =Convert(bit, 'False')
 	                                ,ISNULL(so.Id,'') SOId,SO.CustomerPOId,CPO.PONumber,mm.Id MaterialMasterId,mm.UserName MaterialMaster,mma.Id ArticleId
 	                                ,ISNULL(mma.StandardName, '') SOArticle,b.Id CustomerId,b.UserName Customer,mo.TotalQty MOQty,ISNULL(u.UserName, '') UOM
@@ -616,12 +686,13 @@ GROUP BY PC.OrderCostingMasterTemplateId) CMC ON CMC.OrderCostingMasterTemplateI
 LEFT JOIN (SELECT SUM((Q.MaterialCostPerUnit*Q.GrossConsumption))BOQMaterialCost,Q.MasterOrderItemId FROM [dbo].[QuickBOQ] Q
 INNER JOIN HKP.CostingItem I on i.Id=Q.CostingItemId
 inner join[HKP].[CostingComponent] CC ON CC.Id=I.CostingComponentId AND CC.CostingSegment='DirectMaterial' GROUP BY Q.MasterOrderItemId) QBOQ ON QBOQ.MasterOrderItemId=moi.Id
-LEFT JOIN dbo.InputConfirmationSODetail ICSO ON ICSO.SOId=so.Id
+LEFT JOIN dbo.InputConfirmationSODetail ICSO ON ICSO.SOId=so.Id AND ISNULL(ICSO.InputConfirmationMasterId,'')='"+ masterId + @"'
    WHERE PO.EntityId = '" + entityid + @"' AND PS.UserName<>'Closed' AND PO.Id='" + ProductionOrderId + "'";
 
 
             return _sqlRepository.GetDataCollection(CmdText, null);
         }
+
 
         public IEnumerable<object> GetMOIItemList(string entityid, string ProductionOrderId)
         {
@@ -1326,7 +1397,7 @@ Where IRM.ProductionOrderId='" + ProductionOrderId + "'";
                     strkey = column + " like '%" + value + "%'";
 
                 string sql = @"SELECT * FROM (
-SELECT M.*,ER.EmployeeCode ResponsiblePersonEmployeeCode,ER.EmployeeName ResponsiblePerson,EC.EmployeeCode CheckedByEmployeeCode,EC.EmployeeName CheckedBy,EN.UserName Entity,WCM.UserName WorkCenterMaster,P.UserName Process 
+SELECT M.*,FORMAT(M.ConfirmationDate,'dd-MMM-yyyy')CD,ER.EmployeeCode ResponsiblePersonEmployeeCode,ER.EmployeeName ResponsiblePerson,EC.EmployeeCode CheckedByEmployeeCode,EC.EmployeeName CheckedBy,EN.UserName Entity,WCM.UserName WorkCenterMaster,P.UserName Process 
 FROM dbo.InputConfirmationMaster M
 LEFT JOIN dbo.EmployeeInformation ER ON ER.SystemId=M.ResponsiblePersonId
 LEFT JOIN dbo.EmployeeInformation EC ON EC.SystemId=M.CheckedById
@@ -1404,6 +1475,7 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
 				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
                 ,Shade=STUFF((select distinct ','+PLA.AttributeValue from ProductLibraryAttribute PLA                                               
 							                                where PLA.ProductLibraryId=PL.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                ,MS.AddedBy,CB.EmployeeName CheckedBy,AP.EmployeeName AuthorizedBy
                 FROM dbo.MaterialIssueControlDetail D 
 				LEFT JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
 				LEFT JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
@@ -1419,7 +1491,9 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
 				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId,Id
 							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId,Id)IR ON IR.MaterialIssueControlDetailId=D.Id
-				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId				
+				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId	
+                LEFT JOIN dbo.EmployeeInformation CB ON CB.SystemId=IRM.CheckedBy
+				LEFT JOIN dbo.EmployeeInformation AP ON AP.SystemId=IRM.AuthorizedBy
 				 LEFT JOIN (
                                 	SELECT aa.Id,sum(cc.Qty) Qty
                                 	FROM trn.IssueRequest aa
@@ -1459,6 +1533,7 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
 				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
                 ,Shade=STUFF((select distinct ','+PLA.AttributeValue from ProductLibraryAttribute PLA                                               
 							                                where PLA.ProductLibraryId=PL.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                ,MS.AddedBy,CB.EmployeeName CheckedBy,AP.EmployeeName AuthorizedBy
                 FROM dbo.MaterialIssueControlDetail D 
 				LEFT JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
 				LEFT JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
@@ -1474,7 +1549,9 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
 				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId,Id
 							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId,Id)IR ON IR.MaterialIssueControlDetailId=D.Id
-				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId				
+				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId	
+                LEFT JOIN dbo.EmployeeInformation CB ON CB.SystemId=IRM.CheckedBy
+				LEFT JOIN dbo.EmployeeInformation AP ON AP.SystemId=IRM.AuthorizedBy
 				 LEFT JOIN (
                                 	SELECT aa.Id,sum(cc.Qty) Qty
                                 	FROM trn.IssueRequest aa

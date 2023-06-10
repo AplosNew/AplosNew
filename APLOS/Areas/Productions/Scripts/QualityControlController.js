@@ -141,9 +141,21 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         LotNumber: null,
         PeriodId: null,
         IssueId: null,
-        GradeId: null
+        GradeId: null,
+        Article: null
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
+
+    $scope.POWise = {
+        EntityId: null,
+        ProcessId: null,
+        IssueId: null,
+        POId: null,
+        POStatus: null,
+        Customer: null
+    };
+    $scope.POWiseNew = Object.assign({}, $scope.POWise);
+
 
     $scope.QualityControlDetails = {
         Id: null,
@@ -864,6 +876,33 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         });
     };
 
+    $scope.QCId = null;
+    $scope.SaveQC = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: {
+                    'QualityControlData': $scope.productionSummaryNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+                $scope.QCId = response.data.Data.Id;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
     $scope.SaveQIC = function (data) {
         try {
             if (baseService.isUndefinedOrNull(data.data.Value)) {
@@ -1123,7 +1162,21 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(ex, 'Info');
         }
     };
- 
+
+
+    $scope.POSelectList = [];
+    $scope.GetPOWiseData = function () {
+        try {
+            $http.get('Productions/QualityControl/GetPOWiseData?processId=' + $scope.POWiseNew.ProcessId + '&entityId=' + $scope.POWiseNew.EntityId + '&IssueId=' + $scope.POWiseNew.IssueId + '&POId=' + $scope.POWiseNew.POId + '&POStatus=' + $scope.POWiseNew.POStatus + '&CustomerId=' + $scope.POWiseNew.Customer)
+                .then(function (response) {
+                    $scope.POSelectList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+    $scope.GetPOWiseData();
+
     $scope.productionSummaryNew.NewLotNumber = true;
     $scope.ShowLotNum = false;
     $scope.SetNewLotNumber = function () {
@@ -1516,6 +1569,22 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.masterQCGo = function (isdisabled) {
+        try {
+            //$scope.SetGo(isdisabled);
+            //if ($scope.IsParameterBased == true) {
+            //    $scope.IsVisible = false;
+            //}
+            //else {
+            //    $scope.IsVisible = true;
+            //}
+            $scope.GetPOWiseData($scope.POWiseNew.ProcessId, $scope.POWiseNew.EntityId);
+            //$scope.getLineGrid();
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
     $scope.SetGo = function (isdisabled) {
         $scope.IsGo = isdisabled;
     };
@@ -1525,6 +1594,12 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.ClearMasterPart();
         $scope.ProductionSummaryDetail = [];
         $scope.LineGridList = [];
+    };
+
+    $scope.SetQCBack = function (isdisabled) {
+        $scope.IsGo = isdisabled;
+        $scope.ClearMasterPart();
+        $scope.POSelectList = [];
     };
 
     $scope.SOItemList = [];
@@ -1643,6 +1718,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.SetPrOData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+        $scope.productionSummaryNew.Article = $event.data.Article;
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
@@ -1654,6 +1730,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(ex, 'error');
         }
     }
+
 
     $scope.SalesOrderId = null;
     /*$scope.ProductionOrderId = null;*/
@@ -1708,6 +1785,10 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.NewLotNumber = true;
         $scope.ShowLotNum = false;
         $scope.ShowNew = false;
+        $scope.POWiseNew.POId = null;
+        $scope.POWiseNew.ProcessId = null;
+        $scope.POWiseNew.EntityId = null;
+        $scope.POWiseNew.IssueId = null;
     }
 
     $scope.selectLineItem = function (soitem) {
@@ -2181,36 +2262,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.CompareMaxValue = 0;
-    $scope.QCId = null;
-    $scope.SaveQC = function () {
-        //$scope.$broadcast('show-errors-check-validity');
-        //if ($scope.modelForm.$valid) {
-        try
-        {
-            //ValidationPreMaster();
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: {
-                    'QualityControlData': $scope.productionSummaryNew
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.QCId = response.data.Data.Id;
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        }
-        catch (ex) {
-            ShowResult(ex, 'Info');
-        }
-    };
+    
 
     $scope.refreshTemplateProductionSummaryWC = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWorkCenter });
@@ -2815,6 +2867,19 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     $scope.IssueHeaderList = response.data;
                     if (baseService.arrayLength(response.data) === 1) {
                         $scope.productionSummaryNew.IssueId = $scope.IssueHeaderList[0].Value;
+                    }
+                }
+            });
+    }
+
+    $scope.POList = [];
+    $scope.GetPOList = function (IId) {
+        $http.get('Productions/QualityControl/GetPOList?IssueId=' + IId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.POList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.POWiseNew.POId = $scope.POList[0].Value;
                     }
                 }
             });

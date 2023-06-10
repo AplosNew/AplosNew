@@ -37,6 +37,8 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Process Wise</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Perameter Wise</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Item Wise</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="general" role="tab" data-toggle="tab">SO Wise</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -85,7 +87,7 @@
 
 
                             </div>
-                            
+
                         </div>
                     </div>
                 </fieldset>
@@ -152,6 +154,114 @@
                         </div>
                     </fieldset>
                 </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <fieldset class="scheduler-border">
+                    <div class="form-elements form-horizontal" ng-form="from2">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="From Date" ng-model="fromDate3" datepicker class="form-control" required tabindex="3">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-disabled="IsGo" ng-model="EntityId3" ng-change="loadProcessList(EntityId3)" name="Entity" ng-options="item.Id as item.UserName for item in entityListData" required>
+                                                <option value="--Select--"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-12">
+                                        <div class="col-md-2 text-right">
+                                            <ul>
+                                                <li><button type="button" class="btn single-btn" ng-click="ItemWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Report</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="To Date" ng-model="toDate3" datepicker class="form-control" required tabindex="4">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ProcessId3" ng-options="item.Value as item.Text for item in processList" required>
+                                                <option value="--Select--"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <fieldset class="scheduler-border">
+                    <div class="form-elements form-horizontal" ng-form="from3">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="From Date" ng-model="fromDate4" datepicker class="form-control" required tabindex="3">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-disabled="IsGo" ng-model="EntityId4" ng-change="loadProcessList(EntityId4)" name="Entity" ng-options="item.Id as item.UserName for item in entityListData" required>
+                                                <option value="--Select--"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-12">
+                                        <div class="col-md-2 text-right">
+                                            <ul>
+                                                <li><button type="button" class="btn single-btn" ng-click="SOWiseReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Report</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="To Date" ng-model="toDate4" datepicker class="form-control" required tabindex="4">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="ProcessId4" ng-options="item.Value as item.Text for item in processList" required>
+                                                <option value="--Select--"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
         </div>
     </div>

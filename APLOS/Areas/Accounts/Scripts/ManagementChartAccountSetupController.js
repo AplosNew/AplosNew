@@ -240,7 +240,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
             }).finally(function () {
             });
     };
-
+    // #region
     $scope.budgetCategory = {
         Id: null,
         Sequence: 0,
@@ -361,6 +361,8 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
         $scope.budgetCategory.Sequence = seq;
         $scope.budgetCategory.Active = true;
     }
+
+    // #endregion
     // #endregion BudgetCategory
 
     // #region BudgetSubCategory
@@ -376,11 +378,47 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.updateUrlBSC = $scope.pathBSC + "edit";
     $scope.deleteUrlBSC = $scope.pathBSC + "delete/";
    // baseService.init($scope.getListUrlBSC);
+
+    $scope.searchByBSCList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'User Defined Name',
+            'value': 'UserName'
+        }
+    ];
+    $scope.BSCparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "Sequence",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
     $scope.getDataBSC = function (pageno) {
-        baseService.init($scope.getListUrlBSC, pageno, 15, 'asc', 'Sequence', $scope.SearchBy);
-        baseService.pagination(pageno)
+      
+        baseService.paginationBase($scope.getListUrlBSC, pageno, $scope.BSCparameters)
             .then(function (result) {
                 $scope.budgetSubCategories = result.Rows;
+                $scope.BSCparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, "failure");
             }).finally(function () {
@@ -510,6 +548,7 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     // #endregion BudgetSubCategory
 
     // #region Budget
+    // #region
     $rootScope.titleBgt = "Budget";
     $scope.ActionBgt = "Save";
     $scope.index = -1;
@@ -521,18 +560,55 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.saveUrlBgt = $scope.pathBgt + "create";
     $scope.updateUrlBgt = $scope.pathBgt + "edit";
     $scope.deleteUrlBgt = $scope.pathBgt + "delete/";
-   // baseService.init($scope.getListUrlBgt, null, 15);
+    // #endregion
+   
+    $scope.searchByBgtList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'User Defined Name',
+            'value': 'UserName'
+        }
+    ];
+
+    $scope.Bgtparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "Sequence",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
     $scope.getDataBgt = function (pageno) {
-        baseService.init($scope.getListUrlBgt, pageno, 15, 'asc', 'Sequence', $scope.SearchBy);
-        baseService.pagination(pageno)
+        baseService.paginationBase($scope.getListUrlBgt, pageno, $scope.Bgtparameters)
             .then(function (result) {
                 $scope.budgets = result.Rows;
+                $scope.Bgtparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, "failure");
             }).finally(function () {
             });
     };
-    //$scope.getDataBgt();
+
+    
 
     $scope.budget = {
         Id: null,

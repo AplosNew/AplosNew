@@ -5,6 +5,33 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.path = 'HumanResource/VehicleMovementMaster/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
 
+    $scope.NoOfPassengers = [
+        {
+            'name': '0',
+            'value': 0
+        },
+        {
+            'name': '1',
+            'value': 1
+        },
+        {
+            'name': '2',
+            'value': 2
+        },
+        {
+            'name': '3',
+            'value': 3
+        },
+        {
+            'name': '4',
+            'value': 4
+        },
+        {
+            'name': '5',
+            'value': 5
+        }
+    ];
+
     // #region TAB CHANGE
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -35,7 +62,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         EmpSystemId: null,
         EmployeeName: null,
         ResponsiblePersonCode: null,
-        NumberOfPassengers:null,
+        NumberOfPassengers: null,
+        Name:null,
         Remarks: null
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
@@ -45,6 +73,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.GetVehicleRequisition = function (args) {
 
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
+        $scope.VehicleRequisitionModel.NumberOfPassengers = $scope.VehicleRequisitionModel.NumberOfPassengers.toString();
         $scope.MovementAction = 'Update';
         $scope.MovementChildAction = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -103,6 +132,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
 
    
     $scope.SaveMovement = function () {
+        
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.VehicleRequisitionForm.$valid) {
             $http({
@@ -183,6 +213,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             EmployeeName: null,
             ResponsiblePersonCode: null,
             NumberOfPassengers: null,
+            Name: null,
             Remarks: null
         };
         $scope.RequisitionList = [];
@@ -325,14 +356,15 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     }
     //$scope.CreateBlankRows();
     $scope.isSelectedAutoChecked = function (LocationId, index) {
-        $scope.RequisitionList[index].isSelected = true;
+        if ($scope.RequisitionList[index].FromLocationId != null)
+            $scope.RequisitionList[index].isSelected = true;
+
+        
     }
 
     $scope.AssignToLocInFromLoc = function (LocationId, index) {
         $scope.RequisitionList[index + 1].FromLocationId = LocationId;
-
-       
-
+       // $scope.isSelectedAutoChecked(LocationId, index);
     }
 
 

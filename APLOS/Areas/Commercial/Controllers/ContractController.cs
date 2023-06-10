@@ -1621,7 +1621,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                
 
             }
 
@@ -1722,7 +1722,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
             catch (Exception ex)
             {
-                throw ex;
+                
 
             }
 
@@ -2022,7 +2022,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
             return 0;
         }
-
+        
         private void DrawSOBreakdownData(DataTable dtData, IWorksheet sheet, ref int ROW, bool Matrix = true)
         {
 

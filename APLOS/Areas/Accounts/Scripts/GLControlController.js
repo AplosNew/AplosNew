@@ -9,6 +9,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'CreateGlControl';
     $scope.saveConsumableUrl = $scope.path + 'CreateComsumable';
+    $scope.saveMaterialUrl = $scope.path + 'CreateMaterial';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
@@ -141,6 +142,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.selectExpenseGL(args.data.Id);
+        $scope.GetMaterialData(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -148,12 +150,24 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     };
 
     $scope.Save = function () {
+        var ids = "";
+        if (baseService.arrayLength($scope.MaterialDataList) > 0) {
+            for (var i = 0; i < $scope.MaterialDataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.MaterialDataList[i].MaterialMasterId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.MaterialDataList[i].MaterialMasterId + "'";
+                }
+            }
+        }
+
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: { 'data': $scope.ModelNew, 'materialId': ids, 'materialList': $scope.MaterialDataList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -163,7 +177,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'success');
                     ClearFields(response.data.Sequence);
                     $scope.getData();
-
+                    $scope.selectIDs();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -204,6 +218,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.MaterialDataList = [];
     }
 
 
@@ -298,12 +313,24 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#popUpId')).modal('hide');
     };
 
+
+    function checkItemExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].MaterialMasterId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.selectDoubleClick = function (data) {
-        $scope.model = data;
-        $scope.MaterialHSNCodeId = data.HSNCodeId;
-        //getAttribute();
-        //getArticle();
-        $scope.selectIDs(data);
+        if (checkItemExist($scope.MaterialDataList, data.Id) === false) {
+            $scope.MaterialDataList.push({
+                GLControlMasterId: $scope.ModelNew.Id,
+                MaterialMasterId: data.Id,
+                MaterialMaster: data.UserName
+            });
+        }
         $scope.closePopUp();
     };
 
@@ -316,7 +343,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
     // #region ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
-    $scope.BinHeadList = [];
+    $scope.MaterialDataList = [];
     $scope.selectIDs = function (data) {
         $http({
             method: 'POST',
@@ -328,14 +355,65 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.BinHeadList = response.data;
+            $scope.MaterialDataList = response.data;
             //$scope.selectBinIDs();
         })
     }
+
+
+    $scope.GetMaterialData = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetMaterialData",
+            data: { 'glControlDetailId': data },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.MaterialDataList = response.data;
+        })
+    }
+
+    $scope.tempIndex = [];
+    $scope.RemoveMaterial = function (data, index) {
+        $scope.tempIndex = index;
+        $scope.materialId = data.MaterialMasterId;
+        $scope.materialMasterDataList = data;
+        if (baseService.isUndefinedOrNull(data.UserName))
+            $scope.message_confirmation = 'Are you sure want to remove this data....';
+        else
+            $scope.message_confirmation = 'Are you sure want to remove ?';
+        angular.element(document.querySelector('#confirmMaterialPopUp')).modal('show');
+    };
+    $scope.RemoveMaterialRow = function () {
+        $scope.MaterialDataList.splice($scope.tempIndex, 1);
+        $scope.DeleteMaterial($scope.materialId, $scope.materialMasterDataList);
+    };
+
+    $scope.DeleteMaterial = function () {
+
+        $http({
+            method: 'POST',
+            url: 'Accounts/GeneralAccountDeterminate/UpdateMaterial',
+            data: { 'materialId': $scope.materialId, 'materialList': $scope.materialMasterDataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.selectIDs();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+
     // #endregion ---------------------------------      MATERIAL ALLOCACTION GRID      -----------------------------------//
 
+
     // #region ---------------------------------      Expense     -----------------------------------//
-    
+
     $scope.report = {
         GLName: null,
         GLGeneralInfoId: null,
@@ -433,9 +511,23 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         }
     };
 
+    function checkConsumableExist(list, data) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].GLGeneralInfoId === data.GLGeneralInfoId && list[i].BudgetId === data.BudgetMasterId && list[i].ActivityId === data.ActivityId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.setSelected = function (data) {
-        //$scope.addRow(data);
-        $scope.selectGLBudget(data);
+        if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
+            $scope.ExpenseGLList.push({
+                GLGeneralInfoName: data.GLGeneralInfoName,
+                BudgetName: data.BudgetName,
+                ActivityName: data.ActivityName
+            });
+        }
         $scope.closeCOAICodeListPopUp();
     };
 
@@ -454,7 +546,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             $scope.ExpenseGLList = response.data;
         })
     }
-     
+
     $scope.SaveConsumable = function () {
         try {
             var ConsumableList = [];
@@ -490,7 +582,6 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             ShowResult(e, "failure");
         }
     };
-
 
     $scope.tempIndex = [];
     $scope.RemoveExpense = function (data, index) {
@@ -529,7 +620,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $http({
             method: 'POST',
             url: $scope.path + "GetConsumableData",
-            data: {'glControlDetailId': data},
+            data: { 'glControlDetailId': data },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ExpenseGLList = response.data;
@@ -545,4 +636,6 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
 
     // #endregion --------------------------------- Expense  -----------------------------------//
+
+
 }

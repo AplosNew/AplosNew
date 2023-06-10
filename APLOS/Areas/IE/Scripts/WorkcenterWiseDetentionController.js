@@ -12,6 +12,17 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.year = new Date().getFullYear().toString();
 
+    // #region TAB CHANGE
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+    // #endregion TAB CHANGE
+
     $scope.ModelTransaction = {
         Id: null,
         EntityId: null,
@@ -39,9 +50,29 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         //$scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
-           
+            $scope.GetSavedWorkCenterForUpdate(args.data.EntityId, args.data.DetentionId, args.data.ProcessId, args.data.Date, args.data.ShiftId, args.data.Minute);
         }
     };
+
+    $scope.MachineMasterDateForUpdate = [];
+    $scope.GetSavedWorkCenterForUpdate = function (entityid, detentionid, processid, date, shiftid, minute) {
+        $http({
+            method: "POST",
+            dataType: 'JSON',
+            url: $scope.path + 'GetSavedWorkCenterForUpdate',
+            data: {
+                'entityid': entityid,
+                'detentionid': detentionid,
+                'processid': processid,
+                'date': date,
+                'shiftid': shiftid,
+                'minute':minute
+            }
+        }).then(function successCallback(response) {
+            $scope.MachineMasterDateForUpdate = response.data;
+        });
+
+    }
 
     $scope.GriddataMachineMasterData = [];
     $scope.getData = function () {
@@ -336,10 +367,28 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
 
     // #region Delete
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        //for (var i = 0; i < $scope.MachineMasterDateForUpdate.length; i++) {
+
+        //    if ($scope.MachineMasterDateForUpdate[i].isSelected) {
+        //        $scope.CheckedDetentionWorkList.push($scope.MachineMasterDateForUpdate[i]);
+        //        for (var j = 0; j < $scope.CheckedDetentionWorkList.length; j++) {
+        //            $scope.CheckedDetentionWorkList[j].Id = $scope.ModelNew.EntityId;
+        //            $scope.CheckedDetentionWorkList[j].DetentionId = $scope.ModelNew.DetentionId;
+        //            $scope.CheckedDetentionWorkList[j].FromTime = $scope.ModelNew.FromTime;
+        //            $scope.CheckedDetentionWorkList[j].ToTime = $scope.ModelNew.ToTime;
+        //            $scope.CheckedDetentionWorkList[j].Date = $scope.ModelNew.Date;
+        //            $scope.CheckedDetentionWorkList[j].ProcessId = $scope.ModelNew.ProcessId;
+        //            $scope.CheckedDetentionWorkList[j].ShiftId = $scope.ModelNew.ShiftId;
+        //            $scope.CheckedDetentionWorkList[j].CalculatedTime = $scope.ModelNew.CalculatedTime;
+        //            $scope.CheckedDetentionWorkList[j].ResponsiblePersonId = $scope.ModelNew.ResponsiblePersonId;
+        //            $scope.CheckedDetentionWorkList[j].Remark = $scope.ModelNew.Remark;
+        //        }
+
+        //    }
+        //}
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deleteUrl,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -354,7 +403,7 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
                     ShowResult(response.data.Message, 'failure');
                 }
             });
-        }
+      
     };
     // #endregion Delete
 

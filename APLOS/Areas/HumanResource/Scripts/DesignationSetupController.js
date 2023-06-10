@@ -1,7 +1,7 @@
 ﻿'use strict';
 DesignationSetupController.$inject = ['fileReader', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$window', '$filter'];
 function DesignationSetupController(fileReader, cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $window, $filter) {
-
+    $scope.message_confirmation = '';
 
     // #region TAB CHANGE
     $scope.tab = 1;
@@ -427,6 +427,13 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
         }
     };
 
+    $scope.RemoveDesignation = function () {
+        $scope.message_confirmation = '';   
+        if (!baseService.isUndefinedOrNull($scope.designationgroupNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete';
+        angular.element(document.querySelector('#confirmDesgPopUp')).modal('show');
+    }
+
     $scope.DeleteDG = function () {
         if (!baseService.isUndefinedOrNull($scope.designationgroupNew.Id)) {
             $http({
@@ -439,8 +446,8 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.designationgroups.splice($scope.index, 1);
-                    baseService.paginationRemove();
+                    //$scope.designationgroups.splice($scope.index, 1);
+                    //baseService.paginationRemove();
                     $scope.getDataDG();
                     ClearFieldsDG(response.data.Sequence);
                 }
@@ -699,6 +706,13 @@ function DesignationSetupController(fileReader, cboService, commonMessage, $scop
             }
         }
     };
+
+    $scope.Remove = function () {
+        $scope.message_confirmation = '';
+        if (!baseService.isUndefinedOrNull($scope.designationNew.Id))
+            $scope.message_confirmation = 'Are you sure want to delete';
+        angular.element(document.querySelector('#confirmDsgPopUp')).modal('show');
+    }
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.designationNew.Id)) {

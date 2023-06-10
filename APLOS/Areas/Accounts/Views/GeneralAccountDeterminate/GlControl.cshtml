@@ -86,40 +86,41 @@
                     <div class="col-sm-4 show-message">
                         <div class="input-group">
                             <span class="input-group-btn">
-                                <button ng-click="popUp();" class="btn single-small-btn" tabindex="5"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="popUp();" class="btn single-small-btn" @*ng-disabled="ModelNew.Id==null"*@ tabindex="5"><i class="glyphicon glyphicon-search"></i></button>
                             </span>
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <div id="GridEdit"
-                         ej-grid e-datasource="BinHeadList"
-                         e-load="loadGridEdit"
-                         e-allowfiltering="true"
-                         e-allowpaging="true"
-                         e-allowsorting="true"
-                         e-enabletouch="false"
-                         e-responsive="true"
-                         e-allowselection="true"
-                         e-filtersettings-filterType="excel"
-                         e-templaterefresh="MaterialAllocationGridAllCheck"
-                         e-allowtextwrap="true">
-
-                        <div e-columns>
-                            <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
-
-                            <div e-column e-field="MaterialMaster" e-headertext="Material Name" e-width="80"></div>
+                <div class="row ">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>MaterialMaster</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in MaterialDataList">
+                                        <td>{{x.MaterialMaster}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="$parent.RemoveMaterial(x,$index)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
+                                                        <i class="glyphicon glyphicon-remove"></i>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <script type="text/x-jsrender" id="headerTemplate">
-                        <input type="checkbox" id="headchk" />
-                    </script>
-                    <script type="text/template" id="checkboxTemplate">
-
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.chk" e-value="data.chk" />
-                    </script>
                 </div>
 
+                <confirm-archive-generic data-modalid="confirmMaterialPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveMaterialRow()"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
 
@@ -136,7 +137,7 @@
                             </div>
                         </div>
                     </div>
-                   
+
                     <div class="row ">
                         <div class="col-xs-12 col-sm-12 col-sm-12">
                             <div class="table-responsive modal-table">
@@ -171,15 +172,8 @@
                     </div>
 
                 </div>
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveConsumable();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                    </ul>
-                </div>
 
                 <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveRow()"></confirm-archive-generic>
-            </div>
-
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
 
@@ -194,9 +188,10 @@
 
             </div>
         </div>
-
     </div>
+
 </div>
+
 
 <div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">

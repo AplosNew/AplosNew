@@ -73,6 +73,14 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li><button ng-click="SaveDG();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{ActionDG}}</button></li>
+                                <li><button data-toggle="modal" ng-click="RemoveDesignation()"  class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li><button ng-click="ClearDG();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -144,13 +152,7 @@
             </div>
         </div>
     </div>
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li><button ng-click="SaveDG();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{ActionDG}}</button></li>
-            <li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li><button ng-click="ClearDG();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
-        </ul>
-    </div>
+   
 </div>
 <div class="aplos-grid-toggle">
     <div class="row text-right">
@@ -204,4 +206,5 @@
     </div>
 </div>
 <confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDesgPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteDG()"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmlngPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRowDG()"></confirm-archive-generic>

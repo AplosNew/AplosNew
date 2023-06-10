@@ -980,6 +980,12 @@ where PO.ID= '" + POId + "'";
             return Json(_productionSummaryData.GetIssueList(processId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetPOList(string IssueId)
+        {
+            return Json(_productionSummaryData.GetPOList(IssueId), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet, Authorize]
         public JsonResult GetPeriodList(string IssueId)
@@ -1055,6 +1061,14 @@ where PO.ID= '" + POId + "'";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetPOWiseData(string processid, string entityId, string POId, string POStatus, string CustomerId, string IssueId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetPOWiseData(processid, entityId, POId, POStatus, CustomerId, IssueId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
         {
@@ -1353,7 +1367,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsQualityControlData);
 
-                return Json(new { Error = false, Data = QualityControlData, Message = AplosMessage.Insert });
+                return Json(new { Error = true, Data = QualityControlData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
