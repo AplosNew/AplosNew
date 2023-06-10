@@ -68,15 +68,15 @@
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle In</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle Out</a></li>
+                <li role="presentation" id="vehicleinId" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle In</a></li>
+                <li role="presentation" id="vehicleoutId" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Vehicle Out</a></li>
 
             </ul>
         </div>
         <div class="tab-content">
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <div role="tabpanel"  class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                
-                <div class="form-elements form-horizontal" ng-form name="VehicleInForm">
+                <div class="form-elements form-horizontal" ng-form name="VehicleInForm" id="vehicleInTab">
                     <input type="hidden" ng-model="VehicleInModel.Id">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -138,9 +138,9 @@
                 
             </div>
             @*   TAB -2 *@
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div role="tabpanel"  class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                
-                <div class="form-elements form-horizontal" ng-form name="VehicleOutForm">
+                <div class="form-elements form-horizontal" ng-form name="VehicleOutForm" id="vehicleOutTab">
                     <input type="hidden" ng-model="VehicleOutModel.Id">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -212,12 +212,14 @@
         <div e-columns>
 
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="TripNumber" e-headertext="Trip No." e-width="50"></div>
             <div e-column e-field="FromDate" e-headertext="From Date" e-width="50"></div>
             <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
             <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
             <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
             <div e-column e-field="VehicleName" e-headertext="Vehicle Name" e-width="50"></div>
             <div e-column e-field="DriverName" e-headertext="Driver Name" e-width="50"></div>
+            <div e-column e-field="FromLocation" e-headertext="FromLocation" e-width="50"></div>
 
         </div>
     </div>

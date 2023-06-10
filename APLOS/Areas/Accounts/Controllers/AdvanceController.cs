@@ -749,12 +749,12 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from [TRN].[EmployeeAdvanceDeduction] where AdvanceId='" + advanceVM.Id + "' ", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("This Advanced already used in Salary Payable");
+                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //con.OpenDataSetThroughAdapter("select * from [TRN].[EmployeeAdvanceDeduction] where AdvanceId='" + advanceVM.Id + "' ", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("This Advanced already used in Salary Payable");
 
-                advanceVM.IsPark = true;
+                //advanceVM.IsPark = true;
                 if ((advanceVM.Amount == 0) || (advanceVM.Amount <= 0))
                     throw new CustomException(" Amount should more than 0");
                 if ((advanceVM.PaymentSource == "Bank") && (advanceVM.BankMasterId == null))

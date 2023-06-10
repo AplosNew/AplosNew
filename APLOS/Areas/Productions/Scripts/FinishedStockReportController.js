@@ -53,4 +53,27 @@ function FinishedStockReportController(cboService, commonMessage, $scope, $rootS
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+    $scope.getFinishedIssueReport = function () {
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetFinishedIssueReport",
+
+            data: {
+                'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate
+                , 'Loc': $scope.LocId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 }

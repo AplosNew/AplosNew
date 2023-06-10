@@ -58,7 +58,7 @@ namespace Aplos.Areas.Materials.Controllers
             string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
 							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Reading
                                         ,UT.LastReading,FORMAT(UT.LastReadingDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),UT.LastReadingTime,108) LastReadingTime
-                                        ,UT.Remarks
+                                        ,UT.Remarks, UM.MultiplyingFactor
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
@@ -104,7 +104,9 @@ namespace Aplos.Areas.Materials.Controllers
            
             string sql = @"Select TOP(1)* from (select LastReading=(select LastReading=(select top(1) Reading from UtilityTransaction Where UtilityMasterId ='" + utilityMasterId + @"' order by Date desc))
 									, LastReadingDate=(select top(1) FORMAT([Date],'dd-MMM-yyyy') from UtilityTransaction Where UtilityMasterId='" + utilityMasterId +@"' order by Date desc)
-                                    , LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + utilityMasterId +@"' order by Date desc)
+                                    , LastReadingTime=(select top(1) CONVERT(varchar(5),[AddedDate],108) from UtilityTransaction Where UtilityMasterId = '" + utilityMasterId + @"' order by Date desc)
+                                    , MultiplyingFactor = (select top(1)  MultiplyingFactor from UtilityMaster where UtilityMasterId = '"+ utilityMasterId + @"' order by Date desc)
+
                                     from UtilityTransaction
                                     Where UtilityMasterId='" + utilityMasterId + "')A";
 

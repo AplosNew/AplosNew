@@ -5,6 +5,33 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.path = 'HumanResource/VehicleMovementMaster/';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
 
+    $scope.NoOfPassengers = [
+        {
+            'name': '0',
+            'value': 0
+        },
+        {
+            'name': '1',
+            'value': 1
+        },
+        {
+            'name': '2',
+            'value': 2
+        },
+        {
+            'name': '3',
+            'value': 3
+        },
+        {
+            'name': '4',
+            'value': 4
+        },
+        {
+            'name': '5',
+            'value': 5
+        }
+    ];
+
     // #region TAB CHANGE
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -21,12 +48,13 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.MovementChildAction = 'Save';
     $scope.getMovementListUrl = $scope.path + 'GetMovementList';
     
-    $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleRequisition';
+    $scope.saveVehicleReqUrl = $scope.path + 'CreateVehicleRequisition';
     $scope.deleteMovementUrl = $scope.path + 'deleteMovement/';
 
     $scope.VehicleRequisitionTemp = {
         Id: null,
-        Date: null,
+        FromDate: null,
+        ToDate: null,
         FromTime: null,
         ToTime: null,
         PurposeId: null,
@@ -34,7 +62,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         EmpSystemId: null,
         EmployeeName: null,
         ResponsiblePersonCode: null,
-        NumberOfPassengers:null,
+        NumberOfPassengers: null,
+        Name:null,
         Remarks: null
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
@@ -44,6 +73,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.GetVehicleRequisition = function (args) {
 
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
+        $scope.VehicleRequisitionModel.NumberOfPassengers = $scope.VehicleRequisitionModel.NumberOfPassengers.toString();
         $scope.MovementAction = 'Update';
         $scope.MovementChildAction = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -75,13 +105,34 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RequisitionList = response.data;
-            $scope.ToLocationListBasedOnFromLoc($scope.FromLocationId);
+            //$scope.ToLocationListBasedOnFromLoc($scope.FromLocationId);
             $scope.CreateBlankRows();
 
         });
     }
 
+    
+    var today = new Date();
+
+    var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+
+    $scope.compareDate = function () {
+       
+        if ($scope.VehicleRequisitionModel.FromDate < myToday) {
+            
+            throw ShowResult('Invalid Date, Past date is not allowed');
+            
+        }
+        if ($scope.VehicleRequisitionModel.ToDate < myToday) {
+
+            throw ShowResult('Invalid Date, Past date is not allowed');
+
+        }
+    }
+
+   
     $scope.SaveMovement = function () {
+        
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.VehicleRequisitionForm.$valid) {
             $http({
@@ -97,7 +148,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.VehicleRequisitionModel.Id = response.data.Id;
+                    $scope.VehicleRequisitionModel.Id = response.data.Data.Id;
                     $scope.CreateBlankRows();
                     //ClearFieldsMovement();
                     $scope.GetVehicleRequisitiontData();
@@ -110,6 +161,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         }
     };
 
+    $scope.ChkdRequisitionList = [];
     $scope.SaveRequisitionChild = function () {
         $scope.ChkdRequisitionList = [];
         for (var i = 0; i < $scope.RequisitionList.length; i++) {
@@ -132,7 +184,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             }
             else {
                 ShowResult(response.data.Message, 'success');
-
+                
+                ClearFieldsMovement();
 
             }
         }), function errorCallBack(response) {
@@ -160,8 +213,11 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             EmployeeName: null,
             ResponsiblePersonCode: null,
             NumberOfPassengers: null,
+            Name: null,
             Remarks: null
         };
+        $scope.RequisitionList = [];
+        document.getElementById("reqHideShowId").style.display = "none"; 
         $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
 
 
@@ -276,7 +332,8 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         Id: null,
         FromLocationId: null,
         ToLocationId: null,
-        WithoutPassenger:false
+        WithoutPassenger: false,
+        isSelected:false
     };
     $scope.RequisitionList = [];
     $scope.CreateBlankRows = function () {       
@@ -286,7 +343,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
                 var obj = angular.copy($scope.RequisitionObj);
 
                 $scope.RequisitionList.push(obj);
-                if ($scope.VehicleRequisitionModel.NumberOfPassengers > 0) {
+                if ($scope.VehicleRequisitionModel.NumberOfPassengers == 0) {
                     $scope.RequisitionList[i].WithoutPassenger = true;
                 }
 
@@ -298,11 +355,67 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
 
     }
     //$scope.CreateBlankRows();
+    $scope.isSelectedAutoChecked = function (LocationId, index) {
+        if ($scope.RequisitionList[index].FromLocationId != null)
+            $scope.RequisitionList[index].isSelected = true;
+
+        
+    }
 
     $scope.AssignToLocInFromLoc = function (LocationId, index) {
         $scope.RequisitionList[index + 1].FromLocationId = LocationId;
-
+       // $scope.isSelectedAutoChecked(LocationId, index);
     }
 
+
+    // #region Requisition Status
+    $scope.ApprovalReqList = [];
+    $scope.RequisitionChildList = [];
+    $scope.ReqStatusTreeViewData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetRequisitionApprovedGridData",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ApprovalReqList = response.data;
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetVehicleRequisitionChildData",
+                
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.RequisitionChildList = response.data;
+
+                $scope.LoadApprovalGrid($scope.ApprovalReqList, $scope.RequisitionChildList);
+
+            });
+        });
+    }
+    $scope.ReqStatusTreeViewData();
+
+    $scope.LoadApprovalGrid = function (arData,rcData) {
+        $scope.ApprovalReqList = arData;
+        $scope.RequisitionChildList = rcData;
+       
+        var gridObj = $("#TripGrid").data("ejGrid");
+
+        if (gridObj !== undefined && typeof gridObj === 'object' && typeof gridObj.destroy === 'function') gridObj.destroy();
+
+        $("#TripGrid").ejGrid({
+            dataSource: $scope.ApprovalReqList,           
+            columns: ["FromDate", "ToDate", "FromTime", "ToTime", "RequisitionStatus", "ApprovedBy", "RejectBy"],
+
+           childGrid: {
+             dataSource: $scope.RequisitionChildList,
+             queryString: "VehicleMovementRequisitionId",
+               columns: ["Row_Num","FromLocation", "ToLocation"]
+
+            }
+
+        }).render();
+    }
+    // #endregion Requisition Status
     
 }

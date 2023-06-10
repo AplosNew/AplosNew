@@ -52,26 +52,7 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
 
-        //[HttpPost, Authorize]
-        //public ActionResult XGetFinishedStocksReport(string Loc, string ToDate, string FromDate)
-        //{
-
-        //    try
-        //    {
-        //        var workbook = GetFinishedStocksReportForm(Loc, ToDate, FromDate);
-
-        //        var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FinishedStockReport.xlsx";
-        //        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-        //        workbook.SaveAs(fullPath);
-
-        //        return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
+       
         [HttpPost, Authorize]
         public ActionResult GetFinishedStocksReport(string Loc, string ToDate, string FromDate)
         {
@@ -94,30 +75,6 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, string Text)
-        {
-
-            sheet.Range[xlsRow, xlsCol].Text = Text;
-            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-
-        }
-        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, double Number)
-        {
-            sheet.Range[xlsRow, xlsCol].Number = Number;
-            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-        }
-        private void SetHeadText(IWorksheet sheet, int xlsRow, int xlsCol, string text)
-        {
-            sheet.Range[xlsRow, xlsCol].Text = text;
-            sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
-            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
-            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
-        }
         public string GetFinishedStocksReportForm(string Loc, string ToDate, string FromDate)
         {
             try
@@ -180,29 +137,29 @@ namespace Aplos.Areas.Productions.Controllers
                     int ColActualBags = 0; int ColActualNtWt = 0; int ColActualGtWt = 0;
                     #endregion
                     #region ColumnHeaders
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Article",50, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Article", 50, ExcelHAlign.HAlignCenter);
                     cArticle = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Code", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Code", 14, ExcelHAlign.HAlignCenter);
                     cProductCode = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Details", 25, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Details", 25, ExcelHAlign.HAlignCenter);
                     ColProdDet = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POId", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POId", 14, ExcelHAlign.HAlignCenter);
                     ColPOId = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Lot No", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Lot No", 14, ExcelHAlign.HAlignCenter);
                     cLot = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag Size", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag Size", 14, ExcelHAlign.HAlignCenter);
                     cBagSize = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag", 14, ExcelHAlign.HAlignCenter);
                     cBag = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Net Weight", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Net Weight", 14, ExcelHAlign.HAlignCenter);
                     ColNtWt = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Weight", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Weight", 14, ExcelHAlign.HAlignCenter);
                     ColGWt = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Bags", 14, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Bags", 14, ExcelHAlign.HAlignCenter);
                     ColActualBags = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Net Weight", 18, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Net Weight", 18, ExcelHAlign.HAlignCenter);
                     ColActualNtWt = xlsCol; xlsCol++;
-                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Gross Weight", 20, ExcelHAlign.HAlignCenter); 
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Gross Weight", 20, ExcelHAlign.HAlignCenter);
                     ColActualGtWt = xlsCol; xlsCol++;
 
                     endXlsCol = xlsCol;
@@ -278,18 +235,18 @@ namespace Aplos.Areas.Productions.Controllers
                                 _ProductCode = data.Rows[i]["ProductCode"].ToString(); SetCellText(sheet1, xlsRow, cProductCode, _ProductCode);
                                 _ProdDet = data.Rows[i]["ProdDetails"].ToString(); SetCellText(sheet1, xlsRow, ColProdDet, _ProdDet);
                                 _POId = data.Rows[i]["POId"].ToString(); SetCellText(sheet1, xlsRow, ColPOId, _POId);
-                                _Lot = data.Rows[i]["LotNo"].ToString();SetCellText(sheet1, xlsRow, cLot, _Lot);
+                                _Lot = data.Rows[i]["LotNo"].ToString(); SetCellText(sheet1, xlsRow, cLot, _Lot);
                             }
                             else if (_ProdDet != data.Rows[i]["ProdDetails"].ToString())
                             {
                                 _ProdDet = data.Rows[i]["ProdDetails"].ToString(); SetCellText(sheet1, xlsRow, ColProdDet, _ProdDet);
                                 _POId = data.Rows[i]["POId"].ToString(); SetCellText(sheet1, xlsRow, ColPOId, _POId);
-                                _Lot = data.Rows[i]["LotNo"].ToString();SetCellText(sheet1, xlsRow, cLot, _Lot);
+                                _Lot = data.Rows[i]["LotNo"].ToString(); SetCellText(sheet1, xlsRow, cLot, _Lot);
                             }
                             else if (_POId != data.Rows[i]["POId"].ToString())
                             {
                                 _POId = data.Rows[i]["POId"].ToString(); SetCellText(sheet1, xlsRow, ColPOId, _POId);
-                                _Lot = data.Rows[i]["LotNo"].ToString();SetCellText(sheet1, xlsRow, cLot, _Lot);
+                                _Lot = data.Rows[i]["LotNo"].ToString(); SetCellText(sheet1, xlsRow, cLot, _Lot);
                             }
                             else if (_Lot != data.Rows[i]["LotNo"].ToString())
                             {
@@ -409,6 +366,344 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetFinishedIssueReport(string Loc, string ToDate, string FromDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FinishedStockReport.xlsx";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+                var workbook = GetFinishedIssueReportForm(Loc, ToDate, FromDate);
+
+
+                return Json(new { FullPath = workbook, FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string GetFinishedIssueReportForm(string Loc, string ToDate, string FromDate)
+        {
+            try
+            {
+                #region Variable
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility oRU = new ReportUtility();
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                IWorksheet sheet1 = null;
+                DataSet dsCmp = null;
+                var objRpt = new clsReport();
+
+                int xlsRow = 1, xlsCol = 1; int endXlsCol = 1;
+
+                #endregion Variable
+                //Create dataset
+
+                #region Variable
+
+                DateTime dtFrmDt = DateTime.Now;
+                DateTime dtEndDate = DateTime.Now;
+                ReportUtility ru = null;
+                //DataSet dsCmp = null;
+                DataSet dsFactory = null;
+
+
+                #endregion Variable
+
+                try
+                {
+                    objRpt = new clsReport(_sqlRepository);
+
+                    var data = det.getGroupFinishedStocksReport(Loc, FromDate, ToDate);
+                    objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+                    objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+
+                    if (data.Rows.Count == 0)
+                    {
+                        throw new Exception("Data not found.");
+
+                    }
+
+                    excelEngine = new ExcelEngine();
+                    application = excelEngine.Excel;
+
+                    workbook = application.Workbooks.Create(1);
+                    sheet1 = workbook.Worksheets[0];
+                    sheet1.IsGridLinesVisible = true;
+                    ru = new ReportUtility();
+                    string CmpName;
+                    string FactoryName;
+
+
+                    xlsRow = 5;
+
+                    #region ColumnHeaderVariables              
+                    int cArticle = 0; int cProductCode = 0; int ColProdDet = 0; int ColPOId = 0; int cLot = 0; var cBagSize = 0; var cBag = 0; int ColNtWt = 0; int ColGWt = 0;
+                    int ColActualBags = 0; int ColActualNtWt = 0; int ColActualGtWt = 0;
+                    #endregion
+                    #region ColumnHeaders
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Article", 50, ExcelHAlign.HAlignCenter);
+                    cArticle = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Code", 14, ExcelHAlign.HAlignCenter);
+                    cProductCode = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Product Details", 25, ExcelHAlign.HAlignCenter);
+                    ColProdDet = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "POId", 14, ExcelHAlign.HAlignCenter);
+                    ColPOId = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Lot No", 14, ExcelHAlign.HAlignCenter);
+                    cLot = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag Size", 14, ExcelHAlign.HAlignCenter);
+                    cBagSize = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bag", 14, ExcelHAlign.HAlignCenter);
+                    cBag = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Net Weight", 14, ExcelHAlign.HAlignCenter);
+                    ColNtWt = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Gross Weight", 14, ExcelHAlign.HAlignCenter);
+                    ColGWt = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Bags", 14, ExcelHAlign.HAlignCenter);
+                    ColActualBags = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Net Weight", 18, ExcelHAlign.HAlignCenter);
+                    ColActualNtWt = xlsCol; xlsCol++;
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Actual Gross Weight", 20, ExcelHAlign.HAlignCenter);
+                    ColActualGtWt = xlsCol; xlsCol++;
+
+                    endXlsCol = xlsCol;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 40;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                    var orgCollist = xlsCol;
+                    xlsRow++;
+
+
+                    #endregion
+                    var startXlsRow = xlsRow;
+                    if (data.Rows.Count > 0)
+                    {
+                        string _Article = string.Empty;
+                        string _ProductCode = string.Empty;
+                        string _ProdDet = string.Empty;
+                        string _POId = string.Empty;
+                        string _Lot = string.Empty;
+
+                        var isFirst = true;
+                        var catFRow = xlsRow;
+                        ArrayList al = new ArrayList();
+                        var lastEmpCat = string.Empty;
+                        for (int i = 0; i <= data.Rows.Count - 1; i++)
+                        {
+                            var catLRow = xlsRow;
+                            if (_Article != data.Rows[i]["StandardName"].ToString())
+                            {
+                                _Article = data.Rows[i]["StandardName"].ToString();
+
+                                #region Subtotal
+                                if (catFRow < xlsRow)
+                                {
+                                    lastEmpCat = _Article;
+                                    al.Add(xlsRow);
+                                    SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+                                    sheet1.Range[xlsRow, 1, xlsRow, (cBag - 1)].Merge();
+                                    sheet1.Range[xlsRow, cBag].Formula = "=SUM(" + ru.GetColumnNameForXls(cBag) + catFRow + ":" + ru.GetColumnNameForXls(cBag) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, ColNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColNtWt) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, ColGWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColGWt) + catFRow + ":" + ru.GetColumnNameForXls(ColGWt) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, ColActualBags].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualBags) + catFRow + ":" + ru.GetColumnNameForXls(ColActualBags) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, ColActualNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualNtWt) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, ColActualGtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualGtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualGtWt) + (xlsRow - 1) + ")";
+                                    sheet1.Range[xlsRow, cBag, xlsRow, ColActualGtWt].CellStyle.Font.Bold = true;
+
+                                    xlsRow++;
+                                }
+                                #endregion
+                                SetCellText(sheet1, xlsRow, cArticle, _Article);
+                                _ProductCode = data.Rows[i]["ProductCode"].ToString();
+                                SetCellText(sheet1, xlsRow, cProductCode, _ProductCode);
+                                _ProdDet = data.Rows[i]["ProdDetails"].ToString();
+                                SetCellText(sheet1, xlsRow, ColProdDet, _ProdDet);
+                                _POId = data.Rows[i]["POId"].ToString();
+                                SetCellText(sheet1, xlsRow, ColPOId, _POId);
+                                _Lot = data.Rows[i]["LotNo"].ToString();
+                                SetCellText(sheet1, xlsRow, cLot, _Lot);
+
+                                if (catFRow < xlsRow)
+                                {
+                                    catFRow = xlsRow;
+                                }
+                            }
+                            else if (_ProductCode != data.Rows[i]["ProductCode"].ToString())
+                            {
+                                _ProductCode = data.Rows[i]["ProductCode"].ToString(); SetCellText(sheet1, xlsRow, cProductCode, _ProductCode);
+                                _ProdDet = data.Rows[i]["ProdDetails"].ToString(); SetCellText(sheet1, xlsRow, ColProdDet, _ProdDet);
+                                _POId = data.Rows[i]["POId"].ToString(); SetCellText(sheet1, xlsRow, ColPOId, _POId);
+                                _Lot = data.Rows[i]["LotNo"].ToString(); SetCellText(sheet1, xlsRow, cLot, _Lot);
+                            }
+                            else if (_ProdDet != data.Rows[i]["ProdDetails"].ToString())
+                            {
+                                _ProdDet = data.Rows[i]["ProdDetails"].ToString(); SetCellText(sheet1, xlsRow, ColProdDet, _ProdDet);
+                                _POId = data.Rows[i]["POId"].ToString(); SetCellText(sheet1, xlsRow, ColPOId, _POId);
+                                _Lot = data.Rows[i]["LotNo"].ToString(); SetCellText(sheet1, xlsRow, cLot, _Lot);
+                            }
+                            else if (_POId != data.Rows[i]["POId"].ToString())
+                            {
+                                _POId = data.Rows[i]["POId"].ToString(); SetCellText(sheet1, xlsRow, ColPOId, _POId);
+                                _Lot = data.Rows[i]["LotNo"].ToString(); SetCellText(sheet1, xlsRow, cLot, _Lot);
+                            }
+                            else if (_Lot != data.Rows[i]["LotNo"].ToString())
+                            {
+                                _Lot = data.Rows[i]["LotNo"].ToString(); SetCellText(sheet1, xlsRow, cLot, _Lot);
+                            }
+
+                            SetCellText(sheet1, xlsRow, cBagSize, Convert.ToDouble(data.Rows[i]["BagSize"].ToString()));
+                            sheet1.Range[xlsRow, cBagSize].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            SetCellText(sheet1, xlsRow, cBag, Convert.ToDouble(data.Rows[i]["Bags"].ToString()));
+                            sheet1.Range[xlsRow, cBag].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            SetCellText(sheet1, xlsRow, ColNtWt, Convert.ToDouble(data.Rows[i]["NtWt"].ToString()));
+                            sheet1.Range[xlsRow, ColNtWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            SetCellText(sheet1, xlsRow, ColGWt, Convert.ToDouble(data.Rows[i]["GtWt"].ToString()));
+                            sheet1.Range[xlsRow, ColGWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                            SetCellText(sheet1, xlsRow, ColActualBags, Convert.ToDouble(data.Rows[i]["ActualBags"].ToString()));
+                            sheet1.Range[xlsRow, ColActualBags].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            SetCellText(sheet1, xlsRow, ColActualNtWt, Convert.ToDouble(data.Rows[i]["ActualNtWt"].ToString()));
+                            sheet1.Range[xlsRow, ColActualNtWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            SetCellText(sheet1, xlsRow, ColActualGtWt, Convert.ToDouble(data.Rows[i]["ActualGtWt"].ToString()));
+                            sheet1.Range[xlsRow, ColActualGtWt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            sheet1.Range[xlsRow, cBagSize, xlsRow, ColActualGtWt].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                            xlsRow++;
+                        }//for emp count
+
+                        #region Last subtotal
+                        al.Add(xlsRow);
+                        SetHeadText(sheet1, xlsRow, 1, " Subtotal:");
+                        sheet1.Range[xlsRow, 1, xlsRow, (cBag - 1)].Merge();
+                        sheet1.Range[xlsRow, cBag].Formula = "=SUM(" + ru.GetColumnNameForXls(cBag) + catFRow + ":" + ru.GetColumnNameForXls(cBag) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, ColNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColNtWt) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, ColGWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColGWt) + catFRow + ":" + ru.GetColumnNameForXls(ColGWt) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, ColActualBags].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualBags) + catFRow + ":" + ru.GetColumnNameForXls(ColActualBags) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, ColActualNtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualNtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualNtWt) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, ColActualGtWt].Formula = "=SUM(" + ru.GetColumnNameForXls(ColActualGtWt) + catFRow + ":" + ru.GetColumnNameForXls(ColActualGtWt) + (xlsRow - 1) + ")";
+                        sheet1.Range[xlsRow, cBag, xlsRow, ColActualGtWt].CellStyle.Font.Bold = true;
+                        xlsRow++;
+                        #endregion
+
+                        #region Grand Total
+                        SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
+                        sheet1.Range[xlsRow, 1, xlsRow, (cBag - 1)].Merge();
+
+
+                        sheet1.Range[xlsRow, cBag].Formula = GetFormulaGrandTotal(al, cBag);
+                        sheet1.Range[xlsRow, ColNtWt].Formula = GetFormulaGrandTotal(al, ColNtWt);
+                        sheet1.Range[xlsRow, ColGWt].Formula = GetFormulaGrandTotal(al, ColGWt);
+                        sheet1.Range[xlsRow, ColActualBags].Formula = GetFormulaGrandTotal(al, ColActualBags);
+                        sheet1.Range[xlsRow, ColActualNtWt].Formula = GetFormulaGrandTotal(al, ColActualNtWt);
+                        sheet1.Range[xlsRow, ColActualGtWt].Formula = GetFormulaGrandTotal(al, ColActualGtWt);
+                        sheet1.Range[xlsRow, cBag, xlsRow, ColActualGtWt].CellStyle.Font.Bold = true;
+
+                        #endregion
+
+                    }
+
+                    #region ******************Report Header******************
+                    xlsRow = 1;
+                    xlsCol = 1;
+                    //Param param = new Param();
+                    var CompanyGroupId = identity.CompanyGroupId;
+                    var CompanyId = identity.CompanyId;
+
+                    string FactoryAddress = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 14;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 30;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet1.Range[xlsRow, xlsCol].Text = "Finished Stock Report";
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+
+                    #endregion ******************Report Header******************
+
+
+                    var fileName = "Finished Stock Report" + DateTime.Now.ToString("yyMMdd") + ".xlsx";
+                    var filePath = "";
+                    var SheetName = "";
+                    workbook.Version = ExcelVersion.Excel2013;
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + fileName);
+                    workbook.SaveAs(filePath);
+                    workbook.Close();
+                    excelEngine.Dispose();
+                    return filePath;
+
+
+                    //return workbook;
+                }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, string Text)
+        {
+
+            sheet.Range[xlsRow, xlsCol].Text = Text;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+
+        }
+        private void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, double Number)
+        {
+            sheet.Range[xlsRow, xlsCol].Number = Number;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+        }
+        private void SetHeadText(IWorksheet sheet, int xlsRow, int xlsCol, string text)
+        {
+            sheet.Range[xlsRow, xlsCol].Text = text;
+            sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+        }
+      
         string GetFormulaGrandTotal(ArrayList al, int col)
         {
             string _formula = string.Empty;

@@ -1404,6 +1404,7 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
 				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
                 ,Shade=STUFF((select distinct ','+PLA.AttributeValue from ProductLibraryAttribute PLA                                               
 							                                where PLA.ProductLibraryId=PL.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                ,MS.AddedBy,CB.EmployeeName CheckedBy,AP.EmployeeName AuthorizedBy
                 FROM dbo.MaterialIssueControlDetail D 
 				LEFT JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
 				LEFT JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
@@ -1419,7 +1420,9 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
 				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId,Id
 							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId,Id)IR ON IR.MaterialIssueControlDetailId=D.Id
-				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId				
+				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId	
+                LEFT JOIN dbo.EmployeeInformation CB ON CB.SystemId=IRM.CheckedBy
+				LEFT JOIN dbo.EmployeeInformation AP ON AP.SystemId=IRM.AuthorizedBy
 				 LEFT JOIN (
                                 	SELECT aa.Id,sum(cc.Qty) Qty
                                 	FROM trn.IssueRequest aa
@@ -1459,6 +1462,7 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
 				,P.UserName Customer,PL.Code,MSO.SOQty,PT.UserName PackingType
                 ,Shade=STUFF((select distinct ','+PLA.AttributeValue from ProductLibraryAttribute PLA                                               
 							                                where PLA.ProductLibraryId=PL.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                ,MS.AddedBy,CB.EmployeeName CheckedBy,AP.EmployeeName AuthorizedBy
                 FROM dbo.MaterialIssueControlDetail D 
 				LEFT JOIN dbo.MaterialIssueControlMaster MS ON MS.Id=D.MaterialIssueControlMasterId
 				LEFT JOIN dbo.MaterialIssueControlSODetail MSO ON MSO.MaterialIssueControlMasterId=D.MaterialIssueControlMasterId
@@ -1474,7 +1478,9 @@ Where A.ProductionOrderId='" + ProductionOrderId + "' AND A.Sequence=1";
                 LEFT JOIN MST.MaterialMasterArticle A ON A.Id=D.ArticleId
 				LEFT JOIN (SELECT MaterialIssueControlDetailId, SUM(ISNULL(RequestedQty,0)) IssueQty,TransactionUoMId,IssueRequestMasterId,Id
 							FROM TRN.IssueRequest GROUP BY MaterialIssueControlDetailId,TransactionUoMId,IssueRequestMasterId,Id)IR ON IR.MaterialIssueControlDetailId=D.Id
-				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId				
+				LEFT JOIN TRN.IssueRequestMaster IRM ON IRM.Id=IR.IssueRequestMasterId	
+                LEFT JOIN dbo.EmployeeInformation CB ON CB.SystemId=IRM.CheckedBy
+				LEFT JOIN dbo.EmployeeInformation AP ON AP.SystemId=IRM.AuthorizedBy
 				 LEFT JOIN (
                                 	SELECT aa.Id,sum(cc.Qty) Qty
                                 	FROM trn.IssueRequest aa

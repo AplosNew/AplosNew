@@ -20657,6 +20657,39 @@ SELECT --ROW_NUMBER() Over(Order by  MM.Id) As[S.N],
 
         }
 
+
+        public GridModel MaterialQueryForGLControl(GridParameter parameters, string groupId)
+        {
+            parameters.CmdText = @"SELECT MT.UserName AS MaterialTypeName, MM.IsOriginApplicable
+                                        , MGP.UserName AS MaterialGroupMasterName
+	                                    --, HSNCodeId=CASE WHEN MM.HSNCodeId IS NULL THEN MGP.HSNCodeId ELSE MM.HSNCodeId END
+                                        ,MM.HSNCodeId,HSN.Code HSNCode
+                                        , PM.UserName AS ProductMasterName
+                                        , UOMB.UserName AS BaseUom
+                                        , MM.Id,MM.CompanyGroupId,MT.Id MaterialTypeId,MM.TestingStandardId,MM.MaterialGroupMasterId,MM.ProductMasterId,MM.PurchaseOrderUOMId,MM.SalesOrderUOMId,MM.BaseUOMId,MM.StockUOMId
+                                        , MM.Sequence,MM.Code,MM.ShortName,MM.StandardName,MM.UserName,MM.WithSKU,MM.[Description]
+                                        , MM.Active,MM.IsInventory,MM.IsExpenseOut, Asset=CASE WHEN MM.IsAsset=0 THEN 'No' ELSE 'Yes' END, MM.IsAsset
+                                        , FAMT.FixedAssetMasterId AS AssetMasterId, FAM.UserName AS AssetMasterName, FAM.AssetType
+                                        , IsRevenue=CASE WHEN (MM.IsInventory=1 OR MM.IsExpenseOut=1) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END
+                                        , MM.BudgetMasterId, B.UserName AS AssetBudgetCode, MM.MaterialCategoryId, MM.MaterialSubCategoryId
+                                        , MM.Image,MM.ActivityId, ACT.UserName AS ActivityName, MM.SkillId,MM.MaterialMasterTypeId, MMT.UserName MaterialMasterType,MM.IsRegular,MM.IssueByUoM,MM.IsReplacement
+                                   FROM [MST].[MaterialMaster] AS MM
+                                   LEFT OUTER JOIN [MST].[MaterialGroupMaster] AS MGP ON MM.MaterialGroupMasterId = MGP.Id
+                                   LEFT OUTER JOIN [HKP].[MaterialType] AS MT ON MGP.MaterialTypeId = MT.Id
+                                   INNER JOIN [SCS].[UnitOfMeasurement] AS UOMB ON MM.BaseUOMId = UOMB.Id
+                                   LEFT JOIN TRN.ProductDefinition PD ON PD.MaterialMasterId=MM.Id
+                                   LEFT OUTER JOIN [MST].[ProductMaster] AS PM ON PM.Id=PD.ProductMasterId
+                                   LEFT JOIN MST.BudgetMaster AS BM ON MM.BudgetMasterId=BM.Id
+                                   LEFT JOIN HKP.FixedAssetMasterBudgetTag AS FAMT ON FAMT.BudgetMasterId=BM.Id
+                                   LEFT JOIN [MST].[FixedAssetMaster] AS FAM ON FAMT.FixedAssetMasterId=FAM.Id
+                                   LEFT JOIN HKP.Budget AS B ON B.Id=BM.BudgetId
+                                   LEFT JOIN HKP.Activity AS ACT ON MM.ActivityId=ACT.Id
+                                   LEFT JOIN HKP.HSNCode HSN ON HSN.Id=MM.HSNCodeId
+                                   LEFT JOIN [HKP].[MaterialMasterType] MMT ON MMT.Id=MM.MaterialMasterTypeId
+                                   WHERE MM.CompanyGroupId = '" + groupId + "' AND MM.Archive = 0 and MM.GLControlMasterId is null ";
+            return _sqlRepository.GetGridData(parameters);
+        }
+
     }
 }
 
