@@ -22,7 +22,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
     $scope.DetentionSum = 0;
-
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -714,10 +713,17 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.DateValidation = function (ProductionDate) {
         try {
-            if (new Date(ProductionDate) > new Date()) {
-                throw "Production Date must be below or equal to current Date!";
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            $scope.Yestarday = $filter('dateFiltering')(date);
+            $scope.ProdDate = $filter('dateFiltering')(ProductionDate);
+            if ($scope.ProdDate < $scope.Yestarday)
+            {
+                throw "Production Date must be allow only Yestarday's Date!";
             }
-
+            if (new Date(ProductionDate) > new Date()) {
+                throw "Production Date must be equal to current Date!";
+            }
         }
         catch (ex) {
             ShowResult(ex, 'failure');
