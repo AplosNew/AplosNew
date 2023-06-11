@@ -5602,7 +5602,7 @@ namespace Library.MaterialManagement.Inventory
                     --,B.UserName OpeningBank
                     , PO.CompanyGroupId
                     ,PO.CompanyId,PO.BaseNoOfDays
-                    ,Plant.GSTIN
+                    --,Plant.GSTIN
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     , REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
                   --, POType = CASE WHEN PO.POType = 'PO' then 'PO Without Requisition' when PO.POType = 'POBOQ' then 'PO BOQ' ELSE 'PO With Requisition' END
@@ -5639,7 +5639,7 @@ namespace Library.MaterialManagement.Inventory
                     ,ISNULL(PO.SpecialInstruction, '') SpecialInstruction
                     ,Party.UserName VendorName
                     , Party.AddressMasterId VendorAddressMasterId
-                     , Party.TINNO VendorGSTIN
+                     , Party.TINNO GSTIN
                       , Case When PO.IsNonCreditable = 1 then 'NonCreditable' when Po.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
                        , PO.CurrencyId
                     ,CRNC.Code AS CurrencyName
