@@ -21,7 +21,7 @@ function buyerProgramController(commonMessage, $scope, $rootScope, baseService, 
     $scope.buyerProgram = {
         Id: null,
         BuyerId: null,
-        Sequence: null,
+        Sequence: 1,
         Code: null,
         ShortName: null,
         StandardName: null,
@@ -75,6 +75,7 @@ function buyerProgramController(commonMessage, $scope, $rootScope, baseService, 
                         $scope.buyerPrograms = $filter('orderBy')($scope.buyerPrograms, 'Sequence');
                         baseService.paginationAdd();
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -97,6 +98,7 @@ function buyerProgramController(commonMessage, $scope, $rootScope, baseService, 
                             $scope.buyerPrograms = $filter('orderBy')($scope.buyerPrograms, 'Sequence');
                         }
                         ClearFields(response.data.Sequence);
+                        $scope.getData();
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -118,6 +120,7 @@ function buyerProgramController(commonMessage, $scope, $rootScope, baseService, 
                     ShowResult(response.data.Message, "success");
                     $scope.buyerPrograms.splice($scope.index, 1);
                     ClearFields(response.data.Sequence);
+                    $scope.getData();
                 }
             }, function errorCallback(response) {
                 ShowResult(response.status.Message, "failure");
@@ -133,10 +136,23 @@ function buyerProgramController(commonMessage, $scope, $rootScope, baseService, 
         return true;
     };
     function ClearFields(seq) {
+        $scope.BuyerId = $scope.buyerProgramNew.BuyerId;
         $scope.Action = "Save";
-        $scope.buyerProgram = {};
-        $scope.buyerProgramNew = { BuyerId: $scope.buyerProgramNew.BuyerId };
-        $scope.buyerProgramNew.Sequence = seq;
-        $scope.buyerProgramNew.Active = true;
+        $scope.buyerProgram = {
+            Id: null,
+            BuyerId: null,
+            Sequence: 1,
+            Code: null,
+            ShortName: null,
+            StandardName: null,
+            UserName: null,
+            Description: null,
+            Remarks: null,
+            Active: true,
+            Archive: false
+        };
+
+        $scope.buyerProgramNew = Object.assign({}, $scope.buyerProgram);
+        $scope.buyerProgramNew.BuyerId = $scope.BuyerId;
     }
 }
