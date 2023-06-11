@@ -716,5 +716,19 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        // Barcode Scan
+        public string PostBarcodeScanData([FromBody] IEnumerable<BarcodeScan> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostBarcodeScanData(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
     }
 }
