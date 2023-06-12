@@ -24,7 +24,8 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         Reading: 0,
         LastReading: 0,
         LastReadingDate: null,
-        LastReadingTime:null,
+        LastReadingTime: null,
+        MultiplyingFactor: null,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -49,18 +50,69 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         return $scope.tab === tabNum;
     };
 
+    $scope.searchbyUtilityTransactionlist = [
+        {
+            'name': 'Utility Master',
+            'value': 'UtilityMaster'
+        },
+        {
+            'name': 'Utility Group',
+            'value': 'UtilityGroup'
+        },
+        {
+            'name': 'Utility SubGroup',
+            'value': 'UtilitySubGroup'
+        },
+        {
+            'name': 'Utility Category',
+            'value': 'UtilityCategory'
+        },
+        {
+            'name': 'Utility SubCategory',
+            'value': 'UtilitySubCategory'
+        },
+        {
+            'name': 'Item',
+            'value': 'Item'
+        }
+    ];
 
+    $scope.searchByUtility = "UtilityMaster"; $scope.searchUtility = "";
+    
+    $scope.valueData = '';
     $scope.utilityMasterList = [];
-    $scope.GetUtilityMasterList = function () {
+ 
+    $scope.getUtilityTransactionPopUpData = function () {
+        $scope.UtilityUrl = 'Materials/UtilityTransaction/GetUtilityMasterList';
         $http({
-            method: 'GET',
-            url: 'Materials/UtilityTransaction/GetUtilityMasterList'
+            method: 'POST',
+            url: $scope.UtilityUrl,
+            data: { column: $scope.searchByUtility, value: $scope.searchUtility },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.utilityMasterList = response.data;
         });
-    }
-    $scope.GetUtilityMasterList();
+        angular.element(document.querySelector('#UtilityMasterpopUpId')).modal('show');
+    };
 
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#UtilityMasterpopUpId')).modal('hide');
+        $scope.searchUtility = '';
+    }
+
+    $scope.selectDoubleClick = function (obj) {
+        $scope.ModelNew.UtilityMaster = obj.data.UtilityMaster;
+        $scope.ModelNew.UtilityMasterId = obj.data.UtilityMasterId;
+        $scope.ModelNew.MultiplyingFactor = obj.data.MultiplyingFactor;
+
+        $scope.GetEditReadingList();
+        $scope.GetUoMAndReadingApplicable();
+        angular.element(document.querySelector('#UtilityMasterpopUpId')).modal('hide');
+        $scope.searchUtility = '';
+    }
+
+     
     $scope.UoMName = null;
     $scope.GetUoMAndReadingApplicable = function () {
         for (var i = 0; i < $scope.utilityMasterList.length; i++) {
@@ -69,18 +121,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             }
         }
     }
-
-    //$scope.GetLastReadingList = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
-    //    }).then(function successCallback(response) {
-    //        $scope.LastReading = response.data[0].LastReading;
-    //        $scope.LastReadingDate = response.data[0].LastReadingDate;
-    //        $scope.LastReadingTime = response.data[0].LastReadingTime;
-    //    });
-    //}
-
+     
     $scope.GetEditReadingList = function () {
         $scope.ModelNew.LastReading = 0;
         $scope.ModelNew.LastReadingDate = null;
@@ -93,6 +134,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
                 $scope.ModelNew.LastReading = response.data[0].LastReading;
                 $scope.ModelNew.LastReadingDate = response.data[0].LastReadingDate;
                 $scope.ModelNew.LastReadingTime = response.data[0].LastReadingTime;
+                $scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;
             });
         }
     }
@@ -106,8 +148,8 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             method: 'GET',
             url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
         }).then(function successCallback(response) {
-            $scope.MultiplyingFactor = response.data[0].MultiplyingFactor;
-        $scope.CalculatedValue = $scope.ModelNew.Quantity * $scope.MultiplyingFactor;
+            /*$scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;*/
+            $scope.CalculatedValue = $scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor;
         });
     }
 
@@ -194,6 +236,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
 
     $scope.Clear = function () {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.UtilityMaster = [];
         $scope.UoMName = null;
         $scope.CalculatedValue = 0;
         $scope.IsReadingApp = false;

@@ -1297,7 +1297,7 @@ namespace Aplos.Areas.Materials.Controllers
                 {
                     throw new Exception("No Data Found.");
                 }
-                int ROW = 5; int COL = 1;
+                int ROW = 6; int COL = 1;
                 sheet.Range[ROW, COL].Text = "SlipNo. :";
                 sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["IssueSlipId"].ToString();
                 sheet.Range[ROW, COL + 2].Text = "Date" + ": " + dtOrder.Rows[0]["AddedDate"].ToString();
@@ -1315,7 +1315,7 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
 
 
-                ROW = 6; COL = 1;
+                ROW = 7; COL = 1;
                 sheet.Range[ROW, COL].Text = "PO No. :";
                 sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["POId"].ToString();
                 sheet.Range[ROW, COL + 2].Text = "Cost Center" + ": " + dtOrder.Rows[0]["CostCenter"].ToString();
@@ -1331,8 +1331,8 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
 
-                sheet.Range[7, 1, 7, COL + 11].Merge();
-                ROW = 7; COL = 1;
+                sheet.Range[8, 1, 8, COL + 11].Merge();
+                ROW = 8; COL = 1;
                 ROW++;
                 #region ColumnsHeader
 
@@ -1440,6 +1440,20 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderInside(ExcelLineStyle.Hair);
 
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+
+                sheet.Range[edCRow-1, 3].Text = dtOrder.Rows[0]["AddedBy"].ToString();
+                sheet.Range[edCRow, 3].Text = "PareparedBy";
+                sheet.Range[edCRow - 1, 5].Text = dtOrder.Rows[0]["CheckedBy"].ToString();
+                sheet.Range[edCRow, 5].Text = "CheckedBy";
+                sheet.Range[edCRow - 1, 7].Text = dtOrder.Rows[0]["AuthorizedBy"].ToString();
+                sheet.Range[edCRow, 7].Text = "AuthorizedBy";
+
                 #region ReportHeader
                 //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
                 //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
@@ -1450,8 +1464,8 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet["A" + startRow.ToString()].FreezePanes();
 
                 ReportUtility reportUtility = new ReportUtility();
-                //reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
-                reportUtility.CompanyHeader(ref sheet, endCol, "Material Issue Report", identity.CompanyId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
+                //reportUtility.CompanyHeader(ref sheet, endCol, "Material Issue Report", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1556,7 +1570,7 @@ namespace Aplos.Areas.Materials.Controllers
                 {
                     throw new Exception("No Data Found.");
                 }
-                int ROW = 5; int COL = 1;
+                int ROW = 6; int COL = 1;
                 sheet.Range[ROW, COL].Text = "SlipNo. :";
                 sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["IssueSlipId"].ToString();
                 sheet.Range[ROW, COL + 2].Text = "Date" + ": " + dtOrder.Rows[0]["AddedDate"].ToString();
@@ -1574,7 +1588,7 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
 
 
-                ROW = 6; COL = 1;
+                ROW = 7; COL = 1;
                 sheet.Range[ROW, COL].Text = "PO No. :";
                 sheet.Range[ROW, COL + 1].Text = dtOrder.Rows[0]["POId"].ToString();
                 sheet.Range[ROW, COL + 2].Text = "Cost Center" + ": " + dtOrder.Rows[0]["CostCenter"].ToString();
@@ -1590,8 +1604,8 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW + 1, 11].BorderInside(ExcelLineStyle.Hair);
 
-                sheet.Range[7, 1, 7, COL + 11].Merge();
-                ROW = 7; COL = 1;
+                sheet.Range[8, 1, 8, COL + 11].Merge();
+                ROW = 8; COL = 1;
                 ROW++;
                 #region ColumnsHeader
 
@@ -1699,6 +1713,20 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[edCRow, 1, edCRow, endCol].BorderInside(ExcelLineStyle.Hair);
 
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+                edCRow++;
+
+                sheet.Range[edCRow - 1, 3].Text = dtOrder.Rows[0]["AddedBy"].ToString();
+                sheet.Range[edCRow, 3].Text = "PareparedBy";
+                sheet.Range[edCRow - 1, 5].Text = dtOrder.Rows[0]["CheckedBy"].ToString();
+                sheet.Range[edCRow, 5].Text = "CheckedBy";
+                sheet.Range[edCRow - 1, 7].Text = dtOrder.Rows[0]["AuthorizedBy"].ToString();
+                sheet.Range[edCRow, 7].Text = "AuthorizedBy";
+
                 #region ReportHeader
                 //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
                 //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
@@ -1709,8 +1737,8 @@ namespace Aplos.Areas.Materials.Controllers
                 sheet["A" + startRow.ToString()].FreezePanes();
 
                 ReportUtility reportUtility = new ReportUtility();
-                //reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
-                reportUtility.CompanyHeader(ref sheet, endCol, "Material Issue Report", identity.CompanyId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Material Issue Report", identity.PlantId);
+                //reportUtility.CompanyHeader(ref sheet, endCol, "Material Issue Report", identity.CompanyId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;

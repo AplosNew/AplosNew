@@ -2014,6 +2014,8 @@ namespace Library.HumanResource.Payroll
                 int ColDMP = 0;
                 int ColDMPCost = 0;
                 int ColTotalOtHr = 0;
+                int ColSalaryId = 0;
+                int ColSalaryDate = 0;
 
                 //1
                 SetCellValue("Sr. No.", sheet1, xlsRow, ref xlsCol, out ColSr);
@@ -2052,12 +2054,15 @@ namespace Library.HumanResource.Payroll
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
                 SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOtHr, 25);
+                SetCellValue("SalaryID", sheet1, xlsRow, ref xlsCol, out ColSalaryId, 25);
+                SetCellValue("SalaryProc Date", sheet1, xlsRow, ref xlsCol, out ColSalaryDate, 25);
 
+                
                 //SR to
                 sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
-                sheet1.Range[xlsRow, ColSr, xlsRow, ColTotalOtHr].Merge();
+                sheet1.Range[xlsRow, ColSr, xlsRow, ColSalaryDate].Merge();
                 //xlsCol += 1;
-                ColGrs = ColTotalOtHr;
+                ColGrs = ColSalaryDate;
                 // 9
 
                 var _count_earning_head = 0;
@@ -2410,6 +2415,15 @@ namespace Library.HumanResource.Payroll
                         {
 
                             List<DataRow> drSalaryHeadCollection = dicEmpSalry[dtEmployees.Rows[i]["EmpSystemID"].ToString()];
+
+                            sheet1.Range[xlsRow, ColSalaryId].Text = drSalaryHeadCollection[0]["SlrProcMstSystemID"].ToString();
+                            sheet1.Range[xlsRow, ColSalaryId].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                            sheet1.Range[xlsRow, ColSalaryId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, ColSalaryDate].Text = drSalaryHeadCollection[0]["SlrProcDate"].ToString();
+                            sheet1.Range[xlsRow, ColSalaryDate].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                            sheet1.Range[xlsRow, ColSalaryDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                             for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
                             {
                                 if (drSalaryHeadCollection[CI]["HeadCategory"].ToString().ToUpper() == "NET PAYABLE")
@@ -7745,7 +7759,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                     cGrade = 0, ColGVDG = 0, ColGrs = 0, colPayDays = 0, ColPdDy = 0, ColLate = 0, ColAbDy = 0, ColHlDy = 0, ColWkOf = 0, ColLv = 0
                    , ColLWP = 0, colBank = 0, cDMP = 0, colBankAccountNo = 0, colEmpCurrentStat = 0, colEmpStatus = 0, cPaymentMode = 0, cUnit = 0, ColTotalOTHR = 0, colDirectManpowerCost = 0;
                 int npstruct = 0, ColTotalWorkingDay = 0, ColActualWorkingDay = 0, ColLatePresent = 0, ColContractor = 0;
-
+                int ColSalaryId = 0; int ColSalaryDate = 0;
                 #endregion
 
                 //1
@@ -7791,13 +7805,16 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 SetCellValue("Leave", sheet1, xlsRow, ref xlsCol, out ColLv, 11);
                 SetCellValue("LWP", sheet1, xlsRow, ref xlsCol, out ColLWP, 9);
                 SetCellValue("Total OT Hr", sheet1, xlsRow, ref xlsCol, out ColTotalOTHR, 11);
+                SetCellValue("SalaryID", sheet1, xlsRow, ref xlsCol, out ColSalaryId, 15);
+                SetCellValue("SalaryProc Date", sheet1, xlsRow, ref xlsCol, out ColSalaryDate, 15);
+
                 endGenericColumn = xlsCol;
 
                 //SR to
                 sheet1.Range[xlsRow, ColSr].Text = "Employee Information";
-                sheet1.Range[xlsRow, ColSr, xlsRow, ColTotalOTHR].Merge();
+                sheet1.Range[xlsRow, ColSr, xlsRow, ColSalaryDate].Merge();
                 //xlsCol += 1;
-                ColGrs = ColTotalOTHR;
+                ColGrs = ColSalaryDate;
                 // 9
 
                 var _count_earning_head = 0;
@@ -8130,6 +8147,15 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                         if (dicEmpSalry.ContainsKey(dtEmployees.Rows[i]["EmpSystemID"].ToString()))
                         {
                             List<DataRow> drSalaryHeadCollection = dicEmpSalry[dtEmployees.Rows[i]["EmpSystemID"].ToString()];
+
+                            sheet1.Range[xlsRow, ColSalaryId].Text = drSalaryHeadCollection[0]["SlrProcMstSystemID"].ToString();
+                            sheet1.Range[xlsRow, ColSalaryId].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                            sheet1.Range[xlsRow, ColSalaryId].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            sheet1.Range[xlsRow, ColSalaryDate].Text = drSalaryHeadCollection[0]["SlrProcDate"].ToString();
+                            sheet1.Range[xlsRow, ColSalaryDate].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                            sheet1.Range[xlsRow, ColSalaryDate].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                             if (drSalaryHeadCollection.Count > 0)
                             {
                                 for (int CI = 0; CI < drSalaryHeadCollection.Count; CI++)
@@ -16128,7 +16154,8 @@ AND E.SystemId NOT IN(select EmpSystemId from [dbo].[ExceptionEmployee])
 									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
                                     left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
                                      WHERE 1=1 " + strDOJ + @"  and ISNULL(ect.IsOutSider,0) =0
-                                            " + wcPayrollGroup + @"                                
+                                            " + wcPayrollGroup + @" 
+AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=MONTH('" + effectiveDate + @"') and year(effectivedate)=Year('" + effectiveDate + @"'))
                                      ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
                 return _sqlRepository.GetDataCollection(cmdText);
             }
@@ -19343,7 +19370,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                                                     SPC.DisbusmentCurrencyID, SPC.DisbusmentAmount, SPC.AcltExcDisbSlrHDID, SPC.AcltExcDisbSlrHDAmt,
                                                     CRE.Name AS PlantWiseExchangeCR, EXR.ToCurrencyBuying ExchangeRate, SPM.AmtDefinitionCurrencyID,
                                                     CR.Name AS AmtDefinitionCurrency, SPM.AmtDefinitionCurrencyRate, SPC.IsNetPayEffect, ISNULL(SH.IsCTCComponent,0) IsCTCComponent, ISNULL(SH.IsGrossComponent,0) IsGrossComponent
-                                                    , sh.SalaryHead, sh.HeadCategory, sh.HeadType, ISNULL(SH.PartOfNetPay,0) PartOfNetPay
+                                                    , sh.SalaryHead, sh.HeadCategory, sh.HeadType, ISNULL(SH.PartOfNetPay,0) PartOfNetPay,FORMAT(SPM.DateAdded,'dd-MMM-yyyy') SlrProcDate
 
                                      FROM SalaryProcChild SPC
 

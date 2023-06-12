@@ -161,6 +161,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     statP = "and pos.IsDirect = 0";
                 }
 
+                if (EmpStat == "All")
+                {
+                    empStat = "";
+                }
                 if (EmpStat == "Active")
                 {
                     empStat = " and  ei.EmployeeCurrentStatus is null";
@@ -261,8 +265,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             where  c.CompanyGroupId = '" + companyGroupId + @"'  " + empCat + @" " + statP + @"
                             group by c.Id , c.UserName , cg.id , cg.userName
-                            order by c.UserName asc
-                            ";
+                            order by c.UserName asc";
                 var jj = _sqlRepository.GetDataCollection(sql);
                 return jj;
             }
@@ -613,7 +616,8 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName,  
                             left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
                             left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-							left join [HKP].[EmployeeCategory] EC on EC.Id=ei.EmployeeCategorySystemId
+							left join MST.DesignationMaster DMM on DMM.DesignationId=ei.GivenDesignationId
+							left join [HKP].[EmployeeCategory] EC on EC.Id=DMM.EmployeeCategoryId
                             
                             where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @")x
@@ -713,9 +717,7 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                             left join org.Department department on department.Id = pos.DepartmentId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
                             left join dbo.ShiftDefination shift on shift.SystemID = mb.ShiftDefinationId
-                            where company.CompanyGroupId = '" + companyGroupId + @"'  " + whereSt + @"  " + empCat + @" " + statP + @"
-
-                            ";
+                            where company.CompanyGroupId = '" + companyGroupId + @"'  " + whereSt + @"  " + empCat + @" " + statP + @"";
                 }
 
 
@@ -891,7 +893,8 @@ Select ei.EmployeeCode,ei.DOJ , ei.EmployeeName ,mb.PRBudgetCode
                            left join dbo.ResidenceGroup RG on RG.Id=ei.ResidenceGroupId
                             left join dbo.TransportGroup TG on TG.Id=ei.TransportGroupId
 							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
-							left join [HKP].[EmployeeCategory] EC on EC.Id=eui.EmployeeCategorySystemId
+							left join MST.DesignationMaster DMM on DMM.DesignationId=ei.GivenDesignationId
+							left join [HKP].[EmployeeCategory] EC on EC.Id=DMM.EmployeeCategoryId
 
                            where company.CompanyGroupId = '" + companyGroupId + @"' and apd.WorkDate='" + date + @"' " + empStat + @" " + whereSt + @"  " + empCat + @" " + statP + @"
                             " + whereCol + @")x

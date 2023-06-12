@@ -16,7 +16,7 @@
             <label class="col-sm-3 control-label">Transaction Type<sup>*</sup></label>
             <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select ng-change="getTransactionTypeGL(advance.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7" required>
+                    <select ng-change="getTransactionTypeGL(advance.EmployeeTransactionTypeId)" name="Transaction Type" class="form-control" ng-model="advance.EmployeeTransactionTypeId" tabindex="7" required ng-disabled="Action == 'Update'">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in employeeTransactionTypeList" value="{{option.EmployeeTransactionTypeId}}">{{option.EmployeeTransactionTypeName}}</option>
                     </select>
@@ -29,11 +29,11 @@
         <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">Amount<sup>*</sup></label>
             <div class="col-sm-6 show-message" style="padding-right:0px;">
-                <input tabindex="19" name="Amount" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right" required autocomplete="off">
+                <input tabindex="19" name="Amount" ng-model="advance.Amount" type="text" n-decimals="2" class="form-control text-right" required autocomplete="off" ng-disabled="Action == 'Update'">
             </div>
             <div class="col-sm-3 show-message" style="padding-left:0px;">
                 <div class="select-style">
-                    <select id="CurrencyId" class="form-control" tabindex="14" name="Currency" ng-model="advance.CurrencyId" ng-change="GetCurrencyExchangeRateList(); checkBankAmount();" required>
+                    <select id="CurrencyId" class="form-control" tabindex="14" name="Currency" ng-model="advance.CurrencyId" ng-change="GetCurrencyExchangeRateList(); checkBankAmount();" required ng-disabled="Action == 'Update'">
                         <option ng-repeat="option in tranCurrencyList" value="{{option.CurrencyId}}">{{option.Code}}</option>
                     </select>
                 </div>
@@ -179,13 +179,13 @@
     @*hr*@
     <div class="col-md-12 col-sm-12 col-xs-12">
         @*<div class="form-group" ng-show="true">*@
-        <fieldset class="scheduler-border" ng-show="isVisibleInstallment" ng-disabled="Action == 'Update'">
+        <fieldset class="scheduler-border" ng-show="isVisibleInstallment">
             <legend class="scheduler-border">Advance Schedule</legend>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div id="div_DocDate" class="form-group" show-errors>
                     <label class="col-sm-4 control-label" title="Repayment Start Date" tooltip>First Installment Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Repayment Start Date" ng-model="voucher.RepaymentStartDate" datepicker="checkDocDate(); LoadRepamentDetail()" class="form-control" tabindex="8">
+                        <input type="text" name="Repayment Start Date" ng-model="voucher.RepaymentStartDate" datepicker="checkDocDate(); LoadRepamentDetail()" class="form-control" tabindex="8" ng-disabled="Action == 'Update'">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -201,7 +201,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Interest Rate<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" ng-keyup="LoadRepamentDetail()" maxlength="5" name="Interest Rate" ng-model="voucher.ProfitRate" class="form-control" tabindex="12" autocomplete="off">
+                        <input type="number" ng-keyup="LoadRepamentDetail()" maxlength="5" name="Interest Rate" ng-model="voucher.ProfitRate" class="form-control" tabindex="12" autocomplete="off" ng-disabled="Action == 'Update'">
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -280,7 +280,7 @@
                 <tr ng-repeat="x in DetailsList">
                     <td>{{x.InstallmentDate}}</td>
                     <td>{{x.InstallmentNo}}</td>
-                    <td><input type="text" name="InstallmentAmount" ng-model="x.InstallmentAmount" class="form-control" ng-keyup="$parent.ValueChange(x,$index)"></td>
+                    <td><input type="text" name="InstallmentAmount" ng-readonly="x.SaveOrNot=='No'" ng-model="x.InstallmentAmount" class="form-control" ng-keyup="$parent.ValueChange(x,$index)"></td>
                     <td>{{x.ProfitAmount}}</td>
                     <td>{{x.PrincipalAmount}}</td>
                     <td>{{x.Balance}}</td>

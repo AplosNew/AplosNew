@@ -539,7 +539,7 @@ namespace Library.Service.HumanResources
                        FROM dbo.Employeeinformation EI                             
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                              LEFT JOIN MST.ManpowerBudgetDetail AS mbd ON mbd.ManpowerBudgetId=PMB.Id
+                              LEFT JOIN(Select SUM(TotalNumber)TotalNumber,ManpowerBudgetId from MST.ManpowerBudgetDetail Group BY ManpowerBudgetId) AS mbd ON mbd.ManpowerBudgetId=PMB.Id
                               LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id

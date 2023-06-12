@@ -223,6 +223,88 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
         }
     }
 
+    $scope.fromDate3 = '';
+    $scope.toDate3 = '';
+    $scope.EntityId3 = null;
+    $scope.ProcessId3 = null;
+    $scope.ItemWiseReport = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.fromDate3)) {
+                throw "Select From Date.";
+            }
+
+            if (angular.isUndefinedOrNull($scope.toDate3)) {
+                throw "Select To Date.";
+            }
+
+            if (new Date($scope.fromDate3) > new Date($scope.toDate3)) {
+                throw "From date can not be greater than To date.";
+            }
+
+
+            $scope.fileName = "ProductionOrderReportItemWise.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetItemWiseOrderReport",
+                data: { 'fromDate': $scope.fromDate3, 'toDate': $scope.toDate3, 'EntityId': $scope.EntityId3, 'ProcessId': $scope.ProcessId3 },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.fromDate4 = '';
+    $scope.toDate4 = '';
+    $scope.EntityId4 = null;
+    $scope.ProcessId4 = null;
+    $scope.SOWiseReport = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.fromDate4)) {
+                throw "Select From Date.";
+            }
+
+            if (angular.isUndefinedOrNull($scope.toDate4)) {
+                throw "Select To Date.";
+            }
+
+            if (new Date($scope.fromDate4) > new Date($scope.toDate4)) {
+                throw "From date can not be greater than To date.";
+            }
+
+
+            $scope.fileName = "ProductionOrderReportSOWise.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetSOWiseOrderReport",
+                data: { 'fromDate': $scope.fromDate4, 'toDate': $scope.toDate4, 'EntityId': $scope.EntityId4, 'ProcessId': $scope.ProcessId4 },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
     $scope.loadProcessList = function (entityid) {
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;

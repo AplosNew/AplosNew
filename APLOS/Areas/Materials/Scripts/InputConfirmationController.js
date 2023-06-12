@@ -102,7 +102,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.Get = function (obj) {
         $scope.ModelNew.POId = obj.data.Id;
         $scope.GetIssueSlipDataByPOIdList();
-       
+
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -138,7 +138,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
     $scope.SOItemList = [];
     $scope.GetSOItemList = function () {
         $scope.SOItemList = [];
-        $http.get('Materials/InputConfirmation/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId)
+        $http.get('Materials/InputConfirmation/GetSOItemList?entityid=' + $scope.ModelNew.EntityId + '&ProductionOrderId=' + $scope.ModelNew.POId + '&masterId=' + $scope.ModelNew.Id)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -264,7 +264,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
 
     // #endregion checkbox all
 
-   
+
 
     $scope.GetSaved = function (obj) {
         $scope.ModelNew = Object.assign({}, obj.data);
@@ -309,7 +309,7 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                 });
 
     };
-
+    $scope.disbtn = false;
     $scope.Action = 'Save';
     $scope.Save = function () {
 
@@ -319,19 +319,31 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
             var today = $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')
             if (new Date($scope.ModelNew.ConfirmationDate) < new Date(today)) {
                 if (new Date($scope.ModelNew.ConfirmationDate) < new Date($scope.db4day)) {
+                    $scope.disbtn = false;
                     throw "Day Before YesterDay is not allowed.";
                 }
             }
 
-            if ($scope.Action === 'Save') {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.ResponsiblePersonId)) {
+                $scope.disbtn = false;
+                throw "Responsible Person is required.";
+            }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.CheckedById)) {
+                $scope.disbtn = false;
+                throw "Checked By is required.";
+            }
 
-                if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
-                    throw "Select Production Order.";
-                }
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                if ($scope.Action === 'Save') {
 
-                $scope.$broadcast('show-errors-check-validity');
-                if ($scope.ModelNewForm.$valid) {
-                    
+                    if (baseService.isUndefinedOrNull($scope.ModelNew.POId)) {
+                        $scope.disbtn = false;
+                        throw "Select Production Order.";
+                    }
+
+
+                    $scope.disbtn = true;
                     $http({
                         method: 'POST',
                         url: $scope.saveUrl,
@@ -345,49 +357,58 @@ function InputConfirmationController(cboService, commonMessage, $scope, $rootSco
                         , contentType: "application/json charset=utf-8"
                     }).then(function successCallback(response) {
                         if (response.data.Error === true) {
+                            $scope.disbtn = false;
                             ShowResult(response.data.Message, 'failure');
                         }
                         else {
+                            $scope.disbtn = false;
                             ShowResult(response.data.Message, 'success');
                             $scope.Clear();
                             $scope.GetSavedData();
                         }
                     }), function errorCallBack(response) {
+                        $scope.disbtn = false;
+                        ShowResult(response.data.Message, 'failure');
+                    };
+                }
+                else {
+                    $scope.disbtn = true;
+                    $http({
+                        method: 'POST',
+                        url: $scope.updateUrl,
+                        data: {
+                            'model': $scope.ModelNew
+                            , 'soList': $scope.SOItemList
+                            , 'dataList': $scope.IssueSlipDataList
+                            , 'otherMaterialList': $scope.AddOtherMaterialList
+                        },
+                        dataType: 'JSON'
+                        , contentType: "application/json charset=utf-8"
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            $scope.disbtn = false;
+                            ShowResult(response.data.Message, 'failure');
+                        }
+                        else {
+                            $scope.disbtn = false;
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Clear();
+                            $scope.GetSavedData();
+                        }
+                    }), function errorCallBack(response) {
+                        $scope.disbtn = false;
                         ShowResult(response.data.Message, 'failure');
                     };
                 }
             }
-            else {
-                $http({
-                    method: 'POST',
-                    url: $scope.updateUrl,
-                    data: {
-                        'model': $scope.ModelNew
-                        , 'soList': $scope.SOItemList
-                        , 'dataList': $scope.IssueSlipDataList
-                        , 'otherMaterialList': $scope.AddOtherMaterialList
-                    },
-                    dataType: 'JSON'
-                    , contentType: "application/json charset=utf-8"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.Clear();
-                        $scope.GetSavedData();
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
         } catch (e) {
+            $scope.disbtn = false;
             ShowResult(e, "failure");
         }
     };
 
     $scope.Clear = function () {
+        $scope.disbtn = false;
         $scope.ModelNew = { Id: null, POId: null, EntityId: null, ProcessId: null, ResponsiblePersonId: null, CheckedById: null, WorkCenterMasterId: null, ConfirmationDate: null, Remarks: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null };
         $scope.SOItemList = [];
         $scope.modelList = [];

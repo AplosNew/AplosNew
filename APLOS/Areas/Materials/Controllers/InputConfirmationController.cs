@@ -124,9 +124,9 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetSOItemList(string entityid, string ProductionOrderId)
+        public ActionResult GetSOItemList(string entityid, string ProductionOrderId,string masterId)
         {
-            var jsondata = Json(clsM.GetSOItemList(entityid, ProductionOrderId), JsonRequestBehavior.AllowGet);
+            var jsondata = Json(clsM.GetInputConfirmationSOItemList(entityid, ProductionOrderId, masterId), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
@@ -165,7 +165,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild, dsIdChild, dsSOChild,dsaddChild;
+            DataSet dsMaster, dsChild, dsIdChild, dsSOChild, dsSOIdChild, dsaddChild;
             string _Id = string.Empty;
             try
             {
@@ -192,7 +192,8 @@ namespace Aplos.Areas.Materials.Controllers
                 #region InputConfirmationSODetail 
 
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.InputConfirmationSODetail where InputConfirmationMasterId='" + _Id + "'", out dsSOChild, false, "1");
-                int socount = 0;
+                objCon.OpenDataSetThroughAdapter("SELECT Count(Id)Idc FROM dbo.InputConfirmationSODetail where  InputConfirmationMasterId='" + _Id + "'", out dsSOIdChild, false, "1");
+                int socount = Convert.ToInt32(dsSOIdChild.Tables[0].Rows[0]["Idc"].ToString());
                 if (soList != null)
                 {
                     foreach (var item in soList)
@@ -204,7 +205,8 @@ namespace Aplos.Areas.Materials.Controllers
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = _Id + "-" + socount;
+                            string id = _pkGeneratorService.MakePK(_Id, socount, 2);
+                            item["Id"] = id;
                             item["InputConfirmationMasterId"] = _Id;
                             item["SOQty"] = item["PlannedQty"];
                             AddNewRow(dsSOChild.Tables[0], item);
