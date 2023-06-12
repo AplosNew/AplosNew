@@ -300,7 +300,8 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 string strSQL = @"SELECT UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks,UT.MultiplyingFactor
+							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+                            ,isnull(UT.MultiplyingFactor,0) MultiplyingFactor
 							,Amount=UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate)
                             ,FinalQuantity=UT.MultiplyingFactor*UT.Quantity
 							from UtilityTransaction UT
