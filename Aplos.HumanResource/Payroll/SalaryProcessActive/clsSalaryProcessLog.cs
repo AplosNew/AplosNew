@@ -1218,7 +1218,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
                 IsTransactionStarted = true;
-                objCon.ExecuteNonQueryWrapper(_ss, true, "1");
+                if (!string.IsNullOrEmpty(empids))
+                {
+                    objCon.ExecuteNonQueryWrapper(_ss, true, "1"); 
+                }
                 int i = 0;
                 foreach (DataSet value in dsRef)
                 {

@@ -772,7 +772,7 @@ and isnull(locka.EmpSystemId,'')=''
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
 										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'YES' IsLocked
 ,EBI.IFSCCode
-,EBI.MICRCode
+,EBI.MICRCode,AG.UserName AccountsGroup
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -794,6 +794,8 @@ and isnull(locka.EmpSystemId,'')=''
                                         
                               
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                         LEFT OUTER JOIN
                                             (
                                             SELECT MAX(ToDate) ToDate, EmpInfoSystemID FROM
