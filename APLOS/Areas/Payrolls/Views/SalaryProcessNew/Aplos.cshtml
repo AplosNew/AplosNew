@@ -6,7 +6,6 @@
     }
 </style>
 <div class="form-elements form-horizontal">
-
     <div class="row">
         <div class="col-md-12" style="color:blue;font-weight:bold;">
             {{NotificationMessage}}
@@ -172,45 +171,7 @@
 
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @*<div class="col-xs-12 col-sm-3 col-md-3 ">
-            <label class="col-sm-1 control-label"></label>
-            <div class="col-sm-11">
-                <div class="checkbox-site">
-                    <label>
-                        <input tabindex="8" type="checkbox" ng-model="cbxPresentDaysZero">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>Present days Zero
-                    </label>
-                </div>
-            </div>
-            <label class="col-sm-1 control-label"></label>
-            <div class="col-sm-11">
-                <div class="checkbox-site">
-                    <label>
-                        <input tabindex="8" type="checkbox" ng-model="cbxMaternityReturn">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>MaternityReturn
-                    </label>
-                </div>
-            </div>
-        </div>*@
-
     <hr />
-
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
@@ -232,12 +193,10 @@
                 @*<li role="presentation" ng-class="{ active: isSet22(33) }"><a ng-click="setTab22(33)" href="" aria-controls="aria3" role="tab" data-toggle="tab">TBS n LA</a></li>*@
             </ul>
         </div>
-
         <div class="tab-content" id="tabpaneldiv">
             @*Active*@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(11), active: isSet11(11) }">
                 <div class="row">
-
                     <div class="col-xs-12" style="margin-top:5px">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
@@ -248,7 +207,6 @@
                             </ul>
                         </div>
                     </div>
-
                     <div class="col-xs-12">
                         <div id="GridEmpActive" ej-grid style="z-index:3;"
                              e-datasource="EmployeeList_active"
@@ -279,6 +237,7 @@
                                 <div e-column e-field="EmpSystemID" e-headertext="EmpSystemID" e-width="80" e-visible="false"></div>
                                 <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="50"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                                <div e-column e-field="AccountsGroup" e-headertext="AccountsGroup" e-width="80"></div>
                                 <div e-column e-field="PlantName" e-headertext="PlantName" e-width="80"></div>
                                 <div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>
                                 <div e-column e-field="DOS" e-headertext="DOS" e-width="25"></div>
@@ -299,8 +258,6 @@
                             </div>
                         </div>
                     </div>
-
-
                     <div class="col-xs-12" style="margin-top:5px">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
@@ -311,11 +268,8 @@
                             </ul>
                         </div>
                     </div>
-
-
                     <div class="col-xs-12">
                     </div>
-
                     <script type="text/template" id="checkboxTemplateActive">
                         <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelectSlrProc" />
                     </script>
@@ -323,7 +277,6 @@
                         <input type="checkbox" id="cbxheadActive" />
                     </script>
                 </div>
-
             </div>
             @*Newly Joined*@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet11(22), active: isSet11(22) }">
@@ -351,6 +304,7 @@
                                     <div e-column e-field="EmpSystemID" e-headertext="EmpSystemID" e-width="80" e-visible="false"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="50"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                                    <div e-column e-field="AccountsGroup" e-headertext="AccountsGroup" e-width="80"></div>
                                     <div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="15" e-visible="false"></div>
                                     <div e-column e-field="PlantName" e-headertext="PlantName" e-width="80"></div>
                                     <div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>
@@ -798,6 +752,7 @@
                     <div e-column e-field="EmpSystemID" e-headertext="EmpSystemID" e-width="80" e-visible="false"></div>
                     <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="50"></div>
                     <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                    <div e-column e-field="AccountsGroup" e-headertext="AccountsGroup" e-width="80"></div>
                     <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="60"></div>
                     <div e-column e-field="DOJ" e-headertext="DOJ" e-width="25"></div>
                     <div e-column e-field="DOS" e-headertext="DOS" e-width="25"></div>
@@ -929,7 +884,6 @@
 
         </div>
     </div>
-
 </div>
 
 
