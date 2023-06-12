@@ -5277,7 +5277,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             try
             {
                 strSQL = @"select distinct FromLocation as Name , Id as Value
-                from mst.MaterialMovementMaster";
+                from mst.MaterialMovementMaster where AddedBy = 'Aman'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
