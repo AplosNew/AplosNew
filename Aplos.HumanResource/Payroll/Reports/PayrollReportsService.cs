@@ -16154,7 +16154,8 @@ AND E.SystemId NOT IN(select EmpSystemId from [dbo].[ExceptionEmployee])
 									left join [HKP].[BankBranch] bbranch on bbranch.Id = SPLD.BankBranchId
                                     left join [dbo].[EmployeeCodeType] ect on ect.Id=e.EmployeeCodeTypeId
                                      WHERE 1=1 " + strDOJ + @"  and ISNULL(ect.IsOutSider,0) =0
-                                            " + wcPayrollGroup + @"                                
+                                            " + wcPayrollGroup + @" 
+AND e.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee] where month(effectivedate)<=MONTH('" + effectiveDate + @"') and year(effectivedate)=Year('" + effectiveDate + @"'))
                                      ) DD " + wcEmpStatus + @" ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
                 return _sqlRepository.GetDataCollection(cmdText);
             }
