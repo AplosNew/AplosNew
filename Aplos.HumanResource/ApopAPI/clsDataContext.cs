@@ -5328,9 +5328,17 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         genid.GenID(TableName, out string _Id);
 
                         dr["Id"] = _Id;
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["MaterialMovementMasterId"] = item.MaterialMovementMasterId;
-                        dr["BarcodecScanData"] = item.BarcodecScanData;
+                        dr["LocMasterId"] = item.LocMasterId;
+                        dr["SubLocation"] = item.SubLocation;
+                        dr["ProductCode"] = item.ProductCode;
+                        dr["POId"] = item.POId;
+                        dr["LotNo"] = item.LotNo;
+                        dr["RefNo"] = item.RefNo;
+                        dr["Cones"] = item.Cones;
+                        dr["NetWeight"] = item.NetWeight;
+                        dr["GWeight"] = item.GWeight;
+                        dr["PackedBy"] = item.PackedBy;
+                        dr["Shade"] = item.Shade;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -5987,9 +5995,17 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
     public class BarcodeScan
     {
         public string Id { get; set; }
-        public string EmpSystemId { get; set; }
-        public string MaterialMovementMasterId { get; set; }
-        public string BarcodecScanData { get; set; }
+        public string LocMasterId { get; set; }
+        public string SubLocation { get; set; }
+        public string ProductCode { get; set; }
+        public string POId { get; set; }
+        public string LotNo { get; set; }
+        public string RefNo { get; set; }
+        public string Cones { get; set; }
+        public string NetWeight { get; set; }
+        public string GWeight { get; set; }
+        public string PackedBy { get; set; }
+        public string Shade { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string UpdatedBy { get; set; }
