@@ -141,7 +141,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.selectExpenseGL(args.data.Id);
+        //$scope.selectExpenseGL(args.data.Id);
         $scope.GetMaterialData(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -162,12 +162,22 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             }
         }
 
+        var ConsumableList = [];
+        var ob = {};
+        for (var i = 0; i < $scope.ExpenseGLList.length; i++) {
+            ob.Id = null;
+            ob.GLGeneralInfoId = $scope.ExpenseGLList[i].GLGeneralInfoId;
+            ob.BudgetMasterId = $scope.ExpenseGLList[i].BudgetMasterId;
+            ob.ActivityId = $scope.ExpenseGLList[i].ActivityId;
+            ConsumableList.push(ob);
+            ob = {};
+        }
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew, 'materialId': ids, 'materialList': $scope.MaterialDataList },
+                data: { 'data': $scope.ModelNew, 'materialId': ids, 'materialList': $scope.MaterialDataList, 'consumableList': ConsumableList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -219,6 +229,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
         $scope.MaterialDataList = [];
+        //$scope.selectExpenseGL = [];
     }
 
 
@@ -523,9 +534,12 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.setSelected = function (data) {
         if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
             $scope.ExpenseGLList.push({
+                GLGeneralInfoId: data.GLGeneralInfoId,
                 GLGeneralInfoName: data.GLGeneralInfoName,
+                BudgetMasterId: data.BudgetMasterId,
                 BudgetName: data.BudgetName,
-                ActivityName: data.ActivityName
+                ActivityName: data.ActivityName,
+                ActivityId: data.ActivityId
             });
         }
         $scope.closeCOAICodeListPopUp();
@@ -547,41 +561,41 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         })
     }
 
-    $scope.SaveConsumable = function () {
-        try {
-            var ConsumableList = [];
-            var ob = {};
-            for (var i = 0; i < $scope.ExpenseGLList.length; i++) {
-                ob.Id = null;
-                ob.GLGeneralInfoId = $scope.ExpenseGLList[i].GLGeneralInfoId;
-                ob.BudgetId = $scope.ExpenseGLList[i].BudgetMasterId;
-                ob.ActivityId = $scope.ExpenseGLList[i].ActivityId;
-                ConsumableList.push(ob);
-                ob = {};
-            }
-            if (ConsumableList.length == 0) {
-                throw "Please Select GL Control!";
-            }
-            $http({
-                method: 'POST',
-                url: $scope.saveConsumableUrl,
-                data: { 'ConsumableList': ConsumableList, 'glControlId': $scope.ModelNew.Id },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.Action = 'Update';
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
+    //$scope.SaveConsumable = function () {
+    //    try {
+    //        var ConsumableList = [];
+    //        var ob = {};
+    //        for (var i = 0; i < $scope.ExpenseGLList.length; i++) {
+    //            ob.Id = null;
+    //            ob.GLGeneralInfoId = $scope.ExpenseGLList[i].GLGeneralInfoId;
+    //            ob.BudgetId = $scope.ExpenseGLList[i].BudgetMasterId;
+    //            ob.ActivityId = $scope.ExpenseGLList[i].ActivityId;
+    //            ConsumableList.push(ob);
+    //            ob = {};
+    //        }
+    //        if (ConsumableList.length == 0) {
+    //            throw "Please Select GL Control!";
+    //        }
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.saveConsumableUrl,
+    //            data: { 'ConsumableList': ConsumableList, 'glControlId': $scope.ModelNew.Id },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'success');
+    //                $scope.Action = 'Update';
+    //            }
+    //        }), function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
     $scope.tempIndex = [];
     $scope.RemoveExpense = function (data, index) {
