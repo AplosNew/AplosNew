@@ -313,6 +313,18 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     }
     $scope.GetFromToLocationList();
 
+    $scope.GetToLocationList = function (fromlocId, index) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetToLocationList",
+            data: { 'id': fromlocId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ToLocationList = response.data;
+
+        });
+    }
+
     $scope.ToLocListBasedOnFromLocList = [];
     $scope.ToLocationListBasedOnFromLoc = function (FromLocationId) {
         $http({

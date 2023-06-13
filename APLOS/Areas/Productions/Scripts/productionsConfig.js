@@ -358,6 +358,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionIssueControl/AplosWC',
             controller: 'ProductionIssueControlController'
         })
+        .when('/workcenter-quality-control-master', {
+            templateUrl: 'Productions/WorkCenterQualityControlMaster/AplosWC',
+            controller: 'WorkCenterQualityControlMasterController'
+        })
         .when('/process-quality-issue-control', {
             templateUrl: 'Productions/ProcessQualityControl/AplosWC',
             controller: 'ProcessQualityControlController'
