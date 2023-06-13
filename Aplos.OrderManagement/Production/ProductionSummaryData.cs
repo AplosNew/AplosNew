@@ -3189,6 +3189,13 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
 
         public IEnumerable<object> GetIssueList(string processId)
         {
+            string sql = @"SELECT distinct ID.Id [Value],ID.IssueName [Text] FROM [MST].[IssueDetails] ID
+ WHERE ID.ProcessId='" + processId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetQualityIssueList(string processId)
+        {
             string sql = @"SELECT distinct ID.Id [Value],ID.IssueName [Text] FROM [MST].[QualityIssueDetails] ID
  WHERE ID.ProcessId='" + processId + "'";
             return _sqlRepository.GetDataCollection(sql);
