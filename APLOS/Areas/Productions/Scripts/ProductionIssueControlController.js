@@ -1,7 +1,7 @@
 ﻿'use strict';
 ProductionIssueControlController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function ProductionIssueControlController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "WC Wise Production/Process Issue Control";
+    $rootScope.title = "WC Quality Control";
     $scope.Action = 'Save';
     $scope.index = -1;
     $scope.productionSummaryes = [];
@@ -2886,6 +2886,10 @@ function ProductionIssueControlController(cboService, commonMessage, $scope, $ro
                     if (baseService.arrayLength(response.data) === 1) {
                         $scope.productionSummaryNew.PeriodId = $scope.PeriodHeaderList[0].Value;
                     }
+                }
+                else
+                {
+                    $scope.productionSummaryNew.PeriodId = null;
                 }
             });
     }
