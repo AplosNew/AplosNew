@@ -433,4 +433,22 @@ function WorkcenterWiseDetentionController(cboService, commonMessage, $scope, $r
         $scope.WorkcenterList = [];
 
     }
+
+    $scope.DateValidation = function (ProductionDate) {
+        try {
+            var date = new Date();
+            date.setDate(date.getDate() - 1);
+            $scope.Yestarday = $filter('dateFiltering')(date);
+            $scope.ProdDate = $filter('dateFiltering')(ProductionDate);
+            if ($scope.ProdDate < $scope.Yestarday) {
+                throw "Date must be allow only Yestarday's Date!";
+            }
+            if (new Date(ProductionDate) > new Date()) {
+                throw "Date must be equal to current Date!";
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
 }
