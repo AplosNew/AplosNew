@@ -2878,7 +2878,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.IssueHeaderList = [];
     $scope.GetIssueList = function (PId) {
-        $http.get('Productions/QualityControl/GetIssueList?processId=' + PId)
+        $http.get('Productions/QualityControl/GetQualityIssueList?processId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.IssueHeaderList = response.data;
