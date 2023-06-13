@@ -2922,7 +2922,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
 
     $scope.IssueHeaderList = [];
     $scope.GetIssueList = function (PId) {
-        $http.get('Productions/ProcessQualityControl/GetIssueList?processId=' + PId)
+        $http.get('Productions/ProcessQualityControl/GetQualityIssueList?processId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.IssueHeaderList = response.data;

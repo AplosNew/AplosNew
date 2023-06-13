@@ -981,6 +981,12 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetQualityIssueList(string processId)
+        {
+            return Json(_productionSummaryData.GetQualityIssueList(processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetPOList(string IssueId)
         {
             return Json(_productionSummaryData.GetPOList(IssueId), JsonRequestBehavior.AllowGet);
