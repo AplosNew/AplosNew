@@ -1103,7 +1103,7 @@ FromLocation = stuff((select ', ' + LM.UserName
 
         public JsonResult GetTripApproved()
         {
-            string sql = @"	select Row_Number() OVER(PARTITION BY VA.Id Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+            string sql = @"select Row_Number() OVER(PARTITION BY VA.Id Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
  , FORMAT(VT.ToTime, 'hh:mm tt')ToTime from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
 where VA.TripId is not null";
@@ -1172,6 +1172,35 @@ where VA.TripId is not null";
             string sql = @"select Id, FORMAT(InDate, 'dd-MMM-yyy')InDate, FORMAT(InTime, 'hh:mm tt')InTime, InKillometer, InRemarks from TRN.VehicleMovementInOut";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
+
+        public JsonResult GetPendingInTrip()
+        {
+            string sql = @"select Row_Number() OVER(Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber 
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.InReading is null";
+            return Json(_sqlRepository.GetDataCollection(sql));
+        }
+
+        public JsonResult GetPendingOutTrip()
+        {
+            string sql = @"select Row_Number() OVER(Order by VT.Id)Row_Num, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber 
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.OutReading is null";
+            return Json(_sqlRepository.GetDataCollection(sql));
+        }
+
 
         public JsonResult SaveVehicleIn(Dictionary<string, object> data, string headerId)
         {
@@ -1317,6 +1346,12 @@ where VA.TripId is not null";
         public JsonResult GetFromToLocationList()
         {
             string sql = @"Select Id Value, UserName Text from HKP.LocationMaster order by Text ";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetToLocationList(string id)
+        {
+            string sql = @"Select Id Value, UserName Text from HKP.LocationMaster where Id not in ('"+id+"') order by Text ";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

@@ -208,7 +208,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
         $scope.GetVehicleList();
         $scope.GetDriverList();
         $scope.VehicleRequisitionModel.FromDate = args.data.FromDate;
-        $scope.VehicleRequisitionModel.Todate = args.data.Todate;
+        $scope.VehicleRequisitionModel.ToDate = args.data.ToDate;
         $scope.VehicleRequisitionModel.FromTime = args.data.FromTime;
         $scope.VehicleRequisitionModel.ToTime = args.data.ToTime;
         angular.element(document.querySelector("#reqPopup")).modal('show');
@@ -231,8 +231,11 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    angular.element(document.querySelector("#reqPopup")).modal('hide');
                     $scope.GetTripApproved();
                     $scope.GetTripData();
+                    ClearVehicleAllocation();
+                    
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -240,6 +243,24 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
 
     }
 
+    $scope.ClearVehicleAllocation = function () {
+        ClearFieldVehicleAllocation();
+        return true;
+    };
+
+    function ClearFieldVehicleAllocation() {
+
+        $scope.VehicleRequisitionModel = {
+            Id: null,
+            FromDate: null,
+            ToDate: null,
+            FromTime: null,
+            ToTime: null,
+            VehicleMasterId: null,
+            DriverMasterId: null
+        };
+        $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
+    }
 
     $scope.ApprovedTripList = [];
     $scope.DataMappedWithTripList = [];

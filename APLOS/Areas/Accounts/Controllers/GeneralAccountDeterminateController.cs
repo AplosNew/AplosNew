@@ -210,11 +210,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult CreateGlControl(Dictionary<string, object> data,string materialId, List<Dictionary<string, object>> materialList)
+        public JsonResult CreateGlControl(Dictionary<string, object> data, string materialId, List<Dictionary<string, object>> materialList, List<Dictionary<string, object>> consumableList)
         {
             try
             {
-                DataSet dsMaster, dsMaterial;
+                DataSet dsMaster, dsMaterial, dsConsumable;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [MST].[GLControlMaster] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -232,6 +232,8 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 string materialsql = "SELECT * FROM [MST].[MaterialMaster] WHERE Id  in (" + materialId + @")";
                 con.OpenDataSetThroughAdapter(materialsql, out dsMaterial, false, "1");
+
+                con.OpenDataSetThroughAdapter("select * from [MST].[GLControlDetail] where GLControlId='" + data["Id"] + "'", out dsConsumable, false, "1");
 
                 string _Id = "";
 
@@ -265,17 +267,45 @@ namespace Aplos.Areas.Accounts.Controllers
                         {
                             DataRow drmo = dvsc[0].Row;
                             drmo.BeginEdit();
-                            drmo["GLControlMasterId"] = _Id; 
-                           
+                            drmo["GLControlMasterId"] = _Id;
+
                             drmo.EndEdit();
                         }
                     }
                 }
-             
+
                 #endregion data update
                 #endregion Material
+
+                #region Consumable
+                int _IdCon = 0;
+                 
+                if (consumableList != null)
+                {
+                    foreach (var item in consumableList)
+                    {
+                        _IdCon++;
+                        DataView dv = new DataView(dsConsumable.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = _IdCon;
+                            item["GLControlId"] = data["Id"];
+                            AddNewRow(dsConsumable.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+                #endregion Consumable
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsMaterial);
+                _info.SaveDataSets(dsMaster, dsMaterial, dsConsumable);
 
                 return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
             }
@@ -329,7 +359,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [HttpGet, Authorize]
-        public JsonResult GetMaterialList(GridParameter parameters,string GlControlId)
+        public JsonResult GetMaterialList(GridParameter parameters, string GlControlId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_materialMasterService.MaterialQueryForGLControl(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
@@ -426,7 +456,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("[MST].[GLControlDetail]", out _Id);
 
-                        item["Id"] =_Id;
+                        item["Id"] = _Id;
                         item["GLControlId"] = glControlId;
                         AddNewRow(dsMaster.Tables[0], item);
                     }
@@ -448,17 +478,18 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-       
+
         [Authorize]
         public ActionResult GetConsumableData(string glControlDetailId)
         {
             try
             {
-                var sql = @"select GLCD.Id GLControldetailId,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetId
+                var sql = @"select GLCD.Id GLControldetailId,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetMasterId
 						,B.UserName BudgetName,GLCD.ActivityId,A.UserName ActivityName
 						from mst.GLControldetail GLCD
 						left join [HKP].[GLGeneralInfo] glg on glg.Id=GLCD.GLGeneralInfoId
-						left join [HKP].[Budget] B on B.Id=GLCD.BudgetId
+						left join mst.BudgetMaster BM on BM.Id=GLCD.BudgetMasterId
+						left join HKP.Budget B on B.Id=BM.BudgetId
 						left join [HKP].[Activity] A on A.Id=GLCD.ActivityId
 						where GLCD.GLControlId= '" + glControlDetailId + "' ";
 
@@ -471,7 +502,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateMaterial(Dictionary<string, object> materialList,string materialId)
+        public JsonResult UpdateMaterial(Dictionary<string, object> materialList, string materialId)
         {
             DataSet dsMaterial;
             ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -483,15 +514,15 @@ namespace Aplos.Areas.Accounts.Controllers
 
             if (materialList != null)
             {
-                    DataView dvsc = new DataView(dsMaterial.Tables[0]);
+                DataView dvsc = new DataView(dsMaterial.Tables[0]);
 
-                    if (dvsc.Count > 0)
-                    {
-                        DataRow drmo = dvsc[0].Row;
-                        drmo.BeginEdit();
-                        drmo["GLControlMasterId"] = null;
-                        drmo.EndEdit();
-                    }
+                if (dvsc.Count > 0)
+                {
+                    DataRow drmo = dvsc[0].Row;
+                    drmo.BeginEdit();
+                    drmo["GLControlMasterId"] = null;
+                    drmo.EndEdit();
+                }
             }
 
             #endregion data update

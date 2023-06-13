@@ -988,7 +988,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         var BankMasterId = dtMainBody.Rows[n]["BankMasterId"].ToString();
                         var CashMasterId = dtMainBody.Rows[n]["CashMasterId"].ToString();
                         var PartyId = dtMainBody.Rows[n]["PartyId"].ToString();
-                        var PartyPlantId = dtMainBody.Rows[n]["PartyPlantId"].ToString();
+                        //var PartyPlantId = dtMainBody.Rows[n]["PartyPlantId"].ToString();
                         var Balancetype = dtMainBody.Rows[n]["Balancetype"].ToString();
                         
                         mainColIndex = 1;
@@ -1056,7 +1056,7 @@ namespace Aplos.Areas.Accounts.Controllers
                             {
                                 var dvDrCr = new DataView(dsLocal.Tables[0])
                                 {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "'  AND ISNULL(PartyId,'') = '" + PartyId + "' AND ISNULL(PartyPlantId,'') = '" + PartyPlantId + "'"
+                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "'  AND ISNULL(PartyId,'') = '" + PartyId + "' " //AND ISNULL(PartyPlantId,'') = '" + PartyPlantId + "'
                                 };
                                 var dtDrCr = dvDrCr.ToTable();
                                 if (dtDrCr.Rows.Count != 0)
@@ -1081,7 +1081,7 @@ namespace Aplos.Areas.Accounts.Controllers
                             {
                                 var dvDrCr = new DataView(dsLocal.Tables[0])
                                 {
-                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '' AND ISNULL(CashMasterId,'') = '' AND ISNULL(PartyId,'') = '' AND ISNULL(PartyPlantId,'') = ''"
+                                    RowFilter = "ISNULL(ParallelCurrencyId,'')='" + ParallelCurrencyId + "' AND ISNULL(GLGeneralInfoCode,'')='" + AccountCodeId + "' AND ISNULL(BudgetMasterId,'')='" + BudgetMasterId + "' AND ISNULL(ActivityId,'')='" + ActivityId + "' AND ISNULL(BankMasterId,'') = '' AND ISNULL(CashMasterId,'') = '' AND ISNULL(PartyId,'') = '' " //AND ISNULL(PartyPlantId,'') = ''
                                 };
                                 var dtDrCr = dvDrCr.ToTable();
                                 if (dtDrCr.Rows.Count != 0)
@@ -2559,6 +2559,8 @@ namespace Aplos.Areas.Accounts.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (partyId == "null") { partyId = null; }
+                if (partyPlantId == "null") { partyPlantId = null; }
                 var tempSql = "";
                 if (!string.IsNullOrEmpty(partyId) && !string.IsNullOrEmpty(partyPlantId))
                 {
@@ -2639,8 +2641,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 {
                     parameters.CmdText = @"SELECT * FROM( SELECT distinct	GL.Id AS AccountCodeId,
 		                                    VDC.ParallelCurrencyId,CU.Code AS CurrencyCode,
-		                         sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative
-                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VD.PartyPlantId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,
+		                         sum(CASE WHEN ACT.BalanceType = 'Debit' THEN (sum(VDC.DrAmount)-sum(VDC.CrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId, A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as DRcumulative--, VD.PartyPlantId
+                                , sum(CASE WHEN ACT.BalanceType = 'Credit' THEN (sum(VDC.CrAmount)-sum(VDC.DrAmount)) ELSE 0 END) over (partition by GL.Id, VD.BudgetMasterId,A.Id,VD.BankMasterId,VD.CashMasterId, VD.PartyId, VDC.ParallelCurrencyId order by VDC.ParallelCurrencyId) as CRcumulative ,--, VD.PartyPlantId
                                             ACT.BalanceType,
                                             ACT.Id AS [MainHead],
 		                                    VD.GLGeneralInfoId,GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode,
@@ -2650,10 +2652,10 @@ namespace Aplos.Areas.Accounts.Controllers
 											[Particulars]=CASE 
 											WHEN BA.AccountTitle<>'' THEN BA.AccountTitle
 											WHEN CM.UserName<>'' THEN CM.UserName
-											WHEN P.UserName<>'' THEN PP.UserName
+											WHEN P.UserName<>'' THEN P.UserName
 											ELSE ''	END,
 
-                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId, VD.PartyPlantId
+                                            A.Id AS ActivityId, VD.BankMasterId, VD.CashMasterId, VD.PartyId--, VD.PartyPlantId
 	                                        FROM TRN.VoucherDetailCurrency AS VDC
 		                                    INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                                    INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
@@ -2667,12 +2669,12 @@ namespace Aplos.Areas.Accounts.Controllers
 											LEFT JOIN [MST].BankMaster AS BA ON BA.Id=VD.BankMasterId
 											LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 											LEFT JOIN [HKP].Party AS P ON P.Id=VD.PartyId
-											LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
+											--LEFT JOIN [HKP].PartyPlant AS PP ON PP.Id=VD.PartyPlantId
                                             WHERE v.PostingDate <= '" + toDate + @"' and v.CompanyId ='" + companyId + @"' AND V.PlantId='" + plantId + @"'
                                             AND  v.IsPark=0 "+ tempSql + @"
                                             GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code, VD.GLGeneralInfoId, GL.UserName, 
 											GL.AccountCode, ACT.BalanceType, ACT.Id, VD.BudgetMasterId, A.UserName, BUD.UserName, v.PostingDate, A.Id, BA.AccountTitle, CM.UserName
-											,VD.BankMasterId, VD.CashMasterId, P.UserName, PP.UserName, VD.PartyId, VD.PartyPlantId ) ttd 
+											,VD.BankMasterId, VD.CashMasterId, P.UserName, VD.PartyId ) ttd --, PP.UserName, VD.PartyPlantId
                                             WHERE ISNULL(DRcumulative,0.00) <> 0.00 OR ISNULL(CRcumulative,0) <> 0.00";
 
                     return _sqlRepository.GetGridData(parameters).Source;

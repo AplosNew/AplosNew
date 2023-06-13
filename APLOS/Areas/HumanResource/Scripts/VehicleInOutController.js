@@ -18,6 +18,24 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         return $scope.tab === tabNum;
     };
 
+    $scope.intab = 1;
+    $scope.insetTab = function (newTab) {
+       
+        $scope.intab = newTab;
+    };
+
+    $scope.isinSet = function (tabNum) {
+        return $scope.intab === tabNum;
+    };
+
+    $scope.outsetTab = function (newTab) {
+        $scope.tab = 1;
+        $scope.tab = newTab;
+    };
+
+    $scope.isoutSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
     // #endregion TAB CHANGE
 
     $scope.VehicleAllocationList = [];
@@ -81,13 +99,39 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         }
     }
 
+    $scope.PendingInTripList = [];
+    $scope.GetPendingInTrip = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPendingInTrip",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PendingInTripList = response.data;
+
+        });
+    }
+    $scope.GetPendingInTrip();
+
+    $scope.PendingOutTripList = [];
+    $scope.GetPendingOutTrip = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPendingOutTrip",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PendingOutTripList = response.data;
+
+        });
+    }
+    $scope.GetPendingOutTrip();
 
     //  #region VehicleIn
+    var todaDate = new Date();
     $scope.VehicleInTemp = {
         Id: null,
-        InDate: null,
-        InTime: null,
-        InKillometer: null,
+        InDate: todaDate,
+        InTime: todaDate,
+        InReading: null,
         Remarks: null
 
     };
@@ -189,9 +233,9 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     //  #region VehicleOut
     $scope.VehicleOutTemp = {
         Id: null,
-        OutDate: null,
-        OutTime: null,
-        OutKillometer: null,
+        OutDate: todaDate,
+        OutTime: todaDate,
+        OutReading: null,
         Remarks: null
 
     };

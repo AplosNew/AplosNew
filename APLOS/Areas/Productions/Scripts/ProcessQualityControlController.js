@@ -2922,7 +2922,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
 
     $scope.IssueHeaderList = [];
     $scope.GetIssueList = function (PId) {
-        $http.get('Productions/ProcessQualityControl/GetIssueList?processId=' + PId)
+        $http.get('Productions/ProcessQualityControl/GetQualityIssueList?processId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.IssueHeaderList = response.data;
@@ -2936,7 +2936,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.PeriodHeaderList = [];
     $scope.GetPeriodList = function (PId) {
         $scope.PeriodHeaderList = null;
-        $http.get('Productions/ProcessQualityControl/GetPeriodList?IssueId=' + PId)
+        $http.get('Productions/ProcessQualityControl/GetQualityPeriodList?IssueId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.PeriodHeaderList = response.data;
