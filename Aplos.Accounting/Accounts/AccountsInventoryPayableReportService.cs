@@ -1804,6 +1804,10 @@ namespace Library.Accounting.Accounts
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
             reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString(), ExcelHAlign.HAlignLeft);
+
+            reportUtility.SetMasterHeaderText(ref sheet, row, 4, "GRN No");
+            reportUtility.SetText(ref sheet, row, 5, header["GRNNo"].ToString(), ExcelHAlign.HAlignLeft);
+
             sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(3) + row].Merge();
 
             row++;
@@ -1993,7 +1997,7 @@ namespace Library.Accounting.Accounts
         {
             var cmdText = @"SELECT II.Id IssueNo,VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
                             , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, II.Id DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            , V.CurrencyId, C.Code AS CurrencyCode
+                            , V.CurrencyId, C.Code AS CurrencyCode,0 GRNNo
                             FROM  [TRN].[Voucher] AS V 
 							LEFT JOIN  [TRN].[InventoryIssue] II ON II.VoucherId=V.Id
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId

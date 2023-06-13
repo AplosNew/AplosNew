@@ -959,7 +959,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                     dicBonus = dsBonus.Tables[0].ToList<dicBonus>();
 
                                 //Get General Salary Amount Head Wise
-                                SendNotification("Fetching Empployee Salary Definition For Salary Process List", TotProcComp, TotSelectEmpForProc);
+                                SendNotification("Fetching Employee Salary Definition For Salary Process List", TotProcComp, TotSelectEmpForProc);
                                 //Dictionary<string, List<dicLocal>> dicLocal = new Dictionary<string, List<dicLocal>>();
                                 objSlrProc.LoadEmpSlrDefForSlrProcessList(para.PlantId, sEmpInfoSysID, para.FromDate, para.ToDate.Trim(), out Dictionary<string, List<dicLocal>> dicLocal);//LoadEmpSlrDefForSlrProcessList
                                                                                                                                                                                            //objSlrProc.LoadEmpSlrDefForSlrProcess(para.PlantId, sEmpInfoSysID, para.FromDate, para.ToDate.Trim(), out dsLocal);//LoadEmpSlrDefForSlrProcessList

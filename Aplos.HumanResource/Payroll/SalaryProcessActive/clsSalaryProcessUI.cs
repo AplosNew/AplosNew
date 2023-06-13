@@ -396,7 +396,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 										ELSE 'Cash Payment' END,e.GivenDesignationId
                                         ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -414,7 +414,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (
                                             SELECT MAX(ToDate) ToDate, EmpInfoSystemID FROM
@@ -586,7 +587,7 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
 										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId
                                        ,IsLocked = case when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')='' then 'YES'
 										when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')<>'' then 'NO'
-										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode
+										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -606,7 +607,8 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (
                                             SELECT MAX(ToDate) ToDate, EmpInfoSystemID FROM
@@ -770,7 +772,7 @@ and isnull(locka.EmpSystemId,'')=''
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
 										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'YES' IsLocked
 ,EBI.IFSCCode
-,EBI.MICRCode
+,EBI.MICRCode,AG.UserName AccountsGroup
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -792,6 +794,8 @@ and isnull(locka.EmpSystemId,'')=''
                                         
                               
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                         LEFT OUTER JOIN
                                             (
                                             SELECT MAX(ToDate) ToDate, EmpInfoSystemID FROM
@@ -1308,7 +1312,7 @@ and isnull(locka.EmpSystemId,'')=''
 										ELSE 'Cash Payment' END
 ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -1325,7 +1329,8 @@ and isnull(locka.EmpSystemId,'')=''
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
  left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (
                                             SELECT MAX(ToDate) ToDate, EmpInfoSystemID FROM
@@ -1515,7 +1520,7 @@ and isnull(locka.EmpSystemId,'')=''
                                                 ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										        ,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
 										        ,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode
-                                                ,E.EmployeeCurrentStatus
+                                                ,E.EmployeeCurrentStatus,AG.UserName AccountsGroup
                                             FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
                                         LEFT OUTER JOIN EmployeeBankInfo EBI ON E.SystemID = EBI.EmpSystemID AND EBI.IsApproved = 1
@@ -1527,7 +1532,8 @@ and isnull(locka.EmpSystemId,'')=''
 
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
 											  LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                             WHERE (
 		                                            e.SystemId in (select systemid from EmployeeInformation where  EmployeeStatus='Active' and EmployeeCurrentStatus in (" + bplib.clsWebLib.EMP_OTHER_STATUS + @") and EmployeeCurrentStatusEffectiveDate<'" + sToDate + @"')
@@ -1705,7 +1711,7 @@ and isnull(locka.EmpSystemId,'')=''
 										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId
                                        ,IsLocked = case when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')='' then 'YES'
 										when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')<>'' then 'NO'
-										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode
+										 else 'YES' end,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
 
                            FROM EmployeeInformation E
                                         LEFT OUTER JOIN SalaryRuleMaster SRM ON E.SalaryRuleMasterSystemID = SRM.SystemID
@@ -1725,6 +1731,8 @@ and isnull(locka.EmpSystemId,'')=''
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
 		                                left join (select EmpSystemId from SalaryLock where  MonthNo=Month('" + sFromDate + @"') and YearNo = Year('" + sFromDate + @"') and IsLocked=1)  lock
 										on lock.EmpSystemId=e.SystemId
                                             LEFT OUTER JOIN
@@ -1810,7 +1818,7 @@ and isnull(locka.EmpSystemId,'')=''
 								  '' BankAccountStatus 
                                     ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'' GivenDesignationId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'' GivenDesignationId,'NO' IsLocked,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
 
                            FROM EmployeeInformation E
                                         inner join (select Id,EmpSystemId from SalaryLock where  MonthNo=Month('" + sFromDate + @"') and YearNo = Year('" + sFromDate + @"') and IsLocked=1)sl on sl .EmpSystemId=e.SystemId
@@ -1828,6 +1836,8 @@ and isnull(locka.EmpSystemId,'')=''
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
                                         left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
+                                        LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                             ";
 
                 if (sUserGroupID != "ALL")
@@ -1879,7 +1889,7 @@ and isnull(locka.EmpSystemId,'')=''
 										ELSE 'Cash Payment' END
                                         ,e.LegalDesignationId,e.PaymentMode,e.BudgetCode
 										,ebi.BankSystemID,ebi.BankBranchId,ebi.BankAccNo,ebi.SalaryPercentage
-										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,'' GivenDesignationId,EBI.IFSCCode,EBI.MICRCode
+										,dm.EmployeeCategoryId,gr.LegalSalaryGradeId,'NO' IsLocked,'' GivenDesignationId,EBI.IFSCCode,EBI.MICRCode,AG.UserName AccountsGroup
 
 
                            FROM EmployeeInformation E
@@ -1897,7 +1907,8 @@ and isnull(locka.EmpSystemId,'')=''
                                         LEFT OUTER JOIN HKP.DesignationGroup DG ON DG.Id = E.DesignationGroupID
  left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                             LEFT OUTER JOIN
                                             (
                                             SELECT MAX(ToDate) ToDate, EmpInfoSystemID FROM
@@ -2429,6 +2440,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
         public string LegalSalaryGradeId { get; set; }
         public string IFSCCode { get; set; }
         public string MICRCode { get; set; }
+        public string AccountsGroup { get; set; }
 
 
 
