@@ -128,61 +128,66 @@ namespace Aplos.Areas.Materials.Controllers
 
                 #region columns
                 sheet[ROW, COL].Text = "Date";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColDate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Time";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColTime = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Category";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColCategory = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Sub Category";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColSubCategory = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Item";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int ColItem = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Group";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColGroup = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "SubGroup";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColSubGroup = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Quantity";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColQuantity = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Multiplying Factor";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColMultiplyingFactor = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Final Quantity";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColFinalQuantity = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Reading";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
                 int ColReading = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Remarks";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColRemarks = COL;
                 
                 #endregion columns
@@ -210,8 +215,12 @@ namespace Aplos.Areas.Materials.Controllers
                     sheet[ROW, ColGroup].Text = data.Rows[i]["Group"].ToString();
                     sheet[ROW, ColSubGroup].Text = data.Rows[i]["SubGroup"].ToString();
                     sheet[ROW, ColQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
-                    sheet[ROW, ColFinalQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["FinalQuantity"].ToString());
                     sheet[ROW, ColQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet[ROW, ColFinalQuantity].Number = clsStaticInfo.dbl(data.Rows[i]["FinalQuantity"].ToString());
+                    sheet[ROW, ColFinalQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColMultiplyingFactor].Number = clsStaticInfo.dbl(data.Rows[i]["MultiplyingFactor"].ToString());
+                    sheet[ROW, ColMultiplyingFactor].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet[ROW, ColReading].Number = clsStaticInfo.dbl(data.Rows[i]["Reading"].ToString());
                     sheet[ROW, ColReading].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     //if (reading == 0)
@@ -291,16 +300,17 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 string strSQL = @"SELECT UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UG.UserName [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
-							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks,UM.MultiplyingFactor
+							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+                            ,isnull(UT.MultiplyingFactor,0) MultiplyingFactor
 							,Amount=UT.Quantity*(SELECT TOP(1) Rate FROM dbo.UtilityDetail WHERE EffectiveDate between '" + FromDate + @"' and '" + ToDate + @"' AND UtilityMasterId=UT.UtilityMasterId ORDER BY EffectiveDate)
-                            ,FinalQuantity=UM.MultiplyingFactor*UT.Quantity
+                            ,FinalQuantity=UT.MultiplyingFactor*UT.Quantity
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
                             left join HKP.UtilityGroup UG on UG.Id=UM.UtilityGroupId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
 							where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
 							group by UT.Id,UT.Date,UT.AddedDate,UM.UserName,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
-							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UM.MultiplyingFactor,UT.UtilityMasterId";
+							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks,UG.UserName,UT.MultiplyingFactor,UT.UtilityMasterId";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }

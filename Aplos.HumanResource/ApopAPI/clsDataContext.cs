@@ -5266,7 +5266,104 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             }
         }
         #endregion Budget Code Change
+        // location
+        public void GetCartoonLocation(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
 
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct FromLocation as Name , Id as Value
+                from mst.MaterialMovementMaster where AddedBy = 'Aman'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        // For Barcode Data 
+        public string PostBarcodeScanData(IEnumerable<BarcodeScan> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.BarcodeScanData";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<BarcodeScan> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from dbo.BarcodeScanData where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (BarcodeScan item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        dr["Id"] = _Id;
+                        dr["LocMasterId"] = item.LocMasterId;
+                        dr["SubLocation"] = item.SubLocation;
+                        dr["ProductCode"] = item.ProductCode;
+                        dr["POId"] = item.POId;
+                        dr["LotNo"] = item.LotNo;
+                        dr["RefNo"] = item.RefNo;
+                        dr["Cones"] = item.Cones;
+                        dr["NetWeight"] = item.NetWeight;
+                        dr["GWeight"] = item.GWeight;
+                        dr["PackedBy"] = item.PackedBy;
+                        dr["Shade"] = item.Shade;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+
+        }
     }
 
 
@@ -5893,6 +5990,27 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string UpdatedDate { get; set; }
     }
     #endregion TempBudgetCode
+
+    // Barcode scan data 
+    public class BarcodeScan
+    {
+        public string Id { get; set; }
+        public string LocMasterId { get; set; }
+        public string SubLocation { get; set; }
+        public string ProductCode { get; set; }
+        public string POId { get; set; }
+        public string LotNo { get; set; }
+        public string RefNo { get; set; }
+        public string Cones { get; set; }
+        public string NetWeight { get; set; }
+        public string GWeight { get; set; }
+        public string PackedBy { get; set; }
+        public string Shade { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+    }
 
 
 }

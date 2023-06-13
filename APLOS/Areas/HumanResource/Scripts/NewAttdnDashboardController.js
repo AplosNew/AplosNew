@@ -23,8 +23,8 @@ function NewAttdnDashboardController(cboService, $scope, $rootScope, $routeParam
         $scope.docEmployeeCategoryList = result;
     });
 
-    $scope.EmpStatsList = [{ 'Value': 'Active', 'Text': 'Active' }, { 'Value': 'TBS', 'Text': 'To Be Separated' }, { 'Value': 'LA', 'Text': 'LONG ABSENTEEISM' }];
-    $scope.EmpStat = 'Active';
+    $scope.EmpStatsList = [{ 'Value': 'All', 'Text': 'Select All' },{ 'Value': 'Active', 'Text': 'Active' }, { 'Value': 'TBS', 'Text': 'To Be Separated' }, { 'Value': 'LA', 'Text': 'LONG ABSENTEEISM' }];
+    $scope.EmpStat = 'All';
     $scope.ManPowerBudget = function () {
         $scope.chartList = [];
         var currentTotalEmp = 0;

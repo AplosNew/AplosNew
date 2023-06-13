@@ -2,25 +2,31 @@
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="tab-design" id="tab_show">
-        @*<div class="site-tab">
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
-            </ul>
-        </div>*@
+
         <div class="tab-content">
 
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Utility Master<sup>*</sup> </label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="UtilityMaster" ng-model="ModelNew.UtilityMaster" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="getUtilityTransactionPopUpData();" class="btn single-small-btn" @*ng-change="GetEditReadingList();GetUoMAndReadingApplicable();"*@ tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    @*<div class="col-sm-8">
                         <div class="select-style">
                             <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" ng-change="GetEditReadingList();GetUoMAndReadingApplicable();" name="Category" tabindex="1">
                                 <option value="">--Select--</option>
                                 <option ng-repeat="option in utilityMasterList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
-                    </div>
+                    </div>*@
                 </div>
+
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Last Reading</label>
                     <div class="col-sm-8">
@@ -91,9 +97,9 @@
             </div>
 
         </div>
-     </div>
-
     </div>
+
+</div>
 
 <confirm-archive-generic modalid="confirmUtilityDetailsRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeUtilityDetailsRow();"></confirm-archive-generic>
 
@@ -115,4 +121,57 @@
         </div>
     </div>
 </div>
+ 
+<div class="modal fade site-modal in" id="UtilityMasterpopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header">Utility Master<button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByUtility">
+                                            <option ng-repeat="option in searchbyUtilityTransactionlist" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchUtility" ng-enter="getUtilityTransactionPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getUtilityTransactionPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+
+                        <div style="color:black;" id="utilityPopUpGrid" ej-grid e-datasource="utilityMasterList" e-recorddoubleclick="selectDoubleClick"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="UtilityMaster" e-headertext="Utility Master" e-width="80" e-filter="false"></div>
+                                <div e-column e-field="UtilityGroup" e-headertext="Utility Group" e-width="80"></div>
+                                <div e-column e-field="UtilitySubGroup" e-headertext="Utility SubGroup" e-width="100"></div>
+                                <div e-column e-field="UtilityCategory" e-headertext="Utility Category" e-width="50"></div>
+                                <div e-column e-field="UtilitySubCategory" e-headertext="Utility SubCategory" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="MultiplyingFactor" e-headertext="Multiplying Factor" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
+                </ul>
+               
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-modal></confirm-modal>
