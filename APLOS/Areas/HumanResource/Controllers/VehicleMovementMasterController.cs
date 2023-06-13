@@ -1183,7 +1183,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.InKillometer is null";
+where VIO.InReading is null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
@@ -1197,7 +1197,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.OutKillometer is null and VIO.InKillometer is null";
+where VIO.OutReading is null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
