@@ -12,6 +12,7 @@ using Library.Model.Organizations;
 using Library.Service.Advances;
 using Library.Service.Employees;
 using Library.Service.Helpers;
+using Library.Service.HumanResources.Profile;
 using Library.Service.SalaryDisbursement;
 using Library.ViewModel.Vouchers;
 using OTSBD;
@@ -53,6 +54,7 @@ namespace Aplos.Areas.Accounts.Controllers
             _companyRepository = companyRepository;
             _sqlRepository = sqlRepository;
         }
+
         #region SalaryPayable
 
         [Authorize, AllowAnonymous]
@@ -66,7 +68,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayable.cshtml");
         }
 
-        
+
         public ActionResult SalaryPayableDisbursement()
         {
             return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayableDisbursement.cshtml");
@@ -780,7 +782,7 @@ left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
 JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
 Where HeadCategory='Net Payable' ";
 
-           var empNetPay = _sqlRepository.GetDataCollection(sql2);
+            var empNetPay = _sqlRepository.GetDataCollection(sql2);
             // new { empdata, empNetPay }
             // _sqlRepository.GetDataCollection(sql)
 
@@ -1036,7 +1038,7 @@ Where HeadCategory='Net Payable' ";
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
                                     WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 and sl.IsDisbursed = 0  " + wcPayrollGroup + @" 
                                     ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
-                             data = _sqlRepository.GetDataTable(sql);
+            data = _sqlRepository.GetDataTable(sql);
         }
         [HttpPost, Authorize]
         public ActionResult GetEmployeeSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
@@ -1186,7 +1188,7 @@ Where HeadCategory='Net Payable' ";
                 sheet[ROW, COL].ColumnWidth = 16;
                 sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBank = COL;
-                
+
 
                 //sheet[ROW, COL].Text = "Bank Account No";
                 //sheet[ROW, COL].ColumnWidth = 16;
@@ -1204,7 +1206,7 @@ Where HeadCategory='Net Payable' ";
                 //sheet[ROW, COL].ColumnWidth = 16;
                 //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 //int ColNetPay = COL;
-                
+
                 // COL++;
                 #endregion Columns
 
@@ -1395,9 +1397,9 @@ Where HeadCategory='Net Payable' ";
                         dr.EndEdit();
                     }
                     DvMaster.RowFilter = null;
-                    clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
                 }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
             }
             catch (Exception ex)
             {
@@ -1553,6 +1555,187 @@ Where HeadCategory='Net Payable' ";
 
         #endregion
 
+        #region Import File
+        [HttpPost, Authorize]
+        public JsonResult ImportData()
+        {
+            string path;
+            clsTemplateReadProfile objR = null;
+            try
+            {
+                objR = new clsTemplateReadProfile();
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                SaveFiles(out path);
+                var data = ReadData(identity.PlantId, path);
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        public void SaveFiles(out string path)
+        {
+            path = "";
+            try
+            {
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<SalaryDisburseTemplate> ReadData(string plantid, string path)
+        {
+            List<SalaryDisburseTemplate> data = null;
+            //string path = "";
+            DataSet dsExcel = null;
+            try
+            {
+                data = new List<SalaryDisburseTemplate>();
+                //SaveFile(out path);
+                ReadFile(path, out dsExcel);
+                Validation(dsExcel, plantid);
+                data = dsExcel.Tables[0].ToList<SalaryDisburseTemplate>();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ReadFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 25, ExcelExportDataTableOptions.ColumnNames);
+                dt.DefaultView.RowFilter = "isnull(EmployeeCode,'')<>''";
+                dt = dt.DefaultView.ToTable();
+
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+
+        public void Validation(DataSet dsExcel, string plantid)
+        {
+
+            try
+            {
+
+                if (dsExcel.Tables[0].Rows.Count > 0)
+                {
+                    if (false)
+                    {
+                        for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                        {
+                            string strTempPDate = "";
+                            string strTempPTimee = "";
+                            string strTempPType = "";
+
+                            strTempPDate = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                            strTempPTimee = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                            strTempPType = dsExcel.Tables[0].Rows[i][3].ToString().Trim().ToUpper();
+
+                        }//for
+
+                    }
+
+                }
+                else
+                {
+                    throw new Exception("Please Select File");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
         #endregion
     }
+
+    public class SalaryDisburseTemplate
+    {
+        public string EmployeeCode { get; set; }
+        public string EmployeeName { get; set; }
+        public string Designation { get; set; }
+        public string Department { get; set; }
+        public string Division { get; set; }
+        public string EmployeeCategory { get; set; }
+        public string Plant { get; set; }
+        public string Section { get; set; }
+        public string SubSection { get; set; }
+        public string Unit { get; set; }
+        public string DOJ { get; set; }
+        public string DOS { get; set; }
+        public string CurrentMonthEmployeeStatus { get; set; }
+        public string EmployeeStatus { get; set; }
+        public string SalaryProcFlag { get; set; }
+        public string PayRollGroup { get; set; }
+        public string JobLocation { get; set; }
+        public string PaymentMode { get; set; }
+        public string BankName { get; set; }
+        public string VoucherNo { get; set; }
+        public string PayableVoucherNo { get; set; }
+        public string DisbursementVoucherNo { get; set; }
+        public string IsLock { get; set; }
+        public string IsDisburse { get; set; }
+        public string NetPayment { get; set; }
+        
+    }
+
 }
