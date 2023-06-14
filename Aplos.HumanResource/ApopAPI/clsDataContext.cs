@@ -4845,192 +4845,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
         #endregion Sales Return
 
-        #region Aman C
-        public string PostUserinfo(IEnumerable<Userinfo> DataToSave)
-        {
-            try
-            {
-                DataSet dsMaster;
-                string TableName = "dbo.Userinfo";
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-                List<Userinfo> items = DataToSave.ToList();
-
-                con.OpenDataSetThroughAdapter("select * from dbo.Userinfo where Id='" + items[0].Id + "'", out dsMaster, false, "1");
-
-                foreach (Userinfo item in DataToSave)
-                {
-
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out string _Id);
-
-
-
-
-                        dr["Id"] =  _Id;
-                        dr["UserName"] = item.UserName;
-                        dr["PhoneNumber"] = item.PhoneNumber;
-                        dr["Email"] = item.Email;
-                        dr["Password"] = item.Password;
-                        dr["BloodGroup"] = item.BloodGroup;
-                        dr["Status"] = item.Status;
-
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-
-                    }
-                    else
-                    {
-                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-
-                        dr["UserName"] = item.UserName;
-                        dr["PhoneNumber"] = item.PhoneNumber;
-                        dr["Email"] = item.Email;
-                        dr["Password"] = item.Password;
-                        dr["BloodGroup"] = item.BloodGroup;
-                        dr["Status"] = item.Status;
-
-                        dr.EndEdit();
-                    }
-
-                }
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                return MasterId;
-
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-            }
-
-
-        }
-
-        public void GetUserinfo(out List<Userinfo> DataList, string user,string password)
-        {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<Userinfo>();
-
-            System.Data.DataSet dsRef;
-            try
-            {
-                strSQL = @"select * from dbo.Userinfo where UserName = '" + user + "' and Password = '" + password + "'";
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new Userinfo
-                    {
-                        UserName = dsRef.Tables[0].Rows[i]["UserName"].ToString(),
-                        PhoneNumber = dsRef.Tables[0].Rows[i]["PhoneNumber"].ToString(),
-                        Email = dsRef.Tables[0].Rows[i]["Email"].ToString(),
-                        Password = dsRef.Tables[0].Rows[i]["Password"].ToString(),
-                        BloodGroup = dsRef.Tables[0].Rows[i]["BloodGroup"].ToString(),
-                        Status = dsRef.Tables[0].Rows[i]["Status"].ToString(),
-
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
-
-        public void GetReceiver(out List<Receiver> DataList)
-        {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<Receiver>();
-
-            System.Data.DataSet dsRef;
-            try
-            {
-                strSQL = @"select * from dbo.receiver";
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new Receiver
-                    {
-                        DonorName = dsRef.Tables[0].Rows[i]["DonorName"].ToString(),
-                        PhoneNumber = dsRef.Tables[0].Rows[i]["PhoneNumber"].ToString(),
-                        Address = dsRef.Tables[0].Rows[i]["Address"].ToString(),
-                        BloodGroup = dsRef.Tables[0].Rows[i]["BloodGroup"].ToString(),
-
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
-
-       
-        public void Getambulance(out List<Ambulance> DataList)
-        {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<Ambulance>();
-
-            System.Data.DataSet dsRef;
-            try
-            {
-                strSQL = @"select * from  dbo.ambulance";
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new Ambulance
-                    {
-                        CompanyName = dsRef.Tables[0].Rows[i]["CompanyName"].ToString(),
-                        PhoneNumber = dsRef.Tables[0].Rows[i]["PhoneNumber"].ToString(),
-                        Address = dsRef.Tables[0].Rows[i]["Address"].ToString(),
-                        Price = dsRef.Tables[0].Rows[i]["Price"].ToString(),
-
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
-
-
-        #endregion Aman C
-
-
+      
         #region seven days attendance
         public string PostPlantinoutcontrl(IEnumerable<Plantcontrol> DataToSave)
         {
@@ -5309,17 +5124,26 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             {
                 DataSet dsMaster;
                 string TableName = "dbo.BarcodeScanData";
+                string PackedBy = "''";
+                string RefNo = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<BarcodeScan> items = DataToSave.ToList();
 
+                foreach (BarcodeScan item in DataToSave)
+                {
+                    PackedBy += ",'" + item.PackedBy + "'";
+                    RefNo += ",'" + item.RefNo + "'";
+                }
+
                 con.OpenDataSetThroughAdapter("select * from dbo.BarcodeScanData where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
 
                 foreach (BarcodeScan item in DataToSave)
                 {
-
-                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"RefNo='" + item.RefNo + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
