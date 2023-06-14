@@ -432,7 +432,7 @@ namespace Aplos.Areas.Commercial.Controllers
 					            Left outer join  trn.PurchaseOrderDetail POD on pod.InventoryReceiveId=po.Id
                                 group by po.PurchaseLCId) AS PO on po.PurchaseLCId=plc.Id
 							left join  (select top 1 PurchaseLCId,AmendmentDate,Amount from PurchaseLCVersion order by AddedDate desc) PLCV on PLCV.PurchaseLCId = PLC.Id 
-
+							AND PLCV.Id=(SELECT TOP 1 ID FROM dbo.PurchaseLCVersion EII WHERE EII.PurchaseLCId = PLC.Id  ORDER BY EII.Version ASC )
                             " + datePic + "" +
                             "order by PLC.LCDate";
                 }
