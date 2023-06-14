@@ -1183,6 +1183,7 @@ upanelApp.controller("ProductionIssueControlController", ProductionIssueControlC
 upanelApp.controller("ProcessQualityControlController", ProcessQualityControlController)
 upanelApp.controller("QualityControlController", QualityControlController)
 upanelApp.controller("GLControlController", GLControlController)
+upanelApp.controller("WorkCenterQualityControlMasterController", WorkCenterQualityControlMasterController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
