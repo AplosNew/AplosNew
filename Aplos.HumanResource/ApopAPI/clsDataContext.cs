@@ -4631,11 +4631,11 @@ where Emp.EmployeeCode = '" + Empcode + "'";
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
-where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
 order by rw.PTime asc) is null then 'IM'
 else 'IN' end as RawDayStatus ,
 (select top 1 rw.PTime from AttdnRawData rw
-where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment 
 

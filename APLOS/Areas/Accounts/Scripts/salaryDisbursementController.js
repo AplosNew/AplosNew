@@ -175,10 +175,10 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                         for (var j = 0; j < response.data.empNetPay.length; j++) {
                             if (response.data.empdata[i].EmpSystemId == response.data.empNetPay[j].EmpInfoSystemID) {
                                 response.data.empdata[i].NetPayment = response.data.empNetPay[j].NetPayment;
-                               
+
                             }
                         }
-                       
+
                     }
                     $scope.empGrid = true;
                     $scope.EmployeeListDefault = response.data.empdata.filter(d => d.isSelect == true);
@@ -187,7 +187,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
                     $scope.GetSalaryUnDisbursed();
                     $scope.EmployeeListTemp = response.data.empdata
-                    
+
                 }
                 else {
                     ShowResult("No Data Found", 'failure');
@@ -229,23 +229,86 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         gridObj.refreshContent();
     };
 
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
+
+    $scope.ModelNew = { FileName: null };
+    $scope.ImportData = function () {
+        try {
+            $scope.msg = "";
+
+            var picData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.picdata)) {
+                $scope.ModelNew.FileName = $scope.picdata.name;
+            }
+
+
+            $http({
+                method: 'POST',
+                url: 'Accounts/SalaryDisbursement/ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    picData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.picdata }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+
+                    for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
+                        $scope.EmployeeListTemp[i].CheckBoxSelect = getActive(response.data, $scope.EmployeeListTemp[i].EmployeeCode);
+                    }
+                    $scope.ShowSaveBtn = true;
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+    function getActive(list, EmployeeCode) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeCode === EmployeeCode) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $scope.SalaryDisbursement = function () {
         try {
             var EmployeeListNew = [];
             for (var i = 0; i < $scope.EmployeeListTemp.length; i++) {
-                EmployeeListNew.push($scope.EmployeeListTemp[i]);
+                if ($scope.EmployeeListTemp[i].CheckBoxSelect) {
+                    EmployeeListNew.push($scope.EmployeeListTemp[i]);
+                }
             }
 
             if (EmployeeListNew.length == 0) {
-                throw "Please Select LeaveType";
+                throw "Please Select Employee.";
             }
-            var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "MonthNo", "YearNo", "Lock", "CheckBoxSelect"]));
+            //var data = ej.DataManager(EmployeeListNew).executeLocal(ej.Query().select(["EmpSystemId", "PayableVoucherId", "DisbursementVoucherId", "Id", "MonthNo", "YearNo", "Lock", "CheckBoxSelect"]));
 
             $scope.$broadcast('show-errors-check-validity');
             $http({
                 method: 'POST',
                 url: $scope.SaveSalaryDisbursementUrl,
-                data: { 'EmployeeList': data },
+                data: { 'EmployeeList': EmployeeListNew },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -400,7 +463,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
             if (baseService.arrayLength($scope.SalaryUnDisburseList) > 0) {
                 angular.forEach($scope.SalaryUnDisburseList, function (a) {
-                   
+
                     if (a.CheckBoxSelect) {
                         var ob = {};
                         ob.Id = null;
@@ -413,9 +476,9 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
                         ob.CheckBoxSelect = a.CheckBoxSelect;
                         $scope.SalaryUndisbursedTemp.push(ob);
                         // EmployeeListSalaryUndisbursedNew = {};
-                       
+
                     }
-                   
+
                 });
             }
 
@@ -448,7 +511,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
 
     $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-    
+
     $scope.XlsSalaryDisbursement = function () {
         var dataList = [];
         var newDataList = [];
@@ -457,7 +520,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         var obj = {};
 
         if (dataList.length == 0) {
-            
+
             dataList = $scope.EmployeeListTemp;
         }
 
@@ -494,22 +557,22 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         $http({
             method: "POST",
             url: $scope.exportgriddataUrl,
-            data: {              
+            data: {
                 'data': newDataList,
                 'reportFileName': $scope.fileName,
 
             },
-            
+
             dataType: 'JSON',
 
         })
             .then(function successCallback(response) {
-                
+
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    
+
                     $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
 
                 }
