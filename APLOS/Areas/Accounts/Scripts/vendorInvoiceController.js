@@ -93,6 +93,9 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         PartyPlantId: null,
         DeliveryPartyPlantId: null,
         PaymentSource: "GL",
+        InvoiceType: "Vendor",
+        LCRef: null,
+        IsLoanSetOff: false,
         CashMasterId: null,
         CompanyCurrencyRate: 1,
         EmployeeName: null,
@@ -360,9 +363,23 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                     }
                 }
             }
+            if ($scope.voucher.PaymentSource === "Loan") {
+                if ($scope.ExistingLoanList.length === 0) {
+                    ShowResult("Please select Loan!", "failure");
+                    return true;
+                }
+                if ($scope.voucher.PartyId !== LCVendorId && $scope.voucher.InvoiceType === "LC") {
+                    ShowResult("LC Vendor and Invoice venodr are not same!,Please select Same Vendor!", "failure");
+                    return true;
+                }
+            }
             else if ($scope.voucher.PaymentSource === "Cash") {
                 if (baseService.isUndefinedOrNull($scope.voucher.CashMasterId)) {
                     ShowResult("Please select Cash!", "failure");
+                    return true;
+                }
+                if ($scope.voucher.PartyId !== LCVendorId && $scope.voucher.InvoiceType === "LC") {
+                    ShowResult("LC Vendor and Invoice venodr are not same!,Please select Same Vendor!", "failure");
                     return true;
                 }
             }
@@ -647,6 +664,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         var voucherTypeId = $scope.voucher.VoucherId;
         $scope.Action = "Save";
         $scope.voucher = {};
+        $scope.voucher.InvoiceType = "Vendor";
+        $scope.voucher.IsLoanSetOff = false;
         $scope.getCboVoucherTypeAccountPayableList();
         $scope.voucher.Active = true;
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
@@ -1137,7 +1156,8 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                         "voucherDetailVMList": $scope.voucherDetailList,
                         "taxDetailVMList": $scope.advanceTaxesList,
                         "tdsVMList": $scope.TDSList,
-                        "invoiceDetailChargesList": $scope.invoiceDetailChargesList
+                        "invoiceDetailChargesList": $scope.invoiceDetailChargesList,
+                        "existingLoanList": $scope.ExistingLoanList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -2257,5 +2277,135 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
             }
         }
     }
+    $scope.purchaseLCList = [];
+    $scope.getpurchaseLCListData = function () {
+        $scope.purchaseLCList = [];
+        $http.get("Commercial/InvoiceTaggedWithLC/getpurchaseLCList")
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+
+                        $scope.purchaseLCList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+    $scope.getpurchaseLCListData();
+
+    $scope.getPurchaseLCData = function () {
+        angular.element(document.querySelector("#PurchaseLCPopUp")).modal("show");
+    }
+    var LCVendorId = "";
+    $scope.SetPurchaseLCDetails = function (args) {
+        $scope.voucher.LCRef = args.data.LCRef;
+        $scope.voucher.PurchaseLCId = args.data.Id;
+        LCVendorId = args.data.VendorId;
+        angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
+    }
+    $scope.loanDataList = [];
+    $scope.getloanPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/Loan/GetLoanPopUpList?transactionType=' + "LoanTaken"
+        }).then(function successCallback(response) {
+            $scope.loanDataList = response.data;
+        });
+    };
+    $scope.showloanPopUp = function () {
+        $scope.getloanPopUpData();
+        angular.element(document.querySelector('#loanPopUp')).modal('show');
+    };
+    $scope.closeloanPopUp = function () {
+        angular.element(document.querySelector("#loanPopUp")).modal("hide");
+    };
+    $scope.ExistingLoanList = [];
+    $scope.existingLoan = {};
+    $scope.closeloanPopUpSelected = function (x) {
+        var data = x.data;
+        if (baseService.isUndefinedOrNull($scope.voucher.PurchaseLCId)) {
+            ShowResult("Please Select LC !", "failure", "loanPopUp");
+            return;
+        }
+        var getRow = null;
+        getRow = $filter("filter")($scope.ExistingLoanList, { "FinancingId": data.FinancingId });
+        if (getRow.length === 0) {
+            $scope.existingLoan.FinancingId = data.FinancingId;
+            $scope.existingLoan.FinancingDetailId = data.FinancingDetailId;
+            $scope.existingLoan.FinancingTypeId = data.FinancingTypeId;
+            $scope.existingLoan.VoucherNo = data.VoucherNo;
+            $scope.existingLoan.PartyName = data.Particulars;
+            $scope.existingLoan.PartyId = data.PartyId;
+            $scope.existingLoan.PartyType = data.PartyType;
+            $scope.existingLoan.PartyPlantName = data.PartyPlantName;
+            $scope.existingLoan.CurrencyId = data.CurrencyId;
+            $scope.existingLoan.CurrencyCode = data.CurrencyCode;
+            $scope.existingLoan.EntityId = data.EntityId;
+            $scope.existingLoan.FinancingTypeId = data.FinancingTypeId;
+            $scope.existingLoan.CompanyId = data.CompanyId;
+            $scope.existingLoan.PlantId = data.PlantId;
+            $scope.existingLoan.LoanAmount = data.LoanAmount - data.AdditionalLoanAmount;
+            $scope.existingLoan.LoanSetOff = data.LoanPayment;
+            $scope.existingLoan.Balance = data.Balance;
+            $scope.existingLoan.LoanDocRefNo = data.DocRefNo;
+            $scope.existingLoan.InitialSactionAmount = data.InitialSactionAmount;
+            $scope.existingLoan.AdditionalLoanAmount = data.AdditionalLoanAmount;
+            $scope.existingLoan.LoanPostingDate = data.PostingDate;
+            $scope.existingLoan.LoanDocDate = data.DocDateNew;
+            $scope.existingLoan.InterestWriteOff = data.InterestWriteOff;
+            $scope.existingLoan.InterestBalance = data.InterestBalance;
+            $scope.existingLoan.InterestCashPayment = data.InterestCashPayment;
+            $scope.existingLoan.InterestAmount = data.InterestAmount - data.OtherExpensesPayable;
+            $scope.existingLoan.OtherExpensesPayable = data.OtherExpensesPayable;
+            $scope.existingLoan.TotalLoanLiability = data.LoanAmount + $scope.existingLoan.InterestAmount + $scope.existingLoan.OtherExpensesPayable
+            $scope.existingLoan.TotalInterestPayableAmount = data.InterestAmount;
+            $scope.existingLoan.ToCurrencyRate = data.CompanyCurrencyRate;
+            //$scope.getPartyPlantList(data.PartyId);
+            $scope.existingLoan.PartyPlantId = data.PartyPlantId;
+
+            $scope.ExistingLoanList.push($scope.existingLoan);
+            $scope.existingLoan = {};
+
+            $scope.voucher.IsLoanSetOff = true;
+            $scope.voucher.FinancingId = data.FinancingId;
+            $scope.voucher.FinancingDetailId = data.FinancingDetailId;
+            $scope.voucher.FinancingTypeId = data.FinancingTypeId;
+            angular.element(document.querySelector("#loanPopUp")).modal("hide");
+        }
+        else {
+            ShowResult(data.DocRefNo + " already  Exist", "failure", "loanPopUp");
+        }
+    };
+
+    $scope.removeRowLoan = function (index) {
+        $scope.ExistingLoanList.splice(index, 1);
+    };
+    $scope.exchangeGainLossAmountExistingLoan = function (data) {
+        var balance = parseFloat(data.Balance), dramount = parseFloat(data.LoanSetOffAmount);
+        if (dramount > balance) {
+            data.LoanSetOffAmount = data.Balance;
+            ShowResult("Loan SetOff Amount should not exceed Balance Amount.", "failure");
+        }
+        else {
+            CloseShowResult();
+        }
+        if (data.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
+            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+            data.ExchangeAmount = Math.abs(data.ConversionAmount * ($scope.voucher.CompanyCurrencyRate - data.ToCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeLoss";
+        }
+        else if (data.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
+            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+            data.ExchangeAmount = Math.abs(data.ConversionAmount * (data.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeGain";
+        }
+        else {
+            data.ExchangeAmount = 0;
+            data.ExchangeType = null;
+            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+        }
+
+    };
 
 }

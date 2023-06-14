@@ -2905,7 +2905,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.PeriodHeaderList = [];
     $scope.GetPeriodList = function (PId) {
         $scope.PeriodHeaderList = null;
-        $http.get('Productions/QualityControl/GetPeriodList?IssueId=' + PId)
+        $http.get('Productions/QualityControl/GetQualityPeriodList?IssueId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.PeriodHeaderList = response.data;

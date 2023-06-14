@@ -1000,6 +1000,12 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetQualityPeriodList(string IssueId)
+        {
+            return Json(_productionSummaryData.GetQualityPeriodList(IssueId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetIssueType(string IssueId)
         {
             return Json(_productionSummaryData.GetIssueType(IssueId), JsonRequestBehavior.AllowGet);
