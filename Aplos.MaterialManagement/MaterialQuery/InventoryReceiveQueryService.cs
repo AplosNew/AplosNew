@@ -8172,7 +8172,7 @@ namespace Aplos.MaterialManagement
 				COL++;
 
 
-				worksheet[ROW, COL].Text = "LC Value";
+				worksheet[ROW, COL].Text = "Master LC Value";
 				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 				int colMasterLCAmount = COL;
 				worksheet[ROW, COL].ColumnWidth = 12;
@@ -8580,7 +8580,7 @@ namespace Aplos.MaterialManagement
 
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				ReportUtility reportUtility = new ReportUtility();
-				reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Master LC", identity.CompanyId, identity.PlantName, "");
+				reportUtility.CompanyPlantHeader(ref worksheet, endCol, "LC Reports", identity.CompanyId, identity.PlantName, "");
 				reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
 				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
