@@ -755,19 +755,30 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                 foreach (var item in data)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
-
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("MachineMasterTransaction", out _Id);
-                    DataRow dr = dsChild.Tables[0].NewRow();
-                    dr["Id"] = _Id;
-                    dr["VehicleMovementRequisitionId"] = headerId;
-                    dr["FromLocationId"] = item["FromLocationId"];
-                    dr["ToLocationId"] = item["ToLocationId"];
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dsChild.Tables[0].Rows.Add(dr);
+                    if(dv.Count > 0) {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["FromLocationId"] = item["FromLocationId"];
+                        dr["ToLocationId"] = item["ToLocationId"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                    }
+                    else
+                    {
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("MachineMasterTransaction", out _Id);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _Id;
+                        dr["VehicleMovementRequisitionId"] = headerId;
+                        dr["FromLocationId"] = item["FromLocationId"];
+                        dr["ToLocationId"] = item["ToLocationId"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();

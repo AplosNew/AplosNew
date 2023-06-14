@@ -361,6 +361,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
                     
                     $scope.GetVehicleRequisitiontData();
                     $scope.GetVehicleAllocation();
+                    $scope.GetVehicleReqTreeViewData();
 
                 }
             }), function errorCallBack(response) {
