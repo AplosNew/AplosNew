@@ -6,6 +6,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Enums;
+using Library.Model.Parties;
 using Library.Service.Advances;
 using Library.Service.Invoices;
 using Library.ViewModel.Invoices;
@@ -318,7 +319,14 @@ namespace Aplos.Areas.Accounts.Controllers
             if (voucherVM.PaymentSource == "SetOff")
             {
                 voucherVM.Amount = voucherDetailInvoiceList.Sum(r => r.Amount);
+                if (voucherVM.PartyType == PartyType.Vendor.ToString())
+                {
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorCreditNoteSetOff(voucherVM, voucherDetailVMList, voucherDetailInvoiceList)) });
+                }
+                else
+                {
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertCreditNoteInvoiceSetOff(voucherVM, voucherDetailVMList, voucherDetailInvoiceList)) });
+                }
             }
             else
             {

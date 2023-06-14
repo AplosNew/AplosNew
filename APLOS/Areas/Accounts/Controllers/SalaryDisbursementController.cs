@@ -742,7 +742,7 @@ namespace Aplos.Areas.Accounts.Controllers
                                     ,sl.IsDisbursed
                                     ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
                                   ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
-                                    ,0 NetPayment 
+                                    ,0 NetPayment,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup 
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -764,6 +764,8 @@ namespace Aplos.Areas.Accounts.Controllers
                                     LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
                                     LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
                                     LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DesM.Id
+									LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                     LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
                                     LEFT JOIN ORG.Line AS eL ON eL.Id= mpb.LineId
                                     Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
@@ -1645,7 +1647,7 @@ Where HeadCategory='Net Payable' ";
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 25, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(5, 1, 5000, 28, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(EmployeeCode,'')<>''";
                 dt = dt.DefaultView.ToTable();
 
