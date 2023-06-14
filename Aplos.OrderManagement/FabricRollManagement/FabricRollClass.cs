@@ -1551,7 +1551,9 @@ LEFT OUTER JOIN MaterialGridMaster mgm ON mgm.SystemID=mm.materialGridMasterSyst
 									LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
 									LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
 									LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
-									LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
+									LEFT JOIN trn.SalesOrder SO ON SO.ContractId=C.Id
+									LEFT JOIN trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+									LEFT JOIN trn.MasterOrder MO on MO.Id=MOI.MasterOrderId
 									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							FROM [TRN].[InventoryReceive] AS IR JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN TRN.Invoice INV ON INV.InventoryReceiveId=IR.Id
@@ -1838,8 +1840,9 @@ SELECT F.Id,IR.Id GRNNo,F.PreparedById,F.CheckedById,F.Remarks,F.Comment
 									LEFT JOIN TRN.PurchaseOrder xpo on xpo.Id=POD.InventoryReceiveId
 									LEFT JOIN (select * from TRN.InventoryReceiveDetail) IRD on IRD.InventoryReceiveId=IR.Id
 									LEFT JOIN DBO.[Contract] C on C.Id=xpo.ContractId
-									LEFT JOIN trn.MasterOrder MO on MO.Id=C.MasterOrderId
-									LEFT JOIN trn.MasterOrderItem MOI on MO.Id=MOI.MasterOrderId
+									LEFT JOIN trn.SalesOrder SO ON SO.ContractId=C.Id
+									LEFT JOIN trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+									LEFT JOIN trn.MasterOrder MO on MO.Id=MOI.MasterOrderId
 									where POD.Id=IRD.PODetailsId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 							from [BPDT].[FabricRollManagementMaster] F 
 							LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=F.GRNId 
@@ -1863,7 +1866,7 @@ LEFT JOIN dbo.EmployeeInformation CE ON CE.SystemId=F.CheckedById
 						, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent 
 						,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount
 						FROM [TRN].[InventoryReceiveDetail] AS A
-		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='"+PlantId+@"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
+		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + PlantId+@"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
                         LEFT JOIN (SELECT A.InventoryReceiveId, A.TransactionUoMId 
 						FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id
 		                            WHERE B.PlantId='"+PlantId+@"' GROUP BY A.InventoryReceiveId, A.TransactionUoMId HAVING COUNT(A.InventoryReceiveId)> COUNT(A.TransactionUoMId)) AS TU ON TU.InventoryReceiveId=IR.Id
