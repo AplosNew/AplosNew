@@ -134,7 +134,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
                 $scope.ModelNew.LastReading = response.data[0].LastReading;
                 $scope.ModelNew.LastReadingDate = response.data[0].LastReadingDate;
                 $scope.ModelNew.LastReadingTime = response.data[0].LastReadingTime;
-                $scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;
+                //$scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;
             });
         }
     }
@@ -149,7 +149,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             url: 'Materials/UtilityTransaction/GetCalculatedValue?utilityMasterId=' + $scope.ModelNew.UtilityMasterId
         }).then(function successCallback(response) {
             /*$scope.ModelNew.MultiplyingFactor = response.data[0].MultiplyingFactor;*/
-            $scope.CalculatedValue = $scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor;
+            $scope.CalculatedValue = parseFloat($scope.ModelNew.Quantity * $scope.ModelNew.MultiplyingFactor).toFixed(4);
         });
     }
 
