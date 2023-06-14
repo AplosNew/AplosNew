@@ -2308,7 +2308,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getloanPopUpData = function () {
         $http({
             method: 'GET',
-            url: 'Accounts/Loan/GetLoanPopUpListForSalesRealization?transactionType=' + "LoanTaken"
+            url: 'Accounts/Loan/GetLoanPopUpList?transactionType=' + "LoanTaken"
         }).then(function successCallback(response) {
             $scope.loanDataList = response.data;
         });
