@@ -4631,11 +4631,11 @@ where Emp.EmployeeCode = '" + Empcode + "'";
 DSG.StandardName Designation,x.StandardName Category, POS.Activity,apd.InStatus, UN.Id EntityId,UN.UserName EntityName,
 case when apd.WeeklyStatus = 'W' then 'W'
 when (select top 1 rw.PTime from AttdnRawData rw
-where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
 order by rw.PTime asc) is null then 'IM'
 else 'IN' end as RawDayStatus ,
 (select top 1 rw.PTime from AttdnRawData rw
-where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate
+where rw.LogDownLoadNum = apd.EmpSystemID and rw.PDate = apd.WorkDate AND rw.PType <> 'OUT'
 order by rw.PTime asc) InTime,pv.InTime as InVerificationTime, MBGT.Code BudgetCode, sd.ShiftDefinationName Shift, sd.SystemID as ShiftId, emp.CellPhnNo MobileNo,apd.WeeklyStatus, RG.StandardName Residence, TG.StandardName Transport,
 Hrg.ManpowerBudgetId, Hg.UserGroup , Hg.Id as GroupId , RM.Location as Location , Emp.EmployeeCurrentStatus as CurrentStatus ,MBGT.Deployment,ISNULL(A.ToDayIN , 0) as ToDayIN, Diffenence= ISNULL(A.ToDayIN,0)-MBGT.Deployment 
 
@@ -5277,7 +5277,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             try
             {
                 strSQL = @"select distinct FromLocation as Name , Id as Value
-                from mst.MaterialMovementMaster";
+                from mst.MaterialMovementMaster where AddedBy = 'Aman'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5328,9 +5328,17 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         genid.GenID(TableName, out string _Id);
 
                         dr["Id"] = _Id;
-                        dr["EmpSystemId"] = item.EmpSystemId;
-                        dr["MaterialMovementMasterId"] = item.MaterialMovementMasterId;
-                        dr["BarcodecScanData"] = item.BarcodecScanData;
+                        dr["LocMasterId"] = item.LocMasterId;
+                        dr["SubLocation"] = item.SubLocation;
+                        dr["ProductCode"] = item.ProductCode;
+                        dr["POId"] = item.POId;
+                        dr["LotNo"] = item.LotNo;
+                        dr["RefNo"] = item.RefNo;
+                        dr["Cones"] = item.Cones;
+                        dr["NetWeight"] = item.NetWeight;
+                        dr["GWeight"] = item.GWeight;
+                        dr["PackedBy"] = item.PackedBy;
+                        dr["Shade"] = item.Shade;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
@@ -5987,9 +5995,17 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
     public class BarcodeScan
     {
         public string Id { get; set; }
-        public string EmpSystemId { get; set; }
-        public string MaterialMovementMasterId { get; set; }
-        public string BarcodecScanData { get; set; }
+        public string LocMasterId { get; set; }
+        public string SubLocation { get; set; }
+        public string ProductCode { get; set; }
+        public string POId { get; set; }
+        public string LotNo { get; set; }
+        public string RefNo { get; set; }
+        public string Cones { get; set; }
+        public string NetWeight { get; set; }
+        public string GWeight { get; set; }
+        public string PackedBy { get; set; }
+        public string Shade { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string UpdatedBy { get; set; }

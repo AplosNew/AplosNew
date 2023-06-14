@@ -171,7 +171,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 										when isnull(sl.EmpSystemId,'')='' and isnull(k.EmpInfoSystemID,'')<>'' then 'NO'
 										 else 'YES' end
 ,EBI.IFSCCode
-,EBI.MICRCode
+,EBI.MICRCode,AG.UserName AccountsGroup
 
 
                            FROM EmployeeInformation E
@@ -199,7 +199,8 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                         --left join mst.DesignationMaster dm on dm.DesignationId=e.GivenDesignationId
 
 										left join mst.LegalSalaryGradeDesignation  gr on gr.LegalDesignationId=e.LegalDesignationId and gr.PlantId=e.PlantId
-
+LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DM.Id
+										LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
                                         --MLV
 										left join
 										(

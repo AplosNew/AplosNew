@@ -1722,6 +1722,23 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
 
+    $scope.SetPOSelectData = function ($event) {
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+        $scope.productionSummaryNew.EntityId = $event.data.EntityId;
+        $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
+        $scope.productionSummaryNew.ProductionShiftId = $event.data.ProductionShiftId;
+        $scope.productionSummaryNew.ProductionDate = $event.data.Date;
+        $scope.productionSummaryNew.IssueId = $event.data.IssueId;
+        $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
+        $scope.setTab(2);
+        $scope.loadProcessList($scope.productionSummaryNew.EntityId)
+        $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
+        $scope.GetShiftList();
+        $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
+        $scope.GetIssueType($scope.productionSummaryNew.IssueId);
+        //$scope.productionSummaryNew.Article = $event.data.Article;
+    }
+
     $scope.psdList = [];
     $scope.char1Save = function () {
         try {
@@ -2861,7 +2878,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.IssueHeaderList = [];
     $scope.GetIssueList = function (PId) {
-        $http.get('Productions/QualityControl/GetIssueList?processId=' + PId)
+        $http.get('Productions/QualityControl/GetQualityIssueList?processId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.IssueHeaderList = response.data;
@@ -2888,7 +2905,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.PeriodHeaderList = [];
     $scope.GetPeriodList = function (PId) {
         $scope.PeriodHeaderList = null;
-        $http.get('Productions/QualityControl/GetPeriodList?IssueId=' + PId)
+        $http.get('Productions/QualityControl/GetQualityPeriodList?IssueId=' + PId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.PeriodHeaderList = response.data;

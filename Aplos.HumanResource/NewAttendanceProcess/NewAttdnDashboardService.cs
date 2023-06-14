@@ -265,8 +265,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             where  c.CompanyGroupId = '" + companyGroupId + @"'  " + empCat + @" " + statP + @"
                             group by c.Id , c.UserName , cg.id , cg.userName
-                            order by c.UserName asc
-                            ";
+                            order by c.UserName asc";
                 var jj = _sqlRepository.GetDataCollection(sql);
                 return jj;
             }
