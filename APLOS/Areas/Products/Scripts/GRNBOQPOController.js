@@ -679,7 +679,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.PostButton = false;
         $scope.advanceTaxesList = [];
     }
-    
+
     $scope.PostButton = false;
     $scope.Save = function () {
         if ($scope.Action === 'Save') {
@@ -1518,8 +1518,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         var Id = x.data.Id;
         $scope.productId = Id;
         $scope.ActionForEdit = 'Update';
-        $scope.POId1 = x.data.POID;
-        $scope.POID = x.data.POID;
+        $scope.POId1 = x.data.POId;
+        $scope.POID = x.data.POId;
         $scope.product = $scope.products[$scope.index];
         $scope.productNew = x.data;
         $scope.productNew.NoteForAccounts = x.data.NoteForAccounts;
@@ -1546,7 +1546,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         getServiceChargeListBOQ(Id);
         $scope.GetAdvanceTaxInfoBOQ(Id);
         $scope.productNew.TaxOptionAddiTax = 'Yes';
-       /* $scope.TotalSumAfterTCSBOQ();*/
+        // $scope.TotalSumAfterTCSBOQ();
         $scope.ImagedataLoadBOQ(Id);
         if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
             $scope.CheckedByStatusForNoti = false;
@@ -1588,6 +1588,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 $scope.POIDs = $scope.MasterList[0].POId;
                 //$scope.productNew.CheckedBy = $scope.inventoryMaterialList[0].CheckedBy;
                 $scope.productNew.PODate = $scope.MasterList[0].AddedDate;
+                $scope.TotalSumAfterTCSBOQ();
                 checkSameValueInColumnListBOQ($scope.MasterList, 'TransactionUoM');
                 getGrossAmountBOQ($scope.MasterList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
                 //$scope.GetMaterialTaxDataBOQ();
@@ -1681,10 +1682,12 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             $scope.advanceTaxesList = response.data;
             $scope.TotalSumAfterTCSBOQ();
         });
+
     }
+
     $scope.TotalSumAfterTCSBOQ = function () {
 
-        if ($scope.inventoryMaterialListPO.length>0 ) {
+        if ($scope.inventoryMaterialListPO.length > 0) {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
         }
         else {
@@ -1730,52 +1733,57 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
             $scope.loadAcceptanceDetailList = response.data;
 
-            $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
-            $scope.productNew.InvoicingByName = $scope.loadAcceptanceDetailList[0].InvoicingBy;
-            $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
-            $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
-            $scope.productNew.InvoicingByAddress = $scope.loadAcceptanceDetailList[0].InvoicingByAddress;
+            if (baseService.arrayLength($scope.loadAcceptanceDetailList) > 0) {
+                $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
+                $scope.productNew.InvoicingByName = $scope.loadAcceptanceDetailList[0].InvoicingBy;
+                $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
+                $scope.productNew.InvoicingPartyPlantId = $scope.loadAcceptanceDetailList[0].InvoicingPartyPlantId;
+                $scope.productNew.InvoicingByAddress = $scope.loadAcceptanceDetailList[0].InvoicingByAddress;
 
-            $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
-            $scope.productNew.DeliveryByName = $scope.loadAcceptanceDetailList[0].DeliveryBy;
-            $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
-            $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
-            $scope.productNew.DeliveryByAddress = $scope.loadAcceptanceDetailList[0].DeliveryByAddress;
-            $scope.productNew.ToCurrencyRate = $scope.loadAcceptanceDetailList[0].AcceptanceRate;
-            $scope.productNew.CurrencyId = $scope.loadAcceptanceDetailList[0].CurrencyId;
+                $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
+                $scope.productNew.DeliveryByName = $scope.loadAcceptanceDetailList[0].DeliveryBy;
+                $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
+                $scope.productNew.DeliveryPartyPlantId = $scope.loadAcceptanceDetailList[0].DeliveryPartyPlantId;
+                $scope.productNew.DeliveryByAddress = $scope.loadAcceptanceDetailList[0].DeliveryByAddress;
+                $scope.productNew.ToCurrencyRate = $scope.loadAcceptanceDetailList[0].AcceptanceRate;
+                $scope.productNew.CurrencyId = $scope.loadAcceptanceDetailList[0].CurrencyId;
 
-            $scope.productNew.PartyName = $scope.loadAcceptanceDetailList[0].PartyName;
-            $scope.productNew.DocRefNo = $scope.loadAcceptanceDetailList[0].DocRefNo;
-            $scope.productNew.DocDate = $scope.loadAcceptanceDetailList[0].DocDate;
-            $scope.productNew.CurrencyId = $scope.loadAcceptanceDetailList[0].CurrencyId;
-            $scope.productNew.ToCurrencyRate = $scope.loadAcceptanceDetailList[0].AcceptanceRate;
-            $scope.productNew.VoucherId = $scope.loadAcceptanceDetailList[0].VoucherId;
-            $scope.productNew.InvoiceNo = $scope.loadAcceptanceDetailList[0].InvoiceNo;
-            $scope.productNew.InvoiceDate = $scope.loadAcceptanceDetailList[0].InvoiceDate;
-            $scope.productNew.DueDate = $scope.loadAcceptanceDetailList[0].DueDate;
-            $scope.productNew.PurchaseLCId = $scope.loadAcceptanceDetailList[0].LCANo;
-            $scope.productNew.LCDate = $scope.loadAcceptanceDetailList[0].LCDate;
-            $scope.productNew.ContractId = $scope.loadAcceptanceDetailList[0].ContractId;
+                $scope.productNew.PartyName = $scope.loadAcceptanceDetailList[0].PartyName;
+                $scope.productNew.DocRefNo = $scope.loadAcceptanceDetailList[0].DocRefNo;
+                $scope.productNew.DocDate = $scope.loadAcceptanceDetailList[0].DocDate;
+                $scope.productNew.CurrencyId = $scope.loadAcceptanceDetailList[0].CurrencyId;
+                $scope.productNew.ToCurrencyRate = $scope.loadAcceptanceDetailList[0].AcceptanceRate;
+                $scope.productNew.VoucherId = $scope.loadAcceptanceDetailList[0].VoucherId;
+                $scope.productNew.InvoiceNo = $scope.loadAcceptanceDetailList[0].InvoiceNo;
+                $scope.productNew.InvoiceDate = $scope.loadAcceptanceDetailList[0].InvoiceDate;
+                $scope.productNew.DueDate = $scope.loadAcceptanceDetailList[0].DueDate;
+                $scope.productNew.PurchaseLCId = $scope.loadAcceptanceDetailList[0].LCANo;
+                $scope.productNew.LCDate = $scope.loadAcceptanceDetailList[0].LCDate;
+                $scope.productNew.ContractId = $scope.loadAcceptanceDetailList[0].ContractId;
 
-            $scope.productNew.AcceptancePaymentSource = $scope.loadAcceptanceDetailList[0].AcceptancePaymentSource;
-            $scope.productNew.PartyId = $scope.loadAcceptanceDetailList[0].PartyId;
-            $scope.productNew.partySearchByList = $scope.loadAcceptanceDetailList[0].PartyId;
+                $scope.productNew.AcceptancePaymentSource = $scope.loadAcceptanceDetailList[0].AcceptancePaymentSource;
+                $scope.productNew.PartyId = $scope.loadAcceptanceDetailList[0].PartyId;
+                $scope.productNew.partySearchByList = $scope.loadAcceptanceDetailList[0].PartyId;
+
+                if ($scope.loadAcceptanceDetailList[0].IsNonCreditable === 'Yes') {
+                    $scope.productNew.IsNonCreditable = true;
+
+                }
+                else {
+                    $scope.productNew.IsNonCreditable = false;
+
+
+                }
+            }
             //$scope.productId = "";
             $scope.AcceptanceId = $scope.AcceptanceId;
             getPartyPlantListBOQ();
             //getPartyPlantEditList();
+            var id1 = null;
             GetInventoryMaterialListByPOBOQ(id1, $scope.AcceptanceId);
             getServiceChargeListPOBOQ(id1);
             $scope.productNew.PO = $scope.status;
-            if ($scope.loadAcceptanceDetailList[0].IsNonCreditable === 'Yes') {
-                $scope.productNew.IsNonCreditable = true;
 
-            }
-            else {
-                $scope.productNew.IsNonCreditable = false;
-
-
-            }
         });
     }
     $scope.inventoryMaterialListPO = [];
@@ -1789,8 +1797,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 $scope.POID = $scope.inventoryMaterialListPO.POID;
                 $scope.PreBal = $scope.inventoryMaterialListPO.Balance;
                 $scope.PODetailsID = $scope.inventoryMaterialListPO.InventoryReceiveDetailId;
-                $scope.productNew.InvoicingByAddress = $scope.inventoryMaterialListPO[0].InvoicingByAddress;
-                $scope.productNew.DeliveryByAddress = $scope.inventoryMaterialListPO[0].DeliveryByAddress;
+                if (baseService.arrayLength($scope.inventoryMaterialListPO) > 0) {
+                    $scope.productNew.InvoicingByAddress = $scope.inventoryMaterialListPO[0].InvoicingByAddress;
+                    $scope.productNew.DeliveryByAddress = $scope.inventoryMaterialListPO[0].DeliveryByAddress;
+                }
                 $scope.inventoryMaterialListPO.BaseAmount = '0';
                 checkSameValueInColumnListBOQ($scope.inventoryMaterialListPO, 'TransactionUoM');
                 getGrossAmountBOQ($scope.inventoryMaterialListPO, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
@@ -1956,7 +1966,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.NewPOMaterialTaxList = [];
         try {
             for (var n = 0; n < baseService.arrayLength($scope.MasterListNewBOQ); n++) { // add
-                if ($scope.MasterListNewBOQ[n].TransactionQty>0) {
+                if ($scope.MasterListNewBOQ[n].TransactionQty > 0) {
                     var nRow = {};
                     nRow = $scope.MasterListNewBOQ[n];
 
@@ -2093,9 +2103,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         }
         $scope.TotalSumAfterTCS();
     };
+
     $scope.TotalSumAfterTCS = function () {
 
-        if ($scope.MasterList.length>0) {
+        if ($scope.MasterList.length > 0) {
             $scope.TotalSumAfterTCSVal = parseFloat(parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "TrnAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.MasterList), "BaseTaxAmount")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceCharge")) + parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryMaterialListPO), "ServiceTax")) + parseFloat($filter("sumByKey")($filter("filter")($scope.advanceTaxesList), "TaxAmount"))).toFixed(2);
         }
         else {
@@ -2483,7 +2494,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         }
     };
 
-    
+
     $scope.summaryUnassignRows = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TransactionQty", dataMember: "TransactionQty", format: "{0:C2}" }],
         showCaptionSummary: true,

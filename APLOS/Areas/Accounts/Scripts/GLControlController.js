@@ -141,7 +141,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
-        //$scope.selectExpenseGL(args.data.Id);
+        $scope.selectExpenseGL(args.data.Id);
         $scope.GetMaterialData(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -229,7 +229,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
         $scope.MaterialDataList = [];
-        //$scope.selectExpenseGL = [];
+        $scope.ExpenseGLList = [];
     }
 
 
@@ -641,12 +641,12 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         })
     }
 
-    $scope.ClearConsumable = function () {
-        $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.selectExpenseGL = [];
-        return true;
-    };
+    //$scope.ClearConsumable = function () {
+    //    $scope.Action = 'Save';
+    //    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    //    $scope.selectExpenseGL = [];
+    //    return true;
+    //};
 
 
     // #endregion --------------------------------- Expense  -----------------------------------//

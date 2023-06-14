@@ -57,7 +57,7 @@
 
 
     </div>
-   
+
     <div class="tab-design">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
@@ -69,6 +69,16 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div class="row" ng-show="empGrid">
+                    <div class="col-sm-12">
+                        <div class="inputBtnSection common-btn">
+                            <label class="fileUpload col-sm-4 ">
+                                <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                            </label>
+                            <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
                     <div class="col-md-12" ng-show="empGrid">
                         <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
                              e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
@@ -113,25 +123,12 @@
 
                     </div>
                     <div class="col-sm-12">
-                        <div class="col-sm-4">
-                            <br />
-                        </div>
+                        <div class="common-btn left">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="SalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i> {{Action}}</button></li>
+                                <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
 
-                        <div class="col-sm-4">
-                            <br />
-                        </div>
-
-                        <div class="col-sm-4">
-                            <br />
-                        </div>
-
-                        <div class="col-sm-4">
-                            <div class="common-btn">
-                                <ul style="display:flex; justify-content:space-between">
-                                    <li> <button ng-click="SalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-lock"></i> {{Action}}</button></li>
-                                    <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Export to Excel</button></li>
-                                </ul>
-                            </div>
+                            </ul>
                         </div>
 
                     </div>
@@ -178,23 +175,23 @@
 
                         <script type="text/x-jsrender" id="headerTemplateB">
 
-                            <input type="checkbox" id="headchkB" e-checked="data.CheckBoxSelect"/>
+                            <input type="checkbox" id="headchkB" e-checked="data.CheckBoxSelect" />
                         </script>
 
 
                     </div>
                     <div class="col-sm-12">
                         @*<div class="col-sm-4">
-                            <br />
-                        </div>
+                                <br />
+                            </div>
 
-                        <div class="col-sm-4">
-                            <br />
-                        </div>
+                            <div class="col-sm-4">
+                                <br />
+                            </div>
 
-                        <div class="col-sm-4">
-                            <br />
-                        </div>*@
+                            <div class="col-sm-4">
+                                <br />
+                            </div>*@
 
                         <div class="col-sm-6">
                             <div class="common-btn">

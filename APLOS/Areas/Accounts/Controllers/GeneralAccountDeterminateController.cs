@@ -484,11 +484,12 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                var sql = @"select GLCD.Id GLControldetailId,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetId
+                var sql = @"select GLCD.Id GLControldetailId,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetMasterId
 						,B.UserName BudgetName,GLCD.ActivityId,A.UserName ActivityName
 						from mst.GLControldetail GLCD
 						left join [HKP].[GLGeneralInfo] glg on glg.Id=GLCD.GLGeneralInfoId
-						left join [HKP].[Budget] B on B.Id=GLCD.BudgetId
+						left join mst.BudgetMaster BM on BM.Id=GLCD.BudgetMasterId
+						left join HKP.Budget B on B.Id=BM.BudgetId
 						left join [HKP].[Activity] A on A.Id=GLCD.ActivityId
 						where GLCD.GLControlId= '" + glControlDetailId + "' ";
 
