@@ -612,43 +612,43 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Attedance
 
 
-        #region Aman c
-        [HttpPost]
-        public string PostUserinfo([FromBody] IEnumerable<Userinfo> DataToSave)
-        {
-            try
-            {
-                string Id = clsData.PostUserinfo(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
+        //#region Aman c
+        //[HttpPost]
+        //public string PostUserinfo([FromBody] IEnumerable<Userinfo> DataToSave)
+        //{
+        //    try
+        //    {
+        //        //string Id = clsData.PostUserinfo(DataToSave);
+        //        return Id;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ex.ToString();
 
-            }
-        }
+        //    }
+        //}
 
-        public List<Userinfo> GetUserinfo(string user, string password)
-        {
-            clsDataContext clsData = new clsDataContext();
-            clsData.GetUserinfo(out List<Userinfo> activelists, user,password);
-            return activelists;
-        }
+        //public List<Userinfo> GetUserinfo(string user, string password)
+        //{
+        //    clsDataContext clsData = new clsDataContext();
+        //    clsData.GetUserinfo(out List<Userinfo> activelists, user,password);
+        //    return activelists;
+        //}
 
-        public List<Receiver> GetReceiver()
-        {
-            clsDataContext clsData = new clsDataContext();
-            clsData.GetReceiver(out List<Receiver> activelists);
-            return activelists;
-        }
+        //public List<Receiver> GetReceiver()
+        //{
+        //    clsDataContext clsData = new clsDataContext();
+        //    clsData.GetReceiver(out List<Receiver> activelists);
+        //    return activelists;
+        //}
 
-        public List<Ambulance> Getambulance()
-        {
-            clsDataContext clsData = new clsDataContext();
-            clsData.Getambulance(out List<Ambulance> activelists);
-            return activelists;
-        }
-        #endregion Aman c
+        //public List<Ambulance> Getambulance()
+        //{
+        //    clsDataContext clsData = new clsDataContext();
+        //    clsData.Getambulance(out List<Ambulance> activelists);
+        //    return activelists;
+        //}
+        //#endregion Aman c
 
 
         #region Seven Days Attendance 

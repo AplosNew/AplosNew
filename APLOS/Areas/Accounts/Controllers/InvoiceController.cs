@@ -317,7 +317,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertVendorInvoice(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList)
+            , IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<InvoiceTaxViewModel> tdsVMList, IEnumerable<InvoiceDetailCharges> invoiceDetailChargesList, IEnumerable<VoucherViewModel> existingLoanList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -333,12 +333,17 @@ namespace Aplos.Areas.Accounts.Controllers
                 else if (voucherVM.IsExcludingTax == true && voucherVM.Amount != voucherDetailVMList.Sum(r => r.Amount))
                     throw new CustomException("Net Amount and Invoice Amount not match!");
             }
+            if (voucherVM.PaymentSource == PaymentSource.Loan.ToString())
+            {
+                if (voucherVM.IsExcludingTax == false && voucherVM.Amount != existingLoanList.Sum(r => r.LoanSetOffAmount))
+                    throw new CustomException("Total Amount and Loan SetOff Amount not match!");
+            }
 
             if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.CashMasterId == null)
                 throw new CustomException(Resources.SelectCash);
             voucherVM.SourceType = SourceType.VendorInvoice.ToString();
             if (voucherVM.BeneficiaryType == NewBeneficiaryType.Vendor.ToString())
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoice(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoice(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList, invoiceDetailChargesList, existingLoanList)) });
             else
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceService.InsertVendorInvoiceBeneficiaryEmployee(voucherVM, voucherDetailVMList, taxDetailVMList, tdsVMList)) });
 

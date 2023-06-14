@@ -77,9 +77,9 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label"> Name<sup>*</sup></label>
+                            <label class="col-sm-4 control-label"> Name</label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="User Name" ng-model="VehicleRequisitionModel.Name" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="User Name" ng-model="VehicleRequisitionModel.Name" class="form-control" tabindex="5" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -112,7 +112,7 @@
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SaveMovement();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{MovementAction}}</button></li>
                                 @* <li> <button ng-click="CreateBlankRows();" class="btn" tabindex="9"><i class="glyphicon glyphicon-plus-sign"></i> Add New Rows</button></li>*@
-                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                               @* <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                                 <li> <button ng-click="ClearMovement();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
@@ -145,9 +145,8 @@
 
                                                 <div class="col-sm-12 show-message">
                                                     <div class="select-style">
-                                                        @* <input id="fromlocationId" name="FromLocation" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create"  ng-model="data.FromLocationId" e-datasource="FromLocationList" e-fields-value="Value" e-fields-text="Text" e-width="100%"/>*@
 
-                                                        <select class="form-control" ng-model="data.FromLocationId" name="Detention" ng-change="isSelectedAutoChecked(data.FromLocationId, $index)"
+                                                        <select class="form-control" ng-model="data.FromLocationId" name="Detention" ng-change="isSelectedAutoChecked(data.FromLocationId, $index);GetToLocationList(data.FromLocationId,$index)"
                                                                 tabindex="2">
                                                             <option value="">--Select--</option>
                                                             <option ng-repeat="option in FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
@@ -161,12 +160,12 @@
 
                                                 <div class="col-sm-12 show-message">
                                                     <div class="select-style">
-                                                        @*<input id="ToLocationId" name="ToLocation" e-watermarktext="Type" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="FromLocationList" e-change="AssignToLocInFromLoc(data.ToLocationId, $index)" ng-model="data.ToLocationId" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="false" />*@
+                                                       
 
                                                         <select class="form-control" ng-model="data.ToLocationId" name="Detention" ng-change="AssignToLocInFromLoc(data.ToLocationId, $index);"
                                                                 tabindex="2">
                                                             <option value="">--Select--</option>
-                                                            <option ng-repeat="option in FromLocationList" value="{{option.Value}}">{{option.Text}}</option>
+                                                            <option ng-repeat="option in ToLocationList" value="{{option.Value}}">{{option.Text}}</option>
                                                         </select>
 
                                                     </div>

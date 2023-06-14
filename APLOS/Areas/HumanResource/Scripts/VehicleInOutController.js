@@ -18,6 +18,24 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         return $scope.tab === tabNum;
     };
 
+    $scope.intab = 1;
+    $scope.insetTab = function (newTab) {
+       
+        $scope.intab = newTab;
+    };
+
+    $scope.isinSet = function (tabNum) {
+        return $scope.intab === tabNum;
+    };
+
+    $scope.outsetTab = function (newTab) {
+        $scope.tab = 1;
+        $scope.tab = newTab;
+    };
+
+    $scope.isoutSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
     // #endregion TAB CHANGE
 
     $scope.VehicleAllocationList = [];
@@ -65,7 +83,8 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         ToTime: null,
         VehicleMasterId: null,
         DriverMasterId: null,
-        FromLocation:null
+        FromLocation: null,
+        
 
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
@@ -76,18 +95,46 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         if (!$rootScope.isCollapsed) {
             $scope.GetVehicleList();
             $scope.GetDriverList();
+            $scope.VehicleInData(args.data.VehicleAllocationId);
+           
             $rootScope.toggle();
             
         }
     }
 
+    $scope.PendingInTripList = [];
+    $scope.GetPendingInTrip = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPendingInTrip",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PendingInTripList = response.data;
+
+        });
+    }
+    $scope.GetPendingInTrip();
+
+    $scope.PendingOutTripList = [];
+    $scope.GetPendingOutTrip = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPendingOutTrip",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PendingOutTripList = response.data;
+
+        });
+    }
+    $scope.GetPendingOutTrip();
 
     //  #region VehicleIn
+    var todaDate = new Date();
     $scope.VehicleInTemp = {
         Id: null,
-        InDate: null,
-        InTime: null,
-        InKillometer: null,
+        InDate: todaDate,
+        InTime: todaDate,
+        InReading: null,
         Remarks: null
 
     };
@@ -96,6 +143,8 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
 
     $scope.GetIn = function (args) {
         $scope.VehicleInModel = Object.assign({}, args.data);
+        $scope.VehicleInModel.InDate = todaDate;
+        $scope.VehicleInModel.InTime = todaDate;
         $scope.ActionIn = 'Update';
         if (!$rootScope.isCollapsed) {
             
@@ -104,10 +153,11 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     }
 
     $scope.VehicleInList = [];
-    $scope.VehicleInData = function () {
+    $scope.VehicleInData = function (VehicleAllocationId) {
         $http({
             method: 'POST',
             url: $scope.path + "GetVehicleInData",
+            data: { 'vehicleallocationid': VehicleAllocationId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.VehicleInList = response.data;
@@ -189,9 +239,9 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     //  #region VehicleOut
     $scope.VehicleOutTemp = {
         Id: null,
-        OutDate: null,
-        OutTime: null,
-        OutKillometer: null,
+        OutDate: todaDate,
+        OutTime: todaDate,
+        OutReading: null,
         Remarks: null
 
     };
@@ -223,12 +273,12 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     $scope.SaveVehicleOut = function () {
         $scope.$broadcast('show-errors-check-validity');
 
-        if ($scope.VehicleInForm.$valid) {
+        if ($scope.VehicleOutForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.path + 'SaveVehicleOut',
                 data: {
-                    'data': $scope.VehicleInModel,
+                    'data': $scope.VehicleOutModel,
                     'headerId': $scope.VehicleRequisitionModel.Id
                 },
                 dataType: 'JSON'
