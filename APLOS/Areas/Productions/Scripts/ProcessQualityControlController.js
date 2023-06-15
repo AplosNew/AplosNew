@@ -571,6 +571,9 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadIssueDetails();
+                    $scope.GetIssueReasonList();
+                    $scope.LoadTimeIssueListDetails();
+                    $scope.LoadIssueItemIssueListDetails();
                     IssueClearFields();
                 }
             }), function errorCallBack(response) {
