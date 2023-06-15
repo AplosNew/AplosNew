@@ -60,6 +60,8 @@ namespace Library.Service.Invoices
         string InsertCreditNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
         string InsertCreditNoteSetOffDifferentCurrency(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);
         string InsertCreditNoteInvoiceSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList);
+        string InsertVendorCreditNoteSetOff(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
+           , IEnumerable<VoucherDetailViewModel> voucherDetailInvoiceList);
         void DeleteWriteOff(string invoiceWriteOffId, string voucherId, string deletedRemarks);
         void DeleteInvoiceToAcceptance(string invoiceWriteOffId, string voucherId);
         void DeleteCustomerBanksReceipt(string invoiceWriteOffGroupNo, SourceType sourceType);

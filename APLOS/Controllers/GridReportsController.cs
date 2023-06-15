@@ -43,7 +43,7 @@ namespace Aplos.Controllers
                 DataTable dt = new DataTable("DD");
                 foreach (string item in data[0].Keys)
                 {
-                    if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
                         continue;
 
                     dt.Columns.Add(item);
@@ -55,7 +55,7 @@ namespace Aplos.Controllers
                     DataRow dr = dt.NewRow();
                     foreach (string item in data[i].Keys)
                     {
-                        if (item.ToUpper().Contains("ID") || item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
                             continue;
 
                         dr[item] = data[i][item];

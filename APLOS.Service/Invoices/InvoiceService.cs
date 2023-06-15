@@ -178,7 +178,8 @@ namespace Library.Service.Invoices
                 PaymentSource = voucherVM.PaymentSource,
                 ExpenseBookingId = voucherVM.ExpenseBookingId,
                 InvoiceServiceMasterChargesId = voucherVM.InvoiceServiceMasterChargesId,
-                PurchaseLCId = voucherVM.PurchaseLCId
+                PurchaseLCId = voucherVM.PurchaseLCId,
+                AdditionalAmount = 0
             };
 
             return InsertInvoice(invoice);
@@ -192,6 +193,7 @@ namespace Library.Service.Invoices
             invoiceDetail.AddedBy = invoice.AddedBy;
             invoiceDetail.AddedDate = invoice.AddedDate;
             invoiceDetail.AddedFromIP = invoice.AddedFromIP;
+            invoiceDetail.AdditionalAmount = 0;
             _invoiceDetailRepository.Insert(invoiceDetail);
         }
 

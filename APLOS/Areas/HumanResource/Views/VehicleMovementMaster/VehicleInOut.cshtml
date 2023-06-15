@@ -2,7 +2,7 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending to Start</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending to Ending</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending to End</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -116,7 +116,7 @@
                                         </div>
                                         <div class="common-btn">
                                             <ul class="list-inline text-right">
-                                                <li> <button ng-click="Saveout();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
+                                                <li> <button ng-click="SaveVehicleOut();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button></li>
                                                 <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                                 <li> <button ng-click="Clearout();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                             </ul>
@@ -146,7 +146,7 @@
 
 
             <div class="content-container-fluid aplos-grid-toggle" style="color:black;overflow:scroll">
-                <div style="color:black;" ej-grid e-datasource="PendingInTripList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
+                <div style="color:black;" ej-grid e-datasource="PendingOutTripList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                      e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                     <div e-columns>
@@ -286,19 +286,22 @@
                                     </div>
 
                                 </div>
-                                @*<div class="table-responsive">
+                                <div class="table-responsive">
                                     <div ej-grid e-recorddoubleclick="GetIn" e-datasource="VehicleInList" e-load="loadGridEdit"
                                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                         <div e-columns>
                                             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                                            <div e-column e-field="InDate" e-headertext="InDate" e-width="2"></div>
+                                            <div e-column e-field="OutDate" e-headertext="InDate" e-width="2"></div>
+                                            <div e-column e-field="OutTime" e-headertext="InTime" e-width="3"></div>
+                                            <div e-column e-field="OutReading" e-headertext="Out Reading" e-width="5"></div>
+                                            @*<div e-column e-field="InDate" e-headertext="InDate" e-width="2"></div>
                                             <div e-column e-field="InTime" e-headertext="InTime" e-width="3"></div>
-                                            <div e-column e-field="InKillometer" e-headertext="InKillometer" e-width="5"></div>
+                                            <div e-column e-field="InReading" e-headertext="In Killometer" e-width="5"></div>*@
                                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
                                         </div>
                                     </div>
-                                </div>*@
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -306,7 +309,7 @@
                 
             </div>
             <div class="content-container-fluid aplos-grid-toggle" style="color:black;overflow:scroll">
-                <div style="color:black;" ej-grid e-datasource="GetPendingOutTrip" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
+                <div style="color:black;" ej-grid e-datasource="PendingInTripList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                      e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
                     <div e-columns>
@@ -317,7 +320,7 @@
                         <div e-column e-field="ToDate" e-headertext="To Date" e-width="50"></div>
                         <div e-column e-field="FromTime" e-headertext="From Time" e-width="50"></div>
                         <div e-column e-field="ToTime" e-headertext="To Time" e-width="50"></div>
-                        <div e-column e-field="VehicleName" e-headertext="Vehicle Name" e-width="50"></div>
+                        <div e-column e-field="VehicleNumber" e-headertext="Vehicle Name" e-width="50"></div>
                         <div e-column e-field="DriverName" e-headertext="Driver Name" e-width="50"></div>
                         @*<div e-column e-field="FromLocation" e-headertext="FromLocation" e-width="50"></div>*@
 
