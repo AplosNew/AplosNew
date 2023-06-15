@@ -8163,12 +8163,7 @@ namespace Aplos.MaterialManagement
 				worksheet[ROW, COL].Text = "Customer";
 				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 				int colPartyId = COL;
-				worksheet[ROW, COL].ColumnWidth = 25;
-				COL++;
-
-				worksheet[ROW, COL].Text = "Master LC Id";
-				int colMasterLCId = COL;
-				worksheet[ROW, COL].ColumnWidth = 12;
+				worksheet[ROW, COL].ColumnWidth = 30;
 				COL++;
 
 				worksheet[ROW, COL].Text = "Master LC No.";
@@ -8177,10 +8172,10 @@ namespace Aplos.MaterialManagement
 				COL++;
 
 
-				worksheet[ROW, COL].Text = "LC Value";
+				worksheet[ROW, COL].Text = "Master LC Value";
 				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 				int colMasterLCAmount = COL;
-				worksheet[ROW, COL].ColumnWidth = 12;
+				worksheet[ROW, COL].ColumnWidth = 15;
 				COL++;
 
 				worksheet[ROW, COL].Text = "Currency";
@@ -8188,16 +8183,22 @@ namespace Aplos.MaterialManagement
 				worksheet[ROW, COL].ColumnWidth = 9;
 				COL++;
 
-				worksheet[ROW, COL].Text = "Contract Id";
+				worksheet[ROW, COL].Text = "File No";
 				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-				int colContractId = COL;
+				int colFileNo = COL;
 				worksheet[ROW, COL].ColumnWidth = 10;
 				COL++;
 
 				worksheet[ROW, COL].Text = "Contract No";
 				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 				int colContractNo = COL;
-				worksheet[ROW, COL].ColumnWidth = 15;
+				worksheet[ROW, COL].ColumnWidth = 30;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Bank";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colBank = COL;
+				worksheet[ROW, COL].ColumnWidth = 10;
 				COL++;
 
 				worksheet[ROW, COL].Text = "Buyer";
@@ -8282,6 +8283,13 @@ namespace Aplos.MaterialManagement
 				worksheet[ROW, COL].ColumnWidth = 15;
 				COL++;
 
+				worksheet[ROW, COL].Text = "Amendment Amount";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colAmendmentAmount = COL;
+				worksheet[ROW, COL].ColumnWidth = 19;
+				COL++;
+
+
 
 				worksheet[ROW, COL].Text = "LastAmendment Date";
 				int colLastAmendmentDate = COL;
@@ -8328,7 +8336,7 @@ namespace Aplos.MaterialManagement
 				for (int i = 0; i < dsData.Rows.Count; i++)
 				{
 					var catLRow = ROW;
-					if (group1 != dsData.Rows[i]["MasterLCId"].ToString())
+					if (group1 != dsData.Rows[i]["ContractId"].ToString())
 					{
 						if (i > 0)
 						{
@@ -8347,9 +8355,13 @@ namespace Aplos.MaterialManagement
 								worksheet.Range[ROW, colContractFundUtilization].Formula = "=SUM(" + ru.GetColumnNameForXls(colContractFundUtilization) + catFRow + ":" + ru.GetColumnNameForXls(colContractFundUtilization) + (ROW - 1) + ")";
 								worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
 								worksheet.Range[ROW, colPercentage].Formula = "=SUM(" + ru.GetColumnNameForXls(colPercentage) + catFRow + ":" + ru.GetColumnNameForXls(colPercentage) + (ROW - 1) + ")";
+								worksheet.Range[ROW, colPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
 								worksheet.Range[ROW, colPresentLCValue].Formula = "=SUM(" + ru.GetColumnNameForXls(colPresentLCValue) + catFRow + ":" + ru.GetColumnNameForXls(colPresentLCValue) + (ROW - 1) + ")";
 
-								worksheet.Range[ROW, colMasterLCAmount, ROW, colPresentLCValue].CellStyle.Font.Bold = true;
+								worksheet.Range[ROW, colAmendmentAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colAmendmentAmount) + catFRow + ":" + ru.GetColumnNameForXls(colAmendmentAmount) + (ROW - 1) + ")";
+
+								worksheet.Range[ROW, colMasterLCAmount, ROW, colAmendmentAmount].CellStyle.Font.Bold = true;
+								worksheet.Range[ROW, 1, ROW, colAmendmentAmount].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
 
 								ROW++;
 							}
@@ -8359,7 +8371,6 @@ namespace Aplos.MaterialManagement
 							if (ROW > startRowGroup1 + 1)
 							{
 								//worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
-								//worksheet[startRowGroup1, colMasterLCId, ROW - 1, colMasterLCId].Merge();
 								//worksheet[startRowGroup1, colMasterLCRefNo, ROW - 1, colMasterLCRefNo].Merge();
 								//worksheet[startRowGroup1, colMasterLCAmount, ROW - 1, colMasterLCAmount].Merge();
 								//// worksheet[startRowGroup1, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge();
@@ -8373,12 +8384,11 @@ namespace Aplos.MaterialManagement
 
 						SerialNumber++;
 						startRowGroup1 = ROW;
-						group1 = dsData.Rows[i]["MasterLCId"].ToString();
+						group1 = dsData.Rows[i]["ContractId"].ToString();
 
 
 
 						worksheet[ROW, colSLNO].Text = (SerialNumber).ToString();
-						worksheet[ROW, colMasterLCId].Text = dsData.Rows[i]["MasterLCId"].ToString();
 
 						worksheet[ROW, colMasterLCRefNo].Text = dsData.Rows[i]["MasterLCRefNo"].ToString();
 						worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString());
@@ -8400,7 +8410,7 @@ namespace Aplos.MaterialManagement
 							//if (ROW > startRowGroup2 + 1)
 							//{
 							//    worksheet[startRowGroup2, colContractFundPercentage, ROW - 1, colContractFundPercentage].Merge();
-							//    worksheet[startRowGroup2, colContractId, ROW - 1, colContractId].Merge();
+							//    worksheet[startRowGroup2, colFileNo, ROW - 1, colFileNo].Merge();
 							//    worksheet[startRowGroup2, colContractNo, ROW - 1, colContractNo].Merge();
 
 							//    worksheet[startRowGroup2, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge(); // new
@@ -8416,13 +8426,29 @@ namespace Aplos.MaterialManagement
 						startRowGroup2 = ROW;
 						group2 = group1 + dsData.Rows[i]["ContractId"].ToString(); //ContractNo, ContractId
 
+
+						SerialNumber++;
+						worksheet[ROW, colSLNO].Text = (SerialNumber).ToString();
+
+						worksheet[ROW, colMasterLCRefNo].Text = dsData.Rows[i]["MasterLCRefNo"].ToString();
+						worksheet[ROW, colMasterLCAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString());
+
+						//  worksheet[ROW, colMasterLCCustomerId].Text = dsData.Tables[0].Rows[i]["Buyer"].ToString();
+						worksheet[ROW, colCurrencyCode].Text = dsData.Rows[i]["MasterLCcurrency"].ToString();
+						worksheet[ROW, colPartyId].Text = dsData.Rows[i]["Customer"].ToString();
+
+
+
+
+
 						worksheet[ROW, colContractFundCommission].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "*" + (clsStaticInfo.dbl(dsData.Rows[i]["CommissionPercentage"].ToString())).ToString() + "%";
 						worksheet[ROW, colContractFundUtilization].Formula = clsStaticInfo.GetxlsCol(colSalesOrderValue) + ROW.ToString() + "-" + clsStaticInfo.GetxlsCol(colContractFundCommission) + ROW.ToString();
 
 						worksheet[ROW, colContractFundPercentage].Formula = clsStaticInfo.GetxlsCol(colContractFundUtilization) + ROW.ToString() + "*" + clsStaticInfo.dbl(dsData.Rows[i]["PurchaseMargin"].ToString()) + "%";
 
-						worksheet[ROW, colContractId].Text = dsData.Rows[i]["ContractId"].ToString(); //ContractNo, ContractId
+						worksheet[ROW, colFileNo].Text = dsData.Rows[i]["FileNo"].ToString(); //ContractNo, ContractId
 						worksheet[ROW, colContractNo].Text = dsData.Rows[i]["ContractNo"].ToString(); //ContractNo, ContractId
+						worksheet[ROW, colBank].Text = dsData.Rows[i]["Bank"].ToString(); //ContractNo, ContractId
 						worksheet[ROW, colMasterLCCustomerId].Text = dsData.Rows[i]["Buyer"].ToString(); // New
 						worksheet[ROW, colMasterOrderCurrencyId].Text = dsData.Rows[i]["MasterOrderCurrency"].ToString();
 						worksheet[ROW, colSalesOrderQty].Number = clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderQty"].ToString());
@@ -8454,13 +8480,15 @@ namespace Aplos.MaterialManagement
                         //var percentage = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLcOpeningValue"] + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"])) + "%";
                         //worksheet[ROW, colPercentage].Text = percentage;
 
-                        if (clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString()) != 0)
+                        if (clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderValue"].ToString()) != 0)
                         {
-							worksheet[ROW, colPercentage].Formula = clsStaticInfo.dbl(dsData.Rows[i]["PurchaseLCAmount"].ToString()) + "/" + clsStaticInfo.dbl(dsData.Rows[i]["MasterLCValue"].ToString()) + "%";
+							worksheet[ROW, colPercentage].Formula = clsStaticInfo.dbl(dsData.Rows[i]["PresentLCValue"].ToString()) + "/" + clsStaticInfo.dbl(dsData.Rows[i]["ContractOrderValue"].ToString()) + "%";
+							worksheet.Range[ROW, colPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
 						}
 						//worksheet[ROW, colPercentage].Formula = clsStaticInfo.GetxlsCol(colPurchaseLCAmount) + ROW.ToString() + "/" + clsStaticInfo.GetxlsCol(colMasterLCAmount) + ROW.ToString() + "%";
 
 						worksheet[ROW, colPresentLCValue].Number = clsStaticInfo.dbl(dsData.Rows[i]["PresentLCValue"].ToString());
+						worksheet[ROW, colAmendmentAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["AmendmentAmount"].ToString());
 						worksheet[ROW, colPurchaseLCLCDate].Text = dsData.Rows[i]["PurchaseLCOpeningDate"].ToString();
 
 
@@ -8477,7 +8505,6 @@ namespace Aplos.MaterialManagement
 				//if (ROW > startRowGroup1 + 1)
 				//{
 				//    worksheet[startRowGroup1, colSLNO, ROW - 1, colSLNO].Merge();
-				//    worksheet[startRowGroup1, colMasterLCId, ROW - 1, colMasterLCId].Merge();
 				//    worksheet[startRowGroup1, colMasterLCRefNo, ROW - 1, colMasterLCRefNo].Merge();
 				//    worksheet[startRowGroup1, colMasterLCAmount, ROW - 1, colMasterLCAmount].Merge();
 				//    // worksheet[startRowGroup1, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge();
@@ -8492,7 +8519,7 @@ namespace Aplos.MaterialManagement
 				//if (ROW > startRowGroup2 + 1)
 				//{
 				//    worksheet[startRowGroup2, colContractFundPercentage, ROW - 1, colContractFundPercentage].Merge();
-				//    worksheet[startRowGroup2, colContractId, ROW - 1, colContractId].Merge();
+				//    worksheet[startRowGroup2, colFileNo, ROW - 1, colFileNo].Merge();
 				//    worksheet[startRowGroup2, colContractNo, ROW - 1, colContractNo].Merge();
 				//    worksheet[startRowGroup2, colMasterLCCustomerId, ROW - 1, colMasterLCCustomerId].Merge(); //new buyer
 				//    worksheet[startRowGroup2, colMasterOrderCurrencyId, ROW - 1, colMasterOrderCurrencyId].Merge();
@@ -8506,6 +8533,7 @@ namespace Aplos.MaterialManagement
 				#region Last subtotal
 				al.Add(ROW);
 				SetHeadText(worksheet, ROW, 1, " Subtotal:");
+				
 				worksheet.Range[ROW, 1, ROW, (colMasterLCAmount - 1)].Merge();
 
 				worksheet.Range[ROW, colMasterLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colMasterLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colMasterLCAmount) + (ROW - 1) + ")";
@@ -8517,9 +8545,12 @@ namespace Aplos.MaterialManagement
 				worksheet.Range[ROW, colContractFundUtilization].Formula = "=SUM(" + ru.GetColumnNameForXls(colContractFundUtilization) + catFRow + ":" + ru.GetColumnNameForXls(colContractFundUtilization) + (ROW - 1) + ")";
 				worksheet.Range[ROW, colPurchaseLCAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colPurchaseLCAmount) + catFRow + ":" + ru.GetColumnNameForXls(colPurchaseLCAmount) + (ROW - 1) + ")";
 				worksheet.Range[ROW, colPercentage].Formula = "=SUM(" + ru.GetColumnNameForXls(colPercentage) + catFRow + ":" + ru.GetColumnNameForXls(colPercentage) + (ROW - 1) + ")";
+				worksheet.Range[ROW, colPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
 				worksheet.Range[ROW, colPresentLCValue].Formula = "=SUM(" + ru.GetColumnNameForXls(colPresentLCValue) + catFRow + ":" + ru.GetColumnNameForXls(colPresentLCValue) + (ROW - 1) + ")";
+				worksheet.Range[ROW, colAmendmentAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(colAmendmentAmount) + catFRow + ":" + ru.GetColumnNameForXls(colAmendmentAmount) + (ROW - 1) + ")";
 
-				worksheet.Range[ROW, colMasterLCAmount, ROW, colPresentLCValue].CellStyle.Font.Bold = true;
+				worksheet.Range[ROW, colMasterLCAmount, ROW, colAmendmentAmount].CellStyle.Font.Bold = true;
+				worksheet.Range[ROW, 1, ROW, colAmendmentAmount].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
 				ROW++;
 				#endregion
 
@@ -8535,9 +8566,11 @@ namespace Aplos.MaterialManagement
 				worksheet.Range[ROW, colContractFundUtilization].Formula = GetFormulaGrandTotal(al, colContractFundUtilization);
 				worksheet.Range[ROW, colPurchaseLCAmount].Formula = GetFormulaGrandTotal(al, colPurchaseLCAmount);
 				worksheet.Range[ROW, colPercentage].Formula = GetFormulaGrandTotal(al, colPercentage);
+				worksheet.Range[ROW, colPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
 				worksheet.Range[ROW, colPresentLCValue].Formula = GetFormulaGrandTotal(al, colPresentLCValue);
+				worksheet.Range[ROW, colAmendmentAmount].Formula = GetFormulaGrandTotal(al, colAmendmentAmount);
 
-				worksheet.Range[ROW, colMasterLCAmount, ROW, colPresentLCValue].CellStyle.Font.Bold = true;
+				worksheet.Range[ROW, colMasterLCAmount, ROW, colAmendmentAmount].CellStyle.Font.Bold = true;
 				#endregion
 
 				worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -8549,9 +8582,11 @@ namespace Aplos.MaterialManagement
 				worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
 				worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
 				worksheet[StartDataRow, colPurchaseLCAmount, ROW - 1, colPurchaseLCAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-				worksheet[StartDataRow, colPercentage, ROW - 1, colPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+				//worksheet[StartDataRow, colPercentage, ROW - 1, colPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+				//worksheet.Range[StartDataRow, colPercentage, ROW - 1, colPercentage].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 				worksheet[StartDataRow, colPresentLCValue, ROW - 1, colPresentLCValue].NumberFormat = "#,##0.00;(#,##0.00)";
-
+				worksheet[StartDataRow, colAmendmentAmount, ROW - 1, colAmendmentAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+				
 				//  worksheet[ROW, colQty].Formula = "SUM("+ clsStaticInfo.GetxlsCol(colQty) + StartDataRow + ":"+ clsStaticInfo.GetxlsCol(colQty) + (ROW-1).ToString() + ")";
 
 				// worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -8560,7 +8595,7 @@ namespace Aplos.MaterialManagement
 
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				ReportUtility reportUtility = new ReportUtility();
-				reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Master LC", identity.CompanyId, identity.PlantName, "");
+				reportUtility.CompanyPlantHeader(ref worksheet, endCol, "LC Reports", identity.CompanyId, identity.PlantName, "");
 				reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
 				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 

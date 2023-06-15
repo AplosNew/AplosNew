@@ -563,6 +563,7 @@ namespace Library.Accounting.Accounts
         {
             invoice.Id = GetAutoNumber(nameof(Invoice), PKGeneratorEnum.Yearly, null, DateTime.Now);
             invoice.Narration = invoice.Narration?.ToUpper();
+            invoice.AdditionalAmount = 0;
             if (string.IsNullOrEmpty(invoice.AddedBy))
                 AuditService.AddedLog(invoice);
 
@@ -577,6 +578,7 @@ namespace Library.Accounting.Accounts
         {
             invoiceDetail.Id = "IND" + MakePK(invoice.Id, currentId, 1);
             invoiceDetail.InvoiceId = invoice.Id;
+            invoiceDetail.AdditionalAmount = 0;
             invoiceDetail.Archive = invoice.Archive;
             invoiceDetail.AddedBy = invoice.AddedBy;
             invoiceDetail.AddedDate = invoice.AddedDate;

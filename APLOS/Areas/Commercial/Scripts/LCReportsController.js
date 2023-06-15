@@ -81,10 +81,9 @@ function LCReportsController(cboService, commonMessage, $scope, $rootScope, base
         var dataList = [];
         var g = $("#GridMasterLC").data("ejGrid");
         dataList = g.getFilteredRecords();
-
+         
         for (var i = 0; i < $scope.MasterLCList.length; i++) {
             if ($scope.MasterLCList[i].isSelected == true) {
-
                 dataList.push($scope.MasterLCList[i]);
             }
         }

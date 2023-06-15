@@ -105,6 +105,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RequisitionList = response.data;
+            $scope.GetToLocationList(response.data.FromLocationId);
             //$scope.ToLocationListBasedOnFromLoc($scope.FromLocationId);
             $scope.CreateBlankRows();
 
@@ -112,18 +113,18 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     }
 
     
-    var today = new Date();
+    
 
-    var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+    $scope.compareDate = function (getdate) {
+        var today = new Date();
 
-    $scope.compareDate = function () {
-       
-        if ($scope.VehicleRequisitionModel.FromDate < myToday) {
+        var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+        if (getdate < myToday) {
             
             throw ShowResult('Invalid Date, Past date is not allowed');
             
         }
-        if ($scope.VehicleRequisitionModel.ToDate < myToday) {
+        if (getdate < myToday) {
 
             throw ShowResult('Invalid Date, Past date is not allowed');
 
@@ -186,6 +187,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
                 ShowResult(response.data.Message, 'success');
                 
                 ClearFieldsMovement();
+                $scope.MovementAction = 'Update';
 
             }
         }), function errorCallBack(response) {
@@ -304,11 +306,11 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         $http({
             method: 'POST',
             url: $scope.path + "GetFromToLocationList",
-
+           
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.FromLocationList = response.data;
-
+          
         });
     }
     $scope.GetFromToLocationList();
@@ -321,7 +323,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ToLocationList = response.data;
-
+            
         });
     }
 
@@ -359,14 +361,10 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
                     $scope.RequisitionList[i].WithoutPassenger = true;
                 }
 
-
             }
        
-        
-        
-
     }
-    //$scope.CreateBlankRows();
+    
     $scope.isSelectedAutoChecked = function (LocationId, index) {
         if ($scope.RequisitionList[index].FromLocationId != null)
             $scope.RequisitionList[index].isSelected = true;
@@ -375,8 +373,12 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     }
 
     $scope.AssignToLocInFromLoc = function (LocationId, index) {
+        $scope.GetFromToLocationList();
+        var FromLocationId = $scope.RequisitionList[index + 1].FromLocationId;
+
         $scope.RequisitionList[index + 1].FromLocationId = LocationId;
-       // $scope.isSelectedAutoChecked(LocationId, index);
+        $scope.FromLocationList[index + 1].Value = $scope.RequisitionList[index + 1].FromLocationId;
+        $scope.GetToLocationList(FromLocationId, index);
     }
 
 

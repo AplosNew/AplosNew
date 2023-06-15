@@ -243,6 +243,8 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
             var picData = new FormData();
             if (!baseService.isUndefinedOrNull($scope.picdata)) {
                 $scope.ModelNew.FileName = $scope.picdata.name;
+            } else {
+                throw "Please select File.";
             }
 
 
@@ -525,6 +527,8 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
         }
 
         for (let i = 0; i < dataList.length; i++) {
+            obj.SalaryProcId = dataList[i].SalaryProcId;
+            obj.AddedBy = dataList[i].AddedBy;
             obj.EmployeeCode = dataList[i].EmployeeCode;
             obj.EmployeeName = dataList[i].EmployeeName;
             obj.Designation = dataList[i].Designation;
@@ -539,6 +543,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
             obj.DOS = dataList[i].DOS;
             obj.CurrentMonthEmployeeStatus = dataList[i].CurrentMonthEmployeeStatus;
             obj.EmployeeStatus = dataList[i].EmployeeStatus;
+            obj.AccountsGroup = dataList[i].AccountsGroup;
             obj.SalaryProcFlag = dataList[i].SalaryProcFlag;
             obj.PayRollGroup = dataList[i].PayRollGroup;
             obj.JobLocation = dataList[i].JobLocation;
@@ -553,7 +558,7 @@ function salaryDisbursementController(commonMessage, $scope, $rootScope, baseSer
             newDataList.push(obj);
             obj = {};
         }
-        $scope.fileName = 'SalaryDisbursement.xlsx';
+        $scope.fileName = 'SalaryDisbursement';
         $http({
             method: "POST",
             url: $scope.exportgriddataUrl,
