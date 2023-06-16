@@ -234,6 +234,8 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
                     angular.element(document.querySelector("#reqPopup")).modal('hide');
                     $scope.GetTripApproved();
                     $scope.GetTripData();
+                    $scope.GetVehicleReqTreeViewData();
+                   
                     ClearVehicleAllocation();
                     
                 }
