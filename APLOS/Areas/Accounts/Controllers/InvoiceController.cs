@@ -335,8 +335,17 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             if (voucherVM.PaymentSource == PaymentSource.Loan.ToString())
             {
-                if (voucherVM.IsExcludingTax == false && voucherVM.Amount != existingLoanList.Sum(r => r.LoanSetOffAmount))
-                    throw new CustomException("Total Amount and Loan SetOff Amount not match!");
+                if(voucherVM.CurrencyId == existingLoanList.FirstOrDefault().CurrencyId)
+                {
+                    if (voucherVM.IsExcludingTax == false && voucherVM.Amount != existingLoanList.Sum(r => r.LoanSetOffAmount))
+                        throw new CustomException("Total Amount and Loan SetOff Amount not match!");
+                }
+                else
+                {
+                    if (voucherVM.IsExcludingTax == false && (Math.Round((voucherVM.Amount* voucherVM.CompanyCurrencyRate), 2) != existingLoanList.Sum(r => r.LoanSetOffAmount)))
+                        throw new CustomException("Total Amount and Loan SetOff Amount not match!");
+                }
+                
             }
 
             if (voucherVM.PaymentSource == PaymentSource.Cash.ToString() && voucherVM.CashMasterId == null)

@@ -894,6 +894,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     ShowResult(response.data.Message, 'success');
                 }
                 $scope.QCId = response.data.Data.Id;
+                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
@@ -1071,7 +1072,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.IsSKU1 = false;
     $scope.IsSKU2 = false;
     $scope.IsSKU3 = false;
-    $scope.IsFirst = false;
+  
     $scope.IsParameterBased = false;
     $scope.ToCloseAllowed = false;
 
@@ -1079,9 +1080,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         try {
             $scope.PQEnable = false;
 
-            $scope.IsFirst = $.grep($scope.processList, function (item) {
-                return item.Value === $scope.productionSummaryNew.ProcessId;
-            })[0].IsFirst;
+           
 
             $scope.productionSummaryNew.ProductionBookingLevel = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
@@ -1562,7 +1561,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             else {
                 $scope.IsVisible = true;
             }
-            $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+            //$scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
             //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -1721,7 +1720,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.Article = $event.data.Article;
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
     }
-
+    
     $scope.SetPOSelectData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
@@ -1731,7 +1730,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
         $scope.setTab(2);
-        $scope.loadProcessList($scope.productionSummaryNew.EntityId)
+        $scope.loadProcessList($scope.productionSummaryNew.EntityId);
         $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
         $scope.GetShiftList();
         $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
@@ -2404,18 +2403,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 }
             }
 
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.RemainQty) < 0) {
-            //        throw "Order Quantity dosen't available.";
-            //    }
-            //}
-
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.TotalSalesOrderQty) <= parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
-            //        throw " less than Order Quantity.";
-            //    }
-            //}
-
+          
             if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
                 throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
             }
@@ -2440,11 +2428,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             //    throw "Produced Quantity should not be greater than Balance Quantity.";
             //}
 
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
-            //        throw "Produced Quantity should less than Order Quantity.";
-            //    }
-            //}
+           
 
 
             $http({
@@ -2561,11 +2545,6 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 }
             }
 
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.RemainQty) < 0) {
-            //        throw "Order Quantity dosen't available.";
-            //    }
-            //}
 
             if (parseFloat($scope.productionSummaryNew.Quantity) > parseFloat($scope.NewObject.POPreviousProdQty) && baseService.isUndefinedOrNull($scope.productionSummaryNew.Remarks) && $scope.productionSummaryNew.ProcessId != 202028) {
                 throw "If Current Produced Qty is greater than Previous Process Booked Qty then Please enter remarks and inform to departmental head without fail!";
@@ -2592,11 +2571,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             //    throw "Produced Quantity should not be greater than Balance Quantity.";
             //}
 
-            //if ($scope.IsFirst == false) {
-            //    if (parseFloat($scope.NewObject.RemainingQty) < 0 && $scope.productionSummaryNew.Quantity > 0) {
-            //        throw "Produced Quantity should less than Order Quantity.";
-            //    }
-            //}
+           
 
             $http({
                 method: 'POST',

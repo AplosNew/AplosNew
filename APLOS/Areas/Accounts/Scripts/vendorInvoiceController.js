@@ -363,7 +363,7 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
                     }
                 }
             }
-            if ($scope.voucher.PaymentSource === "Loan") {
+            else if ($scope.voucher.PaymentSource === "Loan") {
                 if ($scope.ExistingLoanList.length === 0) {
                     ShowResult("Please select Loan!", "failure");
                     return true;
@@ -2390,22 +2390,24 @@ function vendorInvoiceController(cboService, commonMessage, $scope, $rootScope, 
         else {
             CloseShowResult();
         }
-        if (data.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
-            data.ExchangeAmount = Math.abs(data.ConversionAmount * ($scope.voucher.CompanyCurrencyRate - data.ToCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeLoss";
+        if (data.CurrencyId === $scope.voucher.CurrencyId)
+        {
+            if (data.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
+                data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+                data.ExchangeAmount = Math.abs(data.ConversionAmount * ($scope.voucher.CompanyCurrencyRate - data.ToCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeLoss";
+            }
+            else if (data.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
+                data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+                data.ExchangeAmount = Math.abs(data.ConversionAmount * (data.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+                data.ExchangeType = "ExchangeGain";
+            }
+            else {
+                data.ExchangeAmount = 0;
+                data.ExchangeType = null;
+                data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+            }
         }
-        else if (data.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
-            data.ExchangeAmount = Math.abs(data.ConversionAmount * (data.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
-            data.ExchangeType = "ExchangeGain";
-        }
-        else {
-            data.ExchangeAmount = 0;
-            data.ExchangeType = null;
-            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
-        }
-
     };
 
 }
