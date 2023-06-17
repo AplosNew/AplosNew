@@ -729,6 +729,13 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetVehicleLocation(out List<Default2> activelists , ID);
             return activelists;
         }
+
+        public List<Default2> GetPurpose()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPurpose(out List<Default2> activelists);
+            return activelists;
+        }
         #endregion VCehicle
 
     }
