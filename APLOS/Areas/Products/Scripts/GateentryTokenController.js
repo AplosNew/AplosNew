@@ -114,14 +114,20 @@ function GateentryTokenController(accountService, addressService, $window, facto
     $scope.changeSourceFrom = function (from) {
         if (from === 'Vendor') {
             $scope.productNew.ResponsiblePersonName = '';
-
+            $scope.partyType = 'Vendor';
         }
         if (from === 'Employee') {
             $scope.productNew.PartyName = '';
             $scope.productNew.PartyCode = '';
 
         }
+        if (from === 'Director') {
+            $scope.productNew.PartyName = '';
+            $scope.productNew.PartyCode = '';
+            $scope.partyType = 'Director';
+        }
     };
+    $scope.partyList = [];
     $scope.showPartyPopUp = function () {
         baseService.setCurrentPage('partyList');
         $scope.getPartyList = function (pageno) {

@@ -7,7 +7,21 @@
 <div class="form-horizontal form-elements" ng-form="productNewForm">
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
+            <div class="col-sm-4">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="PType" ng-model="partyType" value="Vendor" ng-click="hide()">
+                        <span class="cr"><i class="cr-icon"></i></span>Vendor<sup>*</sup>
+                    </label>
+                    <label>
+                        <input type="radio" name="PType" ng-model="partyType" value="Director" ng-click="show()">
+                        <span class="cr"><i class="cr-icon"></i></span>Director<sup>*</sup>
+                    </label>
+                </div>
+            </div>
+            
+
+            @*<label class="col-sm-4 control-label">Vendor<sup>*</sup></label>*@
             <input type="text" value="GRN" id="GRNIdLoad" ng-hide="true" />
             <div class="col-sm-8 show-message">
                 <div class="input-group">
@@ -2224,7 +2238,7 @@
     <div class="modal fade site-modal in" id="POPopUpGateEntry" role="dialog" data-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">Gate Entry List List<button type="button" class="close" ng-click="POPopUpCloseGateEntry();">&times;</button></div>
+                <div class="modal-header">Gate Entry List<button type="button" class="close" ng-click="POPopUpCloseGateEntry();">&times;</button></div>
                 <div class="modal-body form-elements form-horizontal">
                     <div class="col-lg-12">
                         <div class="content-container-fluid" style="color:black;">
