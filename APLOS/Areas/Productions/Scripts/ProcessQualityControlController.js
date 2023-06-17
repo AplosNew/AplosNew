@@ -8,6 +8,9 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.IssueTypeList = [];
     $scope.PeriodCategoryList = [];
     $scope.CriticalLevelLists = [];
+    $scope.PeriodList = [];
+    $scope.FrequencyList = [];
+    $scope.CriticalLevelLists = [];
     $scope.path = 'Productions/ProcessQualityControl/';
     $scope.saveUrlIssue = $scope.path + 'createIssue';
     $scope.saveUrlReason = $scope.path + 'createReason';
@@ -31,6 +34,86 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         {
             'Value': 'Low',
             'Text': 'Low'
+        }
+    ];
+        
+    $scope.PeriodList = [
+        {
+            'Value': '2hours',
+            'Text': '2hours'
+        },
+        {
+            'Value': '4hours',
+            'Text': '4hours'
+        },
+        {
+            'Value': '8hours',
+            'Text': '8hours'
+        },
+        {
+            'Value': '24hours',
+            'Text': '24hours'
+        },
+        {
+            'Value': 'Weekly',
+            'Text': 'Weekly'
+        },
+        {
+            'Value': 'Monthly',
+            'Text': 'Monthly'
+        },
+        {
+            'Value': 'Quarterly',
+            'Text': 'Quarterly'
+        },
+        {
+            'Value': 'Annualy',
+            'Text': 'Annualy'
+        }
+    ];
+
+    $scope.FrequencyList = [
+        {
+            'Value': 1,
+            'Text': '1'
+        },
+        {
+            'Value': 2,
+            'Text': '2'
+        },
+        {
+            'Value': 3,
+            'Text': '3'
+        },
+        {
+            'Value': 4,
+            'Text': '4'
+        },
+        {
+            'Value': 5,
+            'Text': '5'
+        },
+        {
+            'Value': 6,
+            'Text': '6'
+        },
+        {
+            'Value': 7,
+            'Text': '7'
+        },
+        {
+            'Value': 8,
+            'Text': '8'
+        }
+        ,
+        {
+            'Value': 9,
+            'Text': '9'
+        }
+        ,
+        {
+            'Value': 10,
+            'Text': '10'
         }
     ];
 
@@ -184,6 +267,9 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         PositionCode: null,
         Remarks: null,
         CheckingInterval: null,
+        IsMandatory: false,
+        Period: null,
+        Frequency: null
     };
     $scope.IssueNew = Object.assign({}, $scope.Issue);
 
