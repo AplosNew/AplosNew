@@ -1387,6 +1387,7 @@ where VIO.OutReading is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult GetPurposeList()
         {
             string sql = @"Select Id Value, UserName Text from HKP.PurposeMaster order by Text ";
