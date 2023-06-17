@@ -58,6 +58,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("DetentionLogoutController", DetentionLogoutController)
     .controller("DetentionLogReportController", DetentionLogReportController)
     .controller("myappEmployeeLedgerReportController", myappEmployeeLedgerReportController)
+    .controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -338,6 +339,11 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'Employees/EmployeeReport/MyappEmployeeLedger',
                 controller: 'myappEmployeeLedgerReportController'
             })
+            .when('/vehicle-movement-requisition',
+                {
+                    templateUrl: 'humanresource/VehicleMovementMaster/VehicleMovementRequisition',
+                    controller: 'VehicleMovementRequisitionController'
+                })
             //#endregion
 
             .when('/logout', {

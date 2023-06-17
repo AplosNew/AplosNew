@@ -224,10 +224,14 @@
                                 <input ng-click="changeSourceFrom('Employee')" type="radio" name="source" ng-model="productNew.GateEntryType" value="Employee">
                                 <span class="cr" tabindex="7"><i class="cr-icon"></i></span>Employee
                             </label>
+                            <label>
+                                <input ng-click="changeSourceFrom('Director')" type="radio" name="source" ng-model="productNew.GateEntryType" value="Director">
+                                <span class="cr" tabindex="7"><i class="cr-icon"></i></span>Director
+                            </label>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" show-errors ng-hide="productNew.GateEntryType==='Employee'">
+                <div class="form-group" show-errors ng-hide="productNew.GateEntryType==='Employee'||productNew.GateEntryType==='Director'">
                     <label class="col-sm-4 control-label">From(Vendor Name)<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="input-group">
@@ -241,7 +245,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" show-errors ng-hide="productNew.GateEntryType==='Vendor'">
+                <div class="form-group" show-errors ng-hide="productNew.GateEntryType==='Employee'||productNew.GateEntryType==='Vendor'">
+                    <label class="col-sm-4 control-label">From(Director Name)<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" hidden id="masterId" /> @*<label id="PartyCode"></label>*@
+                            <span class="input-group-addon"> {{productNew.PartyCode}}</span>
+                            <input type="text" name="Vendor" id="Vendor" ng-model="productNew.PartyName" class="form-control" readonly tabindex="9">
+                            <span class="input-group-btn">
+                                <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors ng-hide="productNew.GateEntryType==='Vendor'||productNew.GateEntryType==='Director'">
                     <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="input-group">
@@ -274,13 +292,13 @@
                 </div>
 
                 @*<div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Imported Date<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <input type="text" name="ImportedDate" ng-model="productNew.ImportedDate" ng-disabled="false"
-                                   datepicker="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays);" class="form-control datepicker" tabindex="13" required>
-                        </div>
+            <label class="col-sm-4 control-label">Imported Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="ImportedDate" ng-model="productNew.ImportedDate" ng-disabled="false"
+                       datepicker="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays);" class="form-control datepicker" tabindex="13" required>
+            </div>
 
-                    </div>*@
+        </div>*@
             </div>
 
 

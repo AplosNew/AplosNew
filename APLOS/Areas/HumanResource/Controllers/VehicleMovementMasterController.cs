@@ -25,12 +25,13 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             _sqlRepository = new SqlRepository();
         }
-
+        #region Views
         public ActionResult Aplos()
         {
             return View();
         }
 
+        [AllowAnonymous]
         public ActionResult VehicleMovementRequisition()
         {
             return View();
@@ -50,7 +51,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
-
+        #endregion Views
 
 
         #region VehicleMaster
@@ -621,18 +622,20 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
         #endregion Driver Master
 
         #region VehicleReq
+        [AllowAnonymous]
         public JsonResult GetVehicleRequisitiontData()
         {
             string sql = @"Select VMR.Id, VMR.AppliedId ,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
-                           ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department, VMR.NumberOfPassengers
+                           ,VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, DEP.UserName Department, VMR.NumberOfPassengers ,VMR.[Name]
                             from [TRN].[VehicleMovementRequisition] VMR							
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            --where VMR.AppliedId is null";
+                            where VMR.AppliedId is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, AllowAnonymous]
         public JsonResult GetRequisitionApprovedGridData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -647,10 +650,12 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
-                    left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId";
+                    left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId
+                    where EI.SystemId = '"+ userid + "'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult LoadRequisitionRejectGridData() {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string userid = identity.EmployeeId;
@@ -669,6 +674,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult GetVehicleRequisitionChildData(string headerid)
         {
             string sql = @"select ROW_NUMBER() OVER (PARTITION BY VRC.VehicleMovementRequisitionId order by VRC.Id) AS Row_Num, VRC.*, FLM.UserName FromLocation, TLM.UserName ToLocation from TRN.VehicleMovementRequisitionChild VRC
@@ -679,6 +685,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult GetVehicleRequisitionLocationData(string headerid)
         {
             string sql = @"select VRC.*, isSelected=CAST (CASE WHEN VRC.Id IS NULL THEN 0 ELSE 1 END AS bit) ,FLM.UserName FromLocation, TLM.UserName ToLocation from TRN.VehicleMovementRequisitionChild VRC
@@ -688,7 +695,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
-
+        [Authorize,AllowAnonymous]
         public ActionResult CreateVehicleRequisition(Dictionary<string, object> data)
         {
             try
@@ -733,6 +740,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             }
         }
 
+        [Authorize, AllowAnonymous]
         public ActionResult SaveRequisitionChild(List<Dictionary<string, object>> data, string headerId)
         {
             try
@@ -755,19 +763,30 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                 foreach (var item in data)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
-
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("MachineMasterTransaction", out _Id);
-                    DataRow dr = dsChild.Tables[0].NewRow();
-                    dr["Id"] = _Id;
-                    dr["VehicleMovementRequisitionId"] = headerId;
-                    dr["FromLocationId"] = item["FromLocationId"];
-                    dr["ToLocationId"] = item["ToLocationId"];
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dsChild.Tables[0].Rows.Add(dr);
+                    if(dv.Count > 0) {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["FromLocationId"] = item["FromLocationId"];
+                        dr["ToLocationId"] = item["ToLocationId"];
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                    }
+                    else
+                    {
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("MachineMasterTransaction", out _Id);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _Id;
+                        dr["VehicleMovementRequisitionId"] = headerId;
+                        dr["FromLocationId"] = item["FromLocationId"];
+                        dr["ToLocationId"] = item["ToLocationId"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
@@ -797,6 +816,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
 
             }
         }
+
 
         public JsonResult deleteVehicleRequisition(string id)
         {

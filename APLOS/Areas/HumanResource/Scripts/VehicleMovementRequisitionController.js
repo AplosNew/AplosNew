@@ -105,6 +105,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RequisitionList = response.data;
+            $scope.GetToLocationList(response.data.FromLocationId);
             //$scope.ToLocationListBasedOnFromLoc($scope.FromLocationId);
             $scope.CreateBlankRows();
 
@@ -114,16 +115,16 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     
     
 
-    $scope.compareDate = function () {
+    $scope.compareDate = function (getdate) {
         var today = new Date();
 
         var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-        if ($scope.VehicleRequisitionModel.FromDate < myToday) {
+        if (getdate < myToday) {
             
             throw ShowResult('Invalid Date, Past date is not allowed');
             
         }
-        if ($scope.VehicleRequisitionModel.ToDate < myToday) {
+        if (getdate < myToday) {
 
             throw ShowResult('Invalid Date, Past date is not allowed');
 

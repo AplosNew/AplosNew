@@ -365,7 +365,7 @@ namespace Aplos.Areas.Parties.Controllers
             try
             {
                 string temp = null;
-                if (customerVendor == "Vendor"|| customerVendor == "Customer")
+                if (customerVendor == "Vendor"|| customerVendor == "Customer"|| customerVendor == "Director")
                 {
                     temp = customerVendor;
                 }
@@ -550,7 +550,7 @@ namespace Aplos.Areas.Parties.Controllers
             try
             {
                 string temp = null;
-                if (customerVendor == "Vendor" || customerVendor == "Customer")
+                if (customerVendor == "Vendor" || customerVendor == "Customer" || customerVendor == "Director")
                 {
                     temp = customerVendor;
                 }

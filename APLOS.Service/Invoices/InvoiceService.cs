@@ -2255,10 +2255,10 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate,
+                                DrAmount = Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2),
                             });
-
-                            totalBaseCurrencyDrAmount = 0;
+                            totalBaseCurrencyDrAmount += Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2);
+                            //totalBaseCurrencyDrAmount = 0;
                             if (null != invoiceDetailChargesList && invoiceDetailChargesList.Count() > 0 && voucherDetailVM.IsOrderSpecific == true)
                             {
 
@@ -2314,7 +2314,7 @@ namespace Library.Service.Invoices
                             {
                                 throw new CustomException("Dr Cr Amount Not Match!");
                             }
-                            if ((voucherVM.Amount != Math.Round((existingLoanList.Sum(r => r.LoanSetOffAmount / r.ToCurrencyRate)), 2)) && voucherVM.CurrencyId != existingLoanList.FirstOrDefault().CurrencyId)
+                            if ((voucherVM.Amount != Math.Round((existingLoanList.Sum(r => r.LoanSetOffAmount / voucherVM.CompanyCurrencyRate)), 2)) && voucherVM.CurrencyId != existingLoanList.FirstOrDefault().CurrencyId)
                             {
                                 throw new CustomException("Dr Cr Amount Not Match!");
                             }
@@ -2424,7 +2424,7 @@ namespace Library.Service.Invoices
                                 var ExistingLoanSetoffCurrencyAmount = 0.0M;
                                 if (voucherVM.CurrencyId != existingLoanList.FirstOrDefault().CurrencyId)
                                 {
-                                    ExistingLoanSetoffAmount = Math.Round((financingDetailWriteOff.Amount / existingLoanList.FirstOrDefault().ToCurrencyRate), 2);
+                                    ExistingLoanSetoffAmount = Math.Round((financingDetailWriteOff.Amount / voucherVM.CompanyCurrencyRate), 2);
                                     ExistingLoanSetoffCurrencyAmount = item.LoanSetOffAmount;
                                 }
                                 else
@@ -2516,7 +2516,7 @@ namespace Library.Service.Invoices
                                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(exchangeGain.CurrencyId, companyCurrencyId, item.ToCurrencyRate),
                                         CrAmount = item.ExchangeAmount
                                     });
-                                    //totalCurrencyAmountCr += item.ExchangeAmount;
+                                    totalBaseCurrencyCrAmount += item.ExchangeAmount;
                                 }
 
                             }
@@ -2555,7 +2555,7 @@ namespace Library.Service.Invoices
                         if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                             glTransactionDetail.DrAmount = voucherDetailDr.DrAmount;
                         else
-                            glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
+                            glTransactionDetail.DrAmount = Math.Round(voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount, 2);
 
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
@@ -2568,8 +2568,9 @@ namespace Library.Service.Invoices
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate,
+                            DrAmount = Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2),
                         });
+                        totalBaseCurrencyDrAmount += Math.Round(voucherDetailDr.DrAmount * voucherVM.CompanyCurrencyRate, 2);
                     }
 
 
@@ -2625,7 +2626,7 @@ namespace Library.Service.Invoices
                                     ToCurrencyId = companyCurrencyId,
                                     ParallelCurrencyId = companyCurrencyId,
                                     FromCurrencyId = companyCurrencyId,
-                                    CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                    CrAmount = Math.Round(voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount, 2),
                                     ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                                 };
                                 _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencyTax);
@@ -2704,7 +2705,7 @@ namespace Library.Service.Invoices
                                     ToCurrencyId = companyCurrencyId,
                                     ParallelCurrencyId = companyCurrencyId,
                                     FromCurrencyId = voucherVM.CurrencyId,
-                                    DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount,
+                                    DrAmount = Math.Round(voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount, 2),
                                     ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                                 };
 
@@ -2776,10 +2777,13 @@ namespace Library.Service.Invoices
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        CrAmount = voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate
+                        CrAmount = Math.Round(voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate, 2)
                     });
+                    totalBaseCurrencyCrAmount += Math.Round(voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate, 2);
 
                     if (totalAmountDr != totalAmountCr)
+                        throw new CustomException("Dr and Cr amount is not equal.");
+                    if (totalBaseCurrencyDrAmount != totalBaseCurrencyCrAmount)
                         throw new CustomException("Dr and Cr amount is not equal.");
                     if (null != tdsVMList && tdsVMList.Count() > 0)
                     {
