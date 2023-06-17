@@ -188,7 +188,7 @@ Select SC.Id,SC.MasterId,ISNULL(sc.NetWeight,0) Qty,PackingLineItemId from trn.P
 left join dbo.ItemScanChild sc on sc.PackingId = po.Id AND Booked = 1 
 Where SC.Id<>''
 )POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId
-								Where PLI.PackingId IN(" + packingid + ")";
+								Where PLI.PackingId IN(" + packingid + ") AND Id<>''";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out dsRef, false, "1");
             }

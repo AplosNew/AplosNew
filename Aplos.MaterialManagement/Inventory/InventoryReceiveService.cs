@@ -1779,7 +1779,7 @@ namespace Library.MaterialManagement.Inventory
                                 FROM TRN.GateEntry GE
                                 left Join hkp.Party p on p.Id=GE.PartyId
                                 Where GE.CompanyGroupId='" + CompanyGroupId + "' AND GE.CompanyId='" + CompanyId + "' AND GE.PlantId='" + PlantId + "' AND GE.FlagStatus='Ok' and p.Id='" + partyCode + "' " +
-                                " and GE.GateEntryType='Vendor'and GE.Id  not in(select GateEntryNo from TRN.InventoryReceive where GateEntryNo is not null) and GE.Id  not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null) " +
+                                " and GE.GateEntryType IN('Vendor','Director')and GE.Id  not in(select GateEntryNo from TRN.InventoryReceive where GateEntryNo is not null) and GE.Id  not in(select GateEntryNo from [TRN].[ServiceAcknowledgementMaster] where GateEntryNo is not null) " +
                                 "and GE.Id  not in(select GateEntryNo from [TRN].[GatePassMaster] where GateEntryNo is not null)" +
                                 "Order By GE.EntryDate DESC";
                 //AND GE.Id not in(select GateEntryNo from trn.InventoryReceive)
