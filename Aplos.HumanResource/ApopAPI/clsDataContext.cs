@@ -5186,8 +5186,163 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                 return ex.ToString();
             }
 
+        }
+
+        #region Vehicle Requisition
+        public string PostVehicleRequisition(IEnumerable<Vehicle> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.VehicleMovementRequisition";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Vehicle> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = _Id;
+                        dr["FromDate"] = item.FromDate;
+                        dr["ToDate"] = item.ToDate;
+                        dr["FromTime"] = item.FromTime;
+                        dr["ToTime"] = item.ToTime;
+                        dr["PersonalOfficial"] = item.PersonalOfficial;
+                        dr["PurposeId"] = item.PurposeId;
+                        dr["Name"] = item.Name;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string PostVehicleRequisitionChild(IEnumerable<VehicleChild> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.VehicleMovementRequisitionChild";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<VehicleChild> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (VehicleChild item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = _Id;
+                        dr["VehicleMovementRequisitionId"] = item.VehicleMovementRequisitionId;
+                        dr["FromLocationId"] = item.FromLocationId;
+                        dr["ToLocation"] = item.ToLocation;
+                        dr["WithoutPassenger"] = item.WithoutPassenger;
+                        dr["Remarks"] = item.Remarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
 
         }
+
+
+        public void GetVehicleLocation(out List<Default2> DataList , string ID)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id as Value , StandardName as Name from HKP.LocationMaster where Id <> '" + ID + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+        #endregion Vehicle Requisition
     }
 
 
@@ -5836,5 +5991,44 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string UpdatedDate { get; set; }
     }
 
+
+    #region vehicle
+    public class Vehicle
+    {
+        public string Id { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string PersonalOfficial { get; set; }
+        public string PurposeId { get; set; }
+        public string Name { get; set; }
+        public string EmpSystemId { get; set; }
+        public string NumberOfPassengers { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+
+    public class VehicleChild
+    {
+        public string Id { get; set; }
+        public string VehicleMovementRequisitionId { get; set; }
+        public string FromLocationId { get; set; }
+        public string ToLocation { get; set; }
+        public string WithoutPassenger { get; set; }
+        public string Remarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+    }
+    #endregion vehicle
 
 }
