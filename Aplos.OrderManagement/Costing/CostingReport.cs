@@ -24,7 +24,7 @@ namespace Library.OrderManagement.Costing
             _sqlRepository = new SqlRepository();
             identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
         }
-        public void OrderCostingReport(string OrderCostingId, string preCosting, string ProcurementCosting,string MOIId)
+        public void OrderCostingReport(string OrderCostingId, string preCosting, string ProcurementCosting, string MOIId)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace Library.OrderManagement.Costing
                 }
 
                 DataTable dtOrderCostingProductInfo = _sqlRepository.GetDataTable(sql);
-                
+
                 if (dtOrderCostingProductInfo.Rows.Count == 0)
                     throw new Exception("Selected master order item is not tagged with any order costing.");
 
@@ -416,10 +416,23 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPreCosting = COL;
                 COL++;
+
+                sheet[ROW, COL].Text = "Pre-Costing %";
+                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colPreCostingPer = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Proc. Costing(D)";
                 sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colProcCosting = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Proc-Costing %";
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colProcCostingPer = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "C-D";
@@ -463,7 +476,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
                 ROW++;
 
-             
+
                 int CostingDetailStartRow = ROW; //row 20
                 for (int i = 0; i < dtCostingDetailInfo.Rows.Count; i++)
                 {
@@ -477,6 +490,15 @@ namespace Library.OrderManagement.Costing
 
                     //sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
 
+                    //sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["TargetSellingPrice"].ToString()) + "/" + clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "%";
+
+                    if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) != 0)
+                    {
+                        sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+
+                        //sheet[ROW, colPreCostingPer].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) / clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) * 100;
+                        sheet.Range[ROW, colPreCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
+                    }
 
                     sheet[ROW, colTotalBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colTotalQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString()) * clsStaticInfo.dbl(OrderQTY);
@@ -487,12 +509,20 @@ namespace Library.OrderManagement.Costing
                         sheet[ROW, colDifferencePreProCosting].Number = 0;
 
                         sheet[ROW, colTotalProcCosting].Number = 0;
-                        sheet[ROW, colDifferenceTotalPrePro].Number = 0; 
+                        sheet[ROW, colDifferenceTotalPrePro].Number = 0;
                     }
                     else
                     {
                         sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
 
+                        if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) != 0)
+                        {
+                             sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+                            
+                            //sheet[ROW, colProcCostingPer].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) / clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) * 100;
+                            sheet.Range[ROW, colProcCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                        }
                         sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
                         sheet[ROW, colTotalProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                         sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY) -
@@ -505,7 +535,7 @@ namespace Library.OrderManagement.Costing
 
                     ROW++;
 
-                    
+
                 }
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
@@ -518,6 +548,8 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colQuickCosting].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colPreCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colPreCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colPreCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colPreCosting].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, colPreCostingPer].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colPreCostingPer) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colPreCostingPer) + (ROW - 1) + ")";
+                sheet.Range[ROW, colPreCostingPer].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colProcCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colProcCosting].CellStyle.Font.Bold = true;
 
@@ -530,6 +562,9 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colTotalProcCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalProcCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalProcCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colTotalProcCosting].CellStyle.Font.Bold = true;
 
+                sheet.Range[ROW, colProcCostingPer].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colProcCostingPer) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colProcCostingPer) + (ROW - 1) + ")";
+                sheet.Range[ROW, colProcCostingPer].CellStyle.Font.Bold = true;
+
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
@@ -537,7 +572,7 @@ namespace Library.OrderManagement.Costing
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 8f;
                 sheet.Range[CostingDetailStartRow, colCostingComponent, ROW, CostingDetailEndCol].NumberFormat = clsStaticInfo.NumberFormat(2);
-               
+
                 #endregion
 
                 ROW++;
@@ -597,7 +632,7 @@ namespace Library.OrderManagement.Costing
         }
 
 
-        private void DirectMateterial(IWorksheet sheet, ref int ROW,string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
+        private void DirectMateterial(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
 
             ReportUtility reportUtility = new ReportUtility();
@@ -1523,11 +1558,11 @@ namespace Library.OrderManagement.Costing
         private string OrderCostingMOISQL(string MOIId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select MOI.Id MasterOrderId,MOI.TotalQty OrderQty  from TRN.MasterOrderItem MOI where MOI.Id='" + MOIId+@"'";
+            return @"select MOI.Id MasterOrderId,MOI.TotalQty OrderQty  from TRN.MasterOrderItem MOI where MOI.Id='" + MOIId + @"'";
 
         }
 
-       
+
 
         private string OrderPreCostingDirectMaterialSQL(string OrderCostingId, string preCosting, string ProcurementCosting)
         {
@@ -1752,7 +1787,7 @@ namespace Library.OrderManagement.Costing
                 IWorkbook workbook = application.Workbooks.Create(1);
                 IWorksheet sheet = workbook.Worksheets[0];
 
-    
+
                 sheet.Name = "Costing Templete Report";
 
 
@@ -2100,8 +2135,8 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 20;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPreCosting = COL;
-               
-              
+
+
 
                 int CostingDetailEndCol = COL;
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Bold = true;
@@ -2122,7 +2157,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString());
                     sheet[ROW, colQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString());
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
-                    
+
 
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
@@ -2142,7 +2177,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colQuickCosting].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colPreCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colPreCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colPreCosting) + (ROW - 1) + ")";
                 sheet.Range[ROW, colPreCosting].CellStyle.Font.Bold = true;
-                
+
 
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
@@ -2182,13 +2217,13 @@ namespace Library.OrderManagement.Costing
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                    reportUtility.PlantHeader(ref sheet, endCol, "Costing Templete Report #" + CostingTempleteId + @"", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Costing Templete Report #" + CostingTempleteId + @"", identity.PlantId);
 
-              
+
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                
+
 
 
                 string strFileName = "CostingTempleteReport.xlsx";
@@ -2280,7 +2315,7 @@ namespace Library.OrderManagement.Costing
                 int colGrossAmount = COL;
                 COL++;
 
-               
+
                 sheet[ROW, COL].Text = "Currency";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colCurrency2 = COL;
@@ -2467,7 +2502,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, colValue].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colAmount].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colAmount) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colAmount) + CostingComponentEndRow + ")";
                 sheet.Range[ROW, colAmount].CellStyle.Font.Bold = true;
-               
+
                 sheet.Range[ROW, colCurrency2].Formula = reportUtility.GetColumnNameForXls(colCurrency2) + (ROW - 1);
                 sheet.Range[ROW, colCurrency2].CellStyle.Font.Bold = true;
 
@@ -3040,9 +3075,9 @@ namespace Library.OrderManagement.Costing
         private string PreCostingDirectMaterialSQL(string CostingTempleteId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            
 
-           
+
+
             return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,UOM.Code as UOM,pc.Particulars,I.UserName as CostingItem,I.CostingComponentId
 					,CC.CostingSegment,cc.UserName as CostingComponentName,ISNULL(pc.Consumption,0) AS Consumption,ISNULL(pc.Rate,0) AS Rate
 					,ISNULL(pc.ValueLoss,0) AS ValueLoss
@@ -3095,7 +3130,7 @@ namespace Library.OrderManagement.Costing
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-      
+
             return @"SELECT pc.Id,I.Id as CostingId,I.UserName as CostingItem,I.CostingComponentId,pc.Sequence
 				,ISNULL(pc.Value,0) AS Value,OCMT.Id as OrderCostingMasterTemplateId
 				,cc.UserName as CostingComponentName,c.Code as Currency 
@@ -3117,7 +3152,7 @@ namespace Library.OrderManagement.Costing
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            
+
             return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
             ,ISNULL(pc.Type,'Fixed') as [Type]
 			,OCMT.Id as OrderCostingMasterTemplateId,cc.UserName as CostingComponentName
@@ -3139,7 +3174,7 @@ namespace Library.OrderManagement.Costing
         private string PreCostingProfitSQL(string CostingTempleteId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
+
 
             return @"SELECT		 pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
 			,ISNULL(pc.Type,'Fixed') as [Type],ISNULL(pc.Value,0) AS Value,ISNULL(pc.Amount,0) AS Amount,C.Code as Currency
@@ -3162,7 +3197,7 @@ namespace Library.OrderManagement.Costing
         private string PreCostingSalesExpenseSQL(string CostingTempleteId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
+
             return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItem,I.CostingComponentId
 		,ISNULL(pc.Type,'Fixed') as [Type],ISNULL(pc.Value,0) AS Value,ISNULL(pc.Amount,0) AS Amount,C.Code as Currency
 		,cc.UserName as CostingComponentName

@@ -16,6 +16,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }];
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 
+    $scope.Type = [];
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -169,6 +170,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             ob.GLGeneralInfoId = $scope.ExpenseGLList[i].GLGeneralInfoId;
             ob.BudgetMasterId = $scope.ExpenseGLList[i].BudgetMasterId;
             ob.ActivityId = $scope.ExpenseGLList[i].ActivityId;
+            ob.Type = $scope.ExpenseGLList[i].Type;
             ConsumableList.push(ob);
             ob = {};
         }
@@ -335,11 +337,13 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     }
 
     $scope.selectDoubleClick = function (data) {
+        $scope.Type = "Material";
         if (checkItemExist($scope.MaterialDataList, data.Id) === false) {
             $scope.MaterialDataList.push({
                 GLControlMasterId: $scope.ModelNew.Id,
                 MaterialMasterId: data.Id,
-                MaterialMaster: data.UserName
+                MaterialMaster: data.UserName,
+                Type: $scope.Type
             });
         }
         $scope.closePopUp();
@@ -532,6 +536,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     }
 
     $scope.setSelected = function (data) {
+        $scope.Type = "Consumable";
         if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
             $scope.ExpenseGLList.push({
                 GLGeneralInfoId: data.GLGeneralInfoId,
@@ -539,7 +544,8 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 BudgetMasterId: data.BudgetMasterId,
                 BudgetName: data.BudgetName,
                 ActivityName: data.ActivityName,
-                ActivityId: data.ActivityId
+                ActivityId: data.ActivityId,
+                Type: $scope.Type
             });
         }
         $scope.closeCOAICodeListPopUp();
