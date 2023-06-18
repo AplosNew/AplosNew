@@ -1175,7 +1175,7 @@ upanelApp.controller("WebBasedPackingController", WebBasedPackingController)
 upanelApp.controller("GoodWorkController", GoodWorkController)
 upanelApp.controller("salaryProcessedReportComController", salaryProcessedReportComController)
 upanelApp.controller("VehicleMovementMasterController", VehicleMovementMasterController)
-upanelApp.controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
+/*upanelApp.controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)*/
 upanelApp.controller("VehicleReqForApproveController", VehicleReqForApproveController)
 upanelApp.controller("VehicleInOutController", VehicleInOutController)
 upanelApp.controller("VehicleMovementController", VehicleMovementController)
@@ -1184,6 +1184,7 @@ upanelApp.controller("ProcessQualityControlController", ProcessQualityControlCon
 upanelApp.controller("QualityControlController", QualityControlController)
 upanelApp.controller("GLControlController", GLControlController)
 upanelApp.controller("WorkCenterQualityControlMasterController", WorkCenterQualityControlMasterController)
+upanelApp.controller("QRCodeGeneratorController", QRCodeGeneratorController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

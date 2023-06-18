@@ -726,7 +726,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetSalesOrder(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
+        public ActionResult GetSalesOrder(string entityid, string processId, string ProductionOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"SELECT DISTINCT mo.MasterOrderNo
@@ -781,7 +781,6 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
                                 LEFT JOIN TRN.ProductionOrder PO ON PO.Id = POD.ProductionOrderId
                                 LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
-                                LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
                                 WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
@@ -790,7 +789,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetMasterOrderItem(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
+        public ActionResult GetMasterOrderItem(string entityid, string processId, string ProductionOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"SELECT DISTINCT mo.MasterOrderNo,so.MasterOrderItemId
@@ -844,7 +843,6 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
                                 LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id = PO.ProductionStatusId
                                 LEFT JOIN [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
-                                LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
                                 WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
@@ -852,7 +850,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetProductCode(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
+        public ActionResult GetProductCode(string entityid, string processId, string ProductionOrderId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"SELECT PO.Id POId,PS.UserName ProductionStatus, PO.RequiredTimeUnit, Qty,FORMAT(LSD,'dd-MMM-yyyy') LSD,PD.MOIId
@@ -1012,6 +1010,12 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetQBookingLevel(string ProcessId, string EntityId, string POId)
+        {
+            return Json(_productionSummaryData.GetQBookingLevel(ProcessId, EntityId, POId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetChkInterval(string IssueId)
         {
             return Json(_productionSummaryData.GetChkInterval(IssueId), JsonRequestBehavior.AllowGet);
@@ -1075,10 +1079,10 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetPOWiseData(string processid, string entityId, string POId, string POStatus, string CustomerId, string IssueId)
+        public JsonResult GetPOWiseData(string processid, string entityId, string POId, string Date, string POStatus, string CustomerId, string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetPOWiseData(processid, entityId, POId, POStatus, CustomerId, IssueId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetPOWiseData(processid, entityId, POId, Date, POStatus, CustomerId, IssueId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
