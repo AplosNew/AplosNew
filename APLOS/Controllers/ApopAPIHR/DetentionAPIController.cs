@@ -694,5 +694,49 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        #region VCehicle
+        public string PostVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostVehicleRequisition(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostVehicleRequisitionChild([FromBody] IEnumerable<VehicleChild> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostVehicleRequisitionChild(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public List<Default2> GetVehicleLocation(string ID)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleLocation(out List<Default2> activelists , ID);
+            return activelists;
+        }
+
+        public List<Default2> GetPurpose()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPurpose(out List<Default2> activelists);
+            return activelists;
+        }
+        #endregion VCehicle
+
     }
 }
