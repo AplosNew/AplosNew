@@ -3231,6 +3231,14 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetQBookingLevel(string ProcessId, string EntityId, string POId)
+        {
+            string sql = @"select isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '"+ EntityId + "' and ProcessId = '"+ProcessId+ @"')) as BookingLevel
+from TRN.ProductionOrderProcessSet PPS
+where PPS.ProductionOrderID = '"+ POId + "' AND PPS.ProcessId = '" + ProcessId + @"'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetChkInterval(string IssueId)
         {
             string sql = @"select QID.CheckingInterval as CheckingInterval from [MST].[QualityIssueDetails] QID where QID.Id='" + IssueId + "'";

@@ -142,7 +142,13 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         PeriodId: null,
         IssueId: null,
         GradeId: null,
-        Article: null
+        MasterOrderItemId: null,
+        SalesOrderId: null,
+        Article: null,
+        SOArticle: null,
+        MOIArticle: null,
+        ProductCodeArticle: null,
+        BookingLevel: null,
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -151,11 +157,22 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         ProcessId: null,
         IssueId: null,
         POId: null,
+        ToDate: null,
         POStatus: null,
         Customer: null
     };
     $scope.POWiseNew = Object.assign({}, $scope.POWise);
 
+    $scope.PODateValidation = function (ToDate) {
+        try {
+            if (ToDate < $filter("date")(Date.now(), 'dd-MMM-yyyy')) {
+                throw "Date must not be allow Back Date!";
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
 
     $scope.QualityControlDetails = {
         Id: null,
@@ -246,6 +263,15 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             url: 'Productions/QualityControl/GetIssueType?IssueId=' + QId
         }).then(function successCallback(response) {
             $scope.POIssueType = response.data[0].POIssueType;
+        });
+    }
+
+    $scope.GetQBookingLevel = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/QualityControl/GetQBookingLevel?ProcessId=' + $scope.productionSummaryNew.ProcessId + '&EntityId=' + $scope.productionSummaryNew.EntityId + '&POId=' + $scope.productionSummaryNew.ProductionOrderId
+        }).then(function successCallback(response) {
+            $scope.productionSummaryNew.BookingLevel = response.data[0].BookingLevel;
         });
     }
 
@@ -1166,7 +1192,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.POSelectList = [];
     $scope.GetPOWiseData = function () {
         try {
-            $http.get('Productions/QualityControl/GetPOWiseData?processId=' + $scope.POWiseNew.ProcessId + '&entityId=' + $scope.POWiseNew.EntityId + '&IssueId=' + $scope.POWiseNew.IssueId + '&POId=' + $scope.POWiseNew.POId + '&POStatus=' + $scope.POWiseNew.POStatus + '&CustomerId=' + $scope.POWiseNew.Customer)
+            $http.get('Productions/QualityControl/GetPOWiseData?processId=' + $scope.POWiseNew.ProcessId + '&entityId=' + $scope.POWiseNew.EntityId + '&IssueId=' + $scope.POWiseNew.IssueId + '&POId=' + $scope.POWiseNew.POId + '&Date=' + $scope.POWiseNew.ToDate +  '&POStatus=' + $scope.POWiseNew.POStatus + '&CustomerId=' + $scope.POWiseNew.Customer )
                 .then(function (response) {
                     $scope.POSelectList = response.data;
                 });
@@ -1719,6 +1745,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
         $scope.productionSummaryNew.Article = $event.data.Article;
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
+        $scope.GetQBookingLevel();
     }
     
     $scope.SetPOSelectData = function ($event) {
@@ -1735,6 +1762,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.GetShiftList();
         $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
         $scope.GetIssueType($scope.productionSummaryNew.IssueId);
+        $scope.GetQBookingLevel();
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
@@ -1805,6 +1833,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.POWiseNew.ProcessId = null;
         $scope.POWiseNew.EntityId = null;
         $scope.POWiseNew.IssueId = null;
+        $scope.POWiseNew.ToDate = null;
     }
 
     $scope.selectLineItem = function (soitem) {
@@ -2946,8 +2975,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
     }
 
-    $scope.getSalesOrderPopUp = function (data) {
-        $scope.NewobjectSO = data.data;
+    $scope.getSalesOrderPopUp = function () {
         $scope.getSalesOrder();
         angular.element(document.querySelector('#SalesOrderItemPopup')).modal('show');
     }
@@ -2956,25 +2984,20 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.getSalesOrder = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetSalesOrder?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectSO.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectSO.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectSO.ProductionOrderId,
+            url: $scope.path + 'GetSalesOrder?entityid=' + $scope.productionSummaryNew.EntityId + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.SalesOrderItemList = resp.data;
         });
     }
-    $scope.BookingLevel = null;
-    $scope.SOId = null;
+  
     $scope.selectSalesOrderItem = function (e) {
-        $scope.NewobjectSO.SalesOrderId = e.data.SOId;
-        $scope.NewobjectSO.SOArticle = e.data.Article;
-        $scope.BookingLevel = $scope.NewobjectSO.BookingLevel;
-        $scope.SOId = $scope.NewobjectSO.SalesOrderId;
-        $scope.GetSalesOrderItemQty();
+        $scope.productionSummaryNew.SalesOrderId = e.data.SOId;
+        $scope.productionSummaryNew.SOArticle = e.data.Article;
         angular.element(document.querySelector('#SalesOrderItemPopup')).modal('hide');
     }
 
-    $scope.getMasterOrderItemPopUp = function (data) {
-        $scope.NewobjectMOI = data.data;
+    $scope.getMasterOrderItemPopUp = function () {
         $scope.getMasterOrderItem();
         angular.element(document.querySelector('#MasterOrderItemPopup')).modal('show');
     }
@@ -2983,7 +3006,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.getMasterOrderItem = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectMOI.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectMOI.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectMOI.ProductionOrderId,
+            url: $scope.path + 'GetMasterOrderItem?entityid=' + $scope.productionSummaryNew.EntityId  + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.MasterOrderItemList = resp.data;
@@ -2992,16 +3015,12 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.ItemId = null;
     $scope.selectMasterOrderItem = function (e) {
-        $scope.NewobjectMOI.MasterOrderItemId = e.data.MasterOrderItemId;
-        $scope.NewobjectMOI.MOIArticle = e.data.Article;
-        $scope.BookingLevel = $scope.NewobjectMOI.BookingLevel;
-        $scope.ItemId = $scope.NewobjectMOI.MasterOrderItemId;
-        $scope.GetMasterOrderItemQty();
+        $scope.productionSummaryNew.MasterOrderItemId = e.data.MasterOrderItemId;
+        $scope.productionSummaryNew.MOIArticle = e.data.Article;
         angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
     }
 
-    $scope.getProductCodePopUp = function (data) {
-        $scope.NewobjectPC = data.data;
+    $scope.getProductCodePopUp = function () {
         $scope.getProductCode();
         angular.element(document.querySelector('#ProductCodePopup')).modal('show');
     }
@@ -3010,7 +3029,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.getProductCode = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'GetProductCode?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.NewobjectPC.WorkCenterMasterId + '&productionLevel=' + $scope.NewobjectPC.BookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.NewobjectPC.ProductionOrderId,
+            url: $scope.path + 'GetProductCode?entityid=' + $scope.productionSummaryNew.EntityId + '&processId=' + $scope.productionSummaryNew.ProcessId + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId,
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ProductCodeList = resp.data;
@@ -3018,11 +3037,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.selectProductCode = function (e) {
-        $scope.NewobjectPC.MasterOrderItemId = e.data.MOIId;
-        $scope.NewobjectPC.ProductCodeArticle = e.data.Article;
-        $scope.BookingLevel = $scope.NewobjectPC.BookingLevel;
-        $scope.ItemId = $scope.NewobjectPC.MasterOrderItemId;
-        $scope.GetProductCodeItemQty();
+        $scope.productionSummaryNew.MasterOrderItemId = e.data.MOIId;
+        $scope.productionSummaryNew.ProductCodeArticle = e.data.Article;
         angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
     }
 }

@@ -172,9 +172,9 @@ namespace Library.Accounting.Accounts
                 parameters.CmdText = @" SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS InvoiceId, ID.Id AS InvoiceDetailId, I.VoucherId, V.VoucherNo, VD.EntityId, EN.UserName AS EntityName, I.SalesTypeId, I.InvoiceNo, I.PartyId, VD.Id AS VoucherDetailId, I.CurrencyId
                                     , C.Code AS CurrencyCode, ID.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount
                                     , B.UserName AS BudgetName, ID.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11)
-                                    , I.PostingDate, 106), ' ', '-') AS PostingDate, I.DocRefNo, I.Narration, ISNULL(ID.NetAmount,0) AS Receivable, (ISNULL(ID.WrittenOffAmount,0)) AS Received
+                                    , I.PostingDate, 106), ' ', '-') AS PostingDate, I.DocRefNo, I.Narration, ISNULL(ID.NetAmount,0) AS Receivable,ID.AdditionalAmount, (ISNULL(ID.WrittenOffAmount,0)) AS Received
                                     , PP.UserName AS PartyPlantName
-                                    , (ISNULL(ID.NetAmount,0)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
+                                    , ((ISNULL(ID.NetAmount,0)+ID.AdditionalAmount)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
                                     , CC.CompanyCurrencyConversion, V.TransactionRefNo, I.SalesOrderNo
                                     , SONo =isnull( STUFF((select distinct ','+XVD.Id from TRN.SalesOrder XVD
 											LEFT JOIN TRN.SalesMaterial SM on SM.SalesOrderId=XVD.Id
@@ -1077,7 +1077,7 @@ namespace Library.Accounting.Accounts
                 parameters.CmdText = @" SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
                                         V.VoucherNo, Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo, IV.Narration, IV.Id AS InvoiceId,VD.EntityId,VD.PlantId, IVD.Id AS InvoiceDetailId, IV.VoucherId,
                                         VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, IV.PartyId, IVD.Amount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
-                                        IVD.WrittenOffAmount AS Received, IVD.Amount-IVD.WrittenOffAmount AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
+                                        IVD.WrittenOffAmount AS Received,IVD.AdditionalAmount ,((IVD.Amount+IVD.AdditionalAmount)-IVD.WrittenOffAmount) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion,
 										HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion
@@ -1157,7 +1157,7 @@ namespace Library.Accounting.Accounts
                                     SELECT IVD.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, IVD.BudgetMasterId, B.UserName AS BudgetName, IVD.ActivityId, EN.UserName AS EntityName, A.UserName AS ActivityName,
                                         V.VoucherNo, Replace(CONVERT(VARCHAR(11), IV.DocDate, 106), ' ', '-') DocDate ,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo, IV.Narration, IV.Id AS InvoiceId,VD.EntityId,VD.PlantId, IVD.Id AS InvoiceDetailId, IV.VoucherId,
                                         VD.Id AS VoucherDetailId, IV.CurrencyId, C.Code AS CurrencyCode, IV.PartyId, IVD.NetAmount AS Receivable,V.ExchangeType, 0 ExchangeAmount,
-                                        IVD.WrittenOffAmount AS Received, IVD.NetAmount-IVD.WrittenOffAmount AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
+                                        IVD.WrittenOffAmount AS Received,IVD.AdditionalAmount, ((IVD.NetAmount+IVD.AdditionalAmount)-IVD.WrittenOffAmount) AS Balance, IV.PartyPlantId, PP.UserName AS PartyPlantName,
 										CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, CC.CompanyCurrencyConversion,
 										GC.CompanyGroupCurrencyId, GC.CompanyGroupFromCurrencyId, GC.CompanyGroupCurrencyRate, GC.CompanyGroupCurrencyConversion,
 										HC.HardCurrencyId, HC.HardFromCurrencyId, HC.HardCurrencyRate, HC.HardCurrencyConversion

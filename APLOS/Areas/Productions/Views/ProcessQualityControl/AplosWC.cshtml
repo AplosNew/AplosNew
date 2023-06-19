@@ -337,6 +337,16 @@
                         <input type="text" name="Issue Category" ng-model="IssueNew.IssueCategory" class="form-control" maxlength="100" required autocomplete="off">
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Period<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" id="Period" ng-model="IssueNew.Period" name="Period" ng-options="item.Value as item.Text for item in PeriodList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
@@ -355,6 +365,16 @@
                     <label class="col-sm-4 control-label">Checking Interval in Hours<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <input type="text" name="Checking Interval" ng-model="IssueNew.CheckingInterval" class="form-control" maxlength="100" required autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Frequency<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" id="Frequency" ng-model="IssueNew.Frequency" name="Frequency" ng-options="item.Value as item.Text for item in FrequencyList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -380,6 +400,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">IsMandatory</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="IssueNew.IsMandatory" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="common-btn">
                 <ul class="list-inline text-right">
@@ -399,8 +430,11 @@
                     <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
                     <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>
                     <div e-column e-field="IssueCategory" e-headertext="Issue Category" e-width="100"></div>
+                    <div e-column e-field="Period" e-headertext="Period" e-width="100"></div>
+                    <div e-column e-field="Frequency" e-headertext="Frequency" e-width="100"></div>
                     <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                     <div e-column e-field="CheckingInterval" e-headertext="Checking Interval" e-width="100"></div>
+                    <div e-column e-field="IsMandatory" e-headertext="IsMandatory" e-width="80"></div>
                 </div>
             </div>
         </div>
@@ -565,16 +599,16 @@
                         <input type="text" name="Checking Interval" ng-model="IssueItemNew.CheckingInterval" class="form-control" maxlength="100" autocomplete="off">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Max Value<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Max" ng-model="IssueItemNew.Max" class="form-control" required maxlength="10" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Max Value</label>
+                    <div class="col-sm-8">
+                        <input type="number" name="Max" ng-model="IssueItemNew.Max" class="form-control"  maxlength="10" autocomplete="off">
                     </div>
                 </div>
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Min Value<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Min" ng-model="IssueItemNew.Min" class="form-control" required maxlength="10" autocomplete="off">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Min Value</label>
+                    <div class="col-sm-8">
+                        <input type="number" name="Min" ng-model="IssueItemNew.Min" class="form-control"  maxlength="10" autocomplete="off">
                     </div>
                 </div>
             </div>
