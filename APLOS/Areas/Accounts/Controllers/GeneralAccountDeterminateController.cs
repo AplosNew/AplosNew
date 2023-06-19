@@ -293,6 +293,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         {
                             item["Id"] = _IdCon;
                             item["GLControlId"] = data["Id"];
+                            //item["Type"] = item["Type"];
                             AddNewRow(dsConsumable.Tables[0], item);
                         }
                         else
