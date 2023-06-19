@@ -163,6 +163,16 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.POWiseNew = Object.assign({}, $scope.POWise);
 
+    $scope.PODateValidation = function (ToDate) {
+        try {
+            if (ToDate < $filter("date")(Date.now(), 'dd-MMM-yyyy')) {
+                throw "Date must not be allow Back Date!";
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    };
 
     $scope.QualityControlDetails = {
         Id: null,
