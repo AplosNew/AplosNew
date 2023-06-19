@@ -141,7 +141,6 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.SelectedSalesOrderList = response.data.DATA;
-            console.log($scope.SelectedSalesOrderList);
             $scope.Submit();
         });
     }
@@ -161,7 +160,6 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MaterialList = response.data.DATA;
-            console.log($scope.MaterialList);
         });
     }
 
@@ -302,6 +300,16 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
         //var soList = getString($scope.SelectedSalesOrderList, "SalesOrderId");
         try {
             var file_src = $scope.path + "ReportXls?CostingBOQMasterId=" + $scope.Model.Id
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.NonProcessReportXls = function () {
+        try {
+            var file_src = $scope.path + "GetNonProcessReportXls?CostingBOQMasterId=" + $scope.Model.Id
             $rootScope.report(file_src);
 
         } catch (e) {
