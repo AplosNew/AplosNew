@@ -111,6 +111,21 @@ namespace Aplos.Areas.Costings.Controllers
 
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetNonProcessReportXls(string CostingBOQMasterId)
+        {
+            try
+            {
+                new Library.OrderManagement.Costing.CostingBOQ().GetNonProcessReportXls(CostingBOQMasterId);
+                return null;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
 
         [HttpPost]
         public ActionResult Save(Dictionary<string, object> MasterData, List<Dictionary<string, object>> SalesOrderData, List<Dictionary<string, object>> ItemData)
