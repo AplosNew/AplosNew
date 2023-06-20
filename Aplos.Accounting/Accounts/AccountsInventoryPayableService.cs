@@ -288,7 +288,7 @@ namespace Library.Accounting.Accounts
         }
         private Dictionary<string, object> GetCompanyPartyGroup(string partyId, string plantId)
         {
-            var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType='Vendor'";
+            var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"' and PartyType in('Vendor','Director')";
             return _sqlRepository.GetData(cmdText);
         }
         public IEnumerable<object> GetInventoryMaterialWithoutReversChargePayable(string companyId, string plantId, string inveReveiveId)
@@ -664,7 +664,7 @@ namespace Library.Accounting.Accounts
 						LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
 						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
-						LEFT JOIN [HKP].[CompanyParty] CP ON IR.PartyId = CP.PartyId AND CP.PlantId=@plantId AND CP.PartyType='Vendor'
+						LEFT JOIN [HKP].[CompanyParty] CP ON IR.PartyId = CP.PartyId AND CP.PlantId=@plantId AND CP.PartyType in('Vendor','Director')
 						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.CompanyPartyId=CP.Id and CPGL.PartyGLType='ReconciliationGL' 
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON CPGL.GLGeneralInfoId= GL.Id
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
@@ -1655,7 +1655,7 @@ UNION
         {
             try
             {
-                var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode
+                var sql = @"SELECT IR.Id, REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, IR.InvoicingPartyPlantId AS PartyPlantId, P.Code AS PartyCode,isnull(IR.PartyType,'Vendor')PartyType
 								, P.UserName AS PartyName,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDateNew
 			                    , CP.UserName AS PartyAccountGroupName
 			                    , IR.EmployeeId, EI.EmployeeCode, EI.EmployeeName

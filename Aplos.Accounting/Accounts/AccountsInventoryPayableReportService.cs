@@ -1032,7 +1032,7 @@ namespace Library.Accounting.Accounts
 
             #endregion Signature
 
-            if (otherVendorId != "null")
+            if (otherVendorId != null && otherVendorId != "null")
             {
                 GetInventoryOtherVendorChargesReportSheet(ref sheet, reportUtility, companyId, plantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, otherVendorId, _rowL);
             }
