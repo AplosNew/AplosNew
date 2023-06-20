@@ -5241,7 +5241,6 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
                 return MasterId;
 
             }
@@ -5257,24 +5256,30 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             {
                 DataSet dsMaster;
                 string TableName = "TRN.VehicleMovementRequisitionChild";
+                string Id = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<VehicleChild> items = DataToSave.ToList();
 
+                foreach (VehicleChild item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
 
                 foreach (VehicleChild item in DataToSave)
                 {
                     dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
-                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
 
+
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
-
-
 
                         dr["Id"] = _Id;
                         dr["VehicleMovementRequisitionId"] = item.VehicleMovementRequisitionId;
@@ -5286,6 +5291,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
+
 
 
                         dsMaster.Tables[0].Rows.Add(dr);
@@ -5308,7 +5314,108 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
         }
 
+        #region commit
+        /* public string PostVehicleRequisitionChild(IEnumerable<VehicleChild> DataToSave , string MasterId)
+         {
+             try
+             {
+                 DataSet dsMaster;
+                 string TableName = "TRN.VehicleMovementRequisitionChild";
+                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                 if (DataToSave.Count() == 0)
+                     return "";
+                 List<VehicleChild> items = DataToSave.ToList();
 
+                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                 int ccount = 0;
+
+                 foreach (VehicleChild item in DataToSave)
+                 {
+                     DataView dv = new DataView(dsMaster.Tables[0]);
+                     dv.RowFilter = "Id='" + item.Id + "'";
+
+                     if(dv.Count == 0)
+                     {
+                         ccount++;
+                         item.Id = MakePK(MasterId, ccount , 2);
+                         AddNewRowD(dsMaster.Tables[0], item);
+                     }
+
+
+
+                    *//* dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                     if (dsMaster.Tables[0].Rows.Count == 0)
+                     {
+                         DataRow dr = dsMaster.Tables[0].NewRow();
+
+                         bplib.clsGenID genid = new bplib.clsGenID();
+                         genid.GenID(TableName, out string _Id);
+
+
+
+                         dr["Id"] = _Id;
+                         dr["VehicleMovementRequisitionId"] = item.VehicleMovementRequisitionId;
+                         dr["FromLocationId"] = item.FromLocationId;
+                         dr["ToLocationId"] = item.ToLocationId;
+                         dr["WithoutPassenger"] = item.WithoutPassenger;
+                         dr["Remarks"] = item.Remarks;
+
+                         dr["AddedBy"] = item.AddedBy;
+                         dr["AddedFromIP"] = item.AddedFromIP;
+                         dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                         dsMaster.Tables[0].Rows.Add(dr);
+                         AddNewRowD(dsMaster.Tables[0] , dr);
+
+
+                     }*//*
+
+
+                 }
+                 clsStaticInfo _info = new clsStaticInfo();
+                 _info.SaveDataSets(dsMaster);
+                 string MasterIds = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                 return MasterIds;
+
+             }
+             catch (Exception ex)
+             {
+                 return ex.ToString();
+             }
+
+         }*/
+
+        /* private void AddNewRowD(DataTable dt, Dictionary<string, object> sourceData)
+         {
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+             DataRow dr = dt.NewRow(); foreach (var item in sourceData.Keys)
+             {
+                 try
+                 {
+                     dr[item] = sourceData[item];
+                 }
+                 catch (Exception)
+                 {
+                 }
+             }
+             dr["AddedBy"] = identity.Name;
+             dr["AddedDate"] = System.DateTime.Now.ToString();
+             dr["AddedFromIP"] = identity.IPAddress;
+             dr["UpdatedBy"] = identity.Name;
+             dr["UpdatedDate"] = System.DateTime.Now.ToString();
+             dr["UpdatedFromIP"] = identity.IPAddress; dt.Rows.Add(dr);
+         }
+
+        private string MakePK(string masterId, int currentId, int padLeft)
+         {
+             return masterId + currentId.ToString().PadLeft(padLeft, '0');
+         }*/
+
+
+        #endregion commit
         public void GetVehicleLocation(out List<Default2> DataList , string ID)
         {
             clsConnectionManager objCon = null;
