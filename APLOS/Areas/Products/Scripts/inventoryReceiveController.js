@@ -674,6 +674,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
     $scope.Save = function () {
         //debugger;
         try {
+            $scope.productNew.PartyType = $scope.partyType;
             if ($scope.productNew.NoteForAccounts === '' || $scope.productNew.NoteForAccounts === null || $scope.productNew.NoteForAccounts === undefined) {
                 ShowResult("Enter Note for accounts", 'failure');
                 return false;
