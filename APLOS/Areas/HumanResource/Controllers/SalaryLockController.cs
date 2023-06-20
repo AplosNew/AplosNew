@@ -314,6 +314,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["MonthNo"] = sps.MonthNo;
                     dr["IsLocked"] = true;
                     dr["IsDisbursed"] = false;
+                    dr["GivenDesignationId"] = sps.GivenDesignationId;
+                    dr["AccountsGroupId"] = sps.AccountsGroupId;
+                    dr["BudgetId"] = sps.BudgetId;
+                    dr["SalaryRuleMasterId"] = sps.SalaryRuleMasterId;
                     dr["SalaryStructureId"] = sps.SalaryStructureId;
 
                     dr["AddedBy"] = identity.Name;
@@ -328,6 +332,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["IsLocked"] = true;
                     dr["IsDisbursed"] = false;
                     dr["SalaryStructureId"] = sps.SalaryStructureId;
+                    dr["GivenDesignationId"] = sps.GivenDesignationId;
+                    dr["AccountsGroupId"] = sps.AccountsGroupId;
+                    dr["BudgetId"] = sps.BudgetId;
+                    dr["SalaryRuleMasterId"] = sps.SalaryRuleMasterId;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -469,6 +477,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             public string DisbursementVoucherId { get; set; }
             public string Flag { get; set; }
             public string SalaryStructureId { get; set; }
+            public string GivenDesignationId { get; set; }
+            public string AccountsGroupId { get; set; }
+            public string BudgetId { get; set; }
+            public string SalaryRuleMasterId { get; set; }
             public bool CheckBoxSelect { get; set; }
             #endregion Scalar Properties
 
