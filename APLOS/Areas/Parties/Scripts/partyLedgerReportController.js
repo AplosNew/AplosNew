@@ -67,18 +67,16 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
     };
 
     $scope.showPartyPopUpNew = function () {
-        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor' || $scope.partyType === 'Director') {
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
         }
         else if ($scope.partyType === 'Party') {
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
         }
-        else if ($scope.partyType === 'Director') {
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
-        }
         else if ($scope.partyType === 'Other') {
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
         }
+        
         $http({
             method: 'POST',
             url: $scope.partyUrl,
@@ -269,6 +267,13 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
                 $scope.getPartyGSTINList($scope.report.PartyId, $scope.report.PartyPlantId);
             }
             else if ($scope.report.PartyType === 'Vendor') {
+                $scope.report.PartyId = null;
+                $scope.report.PartyId = data.PartyId;
+                $scope.customerNameCode = data.Code + ' - ' + data.PartyName;
+                $scope.getPartyPlantList($scope.report.PartyId);
+                $scope.getPartyGSTINList($scope.report.PartyId, $scope.report.PartyPlantId);
+            }
+            else if ($scope.report.PartyType === 'Director') {
                 $scope.report.PartyId = null;
                 $scope.report.PartyId = data.PartyId;
                 $scope.customerNameCode = data.Code + ' - ' + data.PartyName;
