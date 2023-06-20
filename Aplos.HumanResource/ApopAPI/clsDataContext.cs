@@ -5266,7 +5266,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
                 foreach (VehicleChild item in DataToSave)
                 {
-
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
@@ -5279,7 +5279,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dr["Id"] = _Id;
                         dr["VehicleMovementRequisitionId"] = item.VehicleMovementRequisitionId;
                         dr["FromLocationId"] = item.FromLocationId;
-                        dr["ToLocation"] = item.ToLocation;
+                        dr["ToLocationId"] = item.ToLocationId;
                         dr["WithoutPassenger"] = item.WithoutPassenger;
                         dr["Remarks"] = item.Remarks;
 
@@ -6053,7 +6053,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string Id { get; set; }
         public string VehicleMovementRequisitionId { get; set; }
         public string FromLocationId { get; set; }
-        public string ToLocation { get; set; }
+        public string ToLocationId { get; set; }
         public string WithoutPassenger { get; set; }
         public string Remarks { get; set; }
         public string AddedBy { get; set; }

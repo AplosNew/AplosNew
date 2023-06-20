@@ -3,6 +3,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending to Start</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Pending to End</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Report</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -233,8 +234,8 @@
                     </div>
 
                 </div>
-              
-                
+
+
                 <div class="tab-design">
                     <div class="site-tab">
                         <ul class="nav nav-tabs" role="tablist">
@@ -250,7 +251,7 @@
                                         <div class="form-group" show-errors>
                                             <label class="col-sm-4 control-label">In Date<sup>*</sup></label>
                                             <div class="col-sm-8 show-message">
-                                                <input type="text" name="From Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleInModel.InDate" ng-disabled="true" datepicker class="form-control"  required>
+                                                <input type="text" name="From Date" e-dateformat="dd-MMM-yyyy" ng-model="VehicleInModel.InDate" ng-disabled="true" datepicker class="form-control" required>
                                             </div>
                                         </div>
                                         <div class="form-group" show-errors>
@@ -306,7 +307,7 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
             <div class="content-container-fluid aplos-grid-toggle" style="color:black;overflow:scroll">
                 <div style="color:black;" ej-grid e-datasource="PendingInTripList" e-templaterefresh="refreshTemplateMasterOrderOperation" e-recorddoubleclick="Get"
@@ -328,7 +329,30 @@
                 </div>
             </div>
         </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <div class="table-responsive aplos-grid-toggle">
+                <div id="GridEdit" ej-grid e-datasource="ReportDataList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        <div e-column e-field="Date" e-headertext="Date" e-width="100"></div>
+                        <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
+                        <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
 
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                        <div e-column e-field="EmployeeCurrentStatus" e-headertext="EmployeeCurrentStatus" e-width="100"></div>
+
+                        <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                        <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                        <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                        <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
     </div>
-</div>
 
