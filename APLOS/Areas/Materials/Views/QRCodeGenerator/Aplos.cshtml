@@ -8,13 +8,44 @@
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Guest Name</label>
+                <label class="col-sm-4 control-label">PO</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="User Name" ng-model="VehicleRequisitionModel.Name" class="form-control" tabindex="5" maxlength="50">
+                    <input type="text" name="PO" ng-model="QRCodeGenerateModel.PO" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">LOT</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="LOT" ng-model="QRCodeGenerateModel.LOT" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">No. of Cones</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NumberOfCones" class="form-control" tabindex="5" maxlength="50">
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Article</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Article" ng-model="QRCodeGenerateModel.Article" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Product Code</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="ProductCode" ng-model="QRCodeGenerateModel.ProductCode" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Net Wt.</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Net Weight" ng-model="QRCodeGenerateModel.NetWeight" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
         </div>
     </div>
+
 </div>

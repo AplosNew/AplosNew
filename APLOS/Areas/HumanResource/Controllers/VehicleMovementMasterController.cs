@@ -817,18 +817,19 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             }
         }
 
-
+        [AllowAnonymous]
         public JsonResult deleteVehicleRequisition(string id)
         {
             try
             {
-                string TableName = "[TRN].[VehicleMovement]";
+                string TableName = "[TRN].[VehicleMovementRequisition]";
 
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from TRN.VehicleMovementRequisitionChild where VehicleMovementRequisitionId='" + id + "'");
                 con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -1361,9 +1362,40 @@ where VIO.OutReading is null";
 
             }
         }
+
+        public ActionResult GetReportData()
+        {
+            string sql = @"select 
+FromLocation = stuff((select ', ' + LM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''),
+
+ToLocation =  stuff((select ', ' + TM.UserName 
+							from TRN.VehicleMovementRequisitionChild VMC
+							left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'')
+
+,EI.EmployeeName , PM.UserName Purpose, VMR.PersonalOfficial, VMR.NumberOfPassengers, VM.VehicleNumber, DEI.EmployeeName DriverName
+,FORMAT(VIO.InDate, 'dd-MMM-yyy')Vehicle_InDate, FORMAT(VIO.InTime, 'hh:mm tt')Vehicle_InTime ,FORMAT(VIO.OutDate, 'dd-MMM-yyy')Vehicle_OutDate, FORMAT(VIO.OutTime, 'hh:mm tt')Vehicle_OutTime
+,DATEDIFF(HOUR, VIO.OutTime, VIO.InTime) TripTime
+from TRN.VehicleMovementInOut VIO
+LEFT JOIN TRN.VehicleAllocation VA ON VA.Id = VIO.VehicleAllocationId
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation DEI on DEI.SystemId = DM.DriverId
+left join TRN.VehicleTrip VT on VT.Id = VA.TripId
+left join TRN.VehicleMovementRequisition VMR on VMR.AppliedId = VT.Id
+left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisitionId = VMR.Id
+left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+where VMR.AppliedId = 1";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         #endregion VehicleOut
 
         #region Get
+        [AllowAnonymous]
         public JsonResult GetFromToLocationList(string id)
         {
            
@@ -1371,6 +1403,7 @@ where VIO.OutReading is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult GetToLocationList(string id)
         {
             string sql = @"Select Id Value, UserName Text from HKP.LocationMaster where Id not in ('"+id+"') order by Text ";
@@ -1387,6 +1420,7 @@ where VIO.OutReading is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult GetPurposeList()
         {
             string sql = @"Select Id Value, UserName Text from HKP.PurposeMaster order by Text ";

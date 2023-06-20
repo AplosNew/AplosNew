@@ -1808,7 +1808,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     };
 
     $scope.advanceList = [];
-    $scope.closeEmployeeAdvancePopUp = function (data) {
+    $scope.closeEmployeeSalaryAdvancePopUp = function (data) {
         $scope.advanceList = [];
         $scope.advance.EmployeeId = data.EmployeeId;
         $scope.advance.EmployeeName = data.EmployeeName;

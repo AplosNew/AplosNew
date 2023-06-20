@@ -269,6 +269,7 @@
                         <th>Currency</th>
                         <th>Rate</th>
                         <th class="text-right">Payable</th>
+                        <th class="text-right">Additional</th>
                         <th class="text-right">Payment</th>
                         <th class="text-right">Balance</th>
                         <th class="text-right">Amount</th>
@@ -288,6 +289,7 @@
                         <td>{{x.CurrencyCode}}</td>
                         <td>{{x.CompanyCurrencyRate}}</td>
                         <td class="text-right">{{x.Receivable | number:3}}</td>
+                        <td class="text-right">{{x.AdditionalAmount | number:3}}</td>
                         <td class="text-right">{{x.Received | number:3}}</td>
                         <td class="text-right">{{x.Balance | number:3}}</td>
                         <td>

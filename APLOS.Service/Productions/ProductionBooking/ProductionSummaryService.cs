@@ -623,9 +623,9 @@ where QII.IssueId='" + IssueId + "'";
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetPOWiseData(string ProcessId, string entityId, string POId, string POStatus, string CustomerId, string IssueId)
+        public IEnumerable<object> GetPOWiseData(string ProcessId, string entityId, string POId, string Date, string POStatus, string CustomerId, string IssueId)
          {
-            string QCProcess="",QCEntity="",QCIssue="",QCPONO="";
+            string QCProcess="",QCEntity="",QCIssue="",QCPONO="", QCDate="";
             if (ProcessId != "null")
             {
                 QCProcess = @"and QC.ProcessId='"+ ProcessId + "'";
@@ -641,6 +641,14 @@ where QII.IssueId='" + IssueId + "'";
             if (POId != "null")
             {
                 QCPONO = @"and QC.ProductionOrderId='" + POId + "'";
+            }
+            if (Date != "null" && Date != "undefined")
+            {
+                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between format(getdate(),'dd-MMM-yyyy') and '" + Date + "' or QCD.AddedDate is null)";
+            }
+            else
+            {
+                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  = format(getdate(),'dd-MMM-yyyy') or QCD.AddedDate is null)";
             }
             var sql = @"select distinct 
 format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
@@ -692,8 +700,8 @@ left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.Quality
 left join TRN.QualityControl Q on Q.Id=QD.QCId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
-where QID.IssueType in ('Order','General') " + QCProcess + " " + QCEntity + " " + QCIssue + " " + QCPONO + "";
-            return _sqlRepository.GetDataCollection(sql);
+where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + QCEntity + " " + QCIssue + " " + QCPONO + "";
+             return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)

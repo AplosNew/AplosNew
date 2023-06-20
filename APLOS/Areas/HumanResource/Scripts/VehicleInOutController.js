@@ -363,4 +363,16 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     }
     //  #endregion VehicleOut
 
+    $scope.ReportDataList = [];
+    $scope.GetReportData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetReportData",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ReportDataList = response.data;
+
+        });
+    }
+
 }

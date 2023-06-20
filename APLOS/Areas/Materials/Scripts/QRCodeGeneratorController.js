@@ -13,4 +13,36 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
+
+    $scope.QRCodeGeneratorTemp = {
+        Id: null,
+        PO: null,
+        Article: null,
+        LOT: null,
+        ProductCode: null,
+        NumberOfCones: null,
+        NetWeight: null
+    }
+    $scope.QRCodeGenerateModel = Object.assign({}, $scope.QRCodeGeneratorTemp);
+
+    $scope.SendDataToGenerateQR = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GenerateQRCode",
+            data: { 'data': $scope.QRCodeGenerateModel },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+
+            }
+
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+
+        }
+    }
 }
