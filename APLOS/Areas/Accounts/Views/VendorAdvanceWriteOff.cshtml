@@ -172,6 +172,7 @@
                     <th>Currency</th>
                     <th>Rate</th>
                     <th>Payable</th>
+                    <th class="text-right">Additional</th>
                     <th>Set-off Amount</th>
                     <th>Balance</th>
                     <th>Invoice Amount</th>
@@ -189,6 +190,7 @@
                     <td>{{x.CurrencyCode}}</td>
                     <td>{{x.CompanyCurrencyRate}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
+                    <td class="text-right">{{x.AdditionalAmount | number:2}}</td>
                     <td class="text-right">{{x.WriteOff | number:2}}</td>
                     <td class="text-right">{{x.Advilable | number:2}}</td>
                     <td><input type="text" ng-keyup="exchangeGainLossAmount(x)" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-model="x.DrAmount"></td>

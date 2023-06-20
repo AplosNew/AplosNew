@@ -644,7 +644,11 @@ where QII.IssueId='" + IssueId + "'";
             }
             if (Date != "null" && Date != "undefined")
             {
-                QCDate = @"and format(QCD.AddedDate,'dd-MMM-yyyy')  <= '" + Date + "'";
+                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between format(getdate(),'dd-MMM-yyyy') and '" + Date + "' or QCD.AddedDate is null)";
+            }
+            else
+            {
+                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  = format(getdate(),'dd-MMM-yyyy') or QCD.AddedDate is null)";
             }
             var sql = @"select distinct 
 format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
@@ -697,7 +701,7 @@ left join TRN.QualityControl Q on Q.Id=QD.QCId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
 where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + QCEntity + " " + QCIssue + " " + QCPONO + "";
-            return _sqlRepository.GetDataCollection(sql);
+             return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)

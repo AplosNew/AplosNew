@@ -1,0 +1,23 @@
+﻿@*Date,OutTime,InTime,OutDuration,EmplId, EmpName, CurrentEmpSts ,GeivenDesg, Activity, SubSection, Section, Department, Process, EmpSts *@
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="PlantInOutList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="Date" e-headertext="Date" e-width="100"></div>
+            <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
+            <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
+
+            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+            <div e-column e-field="EmployeeCurrentStatus" e-headertext="EmployeeCurrentStatus" e-width="100"></div>
+
+            <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+            <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+            <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-width="100"></div>
+        </div>
+    </div>
+</div>

@@ -45,6 +45,7 @@
                                 <th>Doc Ref</th>
                                 <th>Currency</th>
                                 <th>Payable</th>
+                                <th>Add.Payable</th>
                                 <th>Write-off</th>
                                 <th>Balance</th>
                                 <th>Particular</th>
@@ -75,6 +76,7 @@
                                 <td>{{x.DocRefNo}}</td>
                                 <td>{{x.CurrencyCode}}</td>
                                 <td class="text-right">{{x.Receivable | number:2}}</td>
+                                <td class="text-right">{{x.AdditionalAmount | number:2}}</td>
                                 <td class="text-right">{{x.Received | number:2}}</td>
                                 <td class="text-right">{{x.Balance | number:2}}</td>
                                 <td>{{x.Particular}}</td>

@@ -264,7 +264,9 @@
                             <th>Doc Ref No</th>
                             <th>Currency</th>
                             <th>Rate</th>
-                            <th class="text-right">Receivable</th>
+                            <th class="text-right" ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerCreditNote.ToString()'">Receivable</th>
+                            <th class="text-right" ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorCreditNote.ToString()'">Payable</th>
+                            <th class="text-right">Additional</th>
                             <th class="text-right">Receipt</th>
                             <th class="text-right">Balance</th>
                             <th class="text-right">Amount</th>
@@ -281,6 +283,7 @@
                             <td>{{x.CurrencyCode}}</td>
                             <td>{{x.CompanyCurrencyRate}}</td>
                             <td class="text-right">{{x.Receivable | number:3}}</td>
+                            <td class="text-right">{{x.AdditionalAmount | number:3}}</td>
                             <td class="text-right">{{x.Received | number:3}}</td>
                             <td class="text-right">{{x.Balance | number:3}}</td>
                             <td>
