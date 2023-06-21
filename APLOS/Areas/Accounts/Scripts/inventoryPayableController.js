@@ -91,6 +91,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         , PartyId: null
         , PartyPlantId: null
         , PartyName: null
+        , PartyType: null
         , PaymentTermId: null
         , PaymentTermName: null
         , PostingDate: new Date()

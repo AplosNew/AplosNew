@@ -2242,10 +2242,11 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                                 , ACT.BalanceType, ACT.Id AS [MainHead], AG.UserName AS [Level], VD.GLGeneralInfoId,GL.UserName AS GL,GL.AccountCode, VD.BudgetMasterId, BM.RefNo+' - '+BUD.UserName AS Budget
                                 , A.UserName AS Activity, A.Id as ActivityId,VD.GLGeneralInfoId+VD.BudgetMasterId GLGeneralInfoIdBudgetMasterId,VD.GLGeneralInfoId+VD.BudgetMasterId+A.Id GLGeneralInfoIdBudgetMasterIdActivityId
                                 ,v.CompanyGroupId,v.CompanyId,v.PlantId,V.SourceType,VD.VoucherId,V.VoucherNo,REPLACE(CONVERT(VARCHAR(11),V.VoucherDate, 106), ' ', '-') VoucherDate
-                                ,REPLACE(CONVERT(VARCHAR(11),V.PostingDate, 106), ' ', '-') PostingDate
+                                ,REPLACE(CONVERT(VARCHAR(11),V.PostingDate, 106), ' ', '-') PostingDate,IR.Id InventoryReceiveId
 	                            FROM TRN.VoucherDetailCurrency AS VDC
 		                        INNER JOIN TRN.VoucherDetail AS VD ON VD.Id =VDC.VoucherDetailId
 		                        INNER JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
+                                LEFT JOIN TRN.InventoryReceive AS IR ON V.Id=IR.VoucherId
 		                        LEFT OUTER JOIN HKP.GLGeneralInfo AS GL ON GL.Id=VD.GLGeneralInfoId
                                 LEFT OUTER JOIN HKP.AccountGroup AS AG ON AG.Id=GL.AccountGroupId
                                 left outer join [HKP].[AccountType] act on act.Id =AG.AccountTypeId
@@ -2258,7 +2259,7 @@ VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType,
                                 AND V.IsPark=0
                                 GROUP BY GL.Id, GL.AccountCode, VDC.ParallelCurrencyId, CU.Code,
                                 VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, V.PostingDate, ACT.BalanceType, AG.UserName, ACT.Id, VD.BudgetMasterId, BM.RefNo, BUD.UserName, A.UserName, A.Id
-                                ,v.CompanyGroupId,v.CompanyId,v.PlantId,V.SourceType,VD.VoucherId,V.VoucherNo,V.VoucherDate,V.PostingDate
+                                ,v.CompanyGroupId,v.CompanyId,v.PlantId,V.SourceType,VD.VoucherId,V.VoucherNo,V.VoucherDate,V.PostingDate,IR.Id
                                 ) AS K where k.DRcumulative<>0  OR 	k.CRcumulative<>0";
                 return _sqlRepository.GetDataCollection(cmdText);
             }
