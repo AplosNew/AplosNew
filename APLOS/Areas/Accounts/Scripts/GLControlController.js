@@ -8,7 +8,6 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'CreateGlControl';
-    $scope.saveConsumableUrl = $scope.path + 'CreateComsumable';
     $scope.saveMaterialUrl = $scope.path + 'CreateMaterial';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
@@ -664,18 +663,6 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             $scope.ExpenseGLList = response.data;
         })
     }
-
-    //$scope.ClearConsumable = function () {
-    //    $scope.Action = 'Save';
-    //    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    //    $scope.selectExpenseGL = [];
-    //    return true;
-    //};
-
-
-    // #endregion --------------------------------- Expense  -----------------------------------//
-
-    // #region --------------------------------- Inventory  -----------------------------------//
 
     $scope.InventoryGLList = [];
     $scope.selectInventoryGLBudget = function (data) {

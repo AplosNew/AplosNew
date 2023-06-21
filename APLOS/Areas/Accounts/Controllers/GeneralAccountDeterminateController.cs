@@ -470,48 +470,6 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        [HttpPost]
-        public JsonResult CreateComsumable(List<Dictionary<string, object>> ConsumableList, string glControlId)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from [MST].[GLControlDetail] where GLControlId='" + glControlId + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-                #region data update
-                foreach (var item in ConsumableList)
-                {
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("[MST].[GLControlDetail]", out _Id);
-
-                        item["Id"] = _Id;
-                        item["GLControlId"] = glControlId;
-                        AddNewRow(dsMaster.Tables[0], item);
-                    }
-                    else
-                    {
-                        _Id = item["Id"].ToString();
-                        EditRow(dsMaster.Tables[0].Rows[0], item);
-                    }
-                }
-                #endregion data update
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-
         [Authorize]
         public ActionResult GetConsumableData(string glControlDetailId, string type)
         {
