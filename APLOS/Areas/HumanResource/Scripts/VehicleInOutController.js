@@ -374,5 +374,6 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
 
         });
     }
+    $scope.GetReportData();
 
 }
