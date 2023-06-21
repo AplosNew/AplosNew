@@ -734,6 +734,10 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         }
     }
 
+    $scope.ClosePopup=function () {
+        angular.element(document.querySelector('#masteraddeditpopup')).modal('hide');
+    }
+
     $scope.DeleteMaster = function () {
         try {
             if ($scope.mastermodal.Id == null || $scope.mastermodal.Id == '') {

@@ -710,7 +710,7 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
-        public string PostVehicleRequisitionChild([FromBody] IEnumerable<VehicleChild> DataToSave)
+        public string PostVehicleRequisitionChild([FromBody] IEnumerable<VehicleChild> DataToSave )
         {
             try
             {
@@ -736,6 +736,22 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetPurpose(out List<Default2> activelists);
             return activelists;
         }
+
+
+        public List<VehicleCreation> GetVehicleCreations(string EmpsysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleCreations(out List<VehicleCreation> activelists, EmpsysId);
+            return activelists;
+        }
+
+        public List<VehicleStatus> GetVehiclestatus(string EmpsysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehiclestatus(out List<VehicleStatus> activelists, EmpsysId);
+            return activelists;
+        }
+
         #endregion VCehicle
 
     }

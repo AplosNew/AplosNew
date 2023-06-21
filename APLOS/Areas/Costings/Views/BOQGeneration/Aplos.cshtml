@@ -52,7 +52,7 @@
 
             <button ng-show="!Model.Id" ng-click="openPopup('dialogSalesOrderSearch');GetSalesOrderList();" class="btn single-small-btn"><i class="glyphicon glyphicon-plus-sign"></i> Sales Order</button>
             <button ng-show="SelectedSalesOrderList.length>0" ng-click="ReportXls();" class="btn single-small-btn"><i class="glyphicon glyphicon-file"></i> BOM Report</button>
-            <button ng-show="SelectedSalesOrderList.length>0" ng-click="NonProcessReportXls();" class="btn single-small-btn"><i class="glyphicon glyphicon-file"></i> Non Process Report</button>
+            @*<button ng-show="SelectedSalesOrderList.length>0" ng-click="NonProcessReportXls();" class="btn single-small-btn"><i class="glyphicon glyphicon-file"></i> Non Process Report</button>*@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div id="GridSelectedSalesOrder" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="SelectedSalesOrderList"
