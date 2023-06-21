@@ -82,11 +82,11 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
                 <div class="form-group" show-errors>
-                    <label class="col-sm-1 control-label">Material<sup>*</sup></label>
+                    <label class="col-sm-1 control-label"><sup>*</sup></label>
                     <div class="col-sm-4 show-message">
                         <div class="input-group">
                             <span class="input-group-btn">
-                                <button ng-click="popUp();" class="btn single-small-btn" @*ng-disabled="ModelNew.Id==null"*@ tabindex="5"><i class="glyphicon glyphicon-search"></i></button>
+                                <button ng-click="popUp();" class="btn single-small-btn" @*ng-disabled="ModelNew.Id==null"*@ tabindex="5"><i class="glyphicon glyphicon-search"> Material</i></button>
                             </span>
                         </div>
                     </div>
@@ -123,8 +123,56 @@
                 <confirm-archive-generic data-modalid="confirmMaterialPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveMaterialRow()"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <div class="form-elements form-horizontal" ng-form="from1">
+                    <div class="form-group" show-errors id="div_Inventory">
+                        <label class="col-sm-1 control-label">GL<sup>*</sup></label>
+                        <div class="col-sm-4 show-message">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button ng-click="GetCOAICodeList('inventoryTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row ">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>GL</th>
+                                            <th>Budget</th>
+                                            <th>Activity</th>
+                                            <th>Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in InventoryGLList">
+                                            <td>{{x.GLGeneralInfoName}}</td>
+                                            <td>{{x.BudgetName}}</td>
+                                            <td>{{x.ActivityName}}</td>
+                                            <td class="text-right table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="$parent.RemoveExpense(x,$index,'inventoryTabDel')" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
+                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
 
             </div>
+
+
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="form-elements form-horizontal" ng-form="from0">
                     <div class="form-group" show-errors id="div_GL">
@@ -132,7 +180,7 @@
                         <div class="col-sm-4 show-message">
                             <div class="input-group">
                                 <span class="input-group-btn">
-                                    <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="GetCOAICodeList('consumableTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -158,7 +206,7 @@
                                             <td class="text-right table-td">
                                                 <ul class="list-inline action-list">
                                                     <li>
-                                                        <button ng-click="$parent.RemoveExpense(x,$index)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
+                                                        <button ng-click="$parent.RemoveExpense(x,$index,'consumableTabDel')" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
                                                             <i class="glyphicon glyphicon-remove"></i>
                                                         </button>
                                                     </li>
@@ -173,7 +221,6 @@
 
                 </div>
 
-                <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveRow()"></confirm-archive-generic>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
 
@@ -315,4 +362,6 @@
 </div>
 
 @Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")
+<confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="RemoveRow()"></confirm-archive-generic>
+
 <!-- #endregion -->
