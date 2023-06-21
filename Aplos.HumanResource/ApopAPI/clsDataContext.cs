@@ -5483,6 +5483,116 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                 objCon = null;
             }
         }
+
+
+        public void GetVehicleCreations(out List<VehicleCreation> DataList, string EmpsysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleCreation>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
+                    from[TRN].[VehicleMovementRequisition] VMR
+                    left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                    left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.AddedBy = '" + EmpsysId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleCreation
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        PersonalOfficial = dsRef.Tables[0].Rows[i]["PersonalOfficial"].ToString(),
+                        PurposeId = dsRef.Tables[0].Rows[i]["PurposeId"].ToString(),
+                        Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        ResponsiblePersonCode = dsRef.Tables[0].Rows[i]["ResponsiblePersonCode"].ToString(),
+                        NumberOfPassengers = dsRef.Tables[0].Rows[i]["NumberOfPassengers"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
+        public void GetVehiclestatus(out List<VehicleStatus> DataList, string EmpsysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleStatus>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
+                    ,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' 
+                    when VMR.IsReject = 1 then 'Reject'
+                    end, VT.AddedBy ApprovedBy
+                    , RejectBy = case when VMR.IsReject = 1 then VMR.UpdatedBy end
+                    from[TRN].[VehicleMovementRequisition] VMR
+                    left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                    left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+                    left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
+					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.AddedBy = '" + EmpsysId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleStatus
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        PersonalOfficial = dsRef.Tables[0].Rows[i]["PersonalOfficial"].ToString(),
+                        PurposeId = dsRef.Tables[0].Rows[i]["PurposeId"].ToString(),
+                        Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        ResponsiblePersonCode = dsRef.Tables[0].Rows[i]["ResponsiblePersonCode"].ToString(),
+                        NumberOfPassengers = dsRef.Tables[0].Rows[i]["NumberOfPassengers"].ToString(),
+                        RequisitionStatus = dsRef.Tables[0].Rows[i]["RequisitionStatus"].ToString(),
+                        ApprovedBy = dsRef.Tables[0].Rows[i]["ApprovedBy"].ToString(),
+                        RejectBy = dsRef.Tables[0].Rows[i]["RejectBy"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         #endregion Vehicle Requisition
     }
 
@@ -6169,6 +6279,41 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+    }
+
+    public class VehicleCreation
+    {
+        public string Id { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string PersonalOfficial { get; set; }
+        public string PurposeId { get; set; }
+        public string Purpose { get; set; }
+        public string Remarks { get; set; }
+        public string EmployeeName { get; set; }
+        public string ResponsiblePersonCode { get; set; }
+        public string NumberOfPassengers { get; set; }
+    }
+
+    public class VehicleStatus
+    {
+        public string Id { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string PersonalOfficial { get; set; }
+        public string PurposeId { get; set; }
+        public string Purpose { get; set; }
+        public string Remarks { get; set; }
+        public string EmployeeName { get; set; }
+        public string ResponsiblePersonCode { get; set; }
+        public string NumberOfPassengers { get; set; }
+        public string RequisitionStatus { get; set; }
+        public string ApprovedBy { get; set; }
+        public string RejectBy { get; set; }
     }
     #endregion vehicle
 
