@@ -5241,7 +5241,6 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
                 return MasterId;
 
             }
@@ -5257,35 +5256,42 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             {
                 DataSet dsMaster;
                 string TableName = "TRN.VehicleMovementRequisitionChild";
+                string Id = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<VehicleChild> items = DataToSave.ToList();
 
+                foreach (VehicleChild item in DataToSave)
+                {
+                    Id += ",'" + item.Id + "'";
+                }
+
                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
 
                 foreach (VehicleChild item in DataToSave)
                 {
-
-                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
+
 
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-
-
                         dr["Id"] = _Id;
                         dr["VehicleMovementRequisitionId"] = item.VehicleMovementRequisitionId;
                         dr["FromLocationId"] = item.FromLocationId;
-                        dr["ToLocation"] = item.ToLocation;
+                        dr["ToLocationId"] = item.ToLocationId;
                         dr["WithoutPassenger"] = item.WithoutPassenger;
                         dr["Remarks"] = item.Remarks;
 
                         dr["AddedBy"] = item.AddedBy;
                         dr["AddedFromIP"] = item.AddedFromIP;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
+
 
 
                         dsMaster.Tables[0].Rows.Add(dr);
@@ -5309,6 +5315,223 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         }
 
 
+        public string PostUpdateVehicleRequisition(IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<Vehicle> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["FromDate"] = item.FromDate;
+                        dr["ToDate"] = item.ToDate;
+                        dr["FromTime"] = item.FromTime;
+                        dr["ToTime"] = item.ToTime;
+                        dr["PersonalOfficial"] = item.PersonalOfficial;
+                        dr["PurposeId"] = item.PurposeId;
+                        dr["Name"] = item.Name;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["Remarks"] = item.Remarks;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string PostCancelVehicleRequisition(IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<Vehicle> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["FromDate"] = item.FromDate;
+                        dr["ToDate"] = item.ToDate;
+                        dr["FromTime"] = item.FromTime;
+                        dr["ToTime"] = item.ToTime;
+                        dr["PersonalOfficial"] = item.PersonalOfficial;
+                        dr["PurposeId"] = item.PurposeId;
+                        dr["Name"] = item.Name;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["Remarks"] = item.Remarks;
+                        dr["isCancel"] = item.isCancel;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        #region commit
+        /* public string PostVehicleRequisitionChild(IEnumerable<VehicleChild> DataToSave , string MasterId)
+         {
+             try
+             {
+                 DataSet dsMaster;
+                 string TableName = "TRN.VehicleMovementRequisitionChild";
+                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                 if (DataToSave.Count() == 0)
+                     return "";
+                 List<VehicleChild> items = DataToSave.ToList();
+
+                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                 int ccount = 0;
+
+                 foreach (VehicleChild item in DataToSave)
+                 {
+                     DataView dv = new DataView(dsMaster.Tables[0]);
+                     dv.RowFilter = "Id='" + item.Id + "'";
+
+                     if(dv.Count == 0)
+                     {
+                         ccount++;
+                         item.Id = MakePK(MasterId, ccount , 2);
+                         AddNewRowD(dsMaster.Tables[0], item);
+                     }
+
+
+
+                    *//* dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                     if (dsMaster.Tables[0].Rows.Count == 0)
+                     {
+                         DataRow dr = dsMaster.Tables[0].NewRow();
+
+                         bplib.clsGenID genid = new bplib.clsGenID();
+                         genid.GenID(TableName, out string _Id);
+
+
+
+                         dr["Id"] = _Id;
+                         dr["VehicleMovementRequisitionId"] = item.VehicleMovementRequisitionId;
+                         dr["FromLocationId"] = item.FromLocationId;
+                         dr["ToLocationId"] = item.ToLocationId;
+                         dr["WithoutPassenger"] = item.WithoutPassenger;
+                         dr["Remarks"] = item.Remarks;
+
+                         dr["AddedBy"] = item.AddedBy;
+                         dr["AddedFromIP"] = item.AddedFromIP;
+                         dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                         dsMaster.Tables[0].Rows.Add(dr);
+                         AddNewRowD(dsMaster.Tables[0] , dr);
+
+
+                     }*//*
+
+
+                 }
+                 clsStaticInfo _info = new clsStaticInfo();
+                 _info.SaveDataSets(dsMaster);
+                 string MasterIds = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                 return MasterIds;
+
+             }
+             catch (Exception ex)
+             {
+                 return ex.ToString();
+             }
+
+         }*/
+
+        /* private void AddNewRowD(DataTable dt, Dictionary<string, object> sourceData)
+         {
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+             DataRow dr = dt.NewRow(); foreach (var item in sourceData.Keys)
+             {
+                 try
+                 {
+                     dr[item] = sourceData[item];
+                 }
+                 catch (Exception)
+                 {
+                 }
+             }
+             dr["AddedBy"] = identity.Name;
+             dr["AddedDate"] = System.DateTime.Now.ToString();
+             dr["AddedFromIP"] = identity.IPAddress;
+             dr["UpdatedBy"] = identity.Name;
+             dr["UpdatedDate"] = System.DateTime.Now.ToString();
+             dr["UpdatedFromIP"] = identity.IPAddress; dt.Rows.Add(dr);
+         }
+
+        private string MakePK(string masterId, int currentId, int padLeft)
+         {
+             return masterId + currentId.ToString().PadLeft(padLeft, '0');
+         }*/
+
+
+        #endregion commit
         public void GetVehicleLocation(out List<Default2> DataList , string ID)
         {
             clsConnectionManager objCon = null;
@@ -5318,7 +5541,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id as Value , StandardName as Name from HKP.LocationMaster where Id <> '" + ID + "'";
+                strSQL = @"select Id as Value , StandardName as Name from HKP.LocationMaster where Id <> '" + ID + "' order by StandardName";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5376,6 +5599,116 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                 objCon = null;
             }
         }
+
+
+        public void GetVehicleCreations(out List<VehicleCreation> DataList, string EmpsysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleCreation>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
+                    from[TRN].[VehicleMovementRequisition] VMR
+                    left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                    left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "' order by VMR.FromDate asc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleCreation
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        PersonalOfficial = dsRef.Tables[0].Rows[i]["PersonalOfficial"].ToString(),
+                        PurposeId = dsRef.Tables[0].Rows[i]["PurposeId"].ToString(),
+                        Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        ResponsiblePersonCode = dsRef.Tables[0].Rows[i]["ResponsiblePersonCode"].ToString(),
+                        NumberOfPassengers = dsRef.Tables[0].Rows[i]["NumberOfPassengers"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
+        public void GetVehiclestatus(out List<VehicleStatus> DataList, string EmpsysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleStatus>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
+                    ,RequisitionStatus = case when VMR.AppliedId is not null then 'Approved' 
+                    when VMR.IsReject = 1 then 'Reject'
+                    end, VT.AddedBy ApprovedBy
+                    , RejectBy = case when VMR.IsReject = 1 then VMR.UpdatedBy end
+                    from[TRN].[VehicleMovementRequisition] VMR
+                    left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
+                    left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+                    left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
+					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by VMR.FromDate asc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleStatus
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        PersonalOfficial = dsRef.Tables[0].Rows[i]["PersonalOfficial"].ToString(),
+                        PurposeId = dsRef.Tables[0].Rows[i]["PurposeId"].ToString(),
+                        Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
+                        Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        ResponsiblePersonCode = dsRef.Tables[0].Rows[i]["ResponsiblePersonCode"].ToString(),
+                        NumberOfPassengers = dsRef.Tables[0].Rows[i]["NumberOfPassengers"].ToString(),
+                        RequisitionStatus = dsRef.Tables[0].Rows[i]["RequisitionStatus"].ToString(),
+                        ApprovedBy = dsRef.Tables[0].Rows[i]["ApprovedBy"].ToString(),
+                        RejectBy = dsRef.Tables[0].Rows[i]["RejectBy"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         #endregion Vehicle Requisition
     }
 
@@ -6040,6 +6373,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string EmpSystemId { get; set; }
         public string NumberOfPassengers { get; set; }
         public string Remarks { get; set; }
+        public string isCancel { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }
@@ -6053,7 +6387,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string Id { get; set; }
         public string VehicleMovementRequisitionId { get; set; }
         public string FromLocationId { get; set; }
-        public string ToLocation { get; set; }
+        public string ToLocationId { get; set; }
         public string WithoutPassenger { get; set; }
         public string Remarks { get; set; }
         public string AddedBy { get; set; }
@@ -6062,6 +6396,41 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+    }
+
+    public class VehicleCreation
+    {
+        public string Id { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string PersonalOfficial { get; set; }
+        public string PurposeId { get; set; }
+        public string Purpose { get; set; }
+        public string Remarks { get; set; }
+        public string EmployeeName { get; set; }
+        public string ResponsiblePersonCode { get; set; }
+        public string NumberOfPassengers { get; set; }
+    }
+
+    public class VehicleStatus
+    {
+        public string Id { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string PersonalOfficial { get; set; }
+        public string PurposeId { get; set; }
+        public string Purpose { get; set; }
+        public string Remarks { get; set; }
+        public string EmployeeName { get; set; }
+        public string ResponsiblePersonCode { get; set; }
+        public string NumberOfPassengers { get; set; }
+        public string RequisitionStatus { get; set; }
+        public string ApprovedBy { get; set; }
+        public string RejectBy { get; set; }
     }
     #endregion vehicle
 

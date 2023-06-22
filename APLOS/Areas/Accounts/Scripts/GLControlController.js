@@ -8,7 +8,6 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'CreateGlControl';
-    $scope.saveConsumableUrl = $scope.path + 'CreateComsumable';
     $scope.saveMaterialUrl = $scope.path + 'CreateMaterial';
     $scope.deleteUrl = $scope.path + 'DeleteGlControl/';
     baseService.init($scope.getListUrl);
@@ -142,8 +141,9 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.selectExpenseGL(args.data.Id);
         $scope.GetMaterialData(args.data.Id);
+        $scope.selectExpenseGL(args.data.Id);
+        $scope.GetInventoryGL(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -163,23 +163,15 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             }
         }
 
-        var ConsumableList = [];
-        var ob = {};
-        for (var i = 0; i < $scope.ExpenseGLList.length; i++) {
-            ob.Id = null;
-            ob.GLGeneralInfoId = $scope.ExpenseGLList[i].GLGeneralInfoId;
-            ob.BudgetMasterId = $scope.ExpenseGLList[i].BudgetMasterId;
-            ob.ActivityId = $scope.ExpenseGLList[i].ActivityId;
-            ob.Type = $scope.ExpenseGLList[i].Type;
-            ConsumableList.push(ob);
-            ob = {};
-        }
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew, 'materialId': ids, 'materialList': $scope.MaterialDataList, 'consumableList': ConsumableList },
+                data: {
+                    'data': $scope.ModelNew, 'materialId': ids, 'materialList': $scope.MaterialDataList, 'type': $scope.tabType, 'consumableList': $scope.ExpenseGLList
+                    , 'inventoryList': $scope.InventoryGLList
+                },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -187,7 +179,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    //ClearFields(response.data.Sequence);
                     $scope.getData();
                     $scope.selectIDs();
                 }
@@ -232,6 +224,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.ModelNew.Sequence = seq;
         $scope.MaterialDataList = [];
         $scope.ExpenseGLList = [];
+        $scope.InventoryGLList = [];
     }
 
 
@@ -497,7 +490,9 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         serverPagination: true
     };
 
-    $scope.GetCOAICodeList = function () {
+    $scope.tabType = "";
+    $scope.GetCOAICodeList = function (data) {
+        $scope.tabType = data;
         $scope.GLUrl1 = "Accounts/glitem/GetAllGLBudgetActivityList";
         $scope.GetCOAICodeListData = function (pageno) {
             baseService.paginationBase($scope.GLUrl1, pageno, $scope.glListParameters)
@@ -536,17 +531,36 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     }
 
     $scope.setSelected = function (data) {
-        $scope.Type = "Consumable";
-        if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
-            $scope.ExpenseGLList.push({
-                GLGeneralInfoId: data.GLGeneralInfoId,
-                GLGeneralInfoName: data.GLGeneralInfoName,
-                BudgetMasterId: data.BudgetMasterId,
-                BudgetName: data.BudgetName,
-                ActivityName: data.ActivityName,
-                ActivityId: data.ActivityId,
-                Type: $scope.Type
-            });
+
+        if ($scope.tabType == 'consumableTab') {
+            $scope.Type = "Consumable";
+            if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
+                $scope.ExpenseGLList.push({
+                    Id: null,
+                    GLGeneralInfoId: data.GLGeneralInfoId,
+                    GLGeneralInfoName: data.GLGeneralInfoName,
+                    BudgetMasterId: data.BudgetMasterId,
+                    BudgetName: data.BudgetName,
+                    ActivityName: data.ActivityName,
+                    ActivityId: data.ActivityId,
+                    Type: $scope.Type
+                });
+            }
+        }
+        else {
+            $scope.Type = "Inventory";
+            if (checkConsumableExist($scope.InventoryGLList, data) === false) {
+                $scope.InventoryGLList.push({
+                    Id: null,
+                    GLGeneralInfoId: data.GLGeneralInfoId,
+                    GLGeneralInfoName: data.GLGeneralInfoName,
+                    BudgetMasterId: data.BudgetMasterId,
+                    BudgetName: data.BudgetName,
+                    ActivityName: data.ActivityName,
+                    ActivityId: data.ActivityId,
+                    Type: $scope.Type
+                });
+            }
         }
         $scope.closeCOAICodeListPopUp();
     };
@@ -567,95 +581,120 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         })
     }
 
-    //$scope.SaveConsumable = function () {
-    //    try {
-    //        var ConsumableList = [];
-    //        var ob = {};
-    //        for (var i = 0; i < $scope.ExpenseGLList.length; i++) {
-    //            ob.Id = null;
-    //            ob.GLGeneralInfoId = $scope.ExpenseGLList[i].GLGeneralInfoId;
-    //            ob.BudgetId = $scope.ExpenseGLList[i].BudgetMasterId;
-    //            ob.ActivityId = $scope.ExpenseGLList[i].ActivityId;
-    //            ConsumableList.push(ob);
-    //            ob = {};
-    //        }
-    //        if (ConsumableList.length == 0) {
-    //            throw "Please Select GL Control!";
-    //        }
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.saveConsumableUrl,
-    //            data: { 'ConsumableList': ConsumableList, 'glControlId': $scope.ModelNew.Id },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                $scope.Action = 'Update';
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
-
     $scope.tempIndex = [];
-    $scope.RemoveExpense = function (data, index) {
+    $scope.RemoveIndex = [];
+    $scope.RemoveExpense = function (data, index, removeRow) {
         $scope.tempIndex = index;
-        $scope.consumableId = data.Id;
+        $scope.RemoveIndex = removeRow;
+        if (data.Id != null) {
+            $scope.consumableId = data.Id;
+        }
+        else {
+            $scope.consumableId = "";
+        }
         if (baseService.isUndefinedOrNull(data.UserName))
             $scope.message_confirmation = 'Are you sure want to remove this data....';
         else
             $scope.message_confirmation = 'Are you sure want to remove ?';
         angular.element(document.querySelector('#confirmgenericPopUp')).modal('show');
     };
+
     $scope.RemoveRow = function () {
-        if (baseService.isUndefinedOrNull($scope.consumableId)) {
-            $scope.ExpenseGLList.splice($scope.tempIndex, 1);
-        }
-        else {
-            $http.get('Accounts/GeneralAccountDeterminate/DeleteConsumerable?Id=' + $scope.consumableId)
-                .then(function successCallback(response) {
+        if ($scope.RemoveIndex == 'consumableTabDel') {
+            if (baseService.isUndefinedOrNull($scope.consumableId)) {
+                $scope.ExpenseGLList.splice($scope.tempIndex, 1);
+            }
+            else {
+                $http({
+                    method: 'POST',
+                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
+                    data: { 'Id': $scope.consumableId },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
                     if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.selectExpenseGL();
-                        //$scope.ClearConsumable();
                     }
-                    function errorCallBack(response) {
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                $scope.ExpenseGLList.splice($scope.tempIndex, 1);
+            }
+
+        }
+
+        else {
+            if (baseService.isUndefinedOrNull($scope.consumableId)) {
+                $scope.InventoryGLList.splice($scope.tempIndex, 1);
+            }
+            else {
+                $http({
+                    method: 'POST',
+                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
+                    data: { 'Id': $scope.consumableId },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
                         ShowResult(response.data.Message, 'failure');
                     }
-                });
-        }
-    };
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                $scope.InventoryGLList.splice($scope.tempIndex, 1);
+            }
 
+        }
+
+    }
 
     $scope.selectExpenseGL = function (data) {
+        $scope.TabType = "Consumable";
         $http({
             method: 'POST',
             url: $scope.path + "GetConsumableData",
-            data: { 'glControlDetailId': data },
+            data: { 'glControlDetailId': data, 'type': $scope.TabType },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ExpenseGLList = response.data;
         })
     }
 
-    //$scope.ClearConsumable = function () {
-    //    $scope.Action = 'Save';
-    //    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    //    $scope.selectExpenseGL = [];
-    //    return true;
-    //};
+    $scope.InventoryGLList = [];
+    $scope.selectInventoryGLBudget = function (data) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetExpenseGLData",
+            data: {
+                'glId': data.GLGeneralInfoId,
+                'budgetId': data.BudgetMasterId,
+                'activityId': data.ActivityId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.InventoryGLList = response.data;
+        })
+    }
 
 
-    // #endregion --------------------------------- Expense  -----------------------------------//
+    $scope.GetInventoryGL = function (data) {
+        $scope.TabType = "Inventory";
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetConsumableData",
+            data: { 'glControlDetailId': data, 'type': $scope.TabType },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.InventoryGLList = response.data;
+        })
+    }
+
+    // #endregion --------------------------------- Inventory  -----------------------------------//
+
 
 
 }

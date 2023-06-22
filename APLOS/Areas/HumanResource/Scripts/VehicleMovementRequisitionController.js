@@ -112,8 +112,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         });
     }
 
-    
-    
+   
 
     $scope.compareDate = function (getdate) {
         var today = new Date();
@@ -431,5 +430,34 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         }).render();
     }
     // #endregion Requisition Status
-    
+
+    $scope.RquisitionCancellation = function () {
+
+    }
+
+    $scope.RquisitionCancellation = function () {
+        if (!baseService.isUndefinedOrNull($scope.VehicleRequisitionModel.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'deleteVehicleRequisition',
+                data: { 'id': $scope.VehicleRequisitionModel.Id},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFieldsMovement();
+                    $scope.GetVehicleRequisitiontData();
+                    
+                   
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
 }

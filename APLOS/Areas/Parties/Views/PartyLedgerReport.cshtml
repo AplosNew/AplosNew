@@ -19,6 +19,7 @@
                                         <select name="Party Type" class="form-control" submit-required="true" ng-change="changePartyType();" ng-model="report.PartyType" required>
                                             <option label="Customer" value="Customer" selected="selected">Customer</option>
                                             <option label="Vendor" value="Vendor">Vendor</option>
+                                            <option label="Director" value="Director">Director</option>
                                         </select>
                                     </div>
                                 </div>
@@ -130,9 +131,10 @@
                                 <label class="col-sm-3 control-label">Party Type<sup>*</sup></label>
                                 <div class="col-sm-9 show-message">
                                     <div class="select-style">
-                                        <select name="Party Type" class="form-control" submit-required="true"  ng-model="reportPG.PartyType" required>
+                                        <select name="Party Type" class="form-control" submit-required="true" ng-model="reportPG.PartyType" required>
                                             <option label="Customer" value="Customer" selected="selected">Customer</option>
                                             <option label="Vendor" value="Vendor">Vendor</option>
+                                            <option label="Director" value="Director">Director</option>
                                         </select>
                                     </div>
                                 </div>

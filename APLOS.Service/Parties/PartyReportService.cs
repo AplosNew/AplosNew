@@ -1013,13 +1013,13 @@ namespace Library.Service.Parties
         private List<Dictionary<string, object>> GetPartyOpeningBalance(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string partyType)
         {
             string tempPartyType = null;
-            if (partyType == "Vendor" || partyType == "Customer")
+            if (partyType == "Vendor" || partyType == "Customer" || partyType == "Director")
             {
                 tempPartyType = partyType;
             }
             if (partyType == null || partyType == "null")
             {
-                tempPartyType = "Vendor" + "','" + "Customer";
+                tempPartyType = "Vendor" + "','" + "Customer" + "','" + "Director";
             }
             var sql = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                         SELECT SUM(DrAmount) - SUM(CrAmount) AS OB, CompanyCurrencyId, SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyCurrencyOB FROM (
@@ -1088,13 +1088,13 @@ namespace Library.Service.Parties
         private DataTable GetPartyPlantLedger(string companyGroupId, string companyId, string plantId, string partyId, string partyPlantId, string fromDate, string toDate, string glId, bool active, string gSTINId, string partyType)
         {
             string tempPartyType = null;
-            if (partyType == "Vendor" || partyType == "Customer")
+            if (partyType == "Vendor" || partyType == "Customer" || partyType == "Director")
             {
                 tempPartyType = partyType;
             }
             if (partyType == null || partyType == "null")
             {
-                tempPartyType = "Vendor" + "','" + "Customer";
+                tempPartyType = "Vendor" + "','" + "Customer" + "','" + "Director";
             }
             var cmdText = @"DECLARE @companyId VARCHAR(10)='" + companyId + @"';
                             SELECT REPLACE(CONVERT(VARCHAR(11), v.PostingDate, 106), ' ', '-') AS PostingDate, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate

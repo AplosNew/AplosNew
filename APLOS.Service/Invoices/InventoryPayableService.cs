@@ -241,7 +241,7 @@ namespace Library.Service.Invoices
                         IsSplit = voucherVM.IsSplit,
                         PartyId = voucherVM.PartyId,
                         PartyPlantId = voucherVM.PartyPlantId,
-                        PartyType = PartyType.Vendor.ToString(),
+                        PartyType = voucherVM.PartyType,
                         EmployeeId = voucherVM.EmployeeId,
                         PaymentTermId = voucherVM.PaymentTermId,
                         PostingDate = receiveData.GRNDate,

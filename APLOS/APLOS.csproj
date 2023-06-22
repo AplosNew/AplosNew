@@ -545,6 +545,7 @@
     <Compile Include="Areas\HumanResource\Controllers\BudgetReportMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DesignationSetupController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\HRReportMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\PlantInOutControllReportController.cs" />
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
@@ -2071,6 +2072,7 @@
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeAttendanceReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\HRReportMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\PlantInOutControllReport.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryProcessedReportComController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleInOutController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementController.js" />
@@ -4720,6 +4722,7 @@
     <Content Include="Areas\Productions\Views\WorkCenterQualityControlMaster\AplosWC.cshtml" />
     <Content Include="Areas\Productions\Views\WorkCenterQualityControlMaster\Report.cshtml" />
     <Content Include="Areas\Materials\Views\QRCodeGenerator\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PlantInOutControllReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
