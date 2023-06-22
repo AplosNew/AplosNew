@@ -1,0 +1,121 @@
+﻿'use strict';
+QRCodeGeneratorController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
+function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
+    $rootScope.title = "QR Code Generate";
+    $scope.Action = 'Save';
+    $scope.characterlist = [];
+    $scope.lengthCheck = false;
+    $scope.index = -1;
+    $scope.path = 'Materials/QRCodeGenerator/';
+    $scope.getSeqUrl = $scope.path + 'getautosequence';
+    $scope.getListUrl = $scope.path + 'getlist';
+    $scope.getUrl = $scope.path + 'get';
+    $scope.saveUrl = $scope.path + 'create';
+    $scope.updateUrl = $scope.path + 'edit';
+    $scope.deleteUrl = $scope.path + 'delete/';
+
+    $scope.POList = [];
+    $scope.GetPO = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetPO",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.POList = response.data;
+
+        });
+    }
+    $scope.GetPO();
+
+    $scope.ArticleList = [];
+    $scope.GetArticle = function (args) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetArticle",
+            data: { 'poid': args.value },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ArticleList = response.data;
+            if ($scope.ArticleList.length == 1) {
+                $scope.QRCodeGenerateModel.Article = response.data[0].Value;
+                $scope.GetProductCode(response.data[0].Value);
+            }
+            
+
+        });
+    }
+
+    $scope.ProductCodeList = [];
+    $scope.GetProductCode = function (articleid) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetProductCode",
+            data: { 'articleid': articleid },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ProductCodeList = response.data;
+            if ($scope.ProductCodeList.length == 1) {
+                $scope.QRCodeGenerateModel.ProductCode = response.data[0].Value ;
+                $scope.GetShade(response.data[0].Value);
+            }
+
+        });
+    }
+
+    $scope.ShadeList = [];
+    var ShadeText = null;
+    $scope.GetShade = function (prodId) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetShade",
+            data: { 'prodId': prodId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ShadeList = response.data;
+            if ($scope.ShadeList.length == 1) {
+                $scope.QRCodeGenerateModel.Shade = response.data[0].Value ;
+            }
+            ShadeText = response.data[0].Text;
+
+        });
+    }
+
+    $scope.QRCodeGeneratorTemp = {
+        Id: null,
+        PO: null,
+        ProductCode:null,
+        Article: null,
+        Shade: null,
+        LOT: null,
+       
+        NumberOfCones: null,
+        NetWeight: null
+    }
+    $scope.QRCodeGenerateModel = Object.assign({}, $scope.QRCodeGeneratorTemp);
+
+    $scope.downloadgriddataUrlPath = 'GridReports/PPTFileDownLoad';
+    $scope.SendDataToGenerateQR = function () {
+        $scope.fileName = "QRCode.pptx";
+        $http({
+            method: 'POST',
+            url: $scope.path + "GenerateQRCode",
+            data: {
+                'data': $scope.QRCodeGenerateModel,
+                'ShadeText': ShadeText
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //ShowResult(response.data.Message, 'success');
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FileName=" + response.data.FileName);//downloadgriddataUrlPath
+            }
+
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+
+        }
+    }
+}

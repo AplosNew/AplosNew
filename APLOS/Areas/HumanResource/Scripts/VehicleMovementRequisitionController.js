@@ -105,25 +105,25 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RequisitionList = response.data;
+            $scope.GetToLocationList(response.data.FromLocationId);
             //$scope.ToLocationListBasedOnFromLoc($scope.FromLocationId);
             $scope.CreateBlankRows();
 
         });
     }
 
-    
-    
+   
 
-    $scope.compareDate = function () {
+    $scope.compareDate = function (getdate) {
         var today = new Date();
 
         var myToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-        if ($scope.VehicleRequisitionModel.FromDate < myToday) {
+        if (getdate < myToday) {
             
             throw ShowResult('Invalid Date, Past date is not allowed');
             
         }
-        if ($scope.VehicleRequisitionModel.ToDate < myToday) {
+        if (getdate < myToday) {
 
             throw ShowResult('Invalid Date, Past date is not allowed');
 
@@ -430,5 +430,34 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
         }).render();
     }
     // #endregion Requisition Status
-    
+
+    $scope.RquisitionCancellation = function () {
+
+    }
+
+    $scope.RquisitionCancellation = function () {
+        if (!baseService.isUndefinedOrNull($scope.VehicleRequisitionModel.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'deleteVehicleRequisition',
+                data: { 'id': $scope.VehicleRequisitionModel.Id},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFieldsMovement();
+                    $scope.GetVehicleRequisitiontData();
+                    
+                   
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
 }

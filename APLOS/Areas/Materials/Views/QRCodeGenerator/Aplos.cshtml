@@ -1,0 +1,86 @@
+﻿@*PO, Article, LOT, Product Code, No Of Cones, net weight*@
+<div>
+    <h4><span></span>QR Code Generator</h4>
+    <hr />
+</div>
+<div class="form-elements form-horizontal" ng-form name="QRCodeGenerateForm">
+    <input type="hidden" ng-model="QRCodeGenerateModel.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">PO</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <input id="PO" e-watermarktext="Type" ng-model="QRCodeGenerateModel.PO" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-change="GetArticle" e-datasource="POList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    </div>
+                    @* <input type="text" name="PO" ng-model="QRCodeGenerateModel.PO" class="form-control" tabindex="5" maxlength="50">*@
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Product Code</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="QRCodeGenerateModel.ProductCode" ng-change="GetShade(QRCodeGenerateModel.ProductCode)" name="ProductCode"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ProductCodeList" value="{{option.Value}}">{{option.Code}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">No. of Cones</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NumberOfCones" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Net Wt.</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Net Weight" ng-model="QRCodeGenerateModel.NetWeight" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Article</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="QRCodeGenerateModel.Article" ng-change="GetProductCode(QRCodeGenerateModel.Article)" name="Article"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ArticleList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Shade</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="QRCodeGenerateModel.Shade" name="Shade"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ShadeList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">LOT</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="LOT" ng-model="QRCodeGenerateModel.LOT" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="SendDataToGenerateQR();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Generate QR</button></li>
+
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>

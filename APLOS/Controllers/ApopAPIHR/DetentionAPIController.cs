@@ -612,43 +612,7 @@ namespace Aplos.Controllers.ApopAPIHR
         #endregion Attedance
 
 
-        //#region Aman c
-        //[HttpPost]
-        //public string PostUserinfo([FromBody] IEnumerable<Userinfo> DataToSave)
-        //{
-        //    try
-        //    {
-        //        //string Id = clsData.PostUserinfo(DataToSave);
-        //        return Id;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ex.ToString();
-
-        //    }
-        //}
-
-        //public List<Userinfo> GetUserinfo(string user, string password)
-        //{
-        //    clsDataContext clsData = new clsDataContext();
-        //    clsData.GetUserinfo(out List<Userinfo> activelists, user,password);
-        //    return activelists;
-        //}
-
-        //public List<Receiver> GetReceiver()
-        //{
-        //    clsDataContext clsData = new clsDataContext();
-        //    clsData.GetReceiver(out List<Receiver> activelists);
-        //    return activelists;
-        //}
-
-        //public List<Ambulance> Getambulance()
-        //{
-        //    clsDataContext clsData = new clsDataContext();
-        //    clsData.Getambulance(out List<Ambulance> activelists);
-        //    return activelists;
-        //}
-        //#endregion Aman c
+      
 
 
         #region Seven Days Attendance 
@@ -708,7 +672,7 @@ namespace Aplos.Controllers.ApopAPIHR
         }
         #endregion Budget Code Change 
 
-        // Location
+        // Location  
         public List<Default2> GetCartoonLocation()
         {
             clsDataContext clsData = new clsDataContext();
@@ -730,5 +694,93 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        #region VCehicle
+        public string PostVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostVehicleRequisition(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostVehicleRequisitionChild([FromBody] IEnumerable<VehicleChild> DataToSave )
+        {
+            try
+            {
+                string Id = clsData.PostVehicleRequisitionChild(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string PostUpdateVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateVehicleRequisition(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostCancelVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateVehicleRequisition(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public List<Default2> GetVehicleLocation(string ID)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleLocation(out List<Default2> activelists , ID);
+            return activelists;
+        }
+
+        public List<Default2> GetPurpose()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPurpose(out List<Default2> activelists);
+            return activelists;
+        }
+
+
+        public List<VehicleCreation> GetVehicleCreations(string EmpsysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleCreations(out List<VehicleCreation> activelists, EmpsysId);
+            return activelists;
+        }
+
+        public List<VehicleStatus> GetVehiclestatus(string EmpsysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehiclestatus(out List<VehicleStatus> activelists, EmpsysId);
+            return activelists;
+        }
+
+        #endregion VCehicle
+
     }
 }

@@ -347,4 +347,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             controller: 'InputConfirmationController'
         })
 
+        .when('/qrcode-generator', {
+            templateUrl: 'materials/QRCodeGenerator/Aplos',
+            controller: 'QRCodeGeneratorController'
+        })
+
 };

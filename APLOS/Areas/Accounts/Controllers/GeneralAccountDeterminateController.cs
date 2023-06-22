@@ -11,6 +11,7 @@ using Library.Service.Enums;
 using Library.Service.Logs;
 using Library.Service.Materials;
 using Library.Service.Setups;
+using Library.Service.Systems;
 using OTSBD;
 using System;
 using System.Collections.Generic;
@@ -34,11 +35,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
         private readonly ISqlRepository _sqlRepository;
         private readonly IMaterialMasterService _materialMasterService;
-
-        public GeneralAccountDeterminateController(IMaterialMasterService materialMasterService, ISqlRepository R)
+        private readonly IPKGeneratorService _pkGeneratorService;
+        public GeneralAccountDeterminateController(IMaterialMasterService materialMasterService, ISqlRepository R, IPKGeneratorService pkGeneratorService)
         {
             _materialMasterService = materialMasterService;
             _sqlRepository = R;
+            _pkGeneratorService = pkGeneratorService;
         }
 
         #endregion Constructor
@@ -210,11 +212,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult CreateGlControl(Dictionary<string, object> data, string materialId, List<Dictionary<string, object>> materialList, List<Dictionary<string, object>> consumableList)
+        public JsonResult CreateGlControl(Dictionary<string, object> data, string materialId, List<Dictionary<string, object>> materialList, string type, List<Dictionary<string, object>> consumableList, List<Dictionary<string, object>> inventoryList)
         {
             try
             {
-                DataSet dsMaster, dsMaterial, dsConsumable;
+                DataSet dsMaster, dsMaterial, dsConsumable, dsConsumableChile;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [MST].[GLControlMaster] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -233,15 +235,17 @@ namespace Aplos.Areas.Accounts.Controllers
                 string materialsql = "SELECT * FROM [MST].[MaterialMaster] WHERE Id  in (" + materialId + @")";
                 con.OpenDataSetThroughAdapter(materialsql, out dsMaterial, false, "1");
 
-                con.OpenDataSetThroughAdapter("select * from [MST].[GLControlDetail] where GLControlId='" + data["Id"] + "'", out dsConsumable, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[GLControlDetail] where  GLControlId='" + data["Id"] + "'", out dsConsumable, false, "1");
+               
+                string _detaliId =null;
 
                 string _Id = "";
+                bplib.clsGenID genid = new bplib.clsGenID();
 
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("[MST].[GLControlMaster]", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToString(),"GLControlMaster", out _Id);
 
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
@@ -277,21 +281,24 @@ namespace Aplos.Areas.Accounts.Controllers
                 #endregion data update
                 #endregion Material
 
+                string _IdM = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #region Consumable
-                int _IdCon = 0;
-                 
-                if (consumableList != null)
+
+                     genid.GenerateIDAuto("GLControlDetail", out _detaliId);
+                int detailidcount = 0;
+                if (inventoryList != null)
                 {
-                    foreach (var item in consumableList)
+                    foreach (var item in inventoryList)
                     {
-                        _IdCon++;
+
                         DataView dv = new DataView(dsConsumable.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
 
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = _IdCon;
+                            detailidcount++;
+                            item["Id"] = _detaliId+"-"+ detailidcount;
                             item["GLControlId"] = data["Id"];
                             AddNewRow(dsConsumable.Tables[0], item);
                         }
@@ -302,6 +309,32 @@ namespace Aplos.Areas.Accounts.Controllers
                         }
                     }
                 }
+
+                if (consumableList != null)
+                {
+                    foreach (var item in consumableList)
+                    {
+
+                        DataView dv = new DataView(dsConsumable.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            detailidcount++;
+                            item["Id"] = _detaliId + "-" + detailidcount;
+                            item["GLControlId"] = data["Id"];
+                            //item["Type"] = item["Type"];
+                            AddNewRow(dsConsumable.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
                 #endregion Consumable
 
                 clsStaticInfo _info = new clsStaticInfo();
@@ -437,61 +470,19 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
 
-        [HttpPost]
-        public JsonResult CreateComsumable(List<Dictionary<string, object>> ConsumableList, string glControlId)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                con.OpenDataSetThroughAdapter("select * from [MST].[GLControlDetail] where GLControlId='" + glControlId + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-                #region data update
-                foreach (var item in ConsumableList)
-                {
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("[MST].[GLControlDetail]", out _Id);
-
-                        item["Id"] = _Id;
-                        item["GLControlId"] = glControlId;
-                        AddNewRow(dsMaster.Tables[0], item);
-                    }
-                    else
-                    {
-                        _Id = item["Id"].ToString();
-                        EditRow(dsMaster.Tables[0].Rows[0], item);
-                    }
-                }
-                #endregion data update
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
-
-
         [Authorize]
-        public ActionResult GetConsumableData(string glControlDetailId)
+        public ActionResult GetConsumableData(string glControlDetailId, string type)
         {
             try
             {
-                var sql = @"select GLCD.Id GLControldetailId,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetMasterId
+                var sql = @"select GLCD.Id,GLCD.GLGeneralInfoId,glg.UserName GLGeneralInfoName,GLCD.BudgetMasterId
 						,B.UserName BudgetName,GLCD.ActivityId,A.UserName ActivityName
 						from mst.GLControldetail GLCD
 						left join [HKP].[GLGeneralInfo] glg on glg.Id=GLCD.GLGeneralInfoId
 						left join mst.BudgetMaster BM on BM.Id=GLCD.BudgetMasterId
 						left join HKP.Budget B on B.Id=BM.BudgetId
 						left join [HKP].[Activity] A on A.Id=GLCD.ActivityId
-						where GLCD.GLControlId= '" + glControlDetailId + "' ";
+						where GLCD.GLControlId= '" + glControlDetailId + "' and GLCD.Type = '" + type + "'";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -532,7 +523,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
         }
-
+        [HttpPost]
         public ActionResult DeleteConsumerable(string id)
         {
             string sql = @"select * from [MST].[GLControlDetail] where Id = '" + id + "'";

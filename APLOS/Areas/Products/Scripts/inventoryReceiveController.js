@@ -202,13 +202,15 @@ function inventoryReceiveController(accountService, addressService, $window, fac
         });
     }
 
+
+
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
     $scope.partyUrl = "";
     $scope.showPartyByGateEntryPopUpNew = function () {
-
-        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor' || $scope.partyType === 'Director') {
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataByGateEntryListNew?partyType=' + $scope.partyType;
         }
         else if ($scope.partyType === 'Party') {
@@ -672,6 +674,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
     $scope.Save = function () {
         //debugger;
         try {
+            $scope.productNew.PartyType = $scope.partyType;
             if ($scope.productNew.NoteForAccounts === '' || $scope.productNew.NoteForAccounts === null || $scope.productNew.NoteForAccounts === undefined) {
                 ShowResult("Enter Note for accounts", 'failure');
                 return false;

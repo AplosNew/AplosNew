@@ -212,6 +212,8 @@ namespace Aplos
                   "~/Areas/Materials/Scripts/DetentionLogoutController.js",
                   "~/Areas/Materials/Scripts/DetentionLogReportController.js",
                   "~/Areas/Employees/Scripts/myappEmployeeLedgerReportController.js",
+                  "~/Areas/HumanResource/Scripts/VehicleMovementRequisitionController.js",
+                  
 
 
                   "~/Scripts/MyApp/epanelApp.js"

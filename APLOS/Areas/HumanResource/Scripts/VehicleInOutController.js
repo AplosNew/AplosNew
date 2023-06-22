@@ -89,6 +89,27 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     };
     $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
 
+
+    $scope.ClearVehicleRequisition = function () {
+        ClearVehicleRequisitionFields();
+        return true;
+    };
+
+    function ClearVehicleRequisitionFields() {
+       
+        $scope.VehicleRequisitionModel = {
+            Id: null,
+            FromDate: null,
+            ToDate: null,
+            FromTime: null,
+            ToTime: null,
+            VehicleMasterId: null,
+            DriverMasterId: null,
+            FromLocation: null,
+        };
+        $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
+    }
+
     $scope.Get = function (args) {
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
         $scope.Action = 'Update';
@@ -185,6 +206,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'success');
                     ClearFieldsVehicleIN();
+                    ClearVehicleRequisitionFields();
                     $scope.VehicleInData();
 
                 }
@@ -229,7 +251,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             Id: null,
             InDate: null,
             InTime: null,
-            InKillometer: null,
+            InReading: null,
             Remarks: null
         };
         $scope.VehicleInModel = Object.assign({}, $scope.VehicleInTemp);
@@ -289,6 +311,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                 else {
                     ShowResult(response.data.Message, 'success');
                     ClearFieldsVehicleOut();
+                    ClearVehicleRequisitionFields();
                     $scope.VehicleOutData();
 
                 }
@@ -333,11 +356,24 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             Id: null,
             OutDate: null,
             OutTime: null,
-            OutKillometer: null,
+            OutReading: null,
             Remarks: null
         };
         $scope.VehicleOutModel = Object.assign({}, $scope.VehicleOutTemp);
     }
     //  #endregion VehicleOut
+
+    $scope.ReportDataList = [];
+    $scope.GetReportData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetReportData",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ReportDataList = response.data;
+
+        });
+    }
+    $scope.GetReportData();
 
 }

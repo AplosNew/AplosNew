@@ -18208,7 +18208,8 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
                 //                                    (MONTH(Convert(date, (ToDate) + 1)) = '" + para.Month + @"' and YEar(Convert(date, (ToDate) + 1)) = '" + para.Year + @"')
                 //)
                 //)";
-                wcEmpStatus = @"Where ISNULL(SPM.SalaryProcFlag,'') = 'MLV'";
+                //wcEmpStatus = @"Where ISNULL(SPM.SalaryProcFlag,'') = 'MLV'";
+                wcEmpStatus = @"Where ISNULL(SPM.SalaryProcFlag,'') = 'MLV_PRE'";
 
 
             }
