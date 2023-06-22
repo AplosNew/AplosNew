@@ -329,24 +329,25 @@
                 </div>
             </div>
         </div>
-        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
             <div class="table-responsive aplos-grid-toggle">
-                <div id="GridEdit" ej-grid e-datasource="ReportDataList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                <div id="GridEdit" ej-grid e-datasource="ReportDataList" e-load="loadGridEdit"
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
                         <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
-                        <div e-column e-field="Date" e-headertext="Date" e-width="100"></div>
+                        <div e-column e-field="FromLocation" e-headertext="From Location" e-width="100"></div>
+                        <div e-column e-field="ToLocation" e-headertext="To Location" e-width="100"></div>
+                        <div e-column e-field="OutDate" e-headertext="OutDate" e-width="100"></div>
+                        <div e-column e-field="InDate" e-headertext="InDate" e-width="100"></div>
+
                         <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
                         <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
 
-                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
-                        <div e-column e-field="EmployeeCurrentStatus" e-headertext="EmployeeCurrentStatus" e-width="100"></div>
-
-                        <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
-                        <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
-                        <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
-                        <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Requisition Created By" e-width="100"></div>
+                        <div e-column e-field="NumberOfPassengers" e-headertext="Number Of Passengers" e-width="100"></div>
+                        <div e-column e-field="VehicleNumber" e-headertext="Vehicle Number" e-width="100"></div>
+                        <div e-column e-field="DriverName" e-headertext="DriverName" e-width="100"></div>
                         <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
                         <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-width="100"></div>
                     </div>

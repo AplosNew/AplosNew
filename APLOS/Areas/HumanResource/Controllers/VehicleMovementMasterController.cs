@@ -631,7 +631,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            where VMR.AppliedId is null";
+                            where VMR.AppliedId is null and VMR.isCancel is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -651,7 +651,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId
-                    where EI.SystemId = '"+ userid + "'";
+                    where EI.SystemId = '"+ userid + "' and VMR.isCancel is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -670,7 +670,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     LEFT JOIN ORG.Department AS DEP ON DEP.Id = EI.DepartmentId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId
-                    where VMR.IsReject = 1";
+                    where VMR.IsReject = 1 and VMR.isCancel is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -710,6 +710,8 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
+                string getId = $"select Id from {TableName}";
+
                 string _Id = "";
 
                 #region data Master update
@@ -717,6 +719,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
+                    
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -829,8 +832,9 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from TRN.VehicleMovementRequisitionChild where VehicleMovementRequisitionId='" + id + "'");
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                //con.executeQuery("delete from TRN.VehicleMovementRequisitionChild where VehicleMovementRequisitionId='" + id + "'");
+                con.executeQuery("update TRN.VehicleMovementRequisition set isCancel = 1 where Id ='" + id + "'");
+                //con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
@@ -937,7 +941,7 @@ FromLocation = stuff((select ', ' + LM.UserName
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            where VMR.AppliedId is null and VMR.IsReject is null
+                            where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null
 							order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -952,7 +956,8 @@ FromLocation = stuff((select ', ' + LM.UserName
                         left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 						left join TRN.VehicleMovementRequisition VMR on VMR.AppliedId = VA.TripId
 						left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisitionId = VMR.Id
-						left join HKP.LocationMaster LM on LM.Id = VRC.FromLocationId";
+						left join HKP.LocationMaster LM on LM.Id = VRC.FromLocationId
+                        where VMR.isCancel is null";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
 

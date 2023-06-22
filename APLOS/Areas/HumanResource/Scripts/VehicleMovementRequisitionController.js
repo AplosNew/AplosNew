@@ -448,8 +448,10 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
+                    ClearFieldsMovement();
+                    $scope.GetVehicleRequisitiontData();
+                    
+                   
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
