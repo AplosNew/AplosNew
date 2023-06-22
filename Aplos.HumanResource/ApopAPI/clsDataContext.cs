@@ -5328,7 +5328,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
                 List<Vehicle> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + VehicleId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
                 {
@@ -5385,7 +5385,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
                 List<Vehicle> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + VehicleId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
                 {
