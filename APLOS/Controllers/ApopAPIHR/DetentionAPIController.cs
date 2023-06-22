@@ -723,6 +723,34 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        public string PostUpdateVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateVehicleRequisition(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostCancelVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateVehicleRequisition(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         public List<Default2> GetVehicleLocation(string ID)
         {
             clsDataContext clsData = new clsDataContext();
