@@ -1202,6 +1202,22 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.GetPOWiseData();
 
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (new Date(e.data.Date) == new Date()) {
+            e.row.css("background-color", '#FFFF00');
+        }
+        else if (new Date(e.data.Date) >= new Date()) {
+
+            e.row.css("background-color", '#FF0000');
+        }
+
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+    }
+
     $scope.productionSummaryNew.NewLotNumber = true;
     $scope.ShowLotNum = false;
     $scope.SetNewLotNumber = function () {
@@ -1757,6 +1773,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
         $scope.setTab(2);
+        $scope.getAllEntities();
         $scope.loadProcessList($scope.productionSummaryNew.EntityId);
         $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
         $scope.GetShiftList();

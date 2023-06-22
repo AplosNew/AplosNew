@@ -188,11 +188,13 @@
                      e-responsive="true"
                      e-allowselection="true"
                      e-filtersettings-filterType="excel"
-                     e-recorddoubleclick="SetPOSelectData">
+                     e-recorddoubleclick="SetPOSelectData"
+                     e-rowdatabound="rowDataBound">
                     <div e-columns>
                         <div e-column e-field="Date" e-headertext="Due Date" e-width="80"></div>
                         <div e-column e-type="datetime" e-field="QCTime" e-headertext="Due Time" e-width="80"></div>
-                        <div e-column e-field="QProcess" e-headertext="Q.Process" e-width="100"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                         <div e-column e-field="QIssue" e-headertext="Q.Issue" e-width="100"></div>
                         <div e-column e-field="ItemName" e-headertext="Item Name" e-width="100"></div>
                         <div e-column e-field="QCustomer" e-headertext="Q.Customer" e-width="200"></div>
