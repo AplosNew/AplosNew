@@ -5404,7 +5404,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["NumberOfPassengers"] = item.NumberOfPassengers;
                         dr["Remarks"] = item.Remarks;
-                        dr["isCancel"] = item.isCancel;
+                        dr["isCancel"] = true;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
