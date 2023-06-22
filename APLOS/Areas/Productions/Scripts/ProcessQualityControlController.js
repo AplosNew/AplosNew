@@ -10,7 +10,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.CriticalLevelLists = [];
     $scope.PeriodList = [];
     $scope.FrequencyList = [];
-    $scope.CriticalLevelLists = [];
+    $scope.DependentDateList = [];
     $scope.path = 'Productions/ProcessQualityControl/';
     $scope.saveUrlIssue = $scope.path + 'createIssue';
     $scope.saveUrlReason = $scope.path + 'createReason';
@@ -18,6 +18,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.saveUrlQICValue = $scope.path + 'create';
     $scope.saveUrlIssueItem = $scope.path + 'createIssueItem';
     $scope.saveUrlGrade = $scope.path + 'createGrade';
+    $scope.saveUrlPOQuality = $scope.path + 'createPOQuality';
     $scope.CriticalLevelLists = [
         {
             'Value': 'High',
@@ -74,46 +75,69 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
 
     $scope.FrequencyList = [
         {
-            'Value': 1,
+            'Value': '1',
             'Text': '1'
         },
         {
-            'Value': 2,
+            'Value': '2',
             'Text': '2'
         },
         {
-            'Value': 3,
+            'Value': '3',
             'Text': '3'
         },
         {
-            'Value': 4,
+            'Value': '4',
             'Text': '4'
         },
         {
-            'Value': 5,
+            'Value': '5',
             'Text': '5'
         },
         {
-            'Value': 6,
+            'Value': '6',
             'Text': '6'
         },
         {
-            'Value': 7,
+            'Value': '7',
             'Text': '7'
         },
         {
-            'Value': 8,
+            'Value': '8',
             'Text': '8'
         }
         ,
         {
-            'Value': 9,
+            'Value': '9',
             'Text': '9'
         }
         ,
         {
-            'Value': 10,
+            'Value': '10',
             'Text': '10'
+        }
+    ];
+
+    $scope.DependentDateList = [
+        {
+            'Value': 'ItemDate',
+            'Text': 'Item Date'
+        },
+        {
+            'Value': 'ExFactoryDate',
+            'Text': 'ExFactory Date'
+        },
+        {
+            'Value': 'PODate',
+            'Text': 'PO Date'
+        },
+        {
+            'Value': 'POStartDate',
+            'Text': 'PO Start Date'
+        },
+        {
+            'Value': 'POEndDate',
+            'Text': 'PO End Date'
         }
     ];
 
@@ -257,6 +281,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
 
     $scope.Issue = {
         Id: null,
+        EntityId: null,
         ProcessId: null,
         IssueName: null,
         DepartmentId: null,
@@ -289,6 +314,21 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         ToTime: null,
     };
     $scope.TimeNew = Object.assign({}, $scope.Time);
+
+    $scope.POQuality = {
+        Id: null,
+        IssueId: null,
+        SequenceNo: null,
+        Category: null,
+        DependentDate: null,
+        Legdays: null,
+        ResponsiblePersonId: null,
+        ResponsiblePerson: null,
+        PositionCodeId: null,
+        PositionCode: null,
+        Remarks: null
+    };
+    $scope.POQualityNew = Object.assign({}, $scope.POQuality);
 
     $scope.ProcessIssueList = [];
     $scope.GetProcessIssueList = function () {
@@ -332,6 +372,18 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     }
     $scope.LoadReasonDetails();
 
+    $scope.POQualityList = [];
+    $scope.LoadPOQualityDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadPOQualityDetails'
+        }).then(function successCallback(response) {
+            $scope.POQualityList = response.data;
+        }
+        )
+    }
+    $scope.LoadPOQualityDetails();
+
     $scope.GradeGridList = [];
     $scope.GetGradeGridList = function () {
         $http({
@@ -361,6 +413,19 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
             url: 'Productions/ProcessQualityControl/LoadReasonDetailsEditData?ReasonId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.ReasonNew = response.data.Reason[0];
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+        }
+        )
+    }
+
+    $scope.GetPOQualityDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadPOQualityDetailsEditData?PQPId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.POQualityNew = response.data.qualityplan[0];
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -413,6 +478,40 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     function ReasonClearFields() {
         $scope.Action = "Save";
         $scope.ReasonNew = Object.assign({}, $scope.Reason);
+    }
+
+    $scope.POQualitySave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.POQualityDetailsForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlPOQuality,
+                data: {
+                    'POQualityData': $scope.POQualityNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadPOQualityDetails();
+                    POQualityClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.POQualityClear = function () {
+        POQualityClearFields();
+    };
+
+    function POQualityClearFields() {
+        $scope.Action = "Save";
+        $scope.POQualityNew = Object.assign({}, $scope.POQuality);
     }
 
     $scope.TimeSave = function () {
@@ -575,7 +674,33 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     }
 
     $scope.closePositionCodePopUp = function () {
-        angular.element(document.querySelector('#ItemPositionCodePop')).modal('hide');
+        angular.element(document.querySelector('#PositionCodePop')).modal('hide');
+    }
+
+    $scope.selectPOPositionCode = function () {
+        $scope.getPOPositionCode();
+        angular.element(document.querySelector('#POPositionCodePop')).modal('show');
+    }
+
+    $scope.POPositionCodeList = [];
+    $scope.getPOPositionCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetPositionCode',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.POPositionCodeList = resp.data;
+        });
+    }
+
+    $scope.doublePOPositionCode = function (e) {
+        $scope.POQualityNew.PositionCodeId = e.data.Id;
+        $scope.POQualityNew.PositionCode = e.data.Code;
+        angular.element(document.querySelector('#POPositionCodePop')).modal('hide');
+    }
+
+    $scope.closePOPositionCodePopUp = function () {
+        angular.element(document.querySelector('#POPositionCodePop')).modal('hide');
     }
 
     $scope.selectItemPositionCode = function () {
@@ -615,6 +740,17 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     }
     $scope.GetIssueReasonList();
 
+    $scope.IssuePOQualityList = [];
+    $scope.GetIssuePOQualityList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/ProcessQualityControl/GetIssuePOQualityList'
+        }).then(function successCallback(response) {
+            $scope.IssuePOQualityList = response.data;
+        });
+    }
+    $scope.GetIssuePOQualityList();
+
     $scope.IssueList = [];
     $scope.LoadIssueDetails = function () {
         $http({
@@ -633,6 +769,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
             url: 'Productions/ProcessQualityControl/LoadIssueDetailsEditData?IssueId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.IssueNew = response.data.Issue[0];
+            $scope.loadProcessList($scope.IssueNew.EntityId);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -660,6 +797,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
                     $scope.GetIssueReasonList();
                     $scope.LoadTimeIssueListDetails();
                     $scope.LoadIssueItemIssueListDetails();
+                    $scope.GetIssuePOQualityList();
                     IssueClearFields();
                 }
             }), function errorCallBack(response) {
@@ -847,6 +985,36 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.LoadReasonDetails();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.removePOQualityModal = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempPOQualityId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemovePOQuality')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removePOQualityRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/ProcessQualityControl/POQualityDelete?id=' + $scope.tempPOQualityId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadPOQualityDetails();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1077,9 +1245,9 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         }).then(function successCallback(response) {
             $scope.entityList = response.data;
             if (baseService.arrayLength(response.data) === 1) {
-                $scope.productionSummaryNew.EntityId = $scope.entityList[0].Value;
+                $scope.IssueNew.EntityId = $scope.entityList[0].Value;
                 //default
-                $scope.loadProcessList($scope.productionSummaryNew.EntityId);
+                $scope.loadProcessList($scope.IssueNew.EntityId);
             }
         });
     }
@@ -1099,10 +1267,10 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         cboService.GetEntityProcessCbo(entityid, function (result) {
             $scope.processList = result;
             if (baseService.arrayLength(result) === 1) {
-                $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
+                $scope.IssueNew.ProcessId = $scope.processList[0].Value;
                 $scope.getProdLevel();
                 //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+                $scope.loadWC($scope.IssueNew.ProcessId, $scope.IssueNew.EntityId);
             }
         });
     };
@@ -3089,6 +3257,32 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
 
     $scope.closeResponsiblePersonPopUp = function () {
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.selectResponsible = function () {
+        $scope.getResponsible();
+        angular.element(document.querySelector('#ResponsiblePopup')).modal('show');
+    }
+
+    $scope.ResponsibleList = [];
+    $scope.getResponsible = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ResponsibleList = resp.data;
+        });
+    }
+
+    $scope.doubleResponsible = function (e) {
+        $scope.POQualityNew.ResponsiblePersonId = e.data.SystemId;
+        $scope.POQualityNew.ResponsiblePerson = e.data.EmployeeName;
+        angular.element(document.querySelector('#ResponsiblePopup')).modal('hide');
+    }
+
+    $scope.closeResponsiblePopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePopup')).modal('hide');
     }
 
     $scope.getSalesOrderPopUp = function (data) {

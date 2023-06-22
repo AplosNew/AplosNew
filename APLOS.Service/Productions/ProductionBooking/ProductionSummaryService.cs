@@ -628,13 +628,13 @@ where QII.IssueId='" + IssueId + "'";
             string QCProcess="",QCEntity="",QCIssue="",QCPONO="", QCDate="";
             if (ProcessId != "null")
             {
-                QCProcess = @"and QC.ProcessId='"+ ProcessId + "'";
+                QCProcess = @"and QID.ProcessId='"+ ProcessId + "'";
             }
             if (entityId != "null")
             {
-                QCEntity = @"and QC.EntityId='" + entityId + "'";
+                QCEntity = @"and QID.EntityId='" + entityId + "'";
             }
-            if (ProcessId != "null")
+            if (IssueId != "null")
             {
                 QCIssue = @"and QC.IssueId='" + IssueId + "'";
             }
@@ -644,17 +644,17 @@ where QII.IssueId='" + IssueId + "'";
             }
             if (Date != "null" && Date != "undefined")
             {
-                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between format(getdate(),'dd-MMM-yyyy') and '" + Date + "' or QCD.AddedDate is null)";
+                QCDate = @"and (format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy')  between format(getdate(),'dd-MMM-yyyy') and '" + Date + "'  or QII.ItemName is null)";
             }
             else
             {
-                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  = format(getdate(),'dd-MMM-yyyy') or QCD.AddedDate is null)";
+                QCDate = @"and (format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy')  = format(DATEADD(hour, 24, getdate()),'dd-MMM-yyyy') or QII.ItemName is null)";
             }
             var sql = @"select distinct 
-format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
-format(DATEADD(hour, QID.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCTime,
+format(DATEADD(hour, QII.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
+format(DATEADD(hour, QII.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCTime,
 QC.ProductionOrderId POId,QC.ProductionOrderId as PONO,E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,SD.SystemID ProductionShiftId,SD.ShiftDefinationName Shift,
-P.UserName QProcess,QID.Id IssueId,QID.IssueName QIssue,QII.ItemName,QCD.Value,QTD.Id PeriodId,
+QID.Id IssueId,QID.IssueName QIssue,QII.ItemName,QCD.Value,QTD.Id PeriodId,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as Period,
 QCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -685,8 +685,8 @@ left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join TRN.QualityControl QC on QC.IssueId=QID.Id
 left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
-left join org.Entity E on E.Id=QC.EntityId
-left join hkp.Process P on P.Id=QC.ProcessId
+left join org.Entity E on E.Id=QID.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
 LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
