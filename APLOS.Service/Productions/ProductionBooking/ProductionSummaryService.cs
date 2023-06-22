@@ -610,8 +610,13 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId)
+        public IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId, string POItemId)
         {
+            string QCItemId = "";
+            if (POItemId != "null")
+            {
+                QCItemId = @"and QII.Id='" + POItemId + "'";
+            }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
 QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
@@ -619,7 +624,7 @@ LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='"+ PId + @"' and QIC.Item
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
 left Join MST.QualityGradeDetails QGD ON QGD.Id=QIC.GradeId
 LEFT JOIN EmployeeInformation R ON  R.SystemId = QIC.ResponsiblePersonId
-where QII.IssueId='" + IssueId + "'";
+where QII.IssueId='" + IssueId + "' " + QCItemId +  " ";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -654,7 +659,7 @@ where QII.IssueId='" + IssueId + "'";
 format(DATEADD(hour, QII.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
 format(DATEADD(hour, QII.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCTime,
 QC.ProductionOrderId POId,QC.ProductionOrderId as PONO,E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,SD.SystemID ProductionShiftId,SD.ShiftDefinationName Shift,
-QID.Id IssueId,QID.IssueName QIssue,QII.ItemName,QCD.Value,QTD.Id PeriodId,
+QID.Id IssueId,QID.IssueName QIssue,QII.Id ItemId,QII.ItemName,QCD.Value,QTD.Id PeriodId,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as Period,
 QCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
