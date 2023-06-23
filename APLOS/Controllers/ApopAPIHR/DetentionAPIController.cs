@@ -741,7 +741,7 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             try
             {
-                string Id = clsData.PostUpdateVehicleRequisition(DataToSave, VehicleId);
+                string Id = clsData.PostCancelVehicleRequisition(DataToSave, VehicleId);
                 return Id;
             }
             catch (Exception ex)

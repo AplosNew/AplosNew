@@ -5630,6 +5630,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
                         ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
                         PersonalOfficial = dsRef.Tables[0].Rows[i]["PersonalOfficial"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
                         PurposeId = dsRef.Tables[0].Rows[i]["PurposeId"].ToString(),
                         Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
@@ -6406,6 +6407,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string FromTime { get; set; }
         public string ToTime { get; set; }
         public string PersonalOfficial { get; set; }
+        public string Name { get; set; }
         public string PurposeId { get; set; }
         public string Purpose { get; set; }
         public string Remarks { get; set; }
