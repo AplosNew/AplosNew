@@ -188,11 +188,13 @@
                      e-responsive="true"
                      e-allowselection="true"
                      e-filtersettings-filterType="excel"
-                     e-recorddoubleclick="SetPOSelectData">
+                     e-recorddoubleclick="SetPOSelectData"
+                     e-rowdatabound="rowDataBound">
                     <div e-columns>
                         <div e-column e-field="Date" e-headertext="Due Date" e-width="80"></div>
                         <div e-column e-type="datetime" e-field="QCTime" e-headertext="Due Time" e-width="80"></div>
-                        <div e-column e-field="QProcess" e-headertext="Q.Process" e-width="100"></div>
+                        <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                         <div e-column e-field="QIssue" e-headertext="Q.Issue" e-width="100"></div>
                         <div e-column e-field="ItemName" e-headertext="Item Name" e-width="100"></div>
                         <div e-column e-field="QCustomer" e-headertext="Q.Customer" e-width="200"></div>
@@ -320,8 +322,8 @@
                 <div class="form-group">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardLatestReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank">Latest Report</a></li>
-                            <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ProductionDate={{productionSummaryNew.ProductionDate}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a></li>
+                            @*<li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardLatestReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank">Latest Report</a></li>
+                            <li> <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/ProductionControl/GetProductionBookingJobCardReportView?EntityId={{productionSummaryNew.EntityId}}&ProcessId={{productionSummaryNew.ProcessId}}&ProductionDate={{productionSummaryNew.ProductionDate}}&ShiftId={{productionSummaryNew.ProductionShiftId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a></li>*@
                             <li> <button ng-click="masterGo(true);getProdLevel();GetReasonGridList();" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
                             <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
                         </ul>

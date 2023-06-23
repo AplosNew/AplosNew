@@ -920,7 +920,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     ShowResult(response.data.Message, 'success');
                 }
                 $scope.QCId = response.data.Data.Id;
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
@@ -1084,7 +1084,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
                 $scope.getProdLevel();
                 //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
             }
         });
     };
@@ -1176,7 +1176,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
-            $http.get('Productions/QualityControl/GetIssueCboQIC?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId + '&IssueId=' + $scope.productionSummaryNew.IssueId + '&PeriodId=' + $scope.productionSummaryNew.PeriodId + '&PId='+ $scope.QCId)
+            $http.get('Productions/QualityControl/GetIssueCboQIC?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&ProductionInChargeId=' + $scope.productionSummaryNew.ProductionInChargeId + '&IssueId=' + $scope.productionSummaryNew.IssueId + '&PeriodId=' + $scope.productionSummaryNew.PeriodId + '&PId=' + $scope.QCId + '&POItemId=' + $scope.POItemId)
                 .then(function (response) {
                     $scope.wcList = response.data;
                     for (var i = 0; i < $scope.wcList.length; i++) {
@@ -1201,6 +1201,22 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
     };
     $scope.GetPOWiseData();
+
+    $scope.rowDataBound = function rowDataBound(e) {
+
+        if (new Date(e.data.Date) == new Date()) {
+            e.row.css("background-color", '#FFFF00');
+        }
+        else if (new Date(e.data.Date) >= new Date()) {
+
+            e.row.css("background-color", '#d1e5ff');
+        }
+
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+    }
 
     $scope.productionSummaryNew.NewLotNumber = true;
     $scope.ShowLotNum = false;
@@ -1747,7 +1763,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
         $scope.GetQBookingLevel();
     }
-    
+    $scope.POItemId = null;
     $scope.SetPOSelectData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
@@ -1756,7 +1772,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.ProductionDate = $event.data.Date;
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
+        $scope.POItemId = $event.data.ItemId;
         $scope.setTab(2);
+        $scope.getAllEntities();
         $scope.loadProcessList($scope.productionSummaryNew.EntityId);
         $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
         $scope.GetShiftList();
@@ -2855,6 +2873,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         //$scope.productionSummaryNew = {};
         //$scope.productionSummaryNew.Active = true;
         $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy');
+        $scope.POItemId = null;
         //$scope.ProdQtyCount = 0;
         //$scope.TotalProductionBookingQty = 0;
         //$scope.TotalSalesOrderQty = 0;

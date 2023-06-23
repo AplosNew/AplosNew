@@ -99,6 +99,7 @@
         <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Time Details</a></li>
         <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="doc" role="tab" data-toggle="tab">Issue Item</a></li>
         <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" aria-controls="doc" role="tab" data-toggle="tab">Grade</a></li>
+        <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" aria-controls="doc" role="tab" data-toggle="tab">POQuality Plan</a></li>
     </ul>
 </div>
 <div class="tab-content">
@@ -302,8 +303,8 @@
         <div class="clearfix"></div>
         <div class="common-btn">
             <ul class="list-inline text-right">-->
-                @* <li><button ng-click="SaveMasterWC();" ng-show="IsVisible" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>*@
-                <!--<li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+    @* <li><button ng-click="SaveMasterWC();" ng-show="IsVisible" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>*@
+    <!--<li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
     </div>-->
@@ -311,13 +312,14 @@
         <div class="form-element-ctrl form-horizontal row" ng-form="IssueDetailsForm">
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" id="ProcessId" ng-model="IssueNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in ProcessIssueList" required>
+                            <select class="form-control" ng-model="IssueNew.EntityId" ng-change="loadProcessList(IssueNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
                                 <option value=""></option>
                             </select>
                         </div>
+
                     </div>
                 </div>
                 <div class="form-group" show-errors>
@@ -350,9 +352,13 @@
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Issue Name<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Issue Name" ng-model="IssueNew.IssueName" class="form-control" maxlength="100" required autocomplete="off">
+                        <div class="select-style">
+                            <select class="form-control" id="ProcessId" ng-model="IssueNew.ProcessId" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -379,6 +385,12 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Issue Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Issue Name" ng-model="IssueNew.IssueName" class="form-control" maxlength="100" required autocomplete="off">
+                    </div>
+                </div>
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Issue Type<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
@@ -424,6 +436,7 @@
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                 <div e-columns>
                     <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
                     <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
                     <div e-column e-field="IssueName" e-headertext="Issue Name" e-width="100"></div>
                     <div e-column e-field="IssueType" e-headertext="Issue Type" e-width="100"></div>
@@ -602,13 +615,13 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Max Value</label>
                     <div class="col-sm-8">
-                        <input type="number" name="Max" ng-model="IssueItemNew.Max" class="form-control"  maxlength="10" autocomplete="off">
+                        <input type="number" name="Max" ng-model="IssueItemNew.Max" class="form-control" maxlength="10" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Min Value</label>
                     <div class="col-sm-8">
-                        <input type="number" name="Min" ng-model="IssueItemNew.Min" class="form-control"  maxlength="10" autocomplete="off">
+                        <input type="number" name="Min" ng-model="IssueItemNew.Min" class="form-control" maxlength="10" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -680,7 +693,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Grade Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Grade Name"  ng-model="GradeNew.GradeName" class="form-control" required maxlength="100" autocomplete="off">
+                        <input type="text" name="Grade Name" ng-model="GradeNew.GradeName" class="form-control" required maxlength="100" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -694,7 +707,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Grade Value<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="GradeValue" ng-model="GradeNew.GradeValue" class="form-control" required  autocomplete="off">
+                        <input type="text" name="GradeValue" ng-model="GradeNew.GradeValue" class="form-control" required autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -718,6 +731,104 @@
             </div>
         </div>
     </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
+        <div class="form-element-ctrl form-horizontal row" ng-form="POQualityDetailsForm">
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Issue<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" id="IssueId" ng-model="POQualityNew.IssueId" name="IssueId" ng-options="item.Value as item.Text for item in IssuePOQualityList" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Dependent Date<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="POQualityNew.DependentDate" name="Dependent Date" required
+                                    ng-options="item.Value as item.Text for item in DependentDateList">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="col-sm-10" style="padding:0px;">
+                            <input type="text" name="Position Code" ng-disabled="true" ng-model="POQualityNew.PositionCode" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                        <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                            <button ng-click="selectPOPositionCode();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Sequence No<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Sequence No" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="POQualityNew.SequenceNo" e-width="100" required />
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Legdays<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" name="Legdays" ng-model="POQualityNew.Legdays" class="form-control" required maxlength="100" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="PORemarks" ng-model="POQualityNew.Remarks" class="form-control" maxlength="100" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Issue Category" ng-model="POQualityNew.Category" class="form-control" maxlength="100" required autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="col-sm-10" style="padding:0px;">
+                            <input type="text" name="Responsible Person" ng-disabled="true" ng-model="POQualityNew.ResponsiblePerson" class="form-control" maxlength="100" required autocomplete="off">
+                        </div>
+                        <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                            <button ng-click="selectResponsible();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="POQualitySave();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                        <li> <button ng-click="removePOQualityModal($index,POQualityNew.Id);" ng-disabled="POQualityNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete </button></li>
+                        <li> <button ng-click="POQualityClear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+                <div id="GridPOQuality" ej-grid e-datasource="POQualityList" e-recorddoubleclick="GetPOQualityDetails"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                        <div e-column e-field="IssueName" e-headertext="Issue Name" e-width="100"></div>
+                        <div e-column e-field="SequenceNo" e-headertext="Sequence No" e-width="100"></div>
+                        <div e-column e-field="Category" e-headertext="Category" e-width="100"></div>
+                        <div e-column e-field="DependentDate" e-headertext="Dependent Date" e-width="100"></div>
+                        <div e-column e-field="Legdays" e-headertext="Legdays" e-width="100"></div>
+                        <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+                        <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="100"></div>
+                        <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 </div>
 
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
@@ -727,8 +838,8 @@
     <div class="bounce2"></div>
     <div class="bounce3"></div>
 </div>
-<!-- #region Detention -->
-<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+<!--<!-- #region Detention -->
+<!--<div class="modal fade site-modal in" id="articlePoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">Detention<button type="button" class="close" data-dismiss="modal">&times;</button></div>
@@ -789,9 +900,9 @@
                              e-allowselection="true"
                              e-allowscrolling="true"
                              e-filtersettings-filterType="excel">
-                            <div e-columns>
+                            <div e-columns>-->
                                 @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryDetentionWC" e-template="#checkboxTemplateProductionSummaryDetentionWC" e-textalign="center" e-width="30"></div>*@
-                                <div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="false"></div>
+                                @*<div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="false"></div>
                                 <div e-column e-field="Sequence" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="EntityId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="ProcessId" e-headertext="Id" e-width="50" e-visible="false"></div>
@@ -870,7 +981,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>-->*@
 <!-- #endregion -->
 <div class="modal site-modal in" id="POItemPopup" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -1210,6 +1321,42 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="POPositionCodePop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">PositionCode List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an PositionCode</p>
+                        <div style="color:black;" id="GridPOPositionCode" ej-grid e-datasource="POPositionCodeList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doublePOPositionCode">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-visible="false" e-width="50"></div>
+                                <div e-column e-field="Code" e-headertext="Position Code" e-width="100"></div>
+                                <div e-column e-field="Position" e-headertext="Position" e-width="100"></div>
+                                <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closePOPositionCodePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <ej-dialog id="dialogSOItemsForProductionOrder" title=" Sales Order Detail" e-enablemodal="true" e-position-y="0" e-showoninit="false"
            e-target="#POItemPopup" e-minheight="200" e-width="900" e-open="enableBtn">
 
@@ -1538,10 +1685,46 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="ResponsiblePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Employee List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Employee</p>
+                        <div style="color:black;" id="GridResponsiblePopUp" ej-grid e-datasource="ResponsibleList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleResponsible">
+                            <div e-columns>
+                                <div e-column e-field="SystemId" e-headertext="Id" e-visible="false" e-width="120"></div>
+                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="50"></div>
+                                <div e-column e-field="Section" e-headertext="Section" e-width="120"></div>
+                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="120"></div>
+                                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="120"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeResponsiblePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <confirm-archive-generic modalid="confirmRemoveIssue" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeIssueRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveReason" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeReasonRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveTime" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeTimeRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveIssueItem" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeIssueItemRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveGrade" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeGradeRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRemovePOQuality" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removePOQualityRow();"></confirm-archive-generic>
 
 
