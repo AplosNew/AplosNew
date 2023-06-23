@@ -5710,6 +5710,117 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             }
         }
 
+
+
+        public void GetVehicleOutlist(out List<VehicleOutin> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleOutin>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleOutin
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        TripNumber = dsRef.Tables[0].Rows[i]["TripNumber"].ToString(),
+                        TripId = dsRef.Tables[0].Rows[i]["TripId"].ToString(),
+                        AppliedId = dsRef.Tables[0].Rows[i]["AppliedId"].ToString(),
+                        DriverMasterId = dsRef.Tables[0].Rows[i]["DriverMasterId"].ToString(),
+                        DriverName = dsRef.Tables[0].Rows[i]["DriverName"].ToString(),
+                        VehicleMasterId = dsRef.Tables[0].Rows[i]["VehicleMasterId"].ToString(),
+                        VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
+                        VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
+                        VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetVehiclInlist(out List<VehicleOutin> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleOutin>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is not null order by FromDate Desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleOutin
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        TripNumber = dsRef.Tables[0].Rows[i]["TripNumber"].ToString(),
+                        TripId = dsRef.Tables[0].Rows[i]["TripId"].ToString(),
+                        AppliedId = dsRef.Tables[0].Rows[i]["AppliedId"].ToString(),
+                        DriverMasterId = dsRef.Tables[0].Rows[i]["DriverMasterId"].ToString(),
+                        DriverName = dsRef.Tables[0].Rows[i]["DriverName"].ToString(),
+                        VehicleMasterId = dsRef.Tables[0].Rows[i]["VehicleMasterId"].ToString(),
+                        VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
+                        VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
+                        VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         #endregion Vehicle Requisition
     }
 
@@ -6433,6 +6544,25 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string RequisitionStatus { get; set; }
         public string ApprovedBy { get; set; }
         public string RejectBy { get; set; }
+    }
+
+    public class VehicleOutin
+    {
+        public string Id { get; set; }
+        public string VehicleMovementRequisitionId { get; set; }
+        public string TripNumber { get; set; }
+        public string TripId { get; set; }
+        public string AppliedId { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string DriverMasterId { get; set; }
+        public string DriverName { get; set; }
+        public string VehicleMasterId { get; set; }
+        public string VehicleNumber { get; set; }
+        public string VIOId { get; set; }
+        public string VehicleAllocationId { get; set; }
     }
     #endregion vehicle
 

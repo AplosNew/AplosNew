@@ -780,6 +780,21 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+
+        public List<VehicleOutin> GetVehicleOutlist()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleOutlist(out List<VehicleOutin> activelists);
+            return activelists;
+        }
+
+        public List<VehicleOutin> GetVehiclInlist()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehiclInlist(out List<VehicleOutin> activelists);
+            return activelists;
+        }
+
         #endregion VCehicle
 
     }
