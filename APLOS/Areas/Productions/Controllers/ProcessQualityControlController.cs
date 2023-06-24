@@ -159,10 +159,21 @@ where P.Active = 1";
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetIssuePOQualityList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,IssueName as Text from [MST].[QualityIssueDetails]";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult LoadIssueDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select ID.*,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,
+(select E.UserName from Org.Entity E where E.Id=ID.EntityId) as Entity,
 (select D.UserName from ORG.Department D where D.Id=ID.DepartmentId) as Department,
 (select P.Code from ORG.Position P where P.Id=ID.PositionCodeId) as PositionCode
 from [MST].[QualityIssueDetails] ID";
@@ -175,6 +186,7 @@ from [MST].[QualityIssueDetails] ID";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             string sql = @"select ID.*,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,
+(select E.UserName from Org.Entity E where E.Id=ID.EntityId) as Entity,
 (select D.UserName from ORG.Department D where D.Id=ID.DepartmentId) as Department,
 (select P.Code from ORG.Position P where P.Id=ID.PositionCodeId) as PositionCode
 from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
@@ -280,6 +292,29 @@ from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
         }
 
         [Authorize, HttpGet]
+        public ActionResult LoadPOQualityDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=QPD.IssueId) as IssueName,
+(select E.EmployeeName from EmployeeInformation E where E.SystemId=QPD.ResponsiblePersonId) as ResponsiblePerson,
+(select P.Code from ORG.Position P where P.Id=QPD.PositionCodeId) as PositionCode
+from [MST].[POQualityPlanDetails] QPD";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadPOQualityDetailsEditData(string PQPId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select *,(select ID.IssueName from [MST].[QualityIssueDetails] ID where ID.Id=QPD.IssueId) as IssueName,
+(select E.EmployeeName from EmployeeInformation E where E.SystemId=QPD.ResponsiblePersonId) as ResponsiblePerson,
+(select P.Code from ORG.Position P where P.Id=QPD.PositionCodeId) as PositionCode
+from [MST].[POQualityPlanDetails] QPD where QPD.Id='" + PQPId + @"'";
+            return Json(new { qualityplan = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult LoadReasonDetailsEditData(string ReasonId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -357,6 +392,72 @@ from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult POQualityDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [MST].[POQualityPlanDetails] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        public JsonResult createPOQuality(Dictionary<string, object> POQualityData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                //conRack.OpenDataSetThroughAdapter("select * from [MST].[POQualityPlanDetails] where ReasonName='" + ReasonData["ReasonName"] + "' and IssueId='" + ReasonData["IssueId"] + "'", out DataSet dsItemDetailsReasonNameValidation, false, "1");
+
+                DataSet dsPOQualityPlanDetailsDetails;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[POQualityPlanDetails] where Id='" + POQualityData["Id"] + "'", out dsPOQualityPlanDetailsDetails, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsPOQualityPlanDetailsDetails.Tables[0].Rows.Count == 0)
+                {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("POQualityPlanDetails", out _Id);
+                        _Id = "QPD" + _Id;
+                        POQualityData["Id"] = _Id;
+                        AddNewRow(dsPOQualityPlanDetailsDetails.Tables[0], POQualityData);
+                    
+                }
+                else
+                {
+                    _Id = POQualityData["Id"].ToString();
+                    EditRow(dsPOQualityPlanDetailsDetails.Tables[0].Rows[0], POQualityData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsPOQualityPlanDetailsDetails);
+
+                return Json(new { Error = false, Data = POQualityData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
             }
         }
 
@@ -1062,10 +1163,10 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId)
+        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId, string POItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId, POItemId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)

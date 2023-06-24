@@ -150,7 +150,7 @@ function inventoryIssueJournalController(cboService, commonMessage, $scope, $roo
         $scope.popUpParameters = {
             limit: 10,
             offset: 0,
-            order: 'DESC',
+            order: 'asc',
             sort: 'IssueDate',
             searchBy: "Id",
             pageSize: 10,

@@ -5314,6 +5314,122 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
         }
 
+
+        public string PostUpdateVehicleRequisition(IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<Vehicle> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["FromDate"] = item.FromDate;
+                        dr["ToDate"] = item.ToDate;
+                        dr["FromTime"] = item.FromTime;
+                        dr["ToTime"] = item.ToTime;
+                        dr["PersonalOfficial"] = item.PersonalOfficial;
+                        dr["PurposeId"] = item.PurposeId;
+                        dr["Name"] = item.Name;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["Remarks"] = item.Remarks;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string PostCancelVehicleRequisition(IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                //  string TableName = "dbo.AttdnProcessData";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<Vehicle> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["FromDate"] = item.FromDate;
+                        dr["ToDate"] = item.ToDate;
+                        dr["FromTime"] = item.FromTime;
+                        dr["ToTime"] = item.ToTime;
+                        dr["PersonalOfficial"] = item.PersonalOfficial;
+                        dr["PurposeId"] = item.PurposeId;
+                        dr["Name"] = item.Name;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["Remarks"] = item.Remarks;
+                        dr["isCancel"] = true;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         #region commit
         /* public string PostVehicleRequisitionChild(IEnumerable<VehicleChild> DataToSave , string MasterId)
          {
@@ -5425,7 +5541,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Id as Value , StandardName as Name from HKP.LocationMaster where Id <> '" + ID + "'";
+                strSQL = @"select Id as Value , StandardName as Name from HKP.LocationMaster where Id <> '" + ID + "' order by StandardName";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5499,7 +5615,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
-					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.AddedBy = '" + EmpsysId + "'";
+					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "' order by VMR.FromDate asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5514,6 +5630,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
                         ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
                         PersonalOfficial = dsRef.Tables[0].Rows[i]["PersonalOfficial"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
                         PurposeId = dsRef.Tables[0].Rows[i]["PurposeId"].ToString(),
                         Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
@@ -5555,7 +5672,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
-					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.AddedBy = '" + EmpsysId + "'";
+					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by VMR.FromDate asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -5579,6 +5696,117 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         RequisitionStatus = dsRef.Tables[0].Rows[i]["RequisitionStatus"].ToString(),
                         ApprovedBy = dsRef.Tables[0].Rows[i]["ApprovedBy"].ToString(),
                         RejectBy = dsRef.Tables[0].Rows[i]["RejectBy"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
+        public void GetVehicleOutlist(out List<VehicleOutin> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleOutin>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleOutin
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        TripNumber = dsRef.Tables[0].Rows[i]["TripNumber"].ToString(),
+                        TripId = dsRef.Tables[0].Rows[i]["TripId"].ToString(),
+                        AppliedId = dsRef.Tables[0].Rows[i]["AppliedId"].ToString(),
+                        DriverMasterId = dsRef.Tables[0].Rows[i]["DriverMasterId"].ToString(),
+                        DriverName = dsRef.Tables[0].Rows[i]["DriverName"].ToString(),
+                        VehicleMasterId = dsRef.Tables[0].Rows[i]["VehicleMasterId"].ToString(),
+                        VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
+                        VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
+                        VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetVehiclInlist(out List<VehicleOutin> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleOutin>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is not null order by FromDate Desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleOutin
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        TripNumber = dsRef.Tables[0].Rows[i]["TripNumber"].ToString(),
+                        TripId = dsRef.Tables[0].Rows[i]["TripId"].ToString(),
+                        AppliedId = dsRef.Tables[0].Rows[i]["AppliedId"].ToString(),
+                        DriverMasterId = dsRef.Tables[0].Rows[i]["DriverMasterId"].ToString(),
+                        DriverName = dsRef.Tables[0].Rows[i]["DriverName"].ToString(),
+                        VehicleMasterId = dsRef.Tables[0].Rows[i]["VehicleMasterId"].ToString(),
+                        VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
+                        VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
+                        VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
 
                     });
                 }
@@ -6257,6 +6485,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string EmpSystemId { get; set; }
         public string NumberOfPassengers { get; set; }
         public string Remarks { get; set; }
+        public string isCancel { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }
@@ -6289,6 +6518,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string FromTime { get; set; }
         public string ToTime { get; set; }
         public string PersonalOfficial { get; set; }
+        public string Name { get; set; }
         public string PurposeId { get; set; }
         public string Purpose { get; set; }
         public string Remarks { get; set; }
@@ -6314,6 +6544,25 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string RequisitionStatus { get; set; }
         public string ApprovedBy { get; set; }
         public string RejectBy { get; set; }
+    }
+
+    public class VehicleOutin
+    {
+        public string Id { get; set; }
+        public string VehicleMovementRequisitionId { get; set; }
+        public string TripNumber { get; set; }
+        public string TripId { get; set; }
+        public string AppliedId { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string DriverMasterId { get; set; }
+        public string DriverName { get; set; }
+        public string VehicleMasterId { get; set; }
+        public string VehicleNumber { get; set; }
+        public string VIOId { get; set; }
+        public string VehicleAllocationId { get; set; }
     }
     #endregion vehicle
 
