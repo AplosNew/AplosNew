@@ -5848,13 +5848,14 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is not null order 
 
 
                         dr["Id"] = _Id;
-                        dr["InDate"] = item.InDate;
+                        dr["VehicleAllocationId"] = item.VehicleAllocationId;
+                        dr["InDate"] = DBNull.Value;
                         dr["OutDate"] = item.OutDate;
-                        dr["InTime"] = item.InTime;
+                        dr["InTime"] = DBNull.Value;
                         dr["OutTime"] = item.OutTime;
-                        dr["InReading"] = item.InReading;
+                        dr["InReading"] = DBNull.Value;
                         dr["OutReading"] = item.OutReading;
-                        dr["InRemarks"] = item.InRemarks;
+                        dr["InRemarks"] = DBNull.Value;
                         dr["OutRemarks"] = item.OutRemarks;
 
                         dr["AddedBy"] = item.AddedBy;
@@ -5871,14 +5872,11 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is not null order 
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
+                        dr["VehicleAllocationId"] = item.VehicleAllocationId;
                         dr["InDate"] = item.InDate;
-                        dr["OutDate"] = item.OutDate;
                         dr["InTime"] = item.InTime;
-                        dr["OutTime"] = item.OutTime;
                         dr["InReading"] = item.InReading;
-                        dr["OutReading"] = item.OutReading;
                         dr["InRemarks"] = item.InRemarks;
-                        dr["OutRemarks"] = item.OutRemarks;
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedFromIP"] = "::1";
                         dr["UpdatedDate"] = DateTime.Now.ToString();
