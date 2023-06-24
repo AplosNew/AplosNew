@@ -5821,6 +5821,85 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is not null order 
             }
         }
 
+        public string PostVehicleInOutEntry(IEnumerable<VehicleInout> DataToSave , string VInOutId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.VehicleMovementInOut";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<VehicleInout> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementInOut where Id='" + VInOutId + "'", out dsMaster, false, "1");
+
+                foreach (VehicleInout item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = _Id;
+                        dr["InDate"] = item.InDate;
+                        dr["OutDate"] = item.OutDate;
+                        dr["InTime"] = item.InTime;
+                        dr["OutTime"] = item.OutTime;
+                        dr["InReading"] = item.InReading;
+                        dr["OutReading"] = item.OutReading;
+                        dr["InRemarks"] = item.InRemarks;
+                        dr["OutRemarks"] = item.OutRemarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = "::1";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["InDate"] = item.InDate;
+                        dr["OutDate"] = item.OutDate;
+                        dr["InTime"] = item.InTime;
+                        dr["OutTime"] = item.OutTime;
+                        dr["InReading"] = item.InReading;
+                        dr["OutReading"] = item.OutReading;
+                        dr["InRemarks"] = item.InRemarks;
+                        dr["OutRemarks"] = item.OutRemarks;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedFromIP"] = "::1";
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+
+                        dr.EndEdit();
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
         #endregion Vehicle Requisition
     }
 
@@ -6563,6 +6642,27 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is not null order 
         public string VehicleNumber { get; set; }
         public string VIOId { get; set; }
         public string VehicleAllocationId { get; set; }
+    }
+
+
+    public class VehicleInout
+    {
+        public string Id { get; set; }
+        public string VehicleAllocationId { get; set; }
+        public string InDate { get; set; }
+        public string OutDate { get; set; }
+        public string InTime { get; set; }
+        public string OutTime { get; set; }
+        public string InReading { get; set; }
+        public string OutReading { get; set; }
+        public string InRemarks { get; set; }
+        public string OutRemarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
     }
     #endregion vehicle
 
