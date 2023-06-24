@@ -5328,7 +5328,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
                 List<Vehicle> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + VehicleId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
                 {
@@ -5385,7 +5385,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
                 List<Vehicle> items = DataToSave.ToList();
 
-                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisitionChild where Id='" + VehicleId + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
                 {
@@ -5404,7 +5404,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["NumberOfPassengers"] = item.NumberOfPassengers;
                         dr["Remarks"] = item.Remarks;
-                        dr["isCancel"] = item.isCancel;
+                        dr["isCancel"] = true;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
@@ -5630,6 +5630,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
                         ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
                         PersonalOfficial = dsRef.Tables[0].Rows[i]["PersonalOfficial"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
                         PurposeId = dsRef.Tables[0].Rows[i]["PurposeId"].ToString(),
                         Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
                         Remarks = dsRef.Tables[0].Rows[i]["Remarks"].ToString(),
@@ -5706,6 +5707,194 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
             finally
             {
                 objCon = null;
+            }
+        }
+
+
+
+        public void GetVehicleOutlist(out List<VehicleOutin> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleOutin>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleOutin
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        TripNumber = dsRef.Tables[0].Rows[i]["TripNumber"].ToString(),
+                        TripId = dsRef.Tables[0].Rows[i]["TripId"].ToString(),
+                        AppliedId = dsRef.Tables[0].Rows[i]["AppliedId"].ToString(),
+                        DriverMasterId = dsRef.Tables[0].Rows[i]["DriverMasterId"].ToString(),
+                        DriverName = dsRef.Tables[0].Rows[i]["DriverName"].ToString(),
+                        VehicleMasterId = dsRef.Tables[0].Rows[i]["VehicleMasterId"].ToString(),
+                        VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
+                        VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
+                        VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetVehiclInlist(out List<VehicleOutin> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<VehicleOutin>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+, FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
+from TRN.VehicleTrip VT
+left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
+left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
+left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
+left join EmployeeInformation EI on EI.SystemId = DM.DriverId
+left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+where VIO.OutReading is not null and VA.Id is not null and VIO.Id is not null order by FromDate Desc";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new VehicleOutin
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
+                        ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
+                        FromTime = dsRef.Tables[0].Rows[i]["FromTime"].ToString(),
+                        ToTime = dsRef.Tables[0].Rows[i]["ToTime"].ToString(),
+                        TripNumber = dsRef.Tables[0].Rows[i]["TripNumber"].ToString(),
+                        TripId = dsRef.Tables[0].Rows[i]["TripId"].ToString(),
+                        AppliedId = dsRef.Tables[0].Rows[i]["AppliedId"].ToString(),
+                        DriverMasterId = dsRef.Tables[0].Rows[i]["DriverMasterId"].ToString(),
+                        DriverName = dsRef.Tables[0].Rows[i]["DriverName"].ToString(),
+                        VehicleMasterId = dsRef.Tables[0].Rows[i]["VehicleMasterId"].ToString(),
+                        VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
+                        VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
+                        VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostVehicleInOutEntry(IEnumerable<VehicleInout> DataToSave , string VInOutId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.VehicleMovementInOut";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<VehicleInout> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementInOut where Id='" + VInOutId + "'", out dsMaster, false, "1");
+
+                foreach (VehicleInout item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = _Id;
+                        dr["VehicleAllocationId"] = item.VehicleAllocationId;
+                        dr["InDate"] = DBNull.Value;
+                        dr["OutDate"] = item.OutDate;
+                        dr["InTime"] = DBNull.Value;
+                        dr["OutTime"] = item.OutTime;
+                        dr["InReading"] = DBNull.Value;
+                        dr["OutReading"] = item.OutReading;
+                        dr["InRemarks"] = DBNull.Value;
+                        dr["OutRemarks"] = item.OutRemarks;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = "::1";
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+                    else
+                    {
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                        dr["VehicleAllocationId"] = item.VehicleAllocationId;
+                        dr["InDate"] = item.InDate;
+                        dr["InTime"] = item.InTime;
+                        dr["InReading"] = item.InReading;
+                        dr["InRemarks"] = item.InRemarks;
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedFromIP"] = "::1";
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+
+                        dr.EndEdit();
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
             }
         }
 
@@ -6406,6 +6595,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string FromTime { get; set; }
         public string ToTime { get; set; }
         public string PersonalOfficial { get; set; }
+        public string Name { get; set; }
         public string PurposeId { get; set; }
         public string Purpose { get; set; }
         public string Remarks { get; set; }
@@ -6431,6 +6621,48 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         public string RequisitionStatus { get; set; }
         public string ApprovedBy { get; set; }
         public string RejectBy { get; set; }
+    }
+
+    public class VehicleOutin
+    {
+        public string Id { get; set; }
+        public string VehicleMovementRequisitionId { get; set; }
+        public string TripNumber { get; set; }
+        public string TripId { get; set; }
+        public string AppliedId { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string DriverMasterId { get; set; }
+        public string DriverName { get; set; }
+        public string VehicleMasterId { get; set; }
+        public string VehicleNumber { get; set; }
+        public string VIOId { get; set; }
+        public string VehicleAllocationId { get; set; }
+    }
+
+
+    public class VehicleInout
+    {
+        public string Id { get; set; }
+        public string VehicleAllocationId { get; set; }
+        public string InDate { get; set; }
+        public string OutDate { get; set; }
+        public string InTime { get; set; }
+        public string OutTime { get; set; }
+        public string InReading { get; set; }
+        public string OutReading { get; set; }
+        public string InRemarks { get; set; }
+        public string OutRemarks { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+
     }
     #endregion vehicle
 

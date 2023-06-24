@@ -17,6 +17,7 @@ using System.Data;
 using OTSBD;
 using System.Linq;
 using Syncfusion.XlsIO;
+using Syncfusion.Pdf;
 
 #endregion Using
 
@@ -93,7 +94,13 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.HumanResource.Payroll.PayrollReportsService service = new Library.HumanResource.Payroll.PayrollReportsService();
-                service.LeaveRegisterFormInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, year, empId, reportType);
+
+                var fileName = "LeaveRegisterForm" + identity.PlantId;
+                var workbook = service.LeaveRegisterFormInMSWord(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, year, empId, reportType);
+
+                workbook.Save(fileName + ".pdf", HttpContext.ApplicationInstance.Response, HttpReadType.Save);
+
+                return null;
             }
             catch (Exception ex)
             {
