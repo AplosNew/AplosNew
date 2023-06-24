@@ -37,6 +37,7 @@ using Library.HumanResource.Leave;
 using Syncfusion.DocIO.DLS;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
+using Syncfusion.Pdf;
 
 #endregion Using
 
@@ -22351,11 +22352,29 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
         #endregion form18
 
         #region Leave register form
-        public void LeaveRegisterFormInMSWord(string companyGroupId, string companyId, string plantId, string year, string empId, string reportType)
+        public PdfDocument LeaveRegisterFormInMSWord(string companyGroupId, string companyId, string plantId, string year, string empId, string reportType)
         {
             try
             {
-                CreateLeaveRegisterFormInWord(companyGroupId, companyId, plantId, year, empId, reportType);
+                //CreateLeaveRegisterFormInWord(companyGroupId, companyId, plantId, year, empId, reportType);
+
+                ConvertExcelToImage convertExcelToImage = null;
+                var excelEngine = new ExcelEngine();
+                var report = new ReportUtility();
+                IApplication application = null;
+                application = excelEngine.Excel;
+                var workbook = report.GetWorkbook(ref excelEngine, 1);
+                workbook = application.Workbooks.Create(2);
+                var sheet1 = workbook.Worksheets[0];
+                var sheet2 = workbook.Worksheets[1];
+                //workbook = CreateIDCardSheet(ref sheet1, ref sheet2, report, "IDCARD", "IDCARD", empId, companyGroupId, companyId, plantId, tempId, empType, reportType, issuDate, workTypeId);
+                workbook = CreateLeaveRegisterFormInWord(companyGroupId, companyId, plantId, year, empId, reportType);
+                //return workbook;
+                List<IWorkbook> workbookList = new List<IWorkbook>();
+                workbookList.Add(workbook);
+                convertExcelToImage = new ConvertExcelToImage(workbookList, 85f, 54f);
+                PdfDocument doc = convertExcelToImage.ConvertToPdf(10f);
+                return doc;
             }
             catch (Exception ex)
             {
@@ -22365,7 +22384,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             }
         }
 
-        private void CreateLeaveRegisterFormInWord(string companyGroupId, string companyId, string plantId, string year, string empId, string reportType)
+        private IWorkbook CreateLeaveRegisterFormInWord(string companyGroupId, string companyId, string plantId, string year, string empId, string reportType)
         {
             try
             {
@@ -22401,7 +22420,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
 
                 };
 
-                fileName = "LeaveRegisterForm" + plantId + ".docx";
+                fileName = "LeaveRegisterForm" + plantId + ".xlsx";
                 strPath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), /*"IDCardBengali.xlsx"*/fileName);  // IDCardEng.xlsx
                 File = fileName;
                 if (!System.IO.File.Exists(strPath))
@@ -22426,7 +22445,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 }
                 else
                 {
-                    File = "LeaveRegisterForm" + plantId + ".docx";
+                    File = "LeaveRegisterForm" + plantId + ".xlsx";
                     filepath = Path.Combine(ResourcesPathReader.GetConfirmationLetterPath(), File);
                 }
 
@@ -22453,121 +22472,175 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
                 DataTable dtClanderYear = GetCurrentClanderYear(plantId);
 
                 ////A opens input document.
-                WordDocument document = new WordDocument(DocFile.FullName);
+                //WordDocument document = new WordDocument(DocFile.FullName);
 
-                TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
-                Dictionary<string, int> replaced = new Dictionary<string, int>();
+                //TextSelection[] allresult = document.FindAll(new Regex("{.*?}"));
+                //Dictionary<string, int> replaced = new Dictionary<string, int>();
 
-                string value = "";
-                foreach (TextSelection item in allresult)
-                {
-                    string foundText = item.SelectedText;
+                //string value = "";
+                //foreach (TextSelection item in allresult)
+                //{
+                //    string foundText = item.SelectedText;
 
-                    if (replaced.ContainsKey(foundText) == false)
-                        replaced.Add(foundText, 0);
+                //    if (replaced.ContainsKey(foundText) == false)
+                //        replaced.Add(foundText, 0);
 
-                    //for fixed info
-                    string colName = foundText.Trim().Replace("{", "").Replace("}", "");
-                    if (dtEmp.Columns.Contains(colName))
-                    {
-                        if (IsDefLan == true)
-                        {
-                            if (IsDefLan == true)
-                            {
-                                colName = GetBasicInfoInDefaultLng(colName);
-                            }
-                        }
-                        ///=====
-                        value = dtEmp.Rows[0][dtEmp.Columns[colName].ColumnName].ToString();
+                //    //for fixed info
+                //    string colName = foundText.Trim().Replace("{", "").Replace("}", "");
+                //    if (dtEmp.Columns.Contains(colName))
+                //    {
+                //        if (IsDefLan == true)
+                //        {
+                //            if (IsDefLan == true)
+                //            {
+                //                colName = GetBasicInfoInDefaultLng(colName);
+                //            }
+                //        }
+                //        ///=====
+                //        value = dtEmp.Rows[0][dtEmp.Columns[colName].ColumnName].ToString();
 
-                        if (bplib.clsWebLib.IsNumeric(value))
-                            replaced[foundText] = document.Replace(foundText, cnDgt(value, tempId), false, true);
-                        else if (bplib.clsWebLib.IsDateOK(value))
-                            replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, tempId), false, true);
-                        else
-                            replaced[foundText] = document.Replace(foundText, value, false, true);
-                    }
+                //        if (bplib.clsWebLib.IsNumeric(value))
+                //            replaced[foundText] = document.Replace(foundText, cnDgt(value, tempId), false, true);
+                //        else if (bplib.clsWebLib.IsDateOK(value))
+                //            replaced[foundText] = document.Replace(foundText, GetFormatedDate(value, tempId), false, true);
+                //        else
+                //            replaced[foundText] = document.Replace(foundText, value, false, true);
+                //    }
 
-                }
+                //}
 
                 //document.Replace("{Date}", GetFormatedDate(System.DateTime.Now.ToString("dd-MMM-yyyy"), lang["Language"].ToString()), false, true);
-                WSection section = document.Sections[0];
+                //WSection section = document.Sections[0];
                 //WTable wTable = (WTable)section.Body.Tables[0];
 
-                #region LeaveInformation
+                //#region LeaveInformation
 
-                WTable table3 = (WTable)section.Body.Tables[1];
-                WTableRow copiedRow3 = table3.Rows[2].Clone();
-                WTableRow row3;
+                //WTable table3 = (WTable)section.Body.Tables[1];
+                //WTableRow copiedRow3 = table3.Rows[2].Clone();
+                //WTableRow row3;
 
+                //for (int i = 0; i < dtClanderYear.Rows.Count; i++)
+                //{
+                //    DataTable dtloadLeaveTransactions = LeaveSummaryForServiceBook(empId, dtClanderYear.Rows[i]["YearNo"].ToString());
+                //    DataTable dtLoadLeave = loadBf(empId, dtClanderYear.Rows[i]["Id"].ToString());
+
+                //    for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)
+                //    {
+
+                //        if (ROW > 0)
+                //        {
+                //            row3 = copiedRow3.Clone();
+                //            table3.Rows.Add(row3);
+                //        }
+
+                //        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString()))
+                //        {
+                //            table3.Replace("{FromDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString(), tempId), false, true);
+                //        }
+
+                //        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString()))
+                //        {
+                //            table3.Replace("{ToDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString(), tempId), false, true);
+                //        }
+
+
+                //        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString()))
+                //        {
+                //            table3.Replace("{LeaveDays}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString(), tempId), false, true);
+                //        }
+
+                //        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString()))
+                //        {
+                //            table3.Replace("{Balance}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString(), tempId), false, true);
+                //        }
+                //        if (i == 0)
+                //        {
+                //            if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString()))
+                //            {
+                //                table3.Replace("{EncashmentDayNo}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString(), tempId), false, true);
+                //            }
+
+                //            if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString()))
+                //            {
+                //                table3.Replace("{EncashmentDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString(), tempId), false, true);
+                //            }
+                //        }
+
+                //    }
+                //}
+
+                //foreach (string item in replaced.Keys)
+                //{
+                //    if (replaced[item] == 0)
+                //        document.Replace(item, "", false, true);
+
+                //}
+
+                //#endregion
+
+
+
+
+
+
+
+                string fileNames = "Leave Register Form.xlsx";
+
+                //document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                //document.Close();
+
+                ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2013;
+                IWorkbook workbook1 = null;
+                IWorksheet sheet = null;
+
+                workbook1 = excelEngine.Excel.Workbooks.Open(strPath, ExcelOpenType.Automatic, ExcelVersion.Excel2013);
                 for (int i = 0; i < dtClanderYear.Rows.Count; i++)
                 {
                     DataTable dtloadLeaveTransactions = LeaveSummaryForServiceBook(empId, dtClanderYear.Rows[i]["YearNo"].ToString());
-                    DataTable dtLoadLeave = loadBf(empId, dtClanderYear.Rows[i]["Id"].ToString());
+                    sheet = workbook1.Worksheets[0];
+                    int COL = 9;
+                    int ROW = 1;
 
-                    for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)
-                    {
+                    sheet.HideColumn(COL);
+                    
+                        FormatTextBox(ref sheet, "FromDate", dtloadLeaveTransactions.Rows[0]["FromDate"].ToString(), 11, ExcelKnownColors.Red);
+                        FormatTextBox(ref sheet, "ToDate", dtloadLeaveTransactions.Rows[0]["ToDate"].ToString(), 10, ExcelKnownColors.Black);
+                        FormatTextBox(ref sheet, "LeaveDays", dtloadLeaveTransactions.Rows[0]["Availed"].ToString(), 11, ExcelKnownColors.Black);
+                        FormatTextBox(ref sheet, "Balance", dtloadLeaveTransactions.Rows[0]["Balance"].ToString(), 11, ExcelKnownColors.Black);
+                        FormatTextBox(ref sheet, "EncashmentDayNo", dtloadLeaveTransactions.Rows[0]["EncashmentDayNo"].ToString(), 11, ExcelKnownColors.Black);
+                        FormatTextBox(ref sheet, "EncashmentDate", dtloadLeaveTransactions.Rows[0]["EncashmentDate"].ToString(), 11, ExcelKnownColors.Black);
 
-                        if (ROW > 0)
-                        {
-                            row3 = copiedRow3.Clone();
-                            table3.Rows.Add(row3);
-                        }
-
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString()))
-                        {
-                            table3.Replace("{FromDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["FromDate"].ToString(), tempId), false, true);
-                        }
-
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString()))
-                        {
-                            table3.Replace("{ToDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["ToDate"].ToString(), tempId), false, true);
-                        }
-
-
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString()))
-                        {
-                            table3.Replace("{LeaveDays}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["Availed"].ToString(), tempId), false, true);
-                        }
-
-                        if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString()))
-                        {
-                            table3.Replace("{Balance}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["Balance"].ToString(), tempId), false, true);
-                        }
-                        if (i == 0)
-                        {
-                            if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString()))
-                            {
-                                table3.Replace("{EncashmentDayNo}", cnDgt(dtloadLeaveTransactions.Rows[ROW]["EncashmentDayNo"].ToString(), tempId), false, true);
-                            }
-
-                            if (!string.IsNullOrEmpty(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString()))
-                            {
-                                table3.Replace("{EncashmentDate}", GetFormatedDate(dtloadLeaveTransactions.Rows[ROW]["EncashmentDate"].ToString(), tempId), false, true);
-                            }
-                        }
-
-                    }
+                    workbook1.Version = ExcelVersion.Excel2013;
                 }
-
-                foreach (string item in replaced.Keys)
-                {
-                    if (replaced[item] == 0)
-                        document.Replace(item, "", false, true);
-
-                }
-
-                #endregion
-
-                string fileNames = "Leave Register Form.docx";
-
-                document.Save(fileNames, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
-                document.Close();
+                return workbook1;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+
+        }
+
+        private void FormatTextBox(ref IWorksheet sheet, string TextBoxName, string Text, float FontSize, ExcelKnownColors FontColor)
+        {
+            Text = Text == "" ? " " : Text;
+
+            //ITextBoxShape textbox = sheet.TextBoxes[TextBoxName];
+            ////textbox.Text = Text;
+            //IRichTextString rtf = textbox.RichText;
+            Syncfusion.XlsIO.IFont font = sheet.Workbook.CreateFont();
+            font.Color = FontColor;
+            font.Size = FontSize;
+            //font.Bold = true;
+
+            font.FontName = "Kalpurush";
+            //rtf.SetFont(0, textbox.Text.Length, font);
+
+            //textbox.RichText = rtf;
+            //textbox.Fill.ForeColor = Color.White;
+            //textbox.Fill.BackColor = Color.Gold;
 
         }
 
