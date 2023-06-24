@@ -5729,7 +5729,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
+where VIO.OutReading is not null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
