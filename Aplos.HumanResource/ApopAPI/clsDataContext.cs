@@ -6663,6 +6663,8 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is not null order 
         public string UpdatedBy { get; set; }
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
+
+
     }
     #endregion vehicle
 
