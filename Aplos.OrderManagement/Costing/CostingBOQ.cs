@@ -59,7 +59,7 @@ namespace Library.OrderManagement.Costing
                              cm.Id, cm.CostingItemId, cm.Consumption,uom.UserName AS UOM,CM.GrossConsumption,CM.GrossAmount,
                             ci.UserName AS ItemDescription,
                                    CM.[Description], CM.SourcingType, CM.Remarks,ei.EmployeeName AS ResponsiblePerson,
-                                   mm.UserName AS Material,mma.StandardName AS Article
+                                   mm.UserName AS Material,mma.StandardName AS Article,CM.BOQCriteria,CM.POCriteria
                               FROM OrderProcurementCostingDirectMaterial AS CM
 	                         INNER JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=cm.OrderCostingMasterTemplateId
                             INNER JOIN trn.SalesOrder AS so ON  so.Id='" + SalesOrderId + @"' --and so.MasterOrderItemId=moi.id
@@ -86,7 +86,7 @@ namespace Library.OrderManagement.Costing
                              cm.Id, cm.CostingItemId, cm.Consumption,uom.UserName AS UOM,CM.GrossConsumption,CM.GrossAmount,
                             ci.UserName AS ItemDescription,
                                    CM.[Description], CM.SourcingType, CM.Remarks,ei.EmployeeName AS ResponsiblePerson,
-                                   mm.UserName AS Material,mma.StandardName AS Article
+                                   mm.UserName AS Material,mma.StandardName AS Article,CM.BOQCriteria,CM.POCriteria
                               FROM OrderProcurementCostingDirectMaterial AS CM
                          INNER JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=cm.OrderCostingMasterTemplateId
                             INNER JOIN trn.SalesOrder AS so ON  so.Id='" + SalesOrderId + @"' and so.MasterOrderItemId=moi.id
@@ -115,7 +115,7 @@ namespace Library.OrderManagement.Costing
                              cm.Id, cm.CostingItemId, cm.Consumption,uom.UserName AS UOM,CM.GrossConsumption,CM.GrossAmount,
                             ci.UserName AS ItemDescription,
                                    CM.[Description], CM.SourcingType, CM.Remarks,ei.EmployeeName AS ResponsiblePerson,
-                                   mm.UserName AS Material,mma.StandardName AS Article
+                                   mm.UserName AS Material,mma.StandardName AS Article,CM.BOQCriteria,CM.POCriteria
                               FROM OrderPreCostingDirectMaterial AS CM
                          INNER JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=cm.OrderCostingMasterTemplateId
                             INNER JOIN trn.SalesOrder AS so ON  so.Id='" + SalesOrderId + @"' and so.MasterOrderItemId=moi.id
