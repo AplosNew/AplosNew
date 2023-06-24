@@ -795,6 +795,21 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+
+        public string PostVehicleInOutEntry([FromBody] IEnumerable<VehicleInout> DataToSave, string VInOutId)
+        {
+            try
+            {
+                string Id = clsData.PostVehicleInOutEntry(DataToSave, VInOutId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         #endregion VCehicle
 
     }
