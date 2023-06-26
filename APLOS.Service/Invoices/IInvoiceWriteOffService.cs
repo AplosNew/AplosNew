@@ -31,7 +31,7 @@ namespace Library.Service.Invoices
         void InsertInvoiceWriteOffDetail(InvoiceWriteOff invoiceWriteOff, InvoiceWriteOffDetail invoiceWriteOffDetail, int currentId);
 
         string InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList);
+            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> existingLoanList);
         string InsertInvoiceToAcceptancePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList);
 
