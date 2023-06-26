@@ -3206,6 +3206,12 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetPOCompleteIssueList()
+        {
+            string sql = @"SELECT distinct ID.Id [Value],ID.IssueName [Text] FROM [MST].[QualityIssueDetails] ID";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetPOList(string IssueId)
         {
             string sql = @"SELECT distinct QC.ProductionOrderId [Value],QC.ProductionOrderId [Text] FROM TRN.QualityControl QC
