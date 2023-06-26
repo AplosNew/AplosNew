@@ -144,6 +144,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.GetMaterialData(args.data.Id);
         $scope.selectExpenseGL(args.data.Id);
         $scope.GetInventoryGL(args.data.Id);
+        $scope.GetInventoryCapitalGL(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -170,7 +171,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 url: $scope.saveUrl,
                 data: {
                     'data': $scope.ModelNew, 'materialId': ids, 'materialList': $scope.MaterialDataList, 'type': $scope.tabType, 'consumableList': $scope.ExpenseGLList
-                    , 'inventoryList': $scope.InventoryGLList
+                    , 'inventoryList': $scope.InventoryGLList, 'inventoryCapitalList': $scope.InventoryCapitalGLList
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -225,6 +226,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.MaterialDataList = [];
         $scope.ExpenseGLList = [];
         $scope.InventoryGLList = [];
+        $scope.InventoryCapitalGLList = [];
     }
 
 
@@ -547,10 +549,25 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 });
             }
         }
-        else {
+        else if ($scope.tabType == 'inventoryTab'){
             $scope.Type = "Inventory";
             if (checkConsumableExist($scope.InventoryGLList, data) === false) {
                 $scope.InventoryGLList.push({
+                    Id: null,
+                    GLGeneralInfoId: data.GLGeneralInfoId,
+                    GLGeneralInfoName: data.GLGeneralInfoName,
+                    BudgetMasterId: data.BudgetMasterId,
+                    BudgetName: data.BudgetName,
+                    ActivityName: data.ActivityName,
+                    ActivityId: data.ActivityId,
+                    Type: $scope.Type
+                });
+            }
+        }
+        else {
+        $scope.Type = "inventoryCapital";
+            if (checkConsumableExist($scope.InventoryCapitalGLList, data) === false) {
+                $scope.InventoryCapitalGLList.push({
                     Id: null,
                     GLGeneralInfoId: data.GLGeneralInfoId,
                     GLGeneralInfoName: data.GLGeneralInfoName,
@@ -600,7 +617,32 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     };
 
     $scope.RemoveRow = function () {
-        if ($scope.RemoveIndex == 'consumableTabDel') {
+        if ($scope.RemoveIndex == 'inventoryTabDel'){
+            if (baseService.isUndefinedOrNull($scope.consumableId)) {
+                $scope.InventoryGLList.splice($scope.tempIndex, 1);
+            }
+            else {
+                $http({
+                    method: 'POST',
+                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
+                    data: { 'Id': $scope.consumableId },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                $scope.InventoryGLList.splice($scope.tempIndex, 1);
+            }
+
+        }
+
+        else if ($scope.RemoveIndex == 'consumableTabDel') {
             if (baseService.isUndefinedOrNull($scope.consumableId)) {
                 $scope.ExpenseGLList.splice($scope.tempIndex, 1);
             }
@@ -645,7 +687,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
                 }
-                $scope.InventoryGLList.splice($scope.tempIndex, 1);
+                $scope.InventoryCapitalGLList.splice($scope.tempIndex, 1);
             }
 
         }
@@ -690,6 +732,19 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.InventoryGLList = response.data;
+        })
+    }
+
+    $scope.InventoryCapitalGLList = [];
+    $scope.GetInventoryCapitalGL = function (data) {
+        $scope.TabType = "InventoryCapital";
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetConsumableData",
+            data: { 'glControlDetailId': data, 'type': $scope.TabType },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.InventoryCapitalGLList = response.data;
         })
     }
 

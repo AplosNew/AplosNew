@@ -44,6 +44,8 @@ namespace Library.Service.Productions
         IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string HeaderResponsiblePersonId, string IssueId, string PeriodId, string PId, string POItemId);
 
         IEnumerable<object> GetPOWiseData(string ProcessId, string entityId, string POId, string Date, string POStatus, string CustomerId, string IssueId);
+
+        IEnumerable<object> GetQCComplete(string IssueId, string todate, string fromDate, string POId);
         IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId);
         void Save(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd);
         void DeleteDetail(string masterid);

@@ -985,11 +985,22 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetPOCompleteIssueList()
+        {
+            return Json(_productionSummaryData.GetPOCompleteIssueList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetPOList(string IssueId)
         {
             return Json(_productionSummaryData.GetPOList(IssueId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetPOCompleteList(string IssueId)
+        {
+            return Json(_productionSummaryData.GetPOList(IssueId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetPeriodList(string IssueId)
@@ -1083,6 +1094,13 @@ where PO.ID= '" + POId + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_ProductionSummaryService.GetPOWiseData(processid, entityId, POId, Date, POStatus, CustomerId, IssueId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult LoadQCComplete(string IssueId, string todate, string fromDate, string POId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetQCComplete(IssueId, todate, fromDate, POId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

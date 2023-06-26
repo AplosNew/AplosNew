@@ -16,6 +16,13 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.saveUrlIssueItem = $scope.path + 'createIssueItem';
     $scope.saveUrlGrade = $scope.path + 'createGrade';
     $scope.saveUrl = $scope.path + 'createQC';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
+
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    date.setDate(date.getDate() + 7);
+    var CurrentDate = new Date();
+
     $scope.CriticalLevelLists = [
         {
             'Value': 'High',
@@ -64,7 +71,30 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.GradeNew = Object.assign({}, $scope.Grade);
 
+    $scope.POComplete = {
+        Id: null,
+        //FromDate: $filter('dateFiltering')(CurrentDate, 'dd-MM-yyyy'),
+        //ToDate: $filter('dateFiltering')(date, 'dd-MM-yyyy'),
+        FromDate: null,
+        ToDate: null,
+        POIssueId: null,
+        POId: null
+    };
+    $scope.POCompleteNew = Object.assign({}, $scope.POComplete);
 
+    $scope.QCCompleteList = [];
+    $scope.View = function () {
+        try {
+            $scope.QCCompleteList = [];
+            $http.get('Productions/QualityControl/LoadQCComplete?IssueId=' + $scope.POCompleteNew.POIssueId + '&todate=' + $scope.POCompleteNew.ToDate + '&fromDate=' + $scope.POCompleteNew.FromDate + '&POId=' + $scope.POCompleteNew.POId)
+                .then(function (response) {
+                    $scope.QCCompleteList = response.data;
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    
     $scope.GeneratItemSequenceNo = function () {
         $http({
             method: 'GET',
@@ -1204,12 +1234,12 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.rowDataBound = function rowDataBound(e) {
 
-        if (new Date(e.data.Date) == new Date()) {
+        if (e.data.Date == $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')) {
             e.row.css("background-color", '#FFFF00');
         }
         else if (new Date(e.data.Date) >= new Date()) {
 
-            e.row.css("background-color", '#d1e5ff');
+            e.row.css("background-color", '#FFA500');
         }
 
         else {
@@ -2912,6 +2942,20 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             });
     }
 
+    $scope.POCompleteIssueList = [];
+    $scope.GetPOCompleteIssueList = function () {
+        $http.get('Productions/QualityControl/GetPOCompleteIssueList')
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.POCompleteIssueList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.POCompleteNew.POIssueId = $scope.POCompleteIssueList[0].Value;
+                    }
+                }
+            });
+    }
+    $scope.GetPOCompleteIssueList();
+
     $scope.POList = [];
     $scope.GetPOList = function (IId) {
         $http.get('Productions/QualityControl/GetPOList?IssueId=' + IId)
@@ -2920,6 +2964,20 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     $scope.POList = response.data;
                     if (baseService.arrayLength(response.data) === 1) {
                         $scope.POWiseNew.POId = $scope.POList[0].Value;
+                    }
+                }
+            });
+    }
+
+    $scope.POCompletePONoList = [];
+    $scope.GetPOCompleteList = function (IId) {
+        $scope.POCompletePONoList = [];
+        $http.get('Productions/QualityControl/GetPOCompleteList?IssueId=' + IId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.POCompletePONoList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.POCompleteNew.POId = $scope.POCompletePONoList[0].Value;
                     }
                 }
             });
@@ -3059,5 +3117,33 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.MasterOrderItemId = e.data.MOIId;
         $scope.productionSummaryNew.ProductCodeArticle = e.data.Article;
         angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
+    }
+
+    $scope.QCCompleteReport = function () {
+        var dataList = [];
+        var g = $("#GridQCComplete").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.QCCompleteList;
+        }
+
+        $scope.fileName = "Quality Control Completed Issue";
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrlUpd,
+            data: { 'reportFileName': $scope.fileName, 'data': dataList },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     }
 }

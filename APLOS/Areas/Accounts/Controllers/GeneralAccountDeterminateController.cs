@@ -212,11 +212,11 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult CreateGlControl(Dictionary<string, object> data, string materialId, List<Dictionary<string, object>> materialList, string type, List<Dictionary<string, object>> consumableList, List<Dictionary<string, object>> inventoryList)
+        public JsonResult CreateGlControl(Dictionary<string, object> data, string materialId, List<Dictionary<string, object>> materialList, string type, List<Dictionary<string, object>> consumableList, List<Dictionary<string, object>> inventoryList, List<Dictionary<string, object>> inventoryCapitalList)
         {
             try
             {
-                DataSet dsMaster, dsMaterial, dsConsumable, dsConsumableChile;
+                DataSet dsMaster, dsMaterial, dsConsumable;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from [MST].[GLControlMaster] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
@@ -299,6 +299,30 @@ namespace Aplos.Areas.Accounts.Controllers
                         {
                             detailidcount++;
                             item["Id"] = _detaliId+"-"+ detailidcount;
+                            item["GLControlId"] = data["Id"];
+                            AddNewRow(dsConsumable.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                if (inventoryCapitalList != null)
+                {
+                    foreach (var item in inventoryCapitalList)
+                    {
+
+                        DataView dv = new DataView(dsConsumable.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            detailidcount++;
+                            item["Id"] = _detaliId + "-" + detailidcount;
                             item["GLControlId"] = data["Id"];
                             AddNewRow(dsConsumable.Tables[0], item);
                         }
