@@ -610,8 +610,13 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId)
+        public IEnumerable<object> GetCboIssueQIC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId, string POItemId)
         {
+            string QCItemId = "";
+            if (POItemId != "null")
+            {
+                QCItemId = @"and QII.Id='" + POItemId + "'";
+            }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
 QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
@@ -619,7 +624,7 @@ LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='"+ PId + @"' and QIC.Item
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
 left Join MST.QualityGradeDetails QGD ON QGD.Id=QIC.GradeId
 LEFT JOIN EmployeeInformation R ON  R.SystemId = QIC.ResponsiblePersonId
-where QII.IssueId='" + IssueId + "'";
+where QII.IssueId='" + IssueId + "' " + QCItemId +  " ";
             return _sqlRepository.GetDataCollection(sql);
         }
 
@@ -628,13 +633,13 @@ where QII.IssueId='" + IssueId + "'";
             string QCProcess="",QCEntity="",QCIssue="",QCPONO="", QCDate="";
             if (ProcessId != "null")
             {
-                QCProcess = @"and QC.ProcessId='"+ ProcessId + "'";
+                QCProcess = @"and QID.ProcessId='"+ ProcessId + "'";
             }
             if (entityId != "null")
             {
-                QCEntity = @"and QC.EntityId='" + entityId + "'";
+                QCEntity = @"and QID.EntityId='" + entityId + "'";
             }
-            if (ProcessId != "null")
+            if (IssueId != "null")
             {
                 QCIssue = @"and QC.IssueId='" + IssueId + "'";
             }
@@ -644,17 +649,17 @@ where QII.IssueId='" + IssueId + "'";
             }
             if (Date != "null" && Date != "undefined")
             {
-                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between format(getdate(),'dd-MMM-yyyy') and '" + Date + "' or QCD.AddedDate is null)";
+                QCDate = @"and (format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy')  between format(getdate(),'dd-MMM-yyyy') and '" + Date + "'  or QII.ItemName is null)";
             }
             else
             {
-                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  = format(getdate(),'dd-MMM-yyyy') or QCD.AddedDate is null)";
+                QCDate = @" and (Value is not null and ItemName is not null) or (Value is null and itemName is null) ";
             }
             var sql = @"select distinct 
-format(DATEADD(hour, QID.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
-format(DATEADD(hour, QID.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCTime,
+format(DATEADD(hour, QII.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as Date,
+format(DATEADD(hour, QII.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCTime,
 QC.ProductionOrderId POId,QC.ProductionOrderId as PONO,E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,SD.SystemID ProductionShiftId,SD.ShiftDefinationName Shift,
-P.UserName QProcess,QID.Id IssueId,QID.IssueName QIssue,QII.ItemName,QCD.Value,QTD.Id PeriodId,
+QID.Id IssueId,QID.IssueName QIssue,QII.Id ItemId,QII.ItemName,QCD.Value,QTD.Id PeriodId,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as Period,
 QCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -685,8 +690,8 @@ left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join TRN.QualityControl QC on QC.IssueId=QID.Id
 left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
-left join org.Entity E on E.Id=QC.EntityId
-left join hkp.Process P on P.Id=QC.ProcessId
+left join org.Entity E on E.Id=QID.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
 LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
@@ -702,6 +707,91 @@ GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
 where QID.IssueType in ('Order','General') " + QCDate + " " + QCProcess + " " + QCEntity + " " + QCIssue + " " + QCPONO + "";
              return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetQCComplete(string IssueId, string todate, string fromDate, string POId)
+        {
+            string QCIssue = "", QCPONO = "", QCDate = "";
+            
+            if (IssueId != "null")
+            {
+                QCIssue = @"and QC.IssueId='" + IssueId + "'";
+            }
+            if (POId != "null")
+            {
+                QCPONO = @"and QC.ProductionOrderId='" + POId + "'";
+            }
+            if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
+            {
+                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+            }
+            
+            var sql = @"select distinct
+format(QCD.AddedDate,'dd-MMM-yyyy') as QCActualDate,
+format(QCD.AddedDate,'hh:mm tt') as QCActualTime,
+QII.CheckingInterval as QCInterval,
+format(DATEADD(hour, QII.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as QCDueDate,
+format(DATEADD(hour, QII.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCDueTime,
+E.Id  EntityId,E.UserName QCEntity,
+P.Id ProcessId,P.UserName QCProcess,
+SD.SystemID ProductionShiftId,SD.ShiftDefinationName QCShift,
+QID.Id IssueId,QID.IssueName QCIssue,
+QTD.Id PeriodId,
+QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as QCPeriod,
+QCCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName QCPOStatus,
+'' as QCProductionIncharge,
+QC.ProductionOrderId POId,QC.ProductionOrderId as QCPONo,
+QC.LotNumber as QCLotNumber,QC.Remarks as QCRemarks,
+QCArticle = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
+left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
+left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
+where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+QCSONO = STUFF((select distinct ',' + sox.Id from trn.MasterOrderItem XMOI
+INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId = xmoi.Id
+INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId = sox.Id
+where podx.ProductionOrderId =  QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+QCProductCode = STUFF((select distinct ',' + PM.Code from trn.ProductionOrderDetail Pod
+left outer JOIN trn.SalesOrder SO ON pod.SalesOrderId = so.Id
+left outer join trn.MasterOrderItem MOI on moi.Id = so.MasterOrderItemId
+left outer join mst.MaterialMaster mm on mm.id = MOI.MaterialMasterId
+left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
+left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
+where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+POQ.POQty as QCPOQty,PQ.Qty QCScheduleQty,ProdQ.ProducedQty as QCProducedQty,POQ.POQty-ProdQ.ProducedQty QCRemainingQty,
+QII.Id QCItemId,QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,
+QII.Max QCMaxValue,QII.Min QCMinValue,QCD.ActionToBeTaken as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks
+from MST.QualityIssueDetails  QID
+left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
+left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
+left join TRN.QualityControl QC on QC.IssueId=QID.Id
+left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
+left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
+left join org.Entity E on E.Id=QID.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
+left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
+left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
+LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = QC.ProductionOrderId
+LEFT JOIN
+(SELECT SUM(SO.Qty) POQty, PD.ProductionOrderId FROM TRN.SalesOrder SO
+left join TRN.ProductionOrderDetail PD ON PD.SalesOrderId= SO.Id
+ where SO.OrderStatusId<>'Cancelled' GROUP BY PD.ProductionOrderId
+                            ) AS POQ ON POQ.ProductionOrderId = QC.ProductionOrderId
+left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.QualityControlDetails QD
+left join TRN.QualityControl Q on Q.Id=QD.QCId
+GROUP BY Q.ProductionOrderId
+) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
+where QID.IssueType in ('Order','General') and QCD.Id is not null" + QCDate + "  " + QCIssue + " " + QCPONO + "";
+            return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)

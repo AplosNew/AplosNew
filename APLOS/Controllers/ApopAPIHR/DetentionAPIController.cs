@@ -446,6 +446,13 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetEmployee(out List<Default2> activelists);
             return activelists;
         }
+
+        public List<Default3> GetEmployeeSystem()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeSystem(out List<Default3> activelists);
+            return activelists;
+        }
         public List<Default2> GetReason(string ProcessId)
         {
             clsDataContext clsData = new clsDataContext();
@@ -723,6 +730,34 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        public string PostUpdateVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateVehicleRequisition(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostCancelVehicleRequisition([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostCancelVehicleRequisition(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         public List<Default2> GetVehicleLocation(string ID)
         {
             clsDataContext clsData = new clsDataContext();
@@ -750,6 +785,36 @@ namespace Aplos.Controllers.ApopAPIHR
             clsDataContext clsData = new clsDataContext();
             clsData.GetVehiclestatus(out List<VehicleStatus> activelists, EmpsysId);
             return activelists;
+        }
+
+
+        public List<VehicleOutin> GetVehicleOutlist()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleOutlist(out List<VehicleOutin> activelists);
+            return activelists;
+        }
+
+        public List<VehicleOutin> GetVehiclInlist()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehiclInlist(out List<VehicleOutin> activelists);
+            return activelists;
+        }
+
+
+        public string PostVehicleInOutEntry([FromBody] IEnumerable<VehicleInout> DataToSave, string VInOutId)
+        {
+            try
+            {
+                string Id = clsData.PostVehicleInOutEntry(DataToSave, VInOutId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
         }
 
         #endregion VCehicle

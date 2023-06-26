@@ -985,11 +985,22 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetPOCompleteIssueList()
+        {
+            return Json(_productionSummaryData.GetPOCompleteIssueList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetPOList(string IssueId)
         {
             return Json(_productionSummaryData.GetPOList(IssueId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetPOCompleteList(string IssueId)
+        {
+            return Json(_productionSummaryData.GetPOList(IssueId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetPeriodList(string IssueId)
@@ -1072,17 +1083,24 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId)
+        public JsonResult GetIssueCboQIC(string processid, string entityId, string productionDate, string shiftId, string ProductionInChargeId, string IssueId, string PeriodId, string PId, string POItemId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCboIssueQIC(identity.PlantId, processid, entityId, productionDate, shiftId, ProductionInChargeId, IssueId, PeriodId, PId, POItemId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, Authorize] 
         public JsonResult GetPOWiseData(string processid, string entityId, string POId, string Date, string POStatus, string CustomerId, string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_ProductionSummaryService.GetPOWiseData(processid, entityId, POId, Date, POStatus, CustomerId, IssueId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult LoadQCComplete(string IssueId, string todate, string fromDate, string POId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetQCComplete(IssueId, todate, fromDate, POId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

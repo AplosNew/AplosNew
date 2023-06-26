@@ -2877,6 +2877,17 @@ namespace Library.Service.Invoices
             var flag = false;
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster = null;
+                string sql = "SELECT * FROM TRN.Voucher WHERE Docrefno='"+ issueId + "' and sourcetype='IssueJournal' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Data save successfully ");
+                }
+
                 var issueData = _inventoryIssueService.FindInventoryIssue(issueId);
                 voucherVM.PostingDate = issueData.IssueDate;
                 voucherVM.EntityId = issueData.EntityId;
