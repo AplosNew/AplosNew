@@ -43,6 +43,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
         PlantId: null,
         FromLocation: null,
         ToLocation: null,
+        Prefix:null,
         Inventorycheck: false,
         ItemId: null,
         PurposeId: null,
@@ -58,6 +59,7 @@ function MovementMaterialMasterController(cboService, commonMessage, $scope, $ro
             PlantId: null,
             FromLocation: null,
             ToLocation: null,
+            Prefix: null,
             Inventorycheck: false,
             ItemId: null,
             PurposeId: null

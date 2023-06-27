@@ -6,16 +6,20 @@ using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Enums;
 using Library.Model.Setups;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Materials;
 using Library.Service.Setups;
 using Library.Service.Systems;
 using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Web.Mvc;
@@ -212,7 +216,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public JsonResult CreateGlControl(Dictionary<string, object> data, string materialId, List<Dictionary<string, object>> materialList, string type, List<Dictionary<string, object>> consumableList, List<Dictionary<string, object>> inventoryList, List<Dictionary<string, object>> inventoryCapitalList)
+        public JsonResult CreateGlControl(Dictionary<string, object> data, string materialId, List<Dictionary<string, object>> materialList, string type, List<Dictionary<string, object>> consumableList, List<Dictionary<string, object>> inventoryList, List<Dictionary<string, object>> inventoryCapitalList, List<Dictionary<string, object>> capitalList)
         {
             try
             {
@@ -236,8 +240,8 @@ namespace Aplos.Areas.Accounts.Controllers
                 con.OpenDataSetThroughAdapter(materialsql, out dsMaterial, false, "1");
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[GLControlDetail] where  GLControlId='" + data["Id"] + "'", out dsConsumable, false, "1");
-               
-                string _detaliId =null;
+
+                string _detaliId = null;
 
                 string _Id = "";
                 bplib.clsGenID genid = new bplib.clsGenID();
@@ -245,7 +249,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    genid.GenerateIDYearly(DateTime.Now.ToString(),"GLControlMaster", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToString(), "GLControlMaster", out _Id);
 
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
@@ -284,7 +288,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 string _IdM = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #region Consumable
 
-                     genid.GenerateIDAuto("GLControlDetail", out _detaliId);
+                genid.GenerateIDAuto("GLControlDetail", out _detaliId);
                 int detailidcount = 0;
                 if (inventoryList != null)
                 {
@@ -298,7 +302,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         if (dv.Count == 0)
                         {
                             detailidcount++;
-                            item["Id"] = _detaliId+"-"+ detailidcount;
+                            item["Id"] = _detaliId + "-" + detailidcount;
                             item["GLControlId"] = data["Id"];
                             AddNewRow(dsConsumable.Tables[0], item);
                         }
@@ -337,6 +341,31 @@ namespace Aplos.Areas.Accounts.Controllers
                 if (consumableList != null)
                 {
                     foreach (var item in consumableList)
+                    {
+
+                        DataView dv = new DataView(dsConsumable.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+
+                        if (dv.Count == 0)
+                        {
+                            detailidcount++;
+                            item["Id"] = _detaliId + "-" + detailidcount;
+                            item["GLControlId"] = data["Id"];
+                            //item["Type"] = item["Type"];
+                            AddNewRow(dsConsumable.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                if (capitalList != null)
+                {
+                    foreach (var item in capitalList)
                     {
 
                         DataView dv = new DataView(dsConsumable.Tables[0]);
@@ -565,6 +594,313 @@ namespace Aplos.Areas.Accounts.Controllers
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetGLControlReport(string glControlId)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = GLControlReport(glControlId, "GL Control Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string GLControlReport(string glControlId, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[0].Name = "Material";
+                sheet = workbook.Worksheets[0];
+                
+                DataTable headerData, data, typeData;
+                GLControlHeaderSql(glControlId, out headerData);
+                GlControlReportSQL(glControlId, out data);
+                GlControlTypeReportSQL(glControlId, out typeData);
+
+
+                if (headerData.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found.");
+                }
+                int ROW = 6; int COL = 1;
+                sheet.Range[ROW, COL].Text = "Sequence :";
+                sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Sequence"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL].Text = "Code :";
+                sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Code"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL].Text = "User Defined Name :";
+                sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["UserName"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL].Text = "Description:";
+                sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Description"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
+
+                sheet.Range[6, 1, ROW, 3].CellStyle.Font.Bold = true;
+                sheet.Range[6, 1, ROW, 3].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[6, 1, ROW, 3].BorderInside(ExcelLineStyle.Hair);
+
+
+                ROW = 6; COL = 4;
+                sheet.Range[ROW, COL].Text = "Short Name :";
+                sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["ShortName"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL].Text = "Standard Name:";
+                sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["StandardName"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
+                ROW++;
+
+                sheet.Range[ROW, COL].Text = "Remarks :";
+                sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Remarks"].ToString();
+                sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
+
+                sheet.Range[6, 4, ROW, 6].CellStyle.Font.Bold = true;
+                sheet.Range[6, 4, ROW, 6].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[6, 4, ROW, 6].BorderInside(ExcelLineStyle.Hair);
+
+                ROW = 10; COL = 1;
+                ROW++;
+
+                #region Material
+
+                #region columns
+                sheet[ROW, COL].Text = "Material Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColMaterialType = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Group";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColMaterialGroup = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColMaterialCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material Name";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColMaterialName = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                workbook.Worksheets[1].Name = "Material Type";
+                sheet = workbook.Worksheets[1];
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColMaterialType].Text = data.Rows[i]["Type"].ToString();
+                    sheet[ROW, ColMaterialGroup].Text = data.Rows[i]["MaterialGroup"].ToString();
+                    sheet[ROW, ColMaterialCode].Text = data.Rows[i]["MaterialCode"].ToString();
+                    sheet[ROW, ColMaterialName].Text = data.Rows[i]["MaterialName"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+                #endregion Material
+
+                #region Material Type
+
+                #region columns
+                sheet[ROW, COL].Text = "Material Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColMaterialTypes = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GL Code";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColGLCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GL";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColGL = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Budget";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColBudget = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Activity";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColActivity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BudgetRefNo";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColBudgetRefNo = COL;
+
+                #endregion columns
+
+                int endsCol = COL;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endsCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startsRow = ROW;
+
+                for (int i = 0; i < typeData.Rows.Count; i++)
+                {
+                    sheet[ROW, ColMaterialTypes].Text = typeData.Rows[i]["MaterialType"].ToString();
+                    sheet[ROW, ColGLCode].Text = typeData.Rows[i]["GLGeneralInfoCode"].ToString();
+                    sheet[ROW, ColGL].Text = typeData.Rows[i]["GL"].ToString();
+                    sheet[ROW, ColBudget].Text = typeData.Rows[i]["BudgetName"].ToString();
+                    sheet[ROW, ColActivity].Text = typeData.Rows[i]["Activity"].ToString();
+                    sheet[ROW, ColBudgetRefNo].Text = typeData.Rows[i]["BudgetRefNo"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                #endregion Material Type
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startsRow, 1, ROW, endsCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startsRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "GL Control Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void GLControlHeaderSql(string glControlId, out DataTable headerData)
+        {
+            try
+            {
+                string strSQL = @"select * from mst.GLControlMaster
+							where Id ='" + glControlId + @"'";
+                headerData = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void GlControlReportSQL(string glControlId, out DataTable data)
+        {
+            try
+            {
+                string strSQL = @"select GLD.Type,MGM.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialName
+                                                from mst.GLControlMaster GLM
+                                                left join MST.GLControlDetail GLD on GLD.GLControlId=GLM.Id
+                                                left join MST.MaterialMaster MM on MM.GLControlMasterId=GLM.Id
+                                                left join MST.MaterialGroupMaster MGM on MGM.Id=MM.MaterialGroupMasterId
+							                    where GLM.Id = '" + glControlId + @"'";
+
+                data = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public void GlControlTypeReportSQL(string glControlId, out DataTable typeData)
+        {
+            try
+            {
+                string strSQL = @"select GLD.[Type] MaterialType,GL.AccountCode AS GLGeneralInfoCode,GL.UserName GL,B.BudgetName,A.UserName Activity,B.BudgetRefNo 
+                                                    from  MST.GLControlDetail GLD 
+                                                    left join [HKP].[GLGeneralInfo] GL on GL.Id=GLD.GLGeneralInfoId
+                                                    left join [HKP].[Activity] A on A.Id=GLD.ActivityId
+                                                    LEFT JOIN (SELECT BM.Id AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName, BM.RefNo BudgetRefNo
+	                                                    FROM [HKP].[Budget] AS B
+                                                        LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.BudgetId=B.Id
+                                                    ) AS B ON B.BudgetMasterId=GLD.BudgetMasterId
+							                        where GLD.GLControlId ='" + glControlId + @"'";
+
+                typeData = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
 
