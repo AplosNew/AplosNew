@@ -314,12 +314,12 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         }; $scope.loadMMForRMData();
     }
 
-    $scope.getMasterData = function (masterid) {
+    $scope.getMasterData = function (data) {
         $scope.uomList = [];
         $scope.capacityUoMList = [];
         $http({
             method: 'GET',
-            url: $scope.path + 'getmasterlist?masterid=' + masterid,
+            url: $scope.path + 'getmasterlist?masterid=' + data.data.Id,
         }).then(function successCallback(response) {
             $scope.masterAddEditPopup("Edit");
             if (baseService.arrayLength(response.data) > 0) {
@@ -850,13 +850,13 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         angular.element(document.querySelector('#vendormodal')).modal('show');
     };
 
-    $scope.deleteMasterPopup = function (id) {
+    $scope.deleteMasterPopup = function (data) {
         try {
-            $scope.mastermodal.Id = id;
-            if (baseService.isUndefinedOrNull(id)) {
+            $scope.mastermodal.Id = data.data.Id;
+            if (baseService.isUndefinedOrNull(data.data.Id)) {
                 throw "Select a Work Center...";
             }
-            $scope.message_confirmation = "Are you sure to delete [" + id + "] ";
+            $scope.message_confirmation = "Are you sure to delete [" + data.data.Id + "] ";
             angular.element(document.querySelector('#confirmmasterdelete')).modal('show');
         } catch (e) {
             ShowResult(e, 'Error');
@@ -987,10 +987,10 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
 
     $scope.ProcessId = null;
     // #region Detail Pop
-    $scope.details = function (masterId, entityId, ProcessId) {
-        $scope.masterId = masterId;
-        $scope.entityId = entityId;
-        $scope.ProcessId = ProcessId;
+    $scope.details = function (data) {
+        $scope.masterId = data.data.Id;
+        $scope.entityId = data.data.entityId;
+        $scope.ProcessId = data.data.ProcessId;
         $scope.tempList = [];
         $scope.effectiveDateList = [];
         $scope.budgetCodeList = [];
@@ -1007,7 +1007,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
             , Position: null
             , NoOfResource: null
         };
-        $http.get($scope.path + 'GetDetalsData?masterId=' + masterId)
+        $http.get($scope.path + 'GetDetalsData?masterId=' + $scope.masterId)
             .then(function (response) {
                 $scope.effectiveDateList = response.data.eDate;
                 //$scope.effectiveDateList = $filter('orderBy')(response.data.eDate, '-StartDate');

@@ -766,7 +766,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         [HttpPost]
         public JsonResult InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
-            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> advanceVMList)
+            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList, IEnumerable<VoucherViewModel> advanceVMList, IEnumerable<VoucherViewModel> existingLoanList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -802,7 +802,7 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             else
             {
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList)) });
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _invoiceWriteOffService.InsertVendorPayment(voucherVM, voucherDetailVMList, bankChargeDetailVMList, taxDetailVMList, glVMList, existingLoanList)) });
             }
                 
         }
@@ -1028,6 +1028,9 @@ namespace Aplos.Areas.Accounts.Controllers
             voucherVM.IsPark = true;
             if (voucherVM.CompanyCurrencyRate <= 0)
                 throw new CustomException("Please Input Rate.");
+            var bankamount = banksDetailVMList.Sum(r => r.Amount);
+            var bankChargeamount = bankChargeDetailVMList.Sum(r => r.Amount);
+            var Totalbankamount = bankamount + bankChargeamount;
             if (bankChargeDetailVMList != null && voucherDetailVMList.Sum(r => r.Amount) != banksDetailVMList.Sum(r => r.Amount) + bankChargeDetailVMList.Sum(r => r.Amount))
                 throw new CustomException("Invoice Total amount should same Bank Total Amount and Bank Charges Amount");
             if (bankChargeDetailVMList == null && voucherDetailVMList.Sum(r => r.Amount) != banksDetailVMList.Sum(r => r.Amount))
