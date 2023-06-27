@@ -897,12 +897,12 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             try
             {
-                string strSQL = @"select GLD.Type,MGM.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialName
-                                                from mst.GLControlMaster GLM
-                                                left join MST.GLControlDetail GLD on GLD.GLControlId=GLM.Id
-                                                left join MST.MaterialMaster MM on MM.GLControlMasterId=GLM.Id
+                string strSQL = @"select MT.UserName [Type],MGM.UserName MaterialGroup,MM.Code MaterialCode,MM.UserName MaterialName
+                                                from mst.MaterialMaster MM
+												left join mst.GLControlMaster GLM on MM.GLControlMasterId=GLM.Id
                                                 left join MST.MaterialGroupMaster MGM on MGM.Id=MM.MaterialGroupMasterId
-							                    where GLM.Id = '" + glControlId + @"'";
+                                                left join hkp.materialType MT on MT.Id=MGM.MaterialTypeId
+							                    where MM.GLControlMasterId = '" + glControlId + @"'";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }
