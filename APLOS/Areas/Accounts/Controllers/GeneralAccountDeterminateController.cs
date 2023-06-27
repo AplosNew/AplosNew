@@ -824,7 +824,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.IsGridLinesVisible = false;
 
-
                 //#endregion ******************Report Header******************
 
                 sheet.PageSetup.TopMargin = 0.2;
