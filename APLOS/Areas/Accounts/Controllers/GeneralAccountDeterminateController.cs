@@ -628,7 +628,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 workbook = application.Workbooks.Create(2);
                 workbook.Worksheets[0].Name = "Material";
                 sheet = workbook.Worksheets[0];
-                
+
                 DataTable headerData, data, typeData;
                 GLControlHeaderSql(glControlId, out headerData);
                 GlControlReportSQL(glControlId, out data);
@@ -640,22 +640,22 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new Exception("No Data Found.");
                 }
                 int ROW = 6; int COL = 1;
-                sheet.Range[ROW, COL].Text = "Sequence :";
+                sheet.Range[ROW, COL].Text = "Sequence";
                 sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Sequence"].ToString();
                 sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
                 ROW++;
 
-                sheet.Range[ROW, COL].Text = "Code :";
+                sheet.Range[ROW, COL].Text = "Code";
                 sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Code"].ToString();
                 sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
                 ROW++;
 
-                sheet.Range[ROW, COL].Text = "User Defined Name :";
+                sheet.Range[ROW, COL].Text = "User Defined Name";
                 sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["UserName"].ToString();
                 sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
                 ROW++;
 
-                sheet.Range[ROW, COL].Text = "Description:";
+                sheet.Range[ROW, COL].Text = "Description";
                 sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Description"].ToString();
                 sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
 
@@ -665,17 +665,17 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
                 ROW = 6; COL = 4;
-                sheet.Range[ROW, COL].Text = "Short Name :";
+                sheet.Range[ROW, COL].Text = "Short Name";
                 sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["ShortName"].ToString();
                 sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
                 ROW++;
 
-                sheet.Range[ROW, COL].Text = "Standard Name:";
+                sheet.Range[ROW, COL].Text = "Standard Name";
                 sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["StandardName"].ToString();
                 sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
                 ROW++;
 
-                sheet.Range[ROW, COL].Text = "Remarks :";
+                sheet.Range[ROW, COL].Text = "Remarks";
                 sheet.Range[ROW, COL + 1].Text = headerData.Rows[0]["Remarks"].ToString();
                 sheet.Range[ROW, COL + 1, ROW, COL + 2].Merge();
 
@@ -690,12 +690,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 #region columns
                 sheet[ROW, COL].Text = "Material Type";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 18;
                 int ColMaterialType = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Material Group";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].ColumnWidth = 22;
                 int ColMaterialGroup = COL;
                 COL++;
 
@@ -705,7 +705,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 COL++;
 
                 sheet[ROW, COL].Text = "Material Name";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].ColumnWidth = 22;
                 int ColMaterialName = COL;
 
                 #endregion columns
@@ -721,8 +721,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 ROW++;
 
                 int startRow = ROW;
-                workbook.Worksheets[1].Name = "Material Type";
-                sheet = workbook.Worksheets[1];
+
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
@@ -744,81 +743,14 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet["A" + startRow.ToString()].FreezePanes();
                 #endregion Material
 
-                #region Material Type
-
-                #region columns
-                sheet[ROW, COL].Text = "Material Type";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int ColMaterialTypes = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "GL Code";
-                sheet[ROW, COL].ColumnWidth = 20;
-                int ColGLCode = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "GL";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColGL = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Budget";
-                sheet[ROW, COL].ColumnWidth = 20;
-                int ColBudget = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Activity";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColActivity = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "BudgetRefNo";
-                sheet[ROW, COL].ColumnWidth = 20;
-                int ColBudgetRefNo = COL;
-
-                #endregion columns
-
-                int endsCol = COL;
-                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
-                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Size = 9f;
-                sheet.Range[ROW, 1, ROW, endsCol].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, endsCol].BorderAround(ExcelLineStyle.Hair);
-
-                ROW++;
-
-                int startsRow = ROW;
-
-                for (int i = 0; i < typeData.Rows.Count; i++)
-                {
-                    sheet[ROW, ColMaterialTypes].Text = typeData.Rows[i]["MaterialType"].ToString();
-                    sheet[ROW, ColGLCode].Text = typeData.Rows[i]["GLGeneralInfoCode"].ToString();
-                    sheet[ROW, ColGL].Text = typeData.Rows[i]["GL"].ToString();
-                    sheet[ROW, ColBudget].Text = typeData.Rows[i]["BudgetName"].ToString();
-                    sheet[ROW, ColActivity].Text = typeData.Rows[i]["Activity"].ToString();
-                    sheet[ROW, ColBudgetRefNo].Text = typeData.Rows[i]["BudgetRefNo"].ToString();
-
-                    sheet.Range[ROW, 1, ROW, endsCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endsCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Size = 8f;
-                    ROW++;
-
-                }
-
-                #endregion Material Type
-
-                sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[startsRow, 1, ROW, endsCol].CellStyle.Font.Size = 8f;
-                sheet["A" + startsRow.ToString()].FreezePanes();
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "GL Control Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -836,6 +768,104 @@ namespace Aplos.Areas.Accounts.Controllers
                 sheet.PageSetup.FitToPagesWide = 1;
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
+
+                #region Material Type
+
+                workbook.Worksheets[1].Name = "Material Type";
+                sheet = workbook.Worksheets[1];
+
+                ROW = 6; COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Material Type";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColMaterialTypes = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GL Code";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColGLCode = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GL";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColGL = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Budget";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int ColBudget = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Activity";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColActivity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BudgetRefNo";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBudgetRefNo = COL;
+
+                #endregion columns
+
+                int endsCol = COL;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endsCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                startRow = ROW;
+
+                for (int i = 0; i < typeData.Rows.Count; i++)
+                {
+                    sheet[ROW, ColMaterialTypes].Text = typeData.Rows[i]["MaterialType"].ToString();
+                    sheet[ROW, ColGLCode].Text = typeData.Rows[i]["GLGeneralInfoCode"].ToString();
+                    sheet[ROW, ColGL].Text = typeData.Rows[i]["GL"].ToString();
+                    sheet[ROW, ColBudget].Text = typeData.Rows[i]["BudgetName"].ToString();
+                    sheet[ROW, ColActivity].Text = typeData.Rows[i]["Activity"].ToString();
+                    sheet[ROW, ColBudgetRefNo].Text = typeData.Rows[i]["BudgetRefNo"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endsCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endsCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endsCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "GL Control Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                #endregion Material Type
 
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
                 workbook.SaveAs(filePath);
