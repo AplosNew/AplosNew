@@ -117,6 +117,17 @@ function LeaveRegistersFormController(commonMessage, $scope, $rootScope, baseSer
         });
     }
 
+    $scope.xgetLeaveRegisterFormReport = function (data) {
+
+        try {
+            var file_src = 'HumanResource/LeaveRegistersForm/FormLeaveRegister?year=' + $scope.year + '&empId=' + data.EmpSystemId +'&reportType='+'doc';
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
     $scope.getLeaveRegisterFormReport = function (data) {
 
         try {
