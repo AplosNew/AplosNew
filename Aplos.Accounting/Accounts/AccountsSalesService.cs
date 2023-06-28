@@ -2498,7 +2498,7 @@ namespace Library.Accounting.Accounts
 					left join [TRN].[POLotReference] plr on plr.Id=isc.packingId
 					left join [TRN].PackingLineItem pli on pli.PackingLineItemId=plr.PackingLineItemId
 					left join [TRN].[SalesOrder] SO ON SO.id=pli.SOId
-					where isc.booked=0 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
+					where isc.booked=1 and isc.returnnetweight<>0 and isc.SalesReturnId is null 
 					group by isc.SalesId,pli.PackingId,plr.PackingLineItemId,isc.Booked,pli.SOId) ISC ON ISC.PackingId=sp.PackingId
              JOIN [TRN].[SalesOrder] AS SO ON ISC.SOId=SO.Id and SO.Id=sm.SalesOrderId
             JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
