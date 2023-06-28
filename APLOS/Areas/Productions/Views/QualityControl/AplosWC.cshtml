@@ -96,6 +96,7 @@
         <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="doc" role="tab" data-toggle="tab">PO Select</a></li>
         <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">QMS Issue Control</a></li>
         <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Complete</a></li>
+        <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Summary Report</a></li>
     </ul>
 </div>
 <div class="tab-content">
@@ -537,6 +538,89 @@
                         <div e-column e-type="string" e-field="QCActionTobetaken" e-headertext="Action To be taken" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
                         <div e-column e-type="string" e-field="QCItemRemarks" e-headertext="Remarks" e-width="150"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+        <div class="form-element-ctrl form-horizontal row" ng-form="modelForm3">
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">From Date</label>
+                    <div class="col-sm-8">
+                        <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="POSummaryNew.FromDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">To Date</label>
+                    <div class="col-sm-8">
+                        <input type="text" required e-dateformat="dd-MMM-yyyy" ng-model="POSummaryNew.ToDate" datepicker class="form-control" ng-change="">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Issue</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="POSummaryNew.POIssueId" ng-change="GetPOSummaryList(POSummaryNew.POIssueId);" name="POIssue" required
+                                    ng-options="item.Value as item.Text for item in POSummaryIssueList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">PO No</label>
+                    <div class="col-sm-8">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="POSummaryNew.POId" name="PONo" required
+                                    ng-options="item.Value as item.Text for item in POSummaryPONoList">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div class="common-btn" ng-show="QCSummaryList.length>0">
+                    <ul class="list-inline text-right">
+                        <li><button ng-click="QCSummaryReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-3 col-md-3">
+                <div id="filters">
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SummaryView();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div id="GridQCSummary" ej-grid e-datasource="QCSummaryList"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="false" e-allowscrolling="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="100"></div>
+                        <div e-column e-type="string" e-field="POId" e-headertext="PO No" e-width="100"></div>
+                        <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Entity" e-headertext="Entity" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ProcessSeq" e-headertext="Process Sequence" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                        <div e-column e-type="string" e-field="IssueDetails" e-headertext="Issue Details" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Item" e-headertext="Item" e-width="100"></div>
+                        <div e-column e-type="string" e-field="ItemUOM" e-headertext="Item UOM" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="150"></div>
                     </div>
                 </div>
             </div>

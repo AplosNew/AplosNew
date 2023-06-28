@@ -732,11 +732,10 @@ format(QCD.AddedDate,'hh:mm tt') as QCActualTime,
 QII.CheckingInterval as QCInterval,
 format(DATEADD(hour, QII.CheckingInterval, QCD.AddedDate),'dd-MMM-yyyy') as QCDueDate,
 format(DATEADD(hour, QII.CheckingInterval, CAST(QCD.AddedDate AS DATETIME)),'hh:mm tt')  QCDueTime,
-E.Id  EntityId,E.UserName QCEntity,
-P.Id ProcessId,P.UserName QCProcess,
-SD.SystemID ProductionShiftId,SD.ShiftDefinationName QCShift,
-QID.Id IssueId,QID.IssueName QCIssue,
-QTD.Id PeriodId,
+E.UserName QCEntity,
+P.UserName QCProcess,
+SD.ShiftDefinationName QCShift,
+QID.IssueName QCIssue,
 QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as QCPeriod,
 QCCustomer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
@@ -745,8 +744,8 @@ left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 PS.UserName QCPOStatus,
-'' as QCProductionIncharge,
-QC.ProductionOrderId POId,QC.ProductionOrderId as QCPONo,
+PI.EmployeeName as QCProductionIncharge,
+QC.ProductionOrderId as QCPONo,
 QC.LotNumber as QCLotNumber,QC.Remarks as QCRemarks,
 QCArticle = STUFF((select distinct ',' + MA.StandardName from trn.ProductionOrderDetail Pod
 left outer JOIN trn.SalesOrder sO ON pod.SalesOrderId = so.Id
@@ -765,7 +764,7 @@ left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
 left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty as QCPOQty,PQ.Qty QCScheduleQty,ProdQ.ProducedQty as QCProducedQty,POQ.POQty-ProdQ.ProducedQty QCRemainingQty,
-QII.Id QCItemId,QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,
+QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,
 QII.Max QCMaxValue,QII.Min QCMinValue,QCD.ActionToBeTaken as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks
 from MST.QualityIssueDetails  QID
 left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
@@ -774,6 +773,7 @@ left join TRN.QualityControl QC on QC.IssueId=QID.Id
 left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
 left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
 left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+left join EmployeeInformation PI on PI.SystemId=QC.ProductionInchargeId
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
@@ -792,6 +792,81 @@ GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
 where QID.IssueType in ('Order','General') and QCD.Id is not null" + QCDate + "  " + QCIssue + " " + QCPONO + "";
             return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetQCSummary(string IssueId, string todate, string fromDate, string POId)
+        {
+            string QCIssue = "", QCPONO = "", QCDate = "";
+
+            if (IssueId != "null")
+            {
+                QCIssue = @"and QC.IssueId='" + IssueId + "'";
+            }
+            if (POId != "null")
+            {
+                QCPONO = @"and QC.ProductionOrderId='" + POId + "'";
+            }
+            if (fromDate != "null" && todate != "null" && fromDate != "undefined" && todate != "undefined")
+            {
+                QCDate = @"and (format(QCD.AddedDate,'dd-MMM-yyyy')  between '" + fromDate + "' and '" + todate + "'  or QII.ItemName is null)";
+            }
+
+            var sql = @"select B.Customer,B.POId,B.LotNumber,B.Entity,B.ProcessSeq,B.Process,B.Shift,B.IssueDetails,B.Item,B.ItemUOM,B.Remarks,B.DateShiftTime,B.Value
+into #tempPC from 
+(select A.Customer,A.POId,A.LotNumber,A.Entity,A.ProcessSeq,A.Process,A.Shift,A.IssueDetails,A.Item,A.ItemUOM,A.Remarks,A.DateShiftTime,A.Value from
+(select distinct
+Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where QC.ProductionOrderId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+QC.ProductionOrderId as POId,
+(select '[' + LotNumber + '] ,' from TRN.QualityControl Q where Q.IssueId=QID.Id for xml path('')) LotNumber,									                
+E.UserName Entity,
+P.Sequence ProcessSeq,
+P.UserName Process,
+QID.IssueName IssueDetails,	  
+SD.ShiftDefinationDescription as Shift,
+QII.ItemName as Item,
+UM.UserName ItemUOM,
+(select Remarks + ',' from TRN.QualityControlDetails where ItemId=QII.Id for xml path('')) Remarks,	
+format(QCD.AddedDate,'dd-MMM-yyyy')+'/'+ format(QCD.AddedDate,'hh:mm-tt') as DateShiftTime,
+QCD.Value
+from MST.QualityIssueDetails  QID
+left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
+left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
+left join TRN.QualityControl QC on QC.IssueId=QID.Id
+left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id and QCD.ItemId=QII.Id
+left join MST.QualityGradeDetails QGD on QGD.Id=QCD.GradeId
+left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
+left join EmployeeInformation PI on PI.SystemId=QC.ProductionInchargeId
+left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
+left join org.Entity E on E.Id=QID.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
+left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
+left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
+LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
+where QID.IssueType in ('Order','General') and QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + @")A 
+)B order by B.ProcessSeq 
+
+DECLARE @sql nvarchar(max), @col nvarchar(max)
+
+ SELECT @col = (
+ SELECT DISTINCT ',' + QUOTENAME(REPLACE(CONVERT(VARCHAR(40), DateShiftTime, 113), ' ', '-'))
+
+ FROM #tempPC 
+                                FOR XML PATH('')
+                            )                             SELECT @sql = N'
+ (SELECT *
+ FROM #tempPC
+                            PIVOT(
+ MAX([Value]) FOR[DateShiftTime] IN('+STUFF(@col,1,1,'')+')
+ ) as pvt)' 
+
+ EXEC sp_executesql @sql
+ drop table #tempPC";
+             return _sqlRepository.GetDataCollection(sql);
         }
 
         public IEnumerable<object> GetWSCWC(string plantId, string ProcessId, string entityId, string Date, string shiftId, string WSMId)
