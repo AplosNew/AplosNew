@@ -30,15 +30,28 @@
             </div>
 
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">No. of Cones</label>
+                <label class="col-sm-4 control-label">Min. Weight</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NumberOfCones" class="form-control" tabindex="5" maxlength="50">
+                    <input type="text" name="MinWeight" ng-model="QRCodeGenerateModel.MinWeight" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">G Wt.</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="QRCodeGenerateModel.GrossWeight" name="GrossWeight"
+                                tabindex="2">
+
+                            <option ng-repeat="option in NetWeightList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Net Wt.</label>
+                <label class="col-sm-4 control-label">No. of Cones</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Net Weight" ng-model="QRCodeGenerateModel.NetWeight" class="form-control" tabindex="5" maxlength="50">
+                    <input type="text" name="NumberOfCones" ng-model="QRCodeGenerateModel.NumberOfCones" class="form-control" tabindex="5" maxlength="50">
                 </div>
             </div>
         </div>
@@ -68,6 +81,24 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Max. Weight</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="MaxWeight" ng-model="QRCodeGenerateModel.MaxWeight" class="form-control" tabindex="5" maxlength="50">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Net Wt.</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="QRCodeGenerateModel.NetWeight" name="NetWeight"
+                                tabindex="2">
+
+                            <option ng-repeat="option in NetWeightList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">LOT</label>
                 <div class="col-sm-8 show-message">
                     <input type="text" name="LOT" ng-model="QRCodeGenerateModel.LOT" class="form-control" tabindex="5" maxlength="50">
@@ -77,7 +108,7 @@
                 <ul class="list-inline text-right">
                     <li> <button ng-click="SendDataToGenerateQR();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Generate QR</button></li>
 
-                    
+
                 </ul>
             </div>
         </div>

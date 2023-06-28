@@ -17,6 +17,33 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
     };
     // #endregion TAB CHANGE
 
+    $scope.NoOfPassengers = [
+        {
+            'name': '0',
+            'value': 0
+        },
+        {
+            'name': '1',
+            'value': 1
+        },
+        {
+            'name': '2',
+            'value': 2
+        },
+        {
+            'name': '3',
+            'value': 3
+        },
+        {
+            'name': '4',
+            'value': 4
+        },
+        {
+            'name': '5',
+            'value': 5
+        }
+    ];
+
     $scope.Get = function (args) {
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
         $scope.Action = 'Update';
@@ -404,6 +431,7 @@ function VehicleReqForApproveController(cboService, commonMessage, $scope, $root
 
     $scope.EditRequisitionPopup = function (args) {
         $scope.VehicleRequisitionModel = Object.assign({}, args.data);
+        $scope.VehicleRequisitionModel.NumberOfPassengers = $scope.VehicleRequisitionModel.NumberOfPassengers.toString();
         $scope.GetPurposeList();
         angular.element(document.querySelector("#editreqPopup")).modal('show');
     }

@@ -446,6 +446,13 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetEmployee(out List<Default2> activelists);
             return activelists;
         }
+
+        public List<Default3> GetEmployeeSystem()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeSystem(out List<Default3> activelists);
+            return activelists;
+        }
         public List<Default2> GetReason(string ProcessId)
         {
             clsDataContext clsData = new clsDataContext();
