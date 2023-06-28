@@ -17,6 +17,11 @@ using Syncfusion.Pdf;
 using Library.Service.Helpers;
 using System.Data;
 using Library.Security.Core;
+using System.IO;
+using Syncfusion.PresentationToPdfConverter;
+
+using Syncfusion.Presentation;
+using Syncfusion.Pdf;
 
 #endregion
 
@@ -153,7 +158,7 @@ namespace Aplos.Areas.Employees.Controllers
                 }
 
                 //string[] empIdList = id.Split(',');
-               
+
             }
 
             ConnectionManager.DAL.ConManager objCon;
@@ -193,8 +198,13 @@ namespace Aplos.Areas.Employees.Controllers
             var workbook = _employeeInfoService.EmployeeMultipleIDCardPpt(employeeId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, tempId, issuDate, workTypeId, dataList, IsCurrentIssueDate);
 
             string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+
+            if (System.IO.File.Exists(fullPath))
+            System.IO.File.Delete(fullPath);
+
             workbook.Save(fullPath);
             return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
         }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
