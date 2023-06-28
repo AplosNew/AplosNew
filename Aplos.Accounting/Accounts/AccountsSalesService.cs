@@ -2567,7 +2567,7 @@ namespace Library.Accounting.Accounts
 								,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
                                 left join trn.POLotReference pol on pol.Id = isc.PackingId
                                 left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-                                where  pli.PackingId = '" + packingId + "' AND  isc.SalesId='" + salesId + @"' and isc.SalesReturnId IS NULL and isc.booked=0";
+                                where  pli.PackingId = '" + packingId + "' AND  isc.SalesId='" + salesId + @"' and isc.SalesReturnId IS NULL and isc.booked=1";
 
 			return _sqlRepository.GetDataCollection(cmdText);
 		}
