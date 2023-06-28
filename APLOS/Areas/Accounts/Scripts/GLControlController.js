@@ -14,6 +14,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }];
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.Type = [];
     $scope.tab = 1;
@@ -145,6 +146,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.selectExpenseGL(args.data.Id);
         $scope.GetInventoryGL(args.data.Id);
         $scope.GetInventoryCapitalGL(args.data.Id);
+        $scope.GetCapitalGL(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -171,7 +173,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 url: $scope.saveUrl,
                 data: {
                     'data': $scope.ModelNew, 'materialId': ids, 'materialList': $scope.MaterialDataList, 'type': $scope.tabType, 'consumableList': $scope.ExpenseGLList
-                    , 'inventoryList': $scope.InventoryGLList, 'inventoryCapitalList': $scope.InventoryCapitalGLList
+                    , 'inventoryList': $scope.InventoryGLList, 'inventoryCapitalList': $scope.InventoryCapitalGLList, 'capitalList': $scope.CapitalGLList
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -227,6 +229,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         $scope.ExpenseGLList = [];
         $scope.InventoryGLList = [];
         $scope.InventoryCapitalGLList = [];
+        $scope.CapitalGLList = [];
     }
 
 
@@ -549,7 +552,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 });
             }
         }
-        else if ($scope.tabType == 'inventoryTab'){
+        else if ($scope.tabType == 'inventoryTab') {
             $scope.Type = "Inventory";
             if (checkConsumableExist($scope.InventoryGLList, data) === false) {
                 $scope.InventoryGLList.push({
@@ -564,8 +567,8 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 });
             }
         }
-        else {
-        $scope.Type = "inventoryCapital";
+        else if ($scope.tabType == 'inventoryCapitalTab') {
+            $scope.Type = "inventoryCapital";
             if (checkConsumableExist($scope.InventoryCapitalGLList, data) === false) {
                 $scope.InventoryCapitalGLList.push({
                     Id: null,
@@ -579,6 +582,22 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                 });
             }
         }
+        else {
+            $scope.Type = "Capital";
+            if (checkConsumableExist($scope.CapitalGLList, data) === false) {
+                $scope.CapitalGLList.push({
+                    Id: null,
+                    GLGeneralInfoId: data.GLGeneralInfoId,
+                    GLGeneralInfoName: data.GLGeneralInfoName,
+                    BudgetMasterId: data.BudgetMasterId,
+                    BudgetName: data.BudgetName,
+                    ActivityName: data.ActivityName,
+                    ActivityId: data.ActivityId,
+                    Type: $scope.Type
+                });
+            }
+        }
+
         $scope.closeCOAICodeListPopUp();
     };
 
@@ -617,7 +636,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
     };
 
     $scope.RemoveRow = function () {
-        if ($scope.RemoveIndex == 'inventoryTabDel'){
+        if ($scope.RemoveIndex == 'inventoryTabDel') {
             if (baseService.isUndefinedOrNull($scope.consumableId)) {
                 $scope.InventoryGLList.splice($scope.tempIndex, 1);
             }
@@ -667,7 +686,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
         }
 
-        else {
+        else if ($scope.RemoveIndex == 'inventoryCapitalTabDel') {
             if (baseService.isUndefinedOrNull($scope.consumableId)) {
                 $scope.InventoryGLList.splice($scope.tempIndex, 1);
             }
@@ -688,6 +707,31 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     ShowResult(response.data.Message, 'failure');
                 }
                 $scope.InventoryCapitalGLList.splice($scope.tempIndex, 1);
+            }
+
+        }
+
+        else {
+            if (baseService.isUndefinedOrNull($scope.consumableId)) {
+                $scope.CapitalGLList.splice($scope.tempIndex, 1);
+            }
+            else {
+                $http({
+                    method: 'POST',
+                    url: 'Accounts/GeneralAccountDeterminate/DeleteConsumerable',
+                    data: { 'Id': $scope.consumableId },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                $scope.CapitalGLList.splice($scope.tempIndex, 1);
             }
 
         }
@@ -748,7 +792,40 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         })
     }
 
+    $scope.CapitalGLList = [];
+    $scope.GetCapitalGL = function (data) {
+        $scope.TabType = "Capital";
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetConsumableData",
+            data: { 'glControlDetailId': data, 'type': $scope.TabType },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.CapitalGLList = response.data;
+        })
+    }
+
     // #endregion --------------------------------- Inventory  -----------------------------------//
+
+    $scope.GLControlReport = function (data,index) {
+        $scope.fileName = "GLControlReport.xlsx";
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetGLControlReport",
+            data: { 'glControlId': data.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
 
 
