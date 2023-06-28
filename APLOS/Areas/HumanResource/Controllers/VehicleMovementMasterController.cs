@@ -766,7 +766,8 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                 foreach (var item in data)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
-                    if(dv.Count > 0) {
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0) {
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
                         dr["FromLocationId"] = item["FromLocationId"];
@@ -774,6 +775,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
                     }
                     else
                     {

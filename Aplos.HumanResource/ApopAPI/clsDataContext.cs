@@ -3527,6 +3527,41 @@ select 'LeaveCount' AS Name , Count(SystemID) As Value from dbo.LeaveTransaction
             }
         }
 
+        public void GetEmployeeSystem(out List<Default3> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default3>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select EmployeeCode As Value,EmployeeName As Name , SystemId from EmployeeInformation Where EmployeeStatus = 'Active'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default3
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        SystemId = dsRef.Tables[0].Rows[i]["SystemId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void GetReason(out List<Default2> DataList, string ProcessId)
         {
             clsConnectionManager objCon = null;
@@ -5784,7 +5819,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.OutReading is not null and VA.Id is not null and VIO.Id is not null order by FromDate Desc";
+where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null and VIO.Id is not null order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6412,6 +6447,13 @@ where VIO.OutReading is not null and VA.Id is not null and VIO.Id is not null or
     {
         public string Name { get; set; } = "";
         public string Value { get; set; } = "";
+    }
+
+    public class Default3
+    {
+        public string Name { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string SystemId { get; set; } = "";
     }
 
     public class Weight
