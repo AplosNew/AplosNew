@@ -3057,7 +3057,7 @@ namespace Library.Service.Invoices
 
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, vd.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(iwd.Amount) Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId
-                                    , Status = case when AW.IsPark = 1 then 'Posted' else 'Parked' end
+                                    , Status = case when AW.IsPark = 1 then 'Parked' else 'Posted' end
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									LEFT JOIN (SELECT Id,InvoiceWriteOffId,SUM(Amount) Amount,AdjustmentNoteDetailId 
 												FROM [TRN].[InvoiceWriteOffDetail] Group BY Id,InvoiceWriteOffId,AdjustmentNoteDetailId ) AS IWD ON IWD.InvoiceWriteOffId=AW.Id and IWD.AdjustmentNoteDetailId<>''
