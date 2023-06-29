@@ -93,6 +93,96 @@ namespace HRService
                 objCon = null;
             }
         }//end of function
+
+        public void getEmployeedetails(out List<EmployeeInfo> DataList, string EmployeeSysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<EmployeeInfo>();
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"SELECT ei.SystemID,ei.GroupID,ei.CompanyID,ei.PlantID, ei.EmployeeCode, ei.CardNumber, ei.EmployeeName, ei.EmpType,
+       ei.EmploymentType,   
+       left(replace(upper(convert(varchar,ei.DOB,113)),' ','-'),11) DOB,
+       left(replace(upper(convert(varchar,ei.DOJ,113)),' ','-'),11) DOJ,
+       left(replace(upper(convert(varchar,ei.DOS,113)),' ','-'),11) DOS,
+       ei.EmployeeStatus, ei.NationalID, ei.CitizenID, ei.PresentAddress1 PresentAddress,
+       ei.ParmanentAddress1 ParmanentAddress,p.UserName PlantName,d.UserName DivisionName,d2.UserName DepartmentName,s.UserName SectionName,ss.UserName SubSectionName,dg.UserName DesignationGroupName,d3.UserName DesignationName,
+       SAL.MinYear,SAL.MinMonth,
+      
+       jl.JobLocation,i.EmpImage, i.ImgType
+  FROM EmployeeInformation ei
+LEFT OUTER JOIN JobLocation jl ON jl.SystemID=ei.JobLocationID
+LEFT OUTER JOIN EmployeeImage I ON i.EmpSystemID=ei.SystemID
+LEFT OUTER JOIN ORG.Plant p ON p.Id=ei.PlantID
+LEFT OUTER JOIN ORG.Division d ON d.Id=ei.DivisionID
+LEFT OUTER JOIN ORG.Department d2 ON d2.Id=ei.DepartmentID
+LEFT OUTER JOIN ORG.Section s ON s.Id=ei.SectionID
+LEFT OUTER JOIN ORG.SubSection ss ON ss.Id=ei.SubSectionID
+LEFT OUTER JOIN HKP.DesignationGroup dg ON dg.Id=ei.DesignationGroupID
+LEFT OUTER JOIN HKP.Designation d3 ON d3.Id=ei.DesignationSystemID
+LEFT OUTER JOIN (SELECT C.EmpInfoSystemID,MIN(spm.YearNo) AS MinYear,MIN(spm.MonthNo) AS MinMonth
+                   FROM SalaryProcChild C
+                   LEFT OUTER JOIN SalaryProcMaster spm ON spm.SystemID=c.SlrProcMstSystemID
+                    GROUP BY C.EmpInfoSystemID) AS SAL ON SAL.EmpInfoSystemID=ei.SystemID
+
+WHERE ei.SystemId='" + EmployeeSysId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new EmployeeInfo
+                    {
+                        SystemID = dsRef.Tables[0].Rows[i]["SystemID"].ToString(),
+                        GroupID = dsRef.Tables[0].Rows[i]["GroupID"].ToString(),
+                        CompanyID = dsRef.Tables[0].Rows[i]["CompanyID"].ToString(),
+                        PlantID = dsRef.Tables[0].Rows[i]["PlantID"].ToString(),
+                        EmployeeCode = dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString(),
+                        CardNumber = dsRef.Tables[0].Rows[i]["CardNumber"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        EmpType = dsRef.Tables[0].Rows[i]["EmpType"].ToString(),
+                        EmploymentType = dsRef.Tables[0].Rows[i]["EmploymentType"].ToString(),
+                        DOB = dsRef.Tables[0].Rows[i]["DOB"].ToString(),
+                        DOJ = dsRef.Tables[0].Rows[i]["DOJ"].ToString(),
+                        DOS = dsRef.Tables[0].Rows[i]["DOS"].ToString(),
+                        EmployeeStatus = dsRef.Tables[0].Rows[i]["EmployeeStatus"].ToString(),
+                        NationalID = dsRef.Tables[0].Rows[i]["NationalID"].ToString(),
+                        CitizenID = dsRef.Tables[0].Rows[i]["CitizenID"].ToString(),
+                        PresentAddress = dsRef.Tables[0].Rows[i]["PresentAddress"].ToString(),
+                        ParmanentAddress = dsRef.Tables[0].Rows[i]["ParmanentAddress"].ToString(),
+                        PlantName = dsRef.Tables[0].Rows[i]["PlantName"].ToString(),
+                        DivisionName = dsRef.Tables[0].Rows[i]["DivisionName"].ToString(),
+                        DepartmentName = dsRef.Tables[0].Rows[i]["DepartmentName"].ToString(),
+                        SectionName = dsRef.Tables[0].Rows[i]["SectionName"].ToString(),
+                        SubSectionName = dsRef.Tables[0].Rows[i]["SubSectionName"].ToString(),
+                        DesignationGroupName = dsRef.Tables[0].Rows[i]["DesignationGroupName"].ToString(),
+                        DesignationName = dsRef.Tables[0].Rows[i]["DesignationName"].ToString(),
+                        JobLocation = dsRef.Tables[0].Rows[i]["JobLocation"].ToString(),
+
+                        MinMonth = (int)clsStdLib.dbl(dsRef.Tables[0].Rows[i]["MinMonth"].ToString()),
+                        MinYear = (int)clsStdLib.dbl(dsRef.Tables[0].Rows[i]["MinYear"].ToString()),
+
+                        EmpImage = dsRef.Tables[0].Rows[i]["EmpImage"],
+                        ImgType = dsRef.Tables[0].Rows[i]["ImgType"].ToString(),
+                    });
+                    DataList[i].EmpImage = new byte[] { 0 };
+                    if (dsRef.Tables[0].Rows[i]["EmpImage"].GetType() != typeof(System.DBNull))
+                        DataList[i].EmpImage = dsRef.Tables[0].Rows[i]["EmpImage"];
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public void sampleData(string strEntityID, string refNo, out System.Data.DataSet dsRef)
         {
             string strSQL;
@@ -5250,7 +5340,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
 
 
-                        dr["Id"] = _Id;
+                        dr["Id"] = "22" + _Id;
                         dr["FromDate"] = item.FromDate;
                         dr["ToDate"] = item.ToDate;
                         dr["FromTime"] = item.FromTime;
@@ -5316,7 +5406,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out string _Id);
 
-                        dr["Id"] = _Id;
+                        dr["Id"] = "22" + _Id;
                         dr["VehicleMovementRequisitionId"] = item.VehicleMovementRequisitionId;
                         dr["FromLocationId"] = item.FromLocationId;
                         dr["ToLocationId"] = item.ToLocationId;
@@ -5882,7 +5972,7 @@ where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null
 
 
 
-                        dr["Id"] = _Id;
+                        dr["Id"] = "22" + _Id;
                         dr["VehicleAllocationId"] = item.VehicleAllocationId;
                         dr["InDate"] = DBNull.Value;
                         dr["OutDate"] = item.OutDate;

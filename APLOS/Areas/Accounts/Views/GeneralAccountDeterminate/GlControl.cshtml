@@ -55,7 +55,9 @@
                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                     </label>
                 </div>
+                
             </div>
+
         </div>
     </div>
     <div class="common-btn">
@@ -222,7 +224,6 @@
 
             </div>
 
-
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="form-elements form-horizontal" ng-form="from0">
                     <div class="form-group" show-errors id="div_GL">
@@ -273,6 +274,52 @@
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="form-elements form-horizontal" ng-form="from5">
+                    <div class="form-group" show-errors id="div_Inventory">
+                        <label class="col-sm-1 control-label">GL<sup>*</sup></label>
+                        <div class="col-sm-4 show-message">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button ng-click="GetCOAICodeList('CapitalTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row ">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>GL</th>
+                                            <th>Budget</th>
+                                            <th>Activity</th>
+                                            <th>Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in CapitalGLList">
+                                            <td>{{x.GLGeneralInfoName}}</td>
+                                            <td>{{x.BudgetName}}</td>
+                                            <td>{{x.ActivityName}}</td>
+                                            <td class="text-right table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="$parent.RemoveExpense(x,$index,'capitalTabDel')" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
+                                                            <i class="glyphicon glyphicon-remove"></i>
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
@@ -324,7 +371,19 @@
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+            <div e-column e-template="#GLControlDownload" e-headertext="" e-width="2"></div>
         </div>
+        <script type="text/ng-template" id="GLControlDownload">
+            <div class="common-btn">
+                <ul class="list-inline ">
+                    <li>
+                        <button ng-click="$parent.GLControlReport(data);" title="GL Control" class="btn small">
+                            <i class="glyphicon glyphicon-cloud-download"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>
     </div>
 </div>
 <confirm-modal></confirm-modal>

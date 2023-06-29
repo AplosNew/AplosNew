@@ -130,6 +130,10 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         {
             "Text": "Amount",
             "Value": "Amount"
+        },
+        {
+            "Text": "Status",
+            "Value": "Status"
         }
     ];
 
