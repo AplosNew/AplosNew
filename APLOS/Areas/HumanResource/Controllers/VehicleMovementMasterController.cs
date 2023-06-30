@@ -10,6 +10,7 @@ using Library.Service.Logs;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -702,15 +703,17 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             {
                 
                 string TableName = "[TRN].[VehicleMovementRequisition]";
-                DataSet dsMaster;
+                DataSet dsMaster, ds;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string getId = $"select Id from {TableName}";
+                //con.OpenDataSetThroughAdapter($"select top 1 * from {TableName} order by FromDate DESC", out ds, false, "1");
+                //SqlDataAdapter da = new SqlDataAdapter($"select top 1 * from [TRN].[VehicleMovementRequisition]  order by FromDate DESC", con.ToString());
+                //DataTable dt = new DataTable();
+                //da.Fill(dt);
 
                 string _Id = "";
 
@@ -720,7 +723,13 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
                     
-                    data["Id"] = _Id;
+                    data["Id"] = 23 + _Id;
+                    
+                   
+                    //if (dt.Rows[0]["Id"] == data["Id"])
+                    //{
+                    //    data["Id"] = int.Parse(_Id) + 1;
+                    //}
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -783,7 +792,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("MachineMasterTransaction", out _Id);
                         DataRow dr = dsChild.Tables[0].NewRow();
-                        dr["Id"] = _Id;
+                        dr["Id"] = 23 + _Id;
                         dr["VehicleMovementRequisitionId"] = headerId;
                         dr["FromLocationId"] = item["FromLocationId"];
                         dr["ToLocationId"] = item["ToLocationId"];
@@ -1248,7 +1257,7 @@ where VIO.OutReading is null";
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
-                    data["Id"] = _Id;
+                    data["Id"] = 23 + _Id;
                     data["VehicleAllocationId"] = headerId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -1322,7 +1331,7 @@ where VIO.OutReading is null";
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
-                    data["Id"] = _Id;
+                    data["Id"] = 23 + _Id;
                     data["VehicleAllocationId"] = headerId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
