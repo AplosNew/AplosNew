@@ -5009,11 +5009,15 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
                         dr["AddedFromIP"] = item.AddedFromIP;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
 
+                        dr["UpdatedBy"] = DBNull.Value;
+                        dr["UpdatedDate"] = DBNull.Value;
+                        dr["UpdatedFromIP"] = DBNull.Value;
+
 
                         dsMaster.Tables[0].Rows.Add(dr);
 
                     }
-                    else
+                   /* else
                     {
                         DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
@@ -5030,7 +5034,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
 
 
                         dr.EndEdit();
-                    }
+                    }*/
 
                 }
                 clsStaticInfo _info = new clsStaticInfo();
