@@ -642,6 +642,13 @@ namespace Aplos.Controllers.ApopAPIHR
 
             }
         }
+
+        public List<Plantcontrol> GetLastOut(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetLastOut(out List<Plantcontrol> activelists, EmpSysId);
+            return activelists;
+        }
         #endregion Seven Days Attendance 
 
 
