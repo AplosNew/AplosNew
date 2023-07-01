@@ -640,6 +640,8 @@
     <Compile Include="Areas\Productions\Controllers\ProductionControlController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\WCWorkStationsControlReportController.cs" />
+    <Compile Include="Areas\QMS\Controllers\ComplaintController.cs" />
+    <Compile Include="Areas\QMS\Controllers\CustomerQualityAndTechnicalSupportController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSetupController.cs" />
     <Compile Include="Areas\QMS\Controllers\QualityManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SurveyandFeedbackController.cs" />
@@ -2258,6 +2260,8 @@
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlMasterController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlReportController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
+    <Content Include="Areas\QMS\Scripts\ComplaintController.js" />
+    <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSetupController.js" />
     <Content Include="Areas\QMS\Scripts\QualityManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\SurveyandFeedbackController.js" />
@@ -4871,6 +4875,8 @@
     <Content Include="Areas\SalesManagements\Views\SalesIncentive.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_masterOrderSalesIncentiveDetailPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\GeneralAccountDeterminate\GlControl.cshtml" />
+    <Content Include="Areas\QMS\Views\CustomerQualityAndTechnicalSupport\Aplos.cshtml" />
+    <Content Include="Areas\QMS\Views\Complaint\Aplos.cshtml" />
     <None Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.intellisense.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.js" />
     <Content Include="Scripts\BootstrapTimePicker\Scripts\jquery-1.9.0.min.js" />

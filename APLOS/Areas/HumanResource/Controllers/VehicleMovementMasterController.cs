@@ -1309,7 +1309,7 @@ where VIO.OutReading is null";
         #region VehicleOut
         public JsonResult GetVehicleOutData()
         {
-            string sql = @"select FORMAT(OutDate, 'dd-MMM-yyy')OutDate, FORMAT(OutTime, 'hh:mm tt')OutTime, OutKillometer, OutRemarks from TRN.VehicleMovementInOut";
+            string sql = @"select Id, FORMAT(OutDate, 'dd-MMM-yyy')OutDate, FORMAT(OutTime, 'hh:mm tt')OutTime, OutKillometer, OutRemarks from TRN.VehicleMovementInOut";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 

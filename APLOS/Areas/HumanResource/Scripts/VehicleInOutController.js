@@ -163,7 +163,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     $scope.VehicleInModel = Object.assign({}, $scope.VehicleInTemp);
 
     $scope.GetIn = function (args) {
-        $scope.VehicleInModel = Object.assign({}, args.data);
+        $scope.VehicleInModel = Object.assign({}, args[0]);
         $scope.VehicleInModel.InDate = todaDate;
         $scope.VehicleInModel.InTime = todaDate;
         $scope.ActionIn = 'Update';
@@ -182,6 +182,8 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.VehicleInList = response.data;
+            $scope.GetIn(response.data);
+            
 
         });
     }
@@ -208,6 +210,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                     ClearFieldsVehicleIN();
                     ClearVehicleRequisitionFields();
                     $scope.VehicleInData();
+                    $scope.GetPendingInTrip();
 
                 }
             }), function errorCallBack(response) {
@@ -288,6 +291,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         }).then(function successCallback(response) {
             $scope.VehicleOutList = response.data;
 
+
         });
     }
 
@@ -312,6 +316,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                     ShowResult(response.data.Message, 'success');
                     ClearFieldsVehicleOut();
                     ClearVehicleRequisitionFields();
+                    $scope.GetPendingOutTrip();
                     $scope.VehicleOutData();
 
                 }

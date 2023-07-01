@@ -15,12 +15,17 @@
             </div>
         </div>
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Defined Name<sup>*</sup></label>
+            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="5" maxlength="50">
             </div>
         </div>
-        
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Remarks</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" rows="1" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+            </div>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
@@ -35,12 +40,7 @@
                 <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Remarks</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-            </div>
-        </div>
+        
         <div class="form-group">
             <label class="col-sm-4 control-label">Active</label>
             <div class="col-sm-8">
