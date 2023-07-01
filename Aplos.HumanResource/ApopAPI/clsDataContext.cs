@@ -5053,6 +5053,46 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         }
 
 
+        public void GetLastOut(out List<Plantcontrol> DataList, string EmpSysId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Plantcontrol>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Top 1 Id , EmployeeCode , Date, Time , InandOut, AddedBy   from PlantInOutControl where AddedDate > DATEADD(HOUR , -12 , GETDATE()) 
+and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Plantcontrol
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        EmployeeCode = dsRef.Tables[0].Rows[i]["EmployeeCode"].ToString(),
+                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
+                        Time = dsRef.Tables[0].Rows[i]["Time"].ToString(),
+                        InandOut = dsRef.Tables[0].Rows[i]["InandOut"].ToString(),
+                        AddedBy = dsRef.Tables[0].Rows[i]["AddedBy"].ToString(),
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+
         #endregion seven days attendance
 
 
