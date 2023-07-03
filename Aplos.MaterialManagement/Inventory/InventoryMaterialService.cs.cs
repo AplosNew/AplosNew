@@ -663,7 +663,11 @@ namespace Library.MaterialManagement.Inventory
                                 Left Join SCS.Country C ON C.Id=IM.CountryId
 								 LEFT JOIN [TRN].[MasterOrderItem] MOI ON IRD.MasterOrderItemId=MOI.Id
 								WHERE IM.MaterialMasterId IS NOT NULL 
-	 
+	                     AND ISNULL(IR.[Status],'')<>'Posting' 
+                         AND IR.OpeningBalanceId IS NULL   
+                         And IR.IsApproved =0 
+                         AND IR.CheckedBy is not null  
+                         AND IR.CheckedByStatus='ForChecked' 
 
 								UNION ALL
 
@@ -763,10 +767,9 @@ namespace Library.MaterialManagement.Inventory
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
 			}
 		}
+       
 
-
-
-		public GridModel Query1(GridParameter parameters, string inveReveiveId)
+        public GridModel Query1(GridParameter parameters, string inveReveiveId)
 		{
 			string paramter = "";
 			if (inveReveiveId != "")

@@ -440,6 +440,7 @@ namespace Library.MaterialManagement.Inventory
                 else
                 {
                     _inventoryReceiveService.Update(entity);
+                    //TODO:
                 }
                 var grnDetailCheck = _receiveDetailRepository.Query(r => r.InventoryReceiveId == entity.Id).Select(r=>r.Id).FirstOrDefault();
                 
