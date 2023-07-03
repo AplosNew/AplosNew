@@ -22682,7 +22682,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             try
             {
 
-                string sql = @"SELECT  EmpSystemID,TodaysDate,Dateofconfirmation,NextDayFromconfirmation,
+                string sql = @"SELECT top 1 EmpSystemID,TodaysDate,Dateofconfirmation,NextDayFromconfirmation,
                             ISNULL(FatherNameLocal,FatherName) FatherName,  FatherName FatherNameEng,
                             ISNULL(MotherNameLocal,MotherName) MotherName,  MotherName MotherNameEng,
                             ISNULL(EmployeeNameLocal,EmployeeName) EmployeeName, EmployeeName EmployeeNameEng,
@@ -22796,7 +22796,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             }
         }
 
-        private DataTable LeaveSummaryForServiceBook(string EmployeeId, string CalanderYearId)
+        public DataTable LeaveSummaryForServiceBook(string EmployeeId, string CalanderYearId)
         {
             try
             {
@@ -23016,7 +23016,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             }
         }
 
-        private DataTable GetCurrentClanderYear(string plantId)
+        public DataTable GetCurrentClanderYear(string plantId)
         {
             try
             {
@@ -23176,7 +23176,7 @@ where E.SystemId in (" + parameters["EmpSystemId"] + @")";
             return formateDate = day + "-" + mon + "-" + year;
         }
 
-        private DataTable loadBf(string EmployeeId, string CalanderYearId)
+        public DataTable loadBf(string EmployeeId, string CalanderYearId)
         {
             try
             {

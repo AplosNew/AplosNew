@@ -459,6 +459,12 @@ namespace Aplos.Controllers.ApopAPIHR
             clsData.GetReason(out List<Default2> activelists, ProcessId);
             return activelists;
         }
+        public List<EmployeeInfo> getEmployeedetails(string EmployeeSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.getEmployeedetails(out List<EmployeeInfo> activelists, EmployeeSysId);
+            return activelists;
+        }
         public List<Default2> GetWorkCenterId(string WorkCenter)
         {
             clsDataContext clsData = new clsDataContext();
@@ -635,6 +641,13 @@ namespace Aplos.Controllers.ApopAPIHR
                 return ex.ToString();
 
             }
+        }
+
+        public List<Plantcontrol> GetLastOut(string EmpSysId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetLastOut(out List<Plantcontrol> activelists, EmpSysId);
+            return activelists;
         }
         #endregion Seven Days Attendance 
 
