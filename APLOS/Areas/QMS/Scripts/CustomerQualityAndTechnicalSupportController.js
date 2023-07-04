@@ -5,6 +5,7 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
     $scope.path = 'QMS/CustomerQualityAndTechnicalSupport/';
     $scope.partyType = 'Vendor';
     $scope.Action = 'Save';
+    $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
     $controller('partyBaseController', { $scope: $scope, $http: $http });
 
     $scope.tab = 1;
@@ -82,4 +83,66 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             $scope.InvoicenumberList = response.data;
         })
     }
+
+    //#region Responsible Person
+   
+    $scope.employeeParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
+        searchBy: 'EmployeeCode',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.Name = null;
+    $scope.employeeList = [];
+    $scope.showEmployeeListPopUp = function (name) {
+        try {
+            $scope.Name = name;
+
+            $scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        $scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#employeePopUps')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployeePopUp = function (index, data) {
+        $scope.employeeIndex = index;
+
+        $scope.VehicleRequisitionModel.EmpSystemId = data.SystemId;
+        $scope.VehicleRequisitionModel.EmployeeName = data.EmployeeName;
+        $scope.VehicleRequisitionModel.ResponsiblePersonCode = data.EmployeeCode;
+
+        angular.element(document.querySelector('#employeePopUps')).modal('hide');
+        $scope.Name = null;
+    };
+
+    $scope.hideEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUps')).modal('hide');
+    };
+
+    
+    //#endregion Responsible Person
 }

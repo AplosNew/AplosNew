@@ -948,11 +948,13 @@ FromLocation = stuff((select ', ' + LM.UserName
 							left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
 							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'')
 
-                            from [TRN].[VehicleMovementRequisition] VMR							
+                             from [TRN].[VehicleMovementRequisition] VMR	
+							left join TRN.VehicleMovementRequisitionChild VMC on VMC.VehicleMovementRequisitionId = VMR.Id
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null
+                            where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VMC.FromLocationId is not null and 
+							VMC.ToLocationId is not null
 							order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1220,7 +1222,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.InReading is null";
+where VIO.InReading is null  and VIO.Id is not null and VA.TripId is not null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
@@ -1234,7 +1236,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.OutReading is null";
+where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not null and VA.DriverMasterId is not null and VA.TripId is not null and VIO.Id is null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
@@ -1309,7 +1311,7 @@ where VIO.OutReading is null";
         #region VehicleOut
         public JsonResult GetVehicleOutData()
         {
-            string sql = @"select Id, FORMAT(OutDate, 'dd-MMM-yyy')OutDate, FORMAT(OutTime, 'hh:mm tt')OutTime, OutKillometer, OutRemarks from TRN.VehicleMovementInOut";
+            string sql = @"select  FORMAT(OutDate, 'dd-MMM-yyy')OutDate, FORMAT(OutTime, 'hh:mm tt')OutTime, OutKillometer, OutRemarks from TRN.VehicleMovementInOut";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
