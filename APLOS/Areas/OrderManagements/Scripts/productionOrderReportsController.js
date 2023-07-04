@@ -356,15 +356,14 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
     }
     $scope.getProductionInfoWithWIP = function () {
         try {
-            var proStatus = "''";
-            for (var i = 0; i < $scope.productionStatusList.length; i++) {
-                if ($scope.productionStatusList[i].Checked == true)
-                    proStatus += ",'" + $scope.productionStatusList[i].Value + "'";
+            var DropDownOSList = $("#selOS").data("ejDropDownList");
+            var osLists = DropDownOSList.getSelectedValue();
+        //    var olist = DropDownOSList._checkedValues;
+            if (angular.isUndefinedOrNull(osLists)) {
+                throw "Select Production Status.";
             }
-            if (proStatus == "''")
-                throw 'Please select production status';
 
-            var file_src = 'OrderManagements/productionOrderReports/ProductionReport?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&todate=" + $scope.ToDate + "&ProductionStatus=" + proStatus;
+            var file_src = 'OrderManagements/productionOrderReports/ProductionReport?entityid=' + $scope.EntityId + "&fromDate=" + $scope.FromDate + "&todate=" + $scope.ToDate + "&ProductionStatus=" + osLists;
             $rootScope.report(file_src);
 
         } catch (e) {

@@ -135,6 +135,14 @@
             templateUrl: 'QMS/DocumentSetup/Aplos',
             controller: 'DocumentSetupController'
         })
+        .when('/complaint-master', {
+            templateUrl: 'QMS/Complaint/Aplos',
+            controller: 'ComplaintController'
+        })
+        .when('/customer-quality-and-technical-support', {
+            templateUrl: 'QMS/CustomerQualityAndTechnicalSupport/Aplos',
+            controller: 'CustomerQualityAndTechnicalSupportController'
+        })
 
         
 }

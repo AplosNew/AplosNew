@@ -1186,6 +1186,8 @@ upanelApp.controller("GLControlController", GLControlController)
 upanelApp.controller("WorkCenterQualityControlMasterController", WorkCenterQualityControlMasterController)
 upanelApp.controller("QRCodeGeneratorController", QRCodeGeneratorController)
 upanelApp.controller("PlantInOutControllReportController", PlantInOutControllReportController)
+upanelApp.controller("ComplaintController", ComplaintController)
+upanelApp.controller("CustomerQualityAndTechnicalSupportController", CustomerQualityAndTechnicalSupportController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

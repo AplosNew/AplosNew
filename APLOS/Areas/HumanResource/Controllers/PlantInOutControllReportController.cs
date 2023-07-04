@@ -22,23 +22,28 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         public ActionResult GetPlantInOutGridData()
         {
-            string sql = @"select FORMAT(PIO.AddedDate, 'dd-MMM-yyyy')[Date], PIO.InandOut
-,InTime = Case when PIO.InandOut = 'IN' THEN PIO.[Time] else  NULL end
-,OutTime = Case when PIO.InandOut = 'OUT' THEN PIO.[Time] else  NULL end
-, (DATEDIFF (
-SECOND
-,(select  MAX([PI].[Time]) from PlantInOutControl [PI] where [PI].EmployeeCode = EI.SystemId and [PI].InandOut = 'OUT' group by [PI].InandOut)
-,(select  MIN([PI].[Time]) from PlantInOutControl [PI] where [PI].EmployeeCode = EI.SystemId and [PI].InandOut = 'IN' group by [PI].InandOut)
-)) InOutDuration
-,EI.EmployeeCode,EI.EmployeeName, D.UserName GivenDesignation
-, EI.EmployeeCurrentStatus 
-,A.UserName Activity, SS.UserName SubSection,S.UserName Section,DEP.UserName Department,EI.EmployeeStatus 
+            string sql = @"select EMP.EmployeeCode,EMP.EmployeeName,  isnull(OUT.EmployeeCode,INP.EmployeeCode) Code,isnull(OUT.Date,INP.Date) Date
+,OUT.InandOut'Out', OUT.Time OutTime, INP.InandOut 'IN', INP.Time InTIme
+, D.UserName GivenDesignation
+, EMP.EmployeeCurrentStatus 
+,A.UserName Activity, SS.UserName SubSection,S.UserName Section,DEP.UserName Department,EMP.EmployeeStatus 
 ,DEP.UserName Department
 
-from PlantInOutControl PIO 
-left join EmployeeInformation EI  on EI.SystemId = PIO.EmployeeCode 
+from (SELECT DISTINCT concat(row_number() over (
+          partition by PIC.EmployeeCode,PIC.Date
+          order by PIC.EmployeeCode, PIC.Date,PIC.InandOut ,PIC.Time)
+         ,PIC.EmployeeCode,PIC.Date) as RowID, PIC.EmployeeCode, PIC.Date,PIC.InandOut ,PIC.Time
+FROM PlantInOutControl  PIC 
+WHERE PIC.InandOut = 'OUT') OUT
 
-left join MST.ManpowerBudget BGT on BGT.Id = EI.BudgetCode
+FULL JOIN (SELECT DISTINCT concat(row_number() over (
+          partition by PIC.EmployeeCode,PIC.Date
+          order by PIC.EmployeeCode, PIC.Date,PIC.InandOut ,PIC.Time)
+         ,PIC.EmployeeCode,PIC.Date) as RowID, PIC.EmployeeCode, PIC.Date,PIC.InandOut ,PIC.Time
+FROM PlantInOutControl  PIC 
+WHERE PIC.InandOut = 'IN') INP on INP.RowID = OUT.RowID
+LEFT JOIN EmployeeInformation EMP ON EMP.SystemId = OUT.EmployeeCode OR EMP.SystemId = INP.EmployeeCode
+left join MST.ManpowerBudget BGT on BGT.Id = EMP.BudgetCode
 left join MST.BudgetMasterActivity BMA on BGT.ROBudgetCode = BMA.BudgetMasterId
 left join HKP.Activity A on BMA.ActivityId = A.Id
 left join ORG.Position P on BGT.PositionId = P.Id
@@ -46,10 +51,10 @@ left join ORG.Department DT on P.DepartmentId = DT.Id
 left join ORG.Section S on P.SectionId = S.Id
 left join ORG.SubSection SS on P.SubSectionId = SS.Id
 left join ORG.Entity E on E.Id = BGT.EntityId
-LEFT JOIN ORG.Department DEP on DEP.Id = EI.DepartmentId
-left join HKP.Designation D on D.Id = EI.GivenDesignationId
---where EI.SystemId = 2014991 
-order by EI.EmployeeCode, PIO.AddedDate";
+LEFT JOIN ORG.Department DEP on DEP.Id = EMP.DepartmentId
+left join HKP.Designation D on D.Id = EMP.GivenDesignationId
+
+order by Out.EmployeeCode,INP.EmployeeCode,Out.Date,INP.Date,Out.Time,INP.Time";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
     }

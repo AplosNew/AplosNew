@@ -14,6 +14,7 @@ using Library.Service.Logs;
 using Library.Service.Systems;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
 
 #endregion Using
@@ -60,6 +61,8 @@ namespace Library.Service.Biometrics
 
                 while (dtFmLTD <= dtToLTD)
                 {
+
+
                     //IsValid
                     if (IsValid(_policyVM, listH, listW, dtFmLTD))//if no W/H as per policy
                     {
@@ -90,6 +93,8 @@ namespace Library.Service.Biometrics
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+       
+
         bool IsValid(PolicySandwichVM _policyVM, List<string> listH, List<string> listW,DateTime dtFmLTD)
         {
             bool _result = false;
