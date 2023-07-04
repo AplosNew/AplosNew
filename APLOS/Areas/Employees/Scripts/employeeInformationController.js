@@ -1963,6 +1963,9 @@ function employeeInformationController(addressService, fileReader, cboService, c
             if (baseService.isUndefinedOrNull($scope.employeeInformation.ParmanentAddress1)) {
                 throw "Permanent Address 1 is required";
             }
+            if (baseService.isUndefinedOrNull($scope.employeeInformation.PresStateId)) {
+                throw "Present Address State is required";
+            }
             if (!baseService.isUndefinedOrNull($scope.employeeInformation.EmrCntPer1CellNo)) {
                 if (isNaN($scope.employeeInformation.EmrCntPer1CellNo)) {
                     throw "Enter the valid Cell Number in Cell No1";
