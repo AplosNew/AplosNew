@@ -1757,14 +1757,20 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
                 }
                 #endregion
 
+                var dtFmDate = Convert.ToDateTime(leaveTransaction.FromDate);
+                var dtToDate = Convert.ToDateTime(leaveTransaction.ToDate);
 
+                DataTable CAWD = CheckAttdnByWD(leaveTransaction.EmpSystemID, dtFmDate.ToString(), dtToDate.ToString());
+                if (CAWD.Rows.Count > 0)
+                {
+                    throw new CustomException("This " + dtFmDate.ToString() + " work date is not allowed because of attendance.");
+                }
 
                 _unitOfWork.BeginTransaction();
                 #region master
                 flag = true;
 
-                var dtFmDate = Convert.ToDateTime(leaveTransaction.FromDate);
-                var dtToDate = Convert.ToDateTime(leaveTransaction.ToDate);
+              
 
                 TimeSpan difference = dtToDate - dtFmDate;
                 var leaveDays = Convert.ToDecimal(difference.Days + 1);
@@ -2175,6 +2181,13 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
         //}//End Function 
         #endregion
 
+        public DataTable CheckAttdnByWD(string EmployeeId, string fromDate, string toDate)
+        {
+            string sql = @"Select * from dbo.AttdnProcessData Where EmpSystemID='"+ EmployeeId + "' AND WorkDate between '" + fromDate + "' AND '" + toDate + "' AND InTime<>'' AND OutTime<>'' AND DATEDIFF(Hour,InTime,OutTime)>=8";
+            var list = _sqlRepository.GetDataTable(sql);
+
+            return list;
+        }
 
         public void CheckMaxLeaveataTime(LeaveTransaction leaveTransaction, string leavepolicymasterId, decimal leaveDays, string yearId = "")
         {
