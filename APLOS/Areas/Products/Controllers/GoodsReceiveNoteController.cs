@@ -1217,6 +1217,7 @@ namespace Aplos.Areas.Products.Controllers
 
         }
 
+
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialPayableList(GridParameter parameters, string inveReveiveId)
         {

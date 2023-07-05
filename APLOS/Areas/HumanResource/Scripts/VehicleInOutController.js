@@ -38,6 +38,37 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #endregion TAB CHANGE
 
+    $scope.SaveVehicleAllocation = function () {
+
+
+        $http({
+            method: 'POST',
+            url: $scope.saveVehicleReqUrl,
+            data: {
+                'data': $scope.VehicleRequisitionModel,
+                'tripId': $scope.TripId
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                //angular.element(document.querySelector("#reqPopup")).modal('hide');
+                //$scope.GetTripApproved();
+                //$scope.GetTripData();
+               // $scope.GetVehicleReqTreeViewData();
+
+               // ClearVehicleAllocation();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+
     $scope.VehicleAllocationList = [];
     $scope.GetVehicleAllocation = function () {
         $http({
@@ -106,6 +137,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             VehicleMasterId: null,
             DriverMasterId: null,
             FromLocation: null,
+            VehicleAllocationId:null
         };
         $scope.VehicleRequisitionModel = Object.assign({}, $scope.VehicleRequisitionTemp);
     }
@@ -163,7 +195,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     $scope.VehicleInModel = Object.assign({}, $scope.VehicleInTemp);
 
     $scope.GetIn = function (args) {
-        $scope.VehicleInModel = Object.assign({}, args.data);
+        $scope.VehicleInModel = Object.assign({}, args[0]);
         $scope.VehicleInModel.InDate = todaDate;
         $scope.VehicleInModel.InTime = todaDate;
         $scope.ActionIn = 'Update';
@@ -182,6 +214,8 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.VehicleInList = response.data;
+            $scope.GetIn(response.data);
+            
 
         });
     }
@@ -208,6 +242,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                     ClearFieldsVehicleIN();
                     ClearVehicleRequisitionFields();
                     $scope.VehicleInData();
+                    $scope.GetPendingInTrip();
 
                 }
             }), function errorCallBack(response) {
@@ -288,6 +323,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         }).then(function successCallback(response) {
             $scope.VehicleOutList = response.data;
 
+
         });
     }
 
@@ -301,7 +337,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                 url: $scope.path + 'SaveVehicleOut',
                 data: {
                     'data': $scope.VehicleOutModel,
-                    'headerId': $scope.VehicleRequisitionModel.Id
+                    'headerId': $scope.VehicleRequisitionModel.VehicleAllocationId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -312,6 +348,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                     ShowResult(response.data.Message, 'success');
                     ClearFieldsVehicleOut();
                     ClearVehicleRequisitionFields();
+                    $scope.GetPendingOutTrip();
                     $scope.VehicleOutData();
 
                 }

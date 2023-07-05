@@ -10,6 +10,7 @@ using Library.Service.Logs;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -702,15 +703,17 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             {
                 
                 string TableName = "[TRN].[VehicleMovementRequisition]";
-                DataSet dsMaster;
+                DataSet dsMaster, ds;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string getId = $"select Id from {TableName}";
+                //con.OpenDataSetThroughAdapter($"select top 1 * from {TableName} order by FromDate DESC", out ds, false, "1");
+                //SqlDataAdapter da = new SqlDataAdapter($"select top 1 * from [TRN].[VehicleMovementRequisition]  order by FromDate DESC", con.ToString());
+                //DataTable dt = new DataTable();
+                //da.Fill(dt);
 
                 string _Id = "";
 
@@ -720,7 +723,13 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
                     
-                    data["Id"] = _Id;
+                    data["Id"] = 23 + _Id;
+                    
+                   
+                    //if (dt.Rows[0]["Id"] == data["Id"])
+                    //{
+                    //    data["Id"] = int.Parse(_Id) + 1;
+                    //}
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -783,7 +792,7 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("MachineMasterTransaction", out _Id);
                         DataRow dr = dsChild.Tables[0].NewRow();
-                        dr["Id"] = _Id;
+                        dr["Id"] = 23 + _Id;
                         dr["VehicleMovementRequisitionId"] = headerId;
                         dr["FromLocationId"] = item["FromLocationId"];
                         dr["ToLocationId"] = item["ToLocationId"];
@@ -939,11 +948,13 @@ FromLocation = stuff((select ', ' + LM.UserName
 							left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
 							where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'')
 
-                            from [TRN].[VehicleMovementRequisition] VMR							
+                             from [TRN].[VehicleMovementRequisition] VMR	
+							left join TRN.VehicleMovementRequisitionChild VMC on VMC.VehicleMovementRequisitionId = VMR.Id
                             left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                             left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
 							LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId							
-                            where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null
+                            where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VMC.FromLocationId is not null and 
+							VMC.ToLocationId is not null
 							order by VMR.Id Desc, FORMAT(VMR.AddedDate, 'dd-MMM-yyy') Desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -1211,7 +1222,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.InReading is null";
+where VIO.InReading is null  and VIO.Id is not null and VA.TripId is not null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
@@ -1225,7 +1236,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-where VIO.OutReading is null";
+where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not null and VA.DriverMasterId is not null and VA.TripId is not null and VIO.Id is null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
@@ -1248,7 +1259,7 @@ where VIO.OutReading is null";
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
-                    data["Id"] = _Id;
+                    data["Id"] = 23 + _Id;
                     data["VehicleAllocationId"] = headerId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -1300,7 +1311,7 @@ where VIO.OutReading is null";
         #region VehicleOut
         public JsonResult GetVehicleOutData()
         {
-            string sql = @"select FORMAT(OutDate, 'dd-MMM-yyy')OutDate, FORMAT(OutTime, 'hh:mm tt')OutTime, OutKillometer, OutRemarks from TRN.VehicleMovementInOut";
+            string sql = @"select  FORMAT(OutDate, 'dd-MMM-yyy')OutDate, FORMAT(OutTime, 'hh:mm tt')OutTime, OutKillometer, OutRemarks from TRN.VehicleMovementInOut";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 
@@ -1322,7 +1333,7 @@ where VIO.OutReading is null";
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
-                    data["Id"] = _Id;
+                    data["Id"] = 23 + _Id;
                     data["VehicleAllocationId"] = headerId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }

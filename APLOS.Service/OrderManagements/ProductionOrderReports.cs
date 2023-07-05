@@ -911,10 +911,12 @@ ORDER BY w.GroupingData, w.Sequence, w.UserName ASC,kk.[YEAR], kk.[MONTH] ASC";
         }
         private void getSalesOrderDistributionForProduction(string ProductionStatusId, string date, string entityid, string processid, out Dictionary<string, ProductionQtyDistributionSO> dicDistributedSO, out DataTable dt)
         {
-            if (string.IsNullOrEmpty(ProductionStatusId) == true || ProductionStatusId.ToUpper() == "ALL")
-                ProductionStatusId = "";
-            else
-                ProductionStatusId = " AND PO.ProductionStatusId IN (" + ProductionStatusId + ")";
+            string orderStatusIds = "'" + ProductionStatusId.Replace(",", "','") + "'";//replaced with ""
+
+            //if (string.IsNullOrEmpty(ProductionStatusId) == true || ProductionStatusId.ToUpper() == "ALL")
+            //    ProductionStatusId = "";
+            //else
+                ProductionStatusId = " AND PO.ProductionStatusId IN (" + orderStatusIds + ")";
 
             string sql = @"SELECT po.Id AS ProductionOrderID,PRODPR.ProductionQtyAtPR AS ProductionUptoPreviousDay,
 ISNULL(PRODPRTODAY.ProductionQtyAtPR,0) ProducedQtyToday,
@@ -980,11 +982,11 @@ ORDER BY po.Id
         }
         private void getSalesOrderDistributionForProductionRange(string ProductionStatusId, string Fromdate, string ToDate, string entityid, string processid, out Dictionary<string, ProductionQtyDistributionSO> dicDistributedSO, out DataTable dt)
         {
-            if (string.IsNullOrEmpty(ProductionStatusId) == true || ProductionStatusId.ToUpper() == "ALL")
-                ProductionStatusId = "";
-            else
-                ProductionStatusId = " AND PO.ProductionStatusId IN (" + ProductionStatusId + ")";
+           
 
+            string orderStatusIds = "'" + ProductionStatusId.Replace(",", "','") + "'";//replaced with ""
+
+            ProductionStatusId = " AND PO.ProductionStatusId IN (" + orderStatusIds + ")";
 
             string sql = @"SELECT po.Id AS ProductionOrderID,PRODPR.ProductionQtyAtPR AS ProductionStartDateAtPR
                                 from trn.ProductionOrder PO
@@ -1083,10 +1085,9 @@ ORDER BY po.Id
 
         private void getOrderMasterForProduction(string ProductionStatusId, string entityid, string todate, out DataTable dtOrderMaster)
         {
-            if (string.IsNullOrEmpty(ProductionStatusId) == true || ProductionStatusId.ToUpper() == "ALL")
-                ProductionStatusId = "";
-            else
-                ProductionStatusId = " AND PO.ProductionStatusId IN (" + ProductionStatusId + ")";
+            string orderStatusIds = "'" + ProductionStatusId.Replace(",", "','") + "'";//replaced with ""
+
+            ProductionStatusId = " AND PO.ProductionStatusId IN (" + orderStatusIds + ")";
 
             string sql = @"select * from ( SELECT   trkp.UserName AS Plant,trke.UserName AS Entity,mm.UserName AS Material,
                             POD.ProductionOrderId,OC.UserName AS OrderCategory,os.UserName AS OrderStatus,ps.UserName  AS productionStatus,
