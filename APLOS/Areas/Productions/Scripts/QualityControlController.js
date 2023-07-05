@@ -16,6 +16,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.saveUrlIssueItem = $scope.path + 'createIssueItem';
     $scope.saveUrlGrade = $scope.path + 'createGrade';
     $scope.saveUrl = $scope.path + 'createQC';
+    $scope.saveUrlQP = $scope.path + 'createQP';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
@@ -113,6 +114,19 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             $http.get('Productions/QualityControl/LoadQCSummary?IssueId=' + $scope.POSummaryNew.POIssueId + '&todate=' + $scope.POSummaryNew.ToDate + '&fromDate=' + $scope.POSummaryNew.FromDate + '&POId=' + $scope.POSummaryNew.POId)
                 .then(function (response) {
                     $scope.QCSummaryList = response.data;
+                });
+        } catch (e) {
+            ShowResult(e, 'failure'); 
+        }
+    }
+
+    $scope.QualityPlanList = [];
+    $scope.ProcessQualityPlan = function () {
+        try {
+            $scope.QualityPlanList = [];
+            $http.get('Productions/QualityControl/LoadQualityPlan')
+                .then(function (response) {
+                    $scope.QualityPlanList = response.data;
                 });
         } catch (e) {
             ShowResult(e, 'failure');
@@ -963,7 +977,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 method: 'POST',
                 url: $scope.saveUrl,
                 data: {
-                    'QualityControlData': $scope.productionSummaryNew
+                    'QualityControlData': $scope.productionSummaryNew,
+                    'QualityPlanId': $scope.QPId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -971,7 +986,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
+                    //ShowResult(response.data.Message, 'success');
                 }
                 $scope.QCId = response.data.Data.Id;
                 $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
@@ -1009,6 +1024,39 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         } catch (e) {
             ShowResult(e, 'failure');
 
+        }
+    };
+
+    $scope.SaveQP = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.QualityPlanList.length; i++) {
+                $scope.SaveList.push($scope.QualityPlanList[i]);
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlQP,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ProcessQualityPlan();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
         }
     };
 
@@ -1264,6 +1312,22 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         else if (new Date(e.data.Date) >= new Date()) {
 
             e.row.css("background-color", '#FFA500');
+        }
+
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+    }
+
+    $scope.QProwDataBound = function QProwDataBound(e) {
+
+        if (e.data.Date == $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')) {
+            e.row.css("background-color", '#87CEEB');
+        }
+        else if (new Date(e.data.Date) < new Date()) {
+
+            e.row.css("background-color", '#ffa001');
         }
 
         else {
@@ -1837,6 +1901,29 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.GetQBookingLevel();
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
+
+    $scope.QPId = null;
+    $scope.SetQPSelectData = function ($event) {
+        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
+        $scope.productionSummaryNew.EntityId = $event.data.EntityId;
+        $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
+        $scope.productionSummaryNew.ProductionShiftId = $event.data.ProductionShiftId;
+        $scope.productionSummaryNew.ProductionDate = $event.data.QualityPlanDate;
+        $scope.productionSummaryNew.IssueId = $event.data.IssueId;
+        $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
+        $scope.productionSummaryNew.LotNumber = $event.data.LotNumber;
+        $scope.QPId = $event.data.Id;
+        $scope.setTab(2);
+        $scope.getAllEntities();
+        $scope.loadProcessList($scope.productionSummaryNew.EntityId);
+        $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
+        $scope.GetShiftList();
+        $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
+        $scope.GetIssueType($scope.productionSummaryNew.IssueId);
+        $scope.GetQBookingLevel();
+        //$scope.productionSummaryNew.Article = $event.data.Article;
+    }
+
 
     $scope.psdList = [];
     $scope.char1Save = function () {
