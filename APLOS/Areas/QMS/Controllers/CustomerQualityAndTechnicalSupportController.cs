@@ -50,9 +50,15 @@ where S.PartyId = '"+ salesId + "'";
         {
             try
             {
-                string sql = @"select * from TRN.SalesMaterial SM
-left join TRN.Sales on Sales.Id  = SM.SalesId
-where SM.ArticleId = '"+ articleId + "' ";
+                //                string sql = @"select * from TRN.SalesMaterial SM
+                //left join TRN.Sales on Sales.Id  = SM.SalesId
+                //where SM.ArticleId = '"+ articleId + "' ";
+                string sql = @"select s.InvoiceNo, S.InvoiceDate, MA.StandardName Article, SM.ArticleId, PO.Qty POQuantity from TRN.Sales S
+                                left join TRN.SalesMaterial SM on SM.SalesId = S.Id
+left join MST.MaterialMasterArticle MA on MA.Id = SM.ArticleId
+left join TRN.SalesOrder SO on SO.Id = SM.SalesOrderId
+left join TRN.ProductionOrderDetail POD on POD.SalesOrderId = SO.Id
+left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -94,6 +100,30 @@ where SM.ArticleId = '"+ articleId + "' ";
                 plantId = identity.PlantId;
             }
             return Json(GetEmployeeListByWhom(parameters, identity.CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetMultiInvoiceNo()
+        {
+            try
+            {
+                string sql = @"select s.InvoiceNo, S.InvoiceDate, MA.StandardName, SM.ArticleId from TRN.Sales S
+                                left join TRN.SalesMaterial SM on SM.SalesId = S.Id
+                                left join MST.MaterialMasterArticle MA on MA.Id = SM.ArticleId";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public JsonResult GetCoplaint()
+        {
+            string sql = @"select Id Value, UserName Text from HKP.ComplaintMaster";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
     }
 }
