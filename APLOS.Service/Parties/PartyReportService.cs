@@ -2132,7 +2132,7 @@ namespace Library.Service.Parties
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -2156,7 +2156,7 @@ namespace Library.Service.Parties
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -2184,7 +2184,7 @@ namespace Library.Service.Parties
 	                            JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                            WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                             ) AS CC ON CC.VoucherDetailId=VD.Id
-                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType!='OpeningBalance' AND   V.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff') AND   V.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
 							GROUP BY P.Id , P.UserName
 
 
@@ -2202,7 +2202,7 @@ namespace Library.Service.Parties
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -2226,7 +2226,7 @@ namespace Library.Service.Parties
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -2249,7 +2249,7 @@ namespace Library.Service.Parties
                             LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
 							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
-                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType!='OpeningBalance' AND   V.PostingDate < '" + toDate + @"'
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff') AND   V.PostingDate < '" + toDate + @"'
 							AND VD.PartyId NOT IN(SELECT  VDO.PartyId 
 							 FROM [TRN].[VoucherDetail] AS VDO
                             LEFT JOIN [TRN].[Voucher] VO ON VO.Id=VDO.VoucherId
@@ -2258,7 +2258,7 @@ namespace Library.Service.Parties
                             LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VDO.BudgetMasterId
                             LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS A ON A.Id=VDO.ActivityId
-                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND PO.PartyCategoryId='" + partyCategoryId + @"'  AND VDO.PartyType='" + partyType + @"' AND VO.SourceType!='OpeningBalance' AND   VO.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' )
+                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND PO.PartyCategoryId='" + partyCategoryId + @"'  AND VDO.PartyType='" + partyType + @"' AND VO.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff') AND   VO.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' )
 							GROUP BY P.Id , P.UserName)T
 							WHERE T.PartyOpeningBalance<>0
 union
@@ -2275,7 +2275,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -2299,7 +2299,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.PartyId=P.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff')
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -2331,7 +2331,7 @@ union
                             LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VDO.BudgetMasterId
                             LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS A ON A.Id=VDO.ActivityId
-                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND PO.PartyCategoryId='" + partyCategoryId + @"'  AND VDO.PartyType='" + partyType + @"' AND VO.SourceType!='OpeningBalance' ) 
+                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND PO.PartyCategoryId='" + partyCategoryId + @"'  AND VDO.PartyType='" + partyType + @"' AND VO.SourceType NOT IN ('OpeningBalance','VendorAdvanceWriteOff') ) 
 							GROUP BY P.Id , P.UserName)T ";
         }
         #region Inter Party Leadger
