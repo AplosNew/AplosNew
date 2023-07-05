@@ -1188,6 +1188,7 @@ upanelApp.controller("QRCodeGeneratorController", QRCodeGeneratorController)
 upanelApp.controller("PlantInOutControllReportController", PlantInOutControllReportController)
 upanelApp.controller("ComplaintController", ComplaintController)
 upanelApp.controller("CustomerQualityAndTechnicalSupportController", CustomerQualityAndTechnicalSupportController)
+upanelApp.controller("PaymentAdviseReportController", PaymentAdviseReportController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
