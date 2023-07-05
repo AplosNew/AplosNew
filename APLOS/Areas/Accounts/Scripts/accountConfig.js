@@ -1016,5 +1016,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/GeneralAccountDeterminate/GlControl",
             controller: "GLControlController"
         })
+
+        .when("/payment-advise", {
+            templateUrl: "Accounts/SalaryDisbursement/PaymentAdviseReport",
+            controller: "PaymentAdviseReportController"
+        })
         ;
 } 

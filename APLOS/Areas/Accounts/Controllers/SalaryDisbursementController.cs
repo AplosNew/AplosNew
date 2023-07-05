@@ -63,6 +63,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return View();
         }
 
+      
+        public ActionResult PaymentAdviseReport()
+        {
+            return View();
+        }
+
+
         public ActionResult SalaryPayable()
         {
             return View("~/Areas/Accounts/Views/SalaryDisbursement/SalaryPayable.cshtml");
