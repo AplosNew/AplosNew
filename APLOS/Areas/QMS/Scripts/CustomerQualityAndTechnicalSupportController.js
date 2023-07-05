@@ -23,7 +23,14 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
         ArticleId: null,
         PartyName: null,
         PartyCode: null,
-        PartyId: null
+        PartyId: null,
+        ResponsiblePersonId: null,
+        ResponsiblePerson: null,
+        ResponsiblePersonCode: null,
+        ByWhomId: null,
+        ByWhomeCode: null,
+        ByWhomeName:null
+
     }
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp)
 
@@ -81,8 +88,10 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.InvoicenumberList = response.data;
+            $scope.GetCoplaint();
         })
     }
+    //$scope.GetInvoiceNumber()
 
     //#region Responsible Person
    
@@ -101,6 +110,7 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
     $scope.Name = null;
     $scope.employeeList = [];
     $scope.showEmployeeListPopUp = function (name) {
+        $scope.employeeList = [];
         try {
             $scope.Name = name;
 
@@ -131,9 +141,9 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
     $scope.selectEmployeePopUp = function (index, data) {
         $scope.employeeIndex = index;
 
-        $scope.VehicleRequisitionModel.EmpSystemId = data.SystemId;
-        $scope.VehicleRequisitionModel.EmployeeName = data.EmployeeName;
-        $scope.VehicleRequisitionModel.ResponsiblePersonCode = data.EmployeeCode;
+        $scope.ModelNew.ResponsiblePersonId = data.SystemId;
+        $scope.ModelNew.ResponsiblePerson  = data.EmployeeName;
+        $scope.ModelNew.ResponsiblePersonCode = data.EmployeeCode;
 
         angular.element(document.querySelector('#employeePopUps')).modal('hide');
         $scope.Name = null;
@@ -145,4 +155,62 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
 
     
     //#endregion Responsible Person
+
+    //#region ByWhom
+    $scope.showByWhomListPopUp = function (name) {
+        $scope.employeeList = [];
+        try {
+            $scope.Name = name;
+
+            $scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        $scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#ByWhomePopUps')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectByWhomePopUp = function (index, data) {
+        $scope.employeeIndex = index;
+
+        $scope.ModelNew.ByWhomId = data.SystemId;
+        $scope.ModelNew.ByWhomeName = data.EmployeeName;
+        $scope.ModelNew.ByWhomeCode = data.EmployeeCode;
+
+        angular.element(document.querySelector('#ByWhomePopUps')).modal('hide');
+        $scope.Name = null;
+    };
+
+    $scope.hideByWhomePopUp = function () {
+        angular.element(document.querySelector('#ByWhomePopUps')).modal('hide');
+    };
+    //#endregion ByWhom
+
+    $scope.ComplaintList = [];
+    $scope.GetCoplaint = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetCoplaint",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ComplaintList = response.data;
+        })
+    }
 }

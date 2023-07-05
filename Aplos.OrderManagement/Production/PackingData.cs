@@ -460,9 +460,15 @@ namespace Library.OrderManagement.Production
             {
                 var str = @" Select sc.ProductCode , sc.POId as PO, sc.LotNo , isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0)  as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
                         (Case when bb.BookQty >plann.PlanQty then (isnull(StockQty.StockQty,0) - isnull(bb.BookQty,0)) else (isnull(StockQty.StockQty,0)  - isnull(plann.PlanQty,0)) end) as Available
+                       , PO.Qty POQty, PS.StandardName POStatus , PORemainingQty = SUM(SC.NetWeight) - PO.Qty
                         from
                         dbo.ItemScanChild sc
                         left join trn.POLotReference pol  on pol.Id = sc.PackingId
+                        left join TRN.ProductionOrder PO on PO.Id = SC.POId
+						left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
+                        left join dbo.ItemScan isch on isch.Id = sc.MasterId
+						left join HKP.MaterialMovementPurpose PM on PM.Id = isch.PurposeId
+                        left join trn.POLotReference por  on por.Id = sc.PackingId
                         left join(
                         Select isc.ProductCode , isc.POId , isc.LotNo , sum(isc.NetWeight) as StockQty from
                         dbo.ItemScanChild isc 
@@ -493,7 +499,7 @@ namespace Library.OrderManagement.Production
                         group by ProductCode , PONo , LotNo
                         ) as plann on plann.ProductCode=sc.ProductCode and plann.PONo = sc.POId and plann.LotNo=sc.LotNo
                         where sc.ProductCode = '" + productCode + @"'
-                        group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty
+                        group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PO.Qty, PS.StandardName
                         ";
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
