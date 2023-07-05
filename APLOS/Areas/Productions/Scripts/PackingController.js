@@ -608,14 +608,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         $scope.Percent = kk.toFixed(2);
     }
 
-    $scop.CalculatePORemainingQty = function () {
-        for (var i = 0; i < $scope.PoLotRefGrid.length; i++) {
-            if ($scope.PoLotRefGrid[i]["checked"] == true) {
-                $scope.PoLotRefGrid[i]["quant"] = $scope.PoLotRefGrid[i]["POQty"] - $scope.PoLotRefGrid[i]["quant"];
-            }
-        }
-    }
-
+   
     //Double Click on The POLotRefGrid
     $scope.cartonDetail = [];
     $scope.inactiveCartons = [];
