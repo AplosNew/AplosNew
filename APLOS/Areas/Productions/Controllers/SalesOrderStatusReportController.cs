@@ -116,6 +116,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColMO = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Order Type", 12, ExcelHAlign.HAlignLeft);
+            int ColOrderType = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 20, ExcelHAlign.HAlignLeft);
             int ColResponsiblePerson = COL;
             COL++;
@@ -277,6 +281,7 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 sheet[ROW, ColCus].Text = data.Rows[i]["Customer"].ToString();
                 sheet[ROW, ColCusG].Text = data.Rows[i]["CustomerGroup"].ToString();
+                sheet[ROW, ColOrderType].Text = data.Rows[i]["OrderType"].ToString();
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
                 //sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
                 sheet[ROW, ColCd].DateTime = Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
@@ -383,7 +388,7 @@ namespace Aplos.Areas.Productions.Controllers
                             ,OrderFromStock = case when so.ShipmentFromStock=1 then 'Yes' else 'No' end
 							,PT.UserName PackingType,so.ProductionType,PFLB.ProdStartDate,PFLB.ProdEndDate
 							,SOCompletionDate=case when OS.UserName='Closed' then format(so.OrderStatusChangedDate,'dd-MMM-yyyy') else NULL end
-							,0 FOB,PST.UserName PRStatus 
+							,0 FOB,PST.UserName PRStatus,mo.[Type]  OrderType 
 
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId

@@ -1,6 +1,6 @@
 ﻿"use strict";
-PaymentAdviseReportController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
-function PaymentAdviseReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+PaymentAdviseReportController.$inject = ["commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter","cboService"];
+function PaymentAdviseReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = "PaymentAdviseReport";
     $scope.Action = "Save";
     $scope.index = -1;
@@ -29,6 +29,75 @@ function PaymentAdviseReportController(commonMessage, $scope, $rootScope, baseSe
     cboService.getCboLeaveYear(function (result) {
         $scope.yearList = result;
     });
+
+    $scope.employeeCategoryList = [];
+    cboService.getCboEmployeeCategoryGroupByCompanyGroup(null, function (result) {
+        $scope.employeeCategoryList = result;
+    });
+
+    function daysInMonth(month, year) {
+        return new Date(year, month, 0).getDate();
+    }
+
+
+    $scope.EmployeeListTemp = [];
+    $scope.GetEmployeeInformation = function () {
+        $scope.isActive = true;
+        $scope.isSeperated = false;
+        $scope.isMaternity = false;
+        var monthName = $scope.monthList.filter(function (mnth) {
+            return mnth.Value == $scope.month;
+        });
+        $scope.effectiveDate = daysInMonth($scope.month, $scope.year) + '-' + monthName[0].Text + '-' + $scope.year;
+
+        if (angular.isUndefinedOrNull($scope.month)) {
+            ShowResult("Select Month", 'failure');
+        }
+        if (angular.isUndefinedOrNull($scope.year)) {
+            ShowResult("Select Year", 'failure');
+        }
+        else {
+
+            var parameters = {
+                'effectiveDate': $scope.effectiveDate, 'salaryProcessId': $scope.salaryProcessId, 'payRollGroup': $scope.payGroupListSelected, 'isActive': $scope.isActive,
+                'isSeperated': $scope.isSeperated,
+                'isMaternity': $scope.isMaternity
+            };
+            $http({
+                method: "POST",
+                dataType: 'JSON',
+                url: 'Accounts/SalaryDisbursement/GetEmployeeInformation',
+                data: parameters
+            }).then(function successCallback(response) {
+                if (response.data.empdata.length > 0) {
+                    for (var i = 0; i < response.data.empdata.length; i++) {
+                        for (var j = 0; j < response.data.empNetPay.length; j++) {
+                            if (response.data.empdata[i].EmpSystemId == response.data.empNetPay[j].EmpInfoSystemID) {
+                                response.data.empdata[i].NetPayment = response.data.empNetPay[j].NetPayment;
+
+                            }
+                        }
+
+                    }
+                    $scope.empGrid = true;
+                    $scope.EmployeeListDefault = response.data.empdata.filter(d => d.isSelect == true);
+                    $scope.EmployeeList = $scope.EmployeeListDefault;
+                    $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+
+                    
+                    $scope.EmployeeListTemp = response.data.empdata
+
+                }
+                else {
+                    ShowResult("No Data Found", 'failure');
+                    $scope.empGrid = false;
+                }
+                var gridObj = $("#empInfoGrid").data("ejGrid");
+                gridObj.windowonresize();
+                gridObj.refreshContent(true);
+            });
+        }
+    };
 
 
 
