@@ -67,7 +67,20 @@ namespace Aplos.Areas.Accounts.Controllers
                 _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
                 _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
                 _accountsCommonService.CheckingFiscalYearClose(voucher);
-                
+
+                ConnectionManager.DAL.ConManager objCon2;
+                DataSet dsMasterbankReconciled = null;
+                string bankReconciledsql = @"SELECT BRM.*  from TRN.BankReconciliationMap AS BRM
+                                            INNER JOIN TRN.VoucherDetail AS VD ON VD.Id=BRM.VoucherDetailId
+                                            where VD.VoucherId = '" + voucherId + "' ";
+                objCon2 = new ConnectionManager.DAL.ConManager("1");
+                objCon2.OpenDataSetThroughAdapter(bankReconciledsql, out dsMasterbankReconciled, false, "1");
+
+                if (dsMasterbankReconciled.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Voucher Park Mode not allowed, Bank Reconciled have to delete first!");
+                }
+
                 if (sourceType== SourceType.JournalVoucher.ToString())
                 {
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";

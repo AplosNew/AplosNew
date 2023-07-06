@@ -1222,7 +1222,7 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
-VIO.InReading is null  and VIO.Id is not null and VA.TripId is not null";
+where VIO.InReading is null  and VIO.Id is not null and VA.TripId is not null";
             return Json(_sqlRepository.GetDataCollection(sql));
         }
 

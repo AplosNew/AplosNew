@@ -608,7 +608,7 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         $scope.Percent = kk.toFixed(2);
     }
 
-
+   
     //Double Click on The POLotRefGrid
     $scope.cartonDetail = [];
     $scope.inactiveCartons = [];
