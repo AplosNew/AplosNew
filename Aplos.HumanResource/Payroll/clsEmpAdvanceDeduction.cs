@@ -583,10 +583,34 @@ namespace Library.HumanResource.Payroll
         {
             try
             {
+                DataSet dsRef;
+                ConnectionManager.DAL.ConManager objCon;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSQL = @"select * FROM MonthWiseExtraSalaryAmtChild WHERE SalaryHeadID in (" + SalaryHeadId + @") and MWESAMasterSystemID IN(SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid = '" + plantid + @"' and EmpInfoSystemID in (" + EmpId + @"))";
+
+                objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
+                string masterIds = "";
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    if (masterIds == "")
+                    {
+                        masterIds = "'" + dsRef.Tables[0].Rows[i]["MWESAMasterSystemID"] + "'";
+                    }
+                    else
+                    {
+                        masterIds += ",'" + dsRef.Tables[0].Rows[i]["MWESAMasterSystemID"] + "'";
+                    }
+                }
+                
+
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                
                 con.BeginTransaction();
+                
+
                 con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtChild WHERE SalaryHeadID in (" + SalaryHeadId + @") and MWESAMasterSystemID IN(SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid = '" + plantid + @"' and EmpInfoSystemID in (" + EmpId + @"))");
-                con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and EmpInfoSystemID in (" + EmpId + @")");
+                
+                //con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtMaster WHERE SystemID in ("+ masterIds + ")");
                 con.executeQuery("Delete FROM [TRN].[EmployeeAdvanceDeduction] where YearNo= '" + YearNo + "' and MonthNo='" + MonthNo + "' and EmployeeId in (" + EmpId + ")");
 
                 con.CommitTransaction();
