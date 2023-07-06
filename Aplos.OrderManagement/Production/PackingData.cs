@@ -458,17 +458,59 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @" Select sc.ProductCode , sc.POId as PO, sc.LotNo , isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0)  as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
+                //          var str = @" Select sc.ProductCode , sc.POId as PO, sc.LotNo , isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0)  as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
+                //                  (Case when bb.BookQty >plann.PlanQty then (isnull(StockQty.StockQty,0) - isnull(bb.BookQty,0)) else (isnull(StockQty.StockQty,0)  - isnull(plann.PlanQty,0)) end) as Available
+                //                 , PO.Qty POQty, PS.StandardName POStatus , PORemainingQty = SUM(SC.NetWeight) - PO.Qty
+                //                  from
+                //                  dbo.ItemScanChild sc
+                //                  left join trn.POLotReference pol  on pol.Id = sc.PackingId
+                //                  left join TRN.ProductionOrder PO on PO.Id = SC.POId
+                //left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
+                //                  left join dbo.ItemScan isch on isch.Id = sc.MasterId
+                //left join HKP.MaterialMovementPurpose PM on PM.Id = isch.PurposeId
+                //                  left join trn.POLotReference por  on por.Id = sc.PackingId
+                //                  left join(
+                //                  Select isc.ProductCode , isc.POId , isc.LotNo , sum(isc.NetWeight) as StockQty from
+                //                  dbo.ItemScanChild isc 
+                //                  left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                //                  left join trn.POLotReference pol on pol.Id = isc.PackingId
+                //                  where isch.WorkDate <= '" + ToDate + @"'
+                //                  and isc.IsDespatch = 0 and isc.Booked = 0
+                //                  --and isc.InventoryReceiveDetailId is not null
+                //                   group by isc.ProductCode , POId , isc.LotNo
+                //                  ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo
+                //                  left join(
+                //                  Select isc.ProductCode , isc.POId , isnull(sum(isc.NetWeight),0) as Despatch from
+                //                  dbo.ItemScanChild isc 
+                //                  left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                //                  where isc.IsDespatch = 1 and isch.WorkDate <= '" + ToDate + @"'
+                //                  group by ProductCode , POId
+                //                  ) desp on desp.ProductCode = sc.ProductCode and desp.POId = sc.POId
+                //                  left join (
+                //                  Select isc.ProductCode , isc.POId ,isc.LotNo, isnull(sum(isc.NetWeight),0) as BookQty from
+                //                  dbo.ItemScanChild isc 
+                //                  left join dbo.ItemScan isch on isch.Id = isc.MasterId
+                //                  where isc.Booked = 1 and isch.WorkDate <= '" + ToDate + @"'
+                //                  group by ProductCode , POId , LotNo
+                //                  ) as bb on  bb.ProductCode = sc.ProductCode and bb.LotNo = sc.LotNo and bb.POId=sc.POId 
+                //                  left join(
+                //                  Select ProductCode , PONo , LotNo , sum(PlanQty) as PlanQty from trn.POLotReference
+                //                  where Status = 'Active'
+                //                  group by ProductCode , PONo , LotNo
+                //                  ) as plann on plann.ProductCode=sc.ProductCode and plann.PONo = sc.POId and plann.LotNo=sc.LotNo
+                //                  where sc.ProductCode = '" + productCode + @"'
+                //                  group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PO.Qty, PS.StandardName
+                //                  ";
+
+                string str = @"Select sc.ProductCode , sc.POId as PO,PS.StandardName POStatus ,PO.Qty POQty ,pack.ProducedQty 
+                        ,case when pack.ProducedQty > PO.Qty then 0 else (isnull(PO.Qty,0)-isnull(pack.ProducedQty,0)) end as BalanceQty ,sc.LotNo 
+                        ,isnull(plann.PlanQty,0) as PlannedQty , isnull(StockQty.StockQty,0)  as StockQty , isnull(desp.Despatch,0) as Despatch , isnull(bb.BookQty,0) as BookedQty,
                         (Case when bb.BookQty >plann.PlanQty then (isnull(StockQty.StockQty,0) - isnull(bb.BookQty,0)) else (isnull(StockQty.StockQty,0)  - isnull(plann.PlanQty,0)) end) as Available
-                       , PO.Qty POQty, PS.StandardName POStatus , PORemainingQty = SUM(SC.NetWeight) - PO.Qty
+                       --, PO.Qty POQty, PS.StandardName POStatus , PORemainingQty = SUM(SC.NetWeight) - PO.Qty
                         from
                         dbo.ItemScanChild sc
                         left join trn.POLotReference pol  on pol.Id = sc.PackingId
-                        left join TRN.ProductionOrder PO on PO.Id = SC.POId
-						left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
-                        left join dbo.ItemScan isch on isch.Id = sc.MasterId
-						left join HKP.MaterialMovementPurpose PM on PM.Id = isch.PurposeId
-                        left join trn.POLotReference por  on por.Id = sc.PackingId
+
                         left join(
                         Select isc.ProductCode , isc.POId , isc.LotNo , sum(isc.NetWeight) as StockQty from
                         dbo.ItemScanChild isc 
@@ -479,6 +521,12 @@ namespace Library.OrderManagement.Production
                         --and isc.InventoryReceiveDetailId is not null
                          group by isc.ProductCode , POId , isc.LotNo
                         ) StockQty on StockQty.ProductCode = sc.ProductCode and StockQty.POId = sc.POId and StockQty.LotNo = sc.LotNo
+                        left join 
+
+                        (select POId,sum(NetWeight) ProducedQty from ItemScanChild ISC
+                        left join ItemScan ISM on ISM.Id = ISC.MasterId
+                        where ISM.WorkDate <= '2023-07-05' group by POId) pack on pack.POId = sc.POId
+
                         left join(
                         Select isc.ProductCode , isc.POId , isnull(sum(isc.NetWeight),0) as Despatch from
                         dbo.ItemScanChild isc 
@@ -498,9 +546,11 @@ namespace Library.OrderManagement.Production
                         where Status = 'Active'
                         group by ProductCode , PONo , LotNo
                         ) as plann on plann.ProductCode=sc.ProductCode and plann.PONo = sc.POId and plann.LotNo=sc.LotNo
+                       
+                       left join trn.ProductionOrder PO on PO.Id = sc.POId
+                       left join hkp.ProductionStatus PS on PS.Id = PO.ProductionStatusId
                         where sc.ProductCode = '" + productCode + @"'
-                        group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PO.Qty, PS.StandardName
-                        ";
+                        group by sc.ProductCode , sc.POId, sc.LotNo ,StockQty.StockQty,desp.Despatch,bb.BookQty,plann.PlanQty,PS.StandardName,PO.Qty,pack.ProducedQty";
 
                 DataTable dt = _sqlRepository.GetDataTable(str);
 
