@@ -1794,6 +1794,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
+    <Content Include="Areas\Accounts\Scripts\PaymentAdviseReportController.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\GLControlController.js" />
     <Content Include="Areas\Accounts\Scripts\paymentPendingforSetOffReportController.js" />
@@ -4727,6 +4728,7 @@
     <Content Include="Areas\Productions\Views\WorkCenterQualityControlMaster\Report.cshtml" />
     <Content Include="Areas\Materials\Views\QRCodeGenerator\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PlantInOutControllReport\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\SalaryDisbursement\PaymentAdviseReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

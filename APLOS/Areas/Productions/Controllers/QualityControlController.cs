@@ -1111,10 +1111,62 @@ where PO.ID= '" + POId + "'";
         }
 
         [HttpGet, Authorize]
+        public ActionResult LoadQualityPlan()
+        {
+            return Json(_productionSummaryData.GetQualityPlan(), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult createQP(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[QualityPlanControl]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QPC" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
         {
             return Json(_productionSummaryData.GetBookingLevel(FromId, ToId), JsonRequestBehavior.AllowGet);
         }
+
         [HttpGet, Authorize]
         public JsonResult GetSFGMovementFromCbo(string entity)
         {
@@ -1363,7 +1415,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost]
-        public JsonResult createQC(Dictionary<string, object> QualityControlData)
+        public JsonResult createQC(Dictionary<string, object> QualityControlData, string QualityPlanId)
         {
             try
             {
@@ -1391,6 +1443,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("[TRN].[QualityControl]", out _Id);
                         QualityControlData["Id"] = "QC" + _Id;
+                        QualityControlData["QualityPlanId"] = QualityPlanId;
                         QualityControlData["PlantId"] = identity.PlantId;
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
                     }

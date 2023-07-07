@@ -88,8 +88,10 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.InvoicenumberList = response.data;
+            $scope.GetCoplaint();
         })
     }
+    //$scope.GetInvoiceNumber()
 
     //#region Responsible Person
    
@@ -199,4 +201,16 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
         angular.element(document.querySelector('#ByWhomePopUps')).modal('hide');
     };
     //#endregion ByWhom
+
+    $scope.ComplaintList = [];
+    $scope.GetCoplaint = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetCoplaint",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ComplaintList = response.data;
+        })
+    }
 }

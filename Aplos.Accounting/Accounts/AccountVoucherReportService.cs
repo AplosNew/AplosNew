@@ -9921,7 +9921,7 @@ namespace Library.Accounting.Accounts
 
 
         #region Expense Register Report
-        public IWorkbook GetExpenseRegisterReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, DateTime fromDate, DateTime toDate, string entityId)  //, bool checkbox
+        public IWorkbook GetExpenseRegisterReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string entityId)  //, bool checkbox
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -9946,7 +9946,7 @@ namespace Library.Accounting.Accounts
 
             //var header = GetDailyTransactionHeader(companyGroupId, companyId, plantId, toDate);
 
-            reportFileName = "Expense Register" + toDate.ToString("dd-MMM-yyyy");
+            reportFileName = "Expense Register" + toDate.ToString();
 
 
             if (dtDayBookData.Rows.Count == 0)
@@ -10181,7 +10181,7 @@ namespace Library.Accounting.Accounts
             return workbook;
         }
 
-        public DataTable GetExpenseRegisterReportData(string companyGroupId, string companyId, string plantId, DateTime fromDate, DateTime toDate)
+        public DataTable GetExpenseRegisterReportData(string companyGroupId, string companyId, string plantId, string fromDate, string toDate)
         {
             var cmdText = @"SELECT CO.UserName CompanyName, PT.UserName PlantName,EN.UserName AS EntityName,CC.UserName CostCenterName, v.SourceType VoucherType, V.VoucherNo
                             ,Replace(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') PostingDate, Replace(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') DocDate
@@ -10218,8 +10218,8 @@ namespace Library.Accounting.Accounts
                             left join trn.InventoryReceive ir on ir.Id=i.InventoryReceiveId
                             left join dbo.EmployeeInformation ei on ei.SystemId=VD.EmployeeId
 							left join ORG.CostCenter CC ON CC.Id=VD.CostCenterId
-                            WHERE V.IsPark=0 and V.CompanyGroupId='"+ companyGroupId + "' AND V.CompanyId ='"+ companyId + "' AND V.PlantId='"+ plantId + @"' and ACT.Id='Expense' and VD.DrAmount>0
-							AND V.PostingDate BETWEEN '"+ fromDate + "' AND '"+ toDate + "'";
+                            WHERE V.IsPark=0 and V.CompanyGroupId='"+ companyGroupId + "' AND V.CompanyId ='"+ companyId + "' AND V.PlantId='"+ plantId + @"' and ACT.Id='Expense' --and VD.DrAmount>0
+							AND convert(Date,V.PostingDate) BETWEEN  '" + fromDate + "' AND '"+ toDate + "'";
 
 
             return _sqlRepository.GetDataTable(cmdText);

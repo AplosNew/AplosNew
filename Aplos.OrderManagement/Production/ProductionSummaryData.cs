@@ -4013,6 +4013,49 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetQualityPlan()
+        {
+            string sql = @"select distinct QPC.Id Id,PD.Id QPId,PO.Id POId,ID.Id as IssueId,ID.IssueName as QPIssue,ID.ProcessId,P.UserName as Process,ID.EntityId,E.UserName Entity,PD.DependentDate as DependentOn,PD.Legdays,
+case 
+when PD.DependentDate='ItemDate' then format(MOI.AddedDate,'dd-MMM-yyyy')
+when PD.DependentDate='ExFactoryDate' then format((select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc),'dd-MMM-yyyy')
+when PD.DependentDate='PODate' then format(PO.AddedDate,'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then isnull(format(FBPPD.POFirstProdBookDate,'dd-MMM-yyyy'),format(Type1.BaseProcPlanStartDate,'dd-MMM-yyyy'))
+when PD.DependentDate='POEndDate' then isnull(format(Type1.BaseProcPlanCompletionDate,'dd-MMM-yyyy'),format(FBPPD.POLatestProdBookDate,'dd-MMM-yyyy'))
+end Date, 
+case 
+when PD.DependentDate='ItemDate' then format(DATEADD(Day, PD.Legdays, MOI.AddedDate),'dd-MMM-yyyy')
+when PD.DependentDate='ExFactoryDate' then format(DATEADD(Day, PD.Legdays, (select top 1 PlanExFactoryDate from TRN.SalesOrder where Id=SO.Id order by PlanExFactoryDate desc)),'dd-MMM-yyyy')
+when PD.DependentDate='PODate' then format(DATEADD(Day, PD.Legdays, PO.AddedDate),'dd-MMM-yyyy')
+when PD.DependentDate='POStartDate' then format(DATEADD(Day, PD.Legdays, isnull(FBPPD.POFirstProdBookDate,Type1.BaseProcPlanStartDate)),'dd-MMM-yyyy')
+when PD.DependentDate='POEndDate' then format(DATEADD(Day, PD.Legdays,isnull(Type1.BaseProcPlanCompletionDate,FBPPD.POLatestProdBookDate)),'dd-MMM-yyyy')
+end QualityPlanDate,ID.Remarks,
+reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=PO.Id and ProcessId=ID.ProcessId for xml path(''))),1,1,'')) as LotNumber,
+Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName as POStatus,QTD.Id as PeriodId,
+QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as Period
+from TRN.ProductionOrder PO
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+left join MST.POQualityPlanDetails PD on 1=1
+left join [TRN].[QualityPlanControl] QPC on QPC.QPId=PD.Id and QPC.POId=PO.Id
+left join MST.QualityIssueDetails ID on ID.Id=PD.IssueId
+left join MST.QualityTimeDetails QTD on QTD.IssueId=ID.Id
+left join hkp.process P on P.Id=ID.ProcessId
+left join org.Entity E on E.Id=ID.EntityId
+left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId=PO.Id
+left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId
+left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
+LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
+where PS.UserName in ('Running','To Close')";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetSFGMovementFromCbo(string entity)
         {
             string sql;
