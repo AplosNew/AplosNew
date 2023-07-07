@@ -25,9 +25,21 @@
                     <input id="ddlEmpCatgList" ej-dropdownlist e-create="create" e-multiselectmode="visualmode" e-datasource="employeeCategoryList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
                 </div>
             </div>
-
-        </div>
-        <div class="col-xs- col-sm-1 col-md-1" style="left:-50px;">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Payment Mode<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input id="ddlPMList" ej-dropdownlist e-create="create" e-multiselectmode="visualmode" e-datasource="PaymentModeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                    @*<div class="select-style">
+                        <select class="form-control" ng-model="PaymentMode" name="PaymentMode">
+                            <option value="">--Select--</option>
+                            <option value="Bank">Bank</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Transfer">Transfer</option>
+                        </select>
+                    </div>*@
+                </div>
+            </div>
             <div class="form-group">
                 <div class="common-btn">
                     <button ng-click="GetEmployeeInformation();" class="btn"> <i class="glyphicon glyphicon-download"></i> Go</button>
@@ -36,7 +48,7 @@
         </div>
 
         <div class="clearfix"></div>
-        <div class="col-md-12" ng-show="empGrid">
+        <div class="col-md-12">
             <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"
                  e-actioncomplete="actionCompleteSelected" e-templaterefresh="refreshTemplateemployee"
                  e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
@@ -50,12 +62,18 @@
                     <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="PaymentMode" e-headertext="Payment Mode" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="BankName" e-headertext="Bank Name" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="BankAccNo" e-headertext="BankAccNo" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="IFSCCode" e-headertext="IFSCCode" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="NetPayment" e-headertext="Net Payment" e-allowediting="false" e-width="80"></div>
                 </div>
             </div>
 
         </div>
-
+        <div class="common-btn left">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="XlsSalaryDisbursement();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Download</button></li>
+            </ul>
+        </div>
     </div>
 </div>
 

@@ -801,8 +801,10 @@ Where HeadCategory='Net Payable' ";
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetEmployeeInformation(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEmployeeInformation(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity,string employeeCategoryId,string PaymentMode)
         {
+
+            string pm = "'" + PaymentMode.Replace(",", "','") + "'";//replaced with ""
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             bool sa = identity.IsSysAdmin;
             bool ca = identity.IsControlAdmin;
@@ -852,43 +854,19 @@ Where HeadCategory='Net Payable' ";
 
             wcEmpStatus += ")";
 
-            string sql = @"select [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
-                                     isnull(e.SystemId,'') EmpSystemId
-									,ISNULL(e.EmployeeId,'')  EmployeeId 
-	                                ,sl.Id,CheckBoxSelect=case when  sl.Id is null then  CONVERT(bit,0) when sl.IsDisbursed <> 1  then CONVERT(bit,0) else  CONVERT(bit,1) end   
-									,SPM.MonthNo,SPM.YearNo ,sl.IsLocked AS Lock
+            string sql = @"SELECT * FROM (SELECT  DISTINCT isnull(e.SystemId,'') EmpSystemId   
                                     ,ISNULL(e.EmployeeCode,'') EmployeeCode
                                     ,ISNULL(e.EmployeeName,'') EmployeeName								
-                                    ,ISNULL(mpb.EntityId,'') EntityId
-									,ISNULL(mpb.PositionId,'') PositionId                                     
                                     ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
 									,ISNULL(Department.UserName,'') Department 
 									,ISNULL(Division.UserName,'') Division 
 									,ISNULL(EmpC.UserName,'') EmployeeCategory
-									,ISNULL(Plant.UserName,'') Plant 
-									,ISNULL(Section.UserName,'') Section 
-									,ISNULL(SubSection.UserName,'') SubSection 
-									,ISNULL(Unit.UserName,'') Unit 
-                                    ,ISNULL(eL.UserName,'') Line
-                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
-                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
-                                    , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
-                                    ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
-                                    , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
-									,ISNULL(PG.UserName,'') PayRollGroup
-                                    ,e.EmployeeCodePreFix,e.EmployeeCodeNumeric
-                                    ,ISNULL(jl.JobLocation, '') JobLocation
 									,ISNULL(e.PaymentMode,'') PaymentMode
 									,ISNULL(bb.UserName,'') BankName
-                                    ,ISNULL(v.VoucherNo,'' ) VoucherNo
-                                    ,ISNULL(sl.PayableVoucherId,'') PayableVoucherId
-                                    ,ISNULL(sl.DisbursementVoucherId,'') DisbursementVoucherId
-                                    ,ISNULL(v.VoucherNo,'') as PayableVoucherNo
-                                    ,ISNULL(vl.VoucherNo,'') as DisbursementVoucherNo
-                                    ,sl.IsDisbursed
-                                    ,IsLock = case when sl.IsLocked = 1 then 'Locked' else 'Unlocked' end
-                                  ,IsDisburse = case when sl.IsDisbursed = 1 then 'Disbursed' else 'Not Disbursed' end 
-                                    ,0 NetPayment,SPM.SystemID SalaryProcId,SPM.AddedBy,AG.UserName AccountsGroup 
+                                    ,0 NetPayment
+                                    , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+                                    ,ISNULL(s.BankAccNo,'') BankAccNo
+                                    ,ISNULL(s.IFSCCode,'') IFSCCode
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -921,8 +899,8 @@ Where HeadCategory='Net Payable' ";
                                     Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
                                     LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
                                     LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
-                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1  " + wcPayrollGroup + @" 
-                                    ) DD " + wcEmpStatus + @" ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 AND EmpC.Id IN("+employeeCategoryId+ ")  AND e.PaymentMode IN(" + pm + ")  " + wcPayrollGroup + @" 
+                                    ) DD " + wcEmpStatus + @" ORDER BY EmployeeCode";
             var empdata = _sqlRepository.GetDataCollection(sql);
 
             var sql2 = @"select SPC.DisbusmentAmount NetPayment, SPC.EmpInfoSystemID from SalaryProcChild SPC
