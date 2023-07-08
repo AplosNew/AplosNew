@@ -159,7 +159,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize]
-        public ActionResult GetExpenseRegisterReport(ReportFormat reportFormat, DateTime fromdate, DateTime todate, string entityId)
+        public ActionResult GetExpenseRegisterReport(ReportFormat reportFormat, string fromdate, string todate, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _accountVoucherReportService.GetExpenseRegisterReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, fromdate, todate, entityId);

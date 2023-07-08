@@ -800,6 +800,123 @@ Where HeadCategory='Net Payable' ";
             return json;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetEmployeeInformation(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity,string employeeCategoryId,string PaymentMode)
+        {
+
+            string pm = "'" + PaymentMode.Replace(",", "','") + "'";//replaced with ""
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            bool sa = identity.IsSysAdmin;
+            bool ca = identity.IsControlAdmin;
+            string userId = identity.UserId;
+            string plantId = identity.PlantId;
+            string companyGroupId = identity.CompanyGroupId;
+            var wcPayrollGroup = "";
+            string wcEmpStatus = " Where (1=0 ";
+
+            if (sa == true || ca == true)
+            {
+                wcPayrollGroup = @"";
+            }
+            //else
+            //{
+            //    wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
+            //}
+            if (salaryProcessId == "STRUCTURE")
+            {
+                wcEmpStatus = " Where (1=1 ";
+            }
+            else
+            {
+                wcEmpStatus = " Where (1=0 ";
+
+                if (isActive == true && isSeperated == true && isMaternity == true)
+                {
+                    wcEmpStatus = " Where (1=1 ";
+                }
+                else
+                {
+                    if (isActive == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='Regular'";
+                    }
+                    if (isSeperated == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='SEPARATED'";
+                    }
+                    if (isMaternity == true)
+                    {
+                        wcEmpStatus += " OR SalaryProcFlag ='MLV_PRE'";
+
+                    }
+                }
+            }
+
+            wcEmpStatus += ")";
+
+            string sql = @"SELECT * FROM (SELECT  DISTINCT isnull(e.SystemId,'') EmpSystemId   
+                                    ,ISNULL(e.EmployeeCode,'') EmployeeCode
+                                    ,ISNULL(e.EmployeeName,'') EmployeeName								
+                                    ,isnull(ISNULL(egdsg.UserName,ld.UserName),'') Designation                                       
+									,ISNULL(Department.UserName,'') Department 
+									,ISNULL(Division.UserName,'') Division 
+									,ISNULL(EmpC.UserName,'') EmployeeCategory
+									,ISNULL(e.PaymentMode,'') PaymentMode
+									,ISNULL(bb.UserName,'') BankName
+                                    ,0 NetPayment
+                                    , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
+                                    ,ISNULL(s.BankAccNo,'') BankAccNo
+                                    ,ISNULL(s.IFSCCode,'') IFSCCode,FORMAT(ISNULL(s.UpdatedDate,s.AddedDate),'dd-MMM-yyyy') DisbursmentDate
+                                    from SalaryProcessLogDetail s
+                                    JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+                                    left join EmployeeInformation e on e.SystemId= s.EmpSystemId
+                                    LEFT OUTER JOIN HKP.Designation egdsg on egdsg.id=s.DesignationId
+                                    LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=s.LegalDesignationId
+                                    LEFT OUTER JOIN (select dm.DesignationGroupId,dm.DesignationId,dm.EmployeeCategoryId
+                                    ,dg.UserName GivenDesignationGroup
+                                    FROM mst.DesignationMaster dm
+                                    LEFT OUTER JOIN HKP.DesignationGroup dg on dg.Id=dm.DesignationGroupId
+                                    ) egdsgg on egdsgg.DesignationId=e.GivenDesignationId
+                                    AND egdsgg.EmployeeCategoryId=s.EmployeeCategoryId
+                                    LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=s.BudgetCode
+                                    LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
+                                    LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                                    LEFT JOIN [ORG].[Department] ON Department.Id = PO.DepartmentId
+                                    LEFT JOIN [ORG].[Division] ON Division.Id = EN.DivisionId
+                                    LEFT JOIN [ORG].[Plant] ON Plant.Id = EN.PlantId
+                                    LEFT JOIN [ORG].[Section] ON Section.Id = PO.SectionId
+                                    LEFT JOIN [ORG].[SubSection] ON SubSection.Id = PO.SubSectionId
+                                    LEFT JOIN [ORG].[Unit] ON Unit.Id = EN.UnitId                                   
+                                    LEFT JOIN [MST].DesignationMaster DesM ON DesM.DesignationId = E.GivenDesignationId
+                                    LEFT JOIN SCS.DesignationMasterConfiguration DMC ON DMC.DesignationMasterId=DesM.Id
+									LEFT JOIN dbo.AccountsGroup AG ON AG.Id=DMC.AccountsGroupId
+                                    LEFT JOIN [HKP].EmployeeCategory EmpC ON EmpC.Id = DesM.EmployeeCategoryId			                                       
+                                    LEFT JOIN ORG.Line AS eL ON eL.Id= mpb.LineId
+                                    Left outer join MST.PayrollGroupMaster PGM ON PGM.employeeid = E.SystemId
+                                    Left outer join HKP.PayrollGroup PG ON PG.id = PGM.PayrollGroupId
+                                    Left Join [dbo].[JobLocation] jl on jl.SystemID = E.JobLocationID
+                                    left join [HKP].[Bank] bb on bb.Id = s.BankSystemID
+                                    Left join SalaryLock sl on sl.EmpSystemId=e.SystemId and sl.YearNo=YEAR('" + effectiveDate + @"') AND SL.MonthNo=Month('" + effectiveDate + @"')
+                                    LEFT JOIN TRN.Voucher  V ON V.Id=sl.PayableVoucherId 
+                                    LEFT JOIN TRN.Voucher  Vl ON Vl.Id=sl.DisbursementVoucherId 
+                                    WHERE  s.CompanyGroupId='" + identity.CompanyGroupId + "' AND s.PlantId='" + identity.PlantId + "' and sl.islocked=1 AND EmpC.Id IN("+employeeCategoryId+ ")  AND e.PaymentMode IN(" + pm + ")  " + wcPayrollGroup + @" 
+                                    ) DD " + wcEmpStatus + @" ORDER BY EmployeeCode";
+            var empdata = _sqlRepository.GetDataCollection(sql);
+
+            var sql2 = @"select SPC.DisbusmentAmount NetPayment, SPC.EmpInfoSystemID from SalaryProcChild SPC
+left join dbo.SalaryHead SH on SH.SalaryHeadID = SPC.SalaryHeadID
+JOIN SalaryProcMaster SPM ON SPM.SystemID = SPC.SlrProcMstSystemID and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
+Where HeadCategory='Net Payable' ";
+
+            var empNetPay = _sqlRepository.GetDataCollection(sql2);
+            // new { empdata, empNetPay }
+            // _sqlRepository.GetDataCollection(sql)
+
+            JsonResult json = Json(new { empdata, empNetPay }, JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
         #region Salary UnDisbursed
         [HttpPost, Authorize]
         public ActionResult GetSalaryUnDisbursed(string effectiveDate, string salaryProcessId, bool isActive, bool isSeperated, bool isMaternity)
