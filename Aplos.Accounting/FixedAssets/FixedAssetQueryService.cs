@@ -1830,7 +1830,7 @@ namespace Library.Accounting.FixedAssets
         #endregion
 
         #region  Fixed Assets Register Report for Elastis Search
-        public List<Dictionary<string, object>> GetFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        public List<Dictionary<string, object>> GetFixedAssetRegisterElasticSearchDataList(string companyGroupId, string companyId, string plantId, string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine, string fromDate, string toDate)
         {
             var sql = @"select distinct MM.UserName MaterialMaster,MMA.StandardName Article,FA.UserName AssetMaster,P.UserName Party
                 , FAR.MaterialMasterId,FAR.MaterialMasterArticleId,FAR.VendorId,FAR.FixedAssetMasterId
@@ -1869,6 +1869,7 @@ namespace Library.Accounting.FixedAssets
 				LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FAR.Id
 
 		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.Status is null
+					  AND convert(Date,FAR.CapitalizationDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 				  --and FAR.MaterialMasterId in (" + materialMasterId + ") AND FAR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FAR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
 					-- and FAR.VendorId in (" + vendorId + ") AND MM.IsAsset in (" + isAsset + ") AND MBP.BusinessProcessName in (" + machine + @")
 

@@ -1344,11 +1344,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         #region Elastis Search
 
         [HttpPost, Authorize]
-        public ActionResult GetFixedAssetRegisterElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine)
+        public ActionResult GetFixedAssetRegisterElasticSearchDataList(string materialMasterId, string materialMasterArticleId, string fixedAssetMasterId, string vendorId, string isAsset, string machine, string fromDate, string toDate)
         {
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = fixedAssetQueryService.GetFixedAssetRegisterElasticSearchDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, materialMasterId, materialMasterArticleId, fixedAssetMasterId, vendorId, isAsset, machine, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost, Authorize]
         public ActionResult GetFixedAssetRegisterDisposedElasticSearchDataList(string fromDate, string toDate, string nonPosted, string posted, string disposeStatus)
