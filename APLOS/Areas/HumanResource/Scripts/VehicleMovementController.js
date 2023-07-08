@@ -164,7 +164,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
             selectionType: ej.Grid.SelectionType.Single,
             selectionSettings: { selectionMode: ["cell"], cellSelectionMode: ej.Grid.CellSelectionMode.Box },
             cellSelected: $scope.VehicleAllocationPopup,
-            columns: ["Row_Num", "FromDate", "ToDate", "FromTime", "ToTime"],
+            columns: ["Row_Num", "FromLocation", "ToLocation" ,"FromDate", "ToDate", "FromTime", "ToTime", "ByWhome", "Purpose", "Department"],
 
             childGrid: {
 

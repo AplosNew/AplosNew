@@ -5294,8 +5294,11 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct FromLocation as Name , Id as Value
-                from mst.MaterialMovementMaster where AddedBy = 'Aman'";
+                strSQL = @"select distinct mm.ToLocation as Name,mm.ToStorageLocId as Value
+from mst.MaterialMovementMaster mm
+left join hkp.MaterialMovementPurpose MP ON MP.Id = mm.PurposeId
+left join ORG.Entity ent on ent.Id = mm.EntityId
+where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);

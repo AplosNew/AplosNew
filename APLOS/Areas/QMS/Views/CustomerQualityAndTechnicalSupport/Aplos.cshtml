@@ -126,7 +126,7 @@
                         <script type="text/template" id="ActionTOBeTaken">
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button  class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Action ToBe Taken</button></li>
+                                    <li> <button ng-click="$parent.ShowAtionToBeTakenPopUp()"  class="btn" tabindex="9"><i class="glyphicon"></i> Action ToBe Taken</button></li>
 
                                 </ul>
                             </div>
@@ -301,7 +301,7 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="actiontobetakenPopUps" role="dialog" data-backdrop="static">
+<div class="modal fade site-modal in" id="actiontobetakenPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -309,19 +309,67 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-6 col-md-6">
-
+                <div class="row text-center">
+                    <div class="form-elements form-horizontal" ng-form name="ActionToBeTakenModel">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">{{ActionToBeTakenModel.ByWhomeCode}}</span>
+                                        <input type="text" name="Responsible Person" ng-model="ActionToBeTakenModel.ByWhomeName" class="form-control" tabindex="5" readonly required>
+                                        <span class="input-group-btn">
+                                            <button name="submit" ng-click="showByWhomListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Current Status</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ActionToBeTakenModel.CurrentStatus" name="CurrentStatus"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in StatusList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="2" ng-model="ActionToBeTakenModel.Remarks" maxlength="250" tabindex="6"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Complaint Date" e-dateformat="dd-MMM-yyyy" ng-model="ActionToBeTakenModel.ComplaintDate" datepicker class="form-control" tabindex="3" required>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Final Closing Status</label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="ActionToBeTakenModel.FinalClosingStatus" name="FinalClosingStatus"
+                                                tabindex="2">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in FinalClosingStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-6">
 
-                    </div>
                 </div>
-               
-            </div>
             <div class="modal-footer common-btn">
                 <button  class="btn"><i class=""></i> Save</button>
             </div>
+                </div>
         </div>
     </div>
 </div>
