@@ -447,6 +447,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetEmployeeInColumn()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeInColumn(out List<Default2> activelists);
+            return activelists;
+        }
+
         public List<Default3> GetEmployeeSystem()
         {
             clsDataContext clsData = new clsDataContext();
