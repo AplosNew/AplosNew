@@ -3,6 +3,7 @@ fixedAssetMasterController.$inject = ['commonMessage', '$scope', '$rootScope', '
 function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService) {
     $rootScope.title = 'FixedAsset Master';
     $scope.Action = 'Save';
+    $scope.ActionItem = 'Save';
     $scope.index = -1;
     $scope.FixedAssetMasters = [];
     $scope.glTagList = [];
@@ -15,6 +16,12 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.saveChildUrl = $scope.path + 'CreateChild';
+
+
+    cboService.getUoMCbo(function (response) {
+        $scope.uOMList = response;
+    });
 
     $scope.searchByList = [
         {
@@ -126,6 +133,20 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
             Text: 'Other'
         }
     ];
+
+    $scope.fixedAssetMasterItem = {
+        Id: null,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        CapacityUoMId: null,
+        CapacityValue: null,
+        Active: true
+    };
+    $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
 
     $scope.getListUrl = $scope.path + 'getlist';
     baseService.init($scope.getListUrl, null, null, null, 'UserName', 'UserName');
@@ -1259,4 +1280,30 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     $scope.fixedAssetMasterReport = function () {
         location.href = 'fixedassets/fixedassetmaster/fixedassetmasterreport';
     };
+
+    $scope.SaveChild = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveChildUrl,
+            data: { 'data': $scope.ModelChildNew, 'fixedAssetMasterId': $scope.fixedAssetMaster.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getTransportDetailsMaster();
+                $scope.ClearFixedAssetMasterItem();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+    $scope.ClearFixedAssetMasterItem = function () {
+        $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
+        $scope.ActionItem = 'Save';
+    }
 }
