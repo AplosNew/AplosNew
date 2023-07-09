@@ -52,6 +52,7 @@ upanelApp.controller("baseAttributeAndCharacteristicsValueController", baseAttri
 upanelApp.controller("baseInvoiceController", baseInvoiceController);
 upanelApp.controller("incentiveController", incentiveController);
 upanelApp.controller("incentiveReceivableController", incentiveReceivableController);
+upanelApp.controller("balanceSheetSchedulingController", balanceSheetSchedulingController);
 upanelApp.controller("baseInvoiceWriteOffController", baseInvoiceWriteOffController);
 upanelApp.controller("baseMaterialAndArticleController", baseMaterialAndArticleController);
 upanelApp.controller("baseOpeningBalanceController", baseOpeningBalanceController);
