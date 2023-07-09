@@ -148,18 +148,46 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     };
     $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
 
+    //$scope.getListUrl = $scope.path + 'getlist';
+    //baseService.init($scope.getListUrl, null, null, null, 'UserName', 'UserName');
+    //$scope.getData = function (pageno) {
+    //    baseService.pagination(pageno)
+    //        .then(function (result) {
+    //            $scope.FixedAssetMasters = result.Rows;
+    //        }, function () {
+    //            ShowResult(commonMessage.NetworkError, 'failure');
+    //        }).finally(function () {
+    //        });
+    //};
+    //$scope.getData();
+
+    $scope.FAMparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "UserName",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
     $scope.getListUrl = $scope.path + 'getlist';
-    baseService.init($scope.getListUrl, null, null, null, 'UserName', 'UserName');
     $scope.getData = function (pageno) {
-        baseService.pagination(pageno)
+        baseService.paginationBase($scope.getListUrl, pageno, $scope.FAMparameters)
             .then(function (result) {
                 $scope.FixedAssetMasters = result.Rows;
+                $scope.FAMparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
             }).finally(function () {
             });
     };
     $scope.getData();
+
+
+
 
     $scope.fixedAssetCategoryList = [];
     cboService.getFixedAssetCategoryList(function (result) {
@@ -1353,14 +1381,25 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
             'value': 'Description'
         }
     ];
+    $scope.FAMIparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "UserName",
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
 
     $scope.FixedAssetMasterItemList = [];
     $scope.getFAMIListUrl = $scope.path + 'getFAMIlist';
-    baseService.init($scope.getFAMIListUrl, null, null, null, 'UserName', 'UserName');
     $scope.getFAMIData = function (pageno) {
-        baseService.pagination(pageno)
+        baseService.paginationBase($scope.getFAMIListUrl, pageno, $scope.FAMIparameters)
             .then(function (result) {
                 $scope.FixedAssetMasterItemList = result.Rows;
+                $scope.FAMIparameters.total_count = result.Total;
             }, function () {
                 ShowResult(commonMessage.NetworkError, 'failure');
             }).finally(function () {
