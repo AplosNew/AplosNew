@@ -18,23 +18,28 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
     $scope.indexBalanceSheetScheduling = -1;
     $scope.balanceSheetSchedulings = [];
     $scope.pathBalanceSheetScheduling = 'accounts/BalanceSheetScheduling/';
-    $scope.getListUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'getchartofaccountlevel1list';
-    $scope.getUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'get';
-    $scope.getSeqUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'getautosequence';
+    $scope.getListUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'GetList';
+    $scope.getUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'Get';
+    $scope.getSeqUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'GetAutoSequence';
     $scope.saveUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'create';
     $scope.updateUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'edit';
     $scope.deleteUrlBalanceSheetScheduling = $scope.pathBalanceSheetScheduling + 'delete/';
     baseService.init($scope.getListUrlBalanceSheetScheduling);
 
-    $scope.getDataBalanceSheetScheduling = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.balanceSheetSchedulings = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
-    };
+    $scope.searchBy = "OptionNo"; $scope.search = "";
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'OptionNo', name: "OptionNo" }, { value: 'Type', name: "Type" }, { value: 'Group', name: "Group" }, { value: 'SubGroup', name: "Sub Group" }, { value: 'UserGroup', name: "User Group" }, { value: 'UserSubGroup', name: "User Sub Group" }];
+
+    $scope.getDataBalanceSheetScheduling = function () {
+        $http({
+            method: 'POST',
+            url: $scope.pathBalanceSheetScheduling + "GetList",
+            data: {},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.balanceSheetSchedulings = response.data;
+            //$scope.GetSequenceBalanceSheetScheduling();
+        });
+    }
     $scope.getDataBalanceSheetScheduling();
 
     $scope.balanceSheetScheduling = {
@@ -59,18 +64,13 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
     $scope.GetSequenceBalanceSheetScheduling = function () {
         $http.get($scope.getSeqUrlBalanceSheetScheduling)
             .then(function (response) {
-                $scope.balanceSheetScheduling.Sequence = response.data;
+                $scope.balanceSheetScheduling.Id = response.data;
             });
     };
 
-    $scope.CheckIdUseBalanceSheetScheduling = function (id) {
-        $http.get('accounts/chartofaccountlevel1/checkiduse?id=' + id)
-            .then(function (response) {
-                $scope.checkIdUsedValue = response.data;
-            });
-    };
+    
 
-    $scope.GetSequenceBalanceSheetScheduling();
+    //$scope.GetSequenceBalanceSheetScheduling();
 
     $scope.GetBalanceSheetScheduling = function (id, index) {
         $scope.index = index;
@@ -160,16 +160,15 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
     };
 
     $scope.ClearBalanceSheetScheduling = function () {
-        ClearFieldsBalanceSheetScheduling($scope.GetSequenceBalanceSheetScheduling());
+        ClearFieldsBalanceSheetScheduling();
         return true;
     };
 
     function ClearFieldsBalanceSheetScheduling(seq) {
+        //$scope.GetSequenceBalanceSheetScheduling();
         $scope.Action = 'Save';
         $scope.balanceSheetScheduling = {};
-        $scope.balanceSheetScheduling.Sequence = seq;
-        $scope.balanceSheetScheduling.Active = true;
-        $scope.checkIdUsedValue = false;
+        $scope.balanceSheetScheduling.Id = seq;
     }
     //  #endregion Chart Account Setup -1
 
