@@ -9,6 +9,15 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
     $scope.getSeqUrl = $scope.path + 'GetSequence';
     $scope.ModelList = [];
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -123,5 +132,124 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
         $scope.ModelNew.Sequence = seq;
     }
 
+
+    // #region StatusMaster
+    $scope.ActionStatus = 'Save';
+    $scope.getStatusSeqUrl = $scope.path + 'GetStatusSequence';
+
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getStatusSeqUrl, function (data) {
+            $scope.ModelStatusTemp.Sequence = data;
+            $scope.ModelStatusNew.Sequence = data;
+        });
+    };
+
+    $scope.GetStatus = function (args) {
+        $scope.ModelStatusNew = Object.assign({}, args.data);
+        $scope.ActionStatus = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.ModelStatusList = [];
+    $scope.getStatusData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetStatusList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelStatusList = response.data;
+            ClearFields(response.data.Sequence);
+            $scope.GetSequence();
+        });
+    }
+
+    $scope.ModelStatusTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        UserName: null,
+        StandardName: null,
+        Remark: null,
+        Active: true
+    }
+    $scope.ModelStatusNew = Object.assign({}, $scope.ModelStatusTemp);
+
+    $scope.SaveStatus = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        if ($scope.ModelStatusNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveStatus',
+                data: {
+                    'data': $scope.ModelStatusNew,
+
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearStatusFields(response.data.Sequence);
+                    //$scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.DeleteStatus = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelStatusNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + 'DeleteStatus' + $scope.ModelStatusNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.ClearStatus = function () {
+        ClearStatusFields($scope.GetSequence());
+        return true;
+    };
+
+    function ClearStatusFields(seq) {
+        $scope.ActionStatus = 'Save';
+
+        $scope.ModelStatusNew = {
+            Id: null,
+            Sequence: 0,
+            Code: null,
+            ShortName: null,
+            UserName: null,
+            StandardName: null,
+            Remark: null,
+            Active: true
+        };
+        $scope.ModelStatusNew = Object.assign({}, $scope.ModelStatusNew);
+        $scope.ModelStatusNew.Sequence = seq;
+    }
+    
+    // #endregion StatusMaster
 
 }

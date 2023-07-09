@@ -815,6 +815,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Vehiclecreationdetails> GetVehicleCreationDetail(string MasterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleCreationDetail(out List<Vehiclecreationdetails> activelists , MasterId);
+            return activelists;
+        }
+
         public List<VehicleOutin> GetVehiclInlist()
         {
             clsDataContext clsData = new clsDataContext();

@@ -5294,8 +5294,11 @@ and EmployeeCode = '" + EmpSysId + "' order by AddedDate Desc ";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct FromLocation as Name , Id as Value
-                from mst.MaterialMovementMaster where AddedBy = 'Aman'";
+                strSQL = @"select distinct mm.ToLocation as Name,mm.ToStorageLocId as Value
+from mst.MaterialMovementMaster mm
+left join hkp.MaterialMovementPurpose MP ON MP.Id = mm.PurposeId
+left join ORG.Entity ent on ent.Id = mm.EntityId
+where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6010,6 +6013,51 @@ where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null
                         VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
                         VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
                         VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetVehicleCreationDetail(out List<Vehiclecreationdetails> DataList ,string MasterId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Vehiclecreationdetails>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department  from TRN.VehicleMovementRequisitionChild vrc
+left join TRN.VehicleMovementRequisition vr on vr.Id = vrc.VehicleMovementRequisitionId
+left join HKP.LocationMaster LM on LM.Id = vrc.FromLocationId
+left join HKP.LocationMaster LMN on LMN.Id = vrc.ToLocationId
+left join HKP.PurposeMaster PM on PM.Id = vr.PurposeId 
+left join EmployeeInformation Em on EM.SystemId = vr.AddedBy
+left join ORG.Department DP on DP.Id = Em.DepartmentId  
+where  vrc.VehicleMovementRequisitionId = '" + MasterId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Vehiclecreationdetails
+                    {
+                        FromLocation = dsRef.Tables[0].Rows[i]["FromLocation"].ToString(),
+                        ToLocation = dsRef.Tables[0].Rows[i]["ToLocation"].ToString(),
+                        RequisitionBy = dsRef.Tables[0].Rows[i]["RequisitionBy"].ToString(),
+                        Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
 
                     });
                 }
@@ -6872,6 +6920,17 @@ where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
 
+
+    }
+
+
+    public class Vehiclecreationdetails
+    {
+        public string FromLocation { get; set; }
+        public string ToLocation { get; set; }
+        public string RequisitionBy { get; set; }
+        public string Purpose { get; set; }
+        public string Department { get; set; }
 
     }
     #endregion vehicle

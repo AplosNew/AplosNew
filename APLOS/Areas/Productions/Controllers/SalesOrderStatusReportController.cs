@@ -160,9 +160,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ColFOB = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "PR Status", 12, ExcelHAlign.HAlignLeft);
-            int ColPRStatus = COL;
-            COL++;
+           
 
             report.SetHeaderText(ref sheet, ROW, COL, "Article", 40, ExcelHAlign.HAlignLeft);
             int ColArt = COL;
@@ -190,6 +188,10 @@ namespace Aplos.Areas.Productions.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "PR No", 20, ExcelHAlign.HAlignLeft);
             int ColPR = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PR Status", 12, ExcelHAlign.HAlignLeft);
+            int ColPRStatus = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "SO NO", 12, ExcelHAlign.HAlignLeft);

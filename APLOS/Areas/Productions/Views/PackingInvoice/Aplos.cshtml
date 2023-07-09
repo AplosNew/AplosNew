@@ -276,7 +276,7 @@
                                                 <td class="text-right">
                                                     <ul class="list-inline action-list">
                                                         <li>
-                                                            <button ng-click="getMaterialTaxList(x, false,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
+                                                            <button ng-click="getMaterialTaxList(x, false,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button>
                                                         </li>
                                                         <li>
                                                             <button ng-click="removeMaterialRow(x.Id,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
@@ -1193,7 +1193,7 @@
 <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"> Tax Information</div>
+            <div class="modal-header"> Tax Information <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <p>Taxable amount : <b>{{taxAbleAmnt| number| setDecimal:currencyPrecision}}</b>&nbsp;<b>{{Currency}}</b></p>
@@ -1262,7 +1262,7 @@
                                 </td>
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        <li><button ng-click="taxDel(x.Id,$index)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                        <li><button ng-click="taxDel(x.Id,$index)" ng-disabled="salesVM.RowState==='Posted'" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>
                                 </td>
                             </tr>
@@ -1275,8 +1275,8 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li><button ng-click="closeReceiveTaxPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Add</button></li>
-                        <li><button ng-click="closeReceiveTaxPopUpwindow();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        <li><button ng-click="closeReceiveTaxPopUp();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Add</button></li>
+                        <li><button ng-click="closeReceiveTaxPopUpwindow();" ng-disabled="salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
             </div>
@@ -1289,7 +1289,7 @@
 <div class="modal fade site-modal in" id="ServiceChargeTaxPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"> Service Charge Tax Information</div> @*<button type="button" class="close" ng-click="closeReceiveTaxPopUp();">&times;</button>*@
+            <div class="modal-header"> Service Charge Tax Information</div> <button type="button" class="close" data-dismiss="modal">&times;</button> @*<button type="button" class="close" ng-click="closeReceiveTaxPopUp();">&times;</button>*@
             <div class="modal-body form-elements form-horizontal">
                 <div class="col-md-12">
                     <p>Taxable amount : <b>{{taxAbleAmnt| number| setDecimal:currencyPrecision}}</b>&nbsp;<b>{{Currency}}</b></p>
