@@ -74,7 +74,7 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
 
     $scope.GetBalanceSheetScheduling = function (id, index) {
         $scope.index = index;
-        $scope.CheckIdUseBalanceSheetScheduling(id);
+        //$scope.CheckIdUseBalanceSheetScheduling(id);
         $scope.balanceSheetScheduling = $scope.balanceSheetSchedulings[$scope.index];
         $scope.balanceSheetScheduling.AddedDate = $filter('dateFilter')($scope.balanceSheetScheduling.AddedDate);
         $scope.balanceSheetScheduling.UpdatedDate = $filter('dateFilter')($scope.balanceSheetScheduling.UpdatedDate);
