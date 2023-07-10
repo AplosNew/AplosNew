@@ -21,6 +21,8 @@ using System.Linq;
 using Library.Model.Enums;
 using System.Drawing;
 using Library.Service.Systems;
+using Library.Service.HumanResources;
+using Library.HumanResource.NewAttendanceProcess;
 
 #endregion
 
@@ -28,6 +30,7 @@ namespace Aplos.Areas.Productions.Controllers
 {
     public class QualityControlController : BaseController
     {
+        private readonly IAttendanceManagementService _AttendanceManagementService;
         ProductionSummaryData _productionSummaryData = new ProductionSummaryData();
         private readonly IPKGeneratorService _pkGeneratorService;
         private readonly ISqlRepository _sqlRepository;
@@ -35,8 +38,9 @@ namespace Aplos.Areas.Productions.Controllers
         /// <summary>   The ProductionSummaryService service. </summary>
         private readonly IProductionSummaryService _ProductionSummaryService;
 
-        public QualityControlController(IProductionSummaryService ProductionSummaryService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
+        public QualityControlController(IProductionSummaryService ProductionSummaryService, IAttendanceManagementService AttendanceManagementService, ISqlRepository sqlRepository, IPKGeneratorService pkGeneratorService)
         {
+            _AttendanceManagementService = AttendanceManagementService;
             _ProductionSummaryService = ProductionSummaryService;
             _sqlRepository = sqlRepository;
             _pkGeneratorService = pkGeneratorService;
@@ -659,6 +663,15 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetQPEmployeeList(string IssueId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select EI.EmployeeName  from EmployeeInformation EI where EmployeeStatus='Active' 
+and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id='"+ IssueId + "')";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult createReasonValue(List<Dictionary<string, object>> ProductionReasonData)
         {
@@ -725,6 +738,25 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetQPEmployee(string IssueId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"SELECT EI.SystemId as SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName as EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active' and  EI.PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id='"+ IssueId + "')";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public ActionResult GetSalesOrder(string entityid, string processId, string ProductionOrderId)
         {
@@ -1116,6 +1148,12 @@ where PO.ID= '" + POId + "'";
             return Json(_productionSummaryData.GetQualityPlan(), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult LoadGeneralIssue()
+        {
+            return Json(_productionSummaryData.GetGeneralIssue(), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult createQP(List<Dictionary<string, object>> DataList)
         {
@@ -1133,7 +1171,7 @@ where PO.ID= '" + POId + "'";
                 {
                     foreach (var item in DataList)
                     {
-                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QCId is null", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
 
                         if (dv.Count == 0)
@@ -1141,6 +1179,51 @@ where PO.ID= '" + POId + "'";
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "QPC" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult createGI(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[TRN].[QualityIssueControl]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QCId is null", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QGI" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
@@ -1415,7 +1498,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
         }
 
         [HttpPost]
-        public JsonResult createQC(Dictionary<string, object> QualityControlData, string QualityPlanId)
+        public JsonResult createQC(Dictionary<string, object> QualityControlData, string QualityPlanId, string PlanType)
         {
             try
             {
@@ -1444,8 +1527,20 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         genid.GenID("[TRN].[QualityControl]", out _Id);
                         QualityControlData["Id"] = "QC" + _Id;
                         QualityControlData["QualityPlanId"] = QualityPlanId;
+                        QualityControlData["PlanType"] = PlanType;
                         QualityControlData["PlantId"] = identity.PlantId;
                         AddNewRow(dsQualityControlData.Tables[0], QualityControlData);
+                        ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                        conC.BeginTransaction();
+                        if(PlanType == "GeneralIssue")
+                        {
+                            conC.executeQuery("Update TRN.QualityIssueControl set QCId='" + QualityControlData["Id"] + "' where Id='" + QualityPlanId + @"'");
+                        }
+                        if (PlanType == "POIssue")
+                        {
+                            conC.executeQuery("Update TRN.QualityPlanControl set QCId='" + QualityControlData["Id"] + "' where Id='" + QualityPlanId + @"'");
+                        }
+                        conC.CommitTransaction();
                     }
                 }
                 else
@@ -1519,6 +1614,41 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 return Json(new { Error = true, Message = ex.Message });
 
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityPOIssueJobCardReportView(string PlannedId, string IssueId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = _AttendanceManagementService.GetPOIssueJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, PlannedId, IssueId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                return RenderReportAsPdf(workbook, reportFileName);
+               
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+                //throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityGeneralIssueJobCardReportView(string PlannedId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = _AttendanceManagementService.GetGeneralIssueJobCardReports(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, PlannedId);
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                return RenderReportAsPdf(workbook, reportFileName);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
             }
         }
 

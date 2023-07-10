@@ -20,7 +20,7 @@ namespace Library.Service.HumanResources
         IWorkbook GetJobCardReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string employeeId, string fromDate, string toDate, bool chkAdditionInfo);
         IWorkbook GetComplianceJobCardReport(string username, string companyGroupId, string companyId, string plantId, string plantName, string EmpIdLoop, string fromDate, string toDate, bool chkAdditionInfo);
         IWorkbook GetMaintenanceJobCardReports(string username, string companyGroupId, string companyId, string plantId, string plantName, string PlannedId);
-
+       
         IWorkbook GetIssueControlJobCardReports(string username, string companyGroupId, string companyId, string plantId, string plantName,string Shift, string IssueId);
         IWorkbook GetNationalFestivalReport(string CalanderYearId,string username, string companyGroupId, string companyId, string plantId, string plantName, string EmpIdLoop, string fromDate, string toDate);
         IWorkbook GetManualOutTimeDateWiseReport(string username, string plantId, string companyId, string companyGroupId,  string plantName, string FromDate, string ToDate);
@@ -64,5 +64,7 @@ namespace Library.Service.HumanResources
         IWorkbook GetRunningMachineJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string entityId, string processId, string targetDate, string shiftId);
         IWorkbook GetProductionBookingJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string entityId, string processId, string productionDate, string shiftId);
         IWorkbook GetProductionBookingJobCardLatestReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string entityId, string processId, string shiftId);
+        IWorkbook GetPOIssueJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string PlannedId, string IssueId);
+        IWorkbook GetGeneralIssueJobCardReports(string name, string companyGroupId, string companyId, string plantId, string plantName, string plannedId);
     }
 }

@@ -684,7 +684,9 @@ left outer join mst.MaterialMaster mm on mm.id = MOI.MaterialMasterId
 left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
 left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
-POQ.POQty,PQ.Qty ScheduleQty,ProdQ.ProducedQty,POQ.POQty-ProdQ.ProducedQty RemainingQty
+POQ.POQty,PQ.Qty ScheduleQty,ProdQ.ProducedQty,POQ.POQty-ProdQ.ProducedQty RemainingQty,
+reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=QID.Id) for xml path(''))),1,1,'')) as PositionEmployee,
+(select EmployeeName from EmployeeInformation where SystemId=QC.ProductionInchargeId) as AllotedEmployee
 from MST.QualityIssueDetails  QID
 left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join TRN.QualityControl QC on QC.IssueId=QID.Id
@@ -765,7 +767,7 @@ left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty as QCPOQty,PQ.Qty QCScheduleQty,ProdQ.ProducedQty as QCProducedQty,POQ.POQty-ProdQ.ProducedQty QCRemainingQty,
 QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,
-QII.Max QCMaxValue,QII.Min QCMinValue,QCD.ActionToBeTaken as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks
+QII.Max QCMaxValue,QII.Min QCMinValue,QCD.ActionToBeTaken as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks,QC.QualityPlanId
 from MST.QualityIssueDetails  QID
 left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
