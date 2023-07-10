@@ -18,14 +18,6 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
         return $scope.tab === tabNum;
     };
 
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
-
     $scope.ModelNewTemp = {
         Id: null,
         Sequence: 0,
@@ -37,6 +29,14 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
         Active: true
     }
     $scope.ModelNew = Object.assign({}, $scope.ModelNewTemp);
+
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelNewTemp.Sequence = data;
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
@@ -53,7 +53,7 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
+            
             $scope.GetSequence();
         });
     }
@@ -131,18 +131,19 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
-
+    // ---------------------------------------------------------------------------------------------------------
 
     // #region StatusMaster
     $scope.ActionStatus = 'Save';
     $scope.getStatusSeqUrl = $scope.path + 'GetStatusSequence';
 
-    $scope.GetSequence = function () {
+    $scope.GetStatusSequence = function () {
         cboService.getSequence($scope.getStatusSeqUrl, function (data) {
             $scope.ModelStatusTemp.Sequence = data;
             $scope.ModelStatusNew.Sequence = data;
         });
     };
+    $scope.GetStatusSequence();
 
     $scope.GetStatus = function (args) {
         $scope.ModelStatusNew = Object.assign({}, args.data);
@@ -160,10 +161,11 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelStatusList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
+           
+            $scope.GetStatusSequence();
         });
     }
+    $scope.getStatusData();
 
     $scope.ModelStatusTemp = {
         Id: null,
@@ -218,7 +220,7 @@ function ComplaintController(cboService, commonMessage, $scope, $rootScope, base
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearStatusFields(response.data.Sequence);
                     $scope.getData();
                 }
                 function errorCallBack(response) {

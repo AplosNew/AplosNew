@@ -4917,7 +4917,8 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
 					WHERE pla.ProductLibraryId = MOI.ProductLibraryId
 					FOR XML PATH('')
 					), 1, 2, '')
-		) AS ProdDetails,IR.AddedBy CreatedBy
+		) AS ProdDetails,IR.AddedBy CreatedBy 
+, LEFT(MO.[Type], 1) [Type]
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -4937,6 +4938,10 @@ LEFT JOIN [MST].[AddressMaster] Addres ON Addres.Id = P.AddressMasterId
 LEFT JOIN trn.SalesMaterial AS IRD ON IRD.SalesId = IR.Id
 LEFT JOIN [TRN].[SalesOrder] AS SO ON IRD.SalesOrderId = SO.Id
 LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+
+left join [TRN].[MasterOrder] MO on MO.Id = MOI.MasterOrderId
+
+
 LEFT JOIN MST.MaterialMaster AS MM ON MM.Id = IRD.MaterialMasterId
 LEFT JOIN MST.MaterialGroupMaster AS MGM ON MGM.Id = MM.MaterialGroupMasterId
 LEFT JOIN MST.MaterialMasterArticle AS MMA ON MMA.Id = IRD.ArticleId
