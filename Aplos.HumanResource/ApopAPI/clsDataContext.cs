@@ -5927,7 +5927,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
@@ -5935,6 +5935,13 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+left join TRN.VehicleMovementRequisition VMR on VMR.AppliedId = VT.Id
+left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisitionId = VMR.Id
+left join HKP.LocationMaster LM on LM.Id = vrc.FromLocationId
+left join HKP.LocationMaster LMN on LMN.Id = vrc.ToLocationId
+left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
+left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
+left join ORG.Department DP on DP.Id = Em.DepartmentId 
 where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -5944,6 +5951,12 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by F
                 {
                     DataList.Add(new VehicleOutin
                     {
+                        MasterId = dsRef.Tables[0].Rows[i]["MasterId"].ToString(),
+                        FromLocation = dsRef.Tables[0].Rows[i]["FromLocation"].ToString(),
+                        ToLocation = dsRef.Tables[0].Rows[i]["ToLocation"].ToString(),
+                        RequisitionBy = dsRef.Tables[0].Rows[i]["RequisitionBy"].ToString(),
+                        Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
                         Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
                         FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
                         ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
@@ -5982,7 +5995,7 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by F
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
@@ -5990,6 +6003,13 @@ left join HKP.VehicleMaster VM on VM.Id = VA.VehicleMasterId
 left join HKP.DriverMaster DM on DM.Id = VA.DriverMasterId
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId
 left join TRN.VehicleMovementInOut VIO on VIO.VehicleAllocationId = VA.Id
+left join TRN.VehicleMovementRequisition VMR on VMR.AppliedId = VT.Id
+left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisitionId = VMR.Id
+left join HKP.LocationMaster LM on LM.Id = vrc.FromLocationId
+left join HKP.LocationMaster LMN on LMN.Id = vrc.ToLocationId
+left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
+left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
+left join ORG.Department DP on DP.Id = Em.DepartmentId 
 where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null and VIO.Id is not null order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -5999,6 +6019,12 @@ where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null
                 {
                     DataList.Add(new VehicleOutin
                     {
+                        MasterId = dsRef.Tables[0].Rows[i]["MasterId"].ToString(),
+                        FromLocation = dsRef.Tables[0].Rows[i]["FromLocation"].ToString(),
+                        ToLocation = dsRef.Tables[0].Rows[i]["ToLocation"].ToString(),
+                        RequisitionBy = dsRef.Tables[0].Rows[i]["RequisitionBy"].ToString(),
+                        Purpose = dsRef.Tables[0].Rows[i]["Purpose"].ToString(),
+                        Department = dsRef.Tables[0].Rows[i]["Department"].ToString(),
                         Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
                         FromDate = dsRef.Tables[0].Rows[i]["FromDate"].ToString(),
                         ToDate = dsRef.Tables[0].Rows[i]["ToDate"].ToString(),
@@ -6044,7 +6070,7 @@ left join HKP.LocationMaster LMN on LMN.Id = vrc.ToLocationId
 left join HKP.PurposeMaster PM on PM.Id = vr.PurposeId 
 left join EmployeeInformation Em on EM.SystemId = vr.AddedBy
 left join ORG.Department DP on DP.Id = Em.DepartmentId  
-where  vrc.VehicleMovementRequisitionId = '" + MasterId + "'";
+where  vr.AppliedId = '" + MasterId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6883,8 +6909,13 @@ where  vrc.VehicleMovementRequisitionId = '" + MasterId + "'";
 
     public class VehicleOutin
     {
+        public string FromLocation { get; set; }
+        public string ToLocation { get; set; }
+        public string RequisitionBy { get; set; }
+        public string Purpose { get; set; }
+        public string Department { get; set; }
         public string Id { get; set; }
-        public string VehicleMovementRequisitionId { get; set; }
+        public string MasterId { get; set; }
         public string TripNumber { get; set; }
         public string TripId { get; set; }
         public string AppliedId { get; set; }

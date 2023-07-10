@@ -701,7 +701,7 @@ namespace Library.Service.Invoices
 
                 else
                 {
-                    voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount);
+                    voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount) + bankChargeDetailVMList.Sum(r => r.Amount);
                 }
                 // INSERT INTO InvoiceWriteOff
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
