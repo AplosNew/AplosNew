@@ -10,11 +10,13 @@ using Library.Model.Systems;
 using Library.Service.Accounts;
 using Library.Service.Core;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Logs;
 using Library.Service.Systems;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -447,6 +449,35 @@ namespace Library.Service.FixedAssets
                 throw;
             }
         }
+
+        public IEnumerable<object> GetFixedAssetMasterPoPUpData()
+        { 
+            string str = @"SELECT FAM.*,
+                        FAC.UserName 'FixedAssetCategory',
+                        FASC.UserName 'FixedAssetSubCategory'
+                        FROM  MST.[FixedAssetMaster]  FAM
+                        LEFT OUTER JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                        LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id";  
+            return _sqlRepository.GetDataCollection(str,null);
+        }
+        public GridModel GetFAMISearch(GridParameter parameters)
+        {
+            try
+            { 
+                parameters.CmdText = @"SELECT fami.*,fam.UserName FixedAssetMaster,uom.UserName CapacityUoM
+                                    FROM mst.FixedAssetMasterItem AS fami
+                                    LEFT JOIN mst.FixedAssetMaster AS fam ON fam.Id=fami.FixedAssetMasterId
+                                    LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=fami.CapacityUoMId";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.FixedAsset.ToString()));
+            }
+        }
+
 
     }
 }

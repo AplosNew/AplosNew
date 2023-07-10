@@ -1003,6 +1003,11 @@ function accountConfig($routeProvider) {
             controller: "inventorySalesReturnPost"
         })
 
+        .when("/balance-sheet-scheduling", {
+            templateUrl: "Accounts/BalanceSheetScheduling/Aplos",
+            controller: "balanceSheetSchedulingController"
+        })
+
         .when("/chart-account-setup", {
             templateUrl: "Accounts/ChartAccountSetup/Aplos",
             controller: "ChartAccountSetupController"

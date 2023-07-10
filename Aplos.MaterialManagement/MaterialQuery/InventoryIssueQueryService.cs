@@ -2,9 +2,6 @@
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
-using Library.Model.Inventory;
-using Library.Model.Parties;
-using Library.Model.Taxations;
 using Library.Service.Enums;
 using Library.Service.Extension;
 using Library.Service.Helpers;
@@ -13,7 +10,6 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 
@@ -3651,7 +3647,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL1.COALevel1Id
 						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL1.COALevel2Id
 						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
-						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id
+				) IIH ON  IIH.InventoryIssueDetailId=IID.Id
 						--NotPosted
                     where II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' " + temp + @"";
 

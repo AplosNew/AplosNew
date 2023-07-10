@@ -7,142 +7,304 @@
         padding-right: 0px;
     }
 </style>
-<togglable name="Fixed Asset Master"></togglable>
-<div class="form-elements form-horizontal" ng-form name="fixedAssetMasterNewForm">
-    <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Code" maxlength="10" ng-model="fixedAssetMaster.Code" class="form-control" required tabindex="1">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standard Name" maxlength="100" ng-model="fixedAssetMaster.StandardName" class="form-control" required tabindex="3">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4  control-label">Fixed Asset Category<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="Fixed Asset Category" ng-model="fixedAssetMaster.FixedAssetCategoryId" class="form-control"
-                                ng-options="item.Value as item.Text for item in fixedAssetCategoryList" required tabindex="7"></select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Description</label>
-                <div class="col-sm-8">
-                    <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Description" ng-trim="false" maxlength="250" tabindex="11"></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Active</label>
-                <div class="col-sm-8">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" ng-model="fixedAssetMaster.Active" tabindex="13">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Short Name" maxlength="15" ng-model="fixedAssetMaster.ShortName" class="form-control" required tabindex="2">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="User Name" maxlength="100" ng-model="fixedAssetMaster.UserName" class="form-control" required tabindex="4">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Fixed Asset Subcategory<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="Fixed Asset Subcategory" ng-model="fixedAssetMaster.FixedAssetSubCategoryId" class="form-control"
-                                ng-options="item.Value as item.Text for item in fixedAssetSubCategoryList" required tabindex="8"></select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Asset Type<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select name="Asset Type" ng-model="fixedAssetMaster.AssetType" class="form-control"
-                                ng-options="item.Value as item.Text for item in fixedAssetTypes" required tabindex="9"></select>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-8">
-                    <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Remarks" ng-trim="false" maxlength="250" tabindex="12"></textarea>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="common-btn">
-        <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="14"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="15"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            <li><button ng-click="fixedAssetMasterReport();" class="btn"><i class="glyphicon glyphicon-print"></i> Print</button></li>
+
+@*<div class="form-elements form-horizontal" ng-form name="ModelNewForm">*@
+<div class="tab-design" id="tab_show">
+    <div class="site-tab">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Fixed Asset Master</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Fixed Asset Master Item</a></li>
         </ul>
     </div>
-</div>
-
-<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="$root.parameters.searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            <togglable name="Fixed Asset Master"></togglable>
+            <div class="form-elements form-horizontal" ng-form name="fixedAssetMasterNewForm">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" maxlength="10" ng-model="fixedAssetMaster.Code" class="form-control" required tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" maxlength="100" ng-model="fixedAssetMaster.StandardName" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4  control-label">Fixed Asset Category<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Fixed Asset Category" ng-model="fixedAssetMaster.FixedAssetCategoryId" class="form-control"
+                                            ng-options="item.Value as item.Text for item in fixedAssetCategoryList" required tabindex="7"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Description" ng-trim="false" maxlength="250" tabindex="11"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="fixedAssetMaster.Active" tabindex="13">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Short Name" maxlength="15" ng-model="fixedAssetMaster.ShortName" class="form-control" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" maxlength="100" ng-model="fixedAssetMaster.UserName" class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Fixed Asset Subcategory<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Fixed Asset Subcategory" ng-model="fixedAssetMaster.FixedAssetSubCategoryId" class="form-control"
+                                            ng-options="item.Value as item.Text for item in fixedAssetSubCategoryList" required tabindex="8"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Asset Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Asset Type" ng-model="fixedAssetMaster.AssetType" class="form-control"
+                                            ng-options="item.Value as item.Text for item in fixedAssetTypes" required tabindex="9"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Remarks" ng-trim="false" maxlength="250" tabindex="12"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="14"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="15"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li><button ng-click="fixedAssetMasterReport();" class="btn"><i class="glyphicon glyphicon-print"></i> Print</button></li>
+                    </ul>
                 </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+            </div>
+
+            <div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="FAMparameters.searchBy">
+                                        <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="FAMparameters.search" ng-enter="getData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div class="table-responsive modal-table aplos-grid-toggle">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>User Name</th>
+                            <th>Category</th>
+                            <th>Sub Category</th>
+                            <th>Asset Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr dir-paginate="x in FixedAssetMasters |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
+                            <td>{{x.Code}}</td>
+                            <td>{{x.UserName}}</td>
+                            <td>{{x.FixedAssetCategory}}</td>
+                            <td>{{x.FixedAssetSubCategory}}</td>
+                            <td>{{x.AssetType}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+            </div>
+
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            <togglable name="Fixed Asset Master Item"></togglable>
+            <div class="form-elements form-horizontal" ng-form name="fixedAssetMasterItemNewForm">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" maxlength="10" ng-model="ModelChildNew.Code" class="form-control" required tabindex="1">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" maxlength="100" ng-model="ModelChildNew.StandardName" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4  control-label">Capacity UoM<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select submit-="true" ng-model="ModelChildNew.CapacityUoMId" class="form-control" name="CapacityUoM" required
+                                            id="CapacityUoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="8">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Description</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelChildNew.Description" ng-trim="false" maxlength="250" tabindex="11"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="ModelChildNew.Active" tabindex="13">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Fixed Asset Master<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="input-group" tabindex="208">
+                                    <input type="text" name="FixedAssetMaster" ng-model="ModelChildNew.FixedAssetMaster" ng-disabled="true" class="form-control" maxlength="200" required readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="selectFixedAssetMaster()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Short Name" maxlength="15" ng-model="ModelChildNew.ShortName" class="form-control" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" maxlength="100" ng-model="ModelChildNew.UserName" class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Capacity Value<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" maxlength="100" ng-model="ModelChildNew.CapacityValue" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="ModelChildNew.Remarks" ng-trim="false" maxlength="250" tabindex="12"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveChild();" class="btn" tabindex="14"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionItem}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmFAMIPopUp" class="btn" tabindex="15"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="ClearFAMI();" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="FAMIparameters.searchBy">
+                                        <option ng-repeat="option in searchByFAMIList" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="FAMIparameters.search" ng-enter="getFAMIData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getFAMIData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive modal-table aplos-grid-toggle">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>User Name</th>
+                            <th>Fixed Asset Master Name</th>
+                            <th>Capacity UoM</th>
+                            <th>Capacity Value</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr dir-paginate="x in FixedAssetMasterItemList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetFAMI(x.Id, $index);">
+                            <td>{{x.Code}}</td>
+                            <td>{{x.UserName}}</td>
+                            <td>{{x.FixedAssetMaster}}</td>
+                            <td>{{x.CapacityUoM}}</td>
+                            <td>{{x.CapacityValue}}</td>
+                            <td>{{x.Description}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getFAMIData(newPageNumber)"></dir-pagination-controls>
             </div>
         </div>
     </div>
 </div>
-<div class="table-responsive modal-table aplos-grid-toggle">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Code</th>
-                <th>User Name</th>
-                <th>Category</th>
-                <th>Sub Category</th>
-                <th>Asset Type</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="x in FixedAssetMasters |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="Get(x.Id, $index);">
-                <td>{{x.Code}}</td>
-                <td>{{x.UserName}}</td>
-                <td>{{x.FixedAssetCategory}}</td>
-                <td>{{x.FixedAssetSubCategory}}</td>
-                <td>{{x.AssetType}}</td>
-            </tr>
-        </tbody>
-    </table>
-    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-</div>
+@*</div>*@
+
+<confirm-archive-generic modalid="confirmFAMIPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteFAMI();"></confirm-archive-generic>
+
+
 <!-- #region *************ReconAssetTypeGL****************** -->
 <div class="modal fade site-modal in" id="ReconAssetTypeListPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -852,4 +1014,42 @@
     </div>
 </div>
 <!-- #endregion -->
+
+<div class="modal fade site-modal in" id="FAMPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Fixed Asset Master List<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="GridFAM" ej-grid e-datasource="FixedAssetMasterList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleFixedAssetMaster">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="30"></div>
+                                <div e-column e-field="UserName" e-headertext="FixedAssetMaster" e-width="110"></div>
+                                <div e-column e-field="FixedAssetCategory" e-headertext="Category" e-width="70"></div>
+                                <div e-column e-field="FixedAssetSubCategory" e-headertext="SubCategory" e-width="110"></div>
+                                <div e-column e-field="AssetType" e-headertext="Asset Type" e-width="100"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeFAMPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-modal></confirm-modal>
+
+

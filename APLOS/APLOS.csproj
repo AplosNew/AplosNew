@@ -353,6 +353,7 @@
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
     <Compile Include="Areas\Accounts\Controllers\ChartAccountSetupController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\BalanceSheetSchedulingController.cs" />
     <Compile Include="Areas\Accounts\Controllers\CommonAccountsController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
@@ -1794,6 +1795,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Accounts\Scripts\accountService.js" />
+    <Content Include="Areas\Accounts\Scripts\balanceSheetSchedulingController.js" />
     <Content Include="Areas\Accounts\Scripts\PaymentAdviseReportController.js" />
     <Content Include="Areas\Accounts\Scripts\ChartAccountSetupController.js" />
     <Content Include="Areas\Accounts\Scripts\GLControlController.js" />
@@ -4729,6 +4731,9 @@
     <Content Include="Areas\Materials\Views\QRCodeGenerator\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PlantInOutControllReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\PaymentAdviseReport.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling2.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
