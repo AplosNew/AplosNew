@@ -2433,6 +2433,148 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                 objCon = null;
             }
         }
+
+        public void GetQualityPOIssuePlannedDetails(string PlannedId,string IssueId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select QPC.Id,QPC.POId,QID.Id as IssueId,QID.IssueName,E.UserName Entity,
+P.UserName as Process,QPC.DependentOn,QPC.Legdays,format(QPC.Date,'dd-MMM-yyyy') as Date,format(QPC.QualityPlanDate,'dd-MMM-yyyy') as QualityPlanDate,EI.EmployeeName as AllotedPlanEmployee,
+reverse(stuff(reverse((select distinct LotNumber + ',' from TRN.ProductionSummary where ProductionOrderId=QPC.POId and ProcessId=P.Id for xml path(''))),1,1,'')) as LotNumber,
+Customer= STUFF((select distinct ','+XP.UserName from trn.SalesOrder XSO 
+JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
+where QPC.POId=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+PS.UserName as POStatus
+from TRN.QualityPlanControl QPC
+left join MST.QualityIssueDetails QID on QID.Id=QPC.IssueId
+left join MST.POQualityPlanDetails QPD on QPD.Id=QPC.QPId
+left join ORG.Entity  E on E.Id=QId.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
+left join EmployeeInformation EI on EI.SystemId=QPC.QPEmployeeId
+left join TRN.QualityControl QC on QC.QualityPlanId=QPC.Id
+left join TRN.Productionorder PO on PO.Id=QPC.POId
+left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
+where QPC.Id='" + PlannedId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+                
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityPOIssuePlannedItemDetails(string PlannedId, string IssueId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+QCD.Value,QCD.GradeId as GradeDetails,QCD.Remarks,QCD.ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson
+from MST.QualityIssueItem QII
+left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
+left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
+left join Org.Position P on P.Id=QII.PositionCodeId
+left join TRN.QualityPlanControl QPC on QID.Id=QPC.IssueId
+left join TRN.QualityControl QC on QC.QualityPlanId=QPC.Id
+left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
+where QPC.Id='" + PlannedId + @"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityGeneralIssuePlannedDetails(string PlannedId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select QIC.Id,format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
+QID.Id as IssueId,QID.IssueName,E.UserName Entity,
+P.UserName as Process,EI.EmployeeName as AllotedPlanEmployee
+from TRN.QualityIssueControl QIC
+left join MST.QualityIssueDetails QID on QID.Id=QIC.IssueId
+left join ORG.Entity  E on E.Id=QId.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
+left join EmployeeInformation EI on EI.SystemId=QIC.QGIEmployeeId
+left join TRN.QualityControl QC on QC.QualityPlanId=QIC.Id
+where QIC.Id='" + PlannedId + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetQualityGeneralIssuePlannedItemDetails(string PlannedId, string plantId, out DataSet dsRef)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            string strSql = string.Empty;
+            try
+            {
+                strSql = @"select QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+QCD.Value,QCD.GradeId as GradeDetails,QCD.Remarks,QCD.ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson
+from MST.QualityIssueItem QII
+left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
+left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
+left join Org.Position P on P.Id=QII.PositionCodeId
+left join TRN.QualityIssueControl QIC on QID.Id=QIC.IssueId
+left join TRN.QualityControl QC on QC.QualityPlanId=QIC.Id
+left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
+where QIC.Id='" + PlannedId + @"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSql, out dsRef);
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
         public void GetExtraAbsentCount(string fromDate, string toDate, string plantid, out DataSet dsRef)
         {
             ConnectionManager.DAL.ConManager objCon;
