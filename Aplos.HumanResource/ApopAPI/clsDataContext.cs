@@ -5958,7 +5958,6 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by F
                         VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
                         VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
                         VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
-                        VehicleMovementRequisitionId = dsRef.Tables[0].Rows[i]["VehicleMovementRequisitionId"].ToString(),
 
                     });
                 }
@@ -6014,7 +6013,6 @@ where VIO.OutReading is not null and VIO.InReading is null and VA.Id is not null
                         VehicleNumber = dsRef.Tables[0].Rows[i]["VehicleNumber"].ToString(),
                         VIOId = dsRef.Tables[0].Rows[i]["VIOId"].ToString(),
                         VehicleAllocationId = dsRef.Tables[0].Rows[i]["VehicleAllocationId"].ToString(),
-                        VehicleMovementRequisitionId = dsRef.Tables[0].Rows[i]["VehicleMovementRequisitionId"].ToString(),
 
                     });
                 }
