@@ -52,6 +52,7 @@ upanelApp.controller("baseAttributeAndCharacteristicsValueController", baseAttri
 upanelApp.controller("baseInvoiceController", baseInvoiceController);
 upanelApp.controller("incentiveController", incentiveController);
 upanelApp.controller("incentiveReceivableController", incentiveReceivableController);
+upanelApp.controller("balanceSheetSchedulingController", balanceSheetSchedulingController);
 upanelApp.controller("baseInvoiceWriteOffController", baseInvoiceWriteOffController);
 upanelApp.controller("baseMaterialAndArticleController", baseMaterialAndArticleController);
 upanelApp.controller("baseOpeningBalanceController", baseOpeningBalanceController);
@@ -1188,6 +1189,7 @@ upanelApp.controller("QRCodeGeneratorController", QRCodeGeneratorController)
 upanelApp.controller("PlantInOutControllReportController", PlantInOutControllReportController)
 upanelApp.controller("ComplaintController", ComplaintController)
 upanelApp.controller("CustomerQualityAndTechnicalSupportController", CustomerQualityAndTechnicalSupportController)
+upanelApp.controller("PaymentAdviseReportController", PaymentAdviseReportController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

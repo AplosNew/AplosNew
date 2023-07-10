@@ -385,8 +385,9 @@ function FixedAssetsRegisterReportController(commonMessage, $scope, $rootScope, 
             $http({
                 method: 'POST',
                 url: $scope.path + "GetFixedAssetRegisterElasticSearchDataList",
-                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate*/
-
+                data: { 
+                    fromDate: $scope.report.FromDate,
+                    toDate: $scope.report.ToDate
                 },
                 dataType: 'JSON'
 

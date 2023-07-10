@@ -1003,6 +1003,11 @@ function accountConfig($routeProvider) {
             controller: "inventorySalesReturnPost"
         })
 
+        .when("/balance-sheet-scheduling", {
+            templateUrl: "Accounts/BalanceSheetScheduling/Aplos",
+            controller: "balanceSheetSchedulingController"
+        })
+
         .when("/chart-account-setup", {
             templateUrl: "Accounts/ChartAccountSetup/Aplos",
             controller: "ChartAccountSetupController"
@@ -1015,6 +1020,11 @@ function accountConfig($routeProvider) {
         .when("/gl-control", {
             templateUrl: "Accounts/GeneralAccountDeterminate/GlControl",
             controller: "GLControlController"
+        })
+
+        .when("/payment-advise", {
+            templateUrl: "Accounts/SalaryDisbursement/PaymentAdviseReport",
+            controller: "PaymentAdviseReportController"
         })
         ;
 } 

@@ -342,9 +342,15 @@
             <div e-columns>
                 <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplateForPO" e-textalign="center" e-width="30"></div>
                 <div e-column e-field="Assigned" e-headertext="Assigned/Unassigned" e-width="80" e-type="string"></div>
-                <div e-column e-field="ProductCode" e-headertext="Product Code" e-width="80" e-type="number"></div>
-                <div e-column e-field="PO" e-type="number" e-headertext="Production Order No" e-width="80"></div>
-                <div e-column e-field="LotNo" e-type="number" e-headertext="Lot No" e-width="80"></div>
+                <div e-column e-field="ProductCode" e-headertext="Prod Code" e-width="70" e-type="number"></div>
+                <div e-column e-field="PO" e-type="number" e-headertext="PO" e-width="70"></div>
+                <div e-column e-field="POStatus" e-headertext="PO Status" e-width="80"></div>
+                <div e-column e-field="POQty" e-type="number" e-headertext="PO Qty" e-width="80"></div>
+                <div e-column e-field="ProducedQty" e-type="number" e-headertext="Produced Qty" e-width="80"></div>
+                <div e-column e-field="BalanceQty" e-type="number" e-headertext="Balance Qty" e-width="80"></div>
+
+                
+                <div e-column e-field="LotNo" e-type="number" e-headertext="Lot No" e-width="70"></div>
                 <div e-column e-field="PlannedQty" e-type="number" e-headertext="Planned Qty" e-width="80"></div>
                 <div e-column e-field="BookedQty" e-type="number" e-headertext="Booked Qty" e-width="80"></div>
                 <div e-column e-field="StockQty" e-type="number" e-headertext="Stock Qty" e-width="80"></div>
@@ -375,8 +381,9 @@
 <script type="text/template" id="bookQty">
     <input type="number" ng-model="data.bookQty" readonly style="color:black; text-align:center" />
 </script>
+
 <script type="text/template" id="checkboxTemplateForPO">
-    <input type="checkbox" class="rowCheckbox" ng-model="data.checked" ng-change="$parent.calculateQty()" />
+    <input type="checkbox" class="rowCheckbox" ng-model="data.checked" />
 </script>
 <script type="text/template" id="checkboxTemplateForPackingLine">
     <input type="checkbox" class="rowCheckbox" ng-model="data.checked"  />

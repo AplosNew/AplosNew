@@ -1,0 +1,131 @@
+﻿<togglable name="Balance Sheet Scheduling"></togglable>
+<div class="form-elements" ng-form id="balanceSheetScheduling" name="balanceSheetSchedulingForm">
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <input type="hidden" ng-model="balanceSheetScheduling.Id">
+        @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Id<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" min="1" name="Id" ng-model="balanceSheetScheduling.Id" readonly class="form-control" required tabindex="1">
+            </div>
+        </div>*@
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Option No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="15" name="OptionNo" ng-model="balanceSheetScheduling.OptionNo" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="15" name="Group" ng-model="balanceSheetScheduling.Group" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sub Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="10" name="SubGroup" ng-model="balanceSheetScheduling.SubGroup" class="form-control" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="15" name="Group" ng-model="balanceSheetScheduling.UserGroup" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Sub Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="10" name="SubGroup" ng-model="balanceSheetScheduling.UserSubGroup" class="form-control" required tabindex="2">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="TypeId" class="form-control" name="Type" ng-model="balanceSheetScheduling.Type" tabindex="7" required>
+                        <option value="Balance Sheet">Balance Sheet</option>
+                        <option value="Profit & Loss">Profit & Loss</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Item<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input maxlength="50" type="text" name="Item" ng-model="balanceSheetScheduling.Item" class="form-control" required tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Schedule No</label>
+            <div class="col-sm-8">
+                <input maxlength="50" type="text" name="ScheduleNo" ng-model="balanceSheetScheduling.ScheduleNo" class="form-control" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Schedule Name</label>
+            <div class="col-sm-8">
+                <input maxlength="50" type="text" name="ScheduleName" ng-model="balanceSheetScheduling.ScheduleName" class="form-control" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Item</label>
+            <div class="col-sm-8">
+                <input maxlength="50" type="text" name="UserItem" ng-model="balanceSheetScheduling.UserItem" class="form-control" tabindex="4">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">User Schedule Name</label>
+            <div class="col-sm-8">
+                <input maxlength="50" type="text" name="UserScheduleName" ng-model="balanceSheetScheduling.UserScheduleName" class="form-control" tabindex="4">
+            </div>
+        </div>
+
+    </div>
+    <div class="common-btn">
+        <ul class="list-inline text-right">
+            <li><button ng-click="SaveBalanceSheetScheduling();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> {{ActionBalanceSheetScheduling}}</button></li>
+            <li> <button ng-click="RemoveBalanceSheetScheduling();" data-target="#confirmPopUp" class="btn" tabindex="9"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li><button ng-click="ClearBalanceSheetScheduling();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="11"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getDataBalanceSheetScheduling()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getDataBalanceSheetScheduling()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="balanceSheetSchedulings" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2"></div>
+            <div e-column e-field="OptionNo" e-headertext="OptionNo" e-width="3"></div>
+            <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
+            <div e-column e-field="Group" e-headertext="Group" e-width="5"></div>
+            <div e-column e-field="SubGroup" e-headertext="Sub Group" e-width="5"></div>
+            <div e-column e-field="UserGroup" e-headertext="User Group" e-width="2"></div>
+            <div e-column e-field="UserSubGroup" e-headertext="User Sub Group" e-width="2"></div>
+        </div>
+
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmDetailPopUpLevel1" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteBalanceSheetScheduling();"></confirm-archive-generic>

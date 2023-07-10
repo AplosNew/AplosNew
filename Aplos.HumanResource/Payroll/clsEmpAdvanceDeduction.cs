@@ -583,10 +583,11 @@ namespace Library.HumanResource.Payroll
         {
             try
             {
+
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
                 con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtChild WHERE SalaryHeadID in (" + SalaryHeadId + @") and MWESAMasterSystemID IN(SELECT SystemID FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and plantid = '" + plantid + @"' and EmpInfoSystemID in (" + EmpId + @"))");
-                con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and EmpInfoSystemID in (" + EmpId + @")");
+                //con.executeQuery("Delete FROM MonthWiseExtraSalaryAmtMaster WHERE YearNo = " + YearNo + @" AND MonthNo = " + MonthNo + @" and EmpInfoSystemID in (" + EmpId + @")");
                 con.executeQuery("Delete FROM [TRN].[EmployeeAdvanceDeduction] where YearNo= '" + YearNo + "' and MonthNo='" + MonthNo + "' and EmployeeId in (" + EmpId + ")");
 
                 con.CommitTransaction();

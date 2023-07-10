@@ -34,5 +34,8 @@ namespace Library.Service.FixedAssets
 
         GridModel GetMaterialMasterAssetTypeList(GridParameter parameters, string companyGroupId);
         GridModel GetFixedAssetMasterData(GridParameter parameters);
+        IEnumerable<object> GetFixedAssetMasterPoPUpData();
+        GridModel GetFAMISearch(GridParameter parameters);
+
     }
 }

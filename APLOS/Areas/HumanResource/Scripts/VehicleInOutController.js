@@ -230,7 +230,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
                 url: $scope.path +  'SaveVehicleIn',
                 data: {
                     'data': $scope.VehicleInModel,
-                    'headerId': $scope.VehicleRequisitionModel.Id
+                    'headerId': $scope.VehicleRequisitionModel.VehicleAllocationId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {

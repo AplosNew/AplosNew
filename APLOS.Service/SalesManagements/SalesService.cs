@@ -3220,7 +3220,10 @@ namespace Library.Service.SalesManagements
                                var childData= _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
                                 childData.SalesMaterialId = salesMaterial.Id;
                                 childData.SalesId = sales.Id;
+                                childData.IsDespatch = true;
                                 childData.ReturnNetWeight = 0;
+                                childData.UpdatedBy = sales.AddedBy;
+                                childData.UpdatedDate = sales.AddedDate;
                                 childData.ModelState = ModelState.Modified;
                                 _ItemScanChildDataService.Update(childData);
                             }

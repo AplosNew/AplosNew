@@ -148,7 +148,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         { Value: "Manufacture", Text: "Manufacture" },
         { Value: "Trading", Text: "Trading" },
         { Value: "JobWork", Text: "Job Work" },
-        { Value: "OutSource", Text: "Out Source" }
+        { Value: "OutSource", Text: "Out Source" },
+        { Value: "Other", Text: "Other" }
     ];
 
     $scope.ProductLibraryList = [];

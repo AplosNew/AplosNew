@@ -88,8 +88,10 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.InvoicenumberList = response.data;
+            $scope.GetCoplaint();
         })
     }
+    //$scope.GetInvoiceNumber()
 
     //#region Responsible Person
    
@@ -199,4 +201,146 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
         angular.element(document.querySelector('#ByWhomePopUps')).modal('hide');
     };
     //#endregion ByWhom
+
+    // #region ActionTOBETaken
+
+    $scope.ShowAtionToBeTakenPopUp = function () {
+        angular.element(document.querySelector('#actiontobetakenPopUp')).modal('show');
+
+    }
+
+    $scope.CloseAtionToBeTakenPopUp = function () {
+        angular.element(document.querySelector('#actiontobetakenPopUp')).modal('hide');
+
+    }
+
+    $scope.ActionToBeTakenTemp = {
+        Id: null,
+        ByWhomId: null,
+        ByWhomeCode: null,
+        ByWhomeName: null,
+        TargetDate: null,
+        CurrentStatus: null,
+        FinalCLosingStatus: null,
+        Remarks: null
+
+    }
+    $scope.ActionToBeTakenModel = Object.assign({}, $scope.ActionToBeTakenTemp);
+
+    $scope.showByWhomListPopUp = function (name) {
+        $scope.employeeList = [];
+        try {
+            $scope.Name = name;
+
+            $scope.employeeParameters.searchBy = 'EmployeeCode';
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                        $scope.employeeParameters.searchBy = 'EmployeeCode';
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#ByWhomePopUps')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    // #endregion ActionTOBETaken
+
+    $scope.ComplaintList = [];
+    $scope.GetCoplaint = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetCoplaint",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ComplaintList = response.data;
+        })
+    }
+
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        /* if ($scope.ModelNewForm.$valid) {*/
+        $http({
+            method: 'POST',
+            url: $scope.saveUrl,
+            data: {
+                'datas': $scope.ModelNew,
+                'Employee': $scope.SelectedEmployeeId,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.ModelNew.Id = response.data.Id;
+                //ClearFields(response.data.Sequence);
+                $scope.getData();
+                $scope.getEmployee($scope.ModelNew.Id);
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+        /*}*/
+    };
+
+    $scope.CheckedUserGroupList = [];
+    $scope.ClosePopupOnSelectAllField = function () {
+
+        $scope.CheckedUserGroupList = [];
+        for (var i = 0; i < $scope.UserGroupList.length; i++) {
+
+            if ($scope.UserGroupList[i].isSelected) {
+                $scope.CheckedUserGroupList.push($scope.UserGroupList[i]);
+            }
+
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Create',
+            data: {
+                'chkBgtList': $scope.obj,
+                'usergroup': $scope.CheckedUserGroupList,
+                'headerid': $scope.ModelNew.Id
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.obj.Id = response.data.Id;
+                $scope.GetBudget($scope.ModelNew.Id);
+                $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
+                var gridObj = $("#bgtCodeGridId").data("ejGrid");
+                angular.element(document.querySelector('#UserGroupPop')).modal('hide');
+                gridObj.refreshContent(true);
+                gridObj.refreshTemplate();
+                $scope.UnchkOfCheckedItem();
+
+            }
+        });
+
+        angular.element(document.querySelector('#UserGroupPop')).modal('hide');
+        ShowResult("User Group Selected", 'success');
+
+    }
 }

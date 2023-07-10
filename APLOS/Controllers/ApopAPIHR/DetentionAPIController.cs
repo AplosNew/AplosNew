@@ -447,6 +447,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default2> GetEmployeeInColumn()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeInColumn(out List<Default2> activelists);
+            return activelists;
+        }
+
         public List<Default3> GetEmployeeSystem()
         {
             clsDataContext clsData = new clsDataContext();
@@ -805,6 +812,13 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetVehicleOutlist(out List<VehicleOutin> activelists);
+            return activelists;
+        }
+
+        public List<Vehiclecreationdetails> GetVehicleCreationDetail(string MasterId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleCreationDetail(out List<Vehiclecreationdetails> activelists , MasterId);
             return activelists;
         }
 
