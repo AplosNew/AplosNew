@@ -50,7 +50,6 @@ function PaymentAdviseReportController(commonMessage, $scope, $rootScope, baseSe
             }
         }
 
-        //$scope.year = "2018";
         var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
         DropDownListYear.selectItemByText($scope.year);
 
