@@ -149,7 +149,7 @@ namespace Aplos.Areas.QMS.Controllers
 
         public JsonResult GetStatusList()
         {
-            string sql = @"select CM.* from [HKP].[ComplaintMaster] CM";
+            string sql = @"select CM.* from [HKP].[CustomerQtyTechSupportStatus] CM";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
