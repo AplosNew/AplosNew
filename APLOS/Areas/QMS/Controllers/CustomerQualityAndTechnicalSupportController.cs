@@ -31,6 +31,18 @@ namespace Aplos.Areas.QMS.Controllers
             return View();
         }
 
+        public ActionResult GetData()
+        {
+            string sql = @"select CQT.Id, P.UserName Party,format(CQT.ComplaintDate, 'dd-MMM-yyyy')ComplaintDate,format(CQT.ToCloseDate,'dd-MMM-yyyy')ToCloseDate, EI.EmployeeName ResponsiblePerson
+,BW.EmployeeName ByWhom, CQT.ByWhomId, CQT.ResponsiblePersonId, CQT.CustomerId, CQT.ArticleId, MMA.StandardName MaterialArticle
+from [TRN].[CustomerQATechSupport] CQT
+LEFT JOIN EmployeeInformation EI on EI.SystemId = CQT.ResponsiblePersonId
+left join EmployeeInformation BW on BW.SystemId = CQT.ByWhomId
+left join HKP.Party p on P.Id = CQT.CustomerId 
+left join MST.MaterialMasterArticle MMA on MMA.Id = CQT.ArticleId";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         public JsonResult GetArticle(string salesId)
         {
             try
@@ -61,7 +73,8 @@ where S.PartyId = '"+ salesId + "'";
 left join MST.MaterialMasterArticle MA on MA.Id = SM.ArticleId
 left join TRN.SalesOrder SO on SO.Id = SM.SalesOrderId
 left join TRN.ProductionOrderDetail POD on POD.SalesOrderId = SO.Id
-left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
+left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId
+where SM.ArticleId = '" + articleId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -338,14 +351,5 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
         #endregion AddEdit
     }
 
-    public class Status
-    {
-        private string Id { get; set; }
-        private string ByWhomId { get; set; }
-        private DateTime TargetDate { get; set; } = DateTime.UtcNow;
-        private string CurrentStatus { get; set; }
-        private string FinalClosingStatus { get; set; }
-
-
-    }
+    
 }
