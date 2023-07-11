@@ -742,8 +742,45 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.deleteUrl = $scope.path + "delete/";
     $scope.getListUrl = "accounts/CompanyGroupActivity/getlist";
     //baseService.init($scope.getListUrl);
+
+    $scope.searchByActList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'Short Name',
+            'value': 'ShortName'
+        },
+        {
+            'name': 'Standard Name',
+            'value': 'StandardName'
+        },
+        {
+            'name': 'User Defined Name',
+            'value': 'UserName'
+        }
+    ];
+
+    $scope.Actparameters = {
+        limit: 10,
+        offset: 0,
+        order: "ASC",
+        sort: "Sequence",
+        searchBy: "UserName",
+        pageSize: 15,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
     $scope.getData = function (pageno) {
-        baseService.init($scope.getListUrl, pageno, 15, 'asc', 'Sequence', $scope.SearchBy)
+        //baseService.paginationBase($scope.getListUrl, pageno, $scope.Actparameters)
+        baseService.init($scope.getListUrl, pageno, 15, 'asc', 'Sequence', $scope.Actparameters.search)
         baseService.pagination(pageno)
             .then(function (result) {
                 $scope.activities = result.Rows;

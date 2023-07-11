@@ -150,7 +150,10 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             controller: "entityFixedAssetsRegisterController"
         })
 
-      
+        .when("/fa-register", {
+            templateUrl: "FixedAssets/FixedAssetRegister/FARegister",
+            controller: "faRegisterController"
+        })
     
 
         ;

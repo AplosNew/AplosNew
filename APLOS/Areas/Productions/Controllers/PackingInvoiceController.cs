@@ -32,6 +32,8 @@ using Library.ViewModel.SalesManagements;
 using Library.Model.SalesManagements;
 using Library.Service.SalesManagements;
 using Library.Model.Inventory;
+using Library.Model.Enums;
+using Syncfusion.ExcelToPdfConverter;
 
 #endregion Using
 
@@ -100,7 +102,7 @@ namespace Aplos.Areas.Productions.Controllers
             voucherVM.CompanyId = identity.CompanyId;
             voucherVM.PlantId = identity.PlantId;
             DataSet dsDetail;
-            DataSet dsHistory, dsScanData,dsItemScanData;
+            DataSet dsHistory, dsScanData, dsItemScanData;
             if (salesMaterialVMList != null)
             {
                 foreach (var item in salesMaterialVMList)
@@ -150,7 +152,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             _salesService.PackingInvoiceInsert(voucherVM, salesMaterialVMList, selectedPackingList, salesServiceVMList, dsDetail, dsHistory, dsItemScanData);
 
-            
+
 
             return Json(new { Data = voucherVM, Message = AplosMessage.Insert + "Invoice No: " + voucherVM.Id + "" });
         }
@@ -289,7 +291,7 @@ Where SC.Id<>''
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-               
+
                 strOSQL = "DELETE FROM TRN.SalesTax WHERE SalesId='" + id + "'";
                 strASQL = "DELETE FROM TRN.SalesAdditionalTax WHERE SalesId='" + id + "'";
                 strSSQL = "DELETE FROM TRN.SalesService WHERE SalesId='" + id + "'";
@@ -512,5 +514,8 @@ Where SC.Id<>''
                 objCon = null;
             }
         }//End of function
+
+
+
     }
 }
