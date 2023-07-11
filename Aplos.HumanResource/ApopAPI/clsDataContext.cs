@@ -4947,7 +4947,45 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         }
         #endregion Attendance
 
+        #region Incedent
 
+        public void GetIncedentCategoryDetail(out List<IncedentCategory> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<IncedentCategory>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct IC.Id, EI.EmployeeName,IC.StandardName from HKP.IncedentCategory IC 
+left join EmployeeInformation EI on EI.BudgetCode = IC.InchargeNameBgtCodeId where EI.DOS is null and IC.Id = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new IncedentCategory
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #endregion Incedent
 
         public class ProcessServiceTest
         {
@@ -5817,7 +5855,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             try
             {
                 strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
-                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
@@ -6962,6 +7000,14 @@ where  vr.AppliedId = '" + MasterId + "'";
         public string RequisitionBy { get; set; }
         public string Purpose { get; set; }
         public string Department { get; set; }
+
+    }
+
+    public class IncedentCategory
+    {
+        public string Id { get; set; }
+        public string EmployeeName { get; set; }
+        public string StandardName { get; set; }
 
     }
     #endregion vehicle
