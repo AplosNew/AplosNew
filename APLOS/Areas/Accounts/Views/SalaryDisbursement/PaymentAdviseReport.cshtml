@@ -29,24 +29,13 @@
                 <label class="col-sm-4 control-label">Payment Mode<sup>*</sup></label>
                 <div class="col-sm-8">
                     <input id="ddlPMList" ej-dropdownlist e-create="create" e-multiselectmode="visualmode" e-datasource="PaymentModeList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
-                    @*<div class="select-style">
-                        <select class="form-control" ng-model="PaymentMode" name="PaymentMode">
-                            <option value="">--Select--</option>
-                            <option value="Bank">Bank</option>
-                            <option value="Cheque">Cheque</option>
-                            <option value="Cash">Cash</option>
-                            <option value="Transfer">Transfer</option>
-                        </select>
-                    </div>*@
                 </div>
             </div>
-            <div class="form-group">
-                <div class="common-btn">
-                    <button ng-click="GetEmployeeInformation();" class="btn"> <i class="glyphicon glyphicon-download"></i> Go</button>
-                </div>
-            </div>
-        </div>
 
+        </div>
+        <div class="common-btn right">
+            <button ng-click="GetEmployeeInformation();" class="btn"> <i class="glyphicon glyphicon-download"></i> Go</button>
+        </div>
         <div class="clearfix"></div>
         <div class="col-md-12">
             <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="EmployeeListTemp" e-recorddoubleclick="Get" e-allowscrolling="true" e-pageSettings-pageSize="15"

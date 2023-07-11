@@ -1190,6 +1190,7 @@ upanelApp.controller("PlantInOutControllReportController", PlantInOutControllRep
 upanelApp.controller("ComplaintController", ComplaintController)
 upanelApp.controller("CustomerQualityAndTechnicalSupportController", CustomerQualityAndTechnicalSupportController)
 upanelApp.controller("PaymentAdviseReportController", PaymentAdviseReportController)
+upanelApp.controller("faRegisterController", faRegisterController)
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

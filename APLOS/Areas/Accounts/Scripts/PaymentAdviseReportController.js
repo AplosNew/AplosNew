@@ -37,7 +37,24 @@ function PaymentAdviseReportController(commonMessage, $scope, $rootScope, baseSe
         $scope.yearList = result;
     });
 
+    $scope.SelectDefaultValue = function (args) {
+        var x = new Date();
+        x.setDate(10);
+        x.setMonth(x.getMonth() - 1);
 
+        for (var i = 0; i < $scope.yearList.length; i++) {
+            if ($scope.yearList[i].Text === x.getFullYear().toString()) {
+                $scope.year = $scope.yearList[i].Text;
+                $scope.month = (x.getMonth() + 1).toString();
+                continue;
+            }
+        }
+
+        //$scope.year = "2018";
+        var DropDownListYear = $("#ddlYearList").data("ejDropDownList");
+        DropDownListYear.selectItemByText($scope.year);
+
+    };
 
     $scope.employeeCategoryList = [];
     cboService.getCboEmployeeCategoryGroupByCompanyGroup(null, function (result) {
@@ -139,10 +156,10 @@ function PaymentAdviseReportController(commonMessage, $scope, $rootScope, baseSe
         }
 
 
-        $scope.fileName = 'PaymentAdvise';
+        $scope.fileName = 'PaymentAdviseReport.xlsx';
         $http({
             method: "POST",
-            url: $scope.exportgriddataUrl,
+            url: 'Accounts/SalaryDisbursement/GetPaymentAdviseReportDataXls',
             data: {
                 'data': dataList,
                 'reportFileName': $scope.fileName,
@@ -153,7 +170,8 @@ function PaymentAdviseReportController(commonMessage, $scope, $rootScope, baseSe
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
