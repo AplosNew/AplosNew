@@ -866,7 +866,7 @@ Where HeadCategory='Net Payable' ";
                                     ,0 NetPayment
                                     , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
                                     ,ISNULL(s.BankAccNo,'') BankAccNo
-                                    ,ISNULL(s.IFSCCode,'') IFSCCode,FORMAT(ISNULL(s.UpdatedDate,s.AddedDate),'dd-MMM-yyyy') DisbursmentDate
+                                    ,ISNULL(s.IFSCCode,'') IFSCCode,FORMAT(ISNULL(s.UpdatedDate,s.AddedDate),'dd-MMM-yyyy') DisbursmentDate,S.Id,VL.VoucherNo
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
@@ -1830,6 +1830,169 @@ Where HeadCategory='Net Payable' ";
             }
         }
         #endregion
+
+        [HttpPost, Authorize]
+        public ActionResult GetPaymentAdviseReportDataXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                if (data == null)
+                {
+                    throw new Exception("No Data found.");
+                }
+                DataTable dt = new DataTable("DD");
+                foreach (string item in data[0].Keys)
+                {
+                    if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                        continue;
+
+                    dt.Columns.Add(item);
+                }
+
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    DataRow dr = dt.NewRow();
+                    foreach (string item in data[i].Keys)
+                    {
+                        if (item.ToUpper().Contains("PK") || item.ToUpper().Contains("EJVALUE"))
+                            continue;
+
+                        dr[item] = data[i][item];
+                    }
+
+                    dt.Rows.Add(dr);
+                }
+                string fileName = "";
+                fileName = GetPaymentAdviseReport(dt, "", reportFileName);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string GetPaymentAdviseReport(DataTable data, string ReportHeader, string reportFileName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "Payment Advise Data";
+                sheet = workbook.Worksheets[0];
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+
+                sheet[ROW, COL].Text = "EmpSystemId"; sheet[ROW, COL].ColumnWidth = 16; int colEmpId = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Code"; sheet[ROW, COL].ColumnWidth = 16; int colEmpCode = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Name"; sheet[ROW, COL].ColumnWidth = 16; int colEmpName = COL; COL++;
+                sheet[ROW, COL].Text = "Designation"; sheet[ROW, COL].ColumnWidth = 16; int colDesig = COL; COL++;
+                sheet[ROW, COL].Text = "Department"; sheet[ROW, COL].ColumnWidth = 16; int colDept = COL; COL++;
+                sheet[ROW, COL].Text = "Division"; sheet[ROW, COL].ColumnWidth = 16; int colDiv = COL; COL++;
+                sheet[ROW, COL].Text = "Employee Category"; sheet[ROW, COL].ColumnWidth = 16; int colEmpCat = COL; COL++;
+                sheet[ROW, COL].Text = "Payment Mode"; sheet[ROW, COL].ColumnWidth = 16; int colPM = COL; COL++;
+                sheet[ROW, COL].Text = "Bank Name"; sheet[ROW, COL].ColumnWidth = 16; int colBM = COL; COL++;
+                sheet[ROW, COL].Text = "BankAccNo"; sheet[ROW, COL].ColumnWidth = 16; int colBA = COL; COL++;
+                sheet[ROW, COL].Text = "IFSCCode"; sheet[ROW, COL].ColumnWidth = 16; int colIF = COL; COL++;
+                sheet[ROW, COL].Text = "DisbursmentId"; sheet[ROW, COL].ColumnWidth = 16; int colDI = COL; COL++;
+                sheet[ROW, COL].Text = "Disbursment Date"; sheet[ROW, COL].ColumnWidth = 16; int colDD = COL; COL++;
+                sheet[ROW, COL].Text = "SalaryProcFlag"; sheet[ROW, COL].ColumnWidth = 16; int colSP = COL; COL++;
+                sheet[ROW, COL].Text = "VoucherNo"; sheet[ROW, COL].ColumnWidth = 16; int colVN = COL; COL++;
+                sheet[ROW, COL].Text = "Net Payment"; sheet[ROW, COL].ColumnWidth = 16; int colNP = COL;
+                
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+                int LastRow = ROW + (data.Rows.Count - 1);
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, colEmpId].Text = data.Rows[i]["EmpSystemId"].ToString();
+                    sheet[ROW, colEmpCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                    sheet[ROW, colDesig].Text = data.Rows[i]["EmployeeName"].ToString();
+                    sheet[ROW, colDept].Text = data.Rows[i]["Designation"].ToString();
+                    sheet[ROW, colDiv].Text = data.Rows[i]["Department"].ToString();
+                    sheet[ROW, colEmpName].Text = data.Rows[i]["Division"].ToString();
+                    sheet[ROW, colEmpCat].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                    sheet[ROW, colPM].Text = data.Rows[i]["PaymentMode"].ToString();
+                    sheet[ROW, colBM].Text = data.Rows[i]["BankName"].ToString();
+                    sheet[ROW, colBA].Text = data.Rows[i]["BankAccNo"].ToString();
+                    sheet[ROW, colIF].Text = data.Rows[i]["IFSCCode"].ToString();
+                    sheet[ROW, colDI].Text = data.Rows[i]["Id"].ToString();
+                    sheet[ROW, colDD].Text = data.Rows[i]["DisbursmentDate"].ToString();
+                    sheet[ROW, colSP].Text = data.Rows[i]["SalaryProcFlag"].ToString();
+                    sheet[ROW, colVN].Text = data.Rows[i]["VoucherNo"].ToString();
+                    sheet[ROW, colNP].Number = clsStaticInfo.dbl(data.Rows[i]["NetPayment"].ToString());
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Payment Advise Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         #endregion
     }

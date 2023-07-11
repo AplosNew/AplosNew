@@ -846,5 +846,16 @@ namespace Aplos.Controllers.ApopAPIHR
 
         #endregion VCehicle
 
+        #region Incedent
+
+        public List<IncedentCategory> GetIncedentCategoryDetail(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetIncedentCategoryDetail(out List<IncedentCategory> activelists, Id);
+            return activelists;
+        }
+
+        #endregion Incedent
+
     }
 }
