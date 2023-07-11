@@ -1957,16 +1957,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             int LasColumnIndex = 8;
             int TaxLasColumnIndex = 3;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
-            //DataView dv = new DataView(materialTax.DefaultView.ToTable(true, "TaxCode"));
-
-
-            //for (int i = 0; i < dv.Count; i++)
-            //{
-            //    LasColumnIndex++;
-            //    dicTaxes.Add(dv[i]["TaxCode"].ToString(), LasColumnIndex);
-            //    LasColumnIndex++;
-            //}
-
+           
 
             WTable wTable = new WTable(document);
             int ROW = 0; int COL = 0;
@@ -2061,7 +2052,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             ROW++;
             #region Total
             int TotalRow = ROW;
-            wTable.AddRow();
+            //wTable.AddRow();
             WTableRow _TROW = wTable.LastRow;
             // _TROW.Cells[0].AddParagraph().AppendText("Total").ApplyCharacterFormat(FontBold);
 
@@ -2163,10 +2154,10 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             IWTextRange trange = wTaxTable.Rows[TXROW].Cells[TXCOL].AddParagraph().AppendText("Charges/Tax & Rate");
             trange.ApplyCharacterFormat(FontBold);
             int colTaxCode = TXCOL; TXCOL++;
-            wTaxTable.Rows[TXROW].Cells[colArticle].Width = 50;
+            wTaxTable.Rows[TXROW].Cells[colArticle].Width = 100;
 
 
-            trange = wTaxTable.Rows[ROW].Cells[TXCOL].AddParagraph().AppendText("%");
+            trange = wTaxTable.Rows[ROW].Cells[TXCOL].AddParagraph().AppendText("Per.(%)");
             trange.ApplyCharacterFormat(FontBold);
             int colPercentage = TXCOL; TXCOL++;
             wTaxTable.Rows[TXROW].Cells[colPercentage].Width = 50;
@@ -2174,12 +2165,12 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             trange = wTaxTable.Rows[ROW].Cells[TXCOL].AddParagraph().AppendText("TaxON");
             trange.ApplyCharacterFormat(FontBold);
             int colTaxON = TXCOL; TXCOL++;
-            wTaxTable.Rows[TXROW].Cells[colTaxON].Width = 50;
+            wTaxTable.Rows[TXROW].Cells[colTaxON].Width = 100;
 
             trange = wTaxTable.Rows[ROW].Cells[TXCOL].AddParagraph().AppendText("TaxAmount");
             trange.ApplyCharacterFormat(FontBold);
             int colTaxAmount = TXCOL;
-            wTaxTable.Rows[TXROW].Cells[colTaxAmount].Width = 50;
+            wTaxTable.Rows[TXROW].Cells[colTaxAmount].Width = 100;
 
             for (int i = 0; i < materialTax.Rows.Count; i++)
             {
@@ -5539,7 +5530,9 @@ LEFT JOIN [MST].[AddressMaster] BMA ON BMA.Id = BB.AddressMasterId
             string strSQL;
             try
             {
-                strSQL = @"Select SUM(ST.Amount) TaxAmount,SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0)) BooksCurrencyTransactionAmount,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,ST.Percentage,SUM(SM.TransactionAmount) TaxON
+                strSQL = @"Select CONVERT(NUMERIC(10,2),SUM(ST.Amount)) TaxAmount,CONVERT(NUMERIC(10,2),SUM(ISNULL(ST.BooksCurrencyTransactionAmount,0))) BooksCurrencyTransactionAmount
+,ST.SalesId,ST.TaxCategoryId,TC.Code TaxCode,CONVERT(NUMERIC(10,2),ST.Percentage)Percentage
+,CONVERT(NUMERIC(10,2),SUM(SM.TransactionAmount)) TaxON
 from TRN.SalesTax ST
 left join TRN.Sales S ON S.Id=ST.SalesId
 left join TRN.SalesMaterial SM ON S.Id=SM.SalesId
