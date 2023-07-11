@@ -56,7 +56,7 @@ where S.PartyId = '"+ salesId + "'";
                 //                string sql = @"select * from TRN.SalesMaterial SM
                 //left join TRN.Sales on Sales.Id  = SM.SalesId
                 //where SM.ArticleId = '"+ articleId + "' ";
-                string sql = @"select s.InvoiceNo, S.InvoiceDate, MA.StandardName Article, SM.ArticleId, PO.Qty POQuantity from TRN.Sales S
+                string sql = @"select '' Id, S.Id InvoiceId, s.InvoiceNo, S.InvoiceDate, MA.StandardName Article, SM.ArticleId, PO.Qty POQuantity from TRN.Sales S
                                 left join TRN.SalesMaterial SM on SM.SalesId = S.Id
 left join MST.MaterialMasterArticle MA on MA.Id = SM.ArticleId
 left join TRN.SalesOrder SO on SO.Id = SM.SalesOrderId
@@ -122,10 +122,16 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
             }
         }
 
-        public JsonResult GetCoplaint()
+        public JsonResult GetComplaint()
         {
             string sql = @"select Id Value, UserName Text from HKP.ComplaintMaster";
 
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetCustomerStatus()
+        {
+            string sql = @"select ''Id, Id Value, UserName Text from [HKP].[CustomerQtyTechSupportStatus]";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -134,7 +140,7 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
             try
             {
 
-                string TableName = "HKP.HRReportMaster";
+                string TableName = "[TRN].[CustomerQATechSupport]";
                 DataSet dsMaster;
 
 
@@ -175,54 +181,26 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
             }
         }
 
-        public void SaveData(Dictionary<string, object> chkBgtList, string headerId, out string contId, List<Dictionary<string, object>> usergroup)
+        public void SaveData(Dictionary<string, object> actiontakenObj, string headerid, out string contId, List<Dictionary<string, object>> invoicelist)
         {
             string TableName = "TRN.HRReportMasterChild";
+            
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
 
             DataSet dsMaster, dsChild;
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
 
 
             try
             {
-
-                string sql = "SELECT * FROM [TRN].[HRReportMasterChild] WHERE Id='" + chkBgtList["Id"] + "'";
-
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
-                string id = string.Empty;
-
-                string _Id = "";
-                string _UserGroupId = string.Empty;
-
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    chkBgtList["Id"] = _Id;
-                    chkBgtList["HRReportMasterId"] = headerId;
-                    chkBgtList["Active"] = chkBgtList["isSelected"];
-
-
-                    AddNewRow(dsMaster.Tables[0], chkBgtList);
-
-                }
-                else
-                {
-                    chkBgtList["Active"] = 0;
-                    EditRow(dsMaster.Tables[0].Rows[0], chkBgtList);
-                }
-
-                contId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-
-
-                objCon.OpenDataSetThroughAdapter("select * from TRN.HRReportMasterBudgetUserGroup  where HRReportMasterChildId = '" + contId + "'", out dsChild, false, "1");
-                foreach (var item in usergroup)
+                objCon.OpenDataSetThroughAdapter("select * from [TRN].[CustomerQATechInvoice]  where CustomerQATechSupportId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in invoicelist)
                 {
                     DataView dv = new DataView(dsChild.Tables[0]);
 
@@ -231,8 +209,10 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
                     {
                         DataRow dr = dv[0].Row;
                         dr.BeginEdit();
-                        dr["Grade"] = item["Grade"];
-
+                        dr["CustomerQATechSupportId"] = headerid;
+                        dr["InvoiceId"] = item["InvoiceId"];
+                        dr["ComplaintId"] = item["ComplaintId"];
+                        dr["IsActive"] = 0;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
@@ -243,18 +223,45 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
                     else
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("TRN.HRReportMasterBudgetUserGroup", out _UserGroupId);
+                        genid.GenID("TRN.CustomerQATechInvoice", out _UserGroupId);
                         DataRow dr = dsChild.Tables[0].NewRow();
                         dr["Id"] = _UserGroupId;
-                        dr["HRReportMasterChildId"] = contId;
-                        dr["UserGroupId"] = item["UserGroupId"];
-                        dr["Grade"] = item["Grade"];
+                        dr["CustomerQATechSupportId"] = headerid;
+                        dr["InvoiceId"] = item["InvoiceId"];
+                        dr["ComplaintId"] = item["CompaintId"];
+                        dr["IsActive"] = item["isSelected"];
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
                         dsChild.Tables[0].Rows.Add(dr);
                     }
                 }
+                contId = dsChild.Tables[0].Rows[0]["Id"].ToString();
+                string sql = "SELECT * FROM [TRN].[CustomerQATechSupportStatus] WHERE CustomerQATechInvoiceId='" + contId + "'";
+
+                
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    actiontakenObj["Id"] = _Id;                   
+                    actiontakenObj["CustomerQATechInvoiceId"] = contId;                   
+
+                    AddNewRow(dsMaster.Tables[0], actiontakenObj);
+
+                }
+                else
+                {
+                  
+                    EditRow(dsMaster.Tables[0].Rows[0], actiontakenObj);
+                }
+
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsChild);
@@ -267,11 +274,11 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> chkBgtList, string headerId, List<Dictionary<string, object>> usergroup)
+        public JsonResult Create(Dictionary<string, object> actiontakenObj, string headerid, List<Dictionary<string, object>> invoicelist)
         {
             try
             {
-                SaveData(chkBgtList, headerId, out string contractId, usergroup);
+                SaveData(actiontakenObj, headerid, out string contractId, invoicelist);
 
 
                 return Json(new { Id = contractId, Message = AplosMessage.Insert });
@@ -302,9 +309,7 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+           
 
             dt.Rows.Add(dr);
         }
@@ -329,14 +334,18 @@ left join TRN.ProductionOrder PO on PO.Id = POD.ProductionOrderId";
             dr.EndEdit();
         }
 
-        public double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.HRReportMaster");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
+      
         #endregion AddEdit
+    }
+
+    public class Status
+    {
+        private string Id { get; set; }
+        private string ByWhomId { get; set; }
+        private DateTime TargetDate { get; set; } = DateTime.UtcNow;
+        private string CurrentStatus { get; set; }
+        private string FinalClosingStatus { get; set; }
+
+
     }
 }
