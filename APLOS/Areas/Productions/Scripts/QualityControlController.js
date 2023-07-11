@@ -17,6 +17,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.saveUrlGrade = $scope.path + 'createGrade';
     $scope.saveUrl = $scope.path + 'createQC';
     $scope.saveUrlQP = $scope.path + 'createQP';
+    $scope.saveUrlGI = $scope.path + 'createGI';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
@@ -132,6 +133,19 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.GeneralIssueList = [];
+    $scope.ProcessGeneralIssue = function () {
+        try {
+            $scope.GeneralIssueList = [];
+            $http.get('Productions/QualityControl/LoadGeneralIssue')
+                .then(function (response) {
+                    $scope.GeneralIssueList = response.data;
+                });
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
     
     $scope.GeneratItemSequenceNo = function () {
         $http({
@@ -153,7 +167,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     }
     $scope.GeneratGradeSequenceNo();
    
-    $scope.tab = 1;
+    $scope.tab = 0;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
 
@@ -342,6 +356,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             $scope.productionSummaryNew.BookingLevel = response.data[0].BookingLevel;
         });
     }
+    $scope.GetQBookingLevel();
 
     $scope.GetChkInterval = function (QId) {
         $http({
@@ -978,7 +993,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 url: $scope.saveUrl,
                 data: {
                     'QualityControlData': $scope.productionSummaryNew,
-                    'QualityPlanId': $scope.QPId
+                    'QualityPlanId': $scope.QPId,
+                    'PlanType':$scope.PlanType
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -988,6 +1004,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 else {
                     //ShowResult(response.data.Message, 'success');
                 }
+                $scope.QPId = null;
+                $scope.PlanType = null;
                 $scope.QCId = response.data.Data.Id;
                 $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.POItemId);
             }), function errorCallBack(response) {
@@ -1049,6 +1067,39 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
                     ShowResult(response.data.Message, 'success');
                     $scope.ProcessQualityPlan();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.SaveGI = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.GeneralIssueList.length; i++) {
+                $scope.SaveList.push($scope.GeneralIssueList[i]);
+            }
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlGI,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ProcessGeneralIssue();
                     $scope.Action = 'Save';
                 }
 
@@ -1302,7 +1353,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(ex, 'Info');
         }
     };
-    $scope.GetPOWiseData();
+   /* $scope.GetPOWiseData();*/
 
     $scope.rowDataBound = function rowDataBound(e) {
 
@@ -1323,11 +1374,27 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.QProwDataBound = function QProwDataBound(e) {
 
         if (e.data.Date == $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')) {
-            e.row.css("background-color", '#87CEEB');
+            e.row.css("background-color", '#FFFFE0');
         }
         else if (new Date(e.data.Date) < new Date()) {
 
-            e.row.css("background-color", '#ffa001');
+            e.row.css("background-color", '#FFD580');
+        }
+
+        else {
+            e.row.css("background-color", '#FFFFFF');
+
+        }
+    }
+
+    $scope.QGIrowDataBound = function QGIrowDataBound(e) {
+
+        if (e.data.QualityIssueDate == $filter('dateFiltering')(new Date(), 'dd-MM-yyyy')) {
+            e.row.css("background-color", '#FFFFE0');
+        }
+        else if (new Date(e.data.QualityIssueDate) < new Date()) {
+
+            e.row.css("background-color", '#FFD580');
         }
 
         else {
@@ -1891,7 +1958,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
         $scope.POItemId = $event.data.ItemId;
-        $scope.setTab(2);
+        $scope.setTab(3);
         $scope.getAllEntities();
         $scope.loadProcessList($scope.productionSummaryNew.EntityId);
         $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
@@ -1903,6 +1970,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     }
 
     $scope.QPId = null;
+    $scope.PlanType = null;
     $scope.SetQPSelectData = function ($event) {
         $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
         $scope.productionSummaryNew.EntityId = $event.data.EntityId;
@@ -1912,8 +1980,11 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.PeriodId = $event.data.PeriodId;
         $scope.productionSummaryNew.LotNumber = $event.data.LotNumber;
+        $scope.productionSummaryNew.ProductionInCharge = $event.data.QPEmployee;
+        $scope.productionSummaryNew.ProductionInChargeId = $event.data.QPEmployeeId;
         $scope.QPId = $event.data.Id;
-        $scope.setTab(2);
+        $scope.PlanType = "POIssue"
+        $scope.setTab(3);
         $scope.getAllEntities();
         $scope.loadProcessList($scope.productionSummaryNew.EntityId);
         $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
@@ -1924,6 +1995,26 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
+   
+    $scope.SetQGISelectData = function ($event) {
+        $scope.productionSummaryNew.EntityId = $event.data.EntityId;
+        $scope.productionSummaryNew.ProcessId = $event.data.ProcessId;
+        $scope.productionSummaryNew.ProductionDate = $event.data.QualityIssueDate;
+        $scope.productionSummaryNew.IssueId = $event.data.IssueId;
+        $scope.productionSummaryNew.ProductionInCharge = $event.data.QGIEmployee;
+        $scope.productionSummaryNew.ProductionInChargeId = $event.data.QGIEmployeeId;
+        $scope.QPId = $event.data.Id;
+        $scope.PlanType = "GeneralIssue"
+        $scope.setTab(3);
+        $scope.getAllEntities();
+        $scope.loadProcessList($scope.productionSummaryNew.EntityId);
+        $scope.GetIssueList($scope.productionSummaryNew.ProcessId);
+        $scope.GetShiftList();
+        $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
+        $scope.GetIssueType($scope.productionSummaryNew.IssueId);
+        $scope.GetQBookingLevel();
+        //$scope.productionSummaryNew.Article = $event.data.Article;
+    }
 
     $scope.psdList = [];
     $scope.char1Save = function () {
@@ -3189,6 +3280,60 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.closeResponsiblePersonPopUp = function () {
         angular.element(document.querySelector('#ResponsiblePersonPopup')).modal('hide');
+    }
+
+    $scope.selectQPEmployee = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getQPEmployee();
+        angular.element(document.querySelector('#QualityPlanEmployee')).modal('show');
+    }
+
+    $scope.QPEmployeeList = [];
+    $scope.getQPEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetQPEmployee?IssueId=' + $scope.Newobject.IssueId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.QPEmployeeList = resp.data;
+        });
+    }
+
+    $scope.doubleQPEmployee = function (e) {
+        $scope.Newobject.QPEmployeeId = e.data.SystemId;
+        $scope.Newobject.QPEmployee = e.data.EmployeeName;
+        angular.element(document.querySelector('#QualityPlanEmployee')).modal('hide');
+    }
+
+    $scope.closeQualityPlanEmployee = function () {
+        angular.element(document.querySelector('#QualityPlanEmployee')).modal('hide');
+    }
+
+    $scope.selectQGIEmployee = function (data) {
+        $scope.Newobject = data.data;
+        $scope.getQGIEmployee();
+        angular.element(document.querySelector('#QualityGIEmployee')).modal('show');
+    }
+
+    $scope.QGIEmployeeList = [];
+    $scope.getQGIEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetQPEmployee?IssueId=' + $scope.Newobject.IssueId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.QGIEmployeeList = resp.data;
+        });
+    }
+
+    $scope.doubleQGIEmployee = function (e) {
+        $scope.Newobject.QGIEmployeeId = e.data.SystemId;
+        $scope.Newobject.QGIEmployee = e.data.EmployeeName;
+        angular.element(document.querySelector('#QualityGIEmployee')).modal('hide');
+    }
+
+    $scope.closeQualityGIEmployee = function () {
+        angular.element(document.querySelector('#QualityGIEmployee')).modal('hide');
     }
 
     $scope.getSalesOrderPopUp = function () {

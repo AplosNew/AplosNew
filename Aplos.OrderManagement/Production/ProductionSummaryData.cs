@@ -4038,7 +4038,9 @@ left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 PS.UserName as POStatus,QTD.Id as PeriodId,
-QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as Period
+QTD.PeriodName + ' ('+ format(QTD.FromTime,'hh:mm tt') + ' - ' + format(QTD.ToTime,'hh:mm tt') + ' )' as Period,
+reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=ID.Id) for xml path(''))),1,1,'')) as PositionEmployee,
+QPC.QPEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId) as QPEmployee
 from TRN.ProductionOrder PO
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
 left join MST.POQualityPlanDetails PD on 1=1
@@ -4052,7 +4054,23 @@ left join TRN.SalesOrder SO on SO.Id=POD.SalesOrderId
 left join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
 LEFT JOIN (Select SUM(Quantity)ProQty,MIN(ProductionDate)POFirstProdBookDate,MAX(ProductionDate)POLatestProdBookDate,ProductionOrderId From TRN.ProductionSummary Group By ProductionOrderId) FBPPD ON FBPPD.ProductionOrderId=PO.Id
 LEFT JOIN(Select MIN(ProductionDate)BaseProcPlanStartDate,MAX(ProductionDate)BaseProcPlanCompletionDate,ProductionOrderId From ProductionPlanningType1 Group By ProductionOrderId) Type1 ON Type1.ProductionOrderId=PO.Id
-where PS.UserName in ('Running','To Close')";
+where PS.UserName in ('Running','To Close') and QPC.ID not in (select QualityPlanId from TRN.QualityControl where QualityPlanId is not null)";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetGeneralIssue()
+        {
+            string sql = @"select  QC.Id,
+format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
+E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,QID.IssueName QGIssue,
+reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=QID.Id) for xml path(''))),1,1,'')) as PositionEmployee,
+QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
+from MST.QualityIssueDetails  QID
+left join TRN.QualityIssueControl QC on QC.IssueId=QID.Id
+left join org.Entity E on E.Id=QID.EntityId
+left join hkp.Process P on P.Id=QID.ProcessId
+where QID.IssueType in ('Order','General') and QC.QCId is null order by 
+format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy')";
             return _sqlRepository.GetDataCollection(sql);
         }
 
