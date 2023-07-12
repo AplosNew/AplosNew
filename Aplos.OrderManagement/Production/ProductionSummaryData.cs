@@ -4061,15 +4061,16 @@ where PS.UserName in ('Running','To Close') and QPC.ID not in (select QualityPla
         public IEnumerable<object> GetGeneralIssue()
         {
             string sql = @"select  QC.Id,
-format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
+isnull(format(DATEADD(hour, QID.CheckingInterval,(select top 1 ProductionDate from TRN.QualityControl where IssueId=QID.Id order by ProductionDate desc)),'dd-MMM-yyyy'),format(getdate(),'dd-MMM-yyyy')) as QualityIssueDate,
 E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,QID.IssueName QGIssue,
 reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=QID.Id) for xml path(''))),1,1,'')) as PositionEmployee,
-QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
+QC.QGIEmployeeId,'' as QGIEmployee
 from MST.QualityIssueDetails  QID
 left join TRN.QualityIssueControl QC on QC.IssueId=QID.Id
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
-where QID.IssueType in ('Order','General') and QC.QCId is null order by 
+where QID.IssueType in ('Order','General') and QC.QCId is null 
+order by 
 format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy')";
             return _sqlRepository.GetDataCollection(sql);
         }

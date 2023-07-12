@@ -501,7 +501,7 @@ from [MST].[POQualityPlanDetails] QPD where QPD.Id='" + PQPId + @"'";
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityTimeDetails] where PeriodName='" + TimeData["PeriodName"] + "'", out DataSet dsTimeDetailsPeriodNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityTimeDetails] where PeriodName='" + TimeData["PeriodName"] + "' and IssueId='" + TimeData["IssueId"] + "'", out DataSet dsTimeDetailsPeriodNameValidation, false, "1");
 
                 DataSet dsTimeDetails;
 
@@ -598,7 +598,7 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueItem] where ItemName='" + IssueItemData["ItemName"] + "'", out DataSet dsItemDetailsIssueItemNameValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueItem] where ItemName='" + IssueItemData["ItemName"] + "' and IssueId='" + IssueItemData["IssueId"] + "'", out DataSet dsItemDetailsIssueItemNameValidation, false, "1");
 
                 DataSet dsIssueDetails;
 
