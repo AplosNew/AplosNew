@@ -4061,7 +4061,7 @@ where PS.UserName in ('Running','To Close') and QPC.ID not in (select QualityPla
         public IEnumerable<object> GetGeneralIssue()
         {
             string sql = @"select  QC.Id,
-isnull(format(DATEADD(hour, QID.CheckingInterval,(select top 1 ProductionDate from TRN.QualityControl where IssueId=QID.Id order by ProductionDate desc)),'dd-MMM-yyyy'),format(getdate(),'dd-MMM-yyyy')) as QualityIssueDate,
+format(DATEADD(hour, QID.CheckingInterval,(select top 1 ProductionDate from TRN.QualityControl where IssueId=QID.Id order by ProductionDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
 E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,QID.IssueName QGIssue,
 reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=QID.Id) for xml path(''))),1,1,'')) as PositionEmployee,
 QC.QGIEmployeeId,'' as QGIEmployee
