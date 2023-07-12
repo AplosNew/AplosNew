@@ -5965,7 +5965,12 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select  Distinct VMR.Id as MasterId, FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC                            
+left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'') ,ToLocation =  stuff((select ',  ' + TM.UserName 
+from TRN.VehicleMovementRequisitionChild VMC
+left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
@@ -6033,7 +6038,12 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by F
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select Distinct VMR.Id as MasterId, FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC                            
+left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'') ,ToLocation =  stuff((select ',  ' + TM.UserName 
+from TRN.VehicleMovementRequisitionChild VMC
+left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
