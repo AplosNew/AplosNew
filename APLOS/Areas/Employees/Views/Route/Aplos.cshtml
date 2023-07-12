@@ -500,9 +500,6 @@
                                 <li> <button ng-click="Clear();" class="btn" tabindex="13"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
-                        <legend class="scheduler-border"></legend>
-
-
                         <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelStoppageList" e-recorddoubleclick="recorddoubleclicks" e-load="loadGridEdit"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
@@ -516,6 +513,9 @@
                                 <div e-column e-field="City" e-headertext="City" e-width="3"></div>
                             </div>
                         </div>
+                        <legend class="scheduler-border"></legend>
+
+
 
                     </fieldset>
                 </div>
