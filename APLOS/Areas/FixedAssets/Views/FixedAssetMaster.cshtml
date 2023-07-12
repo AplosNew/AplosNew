@@ -8,7 +8,6 @@
     }
 </style>
 
-@*<div class="form-elements form-horizontal" ng-form name="ModelNewForm">*@
 <div class="tab-design" id="tab_show">
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
@@ -18,6 +17,7 @@
     </div>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
             <togglable name="Fixed Asset Master"></togglable>
             <div class="form-elements form-horizontal" ng-form name="fixedAssetMasterNewForm">
                 <div class="row">
@@ -154,7 +154,6 @@
                 </table>
                 <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
             </div>
-
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <togglable name="Fixed Asset Master Item"></togglable>
@@ -249,61 +248,26 @@
                         <li> <button ng-click="ClearFAMI();" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
-            </div>
 
-            <div class="row text-right aplos-grid-toggle">
-                <div class="col-xs-12 col-sm-12 col-sm-12">
-                    <div class="search-form">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-3 col-md-3">
-                                <div class="select-style">
-                                    <select ng-model="FAMIparameters.searchByFAMI">
-                                        <option ng-repeat="option in searchByFAMIList" value="{{option.value}}">{{option.name}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-7 col-md-7">
-                                <input type="text" class="form-control" placeholder="Search" ng-model="FAMIparameters.searchFAMI" ng-enter="getFAMIData()">
-                            </div>
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <button type="button" ng-click="getFAMIData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                            </div>
+            </div>
+                <div class="table-responsive aplos-grid-toggle">
+                    <div id="GridM" ng-init="chkinit2()" ej-grid e-datasource="FixedAssetMasterItemList" e-recorddoubleclick="GetFAMI"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                            <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
+                            <div e-column e-field="FixedAssetMaster" e-headertext="Fixed Asset Master" e-width="5"></div>
+                            <div e-column e-field="CapacityUoM" e-headertext="Capacity UoM" e-width="4"></div>
+                            <div e-column e-field="CapacityValue" e-headertext="Capacity Value" e-width="4"></div>
+                            <div e-column e-field="Description" e-headertext="Description" e-width="4"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="table-responsive modal-table aplos-grid-toggle">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>User Name</th>
-                            <th>Fixed Asset Master Name</th>
-                            <th>Capacity UoM</th>
-                            <th>Capacity Value</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr dir-paginate="x in FixedAssetMasterItemList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="GetFAMI(x.Id, $index);">
-                            <td>{{x.Code}}</td>
-                            <td>{{x.UserName}}</td>
-                            <td>{{x.FixedAssetMaster}}</td>
-                            <td>{{x.CapacityUoM}}</td>
-                            <td>{{x.CapacityValue}}</td>
-                            <td>{{x.Description}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getFAMIData(newPageNumber)"></dir-pagination-controls>
-            </div>
         </div>
     </div>
 </div>
-@*</div>*@
-
 <confirm-archive-generic modalid="confirmFAMIPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteFAMI();"></confirm-archive-generic>
-
 
 <div class="modal fade site-modal in" id="FAMPop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
@@ -341,5 +305,3 @@
 </div>
 
 <confirm-modal></confirm-modal>
-
-

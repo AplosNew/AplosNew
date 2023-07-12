@@ -58,6 +58,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetRegister.cshtml");
         }
+        public ActionResult FARegister()
+        {
+            return View("~/Areas/FixedAssets/Views/FARegister.cshtml");
+        }
         #region GL vs Fa
         public ActionResult GLvsFA()
         {

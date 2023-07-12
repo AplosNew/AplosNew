@@ -846,5 +846,30 @@ namespace Aplos.Controllers.ApopAPIHR
 
         #endregion VCehicle
 
+        #region Incedent
+
+        public List<Default2> GetIncedentCategoryDetail(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetIncedentCategoryDetail(out List<Default2> activelists, Id);
+            return activelists;
+        }
+
+        public List<Default2> GetIncidentCategory()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetIncidentCategory(out List<Default2> activelists);
+            return activelists;
+        }
+
+        public List<Default2> GetEmployeeBudget(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetEmployeeBudget(out List<Default2> activelists, Id);
+            return activelists;
+        }
+
+        #endregion Incedent
+
     }
 }
