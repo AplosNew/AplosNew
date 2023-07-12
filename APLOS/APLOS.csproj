@@ -2072,6 +2072,7 @@
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\faRegisterController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetCodeWiseHRReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
@@ -4734,6 +4735,7 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling2.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Aplos.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\FARegister.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -4947,7 +4947,45 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         }
         #endregion Attendance
 
+        #region Incedent
 
+        public void GetIncedentCategoryDetail(out List<IncedentCategory> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<IncedentCategory>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select distinct IC.Id, EI.EmployeeName,IC.StandardName from HKP.IncedentCategory IC 
+left join EmployeeInformation EI on EI.BudgetCode = IC.InchargeNameBgtCodeId where EI.DOS is null and IC.Id = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new IncedentCategory
+                    {
+                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
+                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
+                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #endregion Incedent
 
         public class ProcessServiceTest
         {
@@ -5817,7 +5855,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             try
             {
                 strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
-                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.EmployeeCode ResponsiblePersonCode, VMR.NumberOfPassengers
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
@@ -5927,7 +5965,12 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select  Distinct VMR.Id as MasterId, FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC                            
+left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'') ,ToLocation =  stuff((select ',  ' + TM.UserName 
+from TRN.VehicleMovementRequisitionChild VMC
+left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
@@ -5995,7 +6038,12 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by F
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select Distinct VMR.Id as MasterId, FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC                            
+left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'') ,ToLocation =  stuff((select ',  ' + TM.UserName 
+from TRN.VehicleMovementRequisitionChild VMC
+left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
@@ -6962,6 +7010,14 @@ where  vr.AppliedId = '" + MasterId + "'";
         public string RequisitionBy { get; set; }
         public string Purpose { get; set; }
         public string Department { get; set; }
+
+    }
+
+    public class IncedentCategory
+    {
+        public string Id { get; set; }
+        public string EmployeeName { get; set; }
+        public string StandardName { get; set; }
 
     }
     #endregion vehicle

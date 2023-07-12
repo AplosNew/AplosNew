@@ -17,6 +17,27 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
         return $scope.tab === tabNum;
     };
 
+    $scope.ModelList = [];
+    $scope.GetDate = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetData",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(res) {
+            $scope.ModelList = res.data;
+        })
+    }
+    $scope.GetDate();
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
     $scope.ModelTemp = {
         Id: null,
         SalesId: null,
@@ -230,7 +251,7 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
     }
     $scope.ActionToBeTakenModel = Object.assign({}, $scope.ActionToBeTakenTemp);
 
-    $scope.showByWhomListPopUp = function (name) {
+    $scope.showByWhomActionTakenPopUp = function (name) {
         $scope.employeeList = [];
         try {
             $scope.Name = name;
@@ -252,14 +273,23 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
                     }).finally(function () {
                     });
             };
-            angular.element(document.querySelector('#ByWhomePopUps')).modal('show');
+            angular.element(document.querySelector('#ByWhomePopUpssec')).modal('show');
             $scope.getEmployeeData();
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
 
+    $scope.selectByWhomeActiontakenPopUp = function (index, data) {
+        $scope.employeeIndex = index;
 
+        $scope.ModelNew.ByWhomId = data.SystemId;
+        $scope.ModelNew.ByWhomeName = data.EmployeeName;
+        $scope.ModelNew.ByWhomeCode = data.EmployeeCode;
+
+        angular.element(document.querySelector('#ByWhomePopUps')).modal('hide');
+        $scope.Name = null;
+    };
    
     $scope.CheckedInvoiceNumberList = [];
     $scope.ClosePopupOnSelectAllField = function () {

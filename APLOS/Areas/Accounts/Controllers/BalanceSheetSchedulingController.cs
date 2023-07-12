@@ -17,12 +17,6 @@ namespace Aplos.Areas.Accounts.Controllers
 {
     public class BalanceSheetSchedulingController : BaseController
     {
-        //private readonly IChartOfAccountLevel1Service _chartOfAccountLevel1Service;
-
-        //public BalanceSheetSchedulingController(IChartOfAccountLevel1Service chartOfAccountLevel1Service)
-        //{
-        //    _chartOfAccountLevel1Service = chartOfAccountLevel1Service;
-        //}
         string TableName = "dbo.BalanceSheetScheduling";
         #region Constructor
         private readonly IUnitOfWork _unitOfWork;
@@ -90,14 +84,9 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where OptionNo='" + data["OptionNo"] + "' AND  Id<>'" + data["Id"] + "' ", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where OptionNo='" + data["OptionNo"].ToString() + "' AND  Id<>'" + data["Id"] + "' ", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Option No already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Group='" + data["Group"] + "' AND  Id<>'" + data["Id"] + "' ", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Group already exists!!!");
-
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -122,7 +111,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -195,51 +184,5 @@ namespace Aplos.Areas.Accounts.Controllers
                 return clsStaticInfo.dbl(dt.Rows[0]["Id"].ToString()) + 1;
             return 1;
         }
-
-
-        //[Authorize, HttpGet]
-        //public JsonResult GetCbo()
-        //{
-        //    return Json(new SelectList(_chartOfAccountLevel1Service.GetCbo(), "Value", "Text"), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult GetChartOfAccountLevel1List(GridParameter parameters)
-        //{
-        //    return Json(_chartOfAccountLevel1Service.Query(parameters), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet]
-        //public ActionResult CheckIdUse(string id)
-        //{
-        //    return Json(_chartOfAccountLevel1Service.CheckUsing(id), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[Authorize, HttpGet]
-        //public JsonResult GetAutoSequence()
-        //{
-        //    return Json(_chartOfAccountLevel1Service.GetAutoSequence(), JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpPost]
-        //public JsonResult Create(ChartOfAccountLevel1 chartOfAccountLevel1)
-        //{
-        //    _chartOfAccountLevel1Service.Insert(chartOfAccountLevel1);
-        //    return Json(new { ChartOfAccountLevel1 = chartOfAccountLevel1, Sequence = _chartOfAccountLevel1Service.GetAutoSequence(), Message = AplosMessage.Insert });
-        //}
-
-        //[HttpPost]
-        //public JsonResult Edit(ChartOfAccountLevel1 chartOfAccountLevel1)
-        //{
-        //    _chartOfAccountLevel1Service.Update(chartOfAccountLevel1);
-        //    return Json(new { Sequence = _chartOfAccountLevel1Service.GetAutoSequence(), Message = AplosMessage.Updated });
-        //}
-
-        //[HttpPost]
-        //public JsonResult Delete(string id)
-        //{
-        //    _chartOfAccountLevel1Service.Delete(id);
-        //    return Json(new { Sequence = _chartOfAccountLevel1Service.GetAutoSequence(), Message = AplosMessage.Deleted });
-        //}
     }
 }

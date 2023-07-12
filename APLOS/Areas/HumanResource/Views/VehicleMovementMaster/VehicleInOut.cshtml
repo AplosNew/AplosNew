@@ -343,22 +343,49 @@
                      e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                      e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                     <div e-columns>
-                        <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+                        @*<div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>*@
+                        @* RequisitionBy, EmployeeCode, EmployeeName ,FromDate, ToDate, FromTime, ToTime, fromloc,toloc ,Personal/Official, GuestName, Purpose, No.Passenger, ForWhom, Remarks
+                , Requisition Stattus, Approve/Reject by, VehicleName, VehicleNo, DriverId,DriverName, LicenseExpDate, VehicleActualOutDate, VehicleActualOutTime, OutReading
+                , VehicleActualInDate, VehicleActualInTime, InReading, TotalTripTime(outdate - indate) in min., TotalTrip Kl/mtrs*@
+
+                        <div e-column e-field="ByWhomEmpCode" e-headertext="ByWhom_EmpCode" e-width="100"></div>
+                        <div e-column e-field="ByWhom" e-headertext="By Whom" e-width="100"></div>
+                        <div e-column e-field="ForWhomeEmpCode" e-headertext="For Whom" e-width="100"></div>
+                        <div e-column e-field="FromDate" e-headertext="FromDate" e-width="100"></div>
+                        <div e-column e-field="ToDate" e-headertext="ToDate" e-width="100"></div>
+                        <div e-column e-field="FromTime" e-headertext="FromTime" e-width="100"></div>
+                        <div e-column e-field="ToTime" e-headertext="ToTime" e-width="100"></div>
                         <div e-column e-field="FromLocation" e-headertext="From Location" e-width="100"></div>
                         <div e-column e-field="ToLocation" e-headertext="To Location" e-width="100"></div>
-                        <div e-column e-field="OutDate" e-headertext="OutDate" e-width="100"></div>
-                        <div e-column e-field="InDate" e-headertext="InDate" e-width="100"></div>
+                        <div e-column e-field="Personal/Official" e-headertext="Personal/Official" e-width="100"></div>
+                        <div e-column e-field="GuestName" e-headertext="GuestName" e-width="100"></div>
 
-                        <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
-                        <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
-
-                        <div e-column e-field="EmployeeName" e-headertext="Requisition Created By" e-width="100"></div>
-                        <div e-column e-field="NumberOfPassengers" e-headertext="Number Of Passengers" e-width="100"></div>
+                        <div e-column e-field="Purpose" e-headertext="Purpose" e-width="100"></div>
+                        <div e-column e-field="NumberOfPassengers" e-headertext="No. of Passegengers" e-width="100"></div>
+                        <div e-column e-field="ReqRemark" e-headertext="Req Remark" e-width="100"></div>
+                        <div e-column e-field="RequisitionStatus" e-headertext="RequisitionStatus" e-width="100"></div>
+                        <div e-column e-field="Approved/Reject By" e-headertext="Approved/Reject By" e-width="100"></div>
+                       
+                        <div e-column e-field="DriverName" e-headertext="DR. Name" e-width="100"></div>
+                        <div e-column e-field="VehicleName" e-headertext="Vehicle Name" e-width="100"></div>
                         <div e-column e-field="VehicleNumber" e-headertext="Vehicle Number" e-width="100"></div>
-                        <div e-column e-field="DriverName" e-headertext="DriverName" e-width="100"></div>
-                        <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                        <div e-column e-field="EmployeeStatus" e-headertext="EmployeeStatus" e-width="100"></div>
+                        <div e-column e-field="License Exp Date" e-headertext="License Exp Date" e-width="100"></div>
+                        <div e-column e-field="OutDate" e-headertext="OutDate" e-width="100"></div>
+                        <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
+                        <div e-column e-field="InDate" e-headertext="InDate" e-width="100"></div>
+                        <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
+                        <div e-column e-field="OutReading" e-headertext="Out Reading" e-width="100"></div>
+                        <div e-column e-field="InReading" e-headertext="In Reading" e-width="100"></div>
+                        <div e-column e-field="InReading" e-headertext="In Reading" e-width="100"></div>
+                        <div e-column e-field="TotalTripReading" e-headertext="TotalTripReading" e-width="100"></div>
+
                     </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="XlsDailyAttendanceReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Download</button></li>
+                        
+                    </ul>
                 </div>
             </div>
         </div>
