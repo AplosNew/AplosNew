@@ -824,6 +824,12 @@ namespace Library.MaterialManagement.Reports
                 document.Close();
 
 
+
+                ////document.Protect(ProtectionType.AllowOnlyReading, "password");
+                //string filename = "TaxInvoice-" + salesId + ".docx";
+                //document.Save(filename, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
+                //document.Close();
+
             }
             catch (Exception ex)
             {
@@ -2037,15 +2043,32 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                     }
                     TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
                 }
-                TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
-                TROW.Cells[colShade].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Shade"].ToString());
-                TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
-                TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-                TROW.Cells[colBag].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Bags"].ToString());
-                TROW.Cells[colGross].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GWeight"].ToString());
-                TROW.Cells[colNet].AddParagraph().AppendText(dsOrderMaster.Rows[i]["POTransactionQty"].ToString());
-                TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["BooksCurrencyBaseRate"].ToString()).ToString("#,##0.0000"));
-                TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
+                IWTextRange textRangeArt = TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
+                textRangeArt.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeSh = TROW.Cells[colShade].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Shade"].ToString());
+                textRangeSh.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeLotNo = TROW.Cells[colLot].AddParagraph().AppendText(dsOrderMaster.Rows[i]["LotNo"].ToString());
+                textRangeLotNo.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeHSN = TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
+                textRangeHSN.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeBags = TROW.Cells[colBag].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Bags"].ToString());
+                textRangeBags.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeGWeight = TROW.Cells[colGross].AddParagraph().AppendText(dsOrderMaster.Rows[i]["GWeight"].ToString());
+                textRangeGWeight.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeNet = TROW.Cells[colNet].AddParagraph().AppendText(dsOrderMaster.Rows[i]["POTransactionQty"].ToString());
+                textRangeNet.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeRate = TROW.Cells[colRate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["BooksCurrencyBaseRate"].ToString());
+                textRangeRate.CharacterFormat.FontSize = 8;
+
+                IWTextRange textRangeTrnAmount = TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
+                textRangeTrnAmount.CharacterFormat.FontSize = 8;
 
             }
 
@@ -2119,23 +2142,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             myStyle.CharacterFormat.TextColor = Color.Black;
             myStyle.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Center;
 
-            //for (int R = 0; R < wTable.Rows.Count; R++)
-            //{
-            //    WTableRow TROW = wTable.Rows[R];
-            //    TROW.Cells[0].Width = 30;
-            //    if (dv.Count < 3)
-            //        TROW.Cells[0].Width = 30 + ((3 - dv.Count) * 40);//for each tax group missing, adjust width with 0 cell
-
-            //    for (int CE = 0; CE < TROW.Cells.Count; CE++)
-            //    {
-            //        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
-            //        {
-            //            item.ApplyStyle("MyStyle");
-            //        }
-            //    }
-            //}
-
-
+           
             #endregion paragrpath formats
 
 
@@ -2147,6 +2154,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
           
 
             #region SalesTax
+
             WTable wTaxTable = new WTable(document);
             int TXROW = 0; int TXCOL = 0;
             wTaxTable.ResetCells(1, TaxLasColumnIndex + 1);
@@ -2186,18 +2194,26 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                         item.Text = "";
                     }
                     TAXROW.Cells[CE].Width = wTaxTable.Rows[0].Cells[CE].Width;
+                    
                 }
-                TAXROW.Cells[colTaxCode].AddParagraph().AppendText(materialTax.Rows[i]["TaxCode"].ToString());
-                TAXROW.Cells[colPercentage].AddParagraph().AppendText(materialTax.Rows[i]["Percentage"].ToString());
-                TAXROW.Cells[colTaxON].AddParagraph().AppendText(materialTax.Rows[i]["TaxON"].ToString());
-                TAXROW.Cells[colTaxAmount].AddParagraph().AppendText(materialTax.Rows[i]["TaxAmount"].ToString());
+                IWTextRange textRange = TAXROW.Cells[colTaxCode].AddParagraph().AppendText(materialTax.Rows[i]["TaxCode"].ToString());
+                IWTextRange textRangeP = TAXROW.Cells[colPercentage].AddParagraph().AppendText(materialTax.Rows[i]["Percentage"].ToString());
+                IWTextRange textRangeT = TAXROW.Cells[colTaxON].AddParagraph().AppendText(materialTax.Rows[i]["TaxON"].ToString());
+                IWTextRange textRangeTA = TAXROW.Cells[colTaxAmount].AddParagraph().AppendText(materialTax.Rows[i]["TaxAmount"].ToString());
+                textRange.CharacterFormat.FontSize = 8;
+                textRangeP.CharacterFormat.FontSize = 8;
+                textRangeT.CharacterFormat.FontSize = 8;
+                textRangeTA.CharacterFormat.FontSize = 8;
+                              
             }
+         //   trange.CharacterFormat.FontSize = 8;
 
             #endregion
 
 
-            IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
+              IWParagraphStyle style = document.AddParagraphStyle("SubTotalStyle");
             style.CharacterFormat.Bold = true;
+            style.CharacterFormat.FontSize = 8f;
             style.ParagraphFormat.HorizontalAlignment = HorizontalAlignment.Left;
             //Adds new paragraph to the section
 
@@ -4740,8 +4756,6 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
             string strSQL;
             try
             {
-
-
                 strSQL = @"SELECT IR.Id CustomerNo   
     ,CRNC.Code
     ,cmp.BaseCurrencyId
@@ -4785,10 +4799,10 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
     ,MGM.UserName MaterialGroupMaster
     ,MMA.StandardName Article
    
-     ,POTransactionQty=CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END 
-    ,ROUND(IRD.TransactionRate, 4) TransactionRate
-	,TrnAmount=CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END   
-	 ,BaseAmount=CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BaseAmount ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END   
+     ,POTransactionQty=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.TransactionQty ELSE SCN.NetWeight END) 
+    ,CONVERT(NUMERIC(10,2),IRD.TransactionRate, 4) TransactionRate
+	,TrnAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN ROUND((IRD.TransactionQty * IRD.TransactionRate), 2) ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
+	 ,BaseAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BaseAmount ELSE ROUND((SCN.NetWeight * IRD.TransactionRate), 2) END)
    
     ,TUoM.UserName AS TransactionUoM
     ,PONumber = REPLACE(REPLACE(STUFF((
@@ -4818,9 +4832,9 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
     ,FORMAT(PSI.TransportDocDate, 'dd-MMM-yyyy') CNFBLAWBDate
     ,B.UserName AS Bank
     ,BB.UserName AS BankBranch
-	,BooksCurrencyTransactionAmount=CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * IRD.TransactionRate*IR.ToCurrencyRate), 2) END
-    ,IRD.BooksCurrencyTaxAmount
-    ,IRD.BooksCurrencyBaseRate
+	,BooksCurrencyTransactionAmount=CONVERT(NUMERIC(10,2),CASE WHEN ISNULL(SCN.NetWeight,0)=0 THEN IRD.BooksCurrencyTransactionAmount ELSE ROUND((SCN.NetWeight * IRD.TransactionRate*IR.ToCurrencyRate), 2) END)
+    ,CONVERT(NUMERIC(10,2),IRD.BooksCurrencyTaxAmount)BooksCurrencyTaxAmount
+    ,CONVERT(NUMERIC(10,2),IRD.BooksCurrencyBaseRate)BooksCurrencyBaseRate
     ,(
         SELECT Stuff((
                     SELECT ',' + pla.AttributeValue
@@ -4830,7 +4844,7 @@ SELECT DISTINCT LC.LCRef as LcNo,LC.LCDate,B.UserName BenificiaryBank,OA.Address
                     ), 1, 1, '')
         ) AS Shade
 		,IR.AddedBy CreatedBy
-        , SCN.Bags, SCN.LotNo, SCN.GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo		
+        , SCN.Bags, SCN.LotNo, CONVERT(NUMERIC(10,2),SCN.GWeight)GWeight, MO.Type,MO.MasterOrderNo,SO.Id SalesOrderNo,MO.BuyerReferenceNo		
 FROM TRN.Sales IR
 LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
 LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
