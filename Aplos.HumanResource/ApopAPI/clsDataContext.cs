@@ -4947,45 +4947,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         }
         #endregion Attendance
 
-        #region Incedent
-
-        public void GetIncedentCategoryDetail(out List<IncedentCategory> DataList, string Id)
-        {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<IncedentCategory>();
-
-            System.Data.DataSet dsRef;
-            try
-            {
-                strSQL = @"select distinct IC.Id, EI.EmployeeName,IC.StandardName from HKP.IncedentCategory IC 
-left join EmployeeInformation EI on EI.BudgetCode = IC.InchargeNameBgtCodeId where EI.DOS is null and IC.Id = '" + Id + "'";
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new IncedentCategory
-                    {
-                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
-                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
-                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
-
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
-
-        #endregion Incedent
+      
 
         public class ProcessServiceTest
         {
@@ -6224,6 +6186,117 @@ where  vr.AppliedId = '" + MasterId + "'";
         }
 
         #endregion Vehicle Requisition
+
+        #region Incident
+
+        public void GetIncidentCategory(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id as Value , StandardName as Name from HKP.IncedentCategory";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetIncedentCategoryDetail(out List<Default2> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  EI.SystemId as Value,EI.EmployeeName as Name from [MST].[ManpowerBudget] MB
+                        left join dbo.EmployeeInformation EI On EI.BudgetCode=MB.Id
+                        left join [HKP].[IncedentCategory] IC ON IC.InchargeNameBgtCodeId=MB.Id
+                        where IC.Id='" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetEmployeeBudget(out List<Default2> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  MB.Id as Value , MB.Code as Name from MST.ManpowerBudget MB
+left join EmployeeInformation EI on EI.BudgetCode = MB.Id
+where EI.SystemId = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #endregion Incident
     }
 
 
