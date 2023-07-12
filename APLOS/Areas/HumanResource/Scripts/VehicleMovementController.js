@@ -23,9 +23,21 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + "GetVehicleList",
+            data: { 'vehicleId': $scope.VehicleRequisitionModel.VehicleMasterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.VehicleList = response.data;
+
+        });
+    }
+    $scope.VehicleNameList = []
+    $scope.GetVehiclNameList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetVehiclNameList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.VehicleNameList = response.data;
 
         });
     }
@@ -205,7 +217,7 @@ function VehicleMovementController(cboService, commonMessage, $scope, $rootScope
     $scope.TripId = null
     $scope.VehicleAllocationPopup = function (args) {
         $scope.TripId = args.data.Id;
-        $scope.GetVehicleList();
+        $scope.GetVehiclNameList();
         $scope.GetDriverList();
         $scope.VehicleRequisitionModel.FromDate = args.data.FromDate;
         $scope.VehicleRequisitionModel.ToDate = args.data.ToDate;
