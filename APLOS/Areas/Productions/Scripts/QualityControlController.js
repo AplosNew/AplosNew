@@ -1038,6 +1038,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.loadWC();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
