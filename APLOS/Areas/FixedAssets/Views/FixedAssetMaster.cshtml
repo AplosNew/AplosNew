@@ -39,14 +39,14 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select name="Fixed Asset Category" ng-model="fixedAssetMaster.FixedAssetCategoryId" class="form-control"
-                                            ng-options="item.Value as item.Text for item in fixedAssetCategoryList" required tabindex="7"></select>
+                                            ng-options="item.Value as item.Text for item in fixedAssetCategoryList" required tabindex="5"></select>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Description" ng-trim="false" maxlength="250" tabindex="11"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Description" ng-trim="false" maxlength="250" tabindex="7"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -54,7 +54,7 @@
                             <div class="col-sm-8">
                                 <div class="checkbox-site">
                                     <label>
-                                        <input type="checkbox" ng-model="fixedAssetMaster.Active" tabindex="13">
+                                        <input type="checkbox" ng-model="fixedAssetMaster.Active" tabindex="9">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -79,7 +79,7 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select name="Fixed Asset Subcategory" ng-model="fixedAssetMaster.FixedAssetSubCategoryId" class="form-control"
-                                            ng-options="item.Value as item.Text for item in fixedAssetSubCategoryList" required tabindex="8"></select>
+                                            ng-options="item.Value as item.Text for item in fixedAssetSubCategoryList" required tabindex="6"></select>
                                 </div>
                             </div>
                         </div>
@@ -88,14 +88,14 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     <select name="Asset Type" ng-model="fixedAssetMaster.AssetType" class="form-control"
-                                            ng-options="item.Value as item.Text for item in fixedAssetTypes" required tabindex="9"></select>
+                                            ng-options="item.Value as item.Text for item in fixedAssetTypes" required tabindex="8"></select>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Remarks" ng-trim="false" maxlength="250" tabindex="12"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="fixedAssetMaster.Remarks" ng-trim="false" maxlength="250" tabindex="10"></textarea>
                             </div>
                         </div>
                     </div>
@@ -109,8 +109,8 @@
                     </ul>
                 </div>
             </div>
-
             <div class="row text-right aplos-grid-toggle">
+            
                 <div class="col-xs-12 col-sm-12 col-sm-12">
                     <div class="search-form">
                         <div class="row">
@@ -136,7 +136,7 @@
                     <thead>
                         <tr>
                             <th>Code</th>
-                            <th>User Name</th>
+                            <th>Fixed Asset Master Name</th>
                             <th>Category</th>
                             <th>Sub Category</th>
                             <th>Asset Type</th>
@@ -154,6 +154,15 @@
                 </table>
                 <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
             </div>
+            <br/>
+            <div class="row aplos-grid-toggle">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button data-toggle="modal" ng-click="FixedAssetMasterReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download All</button></li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <togglable name="Fixed Asset Master Item"></togglable>
@@ -173,21 +182,21 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4  control-label">Capacity UoM<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Fixed Asset Master<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select submit-="true" ng-model="ModelChildNew.CapacityUoMId" class="form-control" name="CapacityUoM" required
-                                            id="CapacityUoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="8">
-                                        <option value=""></option>
-                                    </select>
+                                <div class="input-group" tabindex="208">
+                                    <input type="text" name="FixedAssetMaster" ng-model="ModelChildNew.FixedAssetMaster" ng-disabled="true" class="form-control" maxlength="200" required readonly  tabindex="5">
+                                    <span class="input-group-btn">
+                                        <button ng-click="selectFixedAssetMaster()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
                                 </div>
                             </div>
-
                         </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="ModelChildNew.Description" ng-trim="false" maxlength="250" tabindex="11"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="ModelChildNew.Description" ng-trim="false" maxlength="250" tabindex="7"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -195,7 +204,7 @@
                             <div class="col-sm-8">
                                 <div class="checkbox-site">
                                     <label>
-                                        <input type="checkbox" ng-model="ModelChildNew.Active" tabindex="13">
+                                        <input type="checkbox" ng-model="ModelChildNew.Active" tabindex="9">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -203,17 +212,6 @@
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Fixed Asset Master<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="input-group" tabindex="208">
-                                    <input type="text" name="FixedAssetMaster" ng-model="ModelChildNew.FixedAssetMaster" ng-disabled="true" class="form-control" maxlength="200" required readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="selectFixedAssetMaster()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -229,14 +227,23 @@
 
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Capacity Value<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Standard Name" maxlength="100" ng-model="ModelChildNew.CapacityValue" class="form-control" required tabindex="3">
+                            <div class="col-sm-4 show-message">
+                                <input type="text" name="Standard Name" maxlength="100" ng-model="ModelChildNew.CapacityValue" class="form-control" required tabindex="6">
+                            </div>
+                            <div class="col-sm-4 show-message">
+                                <div class="select-style">
+                                    <select submit-="true" ng-model="ModelChildNew.CapacityUoMId" class="form-control" name="CapacityUoM" required
+                                            id="CapacityUoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="8">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                       
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="ModelChildNew.Remarks" ng-trim="false" maxlength="250" tabindex="12"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="ModelChildNew.Remarks" ng-trim="false" maxlength="250" tabindex="10"></textarea>
                             </div>
                         </div>
                     </div>

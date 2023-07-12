@@ -3,6 +3,7 @@ using Library.Model.FixedAssets;
 using Library.Service.Core;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Library.Service.FixedAssets
 {
@@ -36,6 +37,7 @@ namespace Library.Service.FixedAssets
         GridModel GetFixedAssetMasterData(GridParameter parameters);
         IEnumerable<object> GetFixedAssetMasterPoPUpData();
         GridModel GetFAMISearch(GridParameter parameters);
+        string GetFixedAssetMasterReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName,string PlantId);
 
     }
 }
