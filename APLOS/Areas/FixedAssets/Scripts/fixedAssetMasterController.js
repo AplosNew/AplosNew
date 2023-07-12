@@ -225,6 +225,41 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         location.href = 'fixedassets/fixedassetmaster/fixedassetmasterreport';
     };
 
+    $scope.FixedAssetMasterReport = function () {
+        //var dataList = [];
+        //var g = $("#GridMasterLC").data("ejGrid");
+        //dataList = g.getFilteredRecords();
+
+        //for (var i = 0; i < $scope.MasterLCList.length; i++) {
+        //    if ($scope.MasterLCList[i].isSelected == true) {
+        //        dataList.push($scope.MasterLCList[i]);
+        //    }
+        //}
+
+        //if (dataList.length == 0) {
+        //    dataList = $scope.MasterLCList;
+        //}
+        $scope.fileName = 'Fixed Asset Master Report.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "FixedAssetMasterXls",
+            data: { 'reportFileName': $scope.fileName, 'data': $scope.FixedAssetMasters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
     //--------******Fixed Asset Master Item Start*****-----------//
 
     $scope.fixedAssetMasterItem = {

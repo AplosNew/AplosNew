@@ -133,6 +133,22 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
+        [HttpPost, Authorize]
+        public ActionResult FixedAssetMasterXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = ""; 
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterReport(data, "", reportFileName,identity.CompanyGroupId); 
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public ActionResult FixedAssetMasterReport()
         {
             var fileName = "Fixed Asset Master Report " + System.DateTime.Now.ToString("ddMMMyyyy") + "";
