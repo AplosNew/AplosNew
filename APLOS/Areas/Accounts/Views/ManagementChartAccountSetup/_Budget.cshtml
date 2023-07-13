@@ -72,13 +72,13 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-3 col-md-3">
                     <div class="select-style">
-                        <select ng-model="Bgtparameters.searchBy">
+                        <select ng-model="searchBy">
                             <option ng-repeat="option in searchByBgtList" value="{{option.value}}">{{option.name}}</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="Bgtparameters.search" ng-enter="getDataBgt()">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getDataBgt()">
                 </div>
                 <div class="col-xs-12 col-sm-2 col-md-2">
                     <button type="button" ng-click="getDataBgt()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
@@ -87,7 +87,7 @@
         </div>
     </div>
 </div>
-<div class="table-responsive modal-table aplos-grid-toggle">
+@*<div class="table-responsive modal-table aplos-grid-toggle">
     <table class="table table-striped">
         <thead>
             <tr>
@@ -111,5 +111,21 @@
         </tbody>
     </table>
     <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getDataBgt(newPageNumber)"></dir-pagination-controls>
+</div>*@
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridM" ng-init="chkinit2()" ej-grid e-datasource="budgets" e-recorddoubleclick="GetBgt"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="5"></div>
+            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
+            <div e-column e-field="ShortName" e-headertext="Short Name" e-width="4"></div>
+            <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="4"></div>
+            <div e-column e-field="UserName" e-headertext="UserName" e-width="4"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="4"></div>
+        </div>
+    </div>
 </div>
+
 <confirm-archive-generic modalid="confirmDetailPopUpBudget" title="Confirmation" message={{message_Detailconfirmation}} data-ng-click-right-button="DeleteBgt();"></confirm-archive-generic>
