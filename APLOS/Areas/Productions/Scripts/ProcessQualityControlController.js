@@ -858,6 +858,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
                     ShowResult(response.data.Message, 'success');
                     $scope.LoadIssueItemDetails();
                     IssueItemClearFields();
+                    $scope.GeneratItemSequenceNo();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -872,6 +873,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     function IssueItemClearFields() {
         $scope.Action = "Save";
         $scope.IssueItemNew = Object.assign({}, $scope.IssueItem);
+        $scope.GeneratItemSequenceNo();
     }
 
     $scope.GradeList = [];

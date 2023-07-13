@@ -16,11 +16,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     $scope.saveUrl = $scope.path + 'create';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.saveChildUrl = $scope.path + 'CreateChild'; 
-
-    cboService.getUoMCbo(function (response) {
-        $scope.uOMList = response;
-    });
+    $scope.saveChildUrl = $scope.path + 'CreateChild';
 
     $scope.searchByList = [
         {
@@ -64,7 +60,6 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         UpdatedDate: new Date()
     };
 
-
     $scope.fixedAssetTypes = [
         {
             Value: 'Building',
@@ -96,21 +91,6 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         }
     ];
 
-    $scope.fixedAssetMasterItem = {
-        Id: null,
-        Code: null,
-        FixedAssetMasterId: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        CapacityUoMId: null,
-        CapacityValue: null,
-        Active: true
-    };
-    $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
-
     $scope.getListUrl = $scope.path + 'getlist';
     baseService.init($scope.getListUrl, null, null, null, 'UserName', 'UserName');
     $scope.getData = function (pageno) {
@@ -124,97 +104,15 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     };
     $scope.getData();
 
-    //$scope.searchByFAM = "Id"; $scope.searchFAM = "";
-
-    //$scope.FAMparameters = {
-    //    limit: 10,
-    //    offset: 0,
-    //    order: "ASC",
-    //    sort: "UserName",
-    //    searchByFAM: "UserName",
-    //    pageSize: 10,
-    //    total_count: 0,
-    //    searchFAM: null,
-    //    serverPagination: true
-    //};
-
-    //$scope.getListUrl = $scope.path + 'getlist';
-    //$scope.getData = function (pageno) {
-    //    baseService.paginationBase($scope.getListUrl, pageno, $scope.FAMparameters)
-    //        .then(function (result) {
-    //            $scope.FixedAssetMasters = result.Rows;
-    //            $scope.FAMparameters.total_count = result.Total;
-    //        }, function () {
-    //            ShowResult(commonMessage.NetworkError, 'failure');
-    //        }).finally(function () {
-    //        });
-    //};
-    //$scope.getData();
-
-
-    $scope.searchByFAMIList = [
-        {
-            'name': 'Code',
-            'value': 'Code'
-        },
-        {
-            'name': 'User Name',
-            'value': 'UserName'
-        },
-        {
-            'name': 'Fixed Asset Master Name',
-            'value': 'FixedAssetMaster'
-        },
-        {
-            'name': 'Capacity UoM',
-            'value': 'CapacityUoM'
-        },
-        {
-            'name': 'Capacity Value',
-            'value': 'CapacityValue'
-        },
-        {
-            'name': 'Description',
-            'value': 'Description'
-        }
-    ];
-    $scope.FAMIparameters = {
-        limit: 10,
-        offset: 0,
-        order: "ASC",
-        sort: "UserName",
-        searchByFAMI: "UserName",
-        pageSize: 10,
-        total_count: 0,
-        searchFAMI: null,
-        serverPagination: true
-    };
-
-    $scope.FixedAssetMasterItemList = [];
-    $scope.getFAMIListUrl = $scope.path + 'getFAMIlist';
-    $scope.getFAMIData = function (pageno) {
-        baseService.paginationBase($scope.getFAMIListUrl, pageno, $scope.FAMIparameters)
-            .then(function (result) {
-                $scope.FixedAssetMasterItemList = result.Rows;
-                $scope.FAMIparameters.total_count = result.Total;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
-    };
-    $scope.getFAMIData();
-
-
     $scope.fixedAssetCategoryList = [];
     cboService.getFixedAssetCategoryList(function (result) {
         $scope.fixedAssetCategoryList = result;
     });
- 
+
     $scope.fixedAssetSubCategoryList = [];
     cboService.getFixedAssetSubCategoryList(function (result) {
         $scope.fixedAssetSubCategoryList = result;
     });
-   
 
     $scope.Get = function (id, index) {
         $scope.index = index;
@@ -327,6 +225,63 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         location.href = 'fixedassets/fixedassetmaster/fixedassetmasterreport';
     };
 
+    $scope.FixedAssetMasterReport = function () {
+        //var dataList = [];
+        //var g = $("#GridMasterLC").data("ejGrid");
+        //dataList = g.getFilteredRecords();
+
+        //for (var i = 0; i < $scope.MasterLCList.length; i++) {
+        //    if ($scope.MasterLCList[i].isSelected == true) {
+        //        dataList.push($scope.MasterLCList[i]);
+        //    }
+        //}
+
+        //if (dataList.length == 0) {
+        //    dataList = $scope.MasterLCList;
+        //}
+        $scope.fileName = 'Fixed Asset Master Report.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "FixedAssetMasterXls",
+            data: { 'reportFileName': $scope.fileName, 'data': $scope.FixedAssetMasters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+
+    //--------******Fixed Asset Master Item Start*****-----------//
+
+    $scope.fixedAssetMasterItem = {
+        Id: null,
+        Code: null,
+        FixedAssetMasterId: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        Description: null,
+        Remarks: null,
+        CapacityUoMId: null,
+        CapacityValue: null,
+        Active: true
+    };
+    $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
+
+    cboService.getUoMCbo(function (response) {
+        $scope.uOMList = response;
+    });
+
+
     $scope.FixedAssetMasterList = [];
     $scope.selectFixedAssetMaster = function () {
         $http({
@@ -348,40 +303,26 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         angular.element(document.querySelector('#FAMPop')).modal('hide');
     }
 
-    $scope.SaveChild = function () { 
-            $http({
-                method: 'POST',
-                url: $scope.saveChildUrl,
-                data: { 'data': $scope.ModelChildNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.ClearFAMI(); 
-                    $scope.getFAMIData();
-                }
-            }), function errorCallBack(response) {
+    $scope.SaveChild = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveChildUrl,
+            data: { 'data': $scope.ModelChildNew },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
-            } 
-    };
-
-    $scope.ClearFAMI = function () {
-        $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
-        $scope.ActionItem = 'Save';
-    }
-
-
-    $scope.GetFAMI = function (id, index) {
-        $scope.index = index;
-        $scope.ModelChildNew = $scope.FixedAssetMasterItemList[$scope.index];
-        $scope.ActionItem = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.ClearFAMI();
+                $scope.getFAMIData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
         }
     };
+
     $scope.message_confirmation = "Are you sure want to permanent delete ?";
     $scope.DeleteFAMI = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelChildNew.Id)) {
@@ -401,5 +342,32 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
                 });
         }
     };
+
+    $scope.ClearFAMI = function () {
+        $scope.ModelChildNew = Object.assign({}, $scope.fixedAssetMasterItem);
+        $scope.ActionItem = 'Save';
+    }
+
+    $scope.FixedAssetMasterItemList = [];
+    $scope.getFAMIListUrl = $scope.path + 'getFAMIlist';
+    $scope.getFAMIData = function () {
+        $scope.FixedAssetMasterItemList = [];
+        $http.get($scope.getFAMIListUrl)
+            .then(function (response) {
+                $scope.FixedAssetMasterItemList = response.data.Rows;
+            });
+    };
+    $scope.getFAMIData();
+
+    $scope.GetFAMI = function (args) {
+        $scope.ModelChildNew = Object.assign({}, args.data);
+        $scope.getFAMIData();
+        $scope.ActionItem = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    //--------******Fixed Asset Master Item End*****-------------//
 
 }

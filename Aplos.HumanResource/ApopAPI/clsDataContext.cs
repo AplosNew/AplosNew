@@ -4947,45 +4947,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         }
         #endregion Attendance
 
-        #region Incedent
-
-        public void GetIncedentCategoryDetail(out List<IncedentCategory> DataList, string Id)
-        {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<IncedentCategory>();
-
-            System.Data.DataSet dsRef;
-            try
-            {
-                strSQL = @"select distinct IC.Id, EI.EmployeeName,IC.StandardName from HKP.IncedentCategory IC 
-left join EmployeeInformation EI on EI.BudgetCode = IC.InchargeNameBgtCodeId where EI.DOS is null and IC.Id = '" + Id + "'";
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new IncedentCategory
-                    {
-                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
-                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
-                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
-
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
-
-        #endregion Incedent
+      
 
         public class ProcessServiceTest
         {
@@ -5965,7 +5927,12 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select  Distinct VMR.Id as MasterId, FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC                            
+left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'') ,ToLocation =  stuff((select ',  ' + TM.UserName 
+from TRN.VehicleMovementRequisitionChild VMC
+left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
@@ -5980,7 +5947,7 @@ left join HKP.LocationMaster LMN on LMN.Id = vrc.ToLocationId
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is null and VT.FromDate >= Cast(GETDATE() as date) order by FromDate Asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6033,7 +6000,12 @@ where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by F
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select Top 1 VMR.Id as MasterId, LM.StandardName as FromLocation , LMN.StandardName as ToLocation, EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
+                strSQL = @"select Distinct VMR.Id as MasterId, FromLocation = stuff((select ',  ' + LM.UserName from TRN.VehicleMovementRequisitionChild VMC                            
+left join HKP.LocationMaster LM on LM.Id = VMC.FromLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,'') ,ToLocation =  stuff((select ',  ' + TM.UserName 
+from TRN.VehicleMovementRequisitionChild VMC
+left join HKP.LocationMaster TM on TM.Id = VMC.ToLocationId
+where VMC.VehicleMovementRequisitionId = VMR.Id FOR XML PATH('')), 1,1,''), EM.EmployeeName as RequisitionBy ,PM.StandardName as Purpose , DP.UserName as Department, VT.Id, VT.Id TripNumber ,VA.TripId ,VT.Id AppliedId ,FORMAT(VT.FromDate, 'dd-MMM-yyyy')FromDate, FORMAT(VT.ToDate, 'dd-MMM-yyyy')ToDate, FORMAT(VT.FromTime, 'hh:mm tt')FromTime
 , FORMAT(VT.ToTime, 'hh:mm tt')ToTime, VA.DriverMasterId ,EI.EmployeeName DriverName, VA.VehicleMasterId, VM.VehicleNumber , VIO.Id as VIOId ,  VA.Id VehicleAllocationId
 from TRN.VehicleTrip VT
 left join TRN.VehicleAllocation VA on VA.TripId = VT.Id
@@ -6214,6 +6186,117 @@ where  vr.AppliedId = '" + MasterId + "'";
         }
 
         #endregion Vehicle Requisition
+
+        #region Incident
+
+        public void GetIncidentCategory(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id as Value , StandardName as Name from HKP.IncedentCategory";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetIncedentCategoryDetail(out List<Default2> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  EI.SystemId as Value,EI.EmployeeName as Name from [MST].[ManpowerBudget] MB
+                        left join dbo.EmployeeInformation EI On EI.BudgetCode=MB.Id
+                        left join [HKP].[IncedentCategory] IC ON IC.InchargeNameBgtCodeId=MB.Id
+                        where IC.Id='" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetEmployeeBudget(out List<Default2> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  MB.Id as Value , MB.Code as Name from MST.ManpowerBudget MB
+left join EmployeeInformation EI on EI.BudgetCode = MB.Id
+where EI.SystemId = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        #endregion Incident
     }
 
 
