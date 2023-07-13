@@ -1,12 +1,13 @@
 ﻿'use strict';
-VehicleInOutController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
-function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+VehicleInOutController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter", "$window"];
+function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = "Vehicle In & Out"
     $scope.path = 'HumanResource/VehicleMovementMaster/';
     $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleAllocation';
     $scope.ActionIn = "Save";
     $scope.ActionOut = "Save";
     $scope.Action = 'Update';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     // #region TAB CHANGE
     $scope.tab = 1;
@@ -400,11 +401,14 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     }
     //  #endregion VehicleOut
 
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    $scope.summaryfileName = "PlantInOut.xlsx";
     $scope.ReportDataList = [];
     $scope.GetReportData = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetReportData",
+            url: $scope.path + "CompleteVehicleMovementCycle",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ReportDataList = response.data;
@@ -412,5 +416,38 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
     $scope.GetReportData();
+
+    $scope.XlsDailyAttendanceReport = function () {
+        var dataList = [];
+        var g = $("#GridEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        if (dataList.length == 0) {
+
+            dataList = $scope.ReportDataList;
+        }
+        $scope.fileName = 'VehicleMovement.xlsx';
+        $http({
+            method: "POST",
+            url: $scope.exportgriddataUrl,
+            data: {
+                'data': dataList,
+                'reportFileName': $scope.fileName,
+            },
+            dataType: 'JSON'
+        })
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                   
+                    $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+    };
 
 }

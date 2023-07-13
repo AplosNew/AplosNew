@@ -550,6 +550,7 @@
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
+    <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
     <Compile Include="Areas\Employees\Controllers\TransportGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmpActiveInActiveNewController.cs" />
@@ -2072,6 +2073,7 @@
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\faRegisterController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetCodeWiseHRReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetReportMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\DesignationSetupController.js" />
@@ -2085,6 +2087,7 @@
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
     <Content Include="Areas\Materials\Scripts\QRCodeGeneratorController.js" />
+    <Content Include="Areas\Materials\Scripts\WeighingScaleMasterController.js" />
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
     <Content Include="Areas\HumanResource\Scripts\WebBasedPackingController.js" />
     <Content Include="Areas\Productions\Scripts\DailyPlanningAndProductionReportController.js" />
@@ -4734,6 +4737,9 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling2.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Aplos.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\FARegister.cshtml" />
+    <Content Include="Areas\Materials\Views\QRCodeGenerator\_WeighingScaleMachinePopUp.cshtml" />
+    <Content Include="Areas\Materials\Views\WeighingScaleMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

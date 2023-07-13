@@ -311,6 +311,16 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         #endregion
 
+        [Authorize, HttpGet]
+        public ActionResult GetLotWiseTaxInvoice(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.GetLotWiseTaxInvoiceService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, identity.Name, salesId);
+
+            return View();
+        }
+
 
         [Authorize, HttpGet]
         public ActionResult LocalTaxInvoice(string salesId)

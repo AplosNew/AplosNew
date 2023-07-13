@@ -1,6 +1,6 @@
 ﻿<style>
     .site-tab ul {
-        background: #fff !important; 
+        background: #fff !important;
     }
 </style>
 <togglable name="{{title}}"></togglable>
@@ -44,7 +44,7 @@
             <label class="col-sm-4 control-label">Article</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-model="ModelNew.Article" name="Article" ng-change="GetInvoiceNumber()"
+                    <select class="form-control" ng-model="ModelNew.ArticleId" name="Article" ng-change="GetInvoiceNumber()"
                             tabindex="2">
                         <option value="">--Select--</option>
                         <option ng-repeat="option in ArticleList" value="{{option.Value}}">{{option.Text}}</option>
@@ -119,14 +119,14 @@
                                 <select class="form-control" ng-model="data.CompaintId" name="Purpose"
                                         tabindex="2">
                                     <option value="">--Select--</option>
-                                    <option ng-repeat="option in ComplaintList" value="{{option.Value}}">{{option.Text}}</option>
+                                    <option ng-repeat="option in $parent.ComplaintList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
                             </div>
                         </script>
                         <script type="text/template" id="ActionTOBeTaken">
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="$parent.ShowAtionToBeTakenPopUp()"  class="btn" tabindex="9"><i class="glyphicon"></i> Action ToBe Taken</button></li>
+                                    <li> <button ng-click="$parent.ShowAtionToBeTakenPopUp()" class="btn" tabindex="9"><i class="glyphicon"></i> Action ToBe Taken</button></li>
 
                                 </ul>
                             </div>
@@ -311,15 +311,17 @@
             <div class="modal-body">
                 <div class="row text-center">
                     <div class="form-elements form-horizontal" ng-form name="ActionToBeTakenModel">
+
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="input-group">
+                                        <input type="hidden" ng-model="ActionToBeTakenModel.Id">
                                         <span class="input-group-addon">{{ActionToBeTakenModel.ByWhomeCode}}</span>
-                                        <input type="text" name="Responsible Person" ng-model="ActionToBeTakenModel.ByWhomeName" class="form-control" tabindex="5" readonly required>
+                                        <input type="text" name="Responsible Person" ng-model="ActionToBeTakenModel.ByWhomeName" class="form-control" tabindex="5" readonly>
                                         <span class="input-group-btn">
-                                            <button name="submit" ng-click="showByWhomListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                            <button name="submit" ng-click="showByWhomActionTakenPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                         </span>
                                     </div>
                                 </div>
@@ -328,7 +330,7 @@
                                 <label class="col-sm-4 control-label">Current Status</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="ActionToBeTakenModel.CurrentStatus" name="CurrentStatus"
+                                        <select class="form-control" ng-model="ActionToBeTakenModel.CurrentStatusId" name="CurrentStatus"
                                                 tabindex="2">
                                             <option value="">--Select--</option>
                                             <option ng-repeat="option in StatusList" value="{{option.Value}}">{{option.Text}}</option>
@@ -347,17 +349,17 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Target Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Complaint Date" e-dateformat="dd-MMM-yyyy" ng-model="ActionToBeTakenModel.ComplaintDate" datepicker class="form-control" tabindex="3" required>
+                                    <input type="text" name="Complaint Date" e-dateformat="dd-MMM-yyyy" ng-model="ActionToBeTakenModel.TargetDate" datepicker class="form-control" tabindex="3" required>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Final Closing Status</label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="ActionToBeTakenModel.FinalClosingStatus" name="FinalClosingStatus"
+                                        <select class="form-control" ng-model="ActionToBeTakenModel.FinalClosingStatusId" name="FinalClosingStatus"
                                                 tabindex="2">
                                             <option value="">--Select--</option>
-                                            <option ng-repeat="option in FinalClosingStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                                            <option ng-repeat="option in StatusList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -366,10 +368,105 @@
                     </div>
 
                 </div>
-            <div class="modal-footer common-btn">
-                <button  class="btn"><i class=""></i> Save</button>
-            </div>
+                <div class="modal-footer common-btn">
+                    <button ng-click="ClosePopupOnSelectAllField()" class="btn"><i class=""></i> Save</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ByWhomePopUpssec" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>First Name</th>
+                                <th>Middle Name</th>
+                                <th>Last Name</th>
+                                <th>Employee Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Designation</th>
+                                <th>Entity</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-dblclick="selectByWhomeActiontakenPopUp($index, x)" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.FirstName}}</td>
+                                <td>{{x.MiddleName}}</td>
+                                <td>{{x.LastName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.DOB | dateFiltering}}</td>
+                                <td>{{x.Designation}}</td>
+                                <td>{{x.EntityName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.EmploymentType}}</td>
+                                <td>{{x.EmployeeStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="ComplaintDate" e-headertext="Complaint Date" e-width="2"></div>
+            <div e-column e-field="ToCloseDate" e-headertext="Close Date" e-width="3"></div>
+            <div e-column e-field="Party" e-headertext="Party" e-width="5"></div>
+            <div e-column e-field="MaterialArticle" e-headertext="Article" e-width="5"></div>
+            <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="5"></div>
+            <div e-column e-field="ByWhom" e-headertext="ByWhom" e-width="2"></div>
         </div>
     </div>
 </div>

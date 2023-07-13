@@ -104,10 +104,17 @@
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(0), active: isSet(0) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="modelForm5">
+            @*<div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="ProcessGeneralIssue();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Process</button></li>
+                </ul>
+            </div>
+        </div>*@
             <div class="col-xs-12">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="ProcessGeneralIssue();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Process</button></li>
+                        <li><button ng-click="SaveGI();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Process</button></li>
                     </ul>
                 </div>
             </div>
@@ -123,12 +130,22 @@
                         <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="150"></div>
                         <div e-column e-type="string" e-field="QGIssue" e-headertext="QG.Issue" e-width="150"></div>
                         <div e-column e-template="#GIAllotedEmployee" e-headertext="Alloted Employee" e-width="150"></div>
+                        <div e-column e-template="#Update" e-headertext="Update" e-width="150"></div>
                         <div e-column e-type="string" e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>
                     </div>
                 </div>
                 <script type="text/template" id="GIAllotedEmployee">
                     <div class="col-sm-12" style="padding:0px;">
                         <input type="text" ng-click="$parent.selectQGIEmployee(this);" name="QP Employee" ng-model="data.QGIEmployee" ng-disabled="false" class="form-control" readonly>
+                    </div>
+                </script>
+                <script type="text/template" id="Update">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="$parent.UpdateGI(this);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i></button></li>
+                            </ul>
+                        </div>
                     </div>
                 </script>
                 <script type="text/template" id="QGIJobCart">
@@ -140,13 +157,6 @@
                         </div>
                     </div>
                 </script>
-            </div>
-            <div class="col-xs-12">
-                <div class="common-btn" ng-show="GeneralIssueList.length>0">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveGI();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Update</button></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
@@ -259,10 +269,17 @@
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
         <div class="form-element-ctrl form-horizontal row" ng-form="modelForm4">
+            @*<div class="col-xs-12">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="ProcessQualityPlan();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Process</button></li>
+                </ul>
+            </div>
+        </div>*@
             <div class="col-xs-12">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="ProcessQualityPlan();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Process</button></li>
+                        <li> <button ng-click="SaveQP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Process</button></li>
                     </ul>
                 </div>
             </div>
@@ -278,6 +295,7 @@
                         <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="150"></div>
                         <div e-column e-type="string" e-field="QPIssue" e-headertext="QP.Issue" e-width="150"></div>
                         <div e-column e-template="#AllotedEmployee" e-headertext="Alloted Employee" e-width="150"></div>
+                        <div e-column e-template="#UpdatePO" e-headertext="Update" e-width="150"></div>
                         <div e-column e-type="string" e-field="PositionEmployee" e-headertext="Position Employee" e-width="150"></div>
                         <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="150"></div>
                         <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="150"></div>
@@ -294,6 +312,15 @@
                         <input type="text" ng-click="$parent.selectQPEmployee(this);" name="QP Employee" ng-model="data.QPEmployee" ng-disabled="false" class="form-control" readonly>
                     </div>
                 </script>
+                <script type="text/template" id="UpdatePO">
+                    <div class="form-group">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="$parent.UpdateQP(this);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i></button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </script>
                 <script type="text/template" id="QPJobCart">
                     <div class="form-group">
                         <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
@@ -304,13 +331,13 @@
                     </div>
                 </script>
             </div>
-            <div class="col-xs-12">
+            @*<div class="col-xs-12">
                 <div class="common-btn" ng-show="QualityPlanList.length>0">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="SaveQP();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Update</button></li>
                     </ul>
                 </div>
-            </div>
+            </div>*@
         </div>
     </div>
     <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
@@ -455,6 +482,7 @@
                     <div e-column e-template="#ActionToBeTaken" e-headertext="ActionToBeTaken" e-width="150"></div>
                     <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
                     <div e-column e-template="#SaveQIC" e-headertext="Save" e-width="80"></div>
+                    <div e-column e-template="#QUDJobCart" e-headertext="Print" e-width="50"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                 </div>
             </div>
@@ -468,6 +496,15 @@
             <script type="text/template" id="ResponsiblePerson">
                 <div class="col-sm-12" style="padding:0px;">
                     <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
+                </div>
+            </script>
+            <script type="text/template" id="QUDJobCart">
+                <div class="form-group">
+                    <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
+                        <div class="common-btn">
+                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/QualityControl/GetQualityUpdateIssueJobCardReportView?PlannedId={{data.QCId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
+                        </div>
+                    </div>
                 </div>
             </script>
             <script type="text/template" id="PValue">

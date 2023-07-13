@@ -765,7 +765,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colGrossAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString());
                     sheet[ROW, colOrderSize].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
                     sheet[ROW, colTotalMaterialRequirement].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalMaterialRequirement"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
+                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString()) *  clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
                     sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
@@ -1558,7 +1558,7 @@ namespace Library.OrderManagement.Costing
         private string OrderCostingMOISQL(string MOIId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"select MOI.Id MasterOrderId,MOI.TotalQty OrderQty  from TRN.MasterOrderItem MOI where MOI.Id='" + MOIId + @"'";
+            return @"select MOI.Id MasterOrderId,MOI.TotalQty OrderQty  from TRN.MasterOrderItem MOI where MOI.Id in (" + MOIId + @")";
 
         }
 
@@ -1581,11 +1581,14 @@ namespace Library.OrderManagement.Costing
             return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,UOM.Code as UOM,pc.Particulars,I.UserName as CostingItem,I.CostingComponentId
 					,CC.CostingSegment,cc.UserName as CostingComponentName,ISNULL(pc.Consumption,0) AS Consumption,ISNULL(pc.Rate,0) AS Rate
 					,ISNULL(pc.ValueLoss,0) AS ValueLoss,pc.MinimumOfQuantity
-					,ISNULL(pc.GrossConsumption,0) AS GrossConsumption,ISNULL(pc.GrossAmount,0) AS GrossAmount
+					,ISNULL(pc.GrossConsumption,0) AS GrossConsumption
 					,C.Code as Currency,OCMT.Id as OrderCostingMasterTemplateId
 					,EI.EmployeeName as ResponsiblePerson,pc.SourcingType,MM.UserName as Material,MMA.StandardName as Article,pc.VendorId
-					,ISNULL(MOI.TotalQty,0) TotalQty
-					,TotalMaterialRequirement=(ISNULL(MOI.TotalQty,0) * ISNULL(pc.GrossConsumption,0))
+					--,ISNULL(MOI.TotalQty,0) TotalQty
+					,TotalQty=(select sum(TotalQty) from  trn.MasterOrderItem where OrderCostingMasterTemplateId=PC.OrderCostingMasterTemplateId)
+					--,TotalMaterialRequirement=(ISNULL(MOI.TotalQty,0) * ISNULL(pc.GrossConsumption,0))
+					,TotalMaterialRequirement=sum(ISNULL(TotalQty,0) * ISNULL(pc.GrossConsumption,0))
+					,ISNULL(pc.GrossAmount,0) AS GrossAmount
 
 					FROM " + TableName + @" AS pc  
 					LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
@@ -1600,6 +1603,9 @@ namespace Library.OrderManagement.Costing
 					LEFT JOIN HKP.Party P on P.Id=pc.VendorId
 					
 					where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' and I.Id is not null
+                    group by pc.Id,I.Id,pc.Sequence,UOM.Code,pc.Particulars,I.UserName,I.CostingComponentId	,CC.CostingSegment
+					,cc.UserName,pc.Consumption,pc.Rate,pc.ValueLoss,pc.MinimumOfQuantity,pc.GrossConsumption,pc.GrossAmount
+					,C.Code,OCMT.Id,EI.EmployeeName,pc.SourcingType,MM.UserName,MMA.StandardName,pc.VendorId,PC.OrderCostingMasterTemplateId
 					order by pc.Sequence";
 
 

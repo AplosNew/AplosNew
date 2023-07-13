@@ -17,13 +17,36 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
         return $scope.tab === tabNum;
     };
 
+    $scope.ModelList = [];
+    $scope.GetDate = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetData",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(res) {
+            $scope.ModelList = res.data;
+        })
+    }
+    $scope.GetDate();
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
     $scope.ModelTemp = {
         Id: null,
         SalesId: null,
         ArticleId: null,
         PartyName: null,
+        ComplaintDate:null,
+        ToCloseDate:null,
         PartyCode: null,
-        PartyId: null,
+        CustomerId: null,
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
         ResponsiblePersonCode: null,
@@ -57,7 +80,7 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
 
         $scope.ModelNew.PartyCode = party.Code;
         $scope.ModelNew.PartyName = party.UserName;
-        $scope.ModelNew.PartyId = party.Id;
+        $scope.ModelNew.CustomerId = party.Id;
 
         $scope.hidePartyPopUp();
         $scope.GetArticle();
@@ -69,7 +92,7 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             method: 'POST',
             url: $scope.path + "GetArticle",
             data: {
-                'salesId': $scope.ModelNew.PartyId
+                'salesId': $scope.ModelNew.CustomerId
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -88,7 +111,7 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.InvoicenumberList = response.data;
-            $scope.GetCoplaint();
+            $scope.GetComplaint();
         })
     }
     //$scope.GetInvoiceNumber()
@@ -203,10 +226,11 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
     //#endregion ByWhom
 
     // #region ActionTOBETaken
-
+    $scope.obj = {};
     $scope.ShowAtionToBeTakenPopUp = function () {
         angular.element(document.querySelector('#actiontobetakenPopUp')).modal('show');
-
+       
+        $scope.GetCustomerStatus();
     }
 
     $scope.CloseAtionToBeTakenPopUp = function () {
@@ -220,14 +244,14 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
         ByWhomeCode: null,
         ByWhomeName: null,
         TargetDate: null,
-        CurrentStatus: null,
-        FinalCLosingStatus: null,
+        CurrentStatusId: null,
+        FinalClosingStatusId: null,
         Remarks: null
 
     }
     $scope.ActionToBeTakenModel = Object.assign({}, $scope.ActionToBeTakenTemp);
 
-    $scope.showByWhomListPopUp = function (name) {
+    $scope.showByWhomActionTakenPopUp = function (name) {
         $scope.employeeList = [];
         try {
             $scope.Name = name;
@@ -249,66 +273,32 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
                     }).finally(function () {
                     });
             };
-            angular.element(document.querySelector('#ByWhomePopUps')).modal('show');
+            angular.element(document.querySelector('#ByWhomePopUpssec')).modal('show');
             $scope.getEmployeeData();
         } catch (e) {
             ShowResult(e, 'failure');
         }
     };
 
-    // #endregion ActionTOBETaken
+    $scope.selectByWhomeActiontakenPopUp = function (index, data) {
+        $scope.employeeIndex = index;
 
-    $scope.ComplaintList = [];
-    $scope.GetCoplaint = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetCoplaint",
-           
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.ComplaintList = response.data;
-        })
-    }
+        $scope.ModelNew.ByWhomId = data.SystemId;
+        $scope.ModelNew.ByWhomeName = data.EmployeeName;
+        $scope.ModelNew.ByWhomeCode = data.EmployeeCode;
 
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-
-        /* if ($scope.ModelNewForm.$valid) {*/
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: {
-                'datas': $scope.ModelNew,
-                'Employee': $scope.SelectedEmployeeId,
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.ModelNew.Id = response.data.Id;
-                //ClearFields(response.data.Sequence);
-                $scope.getData();
-                $scope.getEmployee($scope.ModelNew.Id);
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-
-        /*}*/
+        angular.element(document.querySelector('#ByWhomePopUps')).modal('hide');
+        $scope.Name = null;
     };
-
-    $scope.CheckedUserGroupList = [];
+   
+    $scope.CheckedInvoiceNumberList = [];
     $scope.ClosePopupOnSelectAllField = function () {
 
         $scope.CheckedUserGroupList = [];
-        for (var i = 0; i < $scope.UserGroupList.length; i++) {
+        for (var i = 0; i < $scope.InvoicenumberList.length; i++) {
 
-            if ($scope.UserGroupList[i].isSelected) {
-                $scope.CheckedUserGroupList.push($scope.UserGroupList[i]);
+            if ($scope.InvoicenumberList[i].isSelected) {
+                $scope.CheckedInvoiceNumberList.push($scope.InvoicenumberList[i]);
             }
 
         }
@@ -316,8 +306,8 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             method: 'POST',
             url: $scope.path + 'Create',
             data: {
-                'chkBgtList': $scope.obj,
-                'usergroup': $scope.CheckedUserGroupList,
+                'actiontakenObj': $scope.ActionToBeTakenModel,
+                'invoicelist': $scope.CheckedInvoiceNumberList,
                 'headerid': $scope.ModelNew.Id
             },
             dataType: 'JSON',
@@ -327,20 +317,78 @@ function CustomerQualityAndTechnicalSupportController(cboService, commonMessage,
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.obj.Id = response.data.Id;
-                $scope.GetBudget($scope.ModelNew.Id);
-                $scope.GetAllSavedBudgetCode($scope.ModelNew.Id);
-                var gridObj = $("#bgtCodeGridId").data("ejGrid");
-                angular.element(document.querySelector('#UserGroupPop')).modal('hide');
-                gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
-                $scope.UnchkOfCheckedItem();
+
 
             }
         });
 
-        angular.element(document.querySelector('#UserGroupPop')).modal('hide');
-        ShowResult("User Group Selected", 'success');
+
 
     }
+    // #endregion ActionTOBETaken
+
+    $scope.ComplaintList = [];
+    $scope.GetComplaint = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetComplaint",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ComplaintList = response.data;
+        })
+    }
+
+    $scope.StatusList = [];
+    $scope.GetCustomerStatus = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetCustomerStatus',
+            dataType:'JSON'
+        }).then(function successCallback(response) {
+            $scope.StatusList = response.data;
+        })
+    }
+
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        var d = new Date();
+        let date = d.getDate().toString();
+        let year = d.getFullYear().toString();
+        const monthNames = ["Jan", "Feb", "March", "Apr", "May", "June", "Jul", "August", "Sep", "Oct", "Nov", "Dec"];
+        let month = monthNames[d.getMonth().toString()];
+        let curdate = date.concat("-", month, "-", year);
+        
+        if ($scope.ModelNew.ToCloseDate == curdate) {
+            ShowResult("Close date shoud be greater then today date.");
+            throw "Close date shoud be greater then today date."
+        }
+       
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Save',
+            data: {
+                'datas': $scope.ModelNew,
+                
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.ModelNew.Id = response.data.Data.Id;
+                $scope.Action = 'Update';
+                
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+      
+    };
+
+    
 }

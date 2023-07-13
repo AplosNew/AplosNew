@@ -17,7 +17,9 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
     $scope.saveUrlGrade = $scope.path + 'createGrade';
     $scope.saveUrl = $scope.path + 'createQC';
     $scope.saveUrlQP = $scope.path + 'createQP';
+    $scope.UpdateUrlQP = $scope.path + 'UpdateQP';
     $scope.saveUrlGI = $scope.path + 'createGI';
+    $scope.UpdateUrlGI = $scope.path + 'UpdateGI';
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
@@ -133,6 +135,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(e, 'failure');
         }
     }
+    $scope.ProcessQualityPlan();
 
     $scope.GeneralIssueList = [];
     $scope.ProcessGeneralIssue = function () {
@@ -146,7 +149,8 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
             ShowResult(e, 'failure');
         }
     }
-    
+    $scope.ProcessGeneralIssue();
+
     $scope.GeneratItemSequenceNo = function () {
         $http({
             method: 'GET',
@@ -1034,6 +1038,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.loadWC();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1078,6 +1083,37 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.UpdateQP = function (data) {
+        try {
+
+            $scope.SaveList = [];
+            $scope.SaveList.push(data.data);
+       
+            $http({
+                method: 'POST',
+                url: $scope.UpdateUrlQP,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
     $scope.SaveGI = function () {
         try {
 
@@ -1100,6 +1136,37 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
 
                     ShowResult(response.data.Message, 'success');
                     $scope.ProcessGeneralIssue();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.UpdateGI = function (data) {
+        try {
+
+            $scope.SaveList = [];
+            $scope.SaveList.push(data.data);
+            
+            $http({
+                method: 'POST',
+                url: $scope.UpdateUrlGI,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
                     $scope.Action = 'Save';
                 }
 

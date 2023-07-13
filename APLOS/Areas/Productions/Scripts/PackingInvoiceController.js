@@ -2101,6 +2101,10 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
     //#region  GetInvoiceReport
 
+    $scope.GetLotWiseTaxInvoice = function (data) {
+        location.href = "SalesManagements/Sales/GetLotWiseTaxInvoice?salesId=" + data.Id;
+    };
+
     $scope.LocalTaxInvoiceReport = function (data) {
         location.href = "SalesManagements/Sales/LocalTaxInvoice?salesId=" + data.Id;
     };

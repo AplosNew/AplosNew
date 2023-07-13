@@ -11,12 +11,14 @@ using Library.Service.Accounts;
 using Library.Service.Core;
 using Library.Service.Enums;
 using Library.Service.Extension;
+using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Systems;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -478,6 +480,110 @@ namespace Library.Service.FixedAssets
             }
         }
 
+        public string GetFixedAssetMasterReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName,string PlantId) 
+        {
+            var filePath = "";
+            ExcelEngine excelEngine = null;
+            excelEngine = new ExcelEngine(); 
+            IApplication application = excelEngine.Excel; 
+            application.DefaultVersion = ExcelVersion.Excel2013; 
+            IWorkbook workbook = application.Workbooks.Create(1); 
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            try
+            {
+                worksheet.Name = "Fixed Asset Master";
+                int COL = 1; int ROW = 6;
+
+                int startCol = COL;
+                worksheet[ROW, COL].Text = "Code";
+                int colCode = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Fixed Asset Master Name";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colFixedAssetMasterName = COL;
+                worksheet[ROW, COL].ColumnWidth = 25;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Fixed Asset Category";
+                int colFixedAssetCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Fixed Asset SubCategory";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colFixedAssetSubCategory = COL;
+                worksheet[ROW, COL].ColumnWidth = 22;
+                COL++;
+
+                worksheet[ROW, COL].Text = "AssetType";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colAssetType = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                
+                int endCol = COL;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
+
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Yellow;
+                worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+ 
+                ROW++;
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    worksheet[ROW, colCode].Text = data[i]["Code"].ToString();
+                    worksheet[ROW, colFixedAssetMasterName].Text = data[i]["UserName"].ToString();
+                    worksheet[ROW, colFixedAssetCategory].Text = data[i]["FixedAssetCategory"].ToString();
+                    worksheet[ROW, colFixedAssetSubCategory].Text = data[i]["FixedAssetSubCategory"].ToString();
+                    worksheet[ROW, colAssetType].Text = data[i]["AssetType"].ToString(); 
+
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                } 
+
+                worksheet.UsedRange.WrapText = true;
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                worksheet["A" + startRow.ToString()].FreezePanes();
+ 
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.MainCompanyGroupHeader(ref worksheet, endCol, "Fixed Asset Master Report", PlantId);
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.WrapText = true;
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.IsGridLinesVisible = false;
+                 
+                //#endregion ******************Report Header******************
+                worksheet.PageSetup.TopMargin = 0.2;
+                worksheet.PageSetup.BottomMargin = 0.8; 
+                worksheet.PageSetup.LeftMargin = 0.2;
+                worksheet.PageSetup.RightMargin = 0.2;
+                worksheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                worksheet.PageSetup.FitToPagesTall = 0;
+                worksheet.PageSetup.FitToPagesWide = 1;
+                worksheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                worksheet.PageSetup.CenterHorizontally = true;
+                 
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
     }
 }

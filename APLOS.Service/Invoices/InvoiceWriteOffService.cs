@@ -693,15 +693,19 @@ namespace Library.Service.Invoices
                 var adjustmentNote = new AdjustmentNote
                 {
                 };
-
-                if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
+                decimal totalbankChargess = 0;
+                if (null != bankChargeDetailVMList && bankChargeDetailVMList.Count() > 0)
+                {
+                    totalbankChargess = bankChargeDetailVMList.Sum(r => r.Amount);
+                }
+                    if (voucherVM.PaymentSource == PaymentSource.Discount.ToString())
                 {
                     voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount);
                 }
 
                 else
                 {
-                    voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount) + bankChargeDetailVMList.Sum(r => r.Amount);
+                    voucherVM.Amount = voucherDetailVMList.Sum(r => r.Amount) + totalbankChargess;
                 }
                 // INSERT INTO InvoiceWriteOff
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
