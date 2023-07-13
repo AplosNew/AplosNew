@@ -352,4 +352,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             controller: 'QRCodeGeneratorController'
         })
 
+        .when('/weighingmachine', {
+            templateUrl: 'materials/WeighingScaleMaster/Aplos',
+            controller: 'WeighingScaleMasterController'
+        })
+
 };

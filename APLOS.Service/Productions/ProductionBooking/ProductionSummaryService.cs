@@ -792,7 +792,7 @@ left join (select Sum(QD.Value) ProducedQty,Q.ProductionOrderId from TRN.Quality
 left join TRN.QualityControl Q on Q.Id=QD.QCId
 GROUP BY Q.ProductionOrderId
 ) AS ProdQ ON ProdQ.ProductionOrderId = QC.ProductionOrderId
-where QID.IssueType in ('Order','General') and QCD.Id is not null" + QCDate + "  " + QCIssue + " " + QCPONO + "";
+where QID.IssueType in ('Order','General') and QCD.Id is not null " + QCDate + "  " + QCIssue + " " + QCPONO + "";
             return _sqlRepository.GetDataCollection(sql);
         }
 

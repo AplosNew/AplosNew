@@ -5947,7 +5947,7 @@ left join HKP.LocationMaster LMN on LMN.Id = vrc.ToLocationId
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is null and VT.FromDate >= Cast(GETDATE() as date) order by FromDate Asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
