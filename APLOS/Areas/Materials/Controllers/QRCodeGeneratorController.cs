@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -30,6 +31,41 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult Aplos()
         {
             return View();
+        }
+
+        public ActionResult LoadGrid(string customerId)
+        {
+            string sql = "";
+            if (customerId == null || customerId == "Undefined")
+            {
+                sql = @"select distinct MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
+                            from TRN.ProductionOrder PO
+                            left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId = PO.Id
+                            left join TRN.SalesOrder SO on SO.Id = POD.SalesOrderId
+                            left join TRN.MasterOrderItem MOI on MOI.Id = SO.MasterOrderItemId
+                            left join TRN.MasterOrder MO on MO.Id = MOI.MasterOrderId
+                            left join MST.MaterialMasterArticle MMA on MMA.Id = MOI.ArticleId
+                            left join ProductLibraryAttribute PLA on PLA.ProductLibraryId = MOI.ProductLibraryId and PLA.UserName like 'sh%'
+                            left join ProductLibrary PL on PL.Id = PLA.ProductLibraryId
+                            left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
+                            where PS.UserName in ('Running', 'ToClose')";
+            }
+            else
+            {
+
+                sql = @"select distinct MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
+                            from TRN.ProductionOrder PO
+                            left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId = PO.Id
+                            left join TRN.SalesOrder SO on SO.Id = POD.SalesOrderId
+                            left join TRN.MasterOrderItem MOI on MOI.Id = SO.MasterOrderItemId
+                            left join TRN.MasterOrder MO on MO.Id = MOI.MasterOrderId
+                            left join MST.MaterialMasterArticle MMA on MMA.Id = MOI.ArticleId
+                            left join ProductLibraryAttribute PLA on PLA.ProductLibraryId = MOI.ProductLibraryId and PLA.UserName like 'sh%'
+                            left join ProductLibrary PL on PL.Id = PLA.ProductLibraryId
+                            left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
+                            where PS.UserName in ('Running', 'ToClose') and MO.PartyId = '" + customerId + "'";
+            }
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         public IPresentation CreateQRCode(Dictionary<string, object> data, string ShadeText, string ArticleName, string productcodeText, string NetWeightText)
@@ -59,6 +95,16 @@ namespace Aplos.Areas.Materials.Controllers
                         throw new CustomException("File Not Found");
                     }
                 }
+
+                PrintDocument pd = new PrintDocument();
+                //Set PrinterName as the selected printer in the printers list  
+                pd.PrinterSettings.PrinterName = "";
+
+                // Add PrintPage event handler
+               // pd.PrintPage += new PrintPageEventHandler();
+
+                //Print the document  
+                pd.Print();
 
                 string concatdata = Convert.ToString(
                     string.Concat(
@@ -154,6 +200,8 @@ namespace Aplos.Areas.Materials.Controllers
 
                 con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["NetWeightId"] + "'");
                 con.CommitTransaction();
+                
+
                 return Json(new { FileName = fileName, Error = false, Message = AplosMessage.Insert });
             }
             catch(Exception ex)
@@ -170,6 +218,12 @@ namespace Aplos.Areas.Materials.Controllers
             string poSql = @"select PO.Id Text from TRN.ProductionOrder  PO
                             left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
                             where PS.UserName in ('Running', 'To Close')";
+            return Json(_sqlRepository.GetDataCollection(poSql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetWeighingScale()
+        {
+            string poSql = @"Select Id Value, UserName Text from HKP.WeighingScaleMaster order by Text";
             return Json(_sqlRepository.GetDataCollection(poSql), JsonRequestBehavior.AllowGet);
         }
 
@@ -203,6 +257,12 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetNetWeight()
         {
             string sql = @"select top(1) Id Value, [NET WEIGHT06] Text from WeighingScaleDataCapture where isQR = 0 order by AddedDate desc";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetGrossWeight(int mno)
+        {
+            string sql = @"select top(1) Id Value, [G. WEIGHT07] Text from WeighingScaleDataCapture where isQR = 0 and MNo = '"+mno+"' order by AddedDate desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -250,5 +310,7 @@ namespace Aplos.Areas.Materials.Controllers
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+
+        
     }
 }

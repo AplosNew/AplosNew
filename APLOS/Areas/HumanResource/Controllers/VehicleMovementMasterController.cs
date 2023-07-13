@@ -1509,12 +1509,14 @@ where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult GetVehicleList(string vehicleId)
         {
             string sql = @"Select Id Value, VehicleNumber Text from HKP.VehicleMaster  where Id = '" + vehicleId + "' order by Text";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [AllowAnonymous]
         public JsonResult GetVehiclNameList()
         {
             string sql = @"Select Id Value, VehicleName Text from HKP.VehicleMaster order by Text";
