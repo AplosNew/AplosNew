@@ -2461,9 +2461,18 @@ namespace Library.Accounting.Accounts
 				throw ex;
 			}
 		}
-		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId,string packingId)
+		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId,string packingId,string smIds)
 		{
+			string temId = "";
+            if (!string.IsNullOrEmpty(smIds))
+            {
+				temId = "AND SA.Id='" + salesId + "' and sp.PackingId='" + packingId + "' and SM.Id " + smIds + "";
 
+			}
+            else
+            {
+				temId = "AND SA.Id='" + salesId + "' and sp.PackingId='" + packingId + "'";
+			}
 			var cmdText = @"SELECT '' Id,SP.PackingId,SM.Id SalesMaterialId,SM.SalesOrderId,SM.SalesId
 				, SM.MaterialMasterId, SM.ArticleId , SM.FirstCharacteristicsId , SM.TransactionUoMId, SM.BaseUOMId,SM.BaseRate,SM.BaseUoMFactor
 				, SM.TransactionRate, SM.TransactionAmount,SM.TaxAmount SalesTax,SM.NetAmount TotalAmount
@@ -2526,7 +2535,7 @@ namespace Library.Accounting.Accounts
             LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
             JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
-            WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' AND SA.Id='" + salesId + "' and sp.PackingId='"+ packingId + "'";
+            WHERE SA.CompanyGroupId='" + companyGroupId + "' AND SA.CompanyId='" + companyId + "' AND SA.PlantId='" + plantId + "' "+ temId + "";
 
 			return _sqlRepository.GetDataCollection(cmdText);
 		}
@@ -2563,7 +2572,7 @@ namespace Library.Accounting.Accounts
 		public List<Dictionary<string, object>> GetItemScanChildDataByPackingId(string salesId, string packingId, string soId)
 		{
 
-			var cmdText = @"SELECT isc.Id,isc.MasterId,isc.POId,isc.ProductCode,isc.AddedBy,isc.AddedDate,isc.Cones,isc.PackedBy,isc.SalesId,isc.LocMasterId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight,isc.NetWeight ReturnNetWeight,isc.Shade,isc.Booked,isc.IsDespatch
+			var cmdText = @"SELECT isc.Id,isc.MasterId,isc.POId,isc.ProductCode,isc.AddedBy,isc.AddedDate,isc.Cones,isc.PackedBy,isc.SalesId,isc.SalesMaterialId,isc.LocMasterId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight,isc.NetWeight ReturnNetWeight,isc.Shade,isc.Booked,isc.IsDespatch
 								,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
                                 left join trn.POLotReference pol on pol.Id = isc.PackingId
                                 left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
