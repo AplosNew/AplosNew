@@ -561,7 +561,8 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     $scope.updateUrlBgt = $scope.pathBgt + "edit";
     $scope.deleteUrlBgt = $scope.pathBgt + "delete/";
     // #endregion
-   
+
+    $scope.searchBy = "Sequence"; $scope.search = "";
     $scope.searchByBgtList = [
         {
             'name': 'Sequence',
@@ -585,30 +586,26 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
         }
     ];
 
-    $scope.Bgtparameters = {
-        limit: 10,
-        offset: 0,
-        order: "ASC",
-        sort: "Sequence",
-        searchBy: "UserName",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    $scope.getDataBgt = function (pageno) {
-        baseService.paginationBase($scope.getListUrlBgt, pageno, $scope.Bgtparameters)
-            .then(function (result) {
-                $scope.budgets = result.Rows;
-                $scope.Bgtparameters.total_count = result.Total;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, "failure");
-            }).finally(function () {
+    $scope.getDataBgt = function () {
+        $scope.FixedAssetMasterItemList = [];
+        $http.get('accounts/companygroupbudget/getlist?column='+ $scope.searchBy + '&value'+ $scope.search)
+            .then(function (response) {
+                $scope.budgets = response.data;
             });
     };
+    $scope.getDataBgt();
 
-    
+    $scope.GetBgt = function (args) {
+        $scope.budget = Object.assign({}, args.data);
+        $scope.budget.AddedDate = $filter("dateFilter")($scope.budget.AddedDate);
+        $scope.budget.UpdatedDate = $filter("dateFilter")($scope.budget.UpdatedDate);
+        $scope.getDataBgt();
+        $scope.ActionItem = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
 
     $scope.budget = {
         Id: null,
@@ -630,16 +627,6 @@ function ManagementChartAccountSetupController(commonMessage, $scope, $rootScope
     };
     $scope.GetSequenceBgt();
 
-    $scope.GetBgt = function (id, index) {
-        $scope.index = index;
-        $scope.budget = $scope.budgets[$scope.index];
-        $scope.budget.AddedDate = $filter("dateFilter")($scope.budget.AddedDate);
-        $scope.budget.UpdatedDate = $filter("dateFilter")($scope.budget.UpdatedDate);
-        $scope.ActionBgt = "Update";
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
 
     $scope.SaveBgt = function () {
         $scope.$broadcast("show-errors-check-validity");

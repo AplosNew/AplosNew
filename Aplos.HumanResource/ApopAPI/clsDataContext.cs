@@ -4947,45 +4947,7 @@ LEFT JOIN (Select ISNULL(COUNT(EmpSystemID), 0) ToDayIN,BudgetId from dbo.AttdnP
         }
         #endregion Attendance
 
-        #region Incedent
-
-        public void GetIncedentCategoryDetail(out List<IncedentCategory> DataList, string Id)
-        {
-            clsConnectionManager objCon = null;
-            string strSQL = "";
-            DataList = new List<IncedentCategory>();
-
-            System.Data.DataSet dsRef;
-            try
-            {
-                strSQL = @"select distinct IC.Id, EI.EmployeeName,IC.StandardName from HKP.IncedentCategory IC 
-left join EmployeeInformation EI on EI.BudgetCode = IC.InchargeNameBgtCodeId where EI.DOS is null and IC.Id = '" + Id + "'";
-                objCon = new clsConnectionManager();
-                objCon.BeginTransaction();
-                objCon.getDataSet(strSQL, out dsRef);
-                objCon.CommitTransaction();
-                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
-                {
-                    DataList.Add(new IncedentCategory
-                    {
-                        Id = dsRef.Tables[0].Rows[i]["Id"].ToString(),
-                        EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
-                        StandardName = dsRef.Tables[0].Rows[i]["StandardName"].ToString(),
-
-                    });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                throw (ex);
-            }
-            finally
-            {
-                objCon = null;
-            }
-        }
-
-        #endregion Incedent
+      
 
         public class ProcessServiceTest
         {
@@ -5985,7 +5947,7 @@ left join HKP.LocationMaster LMN on LMN.Id = vrc.ToLocationId
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-where VIO.OutReading is null and VA.Id is not null and VIO.Id is null order by FromDate Desc";
+where VIO.OutReading is null and VA.Id is not null and VIO.Id is null and VT.FromDate >= Cast(GETDATE() as date) order by FromDate Asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6224,6 +6186,224 @@ where  vr.AppliedId = '" + MasterId + "'";
         }
 
         #endregion Vehicle Requisition
+
+        #region Incident
+
+        public void GetIncidentCategory(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id as Value , StandardName as Name from HKP.IncedentCategory";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetIncedentCategoryDetail(out List<Default2> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  EI.SystemId as Value,EI.EmployeeName as Name from [MST].[ManpowerBudget] MB
+                        left join dbo.EmployeeInformation EI On EI.BudgetCode=MB.Id
+                        left join [HKP].[IncedentCategory] IC ON IC.InchargeNameBgtCodeId=MB.Id
+                        where IC.Id='" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public void GetEmployeeBudget(out List<ROCode> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<ROCode>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  MB.Id as Value , MB.Code as Name , MB.ROBudgetCode as ROCode from MST.ManpowerBudget MB
+left join EmployeeInformation EI on EI.BudgetCode = MB.Id
+where EI.SystemId = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new ROCode
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        ROCodes = dsRef.Tables[0].Rows[i]["ROCodes"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetRoName(out List<Default2> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Top 1 EI.SystemId as Value  , EI.EmployeeName as Name from MST.ManpowerBudget MB 
+left join EmployeeInformation EI on EI.BudgetCode = MB.ROBudgetCode
+where MB.ROBudgetCode = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+        public string PostIncedentCreation(IEnumerable<Incedent> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.IncedentCategoryUpdate";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Incedent> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.IncedentCategoryUpdate where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (Incedent item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "22" + _Id;
+                        dr["Date"] = item.Date;
+                        dr["Time"] = item.Time;
+                        dr["EmployeeId"] = item.EmployeeId;
+                        dr["BudgetCode"] = item.BudgetCode;
+                        dr["RONameId"] = item.RONameId;
+                        dr["IncedentCategoryId"] = item.IncedentCategoryId;
+                        dr["IncedentItemTitle"] = item.IncedentItemTitle;
+                        dr["IncedentDetail"] = item.IncedentDetail;
+                        dr["IncedentType"] = item.IncedentType;
+                        dr["CriticalityLevel"] = item.CriticalityLevel;
+                        dr["ActionTaken"] = item.ActionTaken;
+                        dr["StoryPoints"] = item.StoryPoints;
+                        dr["FollowUpApplicable"] = item.FollowUpApplicable;
+                        dr["FollowUpDays"] = item.FollowUpDays;
+                        dr["FollowUpById"] = item.FollowUpById;
+                        dr["IssueInchargeId"] = item.IssueInchargeId;
+                        dr["FinalStatus"] = item.FinalStatus;
+                        dr["Remarks"] = item.Remarks;
+                        dr["FileName"] = item.FileName;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        #endregion Incident
     }
 
 
@@ -7019,6 +7199,44 @@ where  vr.AppliedId = '" + MasterId + "'";
         public string EmployeeName { get; set; }
         public string StandardName { get; set; }
 
+    }
+
+
+    public class ROCode
+    {
+        public string Name { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string ROCodes { get; set; } = "";
+    }
+
+    public class Incedent
+    {
+        public string Id { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public string EmployeeId { get; set; }
+        public string BudgetCode { get; set; }
+        public string RONameId { get; set; }
+        public string IncedentCategoryId { get; set; }
+        public string IncedentItemTitle { get; set; }
+        public string IncedentDetail { get; set; }
+        public string IncedentType { get; set; }
+        public string CriticalityLevel { get; set; }
+        public string ActionTaken { get; set; }
+        public string StoryPoints { get; set; }
+        public string FollowUpApplicable { get; set; }
+        public string FollowUpDays { get; set; }
+        public string FollowUpById { get; set; }
+        public string IssueInchargeId { get; set; }
+        public string FinalStatus { get; set; }
+        public string Remarks { get; set; }
+        public string FileName { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
     }
     #endregion vehicle
 

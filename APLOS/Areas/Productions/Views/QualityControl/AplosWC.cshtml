@@ -482,6 +482,7 @@
                     <div e-column e-template="#ActionToBeTaken" e-headertext="ActionToBeTaken" e-width="150"></div>
                     <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="120"></div>
                     <div e-column e-template="#SaveQIC" e-headertext="Save" e-width="80"></div>
+                    <div e-column e-template="#QUDJobCart" e-headertext="Print" e-width="50"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                 </div>
             </div>
@@ -495,6 +496,15 @@
             <script type="text/template" id="ResponsiblePerson">
                 <div class="col-sm-12" style="padding:0px;">
                     <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
+                </div>
+            </script>
+            <script type="text/template" id="QUDJobCart">
+                <div class="form-group">
+                    <div class="col-sm-5 text-center" style="padding:0px;padding-left:4px">
+                        <div class="common-btn">
+                            <a class="btn" style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" href="Productions/QualityControl/GetQualityUpdateIssueJobCardReportView?PlannedId={{data.QCId}}" target="_blank"><i class="glyphicon glyphicon-print" style="margin: 6px;"></i></a>
+                        </div>
+                    </div>
                 </div>
             </script>
             <script type="text/template" id="PValue">
