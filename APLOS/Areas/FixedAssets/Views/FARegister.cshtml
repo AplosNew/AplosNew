@@ -17,8 +17,7 @@
                                     <input type="text" name="Id" ng-model="register.Id" class="form-control" readonly tabindex="3">
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Asset Item<sup>*</sup></label>
                                 <div class="col-sm-6">
@@ -31,94 +30,15 @@
                                     <button ng-click="clearAssetCode();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-refresh"></i></button>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm-12" ng-show="register.FixedAssetMasterId !=null">
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label"><b>Asset Master: </b>{{register.AssetMasterName}}</label>
-                                <label class="col-sm-3 control-label"><b>Asset GL: </b>{{register.AssetGLName}}</label>
-                                <label class="col-sm-3 control-label"><b>Budget: </b>{{register.AssetBudgetName}}</label>
-                                <label class="col-sm-3 control-label"><b>Activity: </b>{{register.AssetActivityName}}</label>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-sm-12" ng-show="articleList.length>0">
-                            <fieldset class="scheduler-border">
-                                <legend class="scheduler-border">Article</legend>
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Article Code</label>
-                                        <div class="col-sm-7">
-                                            <input type="text" name="Id" ng-model="materialArticleInfo.ArticleCode" class="form-control" readonly tabindex="3">
-                                        </div>
-                                        <div class="col-sm-1">
-                                            <button class="btn single-small-btn" ng-click="loadMaterialMasterArticleModalList()"><i class="cr-icon glyphicon glyphicon-edit"></i></button>
-                                        </div>
-                                    </div>
-                                    <div ng-repeat="x in articleHead">
-                                        <div class="form-group" ng-if="$index%2===0">
-                                            <label class="col-sm-4 control-label">{{x.MaterialAttributeName}}</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Id" ng-model="materialArticleInfo[x.MaterialAttributeName]" class="form-control" readonly tabindex="3">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label class="col-sm-4 control-label">Article Name</label>
-                                        <div class="col-sm-8">
-                                            <input type="text" name="Id" ng-model="materialArticleInfo.ArticleStandardName" class="form-control" readonly tabindex="3">
-                                        </div>
-                                    </div>
-                                    <div ng-repeat="x in articleHead">
-                                        <div class="form-group" ng-if="$index%2 !=0">
-                                            <label class="col-sm-4 control-label">{{x.MaterialAttributeName}}</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="Id" ng-model="materialArticleInfo[x.MaterialAttributeName]" class="form-control" readonly tabindex="3">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Vendor<sup>*</sup></label>
-                                <div class="col-sm-6 show-message">
-                                    <input type="text" name="Vendor" tabindex="7" ng-model="register.Vendor" class="form-control" readonly required>
-                                </div>
-                                <div class="col-sm-1">
-                                    <button ng-click="showPartyPopUp();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
-                                </div>
-                                <div class="col-sm-1">
-                                    <button ng-click="clearVendorCode();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-refresh"></i></button>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Voucher No</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="Model" ng-model="register.VoucherNo" class="form-control" tabindex="9" readonly autocomplete="off">
-                                </div>
-                            </div>
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Model</label>
                                 <div class="col-sm-8">
                                     <input type="text" name="Model" ng-model="register.Model" class="form-control" tabindex="9" autocomplete="off">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Invoice No</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="InvoiceNo" ng-model="register.InvoiceNo" class="form-control" readonly tabindex="11">
-                                </div>
-                            </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">LC Number</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="InvoiceNo" ng-model="register.LCNumber" maxlength="100" class="form-control text-right" tabindex="11" autocomplete="off">
-                                </div>
-                            </div>
+
+
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Year of Manufacture<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -136,15 +56,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Purchase Price<sup>*</sup></label>
-                                <div class="col-sm-4 show-message" style="padding-right:0px;">
-                                    <input type="text" name="Price" n-decimals="4" ng-model="register.TotalGRNAmount" required readonly class="form-control text-right" tabindex="17">
-                                </div>
-                                <div class="col-sm-4" style="padding-left:0px;">
-                                    <input type="text" name="GRNCurrencyCode" ng-model="register.GRNCurrencyCode" maxlength="100" ng-disabled="true" class="form-control text-right" tabindex="11" autocomplete="off">
-                                </div>
-                            </div>
+
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Books Price<sup>*</sup></label>
                                 <div class="col-sm-4 show-message" style="padding-right:0px;">
@@ -154,16 +66,13 @@
                                     <input type="text" name="CurrencyCode" ng-model="register.CurrencyCode" maxlength="100" ng-disabled="true" class="form-control text-right" tabindex="11" autocomplete="off">
                                 </div>
                             </div>
+
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Unit Price<sup>*</sup></label>
-                                <div class="col-sm-3 show-message" style="padding-right:0px;">
-                                    <input type="text" name="Price" n-decimals="4" ng-model="register.FABaseAmount" required readonly class="form-control text-right" tabindex="17">
+                                <label class="col-sm-4 control-label">Number of Quantity</label>
+                                <div class="col-sm-4" style="padding-right:0px;">
+                                    <input type="text" name="NumberOfQuantity" ng-model="NumberOfQuantity" class="form-control text-right" tabindex="20">
                                 </div>
-                                <label class="col-sm-3 control-label">Number of Quantity</label>
-                                <div class="col-sm-1" style="padding-right:0px;">
-                                    <input type="text" ng-disabled="Action==='Update'" name="NumberOfQuantity" readonly ng-model="NumberOfQuantity" class="form-control text-right" tabindex="20">
-                                </div>
-                                <div class="col-sm-1" style="padding-left:0px;">
+                                <div class="col-sm-4" style="padding-left:0px;">
                                     <input type="text" only-numbers ng-disabled="true" name="BaseUOMName" readonly ng-model="register.BaseUOMName" class="form-control text-right" tabindex="20">
                                 </div>
                             </div>
@@ -185,42 +94,32 @@
                                     <textarea class="form-control" rows="1" ng-model="register.Description" tabindex="24" required name="Description"></textarea>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
+
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Material Master Base UOM</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="BaseUOMName" ng-model="register.BaseUOMName" class="form-control" readonly tabindex="11">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li>
+                                            <button ng-click="showAssetModal('AssetCapatalized');" class="btn"><i class="glyphicon glyphicon-search"></i>Select AUC</button>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Voucher Date<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Capitalization Date" ng-model="register.VoucherDate" disabled datepicker class="form-control datepicker">
-                                </div>
-                            </div>
+
+                        </div>
+                       
+
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            
+
+
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Capitalization Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <input type="text" name="Capitalization Date" ng-model="register.CapitalizationDate" disabled datepicker class="form-control datepicker" tabindex="10" required>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Invoice Date<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Invoice Date" ng-model="register.InvoiceDate" disabled datepicker required class="form-control datepicker" tabindex="16">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Brand</label>
-                                <div class="col-sm-8">
-                                    <div class="select-style">
-                                        <select name="Brand" class="form-control" tabindex="12" ng-model="register.BrandId" ng-options="register.Value as register.Text for register in brandList">
-                                            <option></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+
+
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Serial No<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
@@ -288,9 +187,35 @@
                                 </div>
                             </div>
 
-                            <div class="col-xs-12 col-sm-6 col-md-6">
+                        </div>
+
+                        <div class="col-xs-12" ng-show="selectedmaterialMasterList.length>0">
+                            <div class="table-responsive modal-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Material</th>
+                                            <th>Article</th>
+                                            <th>GRN No</th>
+                                            <th>Qty</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in selectedmaterialMasterList">
+                                            <td>{{x.MaterialMasterName}}</td>
+                                            <td>{{x.ArticleStandardName}}</td>
+                                            <td>{{x.GRNNo}}</td>
+                                            <td>{{x.Qty}}</td>
+                                            <td>{{x.Amount}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
+
+                        
+                        
 
                         <div class="col-xs-12 col-sm-6 col-md-6 modal-table">
                             <table class="table table-responsive table-striped">
@@ -339,210 +264,14 @@
                         </div>
 
                         <div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-12 col-md-12" ng-show="assetRegisterCharactreristicsList.length>0">
-                            <div class="table-responsive modal-table">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Characteristics</th>
-                                            <th>Characteristics Value</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in assetRegisterCharactreristicsList">
-                                            <td> {{x.CharacteristicsName}}</td>
-                                            <td>
-                                                <input type="text" ng-model="x.CharacteristicsValueFreeText" class="col-sm-2 form-control" ng-keyup="idNullByFreeText(x.CharacteristicsId, $index)"
-                                                       style="width:400px;margin-top:-5px;margin-bottom:-5px;" ng-disabled="x.FlagDisable" ng-required="x.IsMandatory" name="Material attribute value">
-                                                <button class="btn single-small-btn" ng-disabled="!x.IsPreDefinedField" style="margin-top:-5px;margin-bottom:-5px;"
-                                                        ng-click="getCharacteristicsValuePopUP($index,x)" tabindex="4">
-                                                    <i class="cr-icon glyphicon glyphicon-search"></i>
-                                                </button>
-                                                <button class="btn single-small-btn" ng-click="materialAttributeValueClear($index)" style="margin-top:-5px;margin-bottom:-5px;"><i class="cr-icon glyphicon glyphicon-remove"></i></button>
-                                                <label style="color:red;font-size: 10px;font-weight: normal;" ng-show="IsMandatoryButNull(x.IsMandatory, x.CharacteristicsValueFreeText)">
-                                                    [{{x.CharacteristicsName}}] value is required.
-                                                </label>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
 
-                        <div class="col-xs-12" ng-hide="true">
-                            <div class="table-responsive modal-table voucher-table" ng-hide="true">
-                                <table class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th> Material Master</th>
-                                            <th>Article</th>
-                                            <th colspan="{{parallelCurrencyList.length}}" class="text-center">
-                                                Asset Historical Value
-                                                <table>
-                                                    <tr>
-                                                        <td style="color:white;" ng-repeat="x in parallelCurrencyList">{{x.Code}}</td>
-                                                    </tr>
-                                                </table>
-                                            </th>
-                                            <th colspan="{{parallelCurrencyList.length}}" class="text-center">
-                                                Acc Dep
-                                                <table>
-                                                    <tr>
-                                                        <td style="color:white;" ng-repeat="x in parallelCurrencyList">{{x.Code}}</td>
-                                                    </tr>
-                                                </table>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                {{register.MaterialMasterName}}
-                                            </td>
-                                            <td>{{materialArticleInfo.ArticleStandardName}}</td>
-                                            <td ng-show="register.FABaseCurrencyId !=null">
-                                                <input type="text" class="form-control text-right" ng-model="register.FABaseAmount" n-decimals="4">
-                                            </td>
-                                            <td ng-show="register.ADBaseCurrencyId !=null">
-                                                <input type="text" class="form-control text-right" ng-model="register.ADBaseAmount" n-decimals="4">
-                                            </td>
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <h4><b>Summary of Saved Asset Register</b></h4>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <span class="col-sm-4">Total Asset: {{getDataWithFAMSavedRow}}</span>
-                                    <div class="col-sm-8" ng-show="register.MaterialMasterId !=null">
-                                        <span><b>Asset Master: </b>{{register.AssetMasterName}}</span>
-                                        <span><b>Asset GL: </b>{{register.AssetGLName}}</span>
-                                        <span><b>Budget: </b>{{register.AssetBudgetName}}</span>
-                                        <span><b>Activity: </b>{{register.AssetActivityName}}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="table-responsive modal-table voucher-table">
-                                    <table class="table table-striped table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>Asset GL And Budget</th>
-                                                <th>Quantity</th>
-                                                <th colspan="{{parallelCurrencyList.length}}" class="text-center">
-                                                    Asset Historical Value
-                                                    <table>
-                                                        <tr>
-                                                            <td style="color:white;" ng-repeat="x in parallelCurrencyList">{{x.Code}}</td>
-                                                        </tr>
-                                                    </table>
-                                                </th>
-                                                <th colspan="{{parallelCurrencyList.length}}" class="text-center">
-                                                    Acc. Dep.
-                                                    <table>
-                                                        <tr>
-                                                            <td style="color:white;" ng-repeat="x in parallelCurrencyList">{{x.Code}}</td>
-                                                        </tr>
-                                                    </table>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    Transaction
-                                                </td>
-                                                <td class="text-right">
-                                                    {{getOpeningBalanceDataWithFAM.TotalRow}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.FABaseCurrencyId !=null">
-                                                    {{getOpeningBalanceDataWithFAM.FABaseAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.FAGroupCurrencyId !=null">
-                                                    {{getOpeningBalanceDataWithFAM.FAGroupAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.FAHardCurrencyId !=null">
-                                                    {{getOpeningBalanceDataWithFAM.FAHardAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.ADBaseCurrencyId !=null">
-                                                    {{getOpeningBalanceDataWithFAM.ADBaseAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.ADGroupCurrencyId !=null">
-                                                    {{getOpeningBalanceDataWithFAM.ADGroupAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.ADHardCurrencyId !=null">
-                                                    {{getOpeningBalanceDataWithFAM.ADHardAmountTotal | number:2}}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    Asset Register
-                                                </td>
-                                                <td class="text-right">
-                                                    {{getDataWithFAM.TotalRow}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.FABaseCurrencyId !=null">
-                                                    {{getDataWithFAM.FABaseAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.FAGroupCurrencyId !=null">
-                                                    {{getDataWithFAM.FAGroupAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.FAHardCurrencyId !=null">
-                                                    {{getDataWithFAM.FAHardAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.ADBaseCurrencyId !=null">
-                                                    {{getDataWithFAM.ADBaseAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.ADGroupCurrencyId !=null">
-                                                    {{getDataWithFAM.ADGroupAmountTotal | number:2}}
-                                                </td>
-                                                <td class="text-right" ng-show="register.ADHardCurrencyId !=null">
-                                                    {{getDataWithFAM.ADHardAmountTotal | number:2}}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
 
             </div>
         </div>
-        <div class="col-xs-12" ng-show="savedAssetRegisterList.length >0">
-            <div class="table-responsive modal-table voucher-table">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Apply</th>
-                            <th>Asset No</th>
-                            <th>Invoice No</th>
-                            <th>Serial No</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="x in savedAssetRegisterList">
-                            <td class="text-right table-td">
-                                <ul class="list-inline action-list">
-                                    <li>
-                                        <button class="btn-action tooltip-here" title="Edit" ng-click="GetRegisterIndex(x.Id);">
-                                            <i class="glyphicon glyphicon-edit"></i>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </td>
-                            <td>{{x.Id}}</td>
-                            <td>{{x.InvoiceNo}}</td>
-                            <td>{{x.SerialNo}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
@@ -668,7 +397,7 @@
         </div>
     </div>
 </div>
-@Html.Partial("~/Areas/FixedAssets/Views/_CapitalizeAssetItemPopUp.cshtml")
+@Html.Partial("~/Areas/FixedAssets/Views/_CapitalizeAssetItemPopUpNew.cshtml")
 <div class="modal fade site-modal in" id="materialMasterArticlemodal" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">

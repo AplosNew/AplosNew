@@ -4736,6 +4736,7 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling2.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FARegister.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetItemPopUpNew.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
