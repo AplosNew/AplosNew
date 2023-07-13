@@ -862,13 +862,33 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetEmployeeBudget(string Id)
+        public List<ROCode> GetEmployeeBudget(string Id)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetEmployeeBudget(out List<Default2> activelists, Id);
+            clsData.GetEmployeeBudget(out List<ROCode> activelists, Id);
             return activelists;
         }
 
+        public List<Default2> GetRoName(string Id)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetRoName(out List<Default2> activelists, Id);
+            return activelists;
+        }
+
+        public string PostIncedentCreation([FromBody] IEnumerable<Incedent> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostIncedentCreation(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
         #endregion Incedent
 
     }
