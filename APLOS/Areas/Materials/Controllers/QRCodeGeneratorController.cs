@@ -33,12 +33,12 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
-        public ActionResult LoadGrid(string customerId)
+        public ActionResult LoadGrid(string customerId, string poid)
         {
             string sql = "";
-            if (customerId == null || customerId == "Undefined")
+            if (poid != null)
             {
-                sql = @"select distinct MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
+                sql = @"select distinct ''Id, MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
                             from TRN.ProductionOrder PO
                             left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId = PO.Id
                             left join TRN.SalesOrder SO on SO.Id = POD.SalesOrderId
@@ -48,12 +48,10 @@ namespace Aplos.Areas.Materials.Controllers
                             left join ProductLibraryAttribute PLA on PLA.ProductLibraryId = MOI.ProductLibraryId and PLA.UserName like 'sh%'
                             left join ProductLibrary PL on PL.Id = PLA.ProductLibraryId
                             left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
-                            where PS.UserName in ('Running', 'ToClose')";
+                            where PS.UserName in ('Running', 'ToClose') and PO.Id = '" + poid + "'";
             }
-            else
-            {
-
-                sql = @"select distinct MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
+            else if (customerId != null) {
+                sql = @"select distinct ''Id, MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
                             from TRN.ProductionOrder PO
                             left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId = PO.Id
                             left join TRN.SalesOrder SO on SO.Id = POD.SalesOrderId
@@ -64,6 +62,22 @@ namespace Aplos.Areas.Materials.Controllers
                             left join ProductLibrary PL on PL.Id = PLA.ProductLibraryId
                             left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
                             where PS.UserName in ('Running', 'ToClose') and MO.PartyId = '" + customerId + "'";
+            }
+
+            else
+            {
+                sql = @"select distinct ''Id, MMA.StandardName Article, MMA.Id ArticleId, PL.Code ProductCode, PLA.AttributeValue Shade, PO.Id PO, PS.UserName ProductionStatus
+                            from TRN.ProductionOrder PO
+                            left join TRN.ProductionOrderDetail POD on POD.ProductionOrderId = PO.Id
+                            left join TRN.SalesOrder SO on SO.Id = POD.SalesOrderId
+                            left join TRN.MasterOrderItem MOI on MOI.Id = SO.MasterOrderItemId
+                            left join TRN.MasterOrder MO on MO.Id = MOI.MasterOrderId
+                            left join MST.MaterialMasterArticle MMA on MMA.Id = MOI.ArticleId
+                            left join ProductLibraryAttribute PLA on PLA.ProductLibraryId = MOI.ProductLibraryId and PLA.UserName like 'sh%'
+                            left join ProductLibrary PL on PL.Id = PLA.ProductLibraryId
+                            left join HKP.ProductionStatus PS on PS.Id = PO.ProductionStatusId
+                            where PS.UserName in ('Running', 'ToClose')";
+
             }
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -98,13 +112,13 @@ namespace Aplos.Areas.Materials.Controllers
 
                 PrintDocument pd = new PrintDocument();
                 //Set PrinterName as the selected printer in the printers list  
-                pd.PrinterSettings.PrinterName = "";
+                //pd.PrinterSettings.PrinterName = "";
 
                 // Add PrintPage event handler
                // pd.PrintPage += new PrintPageEventHandler();
 
                 //Print the document  
-                pd.Print();
+                //pd.Print();
 
                 string concatdata = Convert.ToString(
                     string.Concat(
@@ -112,8 +126,8 @@ namespace Aplos.Areas.Materials.Controllers
                     , data["PO"].ToString(), "#"
                     , data["LOT"].ToString(), "#"
                     , data["NumberOfCones"].ToString(), "#"
-                    , NetWeightText, "#"
-                    , ShadeText, "#"
+                    , data["NetWeight"].ToString(), "#"
+                    , data["Shade"].ToString(), "#"
                     , identity.UserId
 
                     ));
@@ -121,13 +135,14 @@ namespace Aplos.Areas.Materials.Controllers
                 IPresentation presentation = Presentation.Open(strPath);
                 for (int i = 0; i < presentation.Slides.Count; i++)
                 {
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "ProductCode", productcodeText, "Kalpurush", 18);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "ProductCode", Convert.ToString(data["ProductCode"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PO", Convert.ToString(data["PO"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "LOT", Convert.ToString(data["LOT"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "NumberOfCones", Convert.ToString(data["NumberOfCones"]), "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "NETWEIGHT", NetWeightText, "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Shade", ShadeText, "Kalpurush", 18);
-                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Article", ArticleName, "Kalpurush", 18);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "NETWEIGHT", Convert.ToString(data["NetWeight"]), "Kalpurush", 18);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "GWeight", Convert.ToString(data["GrossWeight"]), "Kalpurush", 18);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Shade", Convert.ToString(data["Shade"]), "Kalpurush", 18);
+                    ConvertPresentationToPdf.SetText(presentation.Slides[i], "Article", Convert.ToString(data["Article"]), "Kalpurush", 18);
                     ConvertPresentationToPdf.SetText(presentation.Slides[i], "PackedBy", identity.UserId, "Kalpurush", 18);
                     CodeQrBarcodeDraw qrCode = BarcodeDrawFactory.CodeQr;
                     System.Drawing.Image barcodeImg = qrCode.Draw(concatdata, 200, 2);
@@ -151,11 +166,11 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
 
-                if (Convert.ToDecimal(NetWeightText) < Convert.ToDecimal(data["MinWeight"]) || Convert.ToDecimal(NetWeightText) > Convert.ToDecimal(data["MaxWeight"]))
-                {
-                    //NetWeightText = NetWeightText.Remove(2, 4);
-                    throw new Exception(NetWeightText + " must be match with define min and max weight");
-                }
+                //if (Convert.ToDecimal(NetWeightText) < Convert.ToDecimal(data["MinWeight"]) || Convert.ToDecimal(NetWeightText) > Convert.ToDecimal(data["MaxWeight"]))
+                //{
+                //    //NetWeightText = NetWeightText.Remove(2, 4);
+                //    throw new Exception(NetWeightText + " must be match with define min and max weight");
+                //}
                 string TableName = "[dbo].[WeighingScaleData]";
                 DataSet dsMaster;
 
@@ -172,10 +187,10 @@ namespace Aplos.Areas.Materials.Controllers
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = _Id;
-                    data["productcode"] = productcodeText;
-                    data["NetWeight"] = NetWeightText;
-                    data["Shade"] = ShadeText;
-                    data["Article"] = ArticleName;
+                    //data["ProductCode"] = productcodeText;
+                    //data["NetWeight"] = NetWeightText;
+                    //data["Shade"] = ShadeText;
+                    //data["Article"] = ArticleName;
                     data["UserId"] = identity.UserId;
                     AddNewRow(dsMaster.Tables[0], data);
 
@@ -198,7 +213,7 @@ namespace Aplos.Areas.Materials.Controllers
                 datas.Save(fullPath);
                 con.BeginTransaction();
 
-                con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["NetWeightId"] + "'");
+                con.executeQuery($"update dbo.WeighingScaleDataCapture set isQR = 1 where Id ='" + data["GrossWeightId"] + "'");
                 con.CommitTransaction();
                 
 

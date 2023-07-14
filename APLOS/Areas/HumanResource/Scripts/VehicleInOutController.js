@@ -3,7 +3,7 @@ VehicleInOutController.$inject = ["cboService", "commonMessage", "$scope", "$roo
 function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = "Vehicle In & Out"
     $scope.path = 'HumanResource/VehicleMovementMaster/';
-    $scope.saveVehicleReqUrl = $scope.path + 'SaveVehicleAllocation';
+    $scope.saveVehicleReqUrl = $scope.path + 'UpdateVehicleAllocation';
     $scope.ActionIn = "Save";
     $scope.ActionOut = "Save";
     $scope.Action = 'Update';
@@ -56,13 +56,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                //angular.element(document.querySelector("#reqPopup")).modal('hide');
-                //$scope.GetTripApproved();
-                //$scope.GetTripData();
-               // $scope.GetVehicleReqTreeViewData();
-
-               // ClearVehicleAllocation();
-
+                
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -83,11 +77,24 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
     }
     $scope.GetVehicleAllocation();
 
+    $scope.VehicleNameList = []
+    $scope.GetVehiclNameList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetVehiclNameList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.VehicleNameList = response.data;
+
+        });
+    }
+
     $scope.VehicleList = [];
     $scope.GetVehicleList = function () {
         $http({
             method: 'POST',
             url: $scope.path + "GetVehicleList",
+            data: { 'vehicleId': $scope.VehicleRequisitionModel.VehicleMasterId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.VehicleList = response.data;
@@ -150,7 +157,7 @@ function VehicleInOutController(cboService, commonMessage, $scope, $rootScope, b
             $scope.GetVehicleList();
             $scope.GetDriverList();
             $scope.VehicleInData(args.data.VehicleAllocationId);
-           
+            $scope.GetVehiclNameList();
             $rootScope.toggle();
             
         }
