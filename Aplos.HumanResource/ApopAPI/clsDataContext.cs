@@ -6269,7 +6269,7 @@ where  vr.AppliedId = '" + MasterId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select  MB.Id as Value , MB.Code as Name , MB.ROBudgetCode as ROCode from MST.ManpowerBudget MB
+                strSQL = @"select  MB.Id as Value , MB.Code as Name , MB.ROBudgetCode as ROCodes from MST.ManpowerBudget MB
 left join EmployeeInformation EI on EI.BudgetCode = MB.Id
 where EI.SystemId = '" + Id + "'";
                 objCon = new clsConnectionManager();
