@@ -1985,6 +1985,10 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     throw "Pre-Carriage Doc Date should greater than Invoice Date";
                 }
             }
+            if (baseService.isUndefinedOrNull($scope.ModelNew.TransportDriverNo)) {
+                ShowResult("Transport Driver Number should not be blank");
+                throw "Transport Driver Number should not be blank";
+            }
             //ValidationMaster();
             $scope.ModelNew.SalesId = $scope.salesVM.Id;
             //$scope.$broadcast('show-errors-check-validity');

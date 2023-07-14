@@ -1,0 +1,112 @@
+﻿<style>
+    .modellgModify {
+        width: 1400px;
+    }
+</style>
+<div class="modal fade site-modal in" id="assetmodal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">
+                Asset Item
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchMaterialMasterParameters.searchBy">
+                                            <option ng-repeat="option in searchByMaterialMasterModalList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchMaterialMasterParameters.search" ng-enter="loadMaterialMasterModalList()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="loadMaterialMasterModalList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="checkbox-site text-center">
+                                        <input type="checkbox" ng-click="CheckAll($event);">
+                                    </div>
+                                </th>
+                                <th>Voucher No</th>
+                                <th>Material</th>
+                                <th>Article</th>
+                                <th>Asset Master</th>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Qty</th>
+                                <th>UoM</th>
+                                <th>Currency</th>
+                                <th>Amount</th>
+                                <th>Base Currency</th>
+                                <th>Base Amount</th>
+                                <th>RefNo</th>
+                                <th>GRN No</th>
+                                <th>Gate EntryNo</th>
+                                <th>Invoice No</th>
+                                <th>InvoiceDate</th>
+                                <th>Issue No</th>
+                                <th>Capitalize Date</th>
+                                <th>Vendor</th>
+                                <th>Employee</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in materialMasterList |itemsPerPage:searchMaterialMasterParameters.pageSize"
+                                total-items="searchMaterialMasterParameters.total_count" pagination-id="metaData.name + 'materialMasterList'"
+                                ng-dblclick="checkIsRegisterApplyInMaterialMaster(x); pushInTempList(x, $event, activityFAMasterList);">
+                                <td class="text-right table-td">
+                                    <div class="checkbox-site">
+                                        <input type="checkbox" ng-model="x.Flag" ng-click="selectChValueId($event,x)">
+                                    </div>
+                                </td>
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.ArticleStandardName}}</td>
+                                <td>{{x.AssetMasterName}}</td>
+                                <td>{{x.AssetGLName}}</td>
+                                <td>{{x.AssetBudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td>{{x.Qty}}</td>
+                                <td>{{x.TransactionUoM}}</td>
+                                <td>{{x.GRNCurrencyCode}}</td>
+                                <td>{{x.Amount}}</td>
+                                <td>{{x.CurrencyCode}}</td>
+                                <td>{{x.FABaseAmount}}</td>
+                                <td>{{x.RefNo}}</td>
+                                <td>{{x.GRNNo}}</td>
+                                <td>{{x.GateEntryNo}}</td>
+                                <td>{{x.InvoiceNo}}</td>
+                                <td>{{x.InvoiceDate}}</td>
+                                <td>{{x.IssueNo}}</td>
+                                <td>{{x.CapitalizeDate}}</td>
+                                <td>{{x.VendorName}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'materialMasterList'" direction-links="true" boundary-links="true" on-page-change="loadMaterialMasterModalList(newPageNumber)"></dir-pagination-controls>
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="CloseMMPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

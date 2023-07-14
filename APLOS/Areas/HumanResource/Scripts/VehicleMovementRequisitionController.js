@@ -352,7 +352,7 @@ function VehicleMovementRequisitionController(cboService, commonMessage, $scope,
     $scope.CreateBlankRows = function () {       
         document.getElementById("reqHideShowId").style.display = "block"; 
        
-            for (var i = 0; i < 2; i++) {
+            for (var i = 0; i < 1; i++) {
                 var obj = angular.copy($scope.RequisitionObj);
 
                 $scope.RequisitionList.push(obj);

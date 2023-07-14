@@ -6260,7 +6260,45 @@ where  vr.AppliedId = '" + MasterId + "'";
             }
         }
 
-        public void GetEmployeeBudget(out List<Default2> DataList, string Id)
+        public void GetEmployeeBudget(out List<ROCode> DataList, string Id)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<ROCode>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select  MB.Id as Value , MB.Code as Name , MB.ROBudgetCode as ROCodes from MST.ManpowerBudget MB
+left join EmployeeInformation EI on EI.BudgetCode = MB.Id
+where EI.SystemId = '" + Id + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new ROCode
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        ROCodes = dsRef.Tables[0].Rows[i]["ROCodes"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
+
+        public void GetRoName(out List<Default2> DataList, string Id)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -6269,9 +6307,9 @@ where  vr.AppliedId = '" + MasterId + "'";
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select  MB.Id as Value , MB.Code as Name from MST.ManpowerBudget MB
-left join EmployeeInformation EI on EI.BudgetCode = MB.Id
-where EI.SystemId = '" + Id + "'";
+                strSQL = @"select Top 1 EI.SystemId as Value  , EI.EmployeeName as Name from MST.ManpowerBudget MB 
+left join EmployeeInformation EI on EI.BudgetCode = MB.ROBudgetCode
+where MB.ROBudgetCode = '" + Id + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6296,6 +6334,75 @@ where EI.SystemId = '" + Id + "'";
             }
         }
 
+        public string PostIncedentCreation(IEnumerable<Incedent> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.IncedentCategoryUpdate";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Incedent> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.IncedentCategoryUpdate where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (Incedent item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "22" + _Id;
+                        dr["Date"] = item.Date;
+                        dr["Time"] = item.Time;
+                        dr["EmployeeId"] = item.EmployeeId;
+                        dr["BudgetCode"] = item.BudgetCode;
+                        dr["RONameId"] = item.RONameId;
+                        dr["IncedentCategoryId"] = item.IncedentCategoryId;
+                        dr["IncedentItemTitle"] = item.IncedentItemTitle;
+                        dr["IncedentDetail"] = item.IncedentDetail;
+                        dr["IncedentType"] = item.IncedentType;
+                        dr["CriticalityLevel"] = item.CriticalityLevel;
+                        dr["ActionTaken"] = item.ActionTaken;
+                        dr["StoryPoints"] = item.StoryPoints;
+                        dr["FollowUpApplicable"] = item.FollowUpApplicable;
+                        dr["FollowUpDays"] = item.FollowUpDays;
+                        dr["FollowUpById"] = item.FollowUpById;
+                        dr["IssueInchargeId"] = item.IssueInchargeId;
+                        dr["FinalStatus"] = item.FinalStatus;
+                        dr["Remarks"] = item.Remarks;
+                        dr["FileName"] = item.FileName;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
         #endregion Incident
     }
 
@@ -7092,6 +7199,44 @@ where EI.SystemId = '" + Id + "'";
         public string EmployeeName { get; set; }
         public string StandardName { get; set; }
 
+    }
+
+
+    public class ROCode
+    {
+        public string Name { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string ROCodes { get; set; } = "";
+    }
+
+    public class Incedent
+    {
+        public string Id { get; set; }
+        public string Date { get; set; }
+        public string Time { get; set; }
+        public string EmployeeId { get; set; }
+        public string BudgetCode { get; set; }
+        public string RONameId { get; set; }
+        public string IncedentCategoryId { get; set; }
+        public string IncedentItemTitle { get; set; }
+        public string IncedentDetail { get; set; }
+        public string IncedentType { get; set; }
+        public string CriticalityLevel { get; set; }
+        public string ActionTaken { get; set; }
+        public string StoryPoints { get; set; }
+        public string FollowUpApplicable { get; set; }
+        public string FollowUpDays { get; set; }
+        public string FollowUpById { get; set; }
+        public string IssueInchargeId { get; set; }
+        public string FinalStatus { get; set; }
+        public string Remarks { get; set; }
+        public string FileName { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
     }
     #endregion vehicle
 

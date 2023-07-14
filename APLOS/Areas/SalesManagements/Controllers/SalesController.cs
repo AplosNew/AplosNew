@@ -439,11 +439,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPackingSalesDetailDataBySales(string salesId, string packingId)
+        public ActionResult GetPackingSalesDetailDataBySales(string salesId, string packingId,string smIds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsSalesService accountsSalesService = new AccountsSalesService(_sqlRepository);
-            return Json(accountsSalesService.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId, packingId), JsonRequestBehavior.AllowGet);
+            return Json(accountsSalesService.GetPackingSalesMaterialData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, salesId, packingId, smIds), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

@@ -1069,6 +1069,46 @@ FromLocation = stuff((select ', ' + LM.UserName
 
         }
 
+        public ActionResult UpdateVehicleAllocation(Dictionary<string, object> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string TableName = "[TRN].[VehicleAllocation]";
+                DataSet dsMaster;
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    data["Id"] = _Id;
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+            #endregion data update
+        }
+
         public ActionResult saveRejectForm(Dictionary<string, object> data, List<Dictionary<string, object>> reqdata)
         {
             try
@@ -1509,12 +1549,14 @@ where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+       
         public JsonResult GetVehicleList(string vehicleId)
         {
             string sql = @"Select Id Value, VehicleNumber Text from HKP.VehicleMaster  where Id = '" + vehicleId + "' order by Text";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        
         public JsonResult GetVehiclNameList()
         {
             string sql = @"Select Id Value, VehicleName Text from HKP.VehicleMaster order by Text";

@@ -27,17 +27,30 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Vehicle<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Vehicle Name<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="VehicleRequisitionModel.VehicleMasterId" name="Purpose"
+                                    <select class="form-control" ng-model="VehicleRequisitionModel.VehicleMasterId" name="Vehile" ng-change="GetVehicleList()"
                                             tabindex="2">
                                         <option value="">--Select--</option>
-                                        <option ng-repeat="option in VehicleList" value="{{option.Value}}">{{option.Text}}</option>
+                                        <option ng-repeat="option in VehicleNameList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Driver<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="VehicleRequisitionModel.DriverMasterId" name="Purpose"
+                                            tabindex="2">
+                                        <option value="">--Select--</option>
+                                        <option ng-repeat="option in DriverList" value="{{option.Value}}">{{option.Text}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
@@ -54,17 +67,18 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Driver<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Vehicle<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="VehicleRequisitionModel.DriverMasterId" name="Purpose"
+                                    <select class="form-control" ng-model="VehicleRequisitionModel.VehicleMasterId" name="Purpose"
                                             tabindex="2">
                                         <option value="">--Select--</option>
-                                        <option ng-repeat="option in DriverList" value="{{option.Value}}">{{option.Text}}</option>
+                                        <option ng-repeat="option in VehicleList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SaveVehicleAllocation();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -370,9 +384,9 @@
                         <div e-column e-field="VehicleName" e-headertext="Vehicle Name" e-width="100"></div>
                         <div e-column e-field="VehicleNumber" e-headertext="Vehicle Number" e-width="100"></div>
                         <div e-column e-field="License Exp Date" e-headertext="License Exp Date" e-width="100"></div>
-                        <div e-column e-field="OutDate" e-headertext="OutDate" e-width="100"></div>
+                        <div e-column e-field="OutDate" e-type="date" e-headertext="OutDate" e-width="100"></div>
                         <div e-column e-field="OutTime" e-headertext="Out Time" e-width="100"></div>
-                        <div e-column e-field="InDate" e-headertext="InDate" e-width="100"></div>
+                        <div e-column e-field="InDate" e-type="date" e-headertext="InDate" e-width="100"></div>
                         <div e-column e-field="InTime" e-headertext="In Time" e-width="100"></div>
                         <div e-column e-field="OutReading" e-headertext="Out Reading" e-width="100"></div>
                         <div e-column e-field="InReading" e-headertext="In Reading" e-width="100"></div>

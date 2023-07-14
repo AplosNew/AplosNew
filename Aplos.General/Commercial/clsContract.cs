@@ -559,6 +559,34 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 throw ex;
             }
         }
+
+        public DataTable GetContarctData()// Company Address
+        {
+            try
+            {
+                string sql = "";
+
+                sql = @"SELECT C.Id,C.FileNo,B.UserName BankName,FORMAT(SO.ShipmentStartDate,'dd-MMM-yyyy')ShipmentStartDate,FORMAT(SO.ShipmentEndDate,'dd-MMM-yyyy') ShipmentEndDate
+,C.ContractNo,C.TotalQty,C.Amount,SM.ShipmentQty,SM.ShippedValue,BalanceQty=C.TotalQty-SM.ShipmentQty,BalanceLienValue=C.Amount-SM.ShippedValue,C.Remarks 
+FROM dbo.Contract C
+LEFT JOIN HKP.Bank B On B.Id=C.BankId
+LEFT JOIN(Select MIN(DeliveryDate)ShipmentStartDate,MAX(DeliveryDate)ShipmentEndDate,ContractId
+FROM TRN.SalesOrder Group By ContractId) SO ON SO.ContractId=C.Id
+LEFT JOIN (
+Select SUM(S.TransactionQty)ShipmentQty,SUM(S.TransactionAmount)ShippedValue,SO.ContractId from TRN.SalesMaterial S
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=S.SalesOrderId
+Group By SO.ContractId
+) SM ON SM.ContractId=C.Id";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
     }
 }
 
