@@ -4738,6 +4738,7 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling2.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FARegister.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetItemPopUpNew.cshtml" />
     <Content Include="Areas\Materials\Views\QRCodeGenerator\_WeighingScaleMachinePopUp.cshtml" />
     <Content Include="Areas\Materials\Views\WeighingScaleMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
