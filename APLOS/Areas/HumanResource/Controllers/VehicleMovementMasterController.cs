@@ -1076,7 +1076,7 @@ FromLocation = stuff((select ', ' + LM.UserName
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                string TableName = "[TRN].[VehicleMovementRequisition]";
+                string TableName = "[TRN].[VehicleAllocation]";
                 DataSet dsMaster;
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
