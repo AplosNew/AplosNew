@@ -401,175 +401,90 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         $scope.loadMaterialMasterModalList();
     };
 
-    //#region vendor
-    $scope.vendorListParameters = {
-        limit: 10,
-        offset: 0,
-        order: "asc",
-        sort: "Description",
-        searchBy: "Description",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-
-    $scope.getVendorData = function () {
-        baseService.setCurrentPage("vendorData");
-        $scope.loadVendorData = function (pageno) {
-            baseService.paginationBase("Parties/party/getvendorlist", pageno, $scope.vendorListParameters)
-                .then(function (result) {
-                    $scope.vendorData = result.Rows;
-                    $scope.vendorListParameters.total_count = result.Total;
-                    if (baseService.arrayLength($scope.searchbyVendorlist) === 0) {
-                        baseService.getDDLSearchColumn(result.Rows, $scope.searchbyVendorlist);
+    $scope.selectedmaterialMasterList = [];
+    $scope.selectChValueId = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempList($scope.selectedmaterialMasterList, data.ArticleId, data.VoucherId) === false) {
+                    $scope.selectedmaterialMasterList.push(data);
+                }
+            }
+            else {
+                for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+                    if ($scope.selectedmaterialMasterList[i].Id === data.Id) {
+                        $scope.selectedmaterialMasterList.splice(i, 1);
+                        break;
                     }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure");
-                }).finally(function () {
-                });
-        }; $scope.loadVendorData();
-    };
-    $scope.showVendorModal = function () {
-        $scope.getVendorData();
-        angular.element(document.querySelector("#vendormodal")).modal("show");
-    };
-    $scope.getVendorCode = function (id, username) {
-        $scope.register.VendorId = id;
-        $scope.register.Vendor = username;
-        angular.element(document.querySelector("#vendormodal")).modal("hide");
-    };
-    $scope.closePartyPopUp = function (index, id) {
-        $scope.partyIndex = index;
-        var party = $scope.partyList[index];
-        $scope.selectedParty = id;
-        $scope.register.VendorId = id;
-        $scope.register.Vendor = party.Code + " - " + party.UserName;
-        $scope.hidePartyPopUp();
-    };
-
-    //#end region vendor
-    $scope.assetListParameters = {
-        limit: 10,
-        offset: 0,
-        order: "asc",
-        sort: "UserName",
-        searchBy: "UserName",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-    $scope.getAssetListData = function () {
-        baseService.setCurrentPage("assetListData");
-        $scope.loadMaterialMasterData = function (pageno) {//loadProcessData
-            baseService.paginationBase("fixedassets/FixedAssetRegister/getMaterialMasterList", pageno, $scope.assetListParameters)
-                .then(function (result) {
-                    $scope.assetListData = result.Rows;
-                    $scope.assetListParameters.total_count = result.Total;
-                    if (baseService.arrayLength($scope.searchbyMaterialMasterlist) === 0) {
-                        baseService.getDDLSearchColumn(result.Rows, $scope.searchbyMaterialMasterlist);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure");
-                }).finally(function () {
-                });
-        }; $scope.loadMaterialMasterData();
-    };
-    $scope.getMMForRMData = function () {
-        baseService.init($scope.path + "getmaterialmasterlist", null, 25, null, "Description", "Description");
-        $scope.loadMMForRMData = function (pageno) {//loadProcessData
-            baseService.pagination(pageno)
-                .then(function (result) {
-                    $scope.mmForRMData = result.Rows;
-                    if (baseService.arrayLength($scope.searchbyMaterialItemForRMDatalist) === 0) {
-                        baseService.getDDLSearchColumn(result.Rows, $scope.searchbyMaterialItemForRMDatalist);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure");
-                }).finally(function () {
-                });
-        }; $scope.loadMMForRMData();
-    };
-    $scope.fixedAssetMasterListParameters = {
-        limit: 10,
-        offset: 0,
-        order: "asc",
-        sort: "UserName",
-        searchBy: "UserName",
-        pageSize: 10,
-        total_count: 0,
-        search: null,
-        serverPagination: true
-    };
-    $scope.getFixedAssetMasterData = function () {
-        baseService.setCurrentPage("fixedAssetMasterList");
-        $scope.loadFixedAssetMasterData = function (pageno) {
-            baseService.paginationBase("fixedassets/fixedassetmaster/GetListWithMaterialMaster", pageno, $scope.fixedAssetMasterListParameters)
-                .then(function (result) {
-                    $scope.fixedAssetMasterList = result.Rows;
-                    $scope.fixedAssetMasterListParameters.total_count = result.Total;
-                    if (baseService.arrayLength($scope.searchbyixedAssetMasterList) === 0) {
-                        baseService.getDDLSearchColumn(result.Rows, $scope.searchbyixedAssetMasterList);
-                    }
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure");
-                }).finally(function () {
-                });
-        }; $scope.loadFixedAssetMasterData();
-    };
-    $scope.registerEditMode = false;
-    $scope.getRegisterData = function (registerid) {
-        $http({
-            method: "GET",
-            url: $scope.path + "GetCapitalizedFixedAssetRegister?registerid=" + registerid
-        }).then(function successCallback(response) {
-            //console.log(result);
-            $scope.registerAddEditPopup("Edit");
-            $scope.registerList = [];
-            $scope.registerList = response.data;
-            if (baseService.arrayLength($scope.registerList) > 0) {
-                $scope.registerEditMode = true;
-                $scope.register = $scope.registerList[0];
-                $scope.NumberOfQuantity = $scope.registerList[0].NumberOfQuantity;
-                combineWithFixedAssetMaster($scope.registerList[0]);
-                combineWithMaterialMaster($scope.registerList[0]);
-                $scope.getSubAssetList(registerid);
-                $scope.getPlantCompanyWise();
-                $scope.getParallelCurrency($scope.registerList[0].CompanyId);
-                $scope.getWithFAM();
-                $scope.getOpeningWithFAM();
-                $scope.getWithFAMTotalRow();
-                $scope.checkIsRegisterApplyInUpdate($scope.register.FixedAssetMasterId);
-                setBalanceOnEditMood($scope.register);
-                getArticle();
-                $scope.registerTemp = angular.copy($scope.register);
-            }//if length>0
-        });//success
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
         }
     };
-    function getArticleInfoOnEdit(articleMasterId) {
-        var ob;
-        angular.forEach($scope.articleList, function (item) {
-            if (item.Id === articleMasterId) {
-                return ob = item;
+
+    function checkExistTempList(list, ArticleId, VoucherId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ArticleId === ArticleId && list[i].VoucherId === VoucherId) {
+                return true;
             }
+        }
+        return false;
+    }
+
+    $scope.CheckAll = function (event) {
+        var _isselected = event.target.checked;
+        for (var i = 0; i < $scope.materialMasterList.length; i++) {
+            $scope.materialMasterList[i].Flag = _isselected;
+        }
+
+        for (var i = 0; i < baseService.arrayLength($scope.materialMasterList); i++) {
+            if (_isselected)
+                $scope.selectedmaterialMasterList.push($scope.materialMasterList[i]);
+            else
+                for (var j = 0; j < $scope.selectedmaterialMasterList.length; j++) {
+                    if ($scope.selectedmaterialMasterList[j].Id === $scope.materialMasterList[i].Id) {
+                        $scope.selectedmaterialMasterList.splice(j, 1);
+                        break;
+                    }
+                }
+        }
+    };
+
+    $scope.CloseMMPopUp = function () {
+        angular.element(document.querySelector("#assetmodal")).modal("hide");
+    }
+
+    $scope.searchByFAMI = "UserName"; $scope.searchFAMI = "";
+
+    $scope.ShowFixedAssetMasterItem = function () {
+        $scope.searchByFAList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: 'User Name' }, { value: 'StandardName', name: "Standard Name" }, { value: 'FixedAssetMaster', name: "FixedAssetMaster" }, { value: 'FixedAssetCategory', name: "FixedAssetCategory" }, { value: 'FixedAssetSubCategory', name: "FixedAssetSubCategory" }];
+
+        $scope.partyUrl = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
         });
-        $scope.selectMaterialMasterArticleInfo(ob);
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
+    };
+
+    $scope.SetCustomerData = function (obj) {
+        var party = obj.data;
+        $scope.modelNew.CustomerName = party.UserName;
+        $scope.modelNew.CustomerId = party.Id;
+
+        getPartyPlantList();
+
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.searchParty = '';
+        $scope.partyType = "Customer";
     }
-    function combineWithFixedAssetMaster(data) {
-        $scope.setFixedAssetMasterData.Id = data.FixedAssetMasterId;
-        $scope.setFixedAssetMasterData.FixedAssetMasterId = data.FixedAssetMasterId;
-        $scope.setFixedAssetMasterData.UserName = data.FixedAssetMasterName;
-        $scope.setFixedAssetMasterData.FixedAssetCategory = data.FixedAssetCategory;
-        $scope.setFixedAssetMasterData.FixedAssetSubCategory = data.FixedAssetSubcategory;
-    }
-    function combineWithMaterialMaster(data) {
-        $scope.register.MaterialMasterId = data.MaterialMasterId;
-        $scope.register.MaterialMasterName = data.MaterialMasterName;
-    }
+
 
     /****getfromLIst******/
     function IdList() {
@@ -883,7 +798,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.GetRegisterIndex = function (id) {
         $scope.getRegisterData(id);
-        
+
         $scope.NumberOfQuantity = null;
         $scope.saveBtnDisable = false;
         angular.element(document.querySelector("#registersearchpopup")).modal("hide");

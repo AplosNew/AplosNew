@@ -1533,5 +1533,29 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     };
 
     // #endregion ContractItem
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.GetReport = function (reportType) {
+        try {
+            
+            $http({
+                method: 'POST',
+                url: $scope.path + 'GetContarctReport',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 }
 

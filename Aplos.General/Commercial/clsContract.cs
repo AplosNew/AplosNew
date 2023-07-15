@@ -23,11 +23,11 @@ namespace Library.General.Commercial
         public clsContract()
         {
             _sqlRepository = new SqlRepository();
-            ConManager = new ConnectionManager.clsConnectionManager();            
+            ConManager = new ConnectionManager.clsConnectionManager();
         }
 
-        
-        public IEnumerable<object> GetContractList(string column, string value,string PlantId)
+
+        public IEnumerable<object> GetContractList(string column, string value, string PlantId)
         {
             try
             {
@@ -120,11 +120,11 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public IEnumerable<object> GetMasterOrderList(string CompanyId,string PlantId)
+        public IEnumerable<object> GetMasterOrderList(string CompanyId, string PlantId)
         {
             try
             {
-               
+
                 var sql = @"SELECT A.Id AS  MasterOrderId,I.Id MasterOrderItemId, A.PartyId, P.UserName AS CustomerName, A.MasterOrderNo, A.CurrencyId, SI.TotalQty	
                             ,A.TotalQtyUOMId,PL.UserName,C.Code Currency, 0 Active,B.UserName Buyer, SO.Amount,SO.Qty,ISNULL(A.BuyerReferenceNo,'') BuyerReferenceNo,ISNULL(A.OwnReferenceNo,'') OwnReferenceNo,ISNULL(I.BuyerReferenceNo,'') BuyerItem,ISNULL(I.OwnReferenceNo,'') OwnItem
                             ,MM.UserName MaterialMaster,MMA.ShortName Article
@@ -181,7 +181,7 @@ where So.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1
 							GROUP BY MOI.Id
 							) SO ON SO.Id=I.Id
                             WHERE I.ContractId='" + contractId + "' ORDER BY P.Id";
-                return _sqlRepository.GetDataCollection(sql) ;
+                return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
@@ -276,7 +276,7 @@ SELECT CF.Id,CFU.Id FundUtilization,CFU.UserName ,C.*,MOI.TotalQty,CFU.ValueType
 ,FundValue=CASE WHEN CFU.ValueType='Percentage' THEN ISNULL(C.TotalGrossAmount,0)* ISNULL(MOI.TotalQty,0)*(1/NULLIF(CFU.StandardValue,0)) ELSE CFU.StandardValue END
 ,CFU.StandardValue,CFU.Sequence,CF.Remarks,CF.CurrencyId,CF.UserValue
 FROM  dbo.ContractFundUtilization CFU 
-LEFT JOIN TRN.SalesOrder SO ON SO.ContractId='"+ contractId + @"'
+LEFT JOIN TRN.SalesOrder SO ON SO.ContractId='" + contractId + @"'
 LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
 LEFT JOIN (
  SELECT pc.OrderCostingMasterTemplateId,PC.CostingItemId,I.ContractFundId,pc.GrossAmount AS TotalGrossAmount FROM OrderPreCostingDirectMaterial AS pc  INNER JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
@@ -524,7 +524,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                             LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                            WHERE A.CompanyId='" + CompanyId + "' AND A.PlantId='"+ PlantId + "' AND A.PartyId='"+ customerId + "' AND SO.ContractId IS NULL ORDER BY P.Id";
+                            WHERE A.CompanyId='" + CompanyId + "' AND A.PlantId='" + PlantId + "' AND A.PartyId='" + customerId + "' AND SO.ContractId IS NULL ORDER BY P.Id";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -551,13 +551,173 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                             LEFT JOIN [HKP].[Buyer] AS B ON B.Id=A.BuyerId
 							LEFT JOIN MST.MaterialMaster MM ON MM.Id=I.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=I.ArticleId
-                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId='"+ contractId + "')A Order BY A.Flags desc";
+                            WHERE A.CompanyId='" + CompanyId + @"'  AND A.PlantId='" + PlantId + @"' AND A.PartyId='" + customerId + @"' AND SO.ContractId='" + contractId + "')A Order BY A.Flags desc";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        public DataTable GetContarctData()
+        {
+            try
+            {
+                string sql = "";
+
+                sql = @"SELECT C.Id,C.FileNo,B.UserName BankName,FORMAT(SO.ShipmentStartDate,'dd-MMM-yyyy')ShipmentStartDate,FORMAT(SO.ShipmentEndDate,'dd-MMM-yyyy') ShipmentEndDate
+,C.ContractNo,C.TotalQty,C.Amount,SM.ShipmentQty,SM.ShippedValue,BalanceQty=C.TotalQty-SM.ShipmentQty,BalanceLienValue=C.Amount-SM.ShippedValue,C.Remarks 
+FROM dbo.Contract C
+LEFT JOIN HKP.Bank B On B.Id=C.BankId
+LEFT JOIN(Select MIN(DeliveryDate)ShipmentStartDate,MAX(DeliveryDate)ShipmentEndDate,ContractId
+FROM TRN.SalesOrder Group By ContractId) SO ON SO.ContractId=C.Id
+LEFT JOIN (
+Select SUM(S.TransactionQty)ShipmentQty,SUM(S.TransactionAmount)ShippedValue,SO.ContractId from TRN.SalesMaterial S
+LEFT JOIN TRN.SalesOrder SO ON SO.Id=S.SalesOrderId
+Group By SO.ContractId
+) SM ON SM.ContractId=C.Id";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public IWorkbook GetContarctWorkbook(string CompanyId)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+            DataTable data = GetContarctData();
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Data";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, " Bank Name", 14, ExcelHAlign.HAlignLeft);
+            int ColBN = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, " File", 5, ExcelHAlign.HAlignLeft);
+            int ColF = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Shipment Start Date", 20, ExcelHAlign.HAlignLeft);
+            int ColSSD = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Shipment End Date", 20, ExcelHAlign.HAlignLeft);
+            int ColSED = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Contract No", 25, ExcelHAlign.HAlignLeft);
+            int ColCN = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Qty", 8, ExcelHAlign.HAlignLeft);
+            int ColQ = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Value", 12, ExcelHAlign.HAlignLeft);
+            int ColV = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Shipment Qty", 14, ExcelHAlign.HAlignLeft);
+            int ColSQ = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Shipped Value", 14, ExcelHAlign.HAlignLeft);
+            int ColSV = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance Qty", 12, ExcelHAlign.HAlignLeft);
+            int ColBQ = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance Lien Value", 12, ExcelHAlign.HAlignLeft);
+            int ColBLV = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 12, ExcelHAlign.HAlignLeft);
+            int ColR = COL;
+            
+
+
+            endCol = COL;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+            ROW++;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColBN].Text = data.Rows[i]["BankName"].ToString();
+                sheet[ROW, ColF].Text = data.Rows[i]["FileNo"].ToString();
+                sheet[ROW, ColSSD].Text = data.Rows[i]["ShipmentStartDate"].ToString();
+                //sheet[ROW, ColSED].Number = clsStaticInfo.dbl(data.Rows[i]["ShipmentEndDate"].ToString());
+                sheet[ROW, ColSED].Text = data.Rows[i]["ShipmentEndDate"].ToString();
+                sheet[ROW, ColCN].Text = data.Rows[i]["ContractNo"].ToString();
+                sheet[ROW, ColQ].Text = data.Rows[i]["TotalQty"].ToString();
+                sheet[ROW, ColV].Text = data.Rows[i]["Amount"].ToString();
+                sheet[ROW, ColSQ].Text = data.Rows[i]["ShipmentQty"].ToString();
+                sheet[ROW, ColSV].Text = data.Rows[i]["ShippedValue"].ToString();
+                sheet[ROW, ColBQ].Text = data.Rows[i]["BalanceQty"].ToString();
+                sheet[ROW, ColBLV].Text = data.Rows[i]["BalanceLienValue"].ToString();
+                sheet[ROW, ColR].Text = data.Rows[i]["Remarks"].ToString();
+               
+                ROW++;
+
+            }
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, ROW, endCol];
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+       
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "BANK LIEN REPORT", CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
         }
     }
 }

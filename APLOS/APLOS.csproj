@@ -4735,11 +4735,12 @@
     <Content Include="Areas\HumanResource\Views\PlantInOutControllReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\PaymentAdviseReport.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling.cshtml" />
-    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetScheduling2.cshtml" />
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\Aplos.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FARegister.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetItemPopUpNew.cshtml" />
     <Content Include="Areas\Materials\Views\QRCodeGenerator\_WeighingScaleMachinePopUp.cshtml" />
     <Content Include="Areas\Materials\Views\WeighingScaleMaster\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingDataUploadDownload.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
