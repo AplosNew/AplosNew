@@ -4,41 +4,9 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Id</label>
             <div class="col-sm-8">
-                <input type="text"  name="Id" ng-model="balanceSheetScheduling.Id" readonly class="form-control"  tabindex="1">
+                <input type="text" name="Id" ng-model="balanceSheetScheduling.Id" readonly class="form-control" tabindex="1">
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Option No<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" maxlength="15" name="OptionNo" ng-model="balanceSheetScheduling.OptionNo" class="form-control" required tabindex="3">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Group<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" maxlength="15" name="Group" ng-model="balanceSheetScheduling.Group" class="form-control" required tabindex="3">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sub Group<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" maxlength="10" name="SubGroup" ng-model="balanceSheetScheduling.SubGroup" class="form-control" required tabindex="2">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" maxlength="15" name="Group" ng-model="balanceSheetScheduling.UserGroup" class="form-control" required tabindex="3">
-            </div>
-        </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">User Sub Group<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" maxlength="10" name="SubGroup" ng-model="balanceSheetScheduling.UserSubGroup" class="form-control" required tabindex="2">
-            </div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -51,9 +19,77 @@
             </div>
         </div>
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Option No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="25" name="OptionNo" ng-model="balanceSheetScheduling.OptionNo" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Group Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" name="GroupSequence" ng-model="balanceSheetScheduling.GroupSequence" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="Group" ng-model="balanceSheetScheduling.Group" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sub Group Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" name="SubGroupSequence" ng-model="balanceSheetScheduling.SubGroupSequence" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sub Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="SubGroup" ng-model="balanceSheetScheduling.SubGroup" class="form-control" required tabindex="2">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="UserGroup" ng-model="balanceSheetScheduling.UserGroup" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">User Sub Group<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" name="SubGroup" ng-model="balanceSheetScheduling.UserSubGroup" class="form-control" required tabindex="2">
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 form-horizontal">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Item Sequence<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="number" name="ItemSequence" ng-model="balanceSheetScheduling.ItemSequence" class="form-control" required tabindex="3">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Item No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input maxlength="50" type="text" name="ItemNo" ng-model="balanceSheetScheduling.ItemNo" class="form-control" required tabindex="4">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Item<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input maxlength="50" type="text" name="Item" ng-model="balanceSheetScheduling.Item" class="form-control" required tabindex="4">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sub Item No<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input maxlength="50" type="text" name="SubItemNo" ng-model="balanceSheetScheduling.SubItemNo" class="form-control" required tabindex="4">
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Sub Item<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input maxlength="50" type="text" name="SubItem" ng-model="balanceSheetScheduling.SubItem" class="form-control" required tabindex="4">
             </div>
         </div>
         <div class="form-group">
@@ -119,7 +155,9 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="2"></div>
             <div e-column e-field="OptionNo" e-headertext="OptionNo" e-width="3"></div>
             <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
+            <div e-column e-field="GroupSequence" e-headertext="Group Sequence" e-width="5"></div>
             <div e-column e-field="Group" e-headertext="Group" e-width="5"></div>
+            <div e-column e-field="SubGroupSequence" e-headertext="Sub Group Sequence" e-width="5"></div>
             <div e-column e-field="SubGroup" e-headertext="Sub Group" e-width="5"></div>
             <div e-column e-field="UserGroup" e-headertext="User Group" e-width="2"></div>
             <div e-column e-field="UserSubGroup" e-headertext="User Sub Group" e-width="2"></div>

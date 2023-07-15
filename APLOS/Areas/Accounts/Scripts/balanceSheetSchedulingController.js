@@ -11,7 +11,7 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-        // #endregion TAB CHANGE
+    // #endregion TAB CHANGE
 
     //  #region BalanceSheetScheduling
     $scope.ActionBalanceSheetScheduling = 'Save';
@@ -24,7 +24,7 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
     baseService.init($scope.getListUrlBalanceSheetScheduling);
 
     $scope.searchBy = "OptionNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'OptionNo', name: "OptionNo" }, { value: 'Type', name: "Type" }, { value: 'Group', name: "Group" }, { value: 'SubGroup', name: "Sub Group" }, { value: 'UserGroup', name: "User Group" }, { value: 'UserSubGroup', name: "User Sub Group" }];
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'OptionNo', name: "OptionNo" }, { value: 'Type', name: "Type" }, { value: 'GroupSequence', name: "Group Sequence" }, { value: 'Group', name: "Group" }, { value: 'SubGroupSequence', name: "Sub Group Sequence" }, { value: 'SubGroup', name: "Sub Group" }, { value: 'UserGroup', name: "User Group" }, { value: 'UserSubGroup', name: "User Sub Group" }];
 
     $scope.getDataBalanceSheetScheduling = function () {
         $http({
@@ -42,11 +42,17 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
         Id: null,
         OptionNo: null,
         Type: null,
+        GroupSequence: null,
         Group: null,
+        SubGroupSequence: null,
         SubGroup: null,
         UserGroup: null,
         UserSubGroup: null,
+        ItemSequence: null,
+        ItemNo: null,
         Item: null,
+        SubItemNo: null,
+        SubItem: null,
         ScheduleNo: null,
         ScheduleName: null,
         UserItem: null,
@@ -86,7 +92,7 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
                 ShowResult(response.data.Message, 'failure');
             }
         }
-       
+
     };
 
     $scope.DeleteBalanceSheetScheduling = function () {
@@ -119,11 +125,17 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
             Id: null,
             OptionNo: null,
             Type: null,
+            GroupSequence: null,
             Group: null,
+            SubGroupSequence: null,
             SubGroup: null,
             UserGroup: null,
             UserSubGroup: null,
+            ItemSequence: null,
+            ItemNo: null,
             Item: null,
+            SubItemNo: null,
+            SubItem: null,
             ScheduleNo: null,
             ScheduleName: null,
             UserItem: null,
@@ -141,4 +153,100 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
         angular.element(document.querySelector('#confirmDetailPopUpLevel1')).modal('show');
     }
     //  #endregion BalanceSheetScheduling
+
+    //  #region BalanceSheetScheduling Data Upload Download
+    $scope.GetSampleFile = function () {
+        var ReportFormat = 'Excel';
+        location.href = $scope.pathBalanceSheetScheduling + 'GetSampleFile?reportFormat=' + ReportFormat;
+    };
+    $scope.BalanceSheetSchedulingUploadedData = [];
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
+
+    $scope.getFile = function () {
+        $scope.progress = 0;
+        fileReader.readAsDataUrl($scope.file, $scope)
+            .then(function (result) {
+                $scope.imageSrc = result;
+            });
+    };
+
+    $scope.ImportData = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.ModelNewForm.$valid) {
+                var picData = new FormData();
+                $http({
+                    method: 'POST',
+                    url: $scope.pathBalanceSheetScheduling + 'ImportData',
+                    headers: { 'Content-Type': undefined },
+                    transformRequest: function (data) {
+                        picData.append("modelNew", angular.toJson(data.modelNew));
+                        if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                            picData.append('file', data.file);
+                        }
+                        return picData;
+                    },
+                    data: {
+                        'file': $scope.picdata
+
+                    }
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        $scope.ShowSaveBtn = false;
+                        ShowResult(response.data.Message, "failure");
+
+                    }
+                    else {
+                        $scope.BalanceSheetSchedulingUploadedData = [];
+                        $scope.BalanceSheetSchedulingUploadedData = response.data;
+                        $scope.ShowSaveBtn = true;
+                    }
+                }, function errorCallback(response) {
+
+                });
+                return true;
+
+            }
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+    $scope.saveBalanceSheetSchedulingUploadedData = function () {
+
+        try {
+            $.ajax({
+                type: "POST",
+                url: $scope.pathBalanceSheetScheduling + 'SaveBalanceSheetSchedulingUploadedData',
+                data: {
+                    'balanceSheetSchedulingUploadedDataList': $scope.BalanceSheetSchedulingUploadedData
+                },
+                dataType: "json",
+                success: function (response) {
+                    if (response.Error === true) {
+                        $scope.ShowSaveBtn = true;
+                        ShowResult(response.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.Message, 'success');
+                        $scope.BalanceSheetSchedulingUploadedData = [];
+                        $("#uploadImage").val(null);
+                        $scope.ShowSaveBtn = false;
+                    }
+
+                }
+
+            });
+
+        } catch (e) {
+            $scope.ShowSaveBtn = false;
+            ShowResult(e, 'failure');
+
+        }
+    };
+    //  #endregion BalanceSheetScheduling Data Upload Download
 }
