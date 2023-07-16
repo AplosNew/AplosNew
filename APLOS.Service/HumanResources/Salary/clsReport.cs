@@ -2550,15 +2550,15 @@ where QIC.Id='" + PlannedId + @"'";
             string strSql = string.Empty;
             try
             {
-                strSql = @"select QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
-QCD.Value,QCD.GradeId as GradeDetails,QCD.Remarks,QCD.ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson
+                strSql = @"select distinct QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
+'' Value,'' GradeDetails,'' Remarks,'' ActionToBeTaken,'' ResponsiblePerson
 from MST.QualityIssueItem QII
 left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId
 left join SCS.UnitOfMeasurement UOM on UOM.Id=QII.UOMId
 left join Org.Position P on P.Id=QII.PositionCodeId
 left join TRN.QualityIssueControl QIC on QID.Id=QIC.IssueId
 left join TRN.QualityControl QC on QC.QualityPlanId=QIC.Id
-left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
+--left join TRN.QualityControlDetails QCD on QCD.QCId=QC.Id
 where QIC.Id='" + PlannedId + @"'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");

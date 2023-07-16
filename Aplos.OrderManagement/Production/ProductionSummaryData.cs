@@ -4067,7 +4067,8 @@ from MST.QualityIssueDetails  QID
 left join TRN.QualityIssueControl QC on QC.IssueId=QID.Id
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
-where QID.IssueType in ('Order','General') and QC.QCId is null 
+where QID.IssueType in ('Order','General') 
+--and QC.QCId is null 
 order by 
 format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy')";
             return _sqlRepository.GetDataCollection(sql);

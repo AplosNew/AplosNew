@@ -89,9 +89,12 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.productNew = Object.assign({}, $scope.product);
         $scope.materialStockList = [];
         $scope.specificStockList = [];
-        getIssueDetailList($scope.product.SalesId, data.data.PackingId);
         if ($scope.ReturnType == 'PackingSales') {
             getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
+        }
+        else {
+            getIssueDetailList($scope.product.SalesId, data.data.PackingId,null);
+
         }
 
         $scope.productNew.TaxOption = 'Yes';
@@ -490,9 +493,9 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     }
 
 
-    function getIssueDetailList(salesId, packingId) {
+    function getIssueDetailList(salesId, packingId,smIds) {
         if ($scope.productNew.SourceType == 'Packing') {
-            $scope.returnDetailurl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales?salesId=' + salesId + '&packingid=' + packingId
+            $scope.returnDetailurl = 'SalesManagements/Sales/GetPackingSalesDetailDataBySales?salesId=' + salesId + '&packingid=' + packingId + '&smIds=' + smIds
         } else {
             $scope.returnDetailurl = 'SalesManagements/Sales/GetSalesDetailDataBySales?salesId=' + salesId
         }
@@ -502,17 +505,43 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                 getInvTaxList();
             });
     }
+
+    $scope.tempidList = [];
+    $scope.sqlInStatement = null;
     function getItemScanChildByPackingId(salesId, packingId) {
         $scope.tempitemScanList = [];
+        
         if ($scope.productNew.SourceType == 'Packing') {
             $scope.returnDetailurl = 'SalesManagements/Sales/GetItemScanChildDataByPackingId?salesId=' + salesId + '&packingid=' + packingId
         }
         $http.get($scope.returnDetailurl)
             .then(function (response) {
                 $scope.tempitemScanList = response.data;
+
+                if ($scope.tempitemScanList.length > 0) {
+                    $scope.tempidList = [];
+                    //for (var di = 0; di < $scope.tempitemScanList.length; di++) {
+                    //    $scope.tempidList.push($scope.tempitemScanList[di]);
+                    //}
+                   // if ($scope.tempitemScanList.length > 0) {
+                        var uniqueSalesMaterialId = removeDuplicates($scope.tempitemScanList, 'SalesMaterialId');
+                        var wcSMId = "";
+                        if (uniqueSalesMaterialId.length > 0) {
+                            wcSMId = "IN(";
+                            wcSMId += Array.prototype.map.call(uniqueSalesMaterialId, function (item) { return "'" + item.SalesMaterialId + "'"; }).join(",") + ")";
+                        }
+                        $scope.sqlInStatement = wcSMId;
+                   // }
+                }
+
+                getIssueDetailList($scope.product.SalesId, packingId, $scope.sqlInStatement);
             });
     }
-
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
     function getInvTaxList() {
         if ($scope.productNew.Id == null) {
             $scope.returnTaxurl = 'SalesManagements/Sales/GetMaterialSalesTaxDetail?salesId=' + $scope.productNew.SalesId
