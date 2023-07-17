@@ -56,7 +56,17 @@
 
             </div>
         </div>
-
+        <div class="form-group" ng-show="ReturnType == 'PackingSales'">
+            <label class="col-sm-4 control-label">Location </label>
+            <div class="col-sm-8 ">
+                <div class="select-style">
+                    <select id="BudgetSubCategoryId" class="form-control" name="LocMasterId" ng-model="productNew.LocMasterId">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in locationCbo" value="{{option.Value}}">{{option.TEXT}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-xs-4 col-sm-4-md-4">
         <div class="form-group">
