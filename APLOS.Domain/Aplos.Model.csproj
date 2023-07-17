@@ -69,6 +69,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\BalanceSheetSchedulingUploadedData.cs" />
     <Compile Include="Accounts\IncentiveReceivableMap.cs" />
     <Compile Include="Accounts\BankReconciliationMap.cs" />
     <Compile Include="Accounts\OtherInvoice.cs" />

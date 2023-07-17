@@ -1,4 +1,5 @@
-﻿#region Using
+﻿
+#region Using
 
 using Aplos.Controllers;
 using Library.Model.Employees;
@@ -61,6 +62,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         #endregion -- Pages
+
 
         #region -- Operations
 
@@ -202,7 +204,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 for (int i = 0; i < dtClanderYear.Rows.Count; i++)
                 {
-                    DataTable dtloadLeaveTransactions = payrollReportsService.LeaveSummaryForServiceBook(empId, dtClanderYear.Rows[i]["YearNo"].ToString());
+                    DataTable dtloadLeaveTransactions = payrollReportsService.LeaveSummaryForServiceBookQuery(empId, dtClanderYear.Rows[i]["YearNo"].ToString());
                     DataTable dtLoadLeave = payrollReportsService.loadBf(empId, dtClanderYear.Rows[i]["Id"].ToString());
 
                     for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)

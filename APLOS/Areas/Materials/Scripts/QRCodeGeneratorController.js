@@ -23,9 +23,22 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
     $scope.ModelTemp = {
         PartyCode: null,
         PartyName: null,
-        CustomerId: null
+        CustomerId: null,
+        PO:null
     }
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.ClearPO = function () {
+        ClearPOFields();
+        return true;
+    }
+    function ClearPOFields() {
+        $scope.ModelNew = {
+            PartyCode: null,
+            PartyName: null,
+            CustomerId: null
+        }
+    }
 
     $scope.partyParameters = {
         limit: 10
@@ -61,7 +74,10 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         $http({
             method: 'POST',
             url: $scope.path + 'LoadGrid',
-            data: { 'customerId': $scope.ModelNew.CustomerId},
+            data: {
+                'customerId': $scope.ModelNew.CustomerId,
+                'poid': $scope.ModelNew.POId
+            },
             dataType: 'JSON'
         })
             .then(function successCallback(res) {
@@ -239,6 +255,13 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         if ($scope.QRCodeGenerateModel.MinWeight > $scope.QRCodeGenerateModel.MaxWeight) {
             ShowResult("Max weight should greater than min weight. ");
             throw "Max weight should greater than min weight. ";
+        }
+    }
+
+    $scope.validateNetWeight = function () {
+        if ($scope.QRCodeGenerateModel.NetWeight >= $scope.QRCodeGenerateModel.MinWeight && $scope.QRCodeGenerateModel.NetWeight <= $scope.QRCodeGenerateModel.MaxWeight) {
+            ShowResult("Net weight should be between min or max weight. ");
+            throw "Net weight should be between min or max weight. ";
         }
     }
 

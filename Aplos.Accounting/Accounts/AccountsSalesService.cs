@@ -2464,7 +2464,7 @@ namespace Library.Accounting.Accounts
 		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId,string packingId,string smIds)
 		{
 			string temId = "";
-            if (!string.IsNullOrEmpty(smIds))
+            if (smIds!= "IN('null')")
             {
 				temId = "AND SA.Id='" + salesId + "' and sp.PackingId='" + packingId + "' and SM.Id " + smIds + "";
 
