@@ -330,7 +330,7 @@ namespace Library.Accounting.Accounts
         {
             return InsertVoucher(voucher, fiscalYearPrefix, true, out dsData);
         }
- 
+
         public Voucher InsertVoucher(Voucher voucher, string fiscalYearPrefix, bool flag, out DataSet dsData)
         {
 
@@ -438,7 +438,7 @@ namespace Library.Accounting.Accounts
             dr["UpdatedDate"] = DateTime.Now.ToString();
             dr.EndEdit();
         }
-       
+
         public Voucher InsertVoucher(VoucherViewModel voucherVM)
         {
             return InsertVoucher(new Voucher
@@ -532,7 +532,7 @@ namespace Library.Accounting.Accounts
         {
             bankJournal.Id = GetAutoNumber(nameof(BankJournal), PKGeneratorEnum.Yearly, null, DateTime.Now);
             AuditService.AddedLog(bankJournal);
-            if(dsData == null || dsData.Tables.Count == 0)
+            if (dsData == null || dsData.Tables.Count == 0)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.getDataSet("Select * from [TRN].[BankJournal] where 1=2", out dsData);
@@ -592,7 +592,7 @@ namespace Library.Accounting.Accounts
             AddNewRow<InvoiceDetail>(vDetailData.Tables[0], invoiceDetail);
             return invoiceDetail;
         }
-        public void InsertAdvanceReqSchedule( AdvanceReqSchedule financingSchedule, string requisitionId, ref DataSet dsData)
+        public void InsertAdvanceReqSchedule(AdvanceReqSchedule financingSchedule, string requisitionId, ref DataSet dsData)
         {
             financingSchedule.Id = MakePK(requisitionId, financingSchedule.InstallmentNo, 3);
             financingSchedule.RequisitionId = requisitionId;
@@ -606,14 +606,14 @@ namespace Library.Accounting.Accounts
             AddNewRow<AdvanceReqSchedule>(dsData.Tables[0], financingSchedule);
         }
 
-        public IEnumerable<object> GetcustomerInvoiceList( string companyGroupId, string companyId, string plantId,string customerSelectedList, string fromDate, string toDate, string paymentStatus)
+        public IEnumerable<object> GetcustomerInvoiceList(string companyGroupId, string companyId, string plantId, string customerSelectedList, string fromDate, string toDate, string paymentStatus)
         {
             var status = "";
             if (paymentStatus == "Pending")
             {
                 status = "AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0";
             }
-            var sql  = @"SELECT Id,VoucherNo,PostingDate, DocRefNo,DocRefNo,BuyerRefNo,CustomerRemarks,ExpectedPaymentReceivedDate
+            var sql = @"SELECT Id,VoucherNo,PostingDate, DocRefNo,DocRefNo,BuyerRefNo,CustomerRemarks,ExpectedPaymentReceivedDate
                     ,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyPlantId,'')PartyPlantId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( X.PartyPlantName,'')PartyPlantName,ISNULL( x.CurrencyCode,'')CurrencyCode
 				 ,ISNULL(X.GrossSales,0 )GrossSales 
@@ -777,7 +777,7 @@ namespace Library.Accounting.Accounts
 
             return adjustmentNote;
         }
-      
+
 
         private AdjustmentNoteDetail InsertAdjustmentNoteDetail(AdjustmentNote adjustmentNote, AdjustmentNoteDetail adjustmentNoteDetail, int currentId)
         {
@@ -830,7 +830,7 @@ namespace Library.Accounting.Accounts
             return invoiceTax;
         }
 
-     
+
 
         public InvoiceTax InsertInvoiceTax(Invoice invoice, InvoiceTax invoiceTax, ref DataSet dsData)
         {
@@ -959,10 +959,10 @@ namespace Library.Accounting.Accounts
             invoiceTax.AddedDate = voucherVM.AddedDate;
             invoiceTax.AddedFromIP = voucherVM.AddedFromIP;
 
-            if (dsData==null)
+            if (dsData == null)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData); 
+                con.getDataSet("Select * from TRN.InvoiceTax where 1=2", out dsData);
             }
             AddNewRow<InvoiceTax>(dsData.Tables[0], invoiceTax);
             return invoiceTax;
@@ -984,7 +984,7 @@ namespace Library.Accounting.Accounts
             return invoiceTaxDetail;
         }
 
-      
+
         #endregion
         #region VoucherGLUpdate
         public void UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
@@ -1002,7 +1002,7 @@ namespace Library.Accounting.Accounts
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
 
-                    if ( voucherDetailVM.DrAmount > 0)
+                    if (voucherDetailVM.DrAmount > 0)
                     {
                         if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
                             throw new CustomException("Without GL can not update Voucher GL!");
@@ -1027,10 +1027,10 @@ namespace Library.Accounting.Accounts
                             dr.EndEdit();
 
                         }
-                       
+
                         var voucherGLUpdateLog = new VoucherGLUpdateLog
                         {
-                            VoucherId= voucherDetailVM.VoucherId,
+                            VoucherId = voucherDetailVM.VoucherId,
                             VoucherDetailId = voucherDetailVM.Id,
                             OldGLGeneralInfoId = OldGLGeneralInfoId,
                             OldBudgetMasterId = OldBudgetMasterId,
@@ -1137,7 +1137,7 @@ namespace Library.Accounting.Accounts
                 }
 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets( _BankReconciliationUpload, _BankReconciliationUploadedData);
+                objApp.SaveDataSets(_BankReconciliationUpload, _BankReconciliationUploadedData);
             }
             catch (Exception ex)
             {
@@ -1221,6 +1221,61 @@ namespace Library.Accounting.Accounts
 
         #endregion
 
+        #region Bank Reconciliation Data Upload
+        public void SaveBalanceSheetSchedulingUploadedData(IEnumerable<BalanceSheetSchedulingUploadedData> balanceSheetSchedulingUploadedDataList)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _BalanceSheetSchedulingUploadedData = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                foreach (var item in balanceSheetSchedulingUploadedDataList)
+                {
+                    if (item.BalanceSheetSchedulingId != null && item.BalanceSheetSchedulingId != "null" && item.BalanceSheetSchedulingId != "")
+                    {
+                        var balanceSheetSchedulingUploadedData = new BalanceSheetSchedulingUploadedData
+                        {
+                            BudgetMasterActivityId = item.BudgetMasterActivityId,
+                            BalanceSheetSchedulingId = item.BalanceSheetSchedulingId,
+                        };
+                        InserBalanceSheetSchedulingUploadedData(balanceSheetSchedulingUploadedData, ref _BalanceSheetSchedulingUploadedData);
+                    }
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_BalanceSheetSchedulingUploadedData);
+
+                var uploadedData = new System.Text.StringBuilder();
+                var uploadedDatasql = "";
+                uploadedDatasql = @"UPDATE BMA SET  BMA.BalanceSheetSchedulingId=BUD.BalanceSheetSchedulingId FROM [MST].[BudgetMasterActivity] BMA
+                                    INNER JOIN [TRN].[BalanceSheetSchedulingUploadedData] BUD ON BUD.BudgetMasterActivityId=BMA.Id
+                                    DELETE FROM  [TRN].[BalanceSheetSchedulingUploadedData]";
+                uploadedData.Append(uploadedDatasql);
+                _sqlRepository.ExecuteSqlCommand(uploadedData.ToString());
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void InserBalanceSheetSchedulingUploadedData(BalanceSheetSchedulingUploadedData balanceSheetSchedulingUploadedData, ref DataSet dsData)
+        {
+            balanceSheetSchedulingUploadedData.Id = GetAutoNumber(nameof(BalanceSheetSchedulingUploadedData), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(balanceSheetSchedulingUploadedData.AddedBy))
+                AuditService.AddedLog(balanceSheetSchedulingUploadedData);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BalanceSheetSchedulingUploadedData] where 1=2", out dsData);
+            }
+            AddNewRow<BalanceSheetSchedulingUploadedData>(dsData.Tables[0], balanceSheetSchedulingUploadedData);
+
+        }
+        #endregion
+
         #region Update Invoice for Confirm
         public void UpdateInvoiceforConfirm(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
         {
@@ -1263,7 +1318,7 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
-        
+
         #endregion
 
         public GridModel GetVoucherListForCashCheckPrinting(GridParameter parameters)

@@ -283,5 +283,21 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult FixedAssetMasterItemXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = "";
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterItemReport(data, "", reportFileName, identity.CompanyGroupId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

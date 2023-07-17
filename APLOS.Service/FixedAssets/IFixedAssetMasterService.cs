@@ -38,6 +38,7 @@ namespace Library.Service.FixedAssets
         IEnumerable<object> GetFixedAssetMasterPoPUpData();
         GridModel GetFAMISearch(GridParameter parameters);
         string GetFixedAssetMasterReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName,string PlantId);
+        string GetFixedAssetMasterItemReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName,string PlantId);
 
     }
 }

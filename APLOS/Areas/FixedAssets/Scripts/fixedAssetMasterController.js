@@ -245,7 +245,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         $http({
             method: 'POST',
             url: $scope.path + "FixedAssetMasterXls",
-            data: { 'reportFileName': $scope.fileName, 'data': $scope.FixedAssetMasters },
+            data: { 'data': $scope.FixedAssetMasters,'reportFileName': $scope.fileName},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -367,6 +367,27 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
             $rootScope.toggle();
         }
     };
+
+    $scope.FixedAssetMasterItemReport = function () {
+        $scope.fileName = 'Fixed Asset Master Item Report.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "FixedAssetMasterItemXls",
+            data: { 'data': $scope.FixedAssetMasterItemList ,'reportFileName': $scope.fileName},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
     //--------******Fixed Asset Master Item End*****-------------//
 

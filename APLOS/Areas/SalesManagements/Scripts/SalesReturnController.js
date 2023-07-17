@@ -91,6 +91,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.specificStockList = [];
         if ($scope.ReturnType == 'PackingSales') {
             getItemScanChildByPackingId($scope.product.SalesId, data.data.PackingId);
+            $scope.getLocationCbo();
         }
         else {
             getIssueDetailList($scope.product.SalesId, data.data.PackingId,null);
@@ -104,6 +105,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         $scope.productNew.TaxOptionAddiTax = 'Yes';
         $scope.Action = 'Save';
         $scope.IsSaveButtonDisable = false;
+      
         $scope.closeSalesPopUp();
     };
 
@@ -258,6 +260,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         , IsPaymentTermChangeable: null
         , Summery: null
         , Details: null
+        , LocMasterId: null
     };
     $scope.IssueType = 'Revenue';
     $scope.productNew = Object.assign({}, $scope.product);
@@ -375,8 +378,16 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
         });
     }
     $scope.SalesDetails();
-
-
+    $scope.locationCbo = [];
+    $scope.getLocationCbo = function () {
+        $http({
+            method: "GET",
+            url: "SalesManagements/Sales/GetSalesReturnCbo"
+        }).then(function successCallback(response) {
+            $scope.locationCbo = response.data;
+        });
+    };
+    $scope.getLocationCbo();
     $scope.data1 = $scope.lst;
     $scope.detailTemp = "#tabGridContents";
     //$scope.detailgrid = "detailGridData(e)";

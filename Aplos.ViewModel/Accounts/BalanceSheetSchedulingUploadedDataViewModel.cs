@@ -1,0 +1,24 @@
+﻿using System;
+
+namespace Library.ViewModel.Accounts
+{
+    public class BalanceSheetSchedulingUploadedDataViewModel
+    {
+        public string Id { get; set; }
+        public string BudgetMasterActivityId { get; set; }
+        public string Level1 { get; set; }
+        public string Level2 { get; set; }
+        public string Level3 { get; set; }
+        public string Level4 { get; set; }
+        public string GLGeneralInfoCode { get; set; }
+        public string GLName { get; set; }
+        public string BudgetGroup { get; set; }
+        public string BudgetCategory { get; set; }
+        public string BudgetSubCategory { get; set; }
+        public string Budget { get; set; }
+        public string RefNo { get; set; }
+        public string Activity { get; set; }
+        public string Register { get; set; }
+        public string BalanceSheetSchedulingId { get; set; }
+    }
+}

@@ -1,15 +1,23 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
+using Library.Model.Accounts;
 using Library.Model.ChartOfAccounts;
+using Library.Model.Enums;
 using Library.Security.Core;
 using Library.Service.ChartOfAccounts;
+using Library.Service.Helpers;
+using Library.ViewModel.Accounts;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -183,6 +191,161 @@ namespace Aplos.Areas.Accounts.Controllers
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Id"].ToString()) + 1;
             return 1;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+            IWorkbook workbook = accountsInventoryPayableReportService.GetSampleFileBalanceSheetScheduling(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "BalanceSheetScheduling Data upload Sample File";
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+        [HttpPost, Authorize]
+        public JsonResult ImportData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<BalanceSheetSchedulingUploadedDataViewModel> data = new List<BalanceSheetSchedulingUploadedDataViewModel>();
+
+                var file = Request.Files["file"];
+
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                BalanceSheetSchedulingUploadedDataViewModel vm = new BalanceSheetSchedulingUploadedDataViewModel();
+
+                                vm.BudgetMasterActivityId = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.Level1 = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.Level2 = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.Level3 = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                vm.Level4 = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.GLGeneralInfoCode = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.GLName = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
+                                vm.BudgetGroup = dsExcel.Tables[0].Rows[i][7].ToString().Trim();
+                                vm.BudgetCategory = dsExcel.Tables[0].Rows[i][8].ToString().Trim();
+                                vm.BudgetSubCategory = dsExcel.Tables[0].Rows[i][9].ToString().Trim();
+                                vm.Budget = dsExcel.Tables[0].Rows[i][10].ToString().Trim();
+                                vm.RefNo = dsExcel.Tables[0].Rows[i][11].ToString().Trim();
+                                vm.Activity = dsExcel.Tables[0].Rows[i][12].ToString().Trim();
+                                vm.Register = dsExcel.Tables[0].Rows[i][13].ToString().Trim();
+                                vm.BalanceSheetSchedulingId = dsExcel.Tables[0].Rows[i][14].ToString().Trim();
+                                data.Add(vm);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveBalanceSheetSchedulingUploadedData(IEnumerable<BalanceSheetSchedulingUploadedData> balanceSheetSchedulingUploadedDataList)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            accountsCommonService.SaveBalanceSheetSchedulingUploadedData(balanceSheetSchedulingUploadedDataList);
+
+            return Json(new { Message = AplosMessage.Updated });
         }
     }
 }
