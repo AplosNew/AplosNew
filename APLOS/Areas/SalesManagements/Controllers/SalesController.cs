@@ -623,6 +623,8 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         }
                                         scitemNew["Id"] = "SC" + _itemNewId + "-" + Index;
                                         scitemNew["SalesId"] = DBNull.Value;
+                                        scitemNew["IsReturn"] = true;
+                                        scitemNew["LocMasterId"] = data["LocMasterId"].ToString();
                                         AddNewRowD(dsitemscanChildNew.Tables[0], scitemNew);
                                     }
                                 }
@@ -670,6 +672,20 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
 
+        [HttpGet, Authorize]
+        public JsonResult GetSalesReturnCbo()
+        {
+            return Json(GetSalesReturnData(), JsonRequestBehavior.AllowGet);
+        }
+        public List<Dictionary<string, object>> GetSalesReturnData()
+        {
+                string sql = "";
+                sql = @"SELECT MMM.ToLocation [TEXT],MMM.Id [Value] from MST.MaterialMovementMaster MMM 
+                        LEFT JOIN HKP.MaterialMovementPurpose MMP ON MMP.Id=MMM.PurposeId
+                        WHERE MMP.UserName='Sales Return'";
+                return _sqlRepository.GetDataCollection(sql);
+            
+        }
 
         #endregion
 
