@@ -597,7 +597,8 @@ LEFT JOIN (
 Select SUM(S.TransactionQty)ShipmentQty,SUM(S.TransactionAmount)ShippedValue,SO.ContractId from TRN.SalesMaterial S
 LEFT JOIN TRN.SalesOrder SO ON SO.Id=S.SalesOrderId
 Group By SO.ContractId
-) SM ON SM.ContractId=C.Id";
+) SM ON SM.ContractId=C.Id
+Order by B.UserName";
 
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -746,7 +747,7 @@ Group By SO.ContractId
             public string GroupKey { get; set; } = "";
             public int Row { get; set; } = 0;
         }
-        public IWorkbook GetSummaryManpowerAttendanceExcel(string companyGroupId, string companyId,string PlantId)
+        public IWorkbook GetContarctWorkbookExcel(string companyGroupId, string companyId,string PlantId)
         {
             try
             {
@@ -783,23 +784,21 @@ Group By SO.ContractId
                 xlsRow = 5;
 
                 #region ColumnHeaderVariables              
-                int cFileNo = 0; int cTQ = 0; int cA = 0; int cOnRollManpower; int cSQ; int cFdPresent = 0; int cfdAbsent = 0;
-                int cfdLeave = 0; int cfdLate = 0; int cfdOthers = 0; var cfdRemarks = 0; int cBN = 0; int cEmpCategory = 0; int cCN = 0; int cSED = 0; int cLine = 0;
+                int cFileNo = 0; int cTQ = 0; int cA = 0; int cSV; int cSQ; int cBQ = 0; int cBLV = 0; int cR = 0;  int cBN = 0; int cSSD = 0; int cCN = 0; int cSED = 0;
                 #endregion
                 #region ColumnHeaders
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", ExcelHAlign.HAlignCenter); cBN = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FileNo", ExcelHAlign.HAlignCenter); cFileNo = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentStartDate", ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentEndDate", ExcelHAlign.HAlignCenter); cSED = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ContractNo", ExcelHAlign.HAlignCenter); cCN = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TotalQty", ExcelHAlign.HAlignCenter); cTQ = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount", ExcelHAlign.HAlignCenter); cA = xlsCol; xlsCol++;
-                
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentQty", 8, ExcelHAlign.HAlignCenter); cSQ = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShippedValue", 8, ExcelHAlign.HAlignCenter); cOnRollManpower = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceQty", 8, ExcelHAlign.HAlignCenter); cFdPresent = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceLienValue", 8, ExcelHAlign.HAlignCenter); cfdAbsent = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 8, ExcelHAlign.HAlignCenter); cfdLate = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Bank Name", 14,ExcelHAlign.HAlignCenter); cBN = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "FileNo",8, ExcelHAlign.HAlignCenter); cFileNo = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentStartDate", 20,ExcelHAlign.HAlignCenter); cSSD = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentEndDate", 20,ExcelHAlign.HAlignCenter); cSED = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ContractNo", 25,ExcelHAlign.HAlignCenter); cCN = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "TotalQty", 8,ExcelHAlign.HAlignCenter); cTQ = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Amount",12, ExcelHAlign.HAlignCenter); cA = xlsCol; xlsCol++;                
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentQty", 14, ExcelHAlign.HAlignCenter); cSQ = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShippedValue", 14, ExcelHAlign.HAlignCenter); cSV = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceQty", 12, ExcelHAlign.HAlignCenter); cBQ = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceLienValue", 12, ExcelHAlign.HAlignCenter); cBLV = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 12, ExcelHAlign.HAlignCenter); cR = xlsCol; xlsCol++;
                
 
                 var orgCollist = xlsCol;
@@ -837,45 +836,43 @@ Group By SO.ContractId
 
                     Dictionary<string, Combination> dicGroup = new Dictionary<string, Combination>();
 
-                    string strGroupDivisionName = /*strGroupEmpCategory +*/ dtManPBSummary.Rows[0]["BankName"].ToString();
+                    string strGroupBankName =  dtManPBSummary.Rows[0]["BankName"].ToString();
 
-                    dicGroup.Add("DivisionName", new Combination { GroupKey = strGroupDivisionName, Row = xlsRow });
+                    dicGroup.Add("BankName", new Combination { GroupKey = strGroupBankName, Row = xlsRow });
 
                     DataRow dr = dtManPBSummary.NewRow();
                     dtManPBSummary.Rows.Add(dr);
                     for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
                     {
                         var catLRow = xlsRow;
-                        if (i == 100)
-                        {
-
-                        }
-                        strGroupDivisionName =/* strGroupEmpCategory +*/ dtManPBSummary.Rows[i]["BankName"].ToString();
+                       
+                        strGroupBankName =dtManPBSummary.Rows[i]["BankName"].ToString();
                       
 
-                        if (dicGroup["BankName"].GroupKey != strGroupDivisionName)
+                        if (dicGroup["BankName"].GroupKey != strGroupBankName)
                         {
                             rowList.Add(xlsRow);
                             oRU.SetHeadText(sheet1, xlsRow, 6, " Subtotal:");
-                            sheet1.Range[xlsRow, cOnRollManpower].Formula = "=SUM(" + oRU.GetColumnNameForXls(cOnRollManpower) + catFRow + ":" + oRU.GetColumnNameForXls(cOnRollManpower) + (xlsRow - 1) + ")";
-                            sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+
+                            sheet1.Range[xlsRow, cTQ].Formula = "=SUM(" + oRU.GetColumnNameForXls(cTQ) + catFRow + ":" + oRU.GetColumnNameForXls(cTQ) + (xlsRow - 1) + ")";
+                            sheet1.Range[xlsRow, cTQ].BorderAround(ExcelLineStyle.Hair);
+
+                            sheet1.Range[xlsRow, cA].Formula = "=SUM(" + oRU.GetColumnNameForXls(cA) + catFRow + ":" + oRU.GetColumnNameForXls(cA) + (xlsRow - 1) + ")";
+                            sheet1.Range[xlsRow, cA].BorderAround(ExcelLineStyle.Hair);
 
                             sheet1.Range[xlsRow, cSQ].Formula = "=SUM(" + oRU.GetColumnNameForXls(cSQ) + catFRow + ":" + oRU.GetColumnNameForXls(cSQ) + (xlsRow - 1) + ")";
                             sheet1.Range[xlsRow, cSQ].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cSV].Formula = "=SUM(" + oRU.GetColumnNameForXls(cSV) + catFRow + ":" + oRU.GetColumnNameForXls(cSV) + (xlsRow - 1) + ")";
+                            sheet1.Range[xlsRow, cSV].BorderAround(ExcelLineStyle.Hair);
 
-                            sheet1.Range[xlsRow, cFdPresent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cFdPresent) + catFRow + ":" + oRU.GetColumnNameForXls(cFdPresent) + (xlsRow - 1) + ")";
-                            sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cBQ].Formula = "=SUM(" + oRU.GetColumnNameForXls(cBQ) + catFRow + ":" + oRU.GetColumnNameForXls(cBQ) + (xlsRow - 1) + ")";
+                            sheet1.Range[xlsRow, cBQ].BorderAround(ExcelLineStyle.Hair);
 
-                            sheet1.Range[xlsRow, cfdAbsent].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdAbsent) + catFRow + ":" + oRU.GetColumnNameForXls(cfdAbsent) + (xlsRow - 1) + ")";
-                            sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
-                            sheet1.Range[xlsRow, cfdLate].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLate) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLate) + (xlsRow - 1) + ")";
-                            sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
-                            sheet1.Range[xlsRow, cfdLeave].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdLeave) + catFRow + ":" + oRU.GetColumnNameForXls(cfdLeave) + (xlsRow - 1) + ")";
-                            sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
-                            sheet1.Range[xlsRow, cfdOthers].Formula = "=SUM(" + oRU.GetColumnNameForXls(cfdOthers) + catFRow + ":" + oRU.GetColumnNameForXls(cfdOthers) + (xlsRow - 1) + ")";
-                            sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+                            sheet1.Range[xlsRow, cBLV].Formula = "=SUM(" + oRU.GetColumnNameForXls(cBLV) + catFRow + ":" + oRU.GetColumnNameForXls(cBLV) + (xlsRow - 1) + ")";
+                            sheet1.Range[xlsRow, cBLV].BorderAround(ExcelLineStyle.Hair);
+                           
 
-                            sheet1.Range[xlsRow, cSQ, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+                            sheet1.Range[xlsRow, cTQ, xlsRow, cBLV].CellStyle.Font.Bold = true;
 
 
                             xlsRow++;
@@ -888,56 +885,49 @@ Group By SO.ContractId
 
 
                             dicGroup["BankName"].Row = xlsRow;
-                            dicGroup["BankName"].GroupKey = strGroupDivisionName;
+                            dicGroup["BankName"].GroupKey = strGroupBankName;
                         }
 
 
                         #endregion
 
-                        
 
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cA, dtManPBSummary.Rows[i]["DesignationName"].ToString());//
-                        
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cOnRollManpower, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalManpower"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cSQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ProposedManpowerBudget"].ToString()));
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cFdPresent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdAbsent, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLate, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Late"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdLeave, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Leave"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdOthers, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Others"].ToString()));//
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
+
+                        sheet1.Range[xlsRow, cBN].Text = dtManPBSummary.Rows[i]["BankName"].ToString();
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cFileNo, dtManPBSummary.Rows[i]["FileNo"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cSSD, dtManPBSummary.Rows[i]["ShipmentStartDate"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cSED,dtManPBSummary.Rows[i]["ShipmentEndDate"].ToString());
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cCN, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ContractNo"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cTQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalQty"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cA, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Amount"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cSQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ShipmentQty"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cSV, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ShippedValue"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cBQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["BalanceQty"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cBLV, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["BalanceLienValue"].ToString()));//
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cR, dtManPBSummary.Rows[i]["Remarks"].ToString());//
                         xlsRow++;
                     }
-                    xlsRow += 1;
+                  //  xlsRow += 1;
 
 
 
                     oRU.SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
-                    sheet1.Range[xlsRow, 1, xlsRow, (cSQ - 1)].Merge();
-                    sheet1.Range[xlsRow, cOnRollManpower].Formula = oRU.GetFormulaGrandTotal(rowList, cOnRollManpower);
-                    sheet1.Range[xlsRow, cFdPresent].Formula = oRU.GetFormulaGrandTotal(rowList, cFdPresent);
-
+                    sheet1.Range[xlsRow, 1, xlsRow, (cTQ - 1)].Merge();
+                    sheet1.Range[xlsRow, cTQ].Formula = oRU.GetFormulaGrandTotal(rowList, cTQ);
+                    sheet1.Range[xlsRow, cA].Formula = oRU.GetFormulaGrandTotal(rowList, cA);
                     sheet1.Range[xlsRow, cSQ].Formula = oRU.GetFormulaGrandTotal(rowList, cSQ);
+                    sheet1.Range[xlsRow, cSV].Formula = oRU.GetFormulaGrandTotal(rowList, cSV);
+                    sheet1.Range[xlsRow, cBQ].Formula = oRU.GetFormulaGrandTotal(rowList, cBQ);
+                    sheet1.Range[xlsRow, cBLV].Formula = oRU.GetFormulaGrandTotal(rowList, cBLV);
 
-                    sheet1.Range[xlsRow, cFdPresent].Formula = oRU.GetFormulaGrandTotal(rowList, cFdPresent);
-                    sheet1.Range[xlsRow, cfdAbsent].Formula = oRU.GetFormulaGrandTotal(rowList, cfdAbsent);
-                    sheet1.Range[xlsRow, cfdLate].Formula = oRU.GetFormulaGrandTotal(rowList, cfdLate);
-                    sheet1.Range[xlsRow, cfdLeave].Formula = oRU.GetFormulaGrandTotal(rowList, cfdLeave);
-                    sheet1.Range[xlsRow, cfdOthers].Formula = oRU.GetFormulaGrandTotal(rowList, cfdOthers);
-
-
-                    sheet1.Range[xlsRow, 1, xlsRow, (cSQ - 1)].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, cOnRollManpower].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, 1, xlsRow, (cTQ - 1)].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cA].BorderAround(ExcelLineStyle.Hair);
                     sheet1.Range[xlsRow, cSQ].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, cFdPresent].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, cfdAbsent].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, cfdLate].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, cfdLeave].BorderAround(ExcelLineStyle.Hair);
-                    sheet1.Range[xlsRow, cfdOthers].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cSV].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cBQ].BorderAround(ExcelLineStyle.Hair);
+                    sheet1.Range[xlsRow, cBLV].BorderAround(ExcelLineStyle.Hair);
 
-
-
-                    sheet1.Range[xlsRow, cSQ, xlsRow, cfdOthers].CellStyle.Font.Bold = true;
+                    sheet1.Range[xlsRow, cTQ, xlsRow, cBLV].CellStyle.Font.Bold = true;
 
                     #region UsedRange Alignment
                     sheet1.UsedRange.WrapText = true;
