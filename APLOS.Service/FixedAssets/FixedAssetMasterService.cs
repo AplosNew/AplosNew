@@ -466,10 +466,13 @@ namespace Library.Service.FixedAssets
         {
             try
             { 
-                parameters.CmdText = @"SELECT fami.*,fam.UserName FixedAssetMaster,uom.UserName CapacityUoM
-                                    FROM mst.FixedAssetMasterItem AS fami
-                                    LEFT JOIN mst.FixedAssetMaster AS fam ON fam.Id=fami.FixedAssetMasterId
-                                    LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=fami.CapacityUoMId";
+                parameters.CmdText = @"SELECT fami.Id,fam.Id FixedAssetMasterId,fam.UserName FixedAssetMaster,fami.Code,fami.ShortName,fami.StandardName,fami.UserName
+									                ,uom.UserName CapacityUoM,fami.CapacityValue,isnull(fami.Description,'') Description
+									                ,isnull(fami.Remarks,'') Remarks
+
+                                                    FROM mst.FixedAssetMasterItem AS fami
+                                                    LEFT JOIN mst.FixedAssetMaster AS fam ON fam.Id=fami.FixedAssetMasterId
+                                                    LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=fami.CapacityUoMId";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
@@ -573,6 +576,112 @@ namespace Library.Service.FixedAssets
                 worksheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 worksheet.PageSetup.CenterHorizontally = true;
                  
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string GetFixedAssetMasterItemReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName, string PlantId)
+        {
+            var filePath = "";
+            ExcelEngine excelEngine = null;
+            excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2013;
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet worksheet = workbook.Worksheets[0];
+
+            try
+            {
+                worksheet.Name = "Fixed Asset Master Item";
+                int COL = 1; int ROW = 6;
+
+                int startCol = COL;
+                worksheet[ROW, COL].Text = "Code";
+                int colCode = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+ 
+                worksheet[ROW, COL].Text = "Fixed Asset Master Item";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colUserName = COL;
+                worksheet[ROW, COL].ColumnWidth = 22;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Fixed Asset Master";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colFixedAssetMaster = COL;
+                worksheet[ROW, COL].ColumnWidth = 17;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Capacity Value";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colCapacityValue = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Description";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colDescription = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                 
+                int endCol = COL;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
+
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Yellow;
+                worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+
+                ROW++;
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    worksheet[ROW, colCode].Text = data[i]["Code"].ToString(); 
+                    worksheet[ROW, colUserName].Text = data[i]["UserName"].ToString();
+                    worksheet[ROW, colFixedAssetMaster].Text = data[i]["FixedAssetMaster"].ToString();
+                    worksheet[ROW, colCapacityValue].Text = data[i]["CapacityValue"].ToString()+" " + data[i]["CapacityUoM"].ToString();
+                    worksheet[ROW, colDescription].Text = data[i]["Description"].ToString(); 
+
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+                }
+
+                worksheet.UsedRange.WrapText = true;
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                worksheet["A" + startRow.ToString()].FreezePanes();
+
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.MainCompanyGroupHeader(ref worksheet, endCol, "Fixed Asset Master Item Report", PlantId);
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.WrapText = true;
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                worksheet.IsGridLinesVisible = false;
+
+                //#endregion ******************Report Header******************
+                worksheet.PageSetup.TopMargin = 0.2;
+                worksheet.PageSetup.BottomMargin = 0.8;
+                worksheet.PageSetup.LeftMargin = 0.2;
+                worksheet.PageSetup.RightMargin = 0.2;
+                worksheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                worksheet.PageSetup.FitToPagesTall = 0;
+                worksheet.PageSetup.FitToPagesWide = 1;
+                worksheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                worksheet.PageSetup.CenterHorizontally = true;
+
                 filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, reportFileName);
                 workbook.SaveAs(filePath);
                 workbook.Close();
