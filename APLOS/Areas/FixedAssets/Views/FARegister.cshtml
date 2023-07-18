@@ -42,7 +42,7 @@
                                                     <div class="common-btn">
                                                         <ul class="list-inline text-left">
                                                             <li>
-                                                                <button ng-click="RemoveItemVoucher();" class="btn"><i class="glyphicon glyphicon-trash" tabindex="3"></i></button>
+                                                                <button ng-click="RemoveItemVoucher(x);" class="btn"><i class="glyphicon glyphicon-trash" tabindex="3"></i></button>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -64,6 +64,7 @@
                         </div>
 
                         <div class="col-xs-12 col-sm-6 col-md-6">
+
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Asset No</label>
                                 <div class="col-sm-8">
@@ -71,7 +72,18 @@
                                 </div>
                             </div>
 
-                          
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Asset Item<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="v" ng-model="register.AssetItem" class="form-control" readonly required>
+                                        <span class="input-group-btn">
+                                            <button ng-click="ShowFixedAssetMasterItem();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Model</label>
@@ -732,32 +744,31 @@
 <div class="modal fade site-modal in" id="fixedAssetMasterItemPoUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content row">
-            <div class="modal-header">Fixed Asset Master Item <button type="button" class="close">&times;</button></div>
+            <div class="modal-header">Fixed Asset Master Item <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="table-responsive modal-table">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th></th>
-                                <th>Sequence</th>
                                 <th>Code</th>
                                 <th>Short Name</th>
                                 <th>Stander Name</th>
-                                <th>User Define Name</th>
-                                <th>Default</th>
+                                <th>User Name</th>
+                                <th>FixedAssetMaster</th>
+                                <th>FixedAssetCategory</th>
+                                <th>FixedAssetSubCategory</th>
                                 <th>Active</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="x in characteristicsValueList">
-                                <td>
-                                </td>
-                                <td>{{x.Sequence}}</td>
+                            <tr ng-repeat="x in FixedAssetMasterItemList">
                                 <td>{{x.Code}}</td>
                                 <td>{{x.ShortName}}</td>
                                 <td>{{x.StandardName}}</td>
                                 <td>{{x.UserName}}</td>
-                                <td>{{x.IsDefault?'Yes':'No'}}</td>
+                                <td>{{x.FixedAssetMaster}}</td>
+                                <td>{{x.FixedAssetCategory}}</td>
+                                <td>{{x.FixedAssetSubCategory}}</td>
                                 <td>{{x.Active?'Yes':'No'}}</td>
                             </tr>
                         </tbody>

@@ -486,9 +486,9 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.VoucherNo = null;
     $scope.message_VoucherRemoveconfirmation = null;
     $scope.RemoveItemVoucher = function (obj) {
-        $scope.VoucherNo= obj.data.VoucherNo;
-        if (!baseService.isUndefinedOrNull(obj.data.VoucherNo))
-            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + obj.data.VoucherNo + ' ]';
+        $scope.VoucherNo= obj.VoucherNo;
+        if (!baseService.isUndefinedOrNull(obj.VoucherNo))
+            $scope.message_VoucherRemoveconfirmation = 'Are you sure want to delete permanently [ ' + obj.VoucherNo + ' ]';
         angular.element(document.querySelector('#confirmVoucherRemovePopUp')).modal('show');
     }
 
@@ -506,21 +506,21 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     }
 
     $scope.searchByFAMI = "UserName"; $scope.searchFAMI = "";
-
+    $scope.FixedAssetMasterItemList = [];
     $scope.ShowFixedAssetMasterItem = function () {
         $scope.searchByFAList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: 'User Name' }, { value: 'StandardName', name: "Standard Name" }, { value: 'FixedAssetMaster', name: "FixedAssetMaster" }, { value: 'FixedAssetCategory', name: "FixedAssetCategory" }, { value: 'FixedAssetSubCategory', name: "FixedAssetSubCategory" }];
 
-        $scope.partyUrl = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
+        $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
 
         $http({
-            method: 'POST',
-            url: $scope.partyUrl,
-            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            method: 'Get',
+            url: $scope.Url,
+           // data: { column: $scope.searchByParty, value: $scope.searchParty },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.partyList = response.data;
+            $scope.FixedAssetMasterItemList = response.data;
         });
-        angular.element(document.querySelector('#FAMIPopUp')).modal('show');
+        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('show');
     };
 
     $scope.SetCustomerData = function (obj) {
