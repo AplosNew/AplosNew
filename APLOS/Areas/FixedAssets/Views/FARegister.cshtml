@@ -729,6 +729,44 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="fixedAssetMasterItemPoUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content row">
+            <div class="modal-header">Fixed Asset Master Item <button type="button" class="close">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Sequence</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Stander Name</th>
+                                <th>User Define Name</th>
+                                <th>Default</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in characteristicsValueList">
+                                <td>
+                                </td>
+                                <td>{{x.Sequence}}</td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.IsDefault?'Yes':'No'}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @Html.Partial("~/Areas/Materials/Views/Shared/_AttributeValuePopUp.cshtml")
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
