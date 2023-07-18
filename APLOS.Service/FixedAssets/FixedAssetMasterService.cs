@@ -483,7 +483,7 @@ namespace Library.Service.FixedAssets
             }
         }
 
-        public string GetFixedAssetMasterReport(List<Dictionary<string, object>> data, string ReportHeader, string reportFileName,string CompanyGroupId) 
+        public string GetFixedAssetMasterReport(string ReportHeader, string reportFileName,string CompanyGroupId) 
         {
             var filePath = "";
             ExcelEngine excelEngine = null;
@@ -493,6 +493,7 @@ namespace Library.Service.FixedAssets
             IWorkbook workbook = application.Workbooks.Create(1); 
             IWorksheet worksheet = workbook.Worksheets[0];
 
+            var data = getFAMIDataList();
             try
             {
                 worksheet.Name = "Fixed Asset Master";
@@ -525,7 +526,19 @@ namespace Library.Service.FixedAssets
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 int colAssetType = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-                
+                COL++;
+
+                worksheet[ROW, COL].Text = "GL";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colGL = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Budget";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colBudget = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+
                 int endCol = COL;
                 worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
                 worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
@@ -537,13 +550,15 @@ namespace Library.Service.FixedAssets
                 ROW++;
                 int startRow = ROW;
 
-                for (int i = 0; i < data.Count; i++)
+                for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    worksheet[ROW, colCode].Text = data[i]["Code"].ToString();
-                    worksheet[ROW, colFixedAssetMasterName].Text = data[i]["UserName"].ToString();
-                    worksheet[ROW, colFixedAssetCategory].Text = data[i]["FixedAssetCategory"].ToString();
-                    worksheet[ROW, colFixedAssetSubCategory].Text = data[i]["FixedAssetSubCategory"].ToString();
-                    worksheet[ROW, colAssetType].Text = data[i]["AssetType"].ToString(); 
+                    worksheet[ROW, colCode].Text = data.Rows[i]["Code"].ToString();
+                    worksheet[ROW, colFixedAssetMasterName].Text = data.Rows[i]["UserName"].ToString();
+                    worksheet[ROW, colFixedAssetCategory].Text = data.Rows[i]["FixedAssetCategory"].ToString();
+                    worksheet[ROW, colFixedAssetSubCategory].Text = data.Rows[i]["FixedAssetSubCategory"].ToString();
+                    worksheet[ROW, colAssetType].Text = data.Rows[i]["AssetType"].ToString(); 
+                    worksheet[ROW, colGL].Text = data.Rows[i]["GL"].ToString(); 
+                    worksheet[ROW, colBudget].Text = data.Rows[i]["Budget"].ToString(); 
 
                     worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -836,6 +851,19 @@ namespace Library.Service.FixedAssets
             {
                 throw (ex);
             }
+        }
+
+        public DataTable getFAMIDataList()
+        {
+            string str = @"SELECT FAM.*,FAC.UserName FixedAssetCategory,FASC.UserName FixedAssetSubCategory,GL.UserName GL,B.UserName Budget   
+					                                FROM mst.FixedAssetMaster FAM
+					                                left join [HKP].[FixedAssetCategory] FAC on FAC.Id=FAM.FixedAssetCategoryId
+					                                left join [HKP].[FixedAssetSubCategory] FASC on FASC.Id=FAM.FixedAssetSubCategoryId
+					                                left join [HKP].[FixedAssetMasterBudgetTag] FMBT on FMBT.FixedAssetMasterId=FAM.Id
+					                                left join [MST].[BudgetMaster] BM on BM.Id=FMBT.BudgetMasterId
+					                                left join [HKP].[GLGeneralInfo] GL on GL.Id=BM.GLGeneralInfoId
+					                                left join [HKP].[Budget] B on B.Id=BM.BudgetId";
+            return _sqlRepository.GetDataTable(str);
         }
 
         public Dictionary<string, object> getFAMIHeaderData(string FAMId)
