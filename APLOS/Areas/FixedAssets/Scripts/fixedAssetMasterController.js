@@ -245,7 +245,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         $http({
             method: 'POST',
             url: $scope.path + "FixedAssetMasterXls",
-            data: { 'data': $scope.FixedAssetMasters,'reportFileName': $scope.fileName},
+            data: {'reportFileName': $scope.fileName},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

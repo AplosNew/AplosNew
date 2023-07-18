@@ -134,13 +134,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult FixedAssetMasterXls(List<Dictionary<string, object>> data, string reportFileName)
+        public ActionResult FixedAssetMasterXls(string reportFileName)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string fileName = ""; 
-                fileName = _fixedAssetMasterService.GetFixedAssetMasterReport(data, "", reportFileName,identity.CompanyGroupId); 
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterReport("", reportFileName,identity.CompanyGroupId); 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
