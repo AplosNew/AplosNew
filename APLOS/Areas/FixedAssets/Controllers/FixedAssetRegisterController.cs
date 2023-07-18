@@ -787,6 +787,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetAUCCIExpenseData(GridParameter gridparameter, string faType)//, string ids
+        {
+            return Json(_fixedAssetRegisterService.GetAUCCIExpenseData(gridparameter, faType), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetCapitalizeAssetItemValue(string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId, string companyId)
         {
             return Json(_fixedAssetRegisterService.GetCapitalizeAssetItemValue(fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId, companyId), JsonRequestBehavior.AllowGet);

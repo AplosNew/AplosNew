@@ -384,9 +384,41 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         serverPagination: true
     };
 
+    //$scope.materialMasterList = [];
+    //$scope.getAssetData = function (faType) {
+    //    var url = "FixedAssets/FixedAssetRegister/GetCapitalizedAssetItem?faType=" + faType;
+    //    baseService.setCurrentPage("materialMasterList");
+    //    $scope.loadMaterialMasterModalList = function (pageno) {
+    //        baseService.paginationBase(url, pageno, $scope.searchMaterialMasterParameters)
+    //            .then(function (result) {
+    //                $scope.materialMasterList = result.Rows;
+    //                $scope.searchMaterialMasterParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, "failure");
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    $scope.loadMaterialMasterModalList();
+    //};
+
+    $scope.ItemName = null;
+    $scope.showSearchData = function (faType) {
+        $scope.FaType = faType;
+        if (faType=='AUC') {
+            $scope.ItemName = 'AUC';
+        } else if (faType == 'CI') {
+            $scope.ItemName = 'Capitalize Inventory';
+        }
+        else {
+            $scope.ItemName = 'Expense';
+        }
+        $scope.getSearchData(faType);
+        angular.element(document.querySelector("#assetmodal")).modal("show");
+    };
+
     $scope.materialMasterList = [];
-    $scope.getAssetData = function (faType) {
-        var url = "FixedAssets/FixedAssetRegister/GetCapitalizedAssetItem?faType=" + faType;
+    $scope.getSearchData = function (faType) {
+        var url = "FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?faType=" + faType;
         baseService.setCurrentPage("materialMasterList");
         $scope.loadMaterialMasterModalList = function (pageno) {
             baseService.paginationBase(url, pageno, $scope.searchMaterialMasterParameters)
@@ -451,6 +483,24 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.VoucherNo = null;
+    $scope.message_VoucherRemoveconfirmation = null;
+    $scope.RemoveItemVoucher = function (obj) {
+        $scope.VoucherNo= obj.data.VoucherNo;
+        if (!baseService.isUndefinedOrNull(obj.data.VoucherNo))
+            $scope.message_detailconfirmation = 'Are you sure want to delete permanently [ ' + obj.data.VoucherNo + ' ]';
+        angular.element(document.querySelector('#confirmVoucherRemovePopUp')).modal('show');
+    }
+
+    $scope.RemoveVoucher = function () {
+        for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+            if ($scope.selectedmaterialMasterList[i].VoucherNo == $scope.VoucherNo) {
+                $scope.selectedmaterialMasterList.splice(i, 1);
+            }
+        }
+    };
+
+
     $scope.CloseMMPopUp = function () {
         angular.element(document.querySelector("#assetmodal")).modal("hide");
     }
@@ -470,7 +520,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }).then(function successCallback(response) {
             $scope.partyList = response.data;
         });
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
+        angular.element(document.querySelector('#FAMIPopUp')).modal('show');
     };
 
     $scope.SetCustomerData = function (obj) {
@@ -1398,11 +1448,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector("#mmmodal")).modal("show");
     };
 
-    $scope.showAssetModal = function (faType) {
-        $scope.FaType = faType;
-        $scope.getAssetData(faType);
-        angular.element(document.querySelector("#assetmodal")).modal("show");
-    };
+    
 
     $scope.selectMaterialMasterData = function (data) {
         $scope.register.MaterialMasterId = data.Id;

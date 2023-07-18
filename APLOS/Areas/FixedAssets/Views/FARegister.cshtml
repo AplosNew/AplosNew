@@ -10,6 +10,59 @@
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                     <div class="row" ng-form="form0">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border">AUC Info</legend>
+
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li>
+                                            <button ng-click="showSearchData('AUC');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>AUC</button>
+                                            <button ng-click="showSearchData('CI');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>CapitalizeInventory</button>
+                                            <button ng-click="showSearchData('Expense');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Expense</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="table-responsive modal-table" ng-show="selectedmaterialMasterList.length">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Action</th>
+                                                <th>Voucher No</th>
+                                                <th>Material</th>
+                                                <th>Article</th>
+                                                <th>GRN No</th>
+                                                <th>Qty</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in selectedmaterialMasterList">
+                                                <td>
+                                                    <div class="common-btn">
+                                                        <ul class="list-inline text-left">
+                                                            <li>
+                                                                <button ng-click="RemoveItemVoucher();" class="btn"><i class="glyphicon glyphicon-trash" tabindex="3"></i></button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                                <td>{{x.VoucherNo}}</td>
+                                                <td>{{x.MaterialMasterName}}</td>
+                                                <td>{{x.ArticleStandardName}}</td>
+                                                <td>{{x.GRNNo}}</td>
+                                                <td>{{x.Qty}}</td>
+                                                <td>{{x.Amount}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="clearfix"></div>
+                                
+                            </fieldset>
+
+                        </div>
+
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Asset No</label>
@@ -18,18 +71,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Asset Item<sup>*</sup></label>
-                                <div class="col-sm-6">
-                                    <input type="text" name="Asset Item" tabindex="8" ng-model="register.MaterialMasterName" class="form-control" readonly>
-                                </div>
-                                <div class="col-sm-1">
-                                    <button ng-click="showAssetModal('AssetCapatalized');" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
-                                </div>
-                                <div class="col-sm-1">
-                                    <button ng-click="clearAssetCode();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-refresh"></i></button>
-                                </div>
-                            </div>
+                          
 
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Model</label>
@@ -95,21 +137,11 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li>
-                                            <button ng-click="showAssetModal('AssetCapatalized');" class="btn"><i class="glyphicon glyphicon-search"></i>Select AUC</button>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
                         </div>
-                       
+
 
                         <div class="col-xs-12 col-sm-6 col-md-6">
-                            
+
 
 
                             <div class="form-group" show-errors>
@@ -189,33 +221,9 @@
 
                         </div>
 
-                        <div class="col-xs-12" ng-show="selectedmaterialMasterList.length>0">
-                            <div class="table-responsive modal-table">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Material</th>
-                                            <th>Article</th>
-                                            <th>GRN No</th>
-                                            <th>Qty</th>
-                                            <th>Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in selectedmaterialMasterList">
-                                            <td>{{x.MaterialMasterName}}</td>
-                                            <td>{{x.ArticleStandardName}}</td>
-                                            <td>{{x.GRNNo}}</td>
-                                            <td>{{x.Qty}}</td>
-                                            <td>{{x.Amount}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
 
-                        
-                        
+
+
 
                         <div class="col-xs-12 col-sm-6 col-md-6 modal-table">
                             <table class="table table-responsive table-striped">
@@ -265,7 +273,7 @@
 
                         <div class="clearfix"></div>
 
-                        
+
                     </div>
                 </div>
 
@@ -725,3 +733,4 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
 <confirm-archive-generic data-modalid="confirmregisterdelete" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRegisterYes()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmVoucherRemovePopUp" title="Confirmation" message={{message_VoucherRemoveconfirmation}} data-ng-click-right-button="RemoveVoucher();"></confirm-archive-generic>
