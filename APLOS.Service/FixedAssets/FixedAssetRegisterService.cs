@@ -124,7 +124,7 @@ namespace Library.Service.FixedAssets
             }
         }
 
-       
+
 
         public IEnumerable<object> GetRegisterInfoWithFAMId(string assetMasterId, string budgetMasterId, string assetGLId, string companyId)
         {
@@ -172,8 +172,8 @@ namespace Library.Service.FixedAssets
             }
         }
 
-        
-        
+
+
         //public IEnumerable<object> GetOpeningBalanceInfoWithAssetItemId(string assetGLId, string assetBudgetId, string assetActivityId, string companyId)
         //{
         //    return _fixedAssetQueryService.GetOpeningBalanceInfoWithAssetItemId(assetGLId, assetBudgetId, assetActivityId, companyId);
@@ -921,7 +921,7 @@ namespace Library.Service.FixedAssets
                         var lc = localItem;
                         var asItem = assetItemValue;
                         var id = MakePK(_pk, i, 2);
-                        if(i+1== NumberOfQuantity)
+                        if (i + 1 == NumberOfQuantity)
                         {
                             master.FABaseAmount = tempFAAmount - tempTotalAmount;
                             master.Price = master.FABaseAmount;
@@ -952,7 +952,7 @@ namespace Library.Service.FixedAssets
                                         SubAssetTypeId = item.SubAssetTypeId,
                                         CurrencyId = item.CurrencyId,
                                         CapitalizationDate = item.CapitalizationDate,
-                                        CapitalizationRate= Math.Round(lc.FABaseAmount/lc.Price,4)
+                                        CapitalizationRate = Math.Round(lc.FABaseAmount / lc.Price, 4)
                                     };
                                     AuditService.AddedLog(subFAR);
                                     _subFixedAssetRegisterRepository.Insert(subFAR);
@@ -1055,7 +1055,7 @@ namespace Library.Service.FixedAssets
                 {
                     _faRegisterSquRepository.ExecuteSqlCommand("DELETE FROM trn.FixedAssetRegisterCharacteristicsValue WHERE FixedAssetRegisterId='" + masterId + "'");
                 }
-                if (subAssetchild.Count >0)
+                if (subAssetchild.Count > 0)
                 {
                     _subFixedAssetRegisterRepository.ExecuteSqlCommand("DELETE FROM trn.SubFixedAssetRegister WHERE FixedAssetRegisterId='" + masterId + "'");
                 }
@@ -1541,7 +1541,7 @@ GROUP BY FAR.FABudgetMasterId
             try
             {
                 var accDepGL = _fixedAssetMasterGLepository.Query(r => r.FixedAssetMasterId == fixedAssetMasterId).Select().FirstOrDefault();
-                if(accDepGL ==null)
+                if (accDepGL == null)
                     throw new CustomException("Fixed Asset Master Account Determinate is not set!");
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1762,7 +1762,7 @@ GROUP BY FAR.FABudgetMasterId
                         {
                             throw new CustomException(HardCurrencyCode + " register amount  can't be greater then opening balance amount : " + opFAHardAmountTotal);
                         }
-                        
+
 
                     }
                     //else { }
@@ -1778,7 +1778,7 @@ GROUP BY FAR.FABudgetMasterId
                     //    //tempFAAmount -= subFixedAssetRegister.Sum(r => r.BaseAmount);
                     //    //tempPrice -= subFixedAssetRegister.Sum(r => r.Amount);
                     //}
-                    
+
                     //master.FABaseAmount = Math.Round(master.FABaseAmount / NumberOfQuantity, 2);
                     master.ADBaseAmount = Math.Round(master.ADBaseAmount / NumberOfQuantity, 2);
                     tempUnitTrnPrice = Math.Round(master.PurchasePrice / NumberOfQuantity, 2);
@@ -2457,7 +2457,7 @@ GROUP BY FAR.FABudgetMasterId
             return _sqlRepository.GetData(cmdText);
         }
 
-        public IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId,string sourceType)
+        public IWorkbook GetFixedAssetCapitalizeJournalReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, string sourceType)
         {
             var reportUtility = new ReportUtility();
             var excelEngine = new ExcelEngine();
@@ -2468,7 +2468,7 @@ GROUP BY FAR.FABudgetMasterId
 
             var header = GetFixedAssetCapitalizeJournalHeader(companyGroupId, companyId, plantId, voucherId, sourceType);
 
-            if (header.Count>0)
+            if (header.Count > 0)
             {
                 reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
             }
@@ -2706,7 +2706,7 @@ GROUP BY FAR.FABudgetMasterId
                 sheet.Range[row, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 5, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantId , plantName, null);
+                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
                 reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
             }
             else
@@ -2927,6 +2927,118 @@ GROUP BY FAR.FABudgetMasterId
             }
         }
 
+        public GridModel GetAUCCIExpenseData(GridParameter parameters, string faType)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                if (faType == "AUC")
+                {
+                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),IR.VoucherId,IRD.VoucherDetailId VoucherDetailNo,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
+                    ,Round((0),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
+                                    ,TUoM.UserName AS BaseUoM,IRD.BaseQty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
+									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
+									,GC.Code GRNCurrencyCode
+									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName, AC.UserName AS ActivityName
+                                    , AC.Id ActivityId, BM.RefNo,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId
+                                    FROM TRN.InventoryReceiveDetail IRD 
+									LEFT JOIN  TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+									JOIN TRN.Voucher V ON V.Id=IR.VoucherId
+                                    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IR.POId
+									LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+                                    LEFT JOIN  TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+									LEFT JOIN  TRN.GateEntry GE ON GE.Id=IR.GateEntryNo
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=IRD.PostDrBudgetMasterId
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS AGL ON AGL.Id=IRD.PostDrGLGeneralInfoId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS AC ON AC.Id=IRD.PostDrActivityId                
+									LEFT JOIN [SCS].Currency GC ON GC.Id=IR.CurrencyId
+									LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
+									LEFT JOIN [HKP].[Party] AS P ON P.Id= IR.PartyId
+									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
+									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
+									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
+                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>''";
+                }
+                else if (faType == "CI")
+                {
+                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
+                    ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
+                    ,FAM.Id FixedAssetMasterId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, FAMT.BudgetMasterId
+                                    ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
+									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
+									,II.Id IssueNo
+									,TUoM.UserName AS TransactionUoM,CU.Code CurrencyCode,GC.Code GRNCurrencyCode
+									,REPLACE(Convert(VARCHAR(11), II.IssueDate, 106), ' ', '-') AS CapitalizeDate
+									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName
+									, FAM.UserName AS AssetMasterName, FAM.AssetType, AC.UserName AS ActivityName
+                                    , AC.Id ActivityId, BM.RefNo, FAC.UserName FixedAssetCategory, FASC.UserName AS FixedAssetSubCategory
+									,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId
+                                    FROM TRN.VoucherDetail VD 
+									JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+									LEFT JOIN  TRN.InventoryIssueHistory IIH ON IIH.CapitalizeVoucherDetailId=VD.Id
+									LEFT JOIN  TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									LEFT JOIN  TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId
+									LEFT JOIN  TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+									LEFT JOIN  TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+                                    LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IR.POId
+									LEFT JOIN dbo.PurchaseLC LC ON LC.Id=PO.PurchaseLCId
+                                    LEFT JOIN  TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+									LEFT JOIN  TRN.GateEntry GE ON GE.Id=IR.GateEntryNo
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS AGL ON AGL.Id=VD.GLGeneralInfoId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS AC ON AC.Id=VD.ActivityId
+                                    LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMT ON FAMT.BudgetMasterId=VD.BudgetMasterId
+                                    LEFT JOIN [MST].[FixedAssetMaster] AS FAM ON FAM.Id=FAMT.FixedAssetMasterId
+                                    LEFT JOIN [HKP].[FixedAssetCategory] FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                                    LEFT JOIN [HKP].[FixedAssetSubCategory] FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+									LEFT JOIN [SCS].Currency CU ON CU.Id=II.CurrencyId
+									LEFT JOIN [SCS].Currency GC ON GC.Id=IR.CurrencyId
+									LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
+									LEFT JOIN [HKP].[Party] AS P ON P.Id= IR.PartyId
+									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
+									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
+									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
+                                    WHERE V.SourceType='FixedAssetCapitalizeJournal'  AND IIH.IsRegister=0 AND IID.IsAsset=0";
+                }
+                else
+                {
+                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,Round((VD.DrAmount),4) Amount
+                    ,Round((0),4) FABaseAmount,V.CurrencyId TransactionCurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
+                                    ,0 Qty,'' GRNNo,V.DocRefNo InvoiceNo
+									,REPLACE(Convert(VARCHAR(11), V.DocDate, 106), ' ', '-') AS InvoiceDate
+									,GC.Code GRNCurrencyCode
+									, BM.BudgetId, B.UserName AssetBudgetName
+									, AC.UserName AS ActivityName
+                                    , AC.Id ActivityId, BM.RefNo
+									,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,VD.PartyId
+                                    ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate
+                                    FROM TRN.VoucherDetail VD 
+									JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS AGL ON AGL.Id=VD.GLGeneralInfoId
+									LEFT JOIN HKP.AccountGroup AG ON AG.Id=AGL.AccountGroupId
+									LEFT JOIN HKP.AccountType ATY ON ATY.Id=AG.AccountTypeId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS AC ON AC.Id=VD.ActivityId
+									LEFT JOIN [SCS].Currency GC ON GC.Id=V.CurrencyId
+									LEFT JOIN [HKP].[Party] AS P ON P.Id= VD.PartyId
+									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
+                                   WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
+								   AND ATY.Id='Expense'";
+                }
+
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public void InsertORUpdateCapitalizeAsset(FixedAssetRegister master, IEnumerable<SubFixedAssetRegister> subFixedAssetRegister, decimal NumberOfQuantity, string CompanyCurrencyCode
           , string CompanyGroupCurrencyCode, string HardCurrencyCode, out string masterid, IEnumerable<MaterialMasterMachineProcess> assetItemValue, IEnumerable<FixedAssetRegisterCharacteristicsValue> fixedAssetRegisterSkuValue
           , string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId, IEnumerable<FixedAssetRegisterDetail> fixedAssetRegisterDetail)
@@ -3040,11 +3152,11 @@ GROUP BY FAR.FABudgetMasterId
                         {
                             throw new CustomException(CompanyGroupCurrencyCode + " register amount  can't be greater then opening balance amount : " + opADGroupAmountTotal);
                         }
-                        
+
                         //master.FABaseAmount = Math.Round(master.FABaseAmount / NumberOfQuantity, 2);
                         master.ADBaseAmount = Math.Round(master.ADBaseAmount / NumberOfQuantity, 2);
                         //master.FABaseAmount = master.Price + subassestAmount;
-                        if(subFixedAssetRegister != null)
+                        if (subFixedAssetRegister != null)
                         {
                             tempTotalSubAssetAmount = subFixedAssetRegister.Sum(r => r.Amount);
                         }
@@ -3059,7 +3171,7 @@ GROUP BY FAR.FABudgetMasterId
                         var id = MakePK(_pk, i, 2);
                         if (master.Id == null)
                         {
-                        master.CapitalizeRegisterNo = _capitalizeRegisterId;
+                            master.CapitalizeRegisterNo = _capitalizeRegisterId;
                         }
 
                         if (i + 1 == NumberOfQuantity)
@@ -3068,10 +3180,10 @@ GROUP BY FAR.FABudgetMasterId
                             master.Price = master.TotalGRNAmount - (tempTotalAmount);
                             master.Quantity = 1;
                         }
-                        else if ( 1 > remainingNoOfQuantity)
+                        else if (1 > remainingNoOfQuantity)
                         {
                             master.FABaseAmount = master.TotalPrice - tempTotalBooksAmount;
-                            master.Price = master.TotalGRNAmount- (tempTotalAmount);
+                            master.Price = master.TotalGRNAmount - (tempTotalAmount);
                             master.Quantity = remainingNoOfQuantity;
                         }
                         else
@@ -3095,10 +3207,10 @@ GROUP BY FAR.FABudgetMasterId
 
 
                         /*Sub Fixed Asset Resigter If have */
-                        
+
                         if (subFixedAssetRegister != null)
                         {
-                            
+
                             foreach (var item in subFixedAssetRegister)
                             {
                                 if (string.IsNullOrEmpty(item.Id))
@@ -3670,13 +3782,13 @@ GROUP BY FAR.FABudgetMasterId
 
             return GetCapitalizeAssetItemValueData(fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId, companyId, accDepGL.AccumulatedDepreciationGLId, accDepGL.AccumulatedDepreciationBudgetMasterId, accDepGL.AccumulatedDepreciationActivityId);
         }
-        private DataTable GetRegisterReportData(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId , string fixedAssetMasterId, string vendorId)
+        private DataTable GetRegisterReportData(string companyGroupId, string companyId, string plantId, string MaterialMasterId, string MaterialMasterArticleId, string fixedAssetMasterId, string vendorId)
         {
             var sql = "";
 
             //if (PartyType == "All")
             //{
-                sql = @"SELECT FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
+            sql = @"SELECT FR.SerialNo, FR.Id AssetNo,  e.UserName Entity, D.UserName Department, FR.Model
                 , FR.InvoiceNo, MM.UserName MaterialMasterName, MMA.StandardName Article,FR.[Description]
                 , FAM.UserName FixedAssetMasterName, FAC.UserName FixedAssetCategory
                 --, FASC.UserName FixedAssetSubCategory, FAM.FixedAssetCategoryId
@@ -3941,7 +4053,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-    
+
 
             worksheet[ROW, COL].Text = "Entity";
             int colEntity = COL;
@@ -4150,7 +4262,7 @@ GROUP BY FAR.FABudgetMasterId
                 worksheet[ROW, colDepreciationRules].Text = dtGatenntryRegisterList.Rows[i]["DepreciationRules"].ToString();
                 worksheet[ROW, colPurchaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["PurchaseCurrency"].ToString();
                 worksheet[ROW, colBaseCurrency].Text = dtGatenntryRegisterList.Rows[i]["BaseCurrency"].ToString();
-                
+
                 worksheet[ROW, colQuantity].Text = dtGatenntryRegisterList.Rows[i]["Quantity"].ToString();
 
                 worksheet[ROW, colPurchasePrice].Number = clsStaticInfo.dbl(dtGatenntryRegisterList.Rows[i]["PurchasePrice"].ToString());
@@ -4235,7 +4347,7 @@ GROUP BY FAR.FABudgetMasterId
             // worksheet[ROW, COL].CellStyle.Font.Bold = true;
             //  ROW++;
 
-            
+
 
             worksheet[ROW, COL].Text = "AssetNo";
             int colAssetNo = COL;
@@ -4250,7 +4362,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            
+
             worksheet[ROW, COL].Text = "Material Master";
             int colMaterialMasterName = COL;
             worksheet[ROW, COL].ColumnWidth = 25;
@@ -4263,7 +4375,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            
+
             worksheet[ROW, COL].Text = "SKU1";
             int colSKU1 = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
@@ -4288,7 +4400,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-           
+
 
             worksheet[ROW, COL].Text = "Disposal type";
             int colDisposaltype = COL;
@@ -4323,7 +4435,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-           
+
             worksheet[ROW, COL].Text = "Disposed Amount";
             int colNegotiationValue = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
@@ -4559,7 +4671,7 @@ GROUP BY FAR.FABudgetMasterId
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             COL++;
 
-            
+
 
             worksheet[ROW, COL].Text = "Opening Balance";
             int colIsOpeningBalance = COL;
@@ -4712,7 +4824,7 @@ GROUP BY FAR.FABudgetMasterId
                 foreach (var item in fixedAssetRegister)
                 {
                     detailId++;
-                  var fixedAssetReg=  _fixedAssetRegisterRepository.Find(item.Id);
+                    var fixedAssetReg = _fixedAssetRegisterRepository.Find(item.Id);
 
                     fixedAssetReg.AdjustmentDepreciationAmount = item.AdjustmentDepreciationAmount;
                     fixedAssetReg.NegotiationValue = item.NegotiationValue;
@@ -4720,15 +4832,15 @@ GROUP BY FAR.FABudgetMasterId
                     fixedAssetReg.Remarks = fixedAssetDisposed.Remarks;
                     _fixedAssetRegisterRepository.Update(fixedAssetReg);
 
-                   
+
                     var fixedAssetDisposeDetail = new FixedAssetRegisterDisposedDetail
                     {
                         FixedAssetRegisterId = fixedAssetReg.Id,
                         NegotiationValue = item.NegotiationValue,
                         BaseNagotiationValue = item.BaseNagotiationValue,
 
-                        FixedAssetRegisterDisposedId= fixedAssetDispose.Id,
-                        Id = "D"+fixedAssetDispose.Id+ detailId,
+                        FixedAssetRegisterDisposedId = fixedAssetDispose.Id,
+                        Id = "D" + fixedAssetDispose.Id + detailId,
                     };
                     AuditService.AddedLog(fixedAssetDisposeDetail);
                     _fixedAssetRegisterDisposedDetailRepository.Insert(fixedAssetDisposeDetail);
