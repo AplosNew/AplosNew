@@ -149,6 +149,22 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult FixedAssetMasterIndividualXls(string FAMId, string reportFileName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = "";
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterIndividualReport(FAMId, "", reportFileName, identity.CompanyGroupId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public ActionResult FixedAssetMasterReport()
         {
             var fileName = "Fixed Asset Master Report " + System.DateTime.Now.ToString("ddMMMyyyy") + "";

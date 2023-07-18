@@ -140,6 +140,7 @@
                             <th>Category</th>
                             <th>Sub Category</th>
                             <th>Asset Type</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,7 +149,14 @@
                             <td>{{x.UserName}}</td>
                             <td>{{x.FixedAssetCategory}}</td>
                             <td>{{x.FixedAssetSubCategory}}</td>
-                            <td>{{x.AssetType}}</td>
+                            <td>{{x.AssetType}}</td> 
+                            <td>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button data-toggle="modal" ng-click="$parent.FixedAssetMasterIndividualReport(x.Id);" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+                                    </ul>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
