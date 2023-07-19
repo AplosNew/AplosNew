@@ -529,7 +529,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["DeliveryPartyPlantId"] = data.DeliveryPartyPlantId;
                     dr["InvoicingByAddress"] = data.InvoicingByAddress;
                     dr["DeliveryByAddress"] = data.DeliveryByAddress;
-
+                    dr["BankId"] = data.BankId;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;

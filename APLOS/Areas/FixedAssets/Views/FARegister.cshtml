@@ -76,7 +76,7 @@
                                 <label class="col-sm-4 control-label">Asset Item<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="input-group">
-                                        <input type="text" name="v" ng-model="register.AssetItem" class="form-control" readonly required>
+                                        <input type="text" name="AssetItem" ng-model="register.AssetItem" class="form-control" readonly required>
                                         <span class="input-group-btn">
                                             <button ng-click="ShowFixedAssetMasterItem();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                                             <button name="submit" ng-click="invoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
@@ -746,33 +746,18 @@
         <div class="modal-content row">
             <div class="modal-header">Fixed Asset Master Item <button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Short Name</th>
-                                <th>Stander Name</th>
-                                <th>User Name</th>
-                                <th>FixedAssetMaster</th>
-                                <th>FixedAssetCategory</th>
-                                <th>FixedAssetSubCategory</th>
-                                <th>Active</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="x in FixedAssetMasterItemList">
-                                <td>{{x.Code}}</td>
-                                <td>{{x.ShortName}}</td>
-                                <td>{{x.StandardName}}</td>
-                                <td>{{x.UserName}}</td>
-                                <td>{{x.FixedAssetMaster}}</td>
-                                <td>{{x.FixedAssetCategory}}</td>
-                                <td>{{x.FixedAssetSubCategory}}</td>
-                                <td>{{x.Active?'Yes':'No'}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div style="color:black;" id="Grid" ej-grid e-datasource="FixedAssetMasterItemList" e-recorddoubleclick="SetFAMI" e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="40"></div>
+                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="60"></div>
+                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="80"></div>
+                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="80"></div>
+                        <div e-column e-type="string" e-field="FixedAssetMaster" e-headertext="Fixed Asset Master" e-width="80"></div>
+                        <div e-column e-type="string" e-field="FixedAssetCategory" e-headertext="Fixed Asset Category" e-width="80"></div>
+                        <div e-column e-type="string" e-field="FixedAssetSubCategory" e-headertext="Fixed Asset Subcategory" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Active" e-headertext="Active" e-width="30"></div>
+                    </div>
+
                 </div>
             </div>
         </div>
