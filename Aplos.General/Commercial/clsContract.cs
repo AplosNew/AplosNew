@@ -56,7 +56,7 @@ namespace Library.General.Commercial
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
-                string sql = @"select top 100 * from (SELECT C.Id, C.CustomerId,C.BankId, C.IsLC, C.AddedBy, C.AddedDate, C.AddedFromIP, C.UpdatedBy, C.UpdatedDate, C.UpdatedFromIP, C.MasterLCId, 
+                string sql = @"select * from (SELECT C.Id, C.CustomerId,C.BankId, C.IsLC, C.AddedBy, C.AddedDate, C.AddedFromIP, C.UpdatedBy, C.UpdatedDate, C.UpdatedFromIP, C.MasterLCId, 
 isnull(C.ContractNo,'')ContractNo, C.TotalQty, C.SOQty, C.Amount, C.Description, isnull(C.UDNo,'')UDNo,C.FileNo, C.UDDate, C.ContractDate, C.IsPrint,C. IsMarketingCommisssionApplicable, 
 C.MarketingCommisssionId, C.IsBusinessDevelopmentChargesApplicable, C.BusinessDevelopmentCharge, C.BusinessDevelopmentChargeValue, 
 C.InvoicingPartyPlantId, C.DeliveryPartyPlantId, C.InvoicingByAddress, C.DeliveryByAddress, C.MarketingCommisssionCharge, 
@@ -797,8 +797,8 @@ Order by B.UserName";
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShipmentQty", 14, ExcelHAlign.HAlignCenter); cSQ = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ShippedValue", 14, ExcelHAlign.HAlignCenter); cSV = xlsCol; xlsCol++;
                 oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceQty", 12, ExcelHAlign.HAlignCenter); cBQ = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceLienValue", 12, ExcelHAlign.HAlignCenter); cBLV = xlsCol; xlsCol++;
-                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 12, ExcelHAlign.HAlignCenter); cR = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceLienValue", 14, ExcelHAlign.HAlignCenter); cBLV = xlsCol; xlsCol++;
+                oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks", 14, ExcelHAlign.HAlignCenter); cR = xlsCol; xlsCol++;
                
 
                 var orgCollist = xlsCol;
@@ -897,7 +897,7 @@ Order by B.UserName";
                         oRU.SetTextBorder(ref sheet1, xlsRow, cFileNo, dtManPBSummary.Rows[i]["FileNo"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cSSD, dtManPBSummary.Rows[i]["ShipmentStartDate"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cSED,dtManPBSummary.Rows[i]["ShipmentEndDate"].ToString());
-                        oRU.SetTextBorder(ref sheet1, xlsRow, cCN, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ContractNo"].ToString()));
+                        oRU.SetTextBorder(ref sheet1, xlsRow, cCN, dtManPBSummary.Rows[i]["ContractNo"].ToString());
                         oRU.SetTextBorder(ref sheet1, xlsRow, cTQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalQty"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cA, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["Amount"].ToString()));//
                         oRU.SetTextBorder(ref sheet1, xlsRow, cSQ, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["ShipmentQty"].ToString()));//
@@ -907,8 +907,8 @@ Order by B.UserName";
                         oRU.SetTextBorder(ref sheet1, xlsRow, cR, dtManPBSummary.Rows[i]["Remarks"].ToString());//
                         xlsRow++;
                     }
-                  //  xlsRow += 1;
-
+                    //  xlsRow += 1;
+                    sheet1.AutoFilters.FilterRange = sheet1.Range[catFRow - 1, 1, xlsRow, endXlsCol];
 
 
                     oRU.SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
