@@ -158,7 +158,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         if (baseService.arrayLength($scope.MaterialDataList) > 0) {
             for (var i = 0; i < $scope.MaterialDataList.length; i++) {
                 if (ids == "") {
-                    ids = "'','" + $scope.MaterialDataList[i].MaterialMasterId + "'";
+                    ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
                 }
                 else {
                     ids += ",'" + $scope.MaterialDataList[i].MaterialMasterId + "'";
