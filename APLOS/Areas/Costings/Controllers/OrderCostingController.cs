@@ -1866,10 +1866,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
             }
             catch (Exception ex)
             {
-                if (ex.Message.ToUpper().Contains("REFERENCE"))
-                    return Json(new { Error = true, Message = "This costing template has been tagged with order. Cannot delete" }, JsonRequestBehavior.AllowGet);
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+                throw ex;
 
             }
         }
