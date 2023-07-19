@@ -708,8 +708,8 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             try
             {
                 string sql = @"SELECT A.Id,A.MasterOrderItemId,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-                            Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
-                            ,OL.EntryState,ValueIN = CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+                            Value=ISNULL(CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END,0)
+                            ,OL.EntryState,ValueIN = ISNULL(CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END,0)
                             FROM OrderLineCostingItem AS OL
                             LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
                             OUTER APPLY (SELECT * FROM dbo.MasterOrderItemCostingRate WHERE OrderLineCostingItemId=OL.Id AND ISNULL(MasterOrderItemId,'" + masterOrderItemId + @"')='"+ masterOrderItemId + @"') A
@@ -727,7 +727,8 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             try
             {
                 string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-                            LR.Value ItemValue,SOValue=CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
+                            ISNULL(LR.Value,0) ItemValue,SOValue=ISNULL(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,0)
+							,ValueDiff=ISNULL(LR.Value-(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END),0),A.SalesOrderId,A.Remark
                             FROM OrderLineCostingItem AS OL
                             LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
                             LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'" + lineId + @"')='" + lineId + @"'

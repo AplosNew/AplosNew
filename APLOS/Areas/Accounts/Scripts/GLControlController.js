@@ -158,10 +158,11 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         if (baseService.arrayLength($scope.MaterialDataList) > 0) {
             for (var i = 0; i < $scope.MaterialDataList.length; i++) {
                 if (ids == "") {
-                    ids = "'','" + $scope.MaterialDataList[i].MaterialMasterId + "'";
+                    ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
                 }
                 else {
-                    ids += ",'" + $scope.MaterialDataList[i].MaterialMasterId + "'";
+                    //ids += ",'" + $scope.MaterialDataList[i].MaterialMasterId + "'";
+                    ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
                 }
             }
         }
@@ -568,7 +569,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
             }
         }
         else if ($scope.tabType == 'inventoryCapitalTab') {
-            $scope.Type = "inventoryCapital";
+            $scope.Type = "InventoryCapital";
             if (checkConsumableExist($scope.InventoryCapitalGLList, data) === false) {
                 $scope.InventoryCapitalGLList.push({
                     Id: null,

@@ -787,6 +787,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetAUCCIExpenseData(GridParameter gridparameter, string faType)//, string ids
+        {
+            return Json(_fixedAssetRegisterService.GetAUCCIExpenseData(gridparameter, faType), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetCapitalizeAssetItemValue(string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId, string companyId)
         {
             return Json(_fixedAssetRegisterService.GetCapitalizeAssetItemValue(fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId, companyId), JsonRequestBehavior.AllowGet);
@@ -1443,11 +1449,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         #endregion
 
 
-        [HttpGet]
+        [HttpGet,Authorize]
         public JsonResult GetFixedAssetMasterItem()
         {
             string sql = @"SELECT FI.*,Uom.Code CapacityUoM,FM.UserName FixedAssetMaster,FC.UserName FixedAssetCategory,FSC.UserName FixedAssetSubCategory  
-FROM MST.FixedAssetMasterItem FI
+FROM MST.FixedAssetItem FI
 LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=FI.FixedAssetMasterId
 LEFT JOIN HKP.FixedAssetCategory FC ON FC.Id=FM.FixedAssetCategoryId
 LEFT JOIN HKP.FixedAssetSubCategory FSC ON FSC.Id=FM.FixedAssetSubCategoryId

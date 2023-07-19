@@ -844,6 +844,55 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        public List<VehicleOutin> GetVehicleApprove()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleApprove(out List<VehicleOutin> activelists);
+            return activelists;
+        }
+
+        public string PostVehicleTrip([FromBody] IEnumerable<VehicleApproveList> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostVehicleTrip(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostUpdateVehicleApprove([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateVehicleApprove(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
+        public string PostUpdateVehicleReject([FromBody] IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                string Id = clsData.PostUpdateVehicleReject(DataToSave, VehicleId);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         #endregion VCehicle
 
         #region Incedent
