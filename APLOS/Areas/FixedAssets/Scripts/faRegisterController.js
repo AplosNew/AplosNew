@@ -384,9 +384,41 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         serverPagination: true
     };
 
+    //$scope.materialMasterList = [];
+    //$scope.getAssetData = function (faType) {
+    //    var url = "FixedAssets/FixedAssetRegister/GetCapitalizedAssetItem?faType=" + faType;
+    //    baseService.setCurrentPage("materialMasterList");
+    //    $scope.loadMaterialMasterModalList = function (pageno) {
+    //        baseService.paginationBase(url, pageno, $scope.searchMaterialMasterParameters)
+    //            .then(function (result) {
+    //                $scope.materialMasterList = result.Rows;
+    //                $scope.searchMaterialMasterParameters.total_count = result.Total;
+    //            }, function () {
+    //                ShowResult(commonMessage.NetworkError, "failure");
+    //            }).finally(function () {
+    //            });
+    //    };
+    //    $scope.loadMaterialMasterModalList();
+    //};
+
+    $scope.ItemName = null;
+    $scope.showSearchData = function (faType) {
+        $scope.FaType = faType;
+        if (faType=='AUC') {
+            $scope.ItemName = 'AUC';
+        } else if (faType == 'CI') {
+            $scope.ItemName = 'Capitalize Inventory';
+        }
+        else {
+            $scope.ItemName = 'Expense';
+        }
+        $scope.getSearchData(faType);
+        angular.element(document.querySelector("#assetmodal")).modal("show");
+    };
+
     $scope.materialMasterList = [];
-    $scope.getAssetData = function (faType) {
-        var url = "FixedAssets/FixedAssetRegister/GetCapitalizedAssetItem?faType=" + faType;
+    $scope.getSearchData = function (faType) {
+        var url = "FixedAssets/FixedAssetRegister/GetAUCCIExpenseData?faType=" + faType;
         baseService.setCurrentPage("materialMasterList");
         $scope.loadMaterialMasterModalList = function (pageno) {
             baseService.paginationBase(url, pageno, $scope.searchMaterialMasterParameters)
@@ -451,38 +483,47 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         }
     };
 
+    $scope.VoucherNo = null;
+    $scope.message_VoucherRemoveconfirmation = null;
+    $scope.RemoveItemVoucher = function (obj) {
+        $scope.VoucherNo= obj.VoucherNo;
+        if (!baseService.isUndefinedOrNull(obj.VoucherNo))
+            $scope.message_VoucherRemoveconfirmation = 'Are you sure want to delete permanently [ ' + obj.VoucherNo + ' ]';
+        angular.element(document.querySelector('#confirmVoucherRemovePopUp')).modal('show');
+    }
+
+    $scope.RemoveVoucher = function () {
+        for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+            if ($scope.selectedmaterialMasterList[i].VoucherNo == $scope.VoucherNo) {
+                $scope.selectedmaterialMasterList.splice(i, 1);
+            }
+        }
+    };
+
+
     $scope.CloseMMPopUp = function () {
         angular.element(document.querySelector("#assetmodal")).modal("hide");
     }
 
-    $scope.searchByFAMI = "UserName"; $scope.searchFAMI = "";
-
+    $scope.FixedAssetMasterItemList = [];
     $scope.ShowFixedAssetMasterItem = function () {
-        $scope.searchByFAList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: 'User Name' }, { value: 'StandardName', name: "Standard Name" }, { value: 'FixedAssetMaster', name: "FixedAssetMaster" }, { value: 'FixedAssetCategory', name: "FixedAssetCategory" }, { value: 'FixedAssetSubCategory', name: "FixedAssetSubCategory" }];
-
-        $scope.partyUrl = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem?partyType=' + $scope.partyType + '&CompanyId=' + $window.companyId + '&PlantId=' + $window.plantId;
-
+        $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
         $http({
-            method: 'POST',
-            url: $scope.partyUrl,
-            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            method: 'Get',
+            url: $scope.Url,
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.partyList = response.data;
+            $scope.FixedAssetMasterItemList = response.data;
         });
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
+        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('show');
     };
 
-    $scope.SetCustomerData = function (obj) {
-        var party = obj.data;
-        $scope.modelNew.CustomerName = party.UserName;
-        $scope.modelNew.CustomerId = party.Id;
-
-        getPartyPlantList();
-
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
-        $scope.searchParty = '';
-        $scope.partyType = "Customer";
+    $scope.SetFAMI = function (obj) {
+        $scope.register.AssetItem = obj.data.UserName;
+        $scope.register.AssetItemId = obj.data.Id;
+        $scope.register.FixedAssetMasterId = obj.data.FixedAssetMasterId;
+        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('hide');
+       
     }
 
 
@@ -1398,11 +1439,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector("#mmmodal")).modal("show");
     };
 
-    $scope.showAssetModal = function (faType) {
-        $scope.FaType = faType;
-        $scope.getAssetData(faType);
-        angular.element(document.querySelector("#assetmodal")).modal("show");
-    };
+    
 
     $scope.selectMaterialMasterData = function (data) {
         $scope.register.MaterialMasterId = data.Id;

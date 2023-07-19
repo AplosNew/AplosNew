@@ -201,10 +201,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                 WTable table1 = (WTable)section.Body.Tables[0];
                 WTableRow copiedRow3 = table1.Rows[2].Clone();
                 WTableRow row3;
+                
 
                 for (int i = 0; i < dtClanderYear.Rows.Count; i++)
                 {
-                    DataTable dtloadLeaveTransactions = payrollReportsService.LeaveSummaryForServiceBookQuery(empId, dtClanderYear.Rows[i]["YearNo"].ToString());
+
+                    DataTable dtloadLeaveTransactions = payrollReportsService.LeaveSummaryForServiceBookQuery(empId, identity.PlantId, dtClanderYear.Rows[i]["YearNo"].ToString());
                     DataTable dtLoadLeave = payrollReportsService.loadBf(empId, dtClanderYear.Rows[i]["Id"].ToString());
 
                     for (int ROW = 0; ROW < dtloadLeaveTransactions.Rows.Count; ROW++)
@@ -260,7 +262,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
                 //document.EncryptDocument("syncfusion");
                 document.Protect(ProtectionType.AllowOnlyReading, "password");
-                string filename = "Leave Register Form-" + empId+".docx";
+                string filename = "Leave Register Form-" + empId + ".docx";
                 document.Save(filename, Syncfusion.DocIO.FormatType.Automatic, System.Web.HttpContext.Current.Response, Syncfusion.DocIO.HttpContentDisposition.InBrowser);
                 document.Close();
 
