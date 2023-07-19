@@ -32,6 +32,7 @@ using Library.Service.Extension.Accounts;
 using Library.Model.Parties;
 using Library.Model.Invoices;
 using Library.Model.Vouchers;
+using Library.Service.EmployeeServices;
 
 namespace Aplos.Areas.SalesManagements.Controllers
 {
@@ -462,7 +463,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
         [HttpPost]
         public JsonResult SaveSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList
-            , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList, List<Dictionary<string, object>> itemScanCildNewList)
+            , List<Dictionary<string, object>> taxList, List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata, List<Dictionary<string, object>> itemScanCildNewList)
         {
             try
             {
@@ -476,7 +477,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                         item["ReturnNetWeight"] = 0;
                     }
                 }
-                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList, itemScanCildNewList);
+                string _id = InsertSalesReturn(data, detaildataList, taxList, itemScanCildList, ItemScandata, itemScanCildNewList);
                 return Json(new { Id = _id, Message = string.Format(AplosMessage.Success + " Sales Return No <b>" + _id + "</b>") });
             }
             catch (Exception ex)
@@ -485,7 +486,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             }
         }
         private string InsertSalesReturn(Dictionary<string, object> data, List<Dictionary<string, object>> detaildataList, List<Dictionary<string, object>> taxList
-            , List<Dictionary<string, object>> itemScanCildList, List<Dictionary<string, object>> itemScanCildNewList)
+            , List<Dictionary<string, object>> itemScanCildList, Dictionary<string, object> ItemScandata, List<Dictionary<string, object>> itemScanCildNewList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster;
@@ -493,6 +494,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             DataSet dstax;
             DataSet dsitemscanChild;
             DataSet dsitemscanChildNew;
+            DataSet dsitemscanNew;
             string TableName = "dbo.ItemScanChild";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -503,6 +505,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 string sqlDetail = "SELECT * FROM [TRN].[SalesReturnDetail] WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
+                string itemScansql = "SELECT * FROM dbo.ItemScan WHERE 1=2";
                 //string itemScanChildNewsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 //string poUpdateLogsql = "SELECT Top(1) * FROM [TRN].[PurchaseOrderUpdateLog] WHERE 1=2";
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -510,6 +513,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
                 objCon.OpenDataSetThroughAdapter(taxsql, out dstax, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
+                objCon.OpenDataSetThroughAdapter(itemScansql, out dsitemscanNew, false, "1");
                 //objCon.OpenDataSetThroughAdapter(itemScanChildNewsql, out dsitemscanChildNew, false, "1");
                 objCon.getDataSet("Select * from dbo.ItemScanChild where 1=2", out dsitemscanChildNew);
                 if (dsMaster.Tables[0].Rows.Count == 0)
@@ -607,6 +611,27 @@ namespace Aplos.Areas.SalesManagements.Controllers
                             }
                             if (itemScanCildNewList != null)
                             {
+                                if (dsitemscanNew.Tables[0].Rows.Count == 0)
+                                {
+                                    DataRow dris= dsitemscanNew.Tables[0].NewRow();
+                                    bplib.clsGenID id = new bplib.clsGenID();
+                                    id.GenIDYearly(DateTime.Now.ToShortDateString(), "Item Scan", out string NewId);
+
+                                    dris["Id"] = NewId;
+                                    dris["WorkDate"] = ItemScandata["WorkDate"].ToString();
+                                    dris["Time"] =   Convert.ToDateTime(ItemScandata["WorkDate"].ToString() + " " + DateTime.Now.ToString("HH:mm:ss"));
+                                    dris["ShiftId"] = ItemScandata["ShiftId"].ToString();
+                                    dris["LocMasterId"] = ItemScandata["LocMasterId"].ToString();
+                                    dris["PurposeId"] = ItemScandata["PurposeId"].ToString();
+                                    dris["Grade"] = ItemScandata["Grade"].ToString();
+                                    dris["AddedBy"] = identity.Name;
+                                    dris["AddedDate"] = DateTime.Now;
+                                    dsitemscanNew.Tables[0].Rows.Add(dris);
+                                }
+
+                                string _ItemScanId = dsitemscanNew.Tables[0].Rows[0]["Id"].ToString();
+
+
                                 foreach (var scitemNew in itemScanCildNewList.Where(r => r["SalesId"].ToString() == item["SalesId"].ToString()
                                     && r["ActualPackingId"].ToString() == item["PackingId"].ToString()
                                     && r["SalesOrderId"].ToString() == item["SalesOrderId"].ToString()))
@@ -623,8 +648,11 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         }
                                         scitemNew["Id"] = "SC" + _itemNewId + "-" + Index;
                                         scitemNew["SalesId"] = DBNull.Value;
+                                        scitemNew["MasterId"] = _ItemScanId;
                                         scitemNew["IsReturn"] = true;
+                                        scitemNew["SalesMaterialId"] = DBNull.Value;
                                         scitemNew["LocMasterId"] = data["LocMasterId"].ToString();
+                                        scitemNew["NetWeight"] = scitemNew["ReturnQty"];
                                         AddNewRowD(dsitemscanChildNew.Tables[0], scitemNew);
                                     }
                                 }
@@ -636,7 +664,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild, dsitemscanChildNew);
+                obj.SaveDataSets(dsMaster, dsDetail, dstax, dsitemscanChild, dsitemscanNew, dsitemscanChildNew);
                 return _Id;
             }
             catch (Exception ex)
@@ -670,17 +698,17 @@ namespace Aplos.Areas.SalesManagements.Controllers
             materialCommonService.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "SalesReturn", out sID);
             return sID;
         }
-
+        
 
         [HttpGet, Authorize]
-        public JsonResult GetSalesReturnCbo()
+        public JsonResult GetSalesReturnLocationCbo()
         {
-            return Json(GetSalesReturnData(), JsonRequestBehavior.AllowGet);
+            return Json(GetSalesReturnLocationData(), JsonRequestBehavior.AllowGet);
         }
-        public List<Dictionary<string, object>> GetSalesReturnData()
+        public List<Dictionary<string, object>> GetSalesReturnLocationData()
         {
                 string sql = "";
-                sql = @"SELECT MMM.ToLocation [TEXT],MMM.Id [Value] from MST.MaterialMovementMaster MMM 
+                sql = @"SELECT MMM.ToLocation [TEXT],MMM.Id [Value],MMM.PurposeId from MST.MaterialMovementMaster MMM 
                         LEFT JOIN HKP.MaterialMovementPurpose MMP ON MMP.Id=MMM.PurposeId
                         WHERE MMP.UserName='Sales Return'";
                 return _sqlRepository.GetDataCollection(sql);

@@ -382,7 +382,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.getLocationCbo = function () {
         $http({
             method: "GET",
-            url: "SalesManagements/Sales/GetSalesReturnCbo"
+            url: "SalesManagements/Sales/GetSalesReturnLocationCbo"
         }).then(function successCallback(response) {
             $scope.locationCbo = response.data;
         });
@@ -416,6 +416,9 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     //#endregion
     $scope.newList = [];
     $scope.newtaxList = [];
+    $scope.tempitemScan = {
+        Id: null, WorkDate: $filter("dateFiltering")(Date.now()), Time: $filter("dateFiltering")(Date.now()), ShiftId: null, LocMasterId: null, PurposeId: null, Grade: null
+    };
     $scope.Validation = function () {
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
@@ -445,6 +448,13 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
             }
         }
         if ($scope.productNew.SourceType == 'Packing') {
+            $scope.tempitemScan.LocMasterId = $scope.productNew.LocMasterId;
+            $scope.tempitemScan.WorkDate = $scope.productNew.SalesReturnDate;
+            $scope.tempitemScan.Time = $scope.productNew.SalesReturnDate;
+            $scope.tempitemScan.PurposeId = $scope.locationCbo[0].PurposeId
+            $scope.tempitemScan.ShiftId = $scope.tempitemScanList[0].ShiftId
+            $scope.tempitemScan.Grade = $scope.tempitemScanList[0].Grade
+
             $scope.itemScanNewListForSales = [];
             $scope.itemScanNewListForSales = $scope.tempitemScanList.slice();
         }
@@ -453,7 +463,6 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
     $scope.itemScanNewListForSales = [];
     $scope.Save = function () {
         $scope.IsSaveButtonDisable = true;
-        $scope.Validation();
         $scope.$broadcast("show-errors-check-validity");
         if ($scope.productNewForm.$valid && !$scope.Validation()) {
             if ($scope.Action === "Save" && $scope.productNew.Id == null) {
@@ -465,6 +474,7 @@ function SalesReturnController(accountService, $window, cboService, commonMessag
                         , 'detaildataList': $scope.newList
                         , 'taxList': $scope.newtaxList
                         , 'itemScanCildList': $scope.tempitemScanList
+                        , 'ItemScandata': $scope.tempitemScan
                         , 'itemScanCildNewList': $scope.itemScanNewListForSales
                     }
                     , dataType: 'JSON'
