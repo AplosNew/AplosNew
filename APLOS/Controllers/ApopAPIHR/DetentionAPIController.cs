@@ -844,6 +844,13 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        public List<VehicleOutin> GetVehicleApprove()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetVehicleApprove(out List<VehicleOutin> activelists);
+            return activelists;
+        }
+
         #endregion VCehicle
 
         #region Incedent
