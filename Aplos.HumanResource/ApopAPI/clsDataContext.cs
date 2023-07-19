@@ -6238,6 +6238,178 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
             }
         }
 
+
+        public string PostVehicleTrip(IEnumerable<VehicleApproveList> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.VehicleTrip";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<VehicleApproveList> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleTrip where Id='" + items[0].Id + "'", out dsMaster, false, "1");
+
+                foreach (VehicleApproveList item in DataToSave)
+                {
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+
+
+                        dr["Id"] = "22" + _Id;
+                        dr["FromDate"] = item.FromDate;
+                        dr["ToDate"] = item.ToDate;
+                        dr["FromTime"] = item.FromTime;
+                        dr["ToTime"] = item.ToTime;
+
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedFromIP"] = item.AddedFromIP;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+
+                    }
+
+
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+        public string PostUpdateVehicleApprove(IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.VehicleMovementRequisition";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Vehicle> items = DataToSave.ToList();
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    Id += ",'" + VehicleId + "'";
+                }
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + VehicleId + "' ";
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                       // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+                       
+                        dr["AppliedId"] = item.AppliedId;
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string PostUpdateVehicleReject(IEnumerable<Vehicle> DataToSave, string VehicleId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "TRN.VehicleMovementRequisition";
+                string Id = "''";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+                List<Vehicle> items = DataToSave.ToList();
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    Id += ",'" + VehicleId + "'";
+                }
+                con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + VehicleId + "' ";
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out string _Id);
+
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+
+
+                        dr["IsReject"] = "false";
+
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+
+
+                        dr.EndEdit();
+
+                    }
+                }
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         #endregion Vehicle Requisition
 
         #region Incident
@@ -7127,6 +7299,8 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string EmpSystemId { get; set; }
         public string NumberOfPassengers { get; set; }
         public string Remarks { get; set; }
+        public string AppliedId { get; set; }
+        public string IsReject { get; set; }
         public string isCancel { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
@@ -7244,6 +7418,21 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string Purpose { get; set; }
         public string Department { get; set; }
 
+    }
+
+    public class VehicleApproveList
+    {
+        public string Id { get; set; }
+        public string FromDate { get; set; }
+        public string ToDate { get; set; }
+        public string FromTime { get; set; }
+        public string ToTime { get; set; }
+        public string AddedBy { get; set; }
+        public string AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+        public string UpdatedBy { get; set; }
+        public string UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
     }
 
     public class IncedentCategory
