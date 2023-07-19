@@ -161,8 +161,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
                 }
                 else {
-                    //ids += ",'" + $scope.MaterialDataList[i].MaterialMasterId + "'";
-                    ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
+                    ids += "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
                 }
             }
         }
@@ -529,7 +528,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
     function checkConsumableExist(list, data) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].GLGeneralInfoId === data.GLGeneralInfoId && list[i].BudgetId === data.BudgetMasterId && list[i].ActivityId === data.ActivityId) {
+            if (list[i].GLGeneralInfoId === data.GLGeneralInfoId && list[i].BudgetMasterId === data.BudgetMasterId && list[i].ActivityId === data.ActivityId) {
                 return true;
             }
         }
@@ -540,6 +539,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
         if ($scope.tabType == 'consumableTab') {
             $scope.Type = "Consumable";
+
             if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
                 $scope.ExpenseGLList.push({
                     Id: null,
@@ -552,7 +552,11 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     Type: $scope.Type
                 });
             }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
+            }
         }
+
         else if ($scope.tabType == 'inventoryTab') {
             $scope.Type = "Inventory";
             if (checkConsumableExist($scope.InventoryGLList, data) === false) {
@@ -566,6 +570,9 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     ActivityId: data.ActivityId,
                     Type: $scope.Type
                 });
+            }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
             }
         }
         else if ($scope.tabType == 'inventoryCapitalTab') {
@@ -582,6 +589,9 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     Type: $scope.Type
                 });
             }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
+            }
         }
         else {
             $scope.Type = "Capital";
@@ -596,6 +606,9 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     ActivityId: data.ActivityId,
                     Type: $scope.Type
                 });
+            }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
             }
         }
 
@@ -808,7 +821,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
     // #endregion --------------------------------- Inventory  -----------------------------------//
 
-    $scope.GLControlReport = function (data,index) {
+    $scope.GLControlReport = function (data, index) {
         $scope.fileName = "GLControlReport.xlsx";
 
         $http({
