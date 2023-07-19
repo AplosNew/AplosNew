@@ -526,18 +526,18 @@ namespace Library.Service.FixedAssets
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 int colAssetType = COL;
                 worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
+                //COL++;
 
-                worksheet[ROW, COL].Text = "GL";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                int colGL = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
-                COL++;
+                //worksheet[ROW, COL].Text = "GL";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //int colGL = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
+                //COL++;
 
-                worksheet[ROW, COL].Text = "Budget";
-                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                int colBudget = COL;
-                worksheet[ROW, COL].ColumnWidth = 15;
+                //worksheet[ROW, COL].Text = "Budget";
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //int colBudget = COL;
+                //worksheet[ROW, COL].ColumnWidth = 15;
 
                 int endCol = COL;
                 worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
@@ -557,8 +557,8 @@ namespace Library.Service.FixedAssets
                     worksheet[ROW, colFixedAssetCategory].Text = data.Rows[i]["FixedAssetCategory"].ToString();
                     worksheet[ROW, colFixedAssetSubCategory].Text = data.Rows[i]["FixedAssetSubCategory"].ToString();
                     worksheet[ROW, colAssetType].Text = data.Rows[i]["AssetType"].ToString(); 
-                    worksheet[ROW, colGL].Text = data.Rows[i]["GL"].ToString(); 
-                    worksheet[ROW, colBudget].Text = data.Rows[i]["Budget"].ToString(); 
+                    //worksheet[ROW, colGL].Text = data.Rows[i]["GL"].ToString(); 
+                    //worksheet[ROW, colBudget].Text = data.Rows[i]["Budget"].ToString(); 
 
                     worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -855,14 +855,14 @@ namespace Library.Service.FixedAssets
 
         public DataTable getFAMIDataList()
         {
-            string str = @"SELECT FAM.*,FAC.UserName FixedAssetCategory,FASC.UserName FixedAssetSubCategory,GL.UserName GL,B.UserName Budget   
+            string str = @"SELECT FAM.*,FAC.UserName FixedAssetCategory,FASC.UserName FixedAssetSubCategory--,GL.UserName GL,B.UserName Budget   
 					                                FROM mst.FixedAssetMaster FAM
 					                                left join [HKP].[FixedAssetCategory] FAC on FAC.Id=FAM.FixedAssetCategoryId
 					                                left join [HKP].[FixedAssetSubCategory] FASC on FASC.Id=FAM.FixedAssetSubCategoryId
-					                                left join [HKP].[FixedAssetMasterBudgetTag] FMBT on FMBT.FixedAssetMasterId=FAM.Id
-					                                left join [MST].[BudgetMaster] BM on BM.Id=FMBT.BudgetMasterId
-					                                left join [HKP].[GLGeneralInfo] GL on GL.Id=BM.GLGeneralInfoId
-					                                left join [HKP].[Budget] B on B.Id=BM.BudgetId";
+					                                --left join [HKP].[FixedAssetMasterBudgetTag] FMBT on FMBT.FixedAssetMasterId=FAM.Id
+					                                --left join [MST].[BudgetMaster] BM on BM.Id=FMBT.BudgetMasterId
+					                                --left join [HKP].[GLGeneralInfo] GL on GL.Id=BM.GLGeneralInfoId
+					                                --left join [HKP].[Budget] B on B.Id=BM.BudgetId";
             return _sqlRepository.GetDataTable(str);
         }
 
