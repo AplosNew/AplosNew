@@ -236,7 +236,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
                 con.OpenDataSetThroughAdapter("select * from [MST].[GLControlMaster] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                string materialsql = "SELECT * FROM [MST].[MaterialMaster] WHERE Id  in (" + materialId + @")";
+                string materialsql = "SELECT * FROM [MST].[MaterialMaster] WHERE Id  in ('" + materialId + @"')";
                 con.OpenDataSetThroughAdapter(materialsql, out dsMaterial, false, "1");
 
                 con.OpenDataSetThroughAdapter("SELECT * FROM [MST].[GLControlDetail] where  GLControlId='" + data["Id"] + "'", out dsConsumable, false, "1");
