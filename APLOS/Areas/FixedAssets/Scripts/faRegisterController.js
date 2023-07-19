@@ -505,17 +505,12 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector("#assetmodal")).modal("hide");
     }
 
-    $scope.searchByFAMI = "UserName"; $scope.searchFAMI = "";
     $scope.FixedAssetMasterItemList = [];
     $scope.ShowFixedAssetMasterItem = function () {
-        $scope.searchByFAList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: 'User Name' }, { value: 'StandardName', name: "Standard Name" }, { value: 'FixedAssetMaster', name: "FixedAssetMaster" }, { value: 'FixedAssetCategory', name: "FixedAssetCategory" }, { value: 'FixedAssetSubCategory', name: "FixedAssetSubCategory" }];
-
         $scope.Url = 'FixedAssets/FixedAssetRegister/GetFixedAssetMasterItem';
-
         $http({
             method: 'Get',
             url: $scope.Url,
-           // data: { column: $scope.searchByParty, value: $scope.searchParty },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.FixedAssetMasterItemList = response.data;
@@ -523,16 +518,12 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('show');
     };
 
-    $scope.SetCustomerData = function (obj) {
-        var party = obj.data;
-        $scope.modelNew.CustomerName = party.UserName;
-        $scope.modelNew.CustomerId = party.Id;
-
-        getPartyPlantList();
-
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
-        $scope.searchParty = '';
-        $scope.partyType = "Customer";
+    $scope.SetFAMI = function (obj) {
+        $scope.register.AssetItem = obj.data.UserName;
+        $scope.register.AssetItemId = obj.data.Id;
+        $scope.register.FixedAssetMasterId = obj.data.FixedAssetMasterId;
+        angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('hide');
+       
     }
 
 

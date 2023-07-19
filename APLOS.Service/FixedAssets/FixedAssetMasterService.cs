@@ -470,7 +470,7 @@ namespace Library.Service.FixedAssets
 									                ,uom.UserName CapacityUoM,fami.CapacityValue,isnull(fami.Description,'') Description
 									                ,isnull(fami.Remarks,'') Remarks
 
-                                                    FROM mst.FixedAssetMasterItem AS fami
+                                                    FROM mst.FixedAssetItem AS fami
                                                     LEFT JOIN mst.FixedAssetMaster AS fam ON fam.Id=fami.FixedAssetMasterId
                                                     LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=fami.CapacityUoMId";
                 return _sqlRepository.GetGridData(parameters);
@@ -882,7 +882,7 @@ namespace Library.Service.FixedAssets
 									                ,isnull(fami.Remarks,'') Remarks
 
                                                     FROM mst.FixedAssetMaster AS fam 
-													left join mst.FixedAssetMasterItem AS fami ON fam.Id=fami.FixedAssetMasterId
+													left join mst.FixedAssetItem AS fami ON fam.Id=fami.FixedAssetMasterId
                                                     LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=fami.CapacityUoMId
 													where fam.Id ='" + FAMId + "'";
             return _sqlRepository.GetDataTable(str);
