@@ -10,6 +10,32 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         Id: null, FixedAssetItemId: null, CapitalizationDate: null, Qty: 0, GRNAmount: 0, IssueAmount: 0, ExpensesAmount: 0, Other: null, TotalAmount: 0, ApprovedById: null, Status: null, Type: null, VoucherRowId: null, Remark: null, InstallationYear: null, Lifetime: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
 
+    $scope.yearList = [];
+    $scope.getYearOfHaving = function () {
+        $scope.yearList = [];
+        var endYear = new Date();
+        var ey = parseInt(endYear.getFullYear());
+        for (var i = ey; i <= 2099; i++) {
+            var ob = {
+                Value: i,
+                Text: i
+            };
+            $scope.yearList.push(ob);
+        }
+
+        var d = new Date();
+        var n = d.getFullYear();
+        for (var i = 0; i < $scope.yearList.length; i++) {
+            if ($scope.yearList[i].Text === n) {
+                $scope.register.InstallationYear = $scope.yearList[i].Text;
+                break;
+            }
+        }
+
+    };
+    $scope.getYearOfHaving();
+
+
     $scope.masterList = [];
     $scope.getSavedData = function () {
         $scope.purchaseLCList = [];

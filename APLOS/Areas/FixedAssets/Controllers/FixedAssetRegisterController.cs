@@ -1582,7 +1582,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FAI.UserName FixedAssetItem,E.EmployeeName
+            string sql = @"SELECT CM.*,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById";
@@ -1612,7 +1612,7 @@ LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
 LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
 LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
 LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
-Where  C.CapitalizationMasterId=''";
+Where  C.CapitalizationMasterId='"+ masterId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
