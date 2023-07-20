@@ -942,7 +942,7 @@ order by pk.Date  DESC";
             {
                 var str = @"Select pol.Id,pol.PackingLineItemId,pol.ProductCode,pol.PONo,pol.LotNo,pol.PlanQty,pol.Status,pol.Remarks, isnull(bk.booked,0) as BookQty from trn.POLotReference pol 
 							left join
-							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1 
+							(Select sum(NetWeight) as booked , PackingId from dbo.ItemScanChild where Booked = 1 AND IsDespatch=0
 							group by PackingId) as bk on bk.PackingId = pol.Id
                             where PackingLineItemId = '" + PackingLineItemId + @"'";
                 return _sqlRepository.GetDataCollection(str);

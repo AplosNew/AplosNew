@@ -294,6 +294,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     ob.ArticleId = $scope.salesOrderNewList[i].ArticleId;
                     ob.SONo = $scope.salesOrderNewList[i].SONo;
                     ob.SalesOrderId = $scope.salesOrderNewList[i].SalesOrderId;
+                    ob.PackingId = $scope.salesOrderNewList[i].PackingId;
                     ob.PONumber = $scope.salesOrderNewList[i].PONumber;
                     ob.DeliveryDate = $scope.salesOrderNewList[i].DeliveryDate;
                     ob.DestinationName = $scope.salesOrderNewList[i].DestinationName;

@@ -3213,7 +3213,7 @@ namespace Library.Service.SalesManagements
 
                         if (dsItemScanData.Tables[0].Rows.Count > 0)
                         {
-                            dsItemScanData.Tables[0].DefaultView.RowFilter="SOId='"+ salesMaterialVM.SalesOrderId + "'";
+                            dsItemScanData.Tables[0].DefaultView.RowFilter="SOId='"+ salesMaterialVM.SalesOrderId + "' AND PackingId='"+ salesMaterialVM.PackingId + "'";
                             
                             for (int i = 0; i < dsItemScanData.Tables[0].DefaultView.Count; i++)
                             {
@@ -3681,13 +3681,14 @@ namespace Library.Service.SalesManagements
 
                         if (dsItemScanData.Tables[0].Rows.Count > 0)
                         {
-                            dsItemScanData.Tables[0].DefaultView.RowFilter = "SOId='" + salesMaterialVM.SalesOrderId + "'";
+                            dsItemScanData.Tables[0].DefaultView.RowFilter = "SOId='" + salesMaterialVM.SalesOrderId + "' AND PackingId='" + salesMaterialVM.PackingId + "'";
 
                             for (int i = 0; i < dsItemScanData.Tables[0].DefaultView.Count; i++)
                             {
                                 var childData = _ItemScanChildDataService.Find(dsItemScanData.Tables[0].DefaultView[i]["Id"].ToString());
                                 childData.SalesMaterialId = salesMaterialVM.Id;
-                                childData.SalesId = sales.Id;
+                                childData.SalesId = sales.Id; 
+                                childData.IsDespatch = true;
                                 childData.ReturnNetWeight = 0;
                                 childData.ModelState = ModelState.Modified;
                                 _ItemScanChildDataService.Update(childData);

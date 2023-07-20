@@ -25,68 +25,6 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         return $scope.tab === tabNum;
     };
 
-    $scope.product = {
-        Id: null,
-        CompanyGroupId: null,
-        CountryId: null,
-        CompanyId: null,
-        PositionCode: null,
-        PlantId: null,
-        EntityId: null,
-        ProcurementDays: null,
-        ProcurementFrequency: null,
-        MaterialType: null,
-        QualityStdSet: null,
-        CostReductionCategory: null,
-        MaterialMasterId: null,
-        ArticleId: null,
-        ArticleCriticality: null,
-        FirstCharacteristicsId: null,
-        FirstCharacteristicsValueId: null,
-        SecondCharacteristicsId: null,
-        SecondCharacteristicsValueId: null,
-        ThirdCharacteristicsId: null,
-        ThirdCharacteristicsValueId: null,
-        MinStockLevel: null,
-        MaxStockLevel: null,
-        CostingPercentage: null,
-        ProcurementPercentage: null,
-        QualityApprovalReq: null,
-        QualityApprovedBy: null,
-        PossitionCodeForApproval: null,
-        QualityStdSet: null,
-        SupplierQualityReportReq: null,
-        RequisitionType: null,
-        PriceApproval: null,
-        POGroupId: null,
-        Imported: null,
-        ImportedCurrencyId: null,
-        ImportedBaseRate: null,
-        ImportedTgtLandedRate: null,
-        ImportProcurementLedTimeDays: null,
-        ImportedMinimumOrderQty: null,
-        ImportedArticleLifeDays: null,
-        Local: null,
-        LocalCurrencyId: null,
-        LocalBaseRate: null,
-        LocalTgtLandedRate: null,
-        LocalProcurementLedTimeDays: null,
-        LocalMinimumOrderQty: null,
-        LocalArticleLifeDays: null,
-        AutoPoGeneration: null,
-        POGenerationCriteria: null,
-        PoGenerationDay: null,
-        LastProcurementRate: null,
-        MinimumProcurementRate: null,
-        MaximumProcurementRate: null,
-        MaterialMasterName: null,
-        ArticleName: null,
-        ProcurementsPlanDay: null,
-        Remarks: null
-    };
-    $scope.productNew = Object.assign({}, $scope.product);
-
-
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -161,8 +99,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
                 }
                 else {
-                    //ids += ",'" + $scope.MaterialDataList[i].MaterialMasterId + "'";
-                    ids = "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
+                    ids += "','" + $scope.MaterialDataList[i].MaterialMasterId + "";
                 }
             }
         }
@@ -529,7 +466,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
     function checkConsumableExist(list, data) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].GLGeneralInfoId === data.GLGeneralInfoId && list[i].BudgetId === data.BudgetMasterId && list[i].ActivityId === data.ActivityId) {
+            if (list[i].GLGeneralInfoId === data.GLGeneralInfoId && list[i].BudgetMasterId === data.BudgetMasterId && list[i].ActivityId === data.ActivityId) {
                 return true;
             }
         }
@@ -540,6 +477,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
         if ($scope.tabType == 'consumableTab') {
             $scope.Type = "Consumable";
+
             if (checkConsumableExist($scope.ExpenseGLList, data) === false) {
                 $scope.ExpenseGLList.push({
                     Id: null,
@@ -549,10 +487,15 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
             }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
+            }
         }
+
         else if ($scope.tabType == 'inventoryTab') {
             $scope.Type = "Inventory";
             if (checkConsumableExist($scope.InventoryGLList, data) === false) {
@@ -564,8 +507,12 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
+            }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
             }
         }
         else if ($scope.tabType == 'inventoryCapitalTab') {
@@ -579,8 +526,12 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
+            }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
             }
         }
         else {
@@ -594,8 +545,12 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
+            }
+            else {
+                ShowResult(data.GLGeneralInfoName + " is already  Exist", "failure");
             }
         }
 
@@ -808,7 +763,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
 
     // #endregion --------------------------------- Inventory  -----------------------------------//
 
-    $scope.GLControlReport = function (data,index) {
+    $scope.GLControlReport = function (data, index) {
         $scope.fileName = "GLControlReport.xlsx";
 
         $http({

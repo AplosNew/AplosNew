@@ -2934,7 +2934,7 @@ GROUP BY FAR.FABudgetMasterId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (faType == "AUC")
                 {
-                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),IR.VoucherId,IRD.VoucherDetailId VoucherDetailNo,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
+                    parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),IRD.Id InventoryReceiveDetailId,IR.VoucherId,IRD.VoucherDetailId VoucherDetailNo,v.VoucherNo,Round((IRD.TotalMaterialBooksCurrencyAmount),4) Amount
                     ,Round((0),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId
                                     ,TUoM.UserName AS BaseUoM,IRD.BaseQty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
 									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
