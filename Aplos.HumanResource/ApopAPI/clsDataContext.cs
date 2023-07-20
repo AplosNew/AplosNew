@@ -6363,7 +6363,7 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                         dr.BeginEdit();
 
 
-                        dr["IsReject"] = "false";
+                        dr["IsReject"] = item.IsReject;
 
 
                         dr["UpdatedBy"] = item.UpdatedBy;
