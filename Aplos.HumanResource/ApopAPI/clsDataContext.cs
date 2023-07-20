@@ -6299,35 +6299,24 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
             try
             {
                 DataSet dsMaster;
-                string TableName = "TRN.VehicleMovementRequisition";
-                string Id = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<Vehicle> items = DataToSave.ToList();
 
-                foreach (Vehicle item in DataToSave)
-                {
-                    Id += ",'" + VehicleId + "'";
-                }
+                
                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
                 {
-                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + VehicleId + "' ";
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out string _Id);
-
-                       // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                       
                         dr["AppliedId"] = item.AppliedId;
-
 
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -6357,35 +6346,24 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
             try
             {
                 DataSet dsMaster;
-                string TableName = "TRN.VehicleMovementRequisition";
-                string Id = "''";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 if (DataToSave.Count() == 0)
                     return "";
                 List<Vehicle> items = DataToSave.ToList();
 
-                foreach (Vehicle item in DataToSave)
-                {
-                    Id += ",'" + VehicleId + "'";
-                }
+
                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
                 {
-                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + VehicleId + "' ";
                     if (dsMaster.Tables[0].Rows.Count > 0)
                     {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out string _Id);
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-
-                        dr["IsReject"] = "false";
-
+                        dr["IsReject"] = 1;
 
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
