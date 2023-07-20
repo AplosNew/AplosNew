@@ -6351,6 +6351,7 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                     return "";
                 List<Vehicle> items = DataToSave.ToList();
 
+
                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
@@ -6362,9 +6363,7 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-
-                        dr["IsReject"] = item.IsReject;
-
+                        dr["IsReject"] = 1;
 
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
