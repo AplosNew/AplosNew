@@ -506,15 +506,12 @@ namespace Aplos.Areas.SalesManagements.Controllers
                 string taxsql = "SELECT * FROM [TRN].[SalesReturnTax] WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScanChildsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
                 string itemScansql = "SELECT * FROM dbo.ItemScan WHERE 1=2";
-                //string itemScanChildNewsql = "SELECT * FROM dbo.ItemScanChild WHERE SalesId='" + data["SalesId"].ToString() + "'";
-                //string poUpdateLogsql = "SELECT Top(1) * FROM [TRN].[PurchaseOrderUpdateLog] WHERE 1=2";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sqlmaster, out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter(sqlDetail, out dsDetail, false, "1");
                 objCon.OpenDataSetThroughAdapter(taxsql, out dstax, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScanChildsql, out dsitemscanChild, false, "1");
                 objCon.OpenDataSetThroughAdapter(itemScansql, out dsitemscanNew, false, "1");
-                //objCon.OpenDataSetThroughAdapter(itemScanChildNewsql, out dsitemscanChildNew, false, "1");
                 objCon.getDataSet("Select * from dbo.ItemScanChild where 1=2", out dsitemscanChildNew);
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -653,6 +650,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
                                         scitemNew["SalesMaterialId"] = DBNull.Value;
                                         scitemNew["LocMasterId"] = data["LocMasterId"].ToString();
                                         scitemNew["NetWeight"] = scitemNew["ReturnQty"];
+                                        scitemNew["PackingId"] = DBNull.Value;
                                         AddNewRowD(dsitemscanChildNew.Tables[0], scitemNew);
                                     }
                                 }
