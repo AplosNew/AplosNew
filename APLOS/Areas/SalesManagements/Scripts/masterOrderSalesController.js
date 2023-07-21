@@ -687,7 +687,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
             if (baseService.arrayLength($scope.selectedMasterOrderItemList) > 0) {
                 for (var j = 0; j < $scope.selectedMasterOrderItemList.length; j++) {
-
+                    $scope.selectedMasterOrderItemList[j].BaseRate = $scope.selectedMasterOrderItemList[j].Rate;
+                    $scope.selectedMasterOrderItemList[j].TransactionRate = $scope.selectedMasterOrderItemList[j].Rate;
                     $scope.selectedMasterOrderItemList[j].Balance = $scope.selectedMasterOrderItemList[j].TransactionQty.toFixed(2) - ($scope.selectedMasterOrderItemList[j].ExistSalesQty + $scope.selectedMasterOrderItemList[j].SalesQty);
 
                     if ($scope.selectedMasterOrderItemList[j].Balance < 0) {

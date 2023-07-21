@@ -80,6 +80,7 @@ namespace Library.ViewModel.SalesManagements
         public decimal BooksCurrencyBaseRate { get; set; }
         public decimal BooksCurrencyTaxAmount { get; set; }
         public string GoodsDescription { get; set; }
+        public string PackingId { get; set; }
 
         public ICollection<SalesTaxViewModel> TaxList { get; set; }
 

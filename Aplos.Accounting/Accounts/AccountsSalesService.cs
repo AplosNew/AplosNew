@@ -2464,7 +2464,7 @@ namespace Library.Accounting.Accounts
 		public List<Dictionary<string, object>> GetPackingSalesMaterialData(string companyGroupId, string companyId, string plantId, string salesId,string packingId,string smIds)
 		{
 			string temId = "";
-            if (!string.IsNullOrEmpty(smIds))
+            if (smIds!= "IN('null')")
             {
 				temId = "AND SA.Id='" + salesId + "' and sp.PackingId='" + packingId + "' and SM.Id " + smIds + "";
 
@@ -2572,11 +2572,13 @@ namespace Library.Accounting.Accounts
 		public List<Dictionary<string, object>> GetItemScanChildDataByPackingId(string salesId, string packingId, string soId)
 		{
 
-			var cmdText = @"SELECT isc.Id,isc.MasterId,isc.POId,isc.ProductCode,isc.AddedBy,isc.AddedDate,isc.Cones,isc.PackedBy,isc.SalesId,isc.SalesMaterialId,isc.LocMasterId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight,isc.NetWeight ReturnNetWeight,isc.Shade,isc.Booked,isc.IsDespatch
-								,pli.SOId SalesOrderId,pli.PackingId ActualPackingId 	from dbo.ItemScanChild isc 
+			var cmdText = @"SELECT isc.Id,isc.MasterId,isc.POId,isc.ProductCode,isc.AddedBy,isc.AddedDate,isc.Cones,isc.PackedBy,isc.SalesId,isc.SalesMaterialId,isc.LocMasterId,isc.SalesReturnId,isc.PackingId,isc.LotNo,isc.RefNo,isc.NetWeight,isc.GWeight,isc.Cones,isc.NetWeight ReturnNetWeight,isc.ReturnNetWeight ReturnQty,isc.Shade,isc.Booked,isc.IsDespatch
+								,pli.SOId SalesOrderId,pli.PackingId ActualPackingId,ITC.ShiftId,ITC.Grade 	
+								FROM dbo.ItemScanChild isc 
+								LEFT JOIN dbo.ItemScan ITC ON ITC.Id=isc.MasterId
                                 left join trn.POLotReference pol on pol.Id = isc.PackingId
                                 left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-                                where  pli.PackingId = '" + packingId + "' AND  isc.SalesId='" + salesId + @"' and isc.SalesReturnId IS NULL and isc.booked=1";
+                                where  pli.PackingId = '" + packingId + "' AND  isc.SalesId='" + salesId + @"' and isc.SalesReturnId IS NULL and isc.booked=1 and isc.ReturnNetWeight>0";
 
 			return _sqlRepository.GetDataCollection(cmdText);
 		}

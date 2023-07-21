@@ -787,6 +787,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetAUCCIExpenseData(GridParameter gridparameter, string faType)//, string ids
+        {
+            return Json(_fixedAssetRegisterService.GetAUCCIExpenseData(gridparameter, faType), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetCapitalizeAssetItemValue(string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId, string companyId)
         {
             return Json(_fixedAssetRegisterService.GetCapitalizeAssetItemValue(fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId, companyId), JsonRequestBehavior.AllowGet);
@@ -1442,16 +1448,171 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
         #endregion
 
+        [HttpPost]
+        public JsonResult CreateCapitalize(Dictionary<string, object> data,  List<Dictionary<string, object>> items)
+        {
+            try
+            {
+                SaveCapitalizeData(data, items);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
 
-        [HttpGet]
+        }
+
+        private void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsChild;
+            string contId = string.Empty;
+            string _Id = string.Empty;
+            string _CId = string.Empty;
+            try
+            {
+                bplib.clsGenID genid = new bplib.clsGenID();
+
+                string sql = "SELECT * FROM [TRN].[CapitalizationMaster] WHERE Id='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                   
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
+
+                    data["Id"] =_Id;
+                    data["Type"] = "New";
+
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+              string   masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                #region items 
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CapitalizationMasterDetail] where  CapitalizationMasterId='" + masterId + "'", out dsChild, false, "1");
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        DataView dv = new DataView(dsChild.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        item["CapitalizationMasterId"] = masterId;
+                        if (dv.Count == 0)
+                        {
+                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _CId);
+
+                            item["Id"] = _CId;
+                            item["CapitalizationMasterId"] = masterId;
+
+                            AddNewRow(dsChild.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetCapitalizeData()
+        {
+            string sql = @"SELECT CM.*,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+FROM [TRN].[CapitalizationMaster] CM
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet,Authorize]
         public JsonResult GetFixedAssetMasterItem()
         {
             string sql = @"SELECT FI.*,Uom.Code CapacityUoM,FM.UserName FixedAssetMaster,FC.UserName FixedAssetCategory,FSC.UserName FixedAssetSubCategory  
-FROM MST.FixedAssetMasterItem FI
+FROM MST.FixedAssetItem FI
 LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=FI.FixedAssetMasterId
 LEFT JOIN HKP.FixedAssetCategory FC ON FC.Id=FM.FixedAssetCategoryId
 LEFT JOIN HKP.FixedAssetSubCategory FSC ON FSC.Id=FM.FixedAssetSubCategoryId
 LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=FI.CapacityUoMId";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetCapitalizationMasterDetail(string masterId)
+        {
+            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName 
+FROM [TRN].[CapitalizationMasterDetail] C
+LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
+LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+Where  C.CapitalizationMasterId='"+ masterId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }

@@ -186,24 +186,25 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.SalesOrder SO
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT convert(bit,0) AS isChecked, convert(bit,CASE WHEN isnull(ii.OrderCostingMasterTemplateId,'')='' THEN 0 ELSE 1 END) AS TakenForCosting,
                             ii.Id, ii.Id AS MasterOrderItemId,ii.BuyerReferenceNo,mm.UserName AS Material,mma.StandardName AS Article, ii.OwnReferenceNo, ii.TotalQty, 
-                            pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId,ISNULL(c.ContractNo,'')ContractNo,ml.LCRef
-                                       ,ii.[Type]
+                            pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId,ii.[Type]
+									,ContractNo=STUFF((select distinct ','+cx.ContractNo from [Contract] AS cx
+								                                INNER JOIN  trn.SalesOrder SO ON cx.Id=SO.ContractId                                               
+							                                where SO.MasterOrderItemId=II.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx 
+																
+								                                INNER JOIN [Contract] AS cx ON mlx.Id=cx.MasterLCId  
+																INNER JOIN  trn.SalesOrder SO ON cx.Id=SO.ContractId                                             
+							                                where SO.MasterOrderItemId=II.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                   FROM trn.MasterOrderItem AS ii
-                                LEFT JOIN trn.SalesOrder SO ON SO.MasterOrderItemId=ii.Id
                                 LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=ii.MaterialMasterId
                                 LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ii.ArticleId
                                 LEFT JOIN [TRN].[ProductDefinition] PD ON pd.MaterialMasterId=mm.Id
                                 LEFT JOIN mst.ProductMaster AS pm ON pm.Id=pd.ProductMasterId
                                 LEFT JOIN hkp.Product AS p ON p.Id=pm.ProductId
-                                LEFT JOIN [Contract] AS c ON c.Id=SO.ContractId
-                                LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
-
                                 WHERE ii.MasterOrderId='" + Id + "'";
 
-
             List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
-
-
             return Json(new { DATA = data }, JsonRequestBehavior.AllowGet);
         }
 
@@ -1865,10 +1866,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.SalesOrder SO
             }
             catch (Exception ex)
             {
-                if (ex.Message.ToUpper().Contains("REFERENCE"))
-                    return Json(new { Error = true, Message = "This costing template has been tagged with order. Cannot delete" }, JsonRequestBehavior.AllowGet);
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+                throw ex;
 
             }
         }

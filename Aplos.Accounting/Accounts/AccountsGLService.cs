@@ -28,7 +28,7 @@ namespace Library.Accounting.Accounts
             try
             {
                 parameters.CmdText = @"SELECT  distinct AG.UserName AS AccountGroupName, GLGI.Id AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName
-                                    , B.BudgetMasterId, B.RefNo, B.BudgetCode, B.BudgetName, A.ActivityId, A.ActivityCode, A.ActivityName--, GLTY.AccountType
+                                    , B.BudgetMasterId, B.RefNo, B.BudgetCode, B.BudgetName, A.ActivityId, A.ActivityCode, A.ActivityName, A.BudgetMasterActivityId
                                     FROM [HKP].[GLGeneralInfo] AS GLGI
                                     LEFT JOIN [HKP].[GLCompanyGroup] AS GLCG ON GLCG.GLGeneralInfoId=GLGI.Id
                                     LEFT JOIN [HKP].[GLCompanyInfo] AS GLCI ON GLCI.GLGeneralInfoId=GLGI.Id
@@ -39,7 +39,7 @@ namespace Library.Accounting.Accounts
 	                                    FROM [HKP].[Budget] AS B
                                         LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.BudgetId=B.Id
                                     ) AS B ON B.GLGeneralInfoId=GLGI.Id
-                                    LEFT JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BA.BudgetMasterId
+                                    LEFT JOIN (SELECT A.Id AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, BA.BudgetMasterId,BA.Id AS BudgetMasterActivityId
 	                                    FROM [HKP].[Activity] AS A
 	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
                                     ) AS A ON A.BudgetMasterId=B.BudgetMasterId

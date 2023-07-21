@@ -253,10 +253,6 @@ namespace Aplos.Areas.Commercial.Controllers
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
 
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
             dt.Rows.Add(dr);
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
@@ -529,7 +525,7 @@ namespace Aplos.Areas.Commercial.Controllers
                     dr["DeliveryPartyPlantId"] = data.DeliveryPartyPlantId;
                     dr["InvoicingByAddress"] = data.InvoicingByAddress;
                     dr["DeliveryByAddress"] = data.DeliveryByAddress;
-
+                    dr["BankId"] = data.BankId;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -2738,7 +2734,8 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var workbook = clsCon.GetContarctWorkbook(identity.CompanyId);
+                //var workbook = clsCon.GetContarctWorkbook(identity.CompanyId);
+                var workbook = clsCon.GetContarctWorkbookExcel(identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ContarctReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
