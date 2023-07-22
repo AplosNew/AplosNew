@@ -79,6 +79,40 @@ namespace Aplos.Areas.Productions.Controllers
         #region -- Operations
 
         [Authorize, HttpGet]
+        public JsonResult GetIssueNameList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select Id as Value,UserName as Text from [MST].[QualityManagementMaster]";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetEntity(string IssueNameId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select E.Id as Value,E.UserName as Text from MST.QualityManagementEntity QME
+left join ORG.Entity E on E.Id=QME.EntityId
+where QMID='" + IssueNameId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetProcess(string IssueNameId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            var sql = @"select P.Id as Value,P.UserName as Text from MST.QualityManagementProcess QME
+left join hkp.Process P on P.Id=QME.ProcessId
+where QMID='" + IssueNameId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetProcessIssueList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -149,11 +183,28 @@ where P.Active = 1";
         }
 
         [Authorize, HttpGet]
+        public decimal GetActionToBeTakenAutoSequence()
+        {
+            try
+            {
+                DataTable dt = _sqlRepository.GetDataTable("SELECT isnull(Max(SNO),0) AS SNO FROM [MST].[QualityActionToBeTakenDetails]");
+                if (dt.Rows.Count > 0)
+                    return (decimal)clsStaticInfo.dbl(dt.Rows[0]["SNO"].ToString()) + 1;
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                return 1.00M;
+            }
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetIssueReasonList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,IssueName as Text from [MST].[QualityIssueDetails]";
+            var sql = @"select Id as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=IssueNameId) as Text from [MST].[QualityIssueDetails]";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -163,7 +214,7 @@ where P.Active = 1";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"select Id as Value,IssueName as Text from [MST].[QualityIssueDetails]";
+            var sql = @"select Id as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=IssueNameId) as Text from [MST].[QualityIssueDetails]";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -175,7 +226,8 @@ where P.Active = 1";
             string sql = @"select ID.*,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,
 (select E.UserName from Org.Entity E where E.Id=ID.EntityId) as Entity,
 (select D.UserName from ORG.Department D where D.Id=ID.DepartmentId) as Department,
-(select P.Code from ORG.Position P where P.Id=ID.PositionCodeId) as PositionCode
+(select P.Code from ORG.Position P where P.Id=ID.PositionCodeId) as PositionCode,
+(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=ID.IssueNameId) as QIssueName
 from [MST].[QualityIssueDetails] ID";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -188,7 +240,8 @@ from [MST].[QualityIssueDetails] ID";
             string sql = @"select ID.*,(select P.UserName from HKP.Process P where P.Id=ID.ProcessId) as Process,
 (select E.UserName from Org.Entity E where E.Id=ID.EntityId) as Entity,
 (select D.UserName from ORG.Department D where D.Id=ID.DepartmentId) as Department,
-(select P.Code from ORG.Position P where P.Id=ID.PositionCodeId) as PositionCode
+(select P.Code from ORG.Position P where P.Id=ID.PositionCodeId) as PositionCode,
+(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=ID.IssueNameId) as QIssueName
 from [MST].[QualityIssueDetails] ID where ID.Id='" + IssueId + @"'";
             return Json(new { Issue = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
@@ -465,7 +518,7 @@ from [MST].[POQualityPlanDetails] QPD where QPD.Id='" + PQPId + @"'";
         public ActionResult LoadTimeIssueDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select ID.Id as Value,ID.IssueName as Text from [MST].[QualityIssueDetails] ID";
+            string sql = @"select Id as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=IssueNameId) as Text from [MST].[QualityIssueDetails]";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -473,7 +526,7 @@ from [MST].[POQualityPlanDetails] QPD where QPD.Id='" + PQPId + @"'";
         public ActionResult LoadIssueItemIssueDetails()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select ID.Id as Value,ID.IssueName as Text from [MST].[QualityIssueDetails] ID";
+            string sql = @"select Id as Value,(select QMM.UserName from MST.QualityManagementMaster QMM where QMM.Id=IssueNameId) as Text from [MST].[QualityIssueDetails]";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -567,14 +620,20 @@ from [MST].[POQualityPlanDetails] QPD where QPD.Id='" + PQPId + @"'";
         }
 
         [Authorize, HttpGet]
-        public ActionResult LoadIssueItemDetails()
+        public ActionResult LoadIssueItemDetails(string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select IID.*,(select P.IssueName from [MST].[QualityIssueDetails]  P where P.Id=IID.IssueId) as IssueName,
-(select U.UserName from SCS.UnitOfMeasurement U where U.Id=IID.UOMId) as UOM,
-(select P.Code from ORG.Position P where P.Id=IID.PositionCodeId) as PositionCode,
-(select PM.UserName from HKP.ParameterMaster PM where PM.Id=IID.ParameterId) as Parameter
-from [MST].[QualityIssueItem] IID";
+            string sql = @"select distinct CAST (CASE WHEN QII.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QII.Id,QMP.SNO,
+'" + IssueId + @"' as IssueId,
+QMM.UserName IssueName,(select PM.UserName from HKP.ParameterMaster PM where PM.Id = QMP.ParameterId) as ItemName,QMP.Id ParameterId,
+QMP.UOMId,QMP.Max,QMP.Min,QMP.CriticalLevel,QMP.Remarks,
+(select U.UserName from SCS.UnitOfMeasurement U where U.Id = QMP.UOMId) as UOM
+from MST.QualityManagementParameterItem QMP
+left
+join MST.QualityManagementMaster QMM on QMM.Id = QMP.QMID
+left
+join MST.QualityIssueItem QII on QII.IssueId = '" + IssueId + @"' and QII.ParameterId=QMP.Id
+where QMM.Id in (select IssueNameId from MST.QualityIssueDetails where Id = '" + IssueId + "')";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -591,57 +650,108 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
             return Json(new { IssueItem = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
+        //[HttpPost]
+        //public JsonResult createIssueItem(Dictionary<string, object> IssueItemData)
+        //{
+        //    try
+        //    {
+
+        //        ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+        //        conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueItem] where ItemName='" + IssueItemData["ItemName"] + "' and IssueId='" + IssueItemData["IssueId"] + "'", out DataSet dsItemDetailsIssueItemNameValidation, false, "1");
+
+        //        DataSet dsIssueDetails;
+
+        //        conRack = new ConnectionManager.DAL.ConManager("1");
+        //        conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueItem] where Id='" + IssueItemData["Id"] + "'", out dsIssueDetails, false, "1");
+        //        string _Id = "";
+
+        //        #region data update
+        //        if (dsIssueDetails.Tables[0].Rows.Count == 0)
+        //        {
+        //            if (dsItemDetailsIssueItemNameValidation.Tables[0].Rows.Count > 0)
+        //            {
+        //                throw new Exception("Issue Item Already Exist.");
+        //            }
+        //            else
+        //            {
+        //                bplib.clsGenID genid = new bplib.clsGenID();
+        //                genid.GenID("QualityIssueItem", out _Id);
+        //                _Id = "QII" + _Id;
+        //                IssueItemData["Id"] = _Id;
+        //                AddNewRow(dsIssueDetails.Tables[0], IssueItemData);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            _Id = IssueItemData["Id"].ToString();
+        //            EditRow(dsIssueDetails.Tables[0].Rows[0], IssueItemData);
+        //        }
+        //        #endregion data update
+
+
+
+        //        clsStaticInfo _info = new clsStaticInfo();
+        //        _info.SaveDataSets(dsIssueDetails);
+
+        //        return Json(new { Error = false, Data = IssueItemData, Message = AplosMessage.Insert });
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return Json(new { Error = true, Message = ex.Message });
+
+        //    }
+        //}
+
         [HttpPost]
-        public JsonResult createIssueItem(Dictionary<string, object> IssueItemData)
+        public ActionResult createIssueItem(List<Dictionary<string, object>> DataList, string Pid)
         {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityIssueItem]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
             try
             {
 
-                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueItem] where ItemName='" + IssueItemData["ItemName"] + "' and IssueId='" + IssueItemData["IssueId"] + "'", out DataSet dsItemDetailsIssueItemNameValidation, false, "1");
 
-                DataSet dsIssueDetails;
+                objCon = new ConnectionManager.DAL.ConManager("1");
 
-                conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityIssueItem] where Id='" + IssueItemData["Id"] + "'", out dsIssueDetails, false, "1");
-                string _Id = "";
-
-                #region data update
-                if (dsIssueDetails.Tables[0].Rows.Count == 0)
+                if (DataList != null)
                 {
-                    if (dsItemDetailsIssueItemNameValidation.Tables[0].Rows.Count > 0)
+                    //ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    //conC.BeginTransaction();
+                    //conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                    //conC.CommitTransaction();
+
+                    foreach (var item in DataList)
                     {
-                        throw new Exception("Issue Item Already Exist.");
-                    }
-                    else
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("QualityIssueItem", out _Id);
-                        _Id = "QII" + _Id;
-                        IssueItemData["Id"] = _Id;
-                        AddNewRow(dsIssueDetails.Tables[0], IssueItemData);
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and IssueId='" + item["IssueId"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QII" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
                     }
                 }
-                else
-                {
-                    _Id = IssueItemData["Id"].ToString();
-                    EditRow(dsIssueDetails.Tables[0].Rows[0], IssueItemData);
-                }
-                #endregion data update
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsIssueDetails);
-
-                return Json(new { Error = false, Data = IssueItemData, Message = AplosMessage.Insert });
+                return Json(new { Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
             {
-
-                return Json(new { Error = true, Message = ex.Message });
-
+                throw (ex);
             }
         }
 
@@ -678,6 +788,23 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
 
             string sql = @"select * from [MST].[QualityGradeDetails] where Id='" + GradeId + @"'";
             return Json(new { Grade = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadActionToBeTakenDetails()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from [MST].[QualityActionToBeTakenDetails]";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadActionToBeTakenDetailsEditData(string ActionToBeTakenId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            string sql = @"select * from [MST].[QualityActionToBeTakenDetails] where Id='" + ActionToBeTakenId + @"'";
+            return Json(new { ActionToBeTaken = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -735,6 +862,60 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [HttpPost]
+        public JsonResult createActionToBeTaken(Dictionary<string, object> ActionToBeTakenData)
+        {
+            try
+            {
+
+                ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityActionToBeTakenDetails] where ActionToBeTakenName='" + ActionToBeTakenData["ActionToBeTakenName"] + "'", out DataSet dsActionToBeTakeDetailsActionToBeTakeNameValidation, false, "1");
+
+                DataSet dsActionToBeTakenDetails;
+
+                conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack.OpenDataSetThroughAdapter("select * from [MST].[QualityActionToBeTakenDetails] where Id='" + ActionToBeTakenData["Id"] + "'", out dsActionToBeTakenDetails, false, "1");
+                string _Id = "";
+
+                #region data update
+                if (dsActionToBeTakenDetails.Tables[0].Rows.Count == 0)
+                {
+                    if (dsActionToBeTakeDetailsActionToBeTakeNameValidation.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("ActionToBeTake Name Already Exist.");
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("QualityActionToBeTakenDetails", out _Id);
+                        _Id = "QAD" + _Id;
+                        ActionToBeTakenData["Id"] = _Id;
+                        AddNewRow(dsActionToBeTakenDetails.Tables[0], ActionToBeTakenData);
+                    }
+                }
+                else
+                {
+                    _Id = ActionToBeTakenData["Id"].ToString();
+                    EditRow(dsActionToBeTakenDetails.Tables[0].Rows[0], ActionToBeTakenData);
+                }
+                #endregion data update
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsActionToBeTakenDetails);
+
+                return Json(new { Error = false, Data = ActionToBeTakenData, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
         public ActionResult GradeDelete(string id)
         {
             try
@@ -742,6 +923,24 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
                 conC.executeQuery("delete from [MST].[QualityGradeDetails] where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ActionToBeTakenDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from [MST].[QualityActionToBeTakenDetails] where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);

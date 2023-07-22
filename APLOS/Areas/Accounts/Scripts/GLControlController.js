@@ -25,68 +25,6 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
         return $scope.tab === tabNum;
     };
 
-    $scope.product = {
-        Id: null,
-        CompanyGroupId: null,
-        CountryId: null,
-        CompanyId: null,
-        PositionCode: null,
-        PlantId: null,
-        EntityId: null,
-        ProcurementDays: null,
-        ProcurementFrequency: null,
-        MaterialType: null,
-        QualityStdSet: null,
-        CostReductionCategory: null,
-        MaterialMasterId: null,
-        ArticleId: null,
-        ArticleCriticality: null,
-        FirstCharacteristicsId: null,
-        FirstCharacteristicsValueId: null,
-        SecondCharacteristicsId: null,
-        SecondCharacteristicsValueId: null,
-        ThirdCharacteristicsId: null,
-        ThirdCharacteristicsValueId: null,
-        MinStockLevel: null,
-        MaxStockLevel: null,
-        CostingPercentage: null,
-        ProcurementPercentage: null,
-        QualityApprovalReq: null,
-        QualityApprovedBy: null,
-        PossitionCodeForApproval: null,
-        QualityStdSet: null,
-        SupplierQualityReportReq: null,
-        RequisitionType: null,
-        PriceApproval: null,
-        POGroupId: null,
-        Imported: null,
-        ImportedCurrencyId: null,
-        ImportedBaseRate: null,
-        ImportedTgtLandedRate: null,
-        ImportProcurementLedTimeDays: null,
-        ImportedMinimumOrderQty: null,
-        ImportedArticleLifeDays: null,
-        Local: null,
-        LocalCurrencyId: null,
-        LocalBaseRate: null,
-        LocalTgtLandedRate: null,
-        LocalProcurementLedTimeDays: null,
-        LocalMinimumOrderQty: null,
-        LocalArticleLifeDays: null,
-        AutoPoGeneration: null,
-        POGenerationCriteria: null,
-        PoGenerationDay: null,
-        LastProcurementRate: null,
-        MinimumProcurementRate: null,
-        MaximumProcurementRate: null,
-        MaterialMasterName: null,
-        ArticleName: null,
-        ProcurementsPlanDay: null,
-        Remarks: null
-    };
-    $scope.productNew = Object.assign({}, $scope.product);
-
-
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -549,6 +487,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
             }
@@ -568,6 +507,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
             }
@@ -586,6 +526,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
             }
@@ -604,6 +545,7 @@ function GLControlController(cboService, commonMessage, $scope, $rootScope, base
                     BudgetName: data.BudgetName,
                     ActivityName: data.ActivityName,
                     ActivityId: data.ActivityId,
+                    BudgetMasterActivityId: data.BudgetMasterActivityId,
                     Type: $scope.Type
                 });
             }
