@@ -5531,6 +5531,14 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.TotalDirectProcess = [{
+        title: "Total", summaryColumns: [
+            {
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalOrderCost", dataMember: "TotalOrderCost", format: "{0:N2}"
+            }],
+        showCaptionSummary: true
+    }];
+
 
     $scope.OrderBudgetOperationList = [];
     $scope.GetOperationData = function () {

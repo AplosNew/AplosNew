@@ -6572,7 +6572,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
             ,ISNULL(pc.ExecutionType,'Fixed') as [Type]
 			,OCMT.Id as OrderCostingMasterTemplateId,cc.UserName as CostingComponentName
 			,ISNULL(pc.Value,0) AS ValueLoss,ISNULL(pc.Rate,0) AS Rate,ISNULL(pc.Amount,0) AS Amount
-			,C.Code as Currency,EI.EmployeeName as ResponsiblePerson
+			,C.Code as Currency ,moi.TotalQty OrderQty
 			,TotalOrderCost=ISNULL(pc.Amount,0)*moi.TotalQty
 			
 			FROM OrderPreCostingDirectProcess AS pc   
@@ -6580,7 +6580,6 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
 			LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
 			LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
 			LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
-			LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
             LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
 
 			where pc.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
@@ -6592,12 +6591,20 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
         [HttpGet, Authorize]
         public ActionResult GetOrderBudgetOperation(string costingComponentId, string OrderCostingMasterTemplateId)
         {
-            string sql = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId,ci.UserName CostingItems, o.[Value], o.[Description],e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,  ci.UserName, o.Description,O.FileName,O.FileOriginalName                      
-                        from hkp.CostingItem ci
-						 join [dbo].[OrderPreCostingOperation] o on o.CostingItemId = ci.Id  and o.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
-                        left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersonId
-                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By o.Sequence";
+            string sql = @"SELECT pc.Id,I.Id as CostingId,I.UserName as CostingItems,I.CostingComponentId,pc.Sequence
+				,ISNULL(pc.Value,0) AS Value,OCMT.Id as OrderCostingMasterTemplateId
+				,cc.UserName as CostingComponentName,c.Code as Currency,moi.TotalQty OrderQty
+				,TotalOrderCost=ISNULL(pc.value,0)*moi.TotalQty						
+				
+				FROM OrderPreCostingOperation AS pc       
+				LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
+				LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+				LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId 
+				LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
+				LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
+
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
+			order by pc.Sequence";
  
             return Json(new { Pre = _sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
         }
@@ -6606,12 +6613,11 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
         public ActionResult GetOrderBudgetValueLoss(string OrderCostingMasterTemplateId, string costingComponentId)
         {
             string sql = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId,ci.UserName CostingItems, p.OrderCostingMasterTemplateId, p.[Type]
-                        , p.[Value],p.Amount, p.[Description],e.EmployeeName as ResponsiblePerson,p.ResponsiblePersonId,ci.UserName,
+                        , p.[Value],p.Amount,ci.UserName,
                         P.FileName,P.FileOriginalName
                         from hkp.CostingItem ci
                         join [dbo].[OrderPreCostingValueLoss] p on CostingItemId = ci.Id  and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
-                        left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
-						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId
+                        left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId 
                         where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";             
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
