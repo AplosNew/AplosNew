@@ -1,0 +1,89 @@
+﻿<div>
+    <h4><span></span>QR Code Generator</h4>
+    <hr />
+</div>
+
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">PO</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.POId" name="POId"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in POList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+           
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Product Code</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ProductCodeId" name="ProductCodeId"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ProductCodeList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Article</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.ArticleId" name="ArticleId"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ArticleList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Customer</label>
+                <div class="col-sm-8 show-message">
+                    <div class="input-group">
+                        <span class="input-group-addon">{{ModelNew.PartyCode}}</span>
+                        <input type="text" name="Vendor" ng-model="ModelNew.PartyName" class="form-control" required readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="showPartyPopUpNew()" ng-disabled="inventoryMaterialList.length>0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                            <button name="submit" ng-click="ClearPO()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-refresh"></i></button>
+
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="table-responsive">
+            <div id="bgtCodeGridId" ej-grid e-datasource="ProcessList" e-load="loadGridEdit"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                    <div e-column e-field="Qty" e-headertext="Planned Qty" e-width="100"></div>
+                    <div e-column e-template="#LOT_Inputfield" e-headertext="LOT" e-width="100"></div>
+                    <div e-column e-template="#remarks_Inputfield" e-headertext="Remarks" e-width="100"></div>
+                </div>
+            </div>
+            <script type="text/template" id="LOT_Inputfield">
+                <input type="text" name="User Name" ng-model="data.LOT" class="form-control" required tabindex="5" maxlength="50">
+
+            </script>
+            <script type="text/template" id="remarks_Inputfield">
+                <textarea class="form-control" rows="1" ng-model="data.Remarks" maxlength="250" tabindex="6"></textarea>
+
+            </script>
+        </div>
+    </div>
+</div>
+
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")

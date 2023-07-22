@@ -549,6 +549,7 @@
     <Compile Include="Areas\HumanResource\Controllers\PlantInOutControllReportController.cs" />
     <Compile Include="Areas\IE\Controllers\WorkcenterWiseDetentionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WebBasedPackingController.cs" />
+    <Compile Include="Areas\Materials\Controllers\LOTCreationController.cs" />
     <Compile Include="Areas\Materials\Controllers\QRCodeGeneratorController.cs" />
     <Compile Include="Areas\Materials\Controllers\WeighingScaleMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\DailyPlanningAndProductionReportController.cs" />
@@ -2086,6 +2087,7 @@
     <Content Include="Areas\HumanResource\Scripts\VehicleMovementRequisitionController.js" />
     <Content Include="Areas\HumanResource\Scripts\VehicleReqForApproveController.js" />
     <Content Include="Areas\IE\Scripts\WorkcenterWiseDetentionController.js" />
+    <Content Include="Areas\Materials\Scripts\LOTCreationController.js" />
     <Content Include="Areas\Materials\Scripts\QRCodeGeneratorController.js" />
     <Content Include="Areas\Materials\Scripts\WeighingScaleMasterController.js" />
     <Content Include="Areas\Packing\Scripts\packingConfig.js" />
@@ -4741,6 +4743,7 @@
     <Content Include="Areas\FixedAssets\Views\_CapitalizeAssetItemPopUpNew.cshtml" />
     <Content Include="Areas\Materials\Views\QRCodeGenerator\_WeighingScaleMachinePopUp.cshtml" />
     <Content Include="Areas\Materials\Views\WeighingScaleMaster\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\LOTCreation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
