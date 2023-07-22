@@ -52,18 +52,13 @@
                 <input type="text" name="Prefix" ng-model="selectedValues.Prefix" class="form-control" maxlength="200" tabindex="4">
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Inventory check</label>
-            <div class="col-sm-8  show-message">
-                <div class="checkbox-site">
-                    <label>
-                        <input id="Check_Invn" type="checkbox" class="css-checkbox" ng-model="selectedValues.Inventorycheck" tabindex="9">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Start Ref No.</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="StartRefNo" ng-model="selectedValues.StartRefNo" only-numbers class="form-control" maxlength="200" tabindex="4">
             </div>
         </div>
-
+        
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -117,6 +112,17 @@
                             ng-options="item.Value as item.Text for item in ItemList" required tabindex="10">
                         <option value="">--Select--</option>
                     </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Inventory check</label>
+            <div class="col-sm-8  show-message">
+                <div class="checkbox-site">
+                    <label>
+                        <input id="Check_Invn" type="checkbox" class="css-checkbox" ng-model="selectedValues.Inventorycheck" tabindex="9">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
                 </div>
             </div>
         </div>
