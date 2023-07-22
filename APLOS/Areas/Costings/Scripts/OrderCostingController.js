@@ -4116,6 +4116,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
 
 
             $scope.GetOperationWithItemByComponentId();
+            $scope.GetOperationData();
         }
         else if ($scope.Segment == 'DirectProcess') {
 
@@ -4125,14 +4126,17 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         else if ($scope.Segment == 'SalesExpense') {
 
             $scope.GetSalesExpenseWithItemByComponentId();
+            $scope.GetOrderBudgetSalesExpenseData();
         }
         else if ($scope.Segment == 'ValueLoss') {
 
             $scope.GetValueLossWithItemByComponentId();
+            $scope.GetOrderBudgetValueLossListData();
         }
         else if ($scope.Segment == 'Profit') {
 
             $scope.GetProfitWithItemByComponentId();
+            $scope.GetOrderBudgetProfitData();
         }
         $scope.CalculateFinalCosting(null);
         $scope.CalculateFinalCostingProcurement(null);
@@ -5507,6 +5511,14 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.TotalOrderCostTotal = [{
+        title: "Total", summaryColumns: [
+            {
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalOrderCost", dataMember: "TotalOrderCost", format: "{0:N2}"
+            }],
+        showCaptionSummary: true
+    }];
+
     $scope.OrderBudgetDirectProcessList = [];
     $scope.GetDirectProcessData = function () {
         $scope.OrderBudgetDirectProcessList = [];
@@ -5519,12 +5531,61 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
-    $scope.TotalOrderCostTotal = [{
+
+    $scope.OrderBudgetOperationList = [];
+    $scope.GetOperationData = function () {
+        $scope.OrderBudgetOperationList = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetOrderBudgetOperation?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.OrderBudgetOperationList = response.data.Pre;
+        });
+    }
+
+    $scope.OrderBudgetValueLossList = [];
+    $scope.GetOrderBudgetValueLossListData = function () {
+        $scope.OrderBudgetValueLossList = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetOrderBudgetValueLoss?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.OrderBudgetValueLossList = response.data.Pre;
+        });
+    }
+
+    $scope.TotalValueLossTotal = [{
         title: "Total", summaryColumns: [
             {
-                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalOrderCost", dataMember: "TotalOrderCost", format: "{0:N2}"
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Value", dataMember: "Value", format: "{0:N2}"
             }],
         showCaptionSummary: true
     }];
+
+    $scope.OrderBudgetProfitList = [];
+    $scope.GetOrderBudgetProfitData = function () {
+        $scope.OrderBudgetProfitList = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetOrderBudgetProfit?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.OrderBudgetProfitList = response.data.Pre;
+        });
+    }
+
+    $scope.OrderBudgetSalesExpenseList = [];
+    $scope.GetOrderBudgetSalesExpenseData = function () {
+        $scope.OrderBudgetSalesExpenseList = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetOrderBudgetSalesExpense?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.OrderBudgetSalesExpenseList = response.data.Pre;
+        });
+    }
     //#endregion
 }

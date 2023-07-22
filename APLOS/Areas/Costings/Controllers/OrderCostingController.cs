@@ -6588,6 +6588,66 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
 
             return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null) }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOrderBudgetOperation(string costingComponentId, string OrderCostingMasterTemplateId)
+        {
+            string sql = @"select ci.CostingComponentId,o.Sequence,o.Id,CI.Id AS CostingItemId,ci.UserName CostingItems, o.[Value], o.[Description],e.EmployeeName as ResponsiblePerson, e.SystemId as ResponsiblePersonId,  ci.UserName, o.Description,O.FileName,O.FileOriginalName                      
+                        from hkp.CostingItem ci
+						 join [dbo].[OrderPreCostingOperation] o on o.CostingItemId = ci.Id  and o.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
+                        left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
+						left join EmployeeInformation e on e.SystemId = o.ResponsiblePersonId
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By o.Sequence";
+ 
+            return Json(new { Pre = _sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOrderBudgetValueLoss(string OrderCostingMasterTemplateId, string costingComponentId)
+        {
+            string sql = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId,ci.UserName CostingItems, p.OrderCostingMasterTemplateId, p.[Type]
+                        , p.[Value],p.Amount, p.[Description],e.EmployeeName as ResponsiblePerson,p.ResponsiblePersonId,ci.UserName,
+                        P.FileName,P.FileOriginalName
+                        from hkp.CostingItem ci
+                        join [dbo].[OrderPreCostingValueLoss] p on CostingItemId = ci.Id  and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
+                        left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
+						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";             
+
+            return Json(new { Pre = _sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOrderBudgetProfit(string OrderCostingMasterTemplateId, string costingComponentId)
+        {
+            string sqlPre = @"select ci.CostingComponentId,p.Sequence,p.Id,CI.Id AS CostingItemId,ci.UserName CostingItems, p.OrderCostingMasterTemplateId
+                    , p.[Type], p.[Value],
+                    p.Amount, p.[Description],e.EmployeeName as ResponsiblePerson,p.ResponsiblePersonId,ci.UserName,
+                        P.FileName,P.FileOriginalName
+                        from hkp.CostingItem ci
+                        join [dbo].[OrderPreCostingProfit] p on CostingItemId = ci.Id  and p.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
+                        left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
+						left join EmployeeInformation e on e.SystemId = p.ResponsiblePersonId
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By p.Sequence";
+             
+            return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null)}, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOrderBudgetSalesExpense(string OrderCostingMasterTemplateId, string costingComponentId)
+        {
+            string sql = @"select ci.CostingComponentId,s.Sequence,s.Id,CI.Id AS CostingItemId,ci.UserName CostingItems, s.OrderCostingMasterTemplateId, s.[Type]
+                        ,s.[Value],s.Amount, s.[Description],e.SystemId as ResponsiblePersonId, e.EmployeeName as ResponsiblePerson,ci.UserName,
+                        S.FileName,S.FileOriginalName
+                        from hkp.CostingItem ci
+                        join [dbo].[OrderPreCostingSalesExpense] s on CostingItemId = ci.Id  and s.OrderCostingMasterTemplateId = '" + OrderCostingMasterTemplateId + @"' 
+                        left join hkp.CostingComponent cc on cc.Id = ci.CostingComponentId
+						left join EmployeeInformation e on e.SystemId = s.ResponsiblePersonId
+                        where ci.CostingComponentId = '" + costingComponentId + "'  Order By s.Sequence";
+             
+            return Json(new { Pre = _sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
+        }
+
     }
 
 
