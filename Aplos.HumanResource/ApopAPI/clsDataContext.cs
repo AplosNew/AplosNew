@@ -6351,6 +6351,7 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                     return "";
                 List<Vehicle> items = DataToSave.ToList();
 
+
                 con.OpenDataSetThroughAdapter("select * from TRN.VehicleMovementRequisition where Id='" + VehicleId + "'", out dsMaster, false, "1");
 
                 foreach (Vehicle item in DataToSave)
@@ -6362,9 +6363,7 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-
-                        dr["IsReject"] = item.IsReject;
-
+                        dr["IsReject"] = 1;
 
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -6381,6 +6380,61 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
                 return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string PostCombineVehicleApprove(IEnumerable<Vehicle> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string ErrorList = "";
+
+                if (DataToSave.Count() == 0)
+                {
+                    return "No Data Found";
+                }
+
+                string IDS = "''";
+                foreach (Vehicle item in DataToSave)
+                {
+                    IDS += ",'" + item.Id + "'";
+                }
+
+                var items = DataToSave.ToList();
+
+                var sqlx = @"select * from TRN.VehicleMovementRequisition where Id(" + IDS + @")";
+                con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["AppliedId"] = item.AppliedId;
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        ErrorList += item.Id + "...";
+                    }
+                }
+
+                return "true";
 
             }
             catch (Exception ex)

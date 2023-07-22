@@ -618,7 +618,7 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
                 QCItemId = @"and QII.Id='" + POItemId + "'";
             }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
-QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson,QIC.QCId from MST.QualityIssueItem QII
+QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
@@ -766,8 +766,10 @@ left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
 left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty as QCPOQty,PQ.Qty QCScheduleQty,ProdQ.ProducedQty as QCProducedQty,POQ.POQty-ProdQ.ProducedQty QCRemainingQty,
-QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,
-QII.Max QCMaxValue,QII.Min QCMinValue,QCD.ActionToBeTaken as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks,QC.QualityPlanId
+QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,QGD.GradeValue,QC.PlanType,
+QII.Max QCMaxValue,QII.Min QCMinValue,QCD.ActionToBeTaken as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks,QC.QualityPlanId,
+QC.Id QulaityHeaderId,QCD.Id QulaityItemId,QII.CriticalLevel,
+D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period,QID.Frequency
 from MST.QualityIssueDetails  QID
 left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
@@ -778,6 +780,7 @@ left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
 left join EmployeeInformation PI on PI.SystemId=QC.ProductionInchargeId
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
 left join org.Entity E on E.Id=QID.EntityId
+left join org.Department D on D.Id=QID.DepartmentId
 left join hkp.Process P on P.Id=QID.ProcessId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId
