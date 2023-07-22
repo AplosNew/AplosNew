@@ -41,7 +41,8 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         InvoicingByAddress: null,
         DeliveryByAddress: null,
         Remarks: null,
-        PlantId: $window.plantId
+        PlantId: $window.plantId,
+        BankId:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
 
@@ -297,8 +298,6 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
 
     };
 
-
-
     $scope.searchBy = "ContractNo"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'ContractNo', name: "ContractNo" }, { value: 'CustomerName', name: "Customer" }];
 
@@ -312,6 +311,10 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         }).then(function successCallback(response) {
             $scope.contractList = response.data;
         });
+        if (!baseService.isUndefinedOrNull($scope.modelNew.CustomerId) && !baseService.isUndefinedOrNull($scope.modelNew.Id)) {
+            $scope.GetEditSalesOrderList();
+        }
+
     }
     $scope.getSavedData();
 
@@ -510,6 +513,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             url: "Commercial/Contract/GetEditSalesOrderList?customerId=" + $scope.modelNew.CustomerId + '&contractId=' + $scope.modelNew.Id
         }).then(function (response) {
             $scope.SelectedSalesOrderList = response.data;
+            $scope.GetMasterLCData($scope.modelNew.Id);
         });
     }
 
@@ -519,10 +523,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
         $scope.modelNew = obj.data;
         $scope.modelNew.Currency = null;
         $scope.GetContractFundData($scope.modelNew.Id);
-        getPartyPlantEditList($scope.modelNew.InvoicingPartyPlantId, $scope.modelNew.InvoicingByAddress, $scope.modelNew.DeliveryPartyPlantId, $scope.modelNew.DeliveryByAddress, $scope.modelNew.DeliveryState, $scope.modelNew.DeliveryGSTIN);
-        $scope.GetEditSalesOrderList();
-        $scope.GetMasterLCData($scope.modelNew.Id);
-        $scope.GetContractTermsAndConditionsList();
+      
         if (!baseService.isUndefinedOrNull($scope.modelNew.MasterOrderId)) {
             $scope.msg = "As this contract saved from Master Order, so no change is possible from here.";
         } else {
@@ -590,7 +591,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             url: "Commercial/Contract/GetContractFundData?contractId=" + contractId
         }).then(function (response) {
             $scope.fundUtilizationList = response.data;
-            //console.log('$scope.contractFundList', $scope.contractFundList);
+            getPartyPlantEditList($scope.modelNew.InvoicingPartyPlantId, $scope.modelNew.InvoicingByAddress, $scope.modelNew.DeliveryPartyPlantId, $scope.modelNew.DeliveryByAddress, $scope.modelNew.DeliveryState, $scope.modelNew.DeliveryGSTIN);
         });
     };
 
@@ -812,11 +813,8 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                         $scope.modelNew.Id = response.data.Id;
                         $scope.contractList = [];
                         $scope.getSavedData();
-                        $scope.GetEditSalesOrderList();
-                        $scope.GetContractFundData(response.data.Id);
-                        //$scope.GetMasterOrderByContractList(response.data.Id);
-                        ////$scope.GetMasterOrderList();
-                        //$scope.GetMasterOrderByCustomer($scope.modelNew.CustomerId);
+                        
+                     
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -855,6 +853,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
                     IsClose: false
                 };
             }
+            $scope.GetContractTermsAndConditionsList();
         });
     }
 
@@ -1285,6 +1284,7 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
             });
 
         });
+        $scope.GetEditSalesOrderList();
     }
 
     $scope.invoicingPartyPopUp = function () {
@@ -1533,5 +1533,29 @@ function contractController(commonMessage, $scope, $rootScope, baseService, $rou
     };
 
     // #endregion ContractItem
+
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.GetReport = function (reportType) {
+        try {
+            
+            $http({
+                method: 'POST',
+                url: $scope.path + 'GetContarctReport',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.data.Message, 'failure');
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 }
 

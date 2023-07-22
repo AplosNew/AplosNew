@@ -3206,6 +3206,14 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetQualityWorkCenterList(string IssueId)
+        {
+            string sql = @"select QMW.WorkCenterMasterId as Value, WCM.UserName as Text from MST.QualityManagementWorkCenter QMW
+left join scs.WorkCenterMaster WCM on WCM.Id=QMW.WorkCenterMasterId
+where QMW.QMID = (select IssueNameId from MST.QualityIssueDetails where id='"+ IssueId + "')";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public IEnumerable<object> GetPOCompleteIssueList()
         {
             string sql = @"SELECT distinct ID.Id [Value],ID.IssueName [Text] FROM [MST].[QualityIssueDetails] ID";
@@ -4038,7 +4046,7 @@ left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
 left outer join [HKP].[Party] Xp on XP.Id=XMO.PartyId
 where PO.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 PS.UserName as POStatus,
-reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=ID.Id) for xml path(''))),1,1,'')) as PositionEmployee,
+reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and  PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=ID.IssueNameId) for xml path(''))),1,1,'')) as PositionEmployee,
 QPC.QPEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QPC.QPEmployeeId) as QPEmployee
 from TRN.ProductionOrder PO
 left join hkp.ProductionStatus PS on PS.Id=PO.ProductionStatusId
@@ -4058,16 +4066,18 @@ where PS.UserName in ('Running','To Close') and QPC.QCId is null";
 
         public IEnumerable<object> GetGeneralIssue()
         {
-            string sql = @"select  QC.Id,
+            string sql = @"select  QC.Id,QID.IssueNameId,
 format(DATEADD(hour, QID.CheckingInterval,(select top 1 ProductionDate from TRN.QualityControl where IssueId=QID.Id order by ProductionDate desc)),'dd-MMM-yyyy') as QualityIssueDate,
-E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,QID.IssueName QGIssue,
-reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=QID.Id) for xml path(''))),1,1,'')) as PositionEmployee,
-QC.QGIEmployeeId,'' as QGIEmployee
+E.Id  EntityId,E.UserName Entity,P.Id ProcessId,P.UserName Process,QID.Id IssueId,QMM.UserName QGIssue,
+reverse(stuff(reverse((select EI.EmployeeName + ',' from EmployeeInformation EI where EmployeeStatus='Active' and PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=QID.IssueNameId) for xml path(''))),1,1,'')) as PositionEmployee,
+QC.QGIEmployeeId,(select EmployeeName from EmployeeInformation where SystemId=QC.QGIEmployeeId) as QGIEmployee
 from MST.QualityIssueDetails  QID
 left join TRN.QualityIssueControl QC on QC.IssueId=QID.Id
+left join MST.QualityManagementMaster QMM on QMM.Id=QID.IssueNameId
 left join org.Entity E on E.Id=QID.EntityId
 left join hkp.Process P on P.Id=QID.ProcessId
-where QID.IssueType in ('Order','General') and QC.QCId is null 
+where QID.IssueType in ('Order','General') 
+--and QC.QCId is null 
 order by 
 format(DATEADD(hour, QID.CheckingInterval,(select top 1 AddedDate from TRN.QualityControl where IssueId=QID.Id order by AddedDate desc)),'dd-MMM-yyyy')";
             return _sqlRepository.GetDataCollection(sql);

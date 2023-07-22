@@ -437,6 +437,17 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult LoadPositionCodeDetails(string ScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select CAST (CASE WHEN QPC.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,QPC.Id,P.Id PositionCodeId,P.Code PositionCode,P.UserName Position,QPC.Remarks 
+                            from ORG.Position P
+							LEFT JOIN [MST].[QualityManagementPositionCode] QPC ON QPC.PositionCodeId=P.Id and QPC.QMID='" + ScheduleId + @"'
+                            where P.Active = 1 order by QPC.Id desc";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public ActionResult createEntity(List<Dictionary<string, object>> DataList, string Pid)
         {
@@ -468,6 +479,57 @@ where QMP.QMID='" + ScheduleId + "' and QMP.ProcessId='" + ProcessId + "'";
                             bplib.clsGenID genid = new bplib.clsGenID();
                             genid.GenID(TableName, out _Id);
                             item["Id"] = "QME" + _Id;
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+                return Json(new { Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult createPositionCode(List<Dictionary<string, object>> DataList, string Pid)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "[MST].[QualityManagementPositionCode]";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                if (DataList != null)
+                {
+                    ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                    conC.BeginTransaction();
+                    conC.executeQuery("delete from " + TableName + " where QMID='" + Pid + "'");
+                    conC.CommitTransaction();
+
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "' and QMID='" + item["QMID"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            bplib.clsGenID genid = new bplib.clsGenID();
+                            genid.GenID(TableName, out _Id);
+                            item["Id"] = "QPC" + _Id;
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else

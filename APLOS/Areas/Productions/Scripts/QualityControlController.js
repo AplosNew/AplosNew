@@ -235,6 +235,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         MOIArticle: null,
         ProductCodeArticle: null,
         BookingLevel: null,
+        WorkCenterId: null,
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -393,6 +394,17 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         });
     }
     $scope.GetGradeGridList();
+
+    $scope.ActionToBeTakenList = [];
+    $scope.GetActionToBeTakenGridList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/QualityControl/GetActionToBeTakenGridList'
+        }).then(function successCallback(response) {
+            $scope.ActionToBeTakenList = response.data;
+        });
+    }
+    $scope.GetActionToBeTakenGridList();
 
     $scope.TimeList = [];
     $scope.LoadTimeDetails = function () {
@@ -2049,6 +2061,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.LotNumber = $event.data.LotNumber;
         $scope.productionSummaryNew.ProductionInCharge = $event.data.QPEmployee;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.QPEmployeeId;
+        $scope.WorkCenterHeaderList = [];
         $scope.QPId = $event.data.Id;
         $scope.PlanType = "POIssue"
         $scope.setTab(3);
@@ -2059,6 +2072,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
         $scope.GetIssueType($scope.productionSummaryNew.IssueId);
         $scope.GetQBookingLevel();
+        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
@@ -2070,6 +2084,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.productionSummaryNew.IssueId = $event.data.IssueId;
         $scope.productionSummaryNew.ProductionInCharge = $event.data.QGIEmployee;
         $scope.productionSummaryNew.ProductionInChargeId = $event.data.QGIEmployeeId;
+        $scope.WorkCenterHeaderList = [];
         $scope.QPId = $event.data.Id;
         $scope.PlanType = "GeneralIssue"
         $scope.setTab(3);
@@ -2080,6 +2095,7 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
         $scope.GetPeriodList($scope.productionSummaryNew.IssueId);
         $scope.GetIssueType($scope.productionSummaryNew.IssueId);
         $scope.GetQBookingLevel();
+        $scope.GetWorkCenterList($scope.productionSummaryNew.IssueId);
         //$scope.productionSummaryNew.Article = $event.data.Article;
     }
 
@@ -3206,6 +3222,19 @@ function QualityControlController(cboService, commonMessage, $scope, $rootScope,
                     $scope.IssueHeaderList = response.data;
                     if (baseService.arrayLength(response.data) === 1) {
                         $scope.productionSummaryNew.IssueId = $scope.IssueHeaderList[0].Value;
+                    }
+                }
+            });
+    }
+
+    $scope.WorkCenterHeaderList = [];
+    $scope.GetWorkCenterList = function (IId) {
+        $http.get('Productions/QualityControl/GetQualityWorkCenterList?IssueId=' + IId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.WorkCenterHeaderList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.WorkCenterId = $scope.WorkCenterHeaderList[0].Value;
                     }
                 }
             });

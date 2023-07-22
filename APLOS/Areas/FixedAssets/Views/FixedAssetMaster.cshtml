@@ -140,6 +140,7 @@
                             <th>Category</th>
                             <th>Sub Category</th>
                             <th>Asset Type</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,7 +149,14 @@
                             <td>{{x.UserName}}</td>
                             <td>{{x.FixedAssetCategory}}</td>
                             <td>{{x.FixedAssetSubCategory}}</td>
-                            <td>{{x.AssetType}}</td>
+                            <td>{{x.AssetType}}</td> 
+                            <td>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button data-toggle="modal" ng-click="$parent.FixedAssetMasterIndividualReport(x.Id);" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download</button></li>
+                                    </ul>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -185,7 +193,7 @@
                             <label class="col-sm-4 control-label">Fixed Asset Master<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <div class="input-group" tabindex="208">
-                                    <input type="text" name="FixedAssetMaster" ng-model="ModelChildNew.FixedAssetMaster" ng-disabled="true" class="form-control" maxlength="200" required readonly  tabindex="5">
+                                    <input type="text" name="FixedAssetMaster" ng-model="ModelChildNew.FixedAssetMaster" ng-disabled="true" class="form-control" maxlength="200" required readonly tabindex="5">
                                     <span class="input-group-btn">
                                         <button ng-click="selectFixedAssetMaster()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                     </span>
@@ -239,7 +247,7 @@
                                 </div>
                             </div>
                         </div>
-                       
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
@@ -257,20 +265,29 @@
                 </div>
 
             </div>
-                <div class="table-responsive aplos-grid-toggle">
-                    <div id="GridM" ng-init="chkinit2()" ej-grid e-datasource="FixedAssetMasterItemList" e-recorddoubleclick="GetFAMI"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                        <div e-columns>
-                            <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
-                            <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
-                            <div e-column e-field="FixedAssetMaster" e-headertext="Fixed Asset Master" e-width="5"></div>
-                            <div e-column e-field="CapacityUoM" e-headertext="Capacity UoM" e-width="4"></div>
-                            <div e-column e-field="CapacityValue" e-headertext="Capacity Value" e-width="4"></div>
-                            <div e-column e-field="Description" e-headertext="Description" e-width="4"></div>
-                        </div>
+            <div class="table-responsive aplos-grid-toggle">
+                <div id="GridM" ng-init="chkinit2()" ej-grid e-datasource="FixedAssetMasterItemList" e-recorddoubleclick="GetFAMI"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Code" e-headertext="Code" e-width="3"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
+                        <div e-column e-field="FixedAssetMaster" e-headertext="Fixed Asset Master" e-width="5"></div>
+                        <div e-column e-field="CapacityUoM" e-headertext="Capacity UoM" e-width="4"></div>
+                        <div e-column e-field="CapacityValue" e-headertext="Capacity Value" e-width="4"></div>
+                        <div e-column e-field="Description" e-headertext="Description" e-width="4"></div>
                     </div>
                 </div>
+            </div>
+
+            <br />
+            <div class="row aplos-grid-toggle">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button data-toggle="modal" ng-click="FixedAssetMasterItemReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Download All</button></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>

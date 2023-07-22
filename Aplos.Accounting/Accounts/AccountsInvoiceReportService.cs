@@ -375,7 +375,7 @@ namespace Library.Accounting.Accounts
                             , P.Code AS PartyCode, P.UserName AS Customer, REPLACE(CONVERT(VARCHAR(11), AW.PostingDate, 106), ' ', '-') AS PostingDate 
                             , REPLACE(CONVERT(VARCHAR(11), AW.DocDate, 106), ' ', '-') AS DocDate, AW.DocRefNo, C.Code AS CurrencyCode,SUM(IWD.Amount) Amount
                             , AW.PartyPlantId, PP.UserName AS CustomerPlant,  AW.BankJournalId, UPPER(AW.Narration) AS Narration
-                            , VT.UserName AS VoucherTypeName,AW.AddedBy,NULL PostedBy, CASE WHEN AW.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+                            , VT.UserName AS VoucherTypeName,AW.AddedBy,AW.UpdatedBy PostedBy, CASE WHEN AW.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
                             ,AW.CurrencyId
                             ,VoucherNo=STUFF((SELECT DISTINCT ','+xpo.VoucherNo from
                             			[TRN].Voucher xpo
@@ -392,7 +392,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
                             WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.InvoiceWriteOffGroupNo='" + invoiceWriteOffGroupNo + "' AND AW.[SourceType]='" + sourceType + @"'
                             Group BY AW.InvoiceWriteOffGroupNo, AW.VoucherDate
-                            , P.Code , P.UserName, AW.PostingDate,VT.UserName,AW.AddedBy,AW.Narration
+                            , P.Code , P.UserName, AW.PostingDate,VT.UserName,AW.AddedBy,AW.UpdatedBy,AW.Narration
                             , AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId,AW.CurrencyId";
             return _sqlRepository.GetData(cmdText);
         }

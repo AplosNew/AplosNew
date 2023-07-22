@@ -294,6 +294,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                     ob.ArticleId = $scope.salesOrderNewList[i].ArticleId;
                     ob.SONo = $scope.salesOrderNewList[i].SONo;
                     ob.SalesOrderId = $scope.salesOrderNewList[i].SalesOrderId;
+                    ob.PackingId = $scope.salesOrderNewList[i].PackingId;
                     ob.PONumber = $scope.salesOrderNewList[i].PONumber;
                     ob.DeliveryDate = $scope.salesOrderNewList[i].DeliveryDate;
                     ob.DestinationName = $scope.salesOrderNewList[i].DestinationName;
@@ -485,6 +486,17 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
 
     $scope.getPartyPlant = function () {
+        $scope.salesVM.InvoicingPartyPlantId = null;
+        $scope.salesVM.DeliveryPartyPlantId = null;
+        $scope.salesVM.InvoicingByAddress = null;
+        $scope.salesVM.DeliveryByAddress = null;
+        $scope.salesVM.InvoicingState = null;
+        $scope.salesVM.InvoicingGSTIN = null;
+        $scope.salesVM.DeliveryState = null;
+        $scope.salesVM.DeliveryGSTIN = null;
+        $scope.salesVM.InvoicingStateId = null;
+
+
         $scope.getCboPartyPlantList($scope.salesVM.PartyId, function (result) {
             $scope.partyPlantList = result;
             angular.forEach($scope.partyPlantList, function (item, i) {

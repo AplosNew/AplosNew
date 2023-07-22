@@ -9,6 +9,7 @@ using OTSBD;
 using Syncfusion.XlsIO;
 using Syncfusion.XlsIO.Implementation;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -376,7 +377,7 @@ namespace Library.Service.Helpers
 
         }
 
-        public void SetText(ref IWorksheet sheet, int row, int col, double txt,int Number)
+        public void SetText(ref IWorksheet sheet, int row, int col, double txt, int Number)
         {
             sheet.Range[row, col].Number = txt;
             sheet.Range[row, col].NumberFormat = clsStaticInfo.NumberFormat(Number);
@@ -1106,7 +1107,7 @@ namespace Library.Service.Helpers
             }
         }
 
-        public void PlantHeaderPayment(ref IWorksheet sheet, int lastCol,string sheetHeaderText,string sheetHeader, string plantId)
+        public void PlantHeaderPayment(ref IWorksheet sheet, int lastCol, string sheetHeaderText, string sheetHeader, string plantId)
         {
             try
             {
@@ -1783,6 +1784,48 @@ namespace Library.Service.Helpers
             sheet.Range[xlsRow, xlsCol].ColumnWidth = 10;
             ColIndex = xlsCol;
             xlsCol += 1;
+        }
+        //public void SetCellText(IWorksheet sheet, int xlsRow, int xlsCol, string Text)
+        //{
+
+        //    sheet.Range[xlsRow, xlsCol].Text = Text;
+        //    sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+        //    sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+        //    sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+
+        //}
+
+        public string GetFormulaGrandTotal(ArrayList al, int col)
+        {
+            string _formula = string.Empty;
+            ReportUtility ru = new ReportUtility();
+            try
+            {
+                for (int i = 0; i < al.Count; i++)
+                {
+                    if (_formula.Length == 0)
+                    {
+                        _formula = "=" + ru.GetColumnNameForXls(col) + al[i];
+                    }
+                    else
+                    {
+                        _formula += "+" + ru.GetColumnNameForXls(col) + al[i];
+                    }
+                }
+                return _formula;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public void SetHeadText(IWorksheet sheet, int xlsRow, int xlsCol, string text)
+        {
+            sheet.Range[xlsRow, xlsCol].Text = text;
+            sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+            sheet.Range[xlsRow, xlsCol].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
         }
 
         public void SetHeadText(string text, IWorksheet sheet, int xlsRow, ref int xlsCol, out int ColIndex, double width)

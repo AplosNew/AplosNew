@@ -186,24 +186,25 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.SalesOrder SO
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT convert(bit,0) AS isChecked, convert(bit,CASE WHEN isnull(ii.OrderCostingMasterTemplateId,'')='' THEN 0 ELSE 1 END) AS TakenForCosting,
                             ii.Id, ii.Id AS MasterOrderItemId,ii.BuyerReferenceNo,mm.UserName AS Material,mma.StandardName AS Article, ii.OwnReferenceNo, ii.TotalQty, 
-                            pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId,ISNULL(c.ContractNo,'')ContractNo,ml.LCRef
-                                       ,ii.[Type]
+                            pd.ProductMasterId,p.UserName AS Product,pm.Id as ProductMasterId,ii.[Type]
+									,ContractNo=STUFF((select distinct ','+cx.ContractNo from [Contract] AS cx
+								                                INNER JOIN  trn.SalesOrder SO ON cx.Id=SO.ContractId                                               
+							                                where SO.MasterOrderItemId=II.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''), 
+
+LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx 
+																
+								                                INNER JOIN [Contract] AS cx ON mlx.Id=cx.MasterLCId  
+																INNER JOIN  trn.SalesOrder SO ON cx.Id=SO.ContractId                                             
+							                                where SO.MasterOrderItemId=II.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                                   FROM trn.MasterOrderItem AS ii
-                                LEFT JOIN trn.SalesOrder SO ON SO.MasterOrderItemId=ii.Id
                                 LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=ii.MaterialMasterId
                                 LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=ii.ArticleId
                                 LEFT JOIN [TRN].[ProductDefinition] PD ON pd.MaterialMasterId=mm.Id
                                 LEFT JOIN mst.ProductMaster AS pm ON pm.Id=pd.ProductMasterId
                                 LEFT JOIN hkp.Product AS p ON p.Id=pm.ProductId
-                                LEFT JOIN [Contract] AS c ON c.Id=SO.ContractId
-                                LEFT JOIN MasterLC AS ml ON ml.Id=c.MasterLCId
-
                                 WHERE ii.MasterOrderId='" + Id + "'";
 
-
             List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
-
-
             return Json(new { DATA = data }, JsonRequestBehavior.AllowGet);
         }
 
@@ -1865,10 +1866,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.SalesOrder SO
             }
             catch (Exception ex)
             {
-                if (ex.Message.ToUpper().Contains("REFERENCE"))
-                    return Json(new { Error = true, Message = "This costing template has been tagged with order. Cannot delete" }, JsonRequestBehavior.AllowGet);
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+                throw ex;
 
             }
         }
@@ -6529,6 +6527,66 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.SalesOrder SO
                 throw (ex);
             }
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetOrderDirectMaterialBudget(string OrderCostingMasterTemplateId)
+        {
+            string sqlPre = @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,UOM.Code as UOM,pc.Particulars,I.UserName as CostingItems,I.CostingComponentId
+					,CC.CostingSegment,cc.UserName as CostingComponentName,ISNULL(pc.Consumption,0) AS Consumption,ISNULL(pc.Rate,0) AS Rate
+					,ISNULL(pc.ValueLoss,0) AS ValueLoss,pc.MinimumOfQuantity
+					,ISNULL(pc.GrossConsumption,0) AS GrossConsumption
+					,C.Code as Currency,OCMT.Id as OrderCostingMasterTemplateId
+					,EI.EmployeeName as ResponsiblePerson,pc.SourcingType,MM.UserName as Material,MMA.StandardName as Article,pc.VendorId
+					--,ISNULL(MOI.TotalQty,0) TotalQty
+					,TotalQty=(select sum(TotalQty) from  trn.MasterOrderItem where OrderCostingMasterTemplateId=PC.OrderCostingMasterTemplateId)
+					--,TotalMaterialRequirement=(ISNULL(MOI.TotalQty,0) * ISNULL(pc.GrossConsumption,0))
+					,TotalMaterialRequirement=sum(ISNULL(TotalQty,0) * ISNULL(pc.GrossConsumption,0))
+					,ISNULL(pc.GrossAmount,0) AS GrossAmount
+                    ,TotalOrderCost=ISNULL(pc.GrossAmount,0)*(select sum(TotalQty) from  trn.MasterOrderItem where OrderCostingMasterTemplateId=PC.OrderCostingMasterTemplateId)
+
+					FROM OrderPreCostingDirectMaterial AS pc  
+					LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
+					LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+                    LEFT JOIN SCS.UnitOfMeasurement as UOM on UOM.Id=I.UnitOfMeasurementId
+					LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
+					LEFT JOIN TRN.MasterOrderItem MOI on MOI.OrderCostingMasterTemplateId=OCMT.Id
+					LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
+					LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
+					LEFT JOIN MST.MaterialMasterArticle MMA on MMA.Id=pc.ArticleId
+					LEFT JOIN MST.MaterialMaster MM on MM.Id=pc.MaterialMasterId
+					LEFT JOIN HKP.Party P on P.Id=pc.VendorId
+					
+					where pc.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"' and I.Id is not null
+                    group by pc.Id,I.Id,pc.Sequence,UOM.Code,pc.Particulars,I.UserName,I.CostingComponentId	,CC.CostingSegment
+					,cc.UserName,pc.Consumption,pc.Rate,pc.ValueLoss,pc.MinimumOfQuantity,pc.GrossConsumption,pc.GrossAmount
+					,C.Code,OCMT.Id,EI.EmployeeName,pc.SourcingType,MM.UserName,MMA.StandardName,pc.VendorId,PC.OrderCostingMasterTemplateId
+					order by pc.Sequence"; 
+
+            return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null)}, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetOrderBudgetDirectProcess(string OrderCostingMasterTemplateId)
+        {
+            string sqlPre = @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,I.UserName as CostingItems,I.CostingComponentId
+            ,ISNULL(pc.ExecutionType,'Fixed') as [Type]
+			,OCMT.Id as OrderCostingMasterTemplateId,cc.UserName as CostingComponentName
+			,ISNULL(pc.Value,0) AS ValueLoss,ISNULL(pc.Rate,0) AS Rate,ISNULL(pc.Amount,0) AS Amount
+			,C.Code as Currency,EI.EmployeeName as ResponsiblePerson
+			,TotalOrderCost=ISNULL(pc.Amount,0)*moi.TotalQty
+			
+			FROM OrderPreCostingDirectProcess AS pc   
+			LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId 
+			LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
+			LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
+			LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
+			LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
+            LEFT JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=ocmt.Id
+
+			where pc.OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + @"'
+			order by pc.Sequence";
+
+            return Json(new { Pre = _sqlRepository.GetDataCollection(sqlPre, null) }, JsonRequestBehavior.AllowGet);
         }
     }
 

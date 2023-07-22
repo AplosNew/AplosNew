@@ -83,16 +83,12 @@
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-
-                <div class="form-group" show-errors>
-                    <label class="col-sm-1 control-label"><sup>*</sup></label>
-                    <div class="col-sm-4 show-message">
-                        <div class="input-group">
-                            <span class="input-group-btn">
-                                <button ng-click="popUp();" class="btn single-small-btn" @*ng-disabled="ModelNew.Id==null"*@ tabindex="5"><i class="glyphicon glyphicon-search"> Material</i></button>
-                            </span>
-                        </div>
-                    </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li>
+                            <button ng-click="popUp();" class="btn single-small-btn" @*ng-disabled="ModelNew.Id==null"*@ tabindex="5"><i class="glyphicon glyphicon-search">Material</i></button>
+                        </li>
+                    </ul>
                 </div>
                 <div class="row ">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -127,17 +123,13 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="form-elements form-horizontal" ng-form="from1">
-                    <div class="form-group" show-errors id="div_Inventory">
-                        <label class="col-sm-1 control-label">GL<sup>*</sup></label>
-                        <div class="col-sm-4 show-message">
-                            <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button ng-click="GetCOAICodeList('inventoryTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <button ng-click="GetCOAICodeList('inventoryTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search">GL</i></button>
+                            </li> 
+                        </ul>
                     </div>
-
                     <div class="row ">
                         <div class="col-xs-12 col-sm-12 col-sm-12">
                             <div class="table-responsive modal-table">
@@ -176,17 +168,13 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="form-elements form-horizontal" ng-form="from2">
-                    <div class="form-group" show-errors id="div_Inventory">
-                        <label class="col-sm-1 control-label">GL<sup>*</sup></label>
-                        <div class="col-sm-4 show-message">
-                            <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button ng-click="GetCOAICodeList('inventoryCapitalTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <button ng-click="GetCOAICodeList('inventoryCapitalTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i>GL</button>
+                            </li>
+                        </ul>
                     </div>
-
                     <div class="row ">
                         <div class="col-xs-12 col-sm-12 col-sm-12">
                             <div class="table-responsive modal-table">
@@ -226,17 +214,13 @@
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="form-elements form-horizontal" ng-form="from0">
-                    <div class="form-group" show-errors id="div_GL">
-                        <label class="col-sm-1 control-label">GL<sup>*</sup></label>
-                        <div class="col-sm-4 show-message">
-                            <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button ng-click="GetCOAICodeList('consumableTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <button ng-click="GetCOAICodeList('consumableTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search">GL</i></button>
+                            </li>
+                        </ul>
                     </div>
-
                     <div class="row ">
                         <div class="col-xs-12 col-sm-12 col-sm-12">
                             <div class="table-responsive modal-table">
@@ -275,17 +259,13 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                 <div class="form-elements form-horizontal" ng-form="from5">
-                    <div class="form-group" show-errors id="div_Inventory">
-                        <label class="col-sm-1 control-label">GL<sup>*</sup></label>
-                        <div class="col-sm-4 show-message">
-                            <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button ng-click="GetCOAICodeList('CapitalTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li>
+                                <button ng-click="GetCOAICodeList('CapitalTab');" class="btn single-small-btn"><i class="glyphicon glyphicon-search">GL</i></button>
+                            </li>
+                        </ul>
                     </div>
-
                     <div class="row ">
                         <div class="col-xs-12 col-sm-12 col-sm-12">
                             <div class="table-responsive modal-table">

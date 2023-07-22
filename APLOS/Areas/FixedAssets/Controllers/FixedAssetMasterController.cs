@@ -134,13 +134,29 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult FixedAssetMasterXls(List<Dictionary<string, object>> data, string reportFileName)
+        public ActionResult FixedAssetMasterXls(string reportFileName)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string fileName = ""; 
-                fileName = _fixedAssetMasterService.GetFixedAssetMasterReport(data, "", reportFileName,identity.CompanyGroupId); 
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterReport("", reportFileName,identity.CompanyGroupId); 
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult FixedAssetMasterIndividualXls(string FAMId, string reportFileName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = "";
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterIndividualReport(FAMId, "", reportFileName, identity.CompanyGroupId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -177,11 +193,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from [MST].[FixedAssetMasterItem] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [MST].[FixedAssetItem] where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from [MST].[FixedAssetMasterItem] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from [MST].[FixedAssetItem] where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -189,7 +205,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FixedAssetMasterItem", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "FixedAssetItem", out _Id);
 
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
@@ -263,16 +279,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             try
             {
-                ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster;
-                string sqlr = @"select * from [MST].[FixedAssetMasterItem] where Id = '" + Id + @"'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
-
-
+               
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from [MST].[FixedAssetMasterItem] where Id ='" + Id + "'");
+                conC.executeQuery("delete from [MST].[FixedAssetItem] where Id ='" + Id + "'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -280,6 +290,22 @@ namespace Aplos.Areas.FixedAssets.Controllers
             catch (Exception ex)
             {
                 throw (ex);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult FixedAssetMasterItemXls(List<Dictionary<string, object>> data, string reportFileName)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = "";
+                fileName = _fixedAssetMasterService.GetFixedAssetMasterItemReport(data, "", reportFileName, identity.CompanyGroupId);
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

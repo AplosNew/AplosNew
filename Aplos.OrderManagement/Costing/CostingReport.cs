@@ -673,7 +673,6 @@ namespace Library.OrderManagement.Costing
                 int colCostingItem = COL;
                 COL += 3;
 
-
                 sheet[ROW, COL].Text = "UOM";
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colUOM2 = COL;
@@ -848,7 +847,7 @@ namespace Library.OrderManagement.Costing
 
                 COL = 1;
 
-                sheet[ROW, COL].Text = "CostingItem";
+                sheet[ROW, COL].Text = "Costing Item";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colCostingItem = COL;
                 COL += 3;

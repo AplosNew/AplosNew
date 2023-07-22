@@ -663,7 +663,7 @@ namespace Library.Accounting.Accounts
             }
         }
         private void GetInventoryMaterialPayableReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName
-            , string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc,string otherVendorId)
+            , string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc, string otherVendorId)
         {
             IEnumerable<InventoryReportViewModel> dataList;
 
@@ -1045,14 +1045,14 @@ namespace Library.Accounting.Accounts
 
         }
 
-        private void GetInventoryOtherVendorChargesReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc, string otherVendorId,int _rowL)
+        private void GetInventoryOtherVendorChargesReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc, string otherVendorId, int _rowL)
         {
             IEnumerable<InventoryReportViewModel> dataList;
 
-           
-                        dataList = GetInventoryPayableotherVendorCharges(companyId, plantId, inventoryReceiveId,otherVendorId);
-                
-           
+
+            dataList = GetInventoryPayableotherVendorCharges(companyId, plantId, inventoryReceiveId, otherVendorId);
+
+
             if (dataList.Count() == 0) throw new Exception("No Data Found!");
 
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
@@ -1398,7 +1398,7 @@ namespace Library.Accounting.Accounts
 
 
         }
-        private IEnumerable<InventoryReportViewModel> GetInventoryPayableotherVendorCharges(string companyId, string plantId, string inveReveiveId,string otherVendorId)
+        private IEnumerable<InventoryReportViewModel> GetInventoryPayableotherVendorCharges(string companyId, string plantId, string inveReveiveId, string otherVendorId)
         {
             try
             {
@@ -2383,10 +2383,10 @@ namespace Library.Accounting.Accounts
 								
 					  LEFT JOIN [EmployeeInformation] AS EI ON IR.EmployeeId=EI.SystemId
 
-                    WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId+"' AND V.CompanyId='"+companyId+"' AND V.PlantId='"+plantId+@"' 
-						AND V.Id='"+voucherId+ @"' 
+                    WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + @"' 
+						AND V.Id='" + voucherId + @"' 
 					--AND V.SourceType='InventoryJWReceipt' 
-                    and v.SourceType ='"+sourceType+@"'";
+                    and v.SourceType ='" + sourceType + @"'";
             return _sqlRepository.GetData(cmdText);
         }
 
@@ -2655,7 +2655,7 @@ namespace Library.Accounting.Accounts
 
                 if (companyCurrencyId != transcationCurrency)
                 {
-                    
+
                     sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colinrDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colinrDebit) + (formulaEndRow) + ")";
                     sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
@@ -2797,7 +2797,7 @@ namespace Library.Accounting.Accounts
         {
             //IEnumerable<BankReconciliationUploadedDataViewModel> dataList;
             DataTable dataList = GetBankReconciliationUploadedData(companyId, plantId, bankReconciliationUploadId);
-                   
+
 
             if (dataList.Rows.Count == 0) throw new Exception("No Data Found!");
 
@@ -2814,7 +2814,7 @@ namespace Library.Accounting.Accounts
                         INNER JOIN [dbo].[EmployeeInformation] EI ON EI.SystemId=BRU.EmployeeId
                         WHERE BRU.Id='" + bankReconciliationUploadId + "'";
             var receiveList = _sqlRepository.GetData(sql);
-            
+
 
             var shet2EndxlsCol = 1;
 
@@ -2847,7 +2847,7 @@ namespace Library.Accounting.Accounts
             sheet.Range[_row, 2, _row, 3].Merge();
             _row++;
 
-            
+
             #endregion
 
             #region Left Header
@@ -2919,17 +2919,17 @@ namespace Library.Accounting.Accounts
             sheet.Range[_rowL, 1, _rowL, 4].Merge();
             reportUtility.SetText(ref sheet, _rowL, 1, null, false);
 
-            
-                sheet.Range[_rowL, 5].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(5) + (_rowL - 1) + ")";
-                sheet.Range[_rowL, 5].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[_rowL, 5].CellStyle.Font.Bold = true;
-                sheet.Range[_rowL, 5].BorderAround(ExcelLineStyle.Hair);
 
-                sheet.Range[_rowL, 6].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(6) + (_rowL - 1) + ")";
-                sheet.Range[_rowL, 6].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[_rowL, 6].CellStyle.Font.Bold = true;
-                sheet.Range[_rowL, 6].BorderAround(ExcelLineStyle.Hair);
-            
+            sheet.Range[_rowL, 5].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(5) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, 5].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, 5].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, 5].BorderAround(ExcelLineStyle.Hair);
+
+            sheet.Range[_rowL, 6].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(6) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, 6].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, 6].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, 6].BorderAround(ExcelLineStyle.Hair);
+
 
             #endregion
 
@@ -2937,7 +2937,7 @@ namespace Library.Accounting.Accounts
             sheet.Range[(row), 1, _rowL, shet2EndxlsCol - 1].BorderAround(ExcelLineStyle.Hair);
 
             _rowL++;
-            
+
 
             sheet.Name = sheetName;
             sheet.UsedRange.WrapText = true;
@@ -2954,7 +2954,7 @@ namespace Library.Accounting.Accounts
             clsStaticInfo objStatic = null;
             objStatic = new clsStaticInfo();
             string OTConsiderOn = string.Empty;
-           
+
             #endregion
             try
             {
@@ -2984,15 +2984,15 @@ namespace Library.Accounting.Accounts
 
                 #region ------------------Column Header------------------
 
-               
+
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Date"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BankRefNo"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BankParticulars"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrAmount"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CrAmount"); xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRefNo"); 
-              
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRefNo");
+
                 endXlsCol = xlsCol;
 
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
@@ -3041,6 +3041,153 @@ namespace Library.Accounting.Accounts
             }
         }
 
+        public IWorkbook GetSampleFileBalanceSheetScheduling(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            clsReport objRpt = null;
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+                #region ------------------Column Header------------------
+
+
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ControlId"); int colBudgetMasterActivityId = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Level1"); int colLevel1 = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Level2"); int colLevel2 = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Level3"); int colLevel3 = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Level4"); int colLevel4 = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLGeneralInfoCode"); int colGLGeneralInfoCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "GLName"); int colGLName = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetGroup"); int colBudgetGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCategory"); int colBudgetCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetSubCategory"); int colBudgetSubCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Budget"); int colBudget = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "RefNo"); int colRefNo = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity"); int colActivity = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Register"); int colRegister = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BalanceSheetSchedulingId"); int colBalanceSheetSchedulingId = xlsCol;
+
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+                DataTable dtBudgetMaster = GetBudgetMasterGLLevelDataforBalanceSheetScheduling(CompanyGroupId, CompanyId, PlantId);
+                for (int i = 0; i < dtBudgetMaster.Rows.Count; i++)
+                {
+                    sheet1[xlsRow, colBudgetMasterActivityId].Text = dtBudgetMaster.Rows[i]["BudgetMasterActivityId"].ToString();
+                    sheet1[xlsRow, colLevel1].Text = dtBudgetMaster.Rows[i]["Level1"].ToString();
+                    sheet1[xlsRow, colLevel2].Text = dtBudgetMaster.Rows[i]["Level2"].ToString();
+                    sheet1[xlsRow, colLevel3].Text = dtBudgetMaster.Rows[i]["Level3"].ToString();
+                    sheet1[xlsRow, colLevel4].Text = dtBudgetMaster.Rows[i]["Level4"].ToString();
+                    sheet1[xlsRow, colGLGeneralInfoCode].Text = dtBudgetMaster.Rows[i]["GLGeneralInfoCode"].ToString();
+                    sheet1[xlsRow, colGLName].Text = dtBudgetMaster.Rows[i]["GLName"].ToString();
+                    sheet1[xlsRow, colBudgetGroup].Text = dtBudgetMaster.Rows[i]["BudgetGroup"].ToString();
+                    sheet1[xlsRow, colBudgetCategory].Text = dtBudgetMaster.Rows[i]["BudgetCategory"].ToString();
+                    sheet1[xlsRow, colBudgetSubCategory].Text = dtBudgetMaster.Rows[i]["BudgetSubCategory"].ToString();
+                    sheet1[xlsRow, colBudget].Text = dtBudgetMaster.Rows[i]["Budget"].ToString();
+                    sheet1[xlsRow, colRefNo].Text = dtBudgetMaster.Rows[i]["RefNo"].ToString();
+                    sheet1[xlsRow, colActivity].Text = dtBudgetMaster.Rows[i]["Activity"].ToString();
+                    sheet1[xlsRow, colRegister].Text = dtBudgetMaster.Rows[i]["Register"].ToString();
+                    sheet1[xlsRow, colBalanceSheetSchedulingId].Text = dtBudgetMaster.Rows[i]["BalanceSheetSchedulingId"].ToString();
+                    xlsRow++;
+                }
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DataTable GetBudgetMasterGLLevelDataforBalanceSheetScheduling(string CompanyGroupId, string CompanyId, string PlantId)
+        {
+            var cmdText = @"SELECT  BMA.Id BudgetMasterActivityId,C1.UserName AS Level1,C2.UserName AS Level2,  C3.UserName AS Level3, C4.UserName AS Level4
+                            , GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLName,BG.UserName AS BudgetGroup
+							, BC.UserName AS BudgetCategory,BSC.UserName AS BudgetSubCategory, B.UserName AS Budget, BM.RefNo
+							,A.UserName AS Activity, R.UserName AS Register,BMA.BalanceSheetSchedulingId
+                            FROM  [MST].[BudgetMasterActivity] AS BMA
+							LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=BMA.BudgetMasterId
+							LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON BM.GLGeneralInfoId=GL.Id
+                            LEFT JOIN [HKP].[COALevel1] AS C1 ON C1.Id=GL.COALevel1Id
+                            LEFT JOIN [HKP].[COALevel2] AS C2 ON C2.Id=GL.COALevel2Id
+                            LEFT JOIN [HKP].[COALevel3] AS C3 ON C3.Id=GL.COALevel3Id
+                            LEFT JOIN [HKP].[COALevel4] AS C4 ON C4.Id=GL.COALevel4Id
+                            LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                            LEFT JOIN [HKP].[BudgetSubCategory] AS BSC ON BSC.Id=BM.BudgetSubCategoryId
+                            LEFT JOIN [HKP].[BudgetCategory] AS BC ON BC.Id=BM.BudgetCategoryId
+                            LEFT JOIN [HKP].[BudgetGroup] AS BG ON BG.Id=BM.BudgetGroupId
+                            LEFT JOIN [HKP].[Register] AS R ON R.Id=BM.RegisterId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=BMA.ActivityId
+							LEFT JOIN [HKP].[CompanyGroupActivity] AS CGD ON CGD.ActivityId=A.Id
+							ORDER BY C1.Sequence,C2.Sequence";
+            return _sqlRepository.GetDataTable(cmdText);
+
+
+        }
         public IWorkbook GetPackingScanSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
         {
             #region declare
