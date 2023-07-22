@@ -80,6 +80,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data.DATA;
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                $scope.OrderCostingSId = $scope.ModelList[i].Id
+            }
             $scope.PurchaseGroupList = response.data.PurchaseGroup;
         });
 
@@ -2622,7 +2625,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                 $http({
                     method: 'POST',
                     url: 'Costings/OrderCosting/SaveOperation',
-                    data: { 'data': $scope.OperationList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage  },
+                    data: { 'data': $scope.OperationList, OrderCostingMasterTemplateId: $scope.ModelNew.Id, 'cs': $scope.ModelNew.CostingStage },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -4107,6 +4110,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         if ($scope.Segment == 'DirectMaterial') {
 
             $scope.GetDirectCostingMaterialWithItemByComponentId();
+            $scope.GetOrderBudgetData();
         }
         else if ($scope.Segment == 'Operation') {
 
@@ -4116,6 +4120,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         else if ($scope.Segment == 'DirectProcess') {
 
             $scope.GetDirectProcessWithItemByComponentId();
+            $scope.GetDirectProcessData();
         }
         else if ($scope.Segment == 'SalesExpense') {
 
@@ -5174,20 +5179,20 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeletePreCosting = function () {
-        $http.post('Costings/OrderCosting/DeletePreCosting?OrderPreCostingDirectMaterialId=' + $scope.OPCDMId+ '&cs=' + $scope.ModelNew.CostingStage)
-                .then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        //$scope.SaveCostingComponentItems('PRE');
-                        $scope.GetDirectCostingMaterialWithItemByComponentId();
-                    }
-                    function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                });
+        $http.post('Costings/OrderCosting/DeletePreCosting?OrderPreCostingDirectMaterialId=' + $scope.OPCDMId + '&cs=' + $scope.ModelNew.CostingStage)
+            .then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.SaveCostingComponentItems('PRE');
+                    $scope.GetDirectCostingMaterialWithItemByComponentId();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
     };
 
     $scope.removeProcurementCosting = function (data) {
@@ -5218,7 +5223,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             });
     };
 
-    $scope.removePreCostingDirectProcess= function (data) {
+    $scope.removePreCostingDirectProcess = function (data) {
         try {
             $scope.DPCPCId = data.Id;
             $scope.message_confirmation = "Are you sure want to permanent delete?";
@@ -5230,7 +5235,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderPreCostingDirectProces = function () {
-        $http.post('Costings/OrderCosting/DeleteOrderPreCostingDirectProces?OrderPreCostingDirectProcessId=' + $scope.DPCPCId+ '&cs=' + $scope.ModelNew.CostingStage)
+        $http.post('Costings/OrderCosting/DeleteOrderPreCostingDirectProces?OrderPreCostingDirectProcessId=' + $scope.DPCPCId + '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5286,7 +5291,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOperationListPreCosting = function () {
-        $http.post('Costings/OrderCosting/DeleteOperationListPreCosting?OperationListPreCostingId=' + $scope.OLPC+ '&cs=' + $scope.ModelNew.CostingStage)
+        $http.post('Costings/OrderCosting/DeleteOperationListPreCosting?OperationListPreCostingId=' + $scope.OLPC + '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5340,7 +5345,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteValueLossPreCosting = function () {
-        $http.post('Costings/OrderCosting/DeleteValueLossPreCosting?ValueLossPreCostingId=' + $scope.VLPC+ '&cs=' + $scope.ModelNew.CostingStage)
+        $http.post('Costings/OrderCosting/DeleteValueLossPreCosting?ValueLossPreCostingId=' + $scope.VLPC + '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5394,7 +5399,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderPreCostingProfit = function () {
-        $http.post('Costings/OrderCosting/DeleteOrderPreCostingProfit?OrderPreCostingProfitId=' + $scope.OPCP+ '&cs=' + $scope.ModelNew.CostingStage)
+        $http.post('Costings/OrderCosting/DeleteOrderPreCostingProfit?OrderPreCostingProfitId=' + $scope.OPCP + '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5448,7 +5453,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
 
     $scope.DeleteOrderPreCostingSalesExpense = function () {
-        $http.post('Costings/OrderCosting/DeleteOrderPreCostingSalesExpense?OrderPreCostingSalesExpenseId=' + $scope.OPCSE+ '&cs=' + $scope.ModelNew.CostingStage)
+        $http.post('Costings/OrderCosting/DeleteOrderPreCostingSalesExpense?OrderPreCostingSalesExpenseId=' + $scope.OPCSE + '&cs=' + $scope.ModelNew.CostingStage)
             .then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -5490,5 +5495,36 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             });
     };
 
+    $scope.OrderBudgetDirectMaterialList = [];
+    $scope.GetOrderBudgetData = function () {
+        $scope.OrderBudgetDirectMaterialList = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetOrderDirectMaterialBudget?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.OrderBudgetDirectMaterialList = response.data.Pre;
+        });
+    }
+
+    $scope.OrderBudgetDirectProcessList = [];
+    $scope.GetDirectProcessData = function () {
+        $scope.OrderBudgetDirectProcessList = [];
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetOrderBudgetDirectProcess?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.OrderBudgetDirectProcessList = response.data.Pre;
+        });
+    }
+
+    $scope.TotalOrderCostTotal = [{
+        title: "Total", summaryColumns: [
+            {
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalOrderCost", dataMember: "TotalOrderCost", format: "{0:N2}"
+            }],
+        showCaptionSummary: true
+    }];
     //#endregion
 }
