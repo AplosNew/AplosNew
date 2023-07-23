@@ -7,7 +7,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.path = "fixedassets/fixedassetregister/";
 
     $scope.register = {
-        Id: null, FixedAssetItemId: null, CapitalizationDate: null, Qty: 0, GRNAmount: 0, IssueAmount: 0, ExpensesAmount: 0, Other: null, TotalAmount: 0, ApprovedById: null, Status: null, Type: null, VoucherRowId: null, Remark: null, InstallationYear: null, Lifetime: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        Id: null, FixedAssetItemId: null, CapitalizationDate: null, Qty: 0, GRNAmount: 0, IssueAmount: 0, ExpensesAmount: 0, Other: null, TotalAmount: 0, ApprovedById: null, IsApproved: false, Status: null, Type: null, VoucherRowId: null, Remark: null, InstallationYear: null, Lifetime: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     };
 
     $scope.yearList = [];
@@ -65,6 +65,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
    
     $scope.SelectMaster = function (obj) {
         $scope.register = obj.data;
+        $scope.register.InstallationYear = parseInt($scope.register.InstallationYear);
         $scope.GetCapitalizationMasterDetail();
         
         if (!$rootScope.isCollapsed) {
@@ -323,39 +324,18 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('hide');
 
     }
-    $scope.popUpDataList = [];
-    $scope.showEmployeeListPopUp = function () {
-        try {
-            $scope.popUpDataList = [];
-            $http({
-                method: 'GET',
-                url: 'OrderManagements/SalesOrderApproval/GetAllActiveEmployeeData'
-            }).then(function successCallback(response) {
-                $scope.popUpDataList = response.data;
-            });
-            angular.element(document.querySelector('#popUp')).modal('show');
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-
-    $scope.SelectEmployee = function (arg) {
-        $scope.register.ApprovedById = arg.data.SystemId;
-        $scope.register.ApprovedByName = arg.data.EmployeeName;
-        $scope.register.ApprovedByEmployeeCode = arg.data.EmployeeCode;
-        $scope.closePopUp();
+  
+    $scope.ApprovedByList = [];
+    $scope.GetApprovedCboList = function () {
+        $http({
+            method: 'GET',
+            url: 'fixedassets/fixedassetregister/GetCapitalizeAssetRegisterApproveByCbo'
+        }).then(function successCallback(response) {
+            $scope.ApprovedByList = response.data;
+        });
     }
+    $scope.GetApprovedCboList();
 
-    $scope.clearEmp = function () {
-        $scope.register.ApprovedById = null;
-        $scope.register.ApprovedByName = null;
-        $scope.register.ApprovedByEmployeeCode = null;
-    }
-
-    $scope.closePopUp = function () {
-        angular.element(document.querySelector('#popUp')).modal('hide');
-    }
 
     $scope.SaveRegister = function () {
         try {
@@ -382,6 +362,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     }
                     else {
                         ShowResult(response.data.Message, "success");
+                        $scope.register.Id = response.data.Id;
                         $scope.getSavedData();
                         $scope.saveBtnDisable = false;
                     }
@@ -398,8 +379,9 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.Clear = function () {
         $scope.register = {
-            Id: null, FixedAssetItemId: null, CapitalizationDate: null, Qty: 0, GRNAmount: 0, IssueAmount: 0, ExpensesAmount: 0, Other: null, TotalAmount: 0, ApprovedById: null, Status: null, Type: null, VoucherRowId: null, Remark: null, InstallationYear: null, Lifetime: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+            Id: null, FixedAssetItemId: null, CapitalizationDate: null, Qty: 0, GRNAmount: 0, IssueAmount: 0, ExpensesAmount: 0, Other: null, TotalAmount: 0, ApprovedById: null, IsApproved: false, Status: null, Type: null, VoucherRowId: null, Remark: null, InstallationYear: null, Lifetime: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
         };
+
         $scope.selectedmaterialMasterList = [];
     }
 

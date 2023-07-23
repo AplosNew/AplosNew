@@ -116,5 +116,6 @@ namespace Library.Service.FixedAssets
 
         string EditFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
         string EditFixedAssetLost(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister);
+        IEnumerable<object> GetCapitalizeAssetRegisterApproveByCbo();
     }
 }

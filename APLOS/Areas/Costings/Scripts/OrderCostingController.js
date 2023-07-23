@@ -5557,7 +5557,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         $scope.OrderBudgetValueLossList = [];
         $http({
             method: 'GET',
-            url: 'Costings/OrderCosting/GetOrderBudgetValueLoss?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
+            url: 'Costings/OrderCosting/GetOrderBudgetValueLoss?OrderCostingId=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.OrderBudgetValueLossList = response.data.Pre;
@@ -5577,7 +5577,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         $scope.OrderBudgetProfitList = [];
         $http({
             method: 'GET',
-            url: 'Costings/OrderCosting/GetOrderBudgetProfit?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
+            url: 'Costings/OrderCosting/GetOrderBudgetProfit?OrderCostingId=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.OrderBudgetProfitList = response.data.Pre;
@@ -5589,7 +5589,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         $scope.OrderBudgetSalesExpenseList = [];
         $http({
             method: 'GET',
-            url: 'Costings/OrderCosting/GetOrderBudgetSalesExpense?OrderCostingMasterTemplateId=' + $scope.ModelNew.Id + '&costingComponentId=' + $scope.CostingComponentId,
+            url: 'Costings/OrderCosting/GetOrderBudgetSalesExpense?OrderCostingId=' + $scope.ModelNew.Id,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.OrderBudgetSalesExpenseList = response.data.Pre;
