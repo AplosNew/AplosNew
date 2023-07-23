@@ -219,7 +219,7 @@ function employeeMyAppLeaveApplicationController(commonMessage, $scope, $rootSco
 
     $('.datepicker').datepicker({
         startDate: '-1d',
-        endDate: '+1d',
+        endDate: '+31d',
         datesDisabled: $scope.DisabledDates,
         format: 'dd-M-yyyy',
         todayHighlight: true,
