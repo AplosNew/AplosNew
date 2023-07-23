@@ -5567,7 +5567,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.TotalValueLossTotal = [{
         title: "Total", summaryColumns: [
             {
-                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "Value", dataMember: "Value", format: "{0:N2}"
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalOrderCost", dataMember: "TotalOrderCost", format: "{0:N2}"
             }],
         showCaptionSummary: true
     }];
@@ -5584,6 +5584,15 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
+    $scope.TotalProfitTotal = [{
+        title: "Total", summaryColumns: [
+            {
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalOrderCost", dataMember: "TotalOrderCost", format: "{0:N2}"
+            }],
+        showCaptionSummary: true
+    }];
+
+
     $scope.OrderBudgetSalesExpenseList = [];
     $scope.GetOrderBudgetSalesExpenseData = function () {
         $scope.OrderBudgetSalesExpenseList = [];
@@ -5595,5 +5604,13 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             $scope.OrderBudgetSalesExpenseList = response.data.Pre;
         });
     }
+    $scope.TotalSalesExpenseTotal = [{
+        title: "Total", summaryColumns: [
+            {
+                summaryType: ej.Grid.SummaryType.Sum, displayColumn: "TotalOrderCost", dataMember: "TotalOrderCost", format: "{0:N2}"
+            }],
+        showCaptionSummary: true
+    }];
+
     //#endregion
 }
