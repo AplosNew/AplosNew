@@ -19,6 +19,17 @@
             </div>
         </div>
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">DetailApplicable<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select id="DetailApplicable" class="form-control" name="DetailApplicable" ng-model="balanceSheetScheduling.DetailApplicable" tabindex="7" required>
+                        <option value="Budget Level">Budget Level</option>
+                        <option value="Activity Level">Activity Level</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Option No<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" maxlength="25" name="OptionNo" ng-model="balanceSheetScheduling.OptionNo" class="form-control" required tabindex="3">
@@ -155,6 +166,7 @@
             <div e-column e-field="Id" e-headertext="Id" e-width="2"></div>
             <div e-column e-field="OptionNo" e-headertext="OptionNo" e-width="3"></div>
             <div e-column e-field="Type" e-headertext="Type" e-width="5"></div>
+            <div e-column e-field="DetailApplicable" e-headertext="Detail Applicable" e-width="5"></div>
             <div e-column e-field="GroupSequence" e-headertext="Group Sequence" e-width="5"></div>
             <div e-column e-field="Group" e-headertext="Group" e-width="5"></div>
             <div e-column e-field="SubGroupSequence" e-headertext="Sub Group Sequence" e-width="5"></div>
