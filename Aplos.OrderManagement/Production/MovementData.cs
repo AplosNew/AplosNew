@@ -1477,6 +1477,7 @@ namespace Library.Service.Productions
                     dr["EntityId"] = masterdata.EntityId;
                     dr["Tagtype"] = "-";
                     dr["Prefix"] = masterdata.Prefix;
+                    dr["StartRefNo"] = masterdata.StartRefNo;
                     dr["Inventorycheck"] = masterdata.Inventorycheck;
                     dr["PurposeId"] = masterdata.PurposeId;
                     dr["AddedBy"] = identity.Name;
@@ -1502,6 +1503,7 @@ namespace Library.Service.Productions
                     dr["Tagtype"] = "-";
                     dr["PurposeId"] = masterdata.PurposeId;
                     dr["Prefix"] = masterdata.Prefix;
+                    dr["StartRefNo"] = masterdata.StartRefNo;
                     dr["Inventorycheck"] = masterdata.Inventorycheck;
 
                     dr["UpdatedBy"] = identity.Name;
@@ -1565,6 +1567,7 @@ namespace Library.Service.Productions
         public string ToStorageLocId { get; set; } = "";
         public string Tagtype { get; set; } = "";
         public string Prefix { get; set; } = "";
+        public int StartRefNo { get; set; } = 0 ;
         public string Inventorycheck { get; set; } = "";
     }
 

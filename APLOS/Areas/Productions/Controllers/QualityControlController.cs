@@ -664,6 +664,14 @@ from [MST].[QualityIssueItem] IID where IID.Id='" + ItemId + @"'";
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetActionToBeTakenGridList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select Id as Value,ActionToBeTakenName as Text from [MST].[QualityActionToBeTakenDetails]";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetQPEmployeeList(string IssueId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -753,7 +761,7 @@ and  PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id=
                             LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
                             LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
 							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
-                            WHERE EI.EmployeeStatus='Active' and  EI.PositionID in (select PositionCodeId from MST.QualityIssueDetails where Id='"+ IssueId + "')";
+                            WHERE EI.EmployeeStatus='Active' and  EI.PositionID in (select PositionCodeId from MST.QualityManagementPositionCode where QMID=(select IssueNameId from MST.QualityIssueDetails where id='" + IssueId + "'))";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -1014,6 +1022,12 @@ where PO.ID= '" + POId + "'";
         public JsonResult GetQualityIssueList(string processId)
         {
             return Json(_productionSummaryData.GetQualityIssueList(processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetQualityWorkCenterList(string IssueId)
+        {
+            return Json(_productionSummaryData.GetQualityWorkCenterList(IssueId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

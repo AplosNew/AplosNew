@@ -978,6 +978,7 @@
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" ng-class="{ active: isSetCosting(1) }"><a ng-click="setTabCosting(1)" href="" data-toggle="tab">Pre Costing</a></li>
                                 <li role="presentation" ng-show="ModelNew.CostingStage=='ProcurementCosting'" ng-class="{ active: isSetCosting(2) }"><a ng-click="setTabCosting(2)" href="" data-toggle="tab">Procurement Costing</a></li>
+                                <li role="presentation" ng-class="{ active: isSetCosting(3) }"><a ng-click="setTabCosting(3)" href="" data-toggle="tab">Order Budget</a></li>
                             </ul>
                         </div>
                         <div class="tab-content">
@@ -986,6 +987,9 @@
                             </div>
                             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(2), active: isSetCosting(2) }">
                                 @Html.Partial("~/Areas/Costings/Views/OrderCosting/ProcurementCostingEntry.cshtml")
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(3), active: isSetCosting(3) }">
+                                @Html.Partial("~/Areas/Costings/Views/OrderCosting/OrderBudget.cshtml")
                             </div>
                         </div>
                     </div>

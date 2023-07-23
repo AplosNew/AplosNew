@@ -253,10 +253,6 @@ namespace Aplos.Areas.Commercial.Controllers
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
 
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
             dt.Rows.Add(dr);
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
