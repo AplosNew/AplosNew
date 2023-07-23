@@ -106,7 +106,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [Authorize]
         public ActionResult CARApproval()
         {
-            return View();
+            return View("~/Areas/FixedAssets/Views/CARApproval.cshtml");
         }
 
         [HttpGet, Authorize]
