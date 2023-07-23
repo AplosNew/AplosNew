@@ -558,7 +558,8 @@ namespace Library.Accounting.Accounts
 
             if (partyType == "Bank")
             {
-                filter = " AND I.PartyType='Bank' AND I.OtherBankMasterId IN (SELECT Id FROM mst.BankMaster WHERE BankId='" + bankId + @"')";
+                //filter = " AND I.PartyType='Bank' AND I.OtherBankMasterId IN (SELECT Id FROM mst.BankMaster WHERE BankId='" + bankId + @"')";
+                filter = " AND I.PartyType='Bank' ";
             }
             else
             {
