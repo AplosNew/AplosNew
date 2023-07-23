@@ -66,6 +66,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.SelectMaster = function (obj) {
         $scope.register = obj.data;
         $scope.register.InstallationYear = parseInt($scope.register.InstallationYear);
+        $scope.register.Lifetime = parseInt($scope.register.Lifetime);
         $scope.GetCapitalizationMasterDetail();
         
         if (!$rootScope.isCollapsed) {

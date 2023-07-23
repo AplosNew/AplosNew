@@ -2959,7 +2959,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>''";
+                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND IRD.VoucherDetailId NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
                 else if (faType == "CI")
                 {
@@ -3002,7 +3002,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    WHERE V.SourceType='FixedAssetCapitalizeJournal'  AND IIH.IsRegister=0 AND IID.IsAsset=0";
+                                    WHERE V.SourceType='FixedAssetCapitalizeJournal'  AND IIH.IsRegister=0 AND IID.IsAsset=0 AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
                 else
                 {
@@ -3028,7 +3028,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id= VD.PartyId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
                                    WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
-								   AND ATY.Id='Expense'";
+								   AND ATY.Id='Expense' AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
 
                 return _sqlRepository.GetGridData(parameters);

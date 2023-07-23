@@ -38,7 +38,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         private readonly IFixedAssetRegisterService _fixedAssetRegisterService;
         private readonly IFixedAssetRegisterCharacteristicsValueService _fixedAssetRegisterCharacteristicsValueService;
         private readonly ISqlRepository _sqlRepository;
-        
+
 
         public FixedAssetRegisterController(
              IFixedAssetRegisterService fixedAssetRegisterService
@@ -53,7 +53,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             _sqlRepository = sqlRepository;
         }
 
-       
+
         public ActionResult Aplos()
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetRegister.cshtml");
@@ -191,7 +191,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpGet, Authorize]
         public ActionResult GetList(GridParameter gridparameter)//, string ids
         {
-            return Json(_fixedAssetRegisterService.GetSearchData(gridparameter,null), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+            return Json(_fixedAssetRegisterService.GetSearchData(gridparameter, null), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
 
         [HttpGet, Authorize]
@@ -242,13 +242,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             string sql = @"DECLARE @budgetMasterId varchar(20)= (SELECT FGL.AccumulatedDepreciationBudgetMasterId
 		FROM HKP.FixedAssetMasterBudgetTag TAG 
-		LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=TAG.FixedAssetMasterId WHERE TAG.BudgetMasterId='"+ budgetMasterId + @"')
+		LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=TAG.FixedAssetMasterId WHERE TAG.BudgetMasterId='" + budgetMasterId + @"')
 		PRINT @budgetMasterId
 
 
         DECLARE @activityId varchar(10)= (SELECT FGL.AccumulatedDepreciationActivityId
 		FROM HKP.FixedAssetMasterBudgetTag TAG 
-		LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=TAG.FixedAssetMasterId WHERE TAG.BudgetMasterId='"+ budgetMasterId + @"')
+		LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=TAG.FixedAssetMasterId WHERE TAG.BudgetMasterId='" + budgetMasterId + @"')
 		
 		            SELECT SUM(FAR.ADBaseAmount) ADBaseAmount,GL.UserName GLName,B.UserName BugetName
 		            ,A.UserName ActivityName,FAM.UserName,FAR.FixedAssetMasterId
@@ -272,7 +272,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             string sql = @"DECLARE @budgetMasterId varchar(20)= (SELECT FGL.AccumulatedDepreciationBudgetMasterId
 		                    FROM HKP.FixedAssetMasterBudgetTag TAG 
-		                    LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=TAG.FixedAssetMasterId WHERE TAG.BudgetMasterId='"+ budgetMasterId + @"')
+		                    LEFT JOIN HKP.FixedAssetMasterGL FGL ON FGL.FixedAssetMasterId=TAG.FixedAssetMasterId WHERE TAG.BudgetMasterId='" + budgetMasterId + @"')
 
                 DECLARE @activityId varchar(10)= (SELECT FGL.AccumulatedDepreciationActivityId
                 		FROM HKP.FixedAssetMasterBudgetTag TAG 
@@ -349,7 +349,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
 
-        
+
 
 
         #region FixedAsset Register JV OB
@@ -370,7 +370,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetRegisterService.GetJVOpeningBalanceFixedAssetItem(fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId, companyId), JsonRequestBehavior.AllowGet);
         }
 
-       
+
         [HttpGet, Authorize]
         public ActionResult GetJVOBRegisterInfoWithFAMId(string fixedAssetMasterId, string budgetMasterId, string assetGLId, string activityId, string companyId)
         {
@@ -386,7 +386,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         [HttpPost]
         public JsonResult CreateRegisterJVOB(FixedAssetRegister register, int NumberOfQuantity, string CompanyCurrencyCode, string CompanyGroupCurrencyCode, string HardCurrencyCode, IEnumerable<MaterialMasterMachineProcess> assetItemValue, IEnumerable<FixedAssetRegisterCharacteristicsValue> fixedAssetRegisterSkuValue
-           ,string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId)
+           , string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId)
         {
             var registerid = string.Empty;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -456,7 +456,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         [HttpPost]
         public JsonResult CreateRegisterJV(FixedAssetRegister register, IEnumerable<SubFixedAssetRegister> subFixedAssetRegister, int NumberOfQuantity, string CompanyCurrencyCode, string CompanyGroupCurrencyCode, string HardCurrencyCode, IEnumerable<MaterialMasterMachineProcess> assetItemValue, IEnumerable<FixedAssetRegisterCharacteristicsValue> fixedAssetRegisterSkuValue
-           ,string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId)
+           , string fixedAssetMasterId, string assetGLId, string assetBudgetId, string assetActivityId)
         {
             var registerid = string.Empty;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -556,7 +556,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         public JsonResult GetFixedAssetCapitalizeJournalData(GridParameter gridParameter)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_fixedAssetRegisterService.GetFixedAssetCapitalizeJournalData(gridParameter,identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(_fixedAssetRegisterService.GetFixedAssetCapitalizeJournalData(gridParameter, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -590,7 +590,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId,string sourceType)
+        public ActionResult GetFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId, string sourceType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
@@ -611,7 +611,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         #region Issue AUC Capitalize 
 
-       
+
         public ActionResult IssueAUCCapitalize()
         {
             return View("~/Areas/FixedAssets/Views/IssueAUCCapitalize.cshtml");
@@ -629,7 +629,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var jsondata = Json(_fixedAssetRegisterService.GetIssueInventoryAUCList(identity.PlantId), JsonRequestBehavior.AllowGet);
-             jsondata.MaxJsonLength = int.MaxValue;
+            jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }
 
@@ -658,7 +658,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertIssueFixedAssetCapitalizeJournal(string issueId, DateTime postingDate, string voucherTypeId,string currencyId, decimal ToCurrencyRate
+        public JsonResult InsertIssueFixedAssetCapitalizeJournal(string issueId, DateTime postingDate, string voucherTypeId, string currencyId, decimal ToCurrencyRate
             , IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InventoryMaterialViewModel> invIssueDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -691,7 +691,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertIssueInventoryCapitalizeJournal(string issueId, string postingDate,string voucherTypeId, string currencyId, decimal ToCurrencyRate
+        public JsonResult InsertIssueInventoryCapitalizeJournal(string issueId, string postingDate, string voucherTypeId, string currencyId, decimal ToCurrencyRate
            , IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<InventoryMaterialViewModel> invIssueDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -739,7 +739,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     throw new CustomException("Activity is Not Mapped!");
 
             }
-            
+
             _inventoryPayableService.InsertExpensesCapitalizeJournal(voucherVM, voucherDetailVMList);
             return Json(new { Message = AplosMessage.Insert });
         }
@@ -747,7 +747,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetIssueFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId,string sourceType)
+        public ActionResult GetIssueFixedAssetCapitalizeJournalReport(ReportFormat reportFormat, string voucherId, string sourceType)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var workbook = _fixedAssetRegisterService.GetFixedAssetCapitalizeJournalReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, sourceType);
@@ -802,7 +802,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return Json(_fixedAssetRegisterService.GetCapitalizeAssetItemValue(fixedAssetMasterId, assetGLId, assetBudgetId, assetActivityId, companyId), JsonRequestBehavior.AllowGet);
         }
-        
+
 
         [HttpGet, Authorize]
         public ActionResult GetCapitalizedRegisterInfoWithFAMId(string fixedAssetMasterId, string budgetMasterId, string assetGLId, string activityId, string companyId)
@@ -875,7 +875,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpPost]
         public JsonResult CreateRegisterSubAsset(string registerid, IEnumerable<SubFixedAssetRegister> subFixedAssetRegister, IEnumerable<FixedAssetRegisterDetail> fixedAssetRegisterDetail)
         {
-            
+
             _fixedAssetRegisterService.InsertORUpdateCapitalizeSubAsset(subFixedAssetRegister, fixedAssetRegisterDetail);
             return Json(new { id = registerid, Message = AplosMessage.Insert });
         }
@@ -889,13 +889,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
         #endregion
 
         #region Expenses Capitalize
-        
+
         public ActionResult ExpensesCapitalized()
         {
             return View("~/Areas/FixedAssets/Views/ExpensesCapitalized.cshtml");
         }
 
-     
+
         [HttpPost, Authorize]
         public JsonResult GetExpensesCapitalizedList(string column, string value)
         {
@@ -949,12 +949,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
             if (companyId == null)
                 companyId = identity.CompanyId;
-                return Json(_fixedAssetQueryService.GetFixedAssetRegisterPopUpList(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+            return Json(_fixedAssetQueryService.GetFixedAssetRegisterPopUpList(column, value, companyId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
 
 
         [HttpGet, Authorize]
-        public ActionResult GetFixedAssetRegisterDisposeEditList(string fixedAssetRegisterDisposeId,  string companyId)
+        public ActionResult GetFixedAssetRegisterDisposeEditList(string fixedAssetRegisterDisposeId, string companyId)
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -973,7 +973,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetQueryService.GetFixedAssetAccDepGL(parameters, companyId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
-        public ActionResult GetFixedAssetLostList(string column, string value,string companyId)
+        public ActionResult GetFixedAssetLostList(string column, string value, string companyId)
         {
             FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
 
@@ -1004,10 +1004,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpPost]
         public JsonResult UpdateFixedAssetSales(string status, FixedAssetRegisterDisposed disposeVM, IEnumerable<FixedAssetRegisterDisposedDetail> fixedAssetRegister)
         {
-            _fixedAssetRegisterService.EditFixedAssetSales( status,  disposeVM, fixedAssetRegister);
+            _fixedAssetRegisterService.EditFixedAssetSales(status, disposeVM, fixedAssetRegister);
             return Json(new { Message = AplosMessage.Updated });
         }
-       
+
 
         [HttpPost]
         public JsonResult CreateFixedAssetScrap(FixedAssetRegisterDisposed fixedAssetDisposed, IEnumerable<FixedAssetRegister> fixedAssetRegister)
@@ -1037,7 +1037,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         public ActionResult GetFixedAssetLostByDisposeIdList(string id)
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-           
+
             return Json(_fixedAssetQueryService.GetFixedAssetLostByDisposeIdList(id), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
 
@@ -1055,7 +1055,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            return Json(_fixedAssetQueryService.GetFixedAssetSalesSingleJVList(fixedAssetDisposeId,identity.CompanyId,identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
+            return Json(_fixedAssetQueryService.GetFixedAssetSalesSingleJVList(fixedAssetDisposeId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);//, new JavaScriptSerializer().Deserialize<string[]>(ids)
         }
 
         [HttpPost, Authorize]
@@ -1117,10 +1117,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
             voucherVM.PlantId = identity.PlantId;
             if (voucherVM.Status == "Sales")
             {
-            _fixedAssetDisposeService.InsertFixedAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
+                _fixedAssetDisposeService.InsertFixedAssetDisposeSalesPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
 
             }
-            else 
+            else
             {
                 _fixedAssetDisposeService.InsertFixedAssetDisposeScrapPosting(voucherVM, voucherDetailVMList, farDisposeDetailList, advanceSalarySchedulelist);
 
@@ -1153,14 +1153,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpGet, Authorize]
         public ActionResult FixedAssetsDisposePost(ReportFormat reportFormat, string disposedVoucherId)
         {
-            FixedAssetDisposeService _fixedAssetDisposeService =new FixedAssetDisposeService(_sqlRepository);
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            
+
             var workbook = _fixedAssetDisposeService.FixedAssetsDisposePostReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, disposedVoucherId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName,false);
+                    return RenderReportAsPdf(workbook, reportFileName, false);
 
                 case ReportFormat.Excel:
                     return RenderReportAsExcel(workbook, reportFileName);
@@ -1252,7 +1252,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
                 ExcelEngine excelEngine = new ExcelEngine();
                 string DisposeStatus = "'" + disposeStatus.Replace(",", "','") + "'";//replaced with ""
-                IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterDisposedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId,  fromDate,  toDate,  nonPosted,  posted,  DisposeStatus);
+                IWorkbook workbook = _fixedAssetRegisterService.FixedAssetRegisterDisposedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, nonPosted, posted, DisposeStatus);
 
                 string strFileName = "Fixed Assets Register Disposed Report.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -1301,10 +1301,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         public ActionResult GetBulletinTamplateIndexReport(ReportFormat reportFormat, string fixedAssetRegisterDisposeId)
         {
 
-           
+
             var reportFileName = "Fixed Asset Disposed";
             FixedAssetReportService fixedAssetReportService = new FixedAssetReportService(_sqlRepository);
-            var workbook = fixedAssetReportService.FixedAssetDisposedReportWorkSheet( fixedAssetRegisterDisposeId);
+            var workbook = fixedAssetReportService.FixedAssetDisposedReportWorkSheet(fixedAssetRegisterDisposeId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -1389,7 +1389,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return View("~/Areas/FixedAssets/Views/FixedAssetDepreciationProcess.cshtml");
         }
         [HttpPost, Authorize]
-        public ActionResult GetfixedAssetMastersListForProcess( string fiscalYearId, string toDate, string startDate)
+        public ActionResult GetfixedAssetMastersListForProcess(string fiscalYearId, string toDate, string startDate)
         {
 
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
@@ -1408,11 +1408,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
             {
                 if (string.IsNullOrEmpty(selectedAssetMastersLists))
                 {
-                    selectedAssetMastersLists +=   item ;
+                    selectedAssetMastersLists += item;
                 }
                 else
                 {
-                    selectedAssetMastersLists += "," + item ;
+                    selectedAssetMastersLists += "," + item;
                 }
 
             }
@@ -1428,7 +1428,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
+
             return Json(_fixedAssetQueryService.GetFixedAssetDepreciationListForPosting(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
@@ -1436,7 +1436,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
+
             return Json(_fixedAssetQueryService.GetFixedAssetDepreciationPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
@@ -1453,8 +1453,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
         #endregion
 
+        #region Capitalize Asset Register
         [HttpPost]
-        public JsonResult CreateCapitalize(Dictionary<string, object> data,  List<Dictionary<string, object>> items)
+        public JsonResult CreateCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items)
         {
             try
             {
@@ -1463,7 +1464,22 @@ namespace Aplos.Areas.FixedAssets.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new {  Error = true, ex.Message });
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult ApproveCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items)
+        {
+            try
+            {
+                SaveCapitalizeData(data, items, out string masterId);
+                return Json(new { Id = masterId, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
             }
 
         }
@@ -1472,7 +1488,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild;
+            DataSet dsMaster, dsChild=null;
             string _Id = string.Empty;
             string _CId = string.Empty;
             try
@@ -1485,10 +1501,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                   
+
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
 
-                    data["Id"] =_Id;
+                    data["Id"] = _Id;
                     data["Type"] = "New";
 
                     AddNewRow(dsMaster.Tables[0], data);
@@ -1500,9 +1516,9 @@ namespace Aplos.Areas.FixedAssets.Controllers
                 }
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #region items 
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CapitalizationMasterDetail] where  CapitalizationMasterId='" + masterId + "'", out dsChild, false, "1");
                 if (items != null)
                 {
+                    objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CapitalizationMasterDetail] where  CapitalizationMasterId='" + masterId + "'", out dsChild, false, "1");
                     foreach (var item in items)
                     {
                         DataView dv = new DataView(dsChild.Tables[0]);
@@ -1594,7 +1610,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public JsonResult GetFixedAssetMasterItem()
         {
             string sql = @"SELECT FI.*,Uom.Code CapacityUoM,FM.UserName FixedAssetMaster,FC.UserName FixedAssetCategory,FSC.UserName FixedAssetSubCategory  
@@ -1629,5 +1645,32 @@ Where  C.CapitalizationMasterId='" + masterId + "'";
             return Json(_fixedAssetRegisterService.GetCapitalizeAssetRegisterApproveByCbo(), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetUnApprovedData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+FROM [TRN].[CapitalizationMaster] CM
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+Where CM.IsApproved=0 AND CM.ApprovedById='" + identity.EmployeeId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetApprovedData()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+FROM [TRN].[CapitalizationMaster] CM
+LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
+Where CM.IsApproved=1 AND CM.ApprovedById='" + identity.EmployeeId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
     }
 }
