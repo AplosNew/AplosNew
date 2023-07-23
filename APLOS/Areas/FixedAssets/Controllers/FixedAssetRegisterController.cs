@@ -1453,22 +1453,21 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             try
             {
-                SaveCapitalizeData(data, items);
-                return Json(new { Message = AplosMessage.Insert });
+                SaveCapitalizeData(data, items, out string masterId);
+                return Json(new { Id = masterId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
-                return Json(new { Error = true, ex.Message });
+                return Json(new {  Error = true, ex.Message });
             }
 
         }
 
-        private void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items)
+        private void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items, out string masterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster, dsChild;
-            string contId = string.Empty;
             string _Id = string.Empty;
             string _CId = string.Empty;
             try
@@ -1494,7 +1493,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
                     _Id = data["Id"].ToString();
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
-              string   masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
                 #region items 
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CapitalizationMasterDetail] where  CapitalizationMasterId='" + masterId + "'", out dsChild, false, "1");
                 if (items != null)
@@ -1582,7 +1581,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById";
@@ -1606,15 +1605,23 @@ LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=FI.CapacityUoMId";
         [HttpGet, Authorize]
         public JsonResult GetCapitalizationMasterDetail(string masterId)
         {
-            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName 
+            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo 
 FROM [TRN].[CapitalizationMasterDetail] C
 LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
 LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
 LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
 LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
-Where  C.CapitalizationMasterId='"+ masterId + "'";
+left join [TRN].[VoucherDetail] VD ON VD.Id=C.VoucherDetailId
+left join [TRN].[Voucher] V ON V.Id=VD.VoucherId
+Where  C.CapitalizationMasterId='" + masterId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetCapitalizeAssetRegisterApproveByCbo()
+        {
+            return Json(_fixedAssetRegisterService.GetCapitalizeAssetRegisterApproveByCbo(), JsonRequestBehavior.AllowGet);
         }
 
     }

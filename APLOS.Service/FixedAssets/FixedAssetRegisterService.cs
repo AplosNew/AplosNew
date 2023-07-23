@@ -5231,5 +5231,25 @@ GROUP BY FAR.FABudgetMasterId
         }
 
         #endregion
+
+
+        public IEnumerable<object> GetCapitalizeAssetRegisterApproveByCbo()
+        {
+            try
+            {
+                var sql = @"SELECT E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          INNER JOIN dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          WHERE  A.ActionStatus='CapitalizeAssetRegisterApproveBy' AND E.EmployeeStatus='Active'";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
     }
 }
