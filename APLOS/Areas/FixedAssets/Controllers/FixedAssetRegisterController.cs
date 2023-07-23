@@ -103,6 +103,11 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetRegisterExpenseReport.cshtml");
         }
+        [Authorize]
+        public ActionResult CARApproval()
+        {
+            return View();
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetCbo()
