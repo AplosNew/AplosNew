@@ -2267,6 +2267,7 @@
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlMasterController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlReportController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\CapitalizeAssetRegisterApprovalController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\ComplaintController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
@@ -4745,6 +4746,7 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingDataUploadDownload.cshtml" />
     <Content Include="Areas\Costings\Views\OrderCosting\OrderBudget.cshtml" />
     <Content Include="Areas\Materials\Views\LOTCreation\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\InventoryCheckApproved\CARApproval.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
