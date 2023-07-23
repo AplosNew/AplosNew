@@ -1454,6 +1454,13 @@ namespace Aplos.Areas.FixedAssets.Controllers
         #endregion
 
         #region Capitalize Asset Register
+        public ActionResult CapitalizeAssetRegisterPosting()
+        {
+            return View("~/Areas/FixedAssets/Views/CapitalizeAssetRegisterPosting.cshtml");
+        }
+
+
+
         [HttpPost]
         public JsonResult CreateCapitalize(Dictionary<string, object> data, List<Dictionary<string, object>> items)
         {
