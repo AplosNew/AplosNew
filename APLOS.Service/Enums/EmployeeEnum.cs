@@ -216,6 +216,9 @@ namespace Library.Service.Enums
         SaslesOrderApproveBy,
 
         [Description("Employee Approval Authority")]
-        EmployeeApprovalAuthority
+        EmployeeApprovalAuthority,
+
+        [Description("Capitalize Asset Register ApproveBy")]
+        CapitalizeAssetRegisterApproveBy
     }
 }

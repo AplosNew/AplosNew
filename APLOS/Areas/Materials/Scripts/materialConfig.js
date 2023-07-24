@@ -356,5 +356,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/WeighingScaleMaster/Aplos',
             controller: 'WeighingScaleMasterController'
         })
+        .when('/lot-creation', {
+            templateUrl: 'materials/LOTCreation/Aplos',
+            controller: 'LOTCreationController'
+        })
 
 };

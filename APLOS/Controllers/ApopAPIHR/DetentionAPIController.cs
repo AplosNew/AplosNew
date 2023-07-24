@@ -893,6 +893,20 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
+        public string PostCombineVehicleApprove([FromBody] IEnumerable<Vehicle> DataToSave)
+        {
+            try
+            {
+                string Id = clsData.PostCombineVehicleApprove(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
+
         #endregion VCehicle
 
         #region Incedent

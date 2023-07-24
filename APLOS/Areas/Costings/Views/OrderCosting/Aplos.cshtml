@@ -978,6 +978,7 @@
                             <ul class="nav nav-tabs" role="tablist">
                                 <li role="presentation" ng-class="{ active: isSetCosting(1) }"><a ng-click="setTabCosting(1)" href="" data-toggle="tab">Pre Costing</a></li>
                                 <li role="presentation" ng-show="ModelNew.CostingStage=='ProcurementCosting'" ng-class="{ active: isSetCosting(2) }"><a ng-click="setTabCosting(2)" href="" data-toggle="tab">Procurement Costing</a></li>
+                                <li role="presentation" ng-class="{ active: isSetCosting(3) }"><a ng-click="setTabCosting(3)" href="" data-toggle="tab">Order Budget</a></li>
                             </ul>
                         </div>
                         <div class="tab-content">
@@ -986,6 +987,9 @@
                             </div>
                             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(2), active: isSetCosting(2) }">
                                 @Html.Partial("~/Areas/Costings/Views/OrderCosting/ProcurementCostingEntry.cshtml")
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(3), active: isSetCosting(3) }">
+                                @Html.Partial("~/Areas/Costings/Views/OrderCosting/OrderBudget.cshtml")
                             </div>
                         </div>
                     </div>
@@ -1544,6 +1548,7 @@
                          e-allowfiltering="true" e-allowpaging="true" e-minheight="400" e-allowscrolling="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
+                            <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
                             <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="60" e-isprimarykey="true"></div>
                             <div e-column e-type="string" e-field="CurrentCostStage" e-headertext="Costing" e-width="120"></div>
                             @*<div e-column e-type="string" e-field="CostingMasterTemplateId" e-headertext="Ref. Template" e-width="3"></div>*@
@@ -1559,7 +1564,6 @@
                             <div e-column e-type="numeric" e-field="TotalQty" e-headertext="Total Qty" e-width="100"></div>
 
                             <div e-column e-field="Active" e-headertext="Active" e-width="100"></div>
-                            <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
 
                         </div>
                     </div>

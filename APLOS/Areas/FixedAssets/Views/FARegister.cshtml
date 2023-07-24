@@ -17,9 +17,9 @@
                                 <div class="common-btn">
                                     <ul class="list-inline text-left">
                                         <li>
-                                            <button ng-click="showSearchData('AUC');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>AUC</button>
-                                            <button ng-click="showSearchData('CI');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Capitalize Inventory</button>
-                                            <button ng-click="showSearchData('Expense');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Expense</button>
+                                            <button ng-disabled="register.IsApproved==true"  ng-click="showSearchData('AUC');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>AUC</button>
+                                            <button ng-disabled="register.IsApproved==true"  ng-click="showSearchData('CI');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Capitalize Inventory</button>
+                                            <button ng-disabled="register.IsApproved==true"  ng-click="showSearchData('Expense');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Expense</button>
                                         </li>
                                     </ul>
                                 </div>
@@ -43,7 +43,7 @@
                                                     <div class="common-btn">
                                                         <ul class="list-inline text-left">
                                                             <li>
-                                                                <button ng-click="RemoveItemVoucher(x);" class="btn"><i class="glyphicon glyphicon-trash" tabindex="3"></i></button>
+                                                                <button ng-click="RemoveItemVoucher(x);" ng-disabled="register.IsApproved==true"  class="btn"><i class="glyphicon glyphicon-trash" tabindex="3"></i></button>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -104,24 +104,23 @@
                                     <input type="text" name="ExpensesAmount" disabled ng-model="register.ExpensesAmount" class="form-control" tabindex="9" autocomplete="off">
                                 </div>
                             </div>
-                            <div class="form-group">
+
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Approved By<sup>*</sup></label>
-                                <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
-                                    <input type="hidden" name="Approved By" ng-model="register.ApprovedById" class="form-control">
-                                    <span class="input-group-addon">{{register.ApprovedByEmployeeCode}}</span>
-                                    <input type="text" name="Approved By" ng-model="register.ApprovedByName" class="form-control" readonly>
-                                    <span class="input-group-btn">
-                                        <button ng-click="showEmployeeListPopUp();" class="btn single-small-btn" tabindex="13"><i class="glyphicon glyphicon-search"></i></button>
-                                        <button ng-click="clearEmp()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                    </span>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="Approved By" class="form-control" name="Approved By" ng-model="register.ApprovedById" tabindex="8" required>
+                                            <option ng-repeat="option in ApprovedByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Installation Year<sup>*</sup></label>
                                 @*<div class="col-sm-8 show-message">
-                                    <input type="text" only-numbers name="Installation Year" maxlength="4" required ng-model="register.InstallationYear" class="form-control text-right" tabindex="19" autocomplete="off">
-                                </div>*@
+                <input type="text" only-numbers name="Installation Year" maxlength="4" required ng-model="register.InstallationYear" class="form-control text-right" tabindex="19" autocomplete="off">
+            </div>*@
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
                                         <select class="form-control" ng-model="register.InstallationYear" name="Installation Year" ng-options="item.Value as item.Text for item in yearList" tabindex="3">
@@ -145,10 +144,10 @@
                                     <input type="text" name="Capitalization Date" ng-model="register.CapitalizationDate" datepicker class="form-control datepicker" tabindex="10" required>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Number of Quantity</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="NumberOfQuantity" ng-model="NumberOfQuantity" class="form-control text-right" tabindex="20">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Quantity</label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Qty" ng-model="register.Qty" only-numbers class="form-control text-right" tabindex="20" required>
                                 </div>
 
                             </div>
@@ -172,12 +171,14 @@
                                     <input type="text" name="Other" ng-model="register.Other" class="form-control" tabindex="9" autocomplete="off">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Useful Life (Years)</label>
-                                <div class="col-sm-8">
-                                    <input type="text" name="Life Time" n-decimals="2" maxlength="3" ng-model="register.LifeTime" class="form-control" tabindex="20">
+
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Life Time</label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Life Time" ng-model="register.Lifetime" n-decimals="2" class="form-control" tabindex="9" autocomplete="off" required>
                                 </div>
                             </div>
+                            
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
                                 <div class="col-sm-8">
@@ -185,18 +186,14 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
-
             </div>
         </div>
-        
     </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li><button ng-click="SaveRegister();" class="btn" ng-disabled="isSave" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li><button ng-click="SaveRegister();" class="btn" ng-disabled="register.IsApproved==true" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             @*<li><button ng-show="btndeleteregister" ng-click="deleteRegisterPop()" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
             <li><button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
@@ -228,57 +225,22 @@
          e-recorddoubleclick="SelectMaster" e-allowselection="true" e-filtersettings-filterType="excel">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-            <div e-column e-field="CapitalizationDate" e-headertext="CapitalizationDate" e-width="80"></div>
+            <div e-column e-field="CD" e-headertext="Capitalization Date" e-width="80"></div>
             <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-            <div e-column e-field="GRNAmount" e-headertext="GRNAmount" e-width="80"></div>
-            <div e-column e-field="IssueAmount" e-headertext="IssueAmount" e-width="80"></div>
-            <div e-column e-field="ExpensesAmount" e-headertext="ExpensesAmount" e-width="80"></div>
+            <div e-column e-field="GRNAmount" e-headertext="GRN Amount" e-width="80"></div>
+            <div e-column e-field="IssueAmount" e-headertext="Issue Amount" e-width="80"></div>
+            <div e-column e-field="ExpensesAmount" e-headertext="Expenses Amount" e-width="80"></div>
             <div e-column e-field="Other" e-headertext="Other" e-width="80"></div>
-            <div e-column e-field="TotalAmount" e-headertext="TotalAmount" e-width="80"></div>
+            <div e-column e-field="TotalAmount" e-headertext="Total Amount" e-width="80"></div>
             <div e-column e-field="ApprovedByName" e-headertext="ApprovedBy" e-width="80"></div>
+            <div e-column e-field="Approved" e-headertext="Approved" e-width="50"></div>
         </div>
     </div>
 
 </div>
 <confirm-modal></confirm-modal>
 
-<div class="modal fade site-modal in" id="popUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Employee Information<button type="button" class="close" data-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridPopUp" ej-grid e-datasource="popUpDataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="SelectEmployee" e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="SystemId" e-headertext="SystemId" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-headertext="" e-template="#empimage" e-textalign="center" e-width="40"></div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="Company" e-headertext="Company" e-width="80"></div>
-                            <div e-column e-field="Plant" e-headertext="Plant" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <ul class="common-btn list-inline text-right" style="padding: 20px;">
-                    <li><button ng-click="closePopUp();" class="btn" tabindex="10"><i class="glyphicon glyphicon-info-sign right"></i> Close</button></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <script type="text/x-jsrender" id="empimage">
-        <img src="POPResources/EmployeeProfiles/EmpPic/{{:EmpPicPath}}" style="height:48px;width:48px;" />
-    </script>
-</div>
+
 @Html.Partial("~/Areas/FixedAssets/Views/_CapitalizeAssetItemPopUpNew.cshtml")
 
 <div class="modal fade site-modal in" id="fixedAssetMasterItemPoUp" role="dialog" data-backdrop="static">
