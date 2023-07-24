@@ -1609,7 +1609,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.AddedDate DESC";
@@ -1620,7 +1620,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.Ad
         [HttpGet, Authorize]
         public JsonResult GetApprovedCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
