@@ -1,0 +1,373 @@
+﻿<style>
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 24px;
+    }
+
+        .switch input {
+            display: none;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 5px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: darkseagreen;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(16px);
+        -ms-transform: translateX(16px);
+        transform: translateX(16px);
+    }
+
+    .slider.round {
+        border-radius: 14px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+
+<togglable name="Capitalize Asset Register Posting"></togglable>
+<div class="form-elements form-horizontal" ng-form="modelNewForm">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">General Infromation</legend>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">@*Doc Ref &*@ Date<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="input-group">
+                        @*<span class="input-group-addon">{{modelNew.DocRefNo}}</span>*@
+                        <input type="text" ng-model="modelNew.CapitalizationDate" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button ng-click="getMasterData();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" name="Voucher Type" ng-disabled="voucherTypeList.length==1" ng-model="modelNew.VoucherTypeId"
+                                ng-options="item.Value as item.Text for item in voucherTypeList" tabindex="2">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        
+
+        <div class="clearfix"></div>
+        
+    </fieldset>
+    
+    
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Info</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="Transaction" role="tab" data-toggle="tab">Journal</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1">
+                <div class="table-responsive modal-table" ng-show="selectedmaterialMasterList.length">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Voucher No</th>
+                                <th>Material</th>
+                                <th>Article</th>
+                                <th>GRN No</th>
+                                <th>Qty</th>
+                                <th>Amount</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in selectedmaterialMasterList">
+                                
+                                <td>{{x.VoucherNo}}</td>
+                                <td>{{x.MaterialMasterName}}</td>
+                                <td>{{x.ArticleStandardName}}</td>
+                                <td>{{x.GRNNo}}</td>
+                                <td class="text-right">{{x.Qty}}</td>
+                                <td class="text-right">{{x.Amount}}</td>
+                                <td>{{x.Source}}</td>
+                            </tr>
+                            <tr>
+                                <td><label>Total </label></td>
+                                <td colspan="5"></td>
+                                <td class="text-right">
+                                    <label>
+                                        {{selectedmaterialMasterList | sumByKey : 'Amount'|number:2}}
+                                    </label>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }" ng-form="tabForm3" ng-keypress="materialConfigMassege()">
+                @*<div class="form-group" style="margin-bottom: 0px;color:red">
+                <label class="col-sm-9 control-label">{{MaterialAssetBudgetMessage}}</label>
+
+            </div>*@
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="common-btn">
+                        <ul class="common-btn list-inline text-left">
+                            <li> <button ng-click="materialConfigMassege();" class="btn"> Show Reason</button></li>
+                        </ul>
+
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Additional Tax</label>
+                        <label class="switch col-sm-8" style="margin-left:18px;">
+                            <input type="checkbox" ng-disabled="modelNew.IsInvoice==false" ng-model="modelNew.AddtionalTax">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>GL</th>
+                                <th>Budget</th>
+                                <th>Activity</th>
+                                <th>Dr</th>
+                                <th>Cr</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in newList| orderBy:'Dr'| groupBy: 'MaterialGroupMasterId'">
+                                <td>{{x.GLGeneralInfoCode}}-{{x.GLGeneralInfoName}}</td>
+                                <td>{{x.BudgetName}}</td>
+                                <td>{{x.ActivityName}}</td>
+                                <td class="text-right">{{x.Dr | number| setDecimal:4}}</td>
+                                <td class="text-right">{{x.Cr | number| setDecimal:4}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Dr' | number| setDecimal:4}}</strong></td>
+                                <td class="text-right"><strong>{{newList | sumByKey : 'Cr' | number| setDecimal:4}}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+                <div class="table-responsive modal-table" ng-show="modelNew.AddtionalTax">
+                    <table class="table table-responsive table-striped">
+                        <caption>TDS </caption>
+                        <thead>
+                            <tr>
+                                <th>Input Tax</th>
+                                <th>Percentage</th>
+                                <th>Amount</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="td_TDS_TaxCode">
+                                    <div class="select-style show-message">
+                                        <select name="TDSTaxCodeId" ng-model="TDS.TaxCodeId" ng-change="selectTDS(TDS.TaxCodeId)" class="col-sm-3 form-control"
+                                                ng-options="item.Id as item.UserName for item in TDSCboList">
+                                            <option></option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-disabled="TDS.Type =='FixedPercentage' && TDS.ValueOfFixed!=null" ng-model="TDS.ValueOfFixed">
+                                    </div>
+                                </td>
+                                <td id="td_TDS_TaxCodeAmount">
+                                    <div class="show-message">
+                                        <input type="text" n-decimals="4" class="form-control text-right" ng-model="TDS.TaxAmount" ng-keyup="copyTaxesAmount();">
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <a ng-click="addTDS();" class="btn" tabindex="5"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="x in TDSList">
+                                <td>{{x.TaxName}}</td>
+                                <td>{{x.ValueOfFixed}}</td>
+                                <td class="text-right">{{x.TaxAmount | number:2 }}</td>
+                                <td class="text-right">
+                                    <button ng-click="removeTDSRow($index)" data-toggle="modal" ng-disabled="x.AdvanceId" class="btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot ng-show="TDSList.length">
+                            <tr>
+                                <td colspan="2"><b>Sub Total</b></td>
+                                <td class="text-right"><b>{{ TDSList | sumByKey : 'TaxAmount' }}</b></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+            
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    
+    <div class="common-btn">
+        <ul class="common-btn list-inline text-right">
+            <li> <button ng-click="Post();" ng-disabled="ispostDisable" class="btn"> Post</button></li>
+            <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        </ul>
+    </div>
+</div>
+
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchByPostedGRN">
+                                <option ng-repeat="option in searchByPostedGRNList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchGRN" ng-enter="getDataList();">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getDataList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content-container-fluid" style="color:black;">
+        <div style="color:black;" id="GridPrint" ej-grid e-datasource="products" e-allowfiltering="true" e-allowpaging="true"
+             e-allowsorting="true" e-allowResizing="true" e-filtersettings-filterType="excel" e-enabletouch="true"
+             e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+            <div e-columns>
+                <div e-column e-field="GRNType" e-headertext="Type" e-width="60" e-filter="false"></div>
+                <div e-column e-field="Particular" e-headertext="Particular" e-width="180"></div>
+                <div e-column e-field="Id" e-headertext="GRN No" e-width="80" textAlign='Center'></div>
+                <div e-column e-field="GRNDate" e-headertext="GRN Date" e-width="80" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="GateEntryNo" e-headertext="Gate EntryNo" e-width="80"></div>
+                <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="100"></div>
+                <div e-column e-field="PostingDate" e-headertext="PostingDate" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="POId" e-headertext="PO Id" e-width="60"></div>
+                <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                <div e-column e-field="DocDate" e-headertext="Doc Ref Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                <div e-column e-field="MaterialStorageName" e-headertext="Storage Location" e-width="130"></div>
+                <div e-column e-field="TransactionQty" e-headertext="Tran.Qty" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="60" textAlign='Right'></div>
+                <div e-column e-field="TransactionAmount" e-headertext="Tran Amount" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="TDSTax" e-headertext=" TDS " e-width="100" textAlign='Right'></div>
+                <div e-column e-field="TDSVoucherNo" e-headertext="TDS VoucherNo" e-width="100" textAlign='Right'></div>
+                <div e-column e-field="IsTDSTaxPost" e-headertext="Tax Status" e-width="100" textAlign='Right'></div>
+                <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+                <div e-column e-headertext=" Action " e-template="#DeleteTemplate" e-width="120"></div>
+
+            </div>
+
+
+        </div>
+        @*<script id="ReportTemplate" type="text/template">
+            <div class="common-btn">
+                <ul class="common-btn list-inline text-center">
+                    <li>
+                        <button ng-click="$parent.onClickReportDownloadWord(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pdf">
+                            <i class="fa fa-file-pdf-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                            <i class="fa fa-file-excel-o"></i>
+                        </button>
+                        <button ng-click="$parent.onClickGRNID(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="GRN">
+                            <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </script>*@
+
+        
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="CapitalpopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify1">
+        <div class="modal-content">
+            <div class="modal-header"> Capitalize Asset Register <button type="button" class="close" ng-click="closePopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div style="color:black;" id="GridMaster" ej-grid e-datasource="masterList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-recorddoubleclick="SelectMaster" e-allowselection="true" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                            <div e-column e-field="CD" e-headertext="Capitalization Date" e-width="80"></div>
+                            <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-field="GRNAmount" e-headertext="GRN Amount" e-width="80"></div>
+                            <div e-column e-field="IssueAmount" e-headertext="Issue Amount" e-width="80"></div>
+                            <div e-column e-field="ExpensesAmount" e-headertext="Expenses Amount" e-width="80"></div>
+                            <div e-column e-field="Other" e-headertext="Other" e-width="80"></div>
+                            <div e-column e-field="TotalAmount" e-headertext="Total Amount" e-width="80"></div>
+                            <div e-column e-field="ApprovedByName" e-headertext="ApprovedBy" e-width="80"></div>
+                            <div e-column e-field="Approved" e-headertext="Approved" e-width="50"></div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closePopUp();" class="btn"> Close</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

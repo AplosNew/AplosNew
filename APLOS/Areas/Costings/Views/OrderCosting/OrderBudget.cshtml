@@ -3,7 +3,7 @@
     </h3>*@
 @*Direct Material*@
 <div class="table-responsive" ng-show="Segment=='DirectMaterial' && ModelNew.Id!='' ">
-    <div id="GridM" ej-grid e-datasource="OrderBudgetDirectMaterialList"  e-summaryrows="TotalOrderCostTotal"
+    <div id="GridM" ej-grid e-datasource="OrderBudgetDirectMaterialList" e-summaryrows="TotalOrderCostTotal"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
@@ -21,28 +21,86 @@
             <div e-column e-field="Currency" e-headertext="Currency" e-width="4"></div>
         </div>
     </div>
-    @*<tr style="border:1px solid #dcdcdc !important">
-        <td>Total</td>
-        <td style="color:blue" class="text-right" colspan="8"></td> 
-        <td class="text-right"><strong>{{OrderBudgetDirectMaterialList | sumByKey : 'TotalOrderCost'| number:4 }}</strong></td>
-        <td style="color:blue" colspan="10"></td>
-    </tr>*@
-    
 </div>
 
 @*Direct Process*@
 <div class="table-responsive" ng-show="Segment=='DirectProcess' && ModelNew.Id!='' ">
-    <div id="GridM" ej-grid e-datasource="OrderBudgetDirectProcessList"
+    <div id="GridM" ej-grid e-datasource="OrderBudgetDirectProcessList" e-summaryrows="TotalDirectProcess"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="CostingItems" e-headertext="Costing Item" e-width="6"></div>
-            <div e-column e-field="Type" e-headertext="Type" e-width="4"></div> 
-            <div e-column e-field="ValueLoss" e-type='number' e-headertext="Value Loss" e-width="5"></div> 
+            <div e-column e-field="Type" e-headertext="Type" e-width="4"></div>
+            <div e-column e-field="ValueLoss" e-type='number' e-headertext="Value Loss" e-width="5"></div>
             <div e-column e-field="Rate" e-type='number' e-headertext="Rate" e-width="4"></div>
             <div e-column e-field="Amount" e-type='number' e-headertext="Amount" e-width="5"></div>
+            <div e-column e-field="OrderQty" e-type='number' e-headertext="Order Qty" e-width="4"></div>
             <div e-column e-field="TotalOrderCost" e-type='number' e-headertext="Total Order Cost" e-width="4"></div>
-            <div e-column e-field="Currency" e-headertext="Currency" e-width="4"></div> 
+            <div e-column e-field="Currency" e-headertext="Currency" e-width="4"></div>
+        </div>
+    </div>
+</div>
+
+@*Operations*@
+<div class="table-responsive" ng-show="Segment=='Operation' && ModelNew.Id!='' ">
+    <div id="GridM" ej-grid e-datasource="OrderBudgetOperationList"  e-summaryrows="TotalOrderCostTotal"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="CostingItems" e-headertext="Costing Item" e-width="6"></div>
+            <div e-column e-field="Value" e-type='number' e-headertext="Value Loss" e-width="5"></div>
+            <div e-column e-field="OrderQty" e-type='number' e-headertext="Order Qty" e-width="4"></div>
+            <div e-column e-field="TotalOrderCost" e-type='number' e-headertext="Total Order Cost" e-width="4"></div>
+            <div e-column e-field="Currency" e-headertext="Currency" e-width="4"></div>
+        </div>
+    </div>
+</div>
+
+@*Value Loss*@
+<div class="table-responsive" ng-show="Segment=='ValueLoss' && ModelNew.Id!='' ">
+    <div id="GridM" ej-grid e-datasource="OrderBudgetValueLossList" e-summaryrows="TotalValueLossTotal"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="CostingItems" e-headertext="Costing Item" e-width="6"></div>
+            <div e-column e-field="Sequence" e-headertext="Seq.No." e-width="4"></div>
+            <div e-column e-field="Type" e-headertext="Type" e-width="4"></div>
+            <div e-column e-field="Value" e-type='number' e-headertext="Value" e-width="5"></div>
+            <div e-column e-field="Amount" e-type='number' e-headertext="Amount" e-width="5"></div>
+            <div e-column e-field="OrderQty" e-type='number' e-headertext="Order Qty" e-width="4"></div>
+            <div e-column e-field="TotalOrderCost" e-type='number' e-headertext="Total Order Cost" e-width="4"></div>
+        </div>
+    </div>
+</div>
+
+@*Profit*@
+<div class="table-responsive" ng-show="Segment=='Profit' && ModelNew.Id!='' ">
+    <div id="GridM" ej-grid e-datasource="OrderBudgetProfitList" e-summaryrows="TotalProfitTotal"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="CostingItems" e-headertext="Costing Item" e-width="6"></div>
+            <div e-column e-field="Type" e-headertext="Type" e-width="4"></div>
+            <div e-column e-field="Value" e-type='number' e-headertext="Value Loss" e-width="5"></div>
+            <div e-column e-field="Amount" e-type='number' e-headertext="Amount" e-width="5"></div> 
+            <div e-column e-field="OrderQty" e-type='number' e-headertext="Order Qty" e-width="4"></div>
+            <div e-column e-field="TotalOrderCost" e-type='number' e-headertext="Total Order Cost" e-width="4"></div>
+        </div>
+    </div>
+</div>
+
+@*Sales Expenses*@
+<div class="table-responsive" ng-show="Segment=='SalesExpense' && ModelNew.Id!='' ">
+    <div id="GridM" ej-grid e-datasource="OrderBudgetSalesExpenseList" e-summaryrows="TotalSalesExpenseTotal"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="CostingItems" e-headertext="Costing Item" e-width="6"></div>
+            <div e-column e-field="Type" e-headertext="Type" e-width="4"></div>
+            <div e-column e-field="Value" e-type='number' e-headertext="Value" e-width="5"></div>
+            <div e-column e-field="Amount" e-type='number' e-headertext="Amount" e-width="5"></div> 
+            <div e-column e-field="OrderQty" e-type='number' e-headertext="Order Qty" e-width="4"></div>
+            <div e-column e-field="TotalOrderCost" e-type='number' e-headertext="Total Order Cost" e-width="4"></div>
         </div>
     </div>
 </div>

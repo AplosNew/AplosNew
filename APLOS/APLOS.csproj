@@ -2074,6 +2074,7 @@
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
     <Content Include="Areas\Employees\Scripts\ResignationTypeController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\CapitalizeAssetRegisterPostingController.js" />
     <Content Include="Areas\FixedAssets\Scripts\faRegisterController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetCodeWiseHRReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\BudgetReportMasterController.js" />
@@ -2267,6 +2268,7 @@
     <Content Include="Areas\Productions\Scripts\ProductionControlController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlMasterController.js" />
     <Content Include="Areas\Productions\Scripts\WCWorkStationsControlReportController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\CapitalizeAssetRegisterApprovalController.js" />
     <Content Include="Areas\Products\Scripts\POWiseMaterialIssueController.js" />
     <Content Include="Areas\QMS\Scripts\ComplaintController.js" />
     <Content Include="Areas\QMS\Scripts\CustomerQualityAndTechnicalSupportController.js" />
@@ -4745,6 +4747,8 @@
     <Content Include="Areas\Accounts\Views\BalanceSheetScheduling\_BalanceSheetSchedulingDataUploadDownload.cshtml" />
     <Content Include="Areas\Costings\Views\OrderCosting\OrderBudget.cshtml" />
     <Content Include="Areas\Materials\Views\LOTCreation\Aplos.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\CARApproval.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\CapitalizeAssetRegisterPosting.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

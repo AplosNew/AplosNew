@@ -267,7 +267,7 @@
         <div class="form-group" ng-show="voucher.CurrencyId!=voucher.BaseCurrencyId && voucher.PaymentSource=='@Library.Model.Payments.PaymentSource.Bank.ToString()'">
             <label class="col-sm-4 control-label">Bank Books Amount<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" ng-disabled="voucher.CurrencyId==voucher.BankCurrencyId" class="form-control text-right" name="BankBookAmount" ng-model="voucher.BankBookAmount" ng-keyup="reCalBankBaseAmount()">
+                <input type="text" n-decimals="3" title="Text, Comma, +, -, Two Dot is not allow" @*ng-disabled="voucher.CurrencyId==voucher.BankCurrencyId"*@ class="form-control text-right" name="BankBookAmount" ng-model="voucher.BankBookAmount" ng-keyup="reCalBankBaseAmount()">
             </div>
         </div>
     </div>

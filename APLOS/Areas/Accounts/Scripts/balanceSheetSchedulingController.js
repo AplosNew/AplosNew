@@ -24,7 +24,7 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
     baseService.init($scope.getListUrlBalanceSheetScheduling);
 
     $scope.searchBy = "OptionNo"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'OptionNo', name: "OptionNo" }, { value: 'Type', name: "Type" }, { value: 'GroupSequence', name: "Group Sequence" }, { value: 'Group', name: "Group" }, { value: 'SubGroupSequence', name: "Sub Group Sequence" }, { value: 'SubGroup', name: "Sub Group" }, { value: 'UserGroup', name: "User Group" }, { value: 'UserSubGroup', name: "User Sub Group" }];
+    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'OptionNo', name: "OptionNo" }, { value: 'Type', name: "Type" }, { value: 'DetailApplicable', name: "DetailApplicable" }, { value: 'GroupSequence', name: "Group Sequence" }, { value: 'Group', name: "Group" }, { value: 'SubGroupSequence', name: "Sub Group Sequence" }, { value: 'SubGroup', name: "Sub Group" }, { value: 'UserGroup', name: "User Group" }, { value: 'UserSubGroup', name: "User Sub Group" }];
 
     $scope.getDataBalanceSheetScheduling = function () {
         $http({
@@ -42,6 +42,7 @@ function balanceSheetSchedulingController(commonMessage, $scope, $rootScope, bas
         Id: null,
         OptionNo: null,
         Type: null,
+        DetailApplicable: null,
         GroupSequence: null,
         Group: null,
         SubGroupSequence: null,

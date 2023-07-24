@@ -2959,7 +2959,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>''";
+                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND IRD.VoucherDetailId NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
                 else if (faType == "CI")
                 {
@@ -3002,7 +3002,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    WHERE V.SourceType='FixedAssetCapitalizeJournal'  AND IIH.IsRegister=0 AND IID.IsAsset=0";
+                                    WHERE V.SourceType='FixedAssetCapitalizeJournal'  AND IIH.IsRegister=0 AND IID.IsAsset=0 AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
                 else
                 {
@@ -3028,7 +3028,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id= VD.PartyId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= VD.EmployeeId
                                    WHERE V.SourceType IN('VendorInvoice','JournalVoucher','EmployeePayable') AND V.IsPark=0 AND VD.DrAmount>0
-								   AND ATY.Id='Expense'";
+								   AND ATY.Id='Expense' AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
 
                 return _sqlRepository.GetGridData(parameters);
@@ -5231,5 +5231,25 @@ GROUP BY FAR.FABudgetMasterId
         }
 
         #endregion
+
+
+        public IEnumerable<object> GetCapitalizeAssetRegisterApproveByCbo()
+        {
+            try
+            {
+                var sql = @"SELECT E.SystemId As Value, E.EmployeeCode+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
+                          INNER JOIN dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          WHERE  A.ActionStatus='CapitalizeAssetRegisterApproveBy' AND E.EmployeeStatus='Active'";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
     }
 }
