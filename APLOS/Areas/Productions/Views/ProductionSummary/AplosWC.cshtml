@@ -216,6 +216,8 @@
                     <div e-column e-field="CustomerRefNo" e-headertext="Customer Ref No" e-width="200"></div>
                     <div e-column e-template="#ActualPlannedQty" e-headertext="Actual Planned Qty" e-width="100"></div>
                     <div e-column e-template="#ProcessPlanPercentage" e-headertext="Process Plan Percentage" e-width="100"></div>
+                    <div e-column e-field="POProcessSequence" e-headertext="POProcess Sequence" e-width="100"></div>
+                    <div e-column e-field="POFirstProcessProductionQty" e-headertext="POFirstProcess ProductionQty" e-width="100"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                 </div>
             </div>
@@ -254,16 +256,16 @@
                     <input type="text" ng-click="$parent.selectGridResponsible(this);" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="false" class="form-control" readonly>
                 </div>
                 @*<div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                <button ng-click="$parent.selectGridResponsible(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            </div>*@
             </script>
             <script type="text/template" id="InCharge">
                 <div class="col-sm-12" style="padding:0px;">
                     <input type="text" ng-click="$parent.selectGridIncharge(this);" name="InCharge" ng-model="data.InCharge" ng-disabled="false" class="form-control" readonly>
                 </div>
                 @*<div class="col-sm-4 text-left" style="padding:0px;padding-left:2px">
-                        <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                <button ng-click="$parent.selectGridIncharge(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+            </div>*@
             </script>
             <script type="text/template" id="CheckedBy">
                 <div class="col-sm-10" style="padding:0px;">
