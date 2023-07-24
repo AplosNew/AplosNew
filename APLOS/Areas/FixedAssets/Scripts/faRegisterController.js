@@ -14,7 +14,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.getYearOfHaving = function () {
         $scope.yearList = [];
         var endYear = new Date();
-        var ey = parseInt(endYear.getFullYear());
+        var ey = parseInt(endYear.getFullYear())-5;
         for (var i = ey; i <= 2099; i++) {
             var ob = {
                 Value: i,
