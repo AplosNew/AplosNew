@@ -796,6 +796,51 @@ function VehicleMovementMasterController(cboService, commonMessage, $scope, $roo
 
     // #endregion Employee popup
 
-    
+    $scope.PurposeEmployeeList = [];
+    $scope.GetemployeeDataList = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getemployeeDataList",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PurposeEmployeeList = response.data;
+
+        });
+    }
+    $scope.GetemployeeDataList();
+
+    $scope.ckdPurposeEmployeeList = [];
+    $scope.SavePurposeRP = function () {
+        for (var i = 0; i < $scope.PurposeEmployeeList.length; i++) {
+            if ($scope.PurposeEmployeeList[i].isSelected) {
+                $scope.ckdPurposeEmployeeList.push($scope.PurposeEmployeeList[i]);
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SavePurposeRP',
+            data: {
+                datalist: $scope.ckdPurposeEmployeeList,
+                headerid: $scope.ModelNew.Id
+            },
+            dataType:'JSON'
+        })
+            .then(function successCalback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    for (var i = 0; i < $scope.ckdPurposeEmployeeList.length; i++) {
+                        $scope.PurposeEmployeeList[i].isSelected = false
+                    }
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+              
+            })
+
+    }
    
 }
