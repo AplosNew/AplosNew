@@ -17,9 +17,9 @@
                                 <div class="common-btn">
                                     <ul class="list-inline text-left">
                                         <li>
-                                            <button ng-click="showSearchData('AUC');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>AUC</button>
-                                            <button ng-click="showSearchData('CI');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Capitalize Inventory</button>
-                                            <button ng-click="showSearchData('Expense');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Expense</button>
+                                            <button ng-disabled="register.IsApproved==true"  ng-click="showSearchData('AUC');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>AUC</button>
+                                            <button ng-disabled="register.IsApproved==true"  ng-click="showSearchData('CI');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Capitalize Inventory</button>
+                                            <button ng-disabled="register.IsApproved==true"  ng-click="showSearchData('Expense');" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Expense</button>
                                         </li>
                                     </ul>
                                 </div>
@@ -43,7 +43,7 @@
                                                     <div class="common-btn">
                                                         <ul class="list-inline text-left">
                                                             <li>
-                                                                <button ng-click="RemoveItemVoucher(x);" class="btn"><i class="glyphicon glyphicon-trash" tabindex="3"></i></button>
+                                                                <button ng-click="RemoveItemVoucher(x);" ng-disabled="register.IsApproved==true"  class="btn"><i class="glyphicon glyphicon-trash" tabindex="3"></i></button>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -175,7 +175,7 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Life Time</label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Life Time" ng-model="register.LifeTime" class="form-control" tabindex="9" autocomplete="off" required>
+                                    <input type="text" name="Life Time" ng-model="register.Lifetime" n-decimals="2" class="form-control" tabindex="9" autocomplete="off" required>
                                 </div>
                             </div>
                             
@@ -225,15 +225,15 @@
          e-recorddoubleclick="SelectMaster" e-allowselection="true" e-filtersettings-filterType="excel">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-            <div e-column e-field="CD" e-headertext="CapitalizationDate" e-width="80"></div>
+            <div e-column e-field="CD" e-headertext="Capitalization Date" e-width="80"></div>
             <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
-            <div e-column e-field="GRNAmount" e-headertext="GRNAmount" e-width="80"></div>
-            <div e-column e-field="IssueAmount" e-headertext="IssueAmount" e-width="80"></div>
-            <div e-column e-field="ExpensesAmount" e-headertext="ExpensesAmount" e-width="80"></div>
+            <div e-column e-field="GRNAmount" e-headertext="GRN Amount" e-width="80"></div>
+            <div e-column e-field="IssueAmount" e-headertext="Issue Amount" e-width="80"></div>
+            <div e-column e-field="ExpensesAmount" e-headertext="Expenses Amount" e-width="80"></div>
             <div e-column e-field="Other" e-headertext="Other" e-width="80"></div>
-            <div e-column e-field="TotalAmount" e-headertext="TotalAmount" e-width="80"></div>
+            <div e-column e-field="TotalAmount" e-headertext="Total Amount" e-width="80"></div>
             <div e-column e-field="ApprovedByName" e-headertext="ApprovedBy" e-width="80"></div>
-            <div e-column e-field="IsApproved" e-headertext="IsApproved" e-width="50"></div>
+            <div e-column e-field="Approved" e-headertext="Approved" e-width="50"></div>
         </div>
     </div>
 

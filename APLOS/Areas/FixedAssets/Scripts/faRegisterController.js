@@ -14,7 +14,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.getYearOfHaving = function () {
         $scope.yearList = [];
         var endYear = new Date();
-        var ey = parseInt(endYear.getFullYear());
+        var ey = parseInt(endYear.getFullYear())-5;
         for (var i = ey; i <= 2099; i++) {
             var ob = {
                 Value: i,
@@ -62,13 +62,12 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     ShowResult(response, 'failure');
                 });
     };
-   
+
     $scope.SelectMaster = function (obj) {
         $scope.register = obj.data;
         $scope.register.InstallationYear = parseInt($scope.register.InstallationYear);
-        $scope.register.Lifetime = parseInt($scope.register.Lifetime);
         $scope.GetCapitalizationMasterDetail();
-        
+
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -182,7 +181,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         try {
             if (event.currentTarget.checked) {
                 if (checkExistTempList($scope.selectedmaterialMasterList, data.ArticleId, data.VoucherId) === false) {
-                 
+
                     if ($scope.FaType == 'AUC') {
                         $scope.register.GRNAmount += data.Amount;
                     } else if ($scope.FaType == 'CI') {
@@ -203,7 +202,8 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                     ob.VoucherNo = data.VoucherNo;
                     ob.MaterialMasterName = data.MaterialMasterName;
                     ob.ArticleStandardName = data.ArticleStandardName;
-                    ob.Qty = data.Qty; 
+                    ob.Qty = data.Qty;
+                    ob.GRNNo = data.GRNNo;
 
                     if ($scope.FaType == 'AUC') {
                         ob.Source = 'AUC';
@@ -261,6 +261,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
                 ob.MaterialMasterName = $scope.materialMasterList[i].MaterialMasterName;
                 ob.ArticleStandardName = $scope.materialMasterList[i].ArticleStandardName;
                 ob.Qty = $scope.materialMasterList[i].Qty;
+                ob.GRNNo = $scope.materialMasterList[i].GRNNo;
 
                 if ($scope.FaType == 'AUC') {
                     ob.Source = 'AUC';
@@ -287,18 +288,54 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
 
     $scope.VoucherNo = null;
     $scope.message_VoucherRemoveconfirmation = null;
+    $scope.VId = null;
     $scope.RemoveItemVoucher = function (obj) {
         $scope.VoucherNo = obj.VoucherNo;
+        $scope.VId = obj.Id;
         if (!baseService.isUndefinedOrNull(obj.VoucherNo))
             $scope.message_VoucherRemoveconfirmation = 'Are you sure want to delete permanently [ ' + obj.VoucherNo + ' ]';
         angular.element(document.querySelector('#confirmVoucherRemovePopUp')).modal('show');
     }
 
     $scope.RemoveVoucher = function () {
-        for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
-            if ($scope.selectedmaterialMasterList[i].VoucherNo == $scope.VoucherNo) {
-                $scope.selectedmaterialMasterList.splice(i, 1);
+        if (baseService.isUndefinedOrNull($scope.VId)) {
+            for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+                if ($scope.selectedmaterialMasterList[i].VoucherNo == $scope.VoucherNo) {
+                    $scope.selectedmaterialMasterList.splice(i, 1);
+                }
             }
+        }
+        else {
+            $scope.DeleteDetail();
+        }
+    };
+    $scope.DeleteDetail = function () {
+        try {
+            $http({
+                method: "POST",
+                url: $scope.path + "DeleteDetail",
+                dataType: "JSON",
+                data: { "id": $scope.VId }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
+                        if ($scope.selectedmaterialMasterList[i].VoucherNo == $scope.VoucherNo) {
+                            $scope.selectedmaterialMasterList.splice(i, 1);
+                        }
+                    }
+                    $scope.GetCapitalizationMasterDetail();
+                    $scope.SaveRegister();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        } catch (e) {
+            ShowResult(e, "Error");
         }
     };
 
@@ -325,7 +362,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#fixedAssetMasterItemPoUp')).modal('hide');
 
     }
-  
+
     $scope.ApprovedByList = [];
     $scope.GetApprovedCboList = function () {
         $http({
@@ -341,9 +378,20 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
     $scope.SaveRegister = function () {
         try {
             $scope.register.TotalAmount = 0;
+            $scope.register.GRNAmount = 0;
+            $scope.register.ExpensesAmount = 0;
+            $scope.register.IssueAmount = 0;
             for (var i = 0; i < $scope.selectedmaterialMasterList.length; i++) {
                 $scope.register.TotalAmount += $scope.selectedmaterialMasterList[i].Amount;
-
+                if ($scope.selectedmaterialMasterList[i].Source =='AUC') {
+                    $scope.register.GRNAmount += $scope.selectedmaterialMasterList[i].Amount;
+                }
+                else if ($scope.selectedmaterialMasterList[i].Source == 'CI') {
+                    $scope.register.IssueAmount += $scope.selectedmaterialMasterList[i].Amount;
+                }
+                else {
+                    $scope.register.ExpensesAmount += $scope.selectedmaterialMasterList[i].Amount;
+                }
             }
 
             $scope.$broadcast("show-errors-check-validity");
@@ -386,97 +434,7 @@ function faRegisterController(addressService, commonMessage, $scope, $rootScope,
         $scope.selectedmaterialMasterList = [];
     }
 
-    $scope.DeleteRegister = function () {
-        try {
-            if ($scope.register.Id === null || $scope.register.Id === "") {
-                throw "No Asset is selected...";
-            }
-            $http({
-                method: "POST",
-                url: $scope.path + "deleteregister",
-                dataType: "JSON",
-                data: { "registerid": $scope.register.Id }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, "failure");
-                }
-                else {
-                    ShowResult(response.data.Message, "success");
-                    $scope.registerAddEditPopup("NEW");
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.status.Message, "failure");
-            });
-            return true;
-        } catch (e) {
-            ShowResult(e, "Error");
-        }
-    };
 
-
-    $scope.MainPageToModal = function () {
-        for (var i in $scope.registermodal) {
-            $scope.registermodal[i] = $scope.register[i];
-        }
-    };
-
-    function ClearRegister() {
-        $scope.register = {
-            CompanyId: $window.companyId
-            , FABaseAmount: 0
-            , FAGroupAmount: 0
-            , FAHardAmount: 0
-            , ADBaseAmount: 0
-            , ADGroupAmount: 0
-            , ADHardAmount: 0
-            , IsFinancial: true
-        };
-        $scope.getParallelCurrency($scope.register.CompanyId);
-
-        $scope.btndeleteregister = false;
-        $scope.registerEditMode = false;
-        $scope.Action = "Save";
-        $scope.NumberOfQuantity = null;
-        $scope.setFixedAssetMasterData = {};
-
-        $scope.getDataWithFAM = {
-            ADBaseAmountTotal: 0
-            , ADGroupAmountTotal: 0
-            , ADHardAmountTotal: 0
-            , FABaseAmountTotal: 0
-            , FAGroupAmountTotal: 0
-            , FAHardAmountTotal: 0
-            , TotalRow: 0
-        };
-
-        $scope.getOpeningBalanceDataWithFAM = {
-            FABaseAmountTotal: 0
-            , FAGroupAmountTotal: 0
-            , FAHardAmountTotal: 0
-            , ADBaseAmountTotal: 0
-            , ADGroupAmountTotal: 0
-            , ADHardAmountTotal: 0
-        };
-
-        $scope.machineTypeData = [];
-        $scope.attributeList = [];
-        $scope.articleHead = [];
-        $scope.materialArticleInfo = {
-            ArticleCode: null,
-            ArticleStandardName: null
-        };
-
-        $scope.characteristicsList = [];
-        $scope.assetRegisterCharactreristicsList = [];
-        $scope.subAssetList = [];
-        $scope.loadDDL();
-    }
-
-    $scope.ModalToMainPage = function () {
-        for (var i in $scope.register) {
-            $scope.register[i] = $scope.registermodal[i];
-        }
-    };
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
