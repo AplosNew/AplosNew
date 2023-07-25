@@ -1660,6 +1660,23 @@ Where  C.CapitalizationMasterId='" + masterId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult GetCapitalizationDetailByMaster(string masterId)
+        {
+            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
+FROM [TRN].[CapitalizationMasterDetail] C
+LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
+LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+left join [TRN].[VoucherDetail] VD ON VD.Id=C.VoucherDetailId
+left join [TRN].[Voucher] V ON V.Id=VD.VoucherId
+left join TRN.InventoryIssueHistory IH ON IH.Id=InventoryIssueHistoryId
+Where  C.CapitalizationMasterId " + masterId + "";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetCapitalizeAssetRegisterApproveByCbo()
         {
