@@ -266,14 +266,6 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.currencyList = result;
     });
 
-
-    $http({
-        method: 'GET',
-        url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
-    }).then(function successCallback(response) {
-        $scope.baseCurrencyId = response.data[0].Value;
-        $scope.productNew.BaseCurrencyId = response.data[0].Value;
-    });
     $http({
         method: 'GET',
         url: 'accounts/PaymentTerm/getvendorcbo'
@@ -362,13 +354,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.ActionPOBOQ = 'Save';
     };
 
-    $http({
-        method: 'GET',
-        url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
-    }).then(function successCallback(response) {
-        $scope.baseCurrencyId = response.data[0].Value;
-        $scope.productNew.BaseCurrencyId = response.data[0].Value;
-    });
+
 
     $scope.TermsAndConditions = {
         Id: null
