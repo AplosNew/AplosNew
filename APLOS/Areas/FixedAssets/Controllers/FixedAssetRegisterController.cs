@@ -1422,7 +1422,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
         #endregion
-        #region Fixed Asset Depreciation Process
+        #region Fixed Asset Depreciation Post
         [HttpPost, Authorize]
         public ActionResult GetFixedAssetDepreciationListForPosting(string column, string value)
         {
@@ -1689,6 +1689,30 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
 Where CM.IsApproved=1 AND CM.ApprovedById='" + identity.EmployeeId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region Capitalize Asset Register Post
+        [Authorize, HttpPost]
+        public ActionResult GetCapitalizeAssetRegisterPostedList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fixedAssetQueryService.GetFixedAssetDepreciationPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult CreatetCapitalizeAssetRegisterPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            _fixedAssetDisposeService.InsertFixedAssetDepreciationPosting(voucherVM, voucherDetailVMList, fixedAssetDepreciationList);
+
+            return Json(new { Message = AplosMessage.Insert });
         }
 
         #endregion
