@@ -892,9 +892,11 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
                     ShowResult('Same Tax Category already exsist', 'failure', 'receiveTaxPopUp');
                     angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
                 }
-                var TxA = parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount) + parseFloat($scope.receiveTaxList[i].TotalAmount);
-                $scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount = parseFloat(TxA.toFixed(2));
+                //var TxA = parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount) + parseFloat($scope.receiveTaxList[i].TotalAmount);
+                //$scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount = parseFloat(TxA.toFixed(2));
             }
+            $scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount = Math.round($filter("sumByKey")($filter("filter")($scope.receiveTaxList), "TotalAmount") * 1000 + Number.EPSILON) / 1000;
+
             $scope.salesMaterialList[$scope.currentMaterialRow].TaxList = $scope.receiveTaxList;
             var NAmount = parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TransactionAmount) + parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount);
             $scope.salesMaterialList[$scope.currentMaterialRow].NetAmount = parseFloat(NAmount.toFixed(2));
@@ -930,8 +932,9 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
 
     $scope.calculateTaxAmount = function (data) {
         // data.TotalAmount = $scope.taxAbleAmnt * data.Percentage / 100;
+        //data.TotalAmount = parseFloat($scope.taxAbleAmnt * data.Percentage / 100).toFixed(2);
+        data.TotalAmount = Math.round(($scope.taxAbleAmnt * data.Percentage / 100) * 100 + Number.EPSILON) / 100;
 
-        data.TotalAmount = parseFloat($scope.taxAbleAmnt * data.Percentage / 100).toFixed(2);
     };
 
     $scope.calculateTaxAmountForMat = function (data) {
@@ -939,7 +942,8 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
             data.Percentage = 0;
         }
         //data.TotalAmount = Math.round($scope.materialMaster.TransactionAmount * data.Percentage) / 100;
-        data.TotalAmount = parseFloat($scope.materialMaster.TransactionAmount * data.Percentage / 100).toFixed(2);
+        //data.TotalAmount = parseFloat($scope.materialMaster.TransactionAmount * data.Percentage / 100).toFixed(2);
+        data.TotalAmount = Math.round(($scope.materialMaster.TransactionAmount * data.Percentage / 100) * 100 + Number.EPSILON) / 100;
     };
     $scope.checkRowValidationMat = function (x) {
         for (var i = 0; i < $scope.taxCategoryList.length; i++) {
@@ -952,24 +956,25 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
         }
     }
 
-    $scope.closeReceiveTaxPopUp = function () {
-        var materialData = $scope.salesMaterialList[$scope.currentMaterialRow];
-        $scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount = 0;
-        for (var i = 0; i < $scope.receiveTaxList.length; i++) {
-            var taxcat = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": $scope.receiveTaxList[i].TaxCategoryId });
-            if (taxcat.length == 2) {
-                ShowResult('Same Tax Category already exsist', 'failure', 'receiveTaxPopUp');
-                angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
-            }
-            $scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount) + parseFloat($scope.receiveTaxList[i].TotalAmount);
-        }
-        $scope.salesMaterialList[$scope.currentMaterialRow].TaxList = $scope.receiveTaxList;
-        $scope.salesMaterialList[$scope.currentMaterialRow].NetAmount = parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TransactionAmount) + parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount);
-        $scope.materialMaster = {};
-        $scope.receiveTaxList = [];
-        $scope.isService = false;
-        angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
-    };
+    //$scope.closeReceiveTaxPopUp = function () {
+    //    var materialData = $scope.salesMaterialList[$scope.currentMaterialRow];
+    //    $scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount = 0;
+    //    for (var i = 0; i < $scope.receiveTaxList.length; i++) {
+    //        var taxcat = $filter("filter")($scope.receiveTaxList, { "TaxCategoryId": $scope.receiveTaxList[i].TaxCategoryId });
+    //        if (taxcat.length == 2) {
+    //            ShowResult('Same Tax Category already exsist', 'failure', 'receiveTaxPopUp');
+    //            angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
+    //        }
+    //        $scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount = parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount) + parseFloat($scope.receiveTaxList[i].TotalAmount);
+    //    }
+
+    //    $scope.salesMaterialList[$scope.currentMaterialRow].TaxList = $scope.receiveTaxList;
+    //    $scope.salesMaterialList[$scope.currentMaterialRow].NetAmount = parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TransactionAmount) + parseFloat($scope.salesMaterialList[$scope.currentMaterialRow].TaxAmount);
+    //    $scope.materialMaster = {};
+    //    $scope.receiveTaxList = [];
+    //    $scope.isService = false;
+    //    angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
+    //};
 
     $scope.closeServiceTaxPopUp = function () {
         var salesData = $scope.chargesList[$scope.currentServiceRow];
