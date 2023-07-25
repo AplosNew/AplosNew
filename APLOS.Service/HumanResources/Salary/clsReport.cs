@@ -2617,7 +2617,7 @@ where QC.Id='" + PlannedId + @"'";
             try
             {
                 strSql = @"select QII.Id,QII.SNO,QID.IssueName,QII.ItemName,UOM.UserName UOM,QII.Max,QII.Min,P.Code as PositionCode,QII.CriticalLevel,
-QCD.Value,QCD.GradeId as GradeDetails,QCD.Remarks,QCD.ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson from TRN.QualityControlDetails QCD 
+QCD.Value,(select GradeName from MST.QualityGradeDetails where id=QCD.GradeId) as GradeDetails,QCD.Remarks,(select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where id=QCD.ActionToBeTaken) as ActionToBeTaken,QCD.ResponsiblePersonId as ResponsiblePerson from TRN.QualityControlDetails QCD 
 left join TRN.QualityControl QC on QC.id=QCD.QCId
 left join MST.QualityIssueItem QII on QII.Id=QCD.ItemId
 left join MST.QualityIssueDetails QID on QID.Id=QII.IssueId

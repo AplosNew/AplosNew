@@ -126,6 +126,30 @@ namespace Aplos.Areas.Administration.Controllers
         }
         #endregion SAVE
 
+        public JsonResult delete(string item)
+        {
+            try
+            {
+                string TableName = "MST.ContractItemDetail";
+
+                if (string.IsNullOrEmpty(item))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + item + "'");
+                con.CommitTransaction();
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
         #region FileUpload
         [HttpPost, Authorize]
         public ActionResult SaveDefault(IEnumerable<System.Web.HttpPostedFileBase> UploadDefault, string UploadDefault_data)

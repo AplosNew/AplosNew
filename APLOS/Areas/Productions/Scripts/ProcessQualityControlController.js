@@ -19,6 +19,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     $scope.saveUrlIssueItem = $scope.path + 'createIssueItem';
     $scope.saveUrlGrade = $scope.path + 'createGrade';
     $scope.saveUrlPOQuality = $scope.path + 'createPOQuality';
+    $scope.saveUrlActionToBeTaken = $scope.path + 'createActionToBeTaken';
     $scope.CriticalLevelLists = [
         {
             'Value': 'High',
@@ -170,6 +171,13 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     };
     $scope.GradeNew = Object.assign({}, $scope.Grade);
 
+    $scope.ActionToBeTaken = {
+        Id: null
+        , SNO: null
+        , ActionToBeTakenName: null
+    };
+    $scope.ActionToBeTakenNew = Object.assign({}, $scope.ActionToBeTaken);
+
 
     $scope.GeneratItemSequenceNo = function () {
         $http({
@@ -190,8 +198,18 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         });
     }
     $scope.GeneratGradeSequenceNo();
+
+    $scope.GeneratActionToBeTakenSequenceNo = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/ProcessQualityControl/GetActionToBeTakenAutoSequence'
+        }).then(function successCallback(response) {
+            $scope.ActionToBeTakenNew.SNO = response.data;
+        });
+    }
+    $scope.GeneratActionToBeTakenSequenceNo();
    
-    $scope.tab = 2;
+    $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
 
@@ -283,6 +301,7 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         Id: null,
         EntityId: null,
         ProcessId: null,
+        IssueNameId: null, 
         IssueName: null,
         DepartmentId: null,
         Department: null,
@@ -292,12 +311,13 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         PositionCode: null,
         Remarks: null,
         CheckingInterval: null,
-        IsMandatory: false,
+        IsMandatory: true,
+        IsWorkCenter: true,
         Period: null,
         Frequency: null
     };
     $scope.IssueNew = Object.assign({}, $scope.Issue);
-
+    console.log($scope.IssueNew);
     $scope.Reason = {
         Id: null,
         IssueId: null,
@@ -677,6 +697,8 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         angular.element(document.querySelector('#PositionCodePop')).modal('hide');
     }
 
+
+
     $scope.selectPOPositionCode = function () {
         $scope.getPOPositionCode();
         angular.element(document.querySelector('#POPositionCodePop')).modal('show');
@@ -703,7 +725,8 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         angular.element(document.querySelector('#POPositionCodePop')).modal('hide');
     }
 
-    $scope.selectItemPositionCode = function () {
+    $scope.selectItemPositionCode = function (data) {
+        $scope.NewObject = data.data;
         $scope.getItemPositionCode();
         angular.element(document.querySelector('#ItemPositionCodePop')).modal('show');
     }
@@ -720,14 +743,27 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     }
 
     $scope.doubleItemPositionCode = function (e) {
-        $scope.IssueItemNew.PositionCodeId = e.data.Id;
-        $scope.IssueItemNew.PositionCode = e.data.Code;
+        //$scope.IssueItemNew.PositionCodeId = e.data.Id;
+        //$scope.IssueItemNew.PositionCode = e.data.Code;
+        $scope.NewObject.PositionCodeId = e.data.Id;
+        $scope.NewObject.PositionCode = e.data.Code;
         angular.element(document.querySelector('#ItemPositionCodePop')).modal('hide');
     }
 
     $scope.closeIssueItemCodePopUp = function () {
         angular.element(document.querySelector('#ItemPositionCodePop')).modal('hide');
     }
+
+    $scope.IssueNameList = [];
+    $scope.GetIssueNameList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/ProcessQualityControl/GetIssueNameList'
+        }).then(function successCallback(response) {
+            $scope.IssueNameList = response.data;
+        });
+    }
+    $scope.GetIssueNameList();
 
     $scope.IssueReasonList = [];
     $scope.GetIssueReasonList = function () {
@@ -769,6 +805,8 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
             url: 'Productions/ProcessQualityControl/LoadIssueDetailsEditData?IssueId=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.IssueNew = response.data.Issue[0];
+            $scope.getQIEntities($scope.IssueNew.IssueNameId);
+            $scope.getQIProcess($scope.IssueNew.IssueNameId);
             $scope.loadProcessList($scope.IssueNew.EntityId);
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
@@ -816,16 +854,39 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     }
 
     $scope.IssueItemList = [];
-    $scope.LoadIssueItemDetails = function () {
+    $scope.LoadIssueItemDetails = function (IssueId) {
         $http({
             method: 'Get',
-            url: 'Productions/ProcessQualityControl/LoadIssueItemDetails'
+            url: 'Productions/ProcessQualityControl/LoadIssueItemDetails?IssueId=' + IssueId
         }).then(function successCallback(response) {
             $scope.IssueItemList = response.data;
         }
         )
     }
-    $scope.LoadIssueItemDetails();
+    //$scope.LoadIssueItemDetails();
+
+    $scope.refreshTemplateIssueItem = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllIssueItem });
+    };
+    function CheckBoxSelectAllIssueItem(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridIssueItem").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.IssueItemList.length; i++) {
+                $scope.IssueItemList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridIssueItem").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
 
     $scope.GetIssueItemDetails = function (args) {
         $http({
@@ -840,14 +901,48 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         )
     }
 
+    //$scope.IssueItemSave = function () {
+    //    $scope.$broadcast('show-errors-check-validity');
+    //    if ($scope.IssueItemDetailsForm.$valid) {
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.saveUrlIssueItem,
+    //            data: {
+    //                'IssueItemData': $scope.IssueItemNew
+    //            },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'success');
+    //                $scope.LoadIssueItemDetails();
+    //                IssueItemClearFields();
+    //                $scope.GeneratItemSequenceNo();
+    //            }
+    //        }), function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //    }
+    //};
+
     $scope.IssueItemSave = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.IssueItemDetailsForm.$valid) {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.IssueItemList.length; i++) {
+                if ($scope.IssueItemList[i].Flag == true) {
+                    $scope.IssueItemList[i].IssueId = $scope.IssueItemNew.IssueId;
+                    $scope.SaveList.push($scope.IssueItemList[i]);
+                }
+            }
             $http({
                 method: 'POST',
                 url: $scope.saveUrlIssueItem,
                 data: {
-                    'IssueItemData': $scope.IssueItemNew
+                    "DataList": $scope.SaveList,
+                    "Pid": $scope.IssueItemNew.IssueId
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -855,14 +950,17 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
+
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadIssueItemDetails();
-                    IssueItemClearFields();
-                    $scope.GeneratItemSequenceNo();
+                    $scope.LoadIssueItemDetails($scope.IssueItemNew.IssueId);
+                    $scope.Action = 'Save';
                 }
+
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
         }
     };
 
@@ -933,6 +1031,63 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
     function GradeClearFields() {
         $scope.Action = "Save";
         $scope.GradeNew = Object.assign({}, $scope.Grade);
+    }
+
+    $scope.ActionToBeTakenList = [];
+    $scope.LoadActionToBeTakenDetails = function () {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadActionToBeTakenDetails'
+        }).then(function successCallback(response) {
+            $scope.ActionToBeTakenList = response.data;
+        }
+        )
+    }
+    $scope.LoadActionToBeTakenDetails();
+
+    $scope.GetActionToBeTakenDetails = function (args) {
+        $http({
+            method: 'Get',
+            url: 'Productions/ProcessQualityControl/LoadActionToBeTakenDetailsEditData?ActionToBeTakenId=' + args.data.Id
+        }).then(function successCallback(response) {
+            $scope.ActionToBeTakenNew = response.data.ActionToBeTaken[0];
+        }
+        )
+    }
+
+    $scope.ActionToBeTakenSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ActionToBeTakenDetailsForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlActionToBeTaken,
+                data: {
+                    'ActionToBeTakenData': $scope.ActionToBeTakenNew
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadActionToBeTakenDetails();
+                    ActionToBeTakenClearFields();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.ActionToBeTakenClear = function () {
+        ActionToBeTakenClearFields();
+    };
+
+    function ActionToBeTakenClearFields() {
+        $scope.Action = "Save";
+        $scope.ActionToBeTakenNew = Object.assign({}, $scope.ActionToBeTaken);
+        $scope.GeneratActionToBeTakenSequenceNo();
     }
 
     $scope.removeIssueModal = function (index, data) {
@@ -1111,6 +1266,37 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         });
     };
 
+    $scope.removeActionToBeTakenModal = function (index, data) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.tempActionToBeTakenId = data;
+            $scope.message_confirmation = "Are you sure you want to delete?";
+            angular.element(document.querySelector('#confirmRemoveActionToBeTaken')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+    $scope.removeActionToBeTakenRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/ProcessQualityControl/ActionToBeTakenDelete?id=' + $scope.tempActionToBeTakenId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.LoadActionToBeTakenDetails();
+                ActionToBeTakenClearFields();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
     $scope.SaveQIC = function (data) {
         try {
             if (baseService.isUndefinedOrNull(data.data.Value)) {
@@ -1254,6 +1440,33 @@ function ProcessQualityControlController(cboService, commonMessage, $scope, $roo
         });
     }
     $scope.getAllEntities();
+
+    $scope.QIentityList = [];
+    $scope.getQIEntities = function (Id) {
+        $http.get('Productions/ProcessQualityControl/GetEntity?IssueNameId=' + Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.QIentityList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.IssueNew.EntityId = $scope.QIentityList[0].Value;
+                    }
+                }
+            });
+    }
+
+    $scope.QIprocessList = [];
+    $scope.getQIProcess = function (Id) {
+        $http.get('Productions/ProcessQualityControl/GetProcess?IssueNameId=' + Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.QIprocessList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.IssueNew.ProcessId = $scope.QIprocessList[0].Value;
+                    }
+                }
+            });
+    }
+  
 
     $scope.ArticleList = [];
     $scope.getArticle = function (POId) {

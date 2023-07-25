@@ -59,6 +59,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("DetentionLogReportController", DetentionLogReportController)
     .controller("myappEmployeeLedgerReportController", myappEmployeeLedgerReportController)
     .controller("VehicleMovementRequisitionController", VehicleMovementRequisitionController)
+    .controller("CapitalizeAssetRegisterApprovalController", CapitalizeAssetRegisterApprovalController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -344,6 +345,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                     templateUrl: 'humanresource/VehicleMovementMaster/VehicleMovementRequisition',
                     controller: 'VehicleMovementRequisitionController'
                 })
+            .when('/capitalize-asset-register-approval', {
+                templateUrl: 'FixedAssets/FixedAssetRegister/CARApproval',
+                controller: 'CapitalizeAssetRegisterApprovalController'
+            })
             //#endregion
 
             .when('/logout', {

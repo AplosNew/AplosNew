@@ -5806,6 +5806,42 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             }
         }
 
+        public void GetPurposeResponsible(out List<Default3> DataList , string PurposeId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default3>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select PR.Id Value ,PR.ResponsiblePersonId SystemId,  EI.EmployeeName Name from TRN.VehiclePurposeResponsiblePerson PR
+left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where VehiclePurposeId = '" + PurposeId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default3
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        SystemId = dsRef.Tables[0].Rows[i]["SystemId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
 
         public void GetVehicleCreations(out List<VehicleCreation> DataList, string EmpsysId)
         {
@@ -5878,7 +5914,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
-					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by VMR.FromDate asc";
+					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6380,6 +6416,61 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
                 return MasterId;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public string PostCombineVehicleApprove(IEnumerable<Vehicle> DataToSave)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                string ErrorList = "";
+
+                if (DataToSave.Count() == 0)
+                {
+                    return "No Data Found";
+                }
+
+                string IDS = "''";
+                foreach (Vehicle item in DataToSave)
+                {
+                    IDS += ",'" + item.Id + "'";
+                }
+
+                var items = DataToSave.ToList();
+
+                var sqlx = @"select * from TRN.VehicleMovementRequisition where Id(" + IDS + @")";
+                con.OpenDataSetThroughAdapter(sqlx, out dsMaster, false, "1");
+
+                foreach (Vehicle item in DataToSave)
+                {
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"Id='" + item.Id + "' ";
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+
+                        DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["AppliedId"] = item.AppliedId;
+
+                        dr["UpdatedBy"] = item.UpdatedBy;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        ErrorList += item.Id + "...";
+                    }
+                }
+
+                return "true";
 
             }
             catch (Exception ex)

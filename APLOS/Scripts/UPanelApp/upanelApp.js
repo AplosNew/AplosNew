@@ -1192,6 +1192,10 @@ upanelApp.controller("CustomerQualityAndTechnicalSupportController", CustomerQua
 upanelApp.controller("PaymentAdviseReportController", PaymentAdviseReportController)
 upanelApp.controller("faRegisterController", faRegisterController)
 upanelApp.controller("WeighingScaleMasterController", WeighingScaleMasterController)
+upanelApp.controller("LOTCreationController", LOTCreationController)
+upanelApp.controller("CapitalizeAssetRegisterPostingController", CapitalizeAssetRegisterPostingController)
+
+
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

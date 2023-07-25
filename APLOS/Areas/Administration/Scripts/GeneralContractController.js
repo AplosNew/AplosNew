@@ -490,7 +490,25 @@ function GeneralContractController(cboService, commonMessage, $scope, $rootScope
 
     // #region RemoveRow
     $scope.RemoveParticularRow = function (item) {
-        $scope.SelectedItemList.splice($scope.SelectedItemList.indexOf(item), 1)
+        //$scope.SelectedItemList.splice($scope.SelectedItemList.indexOf(item), 1)
+        $http({
+            method: 'POST',
+            url: $scope.path + 'delete',
+            data: { 'item':item.Id},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                ClearFields(response.data.Sequence);
+                $scope.getData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     }
 
     $scope.RemoveCheckedRow = function (item) {

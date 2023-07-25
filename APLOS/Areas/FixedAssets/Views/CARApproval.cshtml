@@ -1,0 +1,110 @@
+﻿
+<style>
+    .e-filterset:before {
+       
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { 
+      
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+    .modellgModify {
+        width: 1100px;
+    }
+</style>
+
+<togglable name="Capitalize Asset Register Approval"></togglable>
+<div id="test">
+	<div class="tab-design" id="tab_show">
+		<div class="site-tab">
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetUnapprovedData();" href="" aria-controls="general" role="tab" data-toggle="tab">Un Approved</a></li>
+				<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetapprovedData();" href="" aria-controls="address" role="tab" data-toggle="tab">Approved</a></li>
+			</ul>
+		</div>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div id="Unapproved">
+						<div class="content-container-fluid" style="color:black;">
+							<div style="color:black;" id="GridPOAPp" ej-grid e-datasource="UnApprovedDataList"
+								 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+								 e-filtersettings-filterType="excel" e-enabletouch="true" e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid">
+                                <div e-columns>
+                                    <div e-column e-headertext="Actions" e-width="80">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-floppy-disk" title="Approved" ng-click="$parent.onClickCARA(this);" style="margin: -6px;"></i></button>
+                                        @*<button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPOAPp');" style="margin: -6px;"></i></button>*@
+                                    </div>
+                                    <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                    <div e-column e-field="CD" e-headertext="CapitalizationDate" e-width="80"></div>
+                                    <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                                    <div e-column e-field="GRNAmount" e-headertext="GRNAmount" e-width="80"></div>
+                                    <div e-column e-field="IssueAmount" e-headertext="IssueAmount" e-width="80"></div>
+                                    <div e-column e-field="ExpensesAmount" e-headertext="ExpensesAmount" e-width="80"></div>
+                                    <div e-column e-field="Other" e-headertext="Other" e-width="80"></div>
+                                    <div e-column e-field="TotalAmount" e-headertext="TotalAmount" e-width="80"></div>
+                                    <div e-column e-field="ApprovedByName" e-headertext="ApprovedBy" e-width="80"></div>
+                                </div>
+							</div>
+						</div>
+						<script id="tabGridContents" type="text/x-jsrender">
+							<div class="tabcontrol" id="Test">
+								<ul>
+									<li><a href="#gridTab{{:Id}}"> Details</a></li>
+								</ul>
+								<div id="gridTab{{:Id}}">
+									<div id="detailGrid" style="font-size:larger"></div>
+								</div>
+								
+							</div>
+						</script>
+					</div>
+				</fieldset>
+			</div>
+			
+			<div ng-hide="false" role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+				<fieldset class="scheduler-border">
+					<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+					<div id="approved">
+						<div class="content-container-fluid" style="color:black;">
+							<div style="color:black;" id="Grid2" ej-grid e-datasource="ApprovedDataList"
+								 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+								 e-filtersettings-filterType="excel" e-enabletouch="true"
+								 e-detailstemplate="detailTemp"  e-detailsdatabound="detailgrid">
+                                <div e-columns>
+                                    @*<div e-column e-headertext="Actions" e-width="30">
+                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('GridPO12');" style="margin: -6px;"></i></button>
+                                    </div>*@
+                                    <div e-column e-field="Id" e-headertext="Id" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+                                    <div e-column e-field="CD" e-headertext="CapitalizationDate" e-width="80"></div>
+                                    <div e-column e-field="Qty" e-headertext="Qty" e-width="80"></div>
+                                    <div e-column e-field="GRNAmount" e-headertext="GRNAmount" e-width="80"></div>
+                                    <div e-column e-field="IssueAmount" e-headertext="IssueAmount" e-width="80"></div>
+                                    <div e-column e-field="ExpensesAmount" e-headertext="ExpensesAmount" e-width="80"></div>
+                                    <div e-column e-field="Other" e-headertext="Other" e-width="80"></div>
+                                    <div e-column e-field="TotalAmount" e-headertext="TotalAmount" e-width="80"></div>
+                                    <div e-column e-field="ApprovedByName" e-headertext="ApprovedBy" e-width="80"></div>
+
+                                </div>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+		
+	</div>
+
+
+</div>
+<confirm-archive-generic modalid="poapprovealert" title="Confirmation" message={{message}} data-ng-click-right-button="ApproveRegister();"></confirm-archive-generic>

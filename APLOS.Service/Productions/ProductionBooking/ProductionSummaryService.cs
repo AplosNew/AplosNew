@@ -479,7 +479,7 @@ namespace Library.Service.Productions
                             Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then POQ.POQty else 0 end POQty,
                               Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 else 0 end ProcessPlanQty,
 isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,
-        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,
+        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,PPS.Sequence POProcessSequence,FPP.FirstProductionQty POFirstProcessProductionQty,
 (select MA.StandardName from trn.salesorder SO
 left outer join trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
@@ -548,6 +548,10 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
 (select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + ProcessId + @"')) GROUP BY PP.ProductionOrderId
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
+LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
+(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId)) GROUP BY FP.ProductionOrderId
+ ) AS FPP ON FPP.ProductionOrderId = PO.Id
                           LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
                             FROM TRN.SalesOrder SO
@@ -618,7 +622,7 @@ where wc.Active = 1 and wc.ProcessId = '" + ProcessId + "'  and wc.EntityId = '"
                 QCItemId = @"and QII.Id='" + POItemId + "'";
             }
             var sql = @"select distinct QIC.Id,QII.Id ItemId,QII.SNO,QII.ItemName,QII.UOMId,U.UserName as UOM,QIC.Value,QGD.Id as GradeId,QII.Max as MaxValue,QII.Min as MinValue,
-QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson,QIC.QCId from MST.QualityIssueItem QII
+QIC.Remarks,QIC.ActionToBeTaken,R.EmployeeName as ResponsiblePerson,QIC.QCId,QIC.Repeat from MST.QualityIssueItem QII
 LEFT JOIN TRN.QualityControl QC ON QC.IssueId=QII.IssueId
 LEFT JOIN TRN.[QualityControlDetails] QIC ON QIC.QCId='" + PId + @"' and QIC.ItemId=QII.Id
 LEFT JOIN SCS.UnitOfMeasurement U ON U.Id = QII.UOMId
@@ -766,8 +770,10 @@ left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId = mm.Id
 left outer join[MST].[ProductMaster] PM on pm.id = pd.ProductMasterId
 where Pod.ProductionOrderId = QC.ProductionOrderId for xml path(''), TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
 POQ.POQty as QCPOQty,PQ.Qty QCScheduleQty,ProdQ.ProducedQty as QCProducedQty,POQ.POQty-ProdQ.ProducedQty QCRemainingQty,
-QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,
-QII.Max QCMaxValue,QII.Min QCMinValue,QCD.ActionToBeTaken as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks,QC.QualityPlanId
+QII.ItemName as QCItemName,QCD.Value as QCValue,UM.UserName QCUOM,QGD.GradeName QCGradeName,QGD.GradeValue,QC.PlanType,
+QII.Max QCMaxValue,QII.Min QCMinValue,(select ActionToBeTakenName from MST.QualityActionToBeTakenDetails where Id=QCD.ActionToBeTaken) as QCActionToBeTaken,EI.EmployeeName as QCResponsiblePerson,QCD.Remarks as QCItemRemarks,QC.QualityPlanId,
+QC.Id QulaityHeaderId,QCD.Id QulaityItemId,QII.CriticalLevel,
+D.UserName as Department,QID.IssueType,QID.IssueCategory,QID.Period,QID.Frequency
 from MST.QualityIssueDetails  QID
 left join MST.QualityIssueItem QII on QII.IssueId=QID.Id
 left join scs.UnitOfMeasurement UM on UM.Id=QII.UOMId
@@ -778,6 +784,7 @@ left join EmployeeInformation EI on EI.SystemId=QCD.ResponsiblePersonId
 left join EmployeeInformation PI on PI.SystemId=QC.ProductionInchargeId
 left join MST.QualityTimeDetails QTD on QTD.Id=QC.PeriodId
 left join org.Entity E on E.Id=QID.EntityId
+left join org.Department D on D.Id=QID.DepartmentId
 left join hkp.Process P on P.Id=QID.ProcessId
 left join ShiftDefination SD on SD.SystemID=QC.ProductionShiftId
 left join TRN.ProductionOrder PO ON PO.Id=QC.ProductionOrderId

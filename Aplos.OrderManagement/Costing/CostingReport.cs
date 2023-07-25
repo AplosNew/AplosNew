@@ -37,7 +37,6 @@ namespace Library.OrderManagement.Costing
                 string CostingMOIsql = OrderCostingMOISQL(MOIId);
                 //String CostingComponentSql = OrderCostingComponentSQL(OrderCostingId,preCosting,ProcurementCosting);
 
-
                 ExcelEngine excelEngine = new ExcelEngine();
                 //Instantiate the Excel application object
                 IApplication application = excelEngine.Excel;
@@ -67,7 +66,7 @@ namespace Library.OrderManagement.Costing
                 DataTable dtMOICostingInfo = _sqlRepository.GetDataTable(CostingMOIsql);
                 string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
-                int ROW = 6;
+                int ROW = 5;
                 int COL = 1;
 
                 #region Header
@@ -82,85 +81,93 @@ namespace Library.OrderManagement.Costing
                 COL = 1;
                 int StartRow = ROW;
                 sheet[ROW, COL].Text = "Product Master";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colProductMaster = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Cost.Type";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCostType = COL;
                 ROW = StartRow;
-                COL = 4;
+                COL = colCostType + 2;
+
                 sheet[ROW, COL].Text = "Prod. Cat.";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 14;
                 int colProdCategory = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Costing Id";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCostingId = COL;
                 ROW = StartRow;
-                COL = 7;
+                COL = colCostingId + 2;
+
                 sheet[ROW, COL].Text = "Prod.Sub Cat.";
-                sheet[ROW, COL].ColumnWidth = 13;
+                sheet[ROW, COL].ColumnWidth = 19;
                 int colProdSubCategory = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Costing Stage";
                 int colCostingStage = COL;
                 ROW++;
-                ROW++;
 
-                COL = 1;
                 StartRow = ROW;
+                COL = 1;
                 sheet[ROW, COL].Text = "Code";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCode = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Short Name";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colShortName = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Mkt Tgt / SPT";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colMktTgtSPT = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "SPT";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colSPT = COL;
                 ROW++;
-                sheet[ROW, COL].Text = "Standard/Plan Hours";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int colStandardPlanHours = COL;
-                ROW++;
+
                 ROW = StartRow;
-                COL = 4;
+                COL = colSPT + 2;
                 sheet[ROW, COL].Text = "User Name";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colUserName = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Standard Name";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colStandardName = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Target / Hour";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colTargetHour = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Efficiency %";
-                sheet[ROW, COL].ColumnWidth = 12;
                 int colEfficiency = COL;
                 ROW++;
+
                 ROW = StartRow;
-                COL = 7;
+                COL = colEfficiency + 2;
                 sheet[ROW, COL].Text = "Description";
                 int colDescription = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "No Of WS";
                 int colNoOfWS = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "WC Target / Day";
                 int colWCTargetDay = COL;
+                ROW++;
+
+                sheet[ROW, COL].Text = "Standard/Plan Hours";
+                int colStandardPlanHours = COL;
+
+                int ColEnd = COL;
+                sheet.Range[6, 1, 11, 6].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[6, 1, 11, 6].BorderInside(ExcelLineStyle.Hair);
 
                 #endregion
-                ROW = 16;
+                ROW = 13;
                 COL = 1;
                 #region General Information
                 sheet[ROW, COL].Text = "General Information";
@@ -169,76 +176,77 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
                 sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, COL, ROW, COL + 5].Merge();
                 ROW++;
 
                 StartRow = ROW;
                 sheet[ROW, COL].Text = "Prd.Avl.Days";
-                sheet[ROW, COL].ColumnWidth = 12;
                 int colPrdAvlDays = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Excess%";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colExcess = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Critical Level";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCriticalLevel = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Packing Type";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colPackingType = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Tgt Sel. Price*";
-                sheet[ROW, COL].ColumnWidth = 20;
                 int colTgtSelPrice = COL;
-                ROW++;
 
                 ROW = StartRow;
-                COL = 4;
+                COL = colTgtSelPrice + 2;
                 sheet[ROW, COL].Text = "Specific To*";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colSpecificTo = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "UOM";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colUOM = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Payment Days";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colPaymentDays = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Order Size";
-                sheet[ROW, COL].ColumnWidth = 20;
                 int colOrderSize = COL;
-                ROW++;
+
                 ROW = StartRow;
-                COL = 7;
+                COL = colOrderSize + 2;
                 sheet[ROW, COL].Text = "Target CM";
                 int colTargetCM = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Est.NoOf Pag List";
                 int colEstNoOfPagList = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Remarks";
                 int colRemarks = COL;
                 ROW++;
+
                 sheet[ROW, COL].Text = "Currency";
                 int colCurrency = COL;
 
                 #endregion
+                int endCol = colWCTargetDay + 1;
 
+                sheet.Range[5, 1, 5, endCol].Merge();
+                sheet.Range[6, 1, 18, 1].CellStyle.Font.Bold = true;
+                sheet.Range[6, 3, 18, 3].CellStyle.Font.Bold = true;
+                sheet.Range[6, 5, 18, 5].CellStyle.Font.Bold = true;
 
-                int endCol = colWCTargetDay + 2;
-
-                sheet.Range[6, 1, 6, endCol].Merge();
-                sheet.Range[16, 1, 16, endCol].Merge();
-                sheet.Range[7, 1, 21, 1].CellStyle.Font.Bold = true;
-                sheet.Range[7, 4, 21, 4].CellStyle.Font.Bold = true;
-                sheet.Range[7, 7, 21, 7].CellStyle.Font.Bold = true;
+                sheet.Range[14, 1, 18, 6].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[14, 1, 18, 6].BorderInside(ExcelLineStyle.Hair);
 
                 ROW++;
 
-                StartRow = 7; //row 20
+                StartRow = 6; //row 20
                 for (int i = 0; i < dtOrderCostingProductInfo.Rows.Count; i++)
                 {
                     COL = 2;
@@ -248,136 +256,116 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colCostType + 1].Text = dtOrderCostingProductInfo.Rows[i]["CostingTypeName"].ToString();
 
                     ROW = StartRow;
-                    COL = 5;
+                    COL = colCostType + 3;
                     sheet[ROW, colProdCategory + 1].Text = dtOrderCostingProductInfo.Rows[i]["ProductCategory"].ToString();
 
                     ROW++;
                     sheet[ROW, colCostingId + 1].Text = dtOrderCostingProductInfo.Rows[i]["Id"].ToString();
 
-                    COL = 8;
+                    COL = colCostingId + 3;
                     ROW = StartRow;
                     sheet[ROW, colProdSubCategory + 1].Text = dtOrderCostingProductInfo.Rows[i]["ProductSubCategory"].ToString();
                     ROW++;
                     sheet[ROW, colCostingStage + 1].Text = dtOrderCostingProductInfo.Rows[i]["CostingStage"].ToString();
 
                     ROW++;
-                    ROW++;
 
                     COL = 2;
                     StartRow = ROW;
                     sheet[ROW, colCode + 1].Text = dtOrderCostingProductInfo.Rows[i]["Code"].ToString();
                     ROW++;
+
                     sheet[ROW, colShortName + 1].Text = dtOrderCostingProductInfo.Rows[i]["ShortName"].ToString();
                     ROW++;
+
                     sheet[ROW, colMktTgtSPT + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["TargetOrSPT"].ToString());
+                    sheet[ROW, colMktTgtSPT + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     ROW++;
+
                     sheet[ROW, colSPT + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["SPT"].ToString());
+                    sheet[ROW, colSPT + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     ROW++;
-                    sheet[ROW, colStandardPlanHours + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["StandardWorkingHours"].ToString());
+
                     ROW = StartRow;
-                    COL = 5;
+                    COL = colSPT + 3;
                     sheet[ROW, colUserName + 1].Text = dtOrderCostingProductInfo.Rows[i]["UserName"].ToString();
                     ROW++;
                     sheet[ROW, colStandardName + 1].Text = dtOrderCostingProductInfo.Rows[i]["StandardName"].ToString();
                     ROW++;
                     sheet[ROW, colTargetHour + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["MKTTargetPerHour"].ToString());
+                    sheet[ROW, colTargetHour + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     ROW++;
                     sheet[ROW, colEfficiency + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["EfficiencyPercentage"].ToString());
+                    sheet[ROW, colEfficiency + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
-                    COL = 8;
+                    COL = colEfficiency + 3;
                     ROW = StartRow;
                     sheet[ROW, colDescription + 1].Text = dtOrderCostingProductInfo.Rows[i]["Description"].ToString();
                     ROW++;
-                    sheet[ROW, colNoOfWS + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["NoOfWorkstation"].ToString());
-                    ROW++;
-                    sheet[ROW, colWCTargetDay + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["WorkCenterTargetPerDay"].ToString());
 
-                    ROW = 17;
+                    sheet[ROW, colNoOfWS + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["NoOfWorkstation"].ToString());
+                    sheet[ROW, colNoOfWS + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    ROW++;
+
+                    sheet[ROW, colWCTargetDay + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["WorkCenterTargetPerDay"].ToString());
+                    sheet[ROW, colWCTargetDay + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    ROW++;
+
+                    sheet[ROW, colStandardPlanHours + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["StandardWorkingHours"].ToString());
+                    sheet[ROW, colStandardPlanHours + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                    ROW = 14;
                     COL = 2;
                     StartRow = ROW;
                     sheet[ROW, colPrdAvlDays + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["ProductionAvailableDays"].ToString());
+                    sheet[ROW, colPrdAvlDays + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     ROW++;
+
                     sheet[ROW, colExcess + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["ExcessShipmentPer"].ToString());
+                    sheet[ROW, colExcess + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     ROW++;
+
                     sheet[ROW, colCriticalLevel + 1].Text = dtOrderCostingProductInfo.Rows[i]["CriticalLevel"].ToString();
                     ROW++;
                     sheet[ROW, colPackingType + 1].Text = dtOrderCostingProductInfo.Rows[i]["PackingType"].ToString();
                     ROW++;
+
                     sheet[ROW, colTgtSelPrice + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["TargetSellingPrice"].ToString());
+                    sheet[ROW, colTgtSelPrice + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     ROW = StartRow;
-                    COL = 5;
+
+                    COL = colTgtSelPrice + 3;
                     sheet[ROW, colSpecificTo + 1].Text = dtOrderCostingProductInfo.Rows[i]["SpecifyTo"].ToString();
                     ROW++;
                     sheet[ROW, colUOM + 1].Text = dtOrderCostingProductInfo.Rows[i]["UnitOfMeasurement"].ToString();
                     ROW++;
-                    sheet[ROW, colPaymentDays + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["PaymentDays"].ToString());
-                    ROW++;
-                    sheet[ROW, colOrderSize + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["OrderSize"].ToString());
 
-                    COL = 8;
+                    sheet[ROW, colPaymentDays + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["PaymentDays"].ToString());
+                    sheet[ROW, colPaymentDays + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                    ROW++;
+
+                    sheet[ROW, colOrderSize + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["OrderSize"].ToString());
+                    sheet[ROW, colOrderSize + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
+                    COL = colOrderSize + 3;
                     ROW = StartRow;
                     sheet[ROW, colTargetCM + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["TargetCM"].ToString());
+                    sheet[ROW, colTargetCM + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+
                     ROW++;
                     sheet[ROW, colEstNoOfPagList + 1].Number = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["EstNoOfPackingList"].ToString());
                     ROW++;
                     sheet[ROW, colRemarks + 1].Text = dtOrderCostingProductInfo.Rows[i]["Remarks"].ToString();
                     ROW++;
                     sheet[ROW, colCurrency + 1].Text = dtOrderCostingProductInfo.Rows[i]["Currency"].ToString();
-
-
-
                 }
-                ROW = 7;
-                sheet.Range[ROW, colProductMaster + 1, ROW, colProductMaster + 2].Merge();
-                sheet.Range[ROW, colProdCategory + 1, ROW, colProdCategory + 2].Merge();
-                sheet.Range[ROW, colProdSubCategory + 1, ROW, colProdSubCategory + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colCostingStage + 1, ROW, colCostingStage + 2].Merge();
-                sheet.Range[ROW, colCostingId + 1, ROW, colCostingId + 2].Merge();
-                sheet.Range[ROW, colCostType + 1, ROW, colCostType + 2].Merge();
-
-                ROW = 10;
-                sheet.Range[ROW, colCode + 1, ROW, colCode + 2].Merge();
-                sheet.Range[ROW, colUserName + 1, ROW, colUserName + 2].Merge();
-                sheet.Range[ROW, colDescription + 1, ROW, colDescription + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colShortName + 1, ROW, colShortName + 2].Merge();
-                sheet.Range[ROW, colStandardName + 1, ROW, colStandardName + 2].Merge();
-                sheet.Range[ROW, colNoOfWS + 1, ROW, colNoOfWS + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colMktTgtSPT + 1, ROW, colMktTgtSPT + 2].Merge();
-                sheet.Range[ROW, colTargetHour + 1, ROW, colTargetHour + 2].Merge();
-                sheet.Range[ROW, colWCTargetDay + 1, ROW, colWCTargetDay + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colSPT + 1, ROW, colSPT + 2].Merge();
-                sheet.Range[ROW, colEfficiency + 1, ROW, colEfficiency + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colStandardPlanHours + 1, ROW, colStandardPlanHours + 2].Merge();
-
-                ROW = 17;
-                sheet.Range[ROW, colPrdAvlDays + 1, ROW, colPrdAvlDays + 2].Merge();
-                sheet.Range[ROW, colSpecificTo + 1, ROW, colSpecificTo + 2].Merge();
-                sheet.Range[ROW, colTargetCM + 1, ROW, colTargetCM + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colExcess + 1, ROW, colExcess + 2].Merge();
-                sheet.Range[ROW, colUOM + 1, ROW, colUOM + 2].Merge();
-                sheet.Range[ROW, colEstNoOfPagList + 1, ROW, colEstNoOfPagList + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colCriticalLevel + 1, ROW, colCriticalLevel + 2].Merge();
-                sheet.Range[ROW, colPaymentDays + 1, ROW, colPaymentDays + 2].Merge();
-                sheet.Range[ROW, colRemarks + 1, ROW, colRemarks + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colPackingType + 1, ROW, colPackingType + 2].Merge();
-                sheet.Range[ROW, colOrderSize + 1, ROW, colOrderSize + 2].Merge();
-                sheet.Range[ROW, colCurrency + 1, ROW, colCurrency + 2].Merge();
-                ROW++;
-                sheet.Range[ROW, colTgtSelPrice + 1, ROW, colTgtSelPrice + 2].Merge();
-
-                sheet.Range[7, 1, 21, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
+               
+                sheet.Range[ROW, 8, ROW, 9].Merge();
+                sheet.Range[7, 1, 19, endCol].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                 DataTable dtCostingDetailInfo = _sqlRepository.GetDataTable(CostingDetailsql);
 
-                ROW = 23;
+                ROW = 20;
                 COL = 1;
                 #region Costing Detail
                 sheet[ROW, COL].Text = "Costing summary";
@@ -386,90 +374,100 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, COL].CellStyle.Font.Size = 13;
                 sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
                 sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-
+                sheet.Range[ROW, COL, ROW, COL + 13].Merge();
                 ROW++;
-                ROW++;
-
-
 
                 sheet[ROW, COL].Text = "Sl No.";
-                sheet[ROW, COL].ColumnWidth = 5;
                 int colSlNo = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Costing Component";
-                sheet[ROW, COL].ColumnWidth = 12;
                 int colCostingComponent = COL;
+                sheet[ROW, COL].ColumnWidth = 20;
                 COL++;
+
                 sheet[ROW, COL].Text = "Buyer Costing(A)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colBuyerCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 15;
                 COL++;
+
                 sheet[ROW, COL].Text = "Quick Costing(B)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colQuickCosting = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Pre Costing(C)";
                 sheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+                sheet[ROW, COL].Text = "Pre Costing(C)";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPreCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
                 sheet[ROW, COL].Text = "Pre-Costing %";
-                sheet[ROW, COL].ColumnWidth = 20;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPreCostingPer = COL;
+                sheet[ROW, COL].ColumnWidth = 26;
                 COL++;
 
                 sheet[ROW, COL].Text = "Proc. Costing(D)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colProcCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "Proc-Costing %";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colProcCostingPer = COL;
-                COL++;
+                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].WrapText = true;
+                COL++; 
+
 
                 sheet[ROW, COL].Text = "C-D";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colDifferencePreProCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Buyer Costing(A)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalBuyerCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 11;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
+
                 sheet[ROW, COL].Text = "Total Quick Costing(B)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalQuickCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 13;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
+
                 sheet[ROW, COL].Text = "Total Pre Costing(C)";
-                sheet[ROW, COL].ColumnWidth = 16;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalPreCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 13;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
+
                 sheet[ROW, COL].Text = "Total Proc. Costing(D)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalProcCosting = COL;
+                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "C-D";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colDifferenceTotalPrePro = COL;
+                sheet[ROW, COL].ColumnWidth = 8;
 
                 int CostingDetailEndCol = COL;
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                //sheet.Range[ROW, 1, ROW, CostingDetailEndCol].CellStyle.Font.Color = ExcelKnownColors.White;
                 sheet.Range[ROW - 2, 1, ROW - 2, CostingDetailEndCol].Merge();
 
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
@@ -486,17 +484,11 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colBuyerCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["BuyerTarget"].ToString());
                     sheet[ROW, colQuickCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["CostingValue"].ToString());
                     sheet[ROW, colPreCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString());
-                    //sheet[ROW, colProcCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString());
-
-                    //sheet[ROW, colDifferencePreProCosting].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["DifferencePreProCosting"].ToString());
-
-                    //sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[i]["TargetSellingPrice"].ToString()) + "/" + clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "%";
 
                     if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) != 0)
                     {
                         sheet[ROW, colPreCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
 
-                        //sheet[ROW, colPreCostingPer].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) / clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) * 100;
                         sheet.Range[ROW, colPreCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
                     }
 
@@ -517,9 +509,8 @@ namespace Library.OrderManagement.Costing
 
                         if (clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) != 0)
                         {
-                             sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
-                            
-                            //sheet[ROW, colProcCostingPer].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) / clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) * 100;
+                            sheet[ROW, colProcCostingPer].Formula = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) + "/" + clsStaticInfo.dbl(dtOrderCostingProductInfo.Rows[0]["TargetSellingPrice"].ToString()) + "%";
+
                             sheet.Range[ROW, colProcCostingPer].NumberFormat = "#,##0.00;(#,##0.00)";
 
                         }
@@ -528,18 +519,13 @@ namespace Library.OrderManagement.Costing
                         sheet[ROW, colDifferenceTotalPrePro].Number = clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY) -
                                                                 clsStaticInfo.dbl(dtCostingDetailInfo.Rows[i]["TotalProcurementGrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     }
-
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
 
-
                     ROW++;
-
-
                 }
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
-
 
                 sheet.Range[ROW, 1, ROW, 2].Merge();
                 sheet.Range[ROW, colBuyerCosting].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colBuyerCosting) + CostingDetailStartRow + ":" + reportUtility.GetColumnNameForXls(colBuyerCosting) + (ROW - 1) + ")";
@@ -568,21 +554,17 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
-                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 8f;
+                sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 11f;
                 sheet.Range[CostingDetailStartRow, colCostingComponent, ROW, CostingDetailEndCol].NumberFormat = clsStaticInfo.NumberFormat(2);
 
                 #endregion
-
                 ROW++;
                 ROW++;
                 COL = 1;
 
                 ROW++;
                 int CostingComponentEndcol = 0;
-
-
 
                 DirectMateterial(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
                 DirectProcess(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
@@ -591,35 +573,22 @@ namespace Library.OrderManagement.Costing
                 Profit(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
                 SalesExpense(sheet, ref ROW, OrderCostingId, preCosting, ProcurementCosting, dtMOICostingInfo);
 
-                //sheet.Range[34, 1, 34, CostingComponentEndcol].Merge();
-
-
                 sheet.IsGridLinesVisible = false;
-                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                //sheet.Range[7, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                //sheet.Range[34, 1,34, CostingComponentEndcol].CellStyle.Font.Size = 15;
-
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 if (preCosting == "1")
                 {
-
                     reportUtility.PlantHeader(ref sheet, endCol, "Order Costing Report(Pre Costing)", identity.PlantId);
-
-
                 }
                 if (ProcurementCosting == "1")
                 {
                     reportUtility.PlantHeader(ref sheet, endCol, "Order Costing Report(Procurement Costing)", identity.PlantId);
-
-
                 }
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 5, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet[ROW, colProcCosting].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
 
                 string strFileName = "OrderCostingReport.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -634,17 +603,13 @@ namespace Library.OrderManagement.Costing
 
         private void DirectMateterial(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
-
             ReportUtility reportUtility = new ReportUtility();
             String CostingDirectMaterialSQL = OrderPreCostingDirectMaterialSQL(OrderCostingId, preCosting, ProcurementCosting);
 
-
             DataTable dtOrderCostingDirectMaterial = _sqlRepository.GetDataTable(CostingDirectMaterialSQL);
-
             if (dtOrderCostingDirectMaterial.Rows.Count == 0)
                 return;
 
-            //dataset for material sorted with costing component,Sequence
             DataTable dvDistinctCostingComponent = dtOrderCostingDirectMaterial.DefaultView.ToTable(true, "CostingComponentId", "CostingComponentName");
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
@@ -665,82 +630,71 @@ namespace Library.OrderManagement.Costing
             {
                 ROW++;
                 sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
-                ROW++;
-
 
                 sheet[ROW, COL].Text = "Costing Item";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCostingItem = COL;
-                COL += 3;
-
+                COL += 2;
 
                 sheet[ROW, COL].Text = "UOM";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colUOM2 = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Particulars";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colParticulars = COL;
-                COL += 2;
+                COL++;
 
                 sheet[ROW, COL].Text = "Consumption";
-                sheet[ROW, COL].ColumnWidth = 13;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colConsumption = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Value Loss(%)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValueLoss = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Gross Consumption";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colGrossConsumption = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Rate";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colRate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Gross Amount";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colGrossAmount = COL;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "Order Size";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colOrderSize = COL;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Material Requirement";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalMaterialRequirement = COL;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Order Cost";
-                sheet[ROW, COL].ColumnWidth = 16;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalOrderCost = COL;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCurrency2 = COL;
-
                 CostingComponentEndcol = COL;
+
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                sheet.Range[ROW, colParticulars, ROW, colParticulars + 1].Merge();
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                //sheet.Range[ROW, colParticulars, ROW, colParticulars + 1].Merge();
                 sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
@@ -754,22 +708,21 @@ namespace Library.OrderManagement.Costing
 
                 for (int M = 0; M < dtComponentRelatedItems.Rows.Count; M++)
                 {
-                    //sheet[ROW, colParticulars].Text = dtComponentRelatedItems.Rows[M]["Particulars"].ToString();
-                    sheet[ROW, colParticulars].Text = dtComponentRelatedItems.DefaultView[M]["Particulars"].ToString();
                     sheet[ROW, colCostingItem].Text = dtComponentRelatedItems.DefaultView[M]["CostingItem"].ToString();
                     sheet[ROW, colUOM2].Text = dtComponentRelatedItems.DefaultView[M]["UOM"].ToString();
+                    sheet[ROW, colParticulars].Text = dtComponentRelatedItems.DefaultView[M]["Particulars"].ToString();
                     sheet[ROW, colConsumption].Number = Convert.ToDouble(dtComponentRelatedItems.DefaultView[M]["Consumption"].ToString());
-                    sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString());
                     sheet[ROW, colValueLoss].Number = Convert.ToDouble(dtComponentRelatedItems.DefaultView[M]["ValueLoss"].ToString());
                     sheet[ROW, colGrossConsumption].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossConsumption"].ToString());
+                    sheet[ROW, colRate].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Rate"].ToString());
                     sheet[ROW, colGrossAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString());
                     sheet[ROW, colOrderSize].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
                     sheet[ROW, colTotalMaterialRequirement].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalMaterialRequirement"].ToString());
-                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString()) *  clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
+                    sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString()) * clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
-                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                    sheet.Range[ROW, colParticulars, ROW, colParticulars + 1].Merge();
+                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                    //sheet.Range[ROW, colParticulars, ROW, colParticulars + 1].Merge();
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
 
@@ -807,17 +760,15 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[CostingComponentStartRow, colValueLoss, ROW, colValueLoss].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colGrossAmount, ROW, colGrossAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[CostingComponentStartRow, colConsumption, ROW, colConsumption].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[CostingComponentStartRow, colOrderSize, ROW, colOrderSize].NumberFormat = clsStaticInfo.NumberFormat(2);
+                sheet.Range[CostingComponentStartRow, colTotalMaterialRequirement, ROW, colTotalMaterialRequirement].NumberFormat = clsStaticInfo.NumberFormat(2);
             }
-
-            //crate all headers ColSl, COlMaterial
-
         }
 
         private void DirectProcess(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-
-            //dataset for material sorted with costing component,Sequence
             String CostingDirectProcessSQL = OrderPreCostingDirectProcessSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingDirectProcess = _sqlRepository.GetDataTable(CostingDirectProcessSQL);
 
@@ -835,63 +786,54 @@ namespace Library.OrderManagement.Costing
             sheet[ROW, COL].RowHeight = 30;
             sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
             sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-            sheet.Range[ROW, COL, ROW, 10].Merge();
             sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
             sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-
+            sheet.Range[ROW, COL, ROW, 8].Merge();
 
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
                 sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
-                ROW++;
 
                 COL = 1;
 
-                sheet[ROW, COL].Text = "CostingItem";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].Text = "Costing Item";
                 int colCostingItem = COL;
-                COL += 3;
-
-
-                sheet[ROW, COL].Text = "Type";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colType = COL;
                 COL += 2;
 
+                sheet[ROW, COL].Text = "Type";
+                int colType = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Value Loss(%)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Rate";
-                sheet[ROW, COL].ColumnWidth = 13;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colRate = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Order Cost";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalOrderCost = COL;
+                sheet[ROW, COL].WrapText = true;
                 COL++;
 
                 sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 15;
                 int colCurrency2 = COL;
 
                 CostingComponentEndcol = COL;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                sheet.Range[ROW, colType, ROW, colType + 1].Merge();
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                //sheet.Range[ROW, colType, ROW, colType + 1].Merge();
                 sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
@@ -905,7 +847,6 @@ namespace Library.OrderManagement.Costing
 
                 for (int M = 0; M < dtComponentRelatedItems.Rows.Count; M++)
                 {
-                    //sheet[ROW, colParticulars].Text = dtComponentRelatedItems.Rows[M]["Particulars"].ToString();
                     sheet[ROW, colCostingItem].Text = dtComponentRelatedItems.DefaultView[M]["CostingItem"].ToString();
                     sheet[ROW, colType].Text = dtComponentRelatedItems.DefaultView[M]["Type"].ToString();
 
@@ -915,8 +856,8 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
-                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                    sheet.Range[ROW, colType, ROW, colType + 1].Merge();
+                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                    //sheet.Range[ROW, colType, ROW, colType + 1].Merge();
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
 
@@ -947,18 +888,12 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[CostingComponentStartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colAmount, ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
-
             }
-
-            //crate all headers ColSl, COlMaterial
-
         }
 
         private void Operation(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-
-            //dataset for material sorted with costing component,Sequence
             String CostingOperationSQL = OrderPreCostingOperationSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingOperation = _sqlRepository.GetDataTable(CostingOperationSQL);
 
@@ -969,56 +904,46 @@ namespace Library.OrderManagement.Costing
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
             int CostingComponentEndcol = 0;
-
             int COL = 1;
 
             sheet[ROW, COL].Text = dtOrderCostingOperation.Rows[0]["CostingComponentName"].ToString() + " breakdown.";
             sheet[ROW, COL].RowHeight = 30;
             sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
             sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-            sheet.Range[ROW, COL, ROW, 6].Merge();
             sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
             sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-
+            sheet.Range[ROW, COL, ROW, 4].Merge();
 
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
                 sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
-                ROW++;
-
                 COL = 1;
 
                 sheet[ROW, COL].Text = "CostingItem";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCostingItem = COL;
-                COL += 3;
+                COL++;
 
                 sheet[ROW, COL].Text = "Value Loss(%)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Order Cost";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalOrderCost = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCurrency = COL;
 
                 CostingComponentEndcol = COL;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
-                sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                //sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
                 ROW++;
 
                 dtOrderCostingOperation.DefaultView.RowFilter = "CostingComponentId='" + dvDistinctCostingComponent.Rows[i]["CostingComponentId"].ToString() + "'";
@@ -1033,20 +958,16 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Value"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
-                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                    //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
+                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
                     ROW++;
-
                 }
                 int CostingComponentEndRow = ROW - 1;
                 sheet[ROW, 1].Text = "Total:";
                 sheet.Range[ROW, 1].CellStyle.Font.Bold = true;
 
                 sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
                 sheet.Range[ROW, colValue, ROW, colValue].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colValue) + CostingComponentEndRow + ")";
                 sheet.Range[ROW, colValue].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, colTotalOrderCost].Formula = "SUM(" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentStartRow + ":" + reportUtility.GetColumnNameForXls(colTotalOrderCost) + CostingComponentEndRow + ")";
@@ -1064,18 +985,11 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[CostingComponentStartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
             }
-
-            //crate all headers ColSl, COlMaterial
-
-
         }
 
         private void ValueLoss(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-
-            //dataset for material sorted with costing component,Sequence
-
             String CostingValueLossSQL = OrderPreCostingValueLossSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingValueLoss = _sqlRepository.GetDataTable(CostingValueLossSQL);
             if (dtOrderCostingValueLoss.Rows.Count == 0)
@@ -1085,70 +999,59 @@ namespace Library.OrderManagement.Costing
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
             int CostingComponentEndcol = 0;
-
             int COL = 1;
 
             sheet[ROW, COL].Text = dtOrderCostingValueLoss.Rows[0]["CostingComponentName"].ToString() + " breakdown.";
             sheet[ROW, COL].RowHeight = 30;
             sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
             sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-            sheet.Range[ROW, COL, ROW, 9].Merge();
             sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
             sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-
+            sheet.Range[ROW, COL, ROW, 6].Merge();
 
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
                 sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
-                ROW++;
 
                 sheet[ROW, COL].Text = "CostingItem";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCostingItem = COL;
-                COL += 3;
+                COL += 2;
 
                 sheet[ROW, COL].Text = "Type";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colType = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Value Loss(%)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL += 2;
+                COL ++;
 
                 sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Order Cost";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalOrderCost = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 15;
                 int colCurrency = COL;
 
                 CostingComponentEndcol = COL;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
                 sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
                 ROW++;
 
                 dtOrderCostingValueLoss.DefaultView.RowFilter = "CostingComponentId='" + dvDistinctCostingComponent.Rows[i]["CostingComponentId"].ToString() + "'";
                 DataTable dtComponentRelatedItems = dtOrderCostingValueLoss.DefaultView.ToTable();
-
                 int CostingComponentStartRow = ROW;
 
                 for (int M = 0; M < dtComponentRelatedItems.Rows.Count; M++)
@@ -1160,11 +1063,10 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
-                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                    sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
+                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                    //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
                     ROW++;
                 }
                 int CostingComponentEndRow = ROW - 1;
@@ -1194,19 +1096,12 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[CostingComponentStartRow, colValue, ROW, colValue].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colAmount, ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
-
             }
-
-            //crate all headers ColSl, COlMaterial
-
-
         }
 
         private void Profit(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-
-            //dataset for material sorted with costing component,Sequence
             String CostingProfitSQL = OrderPreCostingProfitSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingProfit = _sqlRepository.GetDataTable(CostingProfitSQL);
 
@@ -1217,73 +1112,60 @@ namespace Library.OrderManagement.Costing
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
             int CostingComponentEndcol = 0;
-
             int COL = 1;
 
             sheet[ROW, COL].Text = dtOrderCostingProfit.Rows[0]["CostingComponentName"].ToString() + " breakdown.";
             sheet[ROW, COL].RowHeight = 30;
             sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
             sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-            sheet.Range[ROW, COL, ROW, 9].Merge();
             sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
             sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-
+            sheet.Range[ROW, COL, ROW, 7].Merge();
 
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
                 sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
-                ROW++;
-
                 COL = 1;
 
                 sheet[ROW, COL].Text = "CostingItem";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCostingItem = COL;
-                COL += 3;
-
+                COL += 2;
 
                 sheet[ROW, COL].Text = "Type";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colType = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Value Loss(%)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL += 2;
+                COL ++;
 
                 sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 13;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colAmount = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Order Cost";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalOrderCost = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 15;
                 int colCurrency = COL;
 
                 CostingComponentEndcol = COL;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
                 sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
                 ROW++;
 
                 dtOrderCostingProfit.DefaultView.RowFilter = "CostingComponentId='" + dvDistinctCostingComponent.Rows[i]["CostingComponentId"].ToString() + "'";
                 DataTable dtComponentRelatedItems = dtOrderCostingProfit.DefaultView.ToTable();
-
                 int CostingComponentStartRow = ROW;
 
                 for (int M = 0; M < dtComponentRelatedItems.Rows.Count; M++)
@@ -1295,8 +1177,8 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
-                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                    sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
+                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                    //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
 
@@ -1329,16 +1211,11 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[CostingComponentStartRow, colAmount, ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
             }
-
-            //crate all headers ColSl, COlMaterial
-
         }
 
         private void SalesExpense(IWorksheet sheet, ref int ROW, string OrderCostingId, string preCosting, string ProcurementCosting, DataTable dtMOICostingInfo)
         {
             ReportUtility reportUtility = new ReportUtility();
-
-            //dataset for material sorted with costing component,Sequence
             String CostingSalesExpenseSQL = OrderPreCostingSalesExpenseSQL(OrderCostingId, preCosting, ProcurementCosting);
             DataTable dtOrderCostingSalesExpense = _sqlRepository.GetDataTable(CostingSalesExpenseSQL);
 
@@ -1349,44 +1226,34 @@ namespace Library.OrderManagement.Costing
             string OrderQTY = clsStaticInfo.dbl(dtMOICostingInfo.DefaultView[0]["OrderQty"].ToString()).ToString();
 
             int CostingComponentEndcol = 0;
-
             int COL = 1;
 
             sheet[ROW, COL].Text = dtOrderCostingSalesExpense.Rows[0]["CostingComponentName"].ToString() + " breakdown.";
             sheet[ROW, COL].RowHeight = 30;
             sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
             sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
-            sheet.Range[ROW, COL, ROW, 9].Merge();
             sheet.Range[ROW, COL].CellStyle.Interior.ColorIndex = ExcelKnownColors.Light_blue;
             sheet.Range[ROW, COL].CellStyle.Font.Color = ExcelKnownColors.White;
-
-
+            sheet.Range[ROW, COL, ROW, 7].Merge();
 
             for (int i = 0; i < dvDistinctCostingComponent.Rows.Count; i++)
             {
                 ROW++;
                 sheet[1, 1].Text = dvDistinctCostingComponent.Rows[i]["CostingComponentName"].ToString();
-                ROW++;
-
                 COL = 1;
 
-
                 sheet[ROW, COL].Text = "CostingItem";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colCostingItem = COL;
-                COL += 3;
-
+                COL += 2;
 
                 sheet[ROW, COL].Text = "Type";
-                sheet[ROW, COL].ColumnWidth = 10;
                 int colType = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Value Loss(%)";
-                sheet[ROW, COL].ColumnWidth = 10;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colValue = COL;
-                COL += 2;
+                COL ++;
 
                 sheet[ROW, COL].Text = "Amount";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1394,24 +1261,21 @@ namespace Library.OrderManagement.Costing
                 COL++;
 
                 sheet[ROW, COL].Text = "Total Order Cost";
-                sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colTotalOrderCost = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 15;
                 int colCurrency = COL;
 
                 CostingComponentEndcol = COL;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_25_percent;
-                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
+                sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
                 sheet.Range[ROW - 2, 1, ROW - 2, CostingComponentEndcol].Merge();
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
                 ROW++;
 
                 dtOrderCostingSalesExpense.DefaultView.RowFilter = "CostingComponentId='" + dvDistinctCostingComponent.Rows[i]["CostingComponentId"].ToString() + "'";
@@ -1421,7 +1285,6 @@ namespace Library.OrderManagement.Costing
 
                 for (int M = 0; M < dtComponentRelatedItems.Rows.Count; M++)
                 {
-                    //sheet[ROW, colParticulars].Text = dtComponentRelatedItems.Rows[M]["Particulars"].ToString();
                     sheet[ROW, colCostingItem].Text = dtComponentRelatedItems.DefaultView[M]["CostingItem"].ToString();
                     sheet[ROW, colType].Text = dtComponentRelatedItems.DefaultView[M]["Type"].ToString();
                     sheet[ROW, colAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString());
@@ -1429,11 +1292,10 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["Amount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colCurrency].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
-                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 2].Merge();
-                    sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
+                    sheet.Range[ROW, colCostingItem, ROW, colCostingItem + 1].Merge();
+                    //sheet.Range[ROW, colValue, ROW, colValue + 1].Merge();
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, CostingComponentEndcol].BorderInside(ExcelLineStyle.Hair);
-
                     ROW++;
                 }
                 int CostingComponentEndRow = ROW - 1;
@@ -1463,12 +1325,6 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[CostingComponentStartRow, colAmount, ROW, colAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[CostingComponentStartRow, colTotalOrderCost, ROW, colTotalOrderCost].NumberFormat = clsStaticInfo.NumberFormat(2);
             }
-
-            //crate all headers ColSl, COlMaterial
-
-
-
-
         }
 
 
@@ -2188,7 +2044,6 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, CostingDetailEndCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.IsGridLinesVisible = false;
-                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[CostingDetailStartRow, 1, ROW, CostingDetailEndCol].CellStyle.Font.Size = 8f;
                 sheet.Range[CostingDetailStartRow, colCostingComponent, ROW, CostingDetailEndCol].NumberFormat = clsStaticInfo.NumberFormat(2);
@@ -2215,7 +2070,6 @@ namespace Library.OrderManagement.Costing
 
 
                 sheet.IsGridLinesVisible = false;
-                sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 //sheet.Range[7, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 //sheet.Range[34, 1,34, CostingComponentEndcol].CellStyle.Font.Size = 15;

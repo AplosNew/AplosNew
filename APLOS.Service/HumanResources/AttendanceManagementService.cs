@@ -4391,12 +4391,12 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, Min].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, Min].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            PositionCode = xlsCol;
-                            xlsCol += 1;
-                            sheet1.Range[xlsRow, PositionCode].Text = "Position Code";
-                            sheet1.Range[xlsRow, PositionCode].ColumnWidth = 25;
-                            sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //PositionCode = xlsCol;
+                            //xlsCol += 1;
+                            //sheet1.Range[xlsRow, PositionCode].Text = "Position Code";
+                            //sheet1.Range[xlsRow, PositionCode].ColumnWidth = 25;
+                            //sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            //sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             CriticalLevel = xlsCol;
                             sheet1.Range[xlsRow, CriticalLevel].Text = "Critical Level";
@@ -4471,10 +4471,10 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, Min].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Min].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, PositionCode].Text = dvBioDvACitem[i]["PositionCode"].ToString();
-                                    sheet1.Range[xlsRow, PositionCode].RowHeight = 30;
-                                    sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    //sheet1.Range[xlsRow, PositionCode].Text = dvBioDvACitem[i]["PositionCode"].ToString();
+                                    //sheet1.Range[xlsRow, PositionCode].RowHeight = 30;
+                                    //sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, CriticalLevel].Text = dvBioDvACitem[i]["CriticalLevel"].ToString().Trim();
                                     sheet1.Range[xlsRow, CriticalLevel].RowHeight = 30;
@@ -4941,12 +4941,12 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, Min].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, Min].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            PositionCode = xlsCol;
-                            xlsCol += 1;
-                            sheet1.Range[xlsRow, PositionCode].Text = "Position Code";
-                            sheet1.Range[xlsRow, PositionCode].ColumnWidth = 25;
-                            sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //PositionCode = xlsCol;
+                            //xlsCol += 1;
+                            //sheet1.Range[xlsRow, PositionCode].Text = "Position Code";
+                            //sheet1.Range[xlsRow, PositionCode].ColumnWidth = 25;
+                            //sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            //sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             CriticalLevel = xlsCol;
                             sheet1.Range[xlsRow, CriticalLevel].Text = "Critical Level";
@@ -5021,10 +5021,10 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, Min].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Min].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, PositionCode].Text = dvBioDvACitem[i]["PositionCode"].ToString();
-                                    sheet1.Range[xlsRow, PositionCode].RowHeight = 30;
-                                    sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    //sheet1.Range[xlsRow, PositionCode].Text = dvBioDvACitem[i]["PositionCode"].ToString();
+                                    //sheet1.Range[xlsRow, PositionCode].RowHeight = 30;
+                                    //sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, CriticalLevel].Text = dvBioDvACitem[i]["CriticalLevel"].ToString().Trim();
                                     sheet1.Range[xlsRow, CriticalLevel].RowHeight = 30;
@@ -5530,12 +5530,12 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, Min].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                             sheet1.Range[xlsRow, Min].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                            PositionCode = xlsCol;
-                            xlsCol += 1;
-                            sheet1.Range[xlsRow, PositionCode].Text = "Position Code";
-                            sheet1.Range[xlsRow, PositionCode].ColumnWidth = 25;
-                            sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //PositionCode = xlsCol;
+                            //xlsCol += 1;
+                            //sheet1.Range[xlsRow, PositionCode].Text = "Position Code";
+                            //sheet1.Range[xlsRow, PositionCode].ColumnWidth = 25;
+                            //sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                            //sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                             CriticalLevel = xlsCol;
                             sheet1.Range[xlsRow, CriticalLevel].Text = "Critical Level";
@@ -5610,10 +5610,10 @@ namespace Library.Service.HumanResources
                                     sheet1.Range[xlsRow, Min].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, Min].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, PositionCode].Text = dvBioDvACitem[i]["PositionCode"].ToString();
-                                    sheet1.Range[xlsRow, PositionCode].RowHeight = 30;
-                                    sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    //sheet1.Range[xlsRow, PositionCode].Text = dvBioDvACitem[i]["PositionCode"].ToString();
+                                    //sheet1.Range[xlsRow, PositionCode].RowHeight = 30;
+                                    //sheet1.Range[xlsRow, PositionCode].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                    //sheet1.Range[xlsRow, PositionCode].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                     sheet1.Range[xlsRow, CriticalLevel].Text = dvBioDvACitem[i]["CriticalLevel"].ToString().Trim();
                                     sheet1.Range[xlsRow, CriticalLevel].RowHeight = 30;
