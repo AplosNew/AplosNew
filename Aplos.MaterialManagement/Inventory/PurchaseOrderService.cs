@@ -98,6 +98,10 @@ namespace Library.MaterialManagement.Inventory
         #endregion Constructor
         bplib.clsGenID objGenID = new bplib.clsGenID();
         #region InventoryReceive
+        private void PurchaseOrderCheck(PurchaseOrder entity)
+        {
+            CheckUniqueColumn(UniqueColumnName.DocRefNo, entity.DocRefNo, r => r.Id != entity.Id && r.PartyId == entity.PartyId && r.DocRefNo == entity.DocRefNo);
+        }
         private string GetPK()
         {
             string sID = string.Empty;
@@ -262,6 +266,7 @@ namespace Library.MaterialManagement.Inventory
         {
             try
             {
+                PurchaseOrderCheck(entity);
                 ResetCurrencyRate(entity);
                 entity.Id = GetPK();
                 base.Insert(entity);

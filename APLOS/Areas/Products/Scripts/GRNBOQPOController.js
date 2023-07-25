@@ -122,14 +122,17 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
-    $http({
-        method: 'GET',
-        url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
-    }).then(function successCallback(response) {
-        $scope.baseCurrencyId = response.data[0].Value;
-        $scope.productNew.BaseCurrencyId = response.data[0].Value;
-        factoryService.getCurrencyPrecision($scope.baseCurrencyId);
-    });
+    $scope.cboParallelCurrency = function () {
+        $http({
+            method: 'GET',
+            url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
+        }).then(function successCallback(response) {
+            $scope.baseCurrencyId = response.data[0].Value;
+            $scope.productNew.BaseCurrencyId = response.data[0].Value;
+            factoryService.getCurrencyPrecision($scope.baseCurrencyId);
+        });
+    }
+    $scope.cboParallelCurrency();
 
     $scope.showPartyPopUpNew = function () {
         if ($scope.partyType === 'Vendor') {
@@ -145,6 +148,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         });
         angular.element(document.querySelector('#partyPopUp')).modal('show');
     };
+
     $scope.closePartyPopUpNew = function () {
         angular.element(document.querySelector('#partyPopUp')).modal('hide');
     };

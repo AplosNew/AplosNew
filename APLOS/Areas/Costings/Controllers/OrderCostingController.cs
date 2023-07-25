@@ -213,7 +213,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
         public ActionResult GetList(string column, string value)
 
         {
-            string strkey = "1=1";
+            string strkey = "1=1  order by TEMP.AddedDate Desc";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                 strkey = column + " like '%" + value + "%'";
 
@@ -235,8 +235,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from MasterLC AS mlx
                             left join [MST].[ProductMaster] pm ON pm.Id = qcm.ProductMasterId
 							left join [HKP].[ProductCategory] as pc on pc.Id = pm.ProductCategoryId
 							left join [HKP].[ProductSubCategory] as psc on psc.Id = pm.ProductSubCategoryId
-							LEFT OUTER JOIN CostingTypes AS ct ON ct.CostingType=pm.CostingType
-                            ) AS TEMP WHERE 1=1 AND " + strkey;
+							LEFT OUTER JOIN CostingTypes AS ct ON ct.CostingType=pm.CostingType 
+                            ) AS TEMP WHERE 1=1 AND " + strkey ;
 
 
             List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);

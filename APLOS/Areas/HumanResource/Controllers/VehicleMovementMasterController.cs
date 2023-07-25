@@ -301,9 +301,75 @@ Left join HKP.LocationMaster  TLM on TLM.Id = VM.ToLocationId
             }
         }
 
-        
+        public ActionResult SavePurposeRP(List<Dictionary<string, object>> datalist, string headerid)
+        {
+            string TableName = "TRN.HRReportMasterChild";
 
-        
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+
+            DataSet dsChild;
+            string id = string.Empty;
+
+            string _Id = "";
+            string _UserGroupId = string.Empty;
+
+
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("select * from [TRN].[VehiclePurposeResponsiblePerson]  where VehiclePurposeId = '" + headerid + "'", out dsChild, false, "1");
+                foreach (var item in datalist)
+                {
+                    DataView dv = new DataView(dsChild.Tables[0]);
+
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow dr = dv[0].Row;
+                        dr.BeginEdit();
+                        dr["VehiclePurposeId"] = headerid;
+                        dr["ResponsiblePersonId"] = item["EmployeeCode"];
+                        
+                        dr["IsActive"] = 0;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dr.EndEdit();
+
+                    }
+                    else
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("TRN.VehiclePurposeResponsiblePerson", out _UserGroupId);
+                        DataRow dr = dsChild.Tables[0].NewRow();
+                        dr["Id"] = _UserGroupId;
+                        dr["VehiclePurposeId"] = headerid;
+                        dr["ResponsiblePersonId"] = item["SystemID"];
+                       
+                        dr["IsActive"] = item["isSelected"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsChild.Tables[0].Rows.Add(dr);
+                    }
+                }
+               
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsChild);
+                return Json(new { Error = false, Data = datalist, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
 
         public void DeletePurpose(string id)
         {
@@ -1568,6 +1634,53 @@ where VIO.OutReading is null and VA.Id is not null and VA.VehicleMasterId is not
             string sql = @"select DM.Id Value, EI.EmployeeName Text from HKP.DriverMaster DM
 left join EmployeeInformation EI on EI.SystemId = DM.DriverId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult getemployeeDataList(string plantId)
+        {
+            try
+            {
+                //var Today = DateTime.Now;
+                //string FirstDayOfTheMonth = "01-" + Convert.ToDateTime(Today).ToString("MMM") + "-" + Convert.ToDateTime(Today).ToString("yyyy");
+                //string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+
+                string CmdText = @"SELECT --isSelected=(CAST(0 as bit)), 
+                                   ''Id, Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
+                                    Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                    
+                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
+                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
+                                        ,RM.Location, RM.ResidenceCategory, EMP.GenderID
+										FROM EmployeeInformation EMP
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
+										LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
+										LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
+										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
+										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+										
+                                        Where EMP.EmployeeStatus='Active' 
+                                        --ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+
+                return Json(_sqlRepository.GetDataCollection(CmdText), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
         }
 
         #endregion Get

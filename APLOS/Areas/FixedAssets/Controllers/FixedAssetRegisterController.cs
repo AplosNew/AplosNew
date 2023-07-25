@@ -1609,10 +1609,10 @@ namespace Aplos.Areas.FixedAssets.Controllers
         [HttpGet, Authorize]
         public JsonResult GetCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById";
+LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.AddedDate DESC";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -1620,7 +1620,7 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById";
         [HttpGet, Authorize]
         public JsonResult GetApprovedCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
+            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
 FROM [TRN].[CapitalizationMaster] CM
 LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
 LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
@@ -1646,7 +1646,7 @@ LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=FI.CapacityUoMId";
         [HttpGet, Authorize]
         public JsonResult GetCapitalizationMasterDetail(string masterId)
         {
-            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo 
+            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
 FROM [TRN].[CapitalizationMasterDetail] C
 LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
 LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
@@ -1654,7 +1654,25 @@ LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
 LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
 left join [TRN].[VoucherDetail] VD ON VD.Id=C.VoucherDetailId
 left join [TRN].[Voucher] V ON V.Id=VD.VoucherId
+left join TRN.InventoryIssueHistory IH ON IH.Id=InventoryIssueHistoryId
 Where  C.CapitalizationMasterId='" + masterId + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetCapitalizationDetailByMaster(string masterId)
+        {
+            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
+FROM [TRN].[CapitalizationMasterDetail] C
+LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
+LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
+left join [TRN].[VoucherDetail] VD ON VD.Id=C.VoucherDetailId
+left join [TRN].[Voucher] V ON V.Id=VD.VoucherId
+left join TRN.InventoryIssueHistory IH ON IH.Id=InventoryIssueHistoryId
+Where  C.CapitalizationMasterId " + masterId + "";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -1691,6 +1709,45 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + identity.EmployeeId + "'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost,Authorize]
+        public JsonResult DeleteDetail(string id)
+        {
+            DeleteDetailData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteDetailData(string Id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM [TRN].[CapitalizationMasterDetail] WHERE Id='" + Id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }//End of function
         #endregion
 
         #region Capitalize Asset Register Post
