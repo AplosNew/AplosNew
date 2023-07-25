@@ -792,6 +792,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default3> GetPurposeResponsible(string PurposeId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPurposeResponsible(out List<Default3> activelists, PurposeId);
+            return activelists;
+        }
+
 
         public List<VehicleCreation> GetVehicleCreations(string EmpsysId)
         {

@@ -26,6 +26,7 @@ namespace Aplos.Areas.Materials.Controllers
     public class QRCodeGeneratorController : Controller
     {
         private readonly SqlRepository _sqlRepository;
+        SerialPort serialPort = new SerialPort("COM9", 19200, Parity.None, 8, StopBits.One);
         public QRCodeGeneratorController()
         {
             _sqlRepository = new SqlRepository();
@@ -346,31 +347,45 @@ namespace Aplos.Areas.Materials.Controllers
 
         public ActionResult GetPort()
         {
-            SerialPort serialPort = new SerialPort("COM6", 19200, Parity.None, 8, StopBits.One);
+            
             
             try
             {
-                List<string> srlPortLst = new List<string>();
-                //Dictionary<string, object> srlPortLst = new Dictionary<string, object>();
-                string[] ports = SerialPort.GetPortNames();
+               
+                List<Item> items = new List<Item>();
+               
+                foreach (var item in SerialPort.GetPortNames())
+                {
+                    items.Add(new Item() { Text = item, Value = item });
+                }
                 
-                srlPortLst.Add(ports[2].ToString());
-                //if (srlPortLst.Count > 0)
-                //{
-                //    if (!serialPort.IsOpen)
-                //    {
-                //        serialPort.Open();
-
-                //        Console.WriteLine("Port connected");
-                //    }
-                //}
-
-                //Console.WriteLine(serialPort.ReadLine().ToString());
-                return Json(srlPortLst, JsonRequestBehavior.AllowGet);
+                
+                
+                return Json(items, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public string Connect()
+        {
+            try
+            {
+                if (!serialPort.IsOpen)
+                {
+                    serialPort.Open();
+
+                    
+                }
+                var data = string.Format("{0:X2} ", serialPort.ReadExisting());
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
             }
         }
     }
@@ -499,5 +514,15 @@ namespace Aplos.Areas.Materials.Controllers
                return "";
             }
         }
+
+
+    }
+
+    public class Item
+    {
+        public Item() { }
+
+        public string Value { set; get; }
+        public string Text { set; get; }
     }
 }
