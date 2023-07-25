@@ -1353,12 +1353,12 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     }
     $scope.loanDataListML = [];
     $scope.getPopUpDataML = function () {
-        if ($scope.voucherML.PartyType =="Bank") {
-            if (baseService.isUndefinedOrNull($scope.voucherML.BankId)) {
-                ShowResult("Please select Party Type Bank!", "failure");;
-                return true;
-            }
-        }
+        //if ($scope.voucherML.PartyType =="Bank") {
+        //    if (baseService.isUndefinedOrNull($scope.voucherML.BankId)) {
+        //        ShowResult("Please select Party Type Bank!", "failure");;
+        //        return true;
+        //    }
+        //}
         $http({
             method: 'GET',
             url: 'Accounts/Loan/GetLoanPopUpListML?transactionType=' + $scope.voucherML.TransactionType + "&partyType=" + $scope.voucherML.PartyType + "&bankId=" + $scope.voucherML.BankId

@@ -24,7 +24,9 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         PartyCode: null,
         PartyName: null,
         CustomerId: null,
-        PO:null
+        PO: null,
+        Portno: null,
+        GrossWeight:null
     }
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -303,5 +305,34 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         } catch (e) {
             ShowResult(e, 'failure');
         }
+
+        
+    }
+
+    $scope.PortNoList = [];
+    $scope.GetPort = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetPort',
+            dataType: 'JSON'
+
+        })
+            .then(function successCalback(res) {
+               $scope.PortNoList = res.data;
+                //$scope.ModelNew.Portno = res.data;
+            })
+    }
+    $scope.GetPort();
+
+    $scope.ConnectPortConnection = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Connect',
+            dataType: 'JSON'
+        })
+            .then(function successCalback(res) {
+                $scope.ModelNew.GrossWeight = res.data;
+                
+            })
     }
 }
