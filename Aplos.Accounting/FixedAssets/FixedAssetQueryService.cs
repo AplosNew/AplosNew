@@ -2103,8 +2103,6 @@ LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.Ad
 
             return _sqlRepository.GetDataCollection(sql);
         }
-
-
         public List<Dictionary<string, object>> GetApprovedCapitalizeData()
         {
             string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
@@ -2115,9 +2113,6 @@ Where CM.IsApproved=1 AND CM.VoucherRowId IS NULL";
 
             return _sqlRepository.GetDataCollection(sql);
         }
-
-
-
         public List<Dictionary<string, object>> GetFixedAssetMasterItem()
         {
             string sql = @"SELECT FI.*,Uom.Code CapacityUoM,FM.UserName FixedAssetMaster,FC.UserName FixedAssetCategory,FSC.UserName FixedAssetSubCategory  
@@ -2129,8 +2124,6 @@ LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=FI.CapacityUoMId";
 
             return _sqlRepository.GetDataCollection(sql);
         }
-
-
         public List<Dictionary<string, object>> GetCapitalizationMasterDetail(string masterId)
         {
             string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
@@ -2146,8 +2139,6 @@ Where  C.CapitalizationMasterId='" + masterId + "'";
 
             return _sqlRepository.GetDataCollection(sql);
         }
-
-
         public List<Dictionary<string, object>> GetCapitalizationDetailByMaster(string masterId)
         {
             string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
@@ -2163,8 +2154,6 @@ Where  C.CapitalizationMasterId " + masterId + "";
 
             return _sqlRepository.GetDataCollection(sql);
         }
-
-
         public List<Dictionary<string, object>> GetUnApprovedData(string EmployeeId)
         {
             string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
@@ -2175,8 +2164,6 @@ Where CM.IsApproved=0 AND CM.ApprovedById='" + EmployeeId + "'";
 
             return _sqlRepository.GetDataCollection(sql);
         }
-
-
         public List<Dictionary<string, object>> GetApprovedData(string EmployeeId)
         {
             string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
@@ -2187,7 +2174,6 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
 
             return _sqlRepository.GetDataCollection(sql, null);
         }
-
         public void DeleteDetailData(string Id)
         {
             string strSQL;
@@ -2220,7 +2206,6 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 objCon = null;
             }
         }//End of function
-
         public void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items, out string masterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -2290,7 +2275,6 @@ Where CM.IsApproved=1 AND CM.ApprovedById='" + EmployeeId + "'";
                 throw (ex);
             }
         }
-
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
