@@ -6225,7 +6225,7 @@ where  vr.AppliedId = '" + MasterId + "'";
             }
         }
 
-        public void GetVehicleApprove(out List<VehicleOutin> DataList)
+        public void GetVehicleApprove(out List<VehicleOutin> DataList, string EmpSystemId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -6247,7 +6247,9 @@ left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisit
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id ";
+left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.VehiclePurposeId = VMR.PurposeId
+where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id
+and VPR.ResponsiblePersonId = ' " + EmpSystemId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
