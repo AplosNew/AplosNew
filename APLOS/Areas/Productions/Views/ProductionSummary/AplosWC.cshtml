@@ -217,7 +217,7 @@
                     <div e-column e-template="#ActualPlannedQty" e-headertext="Actual Planned Qty" e-width="100"></div>
                     <div e-column e-template="#ProcessPlanPercentage" e-headertext="Process Plan Percentage" e-width="100"></div>
                     <div e-column e-field="POProcessSequence" e-headertext="POProcess Sequence" e-width="100"></div>
-                    <div e-column e-field="POFirstProcessProductionQty" e-headertext="POFirstProcess ProductionQty" e-width="100"></div>
+                    <div e-column e-template="#POFirstProcessProductionQty" e-headertext="POFirstProcess ProductionQty" e-width="100"></div>
                     <div e-column e-template="#Delete" e-headertext="Delete" e-width="80"></div>
                 </div>
             </div>
@@ -369,6 +369,11 @@
             <script type="text/template" id="ProcessPlanPercentage">
                 <div class="col-sm-10" style="padding:0px;">
                     <input type="text" name="Process Plan Percentage" ng-disabled="true" ng-model="data.ProcessPlanPercentage" ng-click="" class="form-control" maxlength="200">
+                </div>
+            </script>
+            <script type="text/template" id="POFirstProcessProductionQty">
+                <div class="col-sm-10" style="padding:0px;">
+                    <input type="text" name="POFirstProcess ProductionQty" ng-disabled="true" ng-model="data.POFirstProcessProductionQty" ng-click="" class="form-control" maxlength="200">
                 </div>
             </script>
             <script type="text/template" id="ProductionGrade">
