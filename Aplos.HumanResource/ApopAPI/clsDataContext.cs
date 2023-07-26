@@ -4609,18 +4609,18 @@ left join HKP.HRReportGroupMaster RGM on RGM.Id = BG.UserGroupId where RP.EmpSys
             }
         }
 
-        public void GetSevenDaysAttendance(out List<Default2> DataList, string Empcode)
+        public void GetSevenDaysAttendance(out List<SevenDaysAttdn> DataList, string Empcode)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
-            DataList = new List<Default2>();
+            DataList = new List<SevenDaysAttdn>();
 
             System.Data.DataSet dsRef;
             try
             {
-                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Value ,
-case when DayStatus   is  null then InStatus
-else DayStatus end as Name
+                strSQL = @"select distinct format(WorkDate, 'dd-MMM-yyy') as Date,
+case when DayStatus is  null then InStatus
+else DayStatus end as DayStatus , format(InTime,'dd-MMM-yyyy hh:mm tt') InTime ,format(OutTime,'dd-MMM-yyyy hh:mm tt') OutTime
 from AttdnProcessData
 where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() and EmpSystemID = '" + Empcode + "'";
                 objCon = new clsConnectionManager();
@@ -4629,10 +4629,12 @@ where WorkDate between DATEADD(day, -7, CAST(GETDATE() AS date)) and GETDATE() a
                 objCon.CommitTransaction();
                 for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
                 {
-                    DataList.Add(new Default2
+                    DataList.Add(new SevenDaysAttdn
                     {
-                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
-                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        Date = dsRef.Tables[0].Rows[i]["Date"].ToString(),
+                        DayStatus = dsRef.Tables[0].Rows[i]["DayStatus"].ToString(),
+                        InTime = dsRef.Tables[0].Rows[i]["InTime"].ToString(),
+                        OutTime = dsRef.Tables[0].Rows[i]["OutTime"].ToString(),
 
                     });
                 }
@@ -6636,6 +6638,40 @@ where MB.ROBudgetCode = '" + Id + "'";
             }
         }
 
+        public void GetIncidentTitle(out List<Default2> DataList)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default2>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select Id as Value , UserName as Name from HKP.IncedentTitle";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default2
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
         public string PostIncedentCreation(IEnumerable<Incedent> DataToSave)
         {
             try
@@ -7561,6 +7597,17 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string UpdatedDate { get; set; }
         public string UpdatedFromIP { get; set; }
     }
+
+
     #endregion vehicle
+
+    public class SevenDaysAttdn
+    {
+        public string Date { get; set; }
+        public string DayStatus { get; set; }
+        public string InTime { get; set; }
+        public string OutTime { get; set; }
+
+    }
 
 }
