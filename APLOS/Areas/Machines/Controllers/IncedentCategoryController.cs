@@ -24,6 +24,7 @@ namespace Aplos.Areas.Machines.Controllers
         //abcd
         //this is my code from tarek
         string TableName = "hkp.IncedentCategory";
+        string IncedentTitleTableName = "hkp.IncedentTitle";
         //authentication for
         //GetList Create Delete
 
@@ -257,5 +258,135 @@ DEP.UserName AS Department,S.UserName as Section,SS.UserName as SubSection,DEG.U
 
             return 1;
         }
+
+        // This is my code Nitesh
+
+        #region IncedentTitle
+
+        [HttpPost]
+        public ActionResult GetIncedentTitleList(string column, string value)
+        {
+            string strkey = "1=1";
+            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                strkey = column + " like '%" + value + "%'";
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select * from [HKP].[IncedentTitle]";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult IncedentTitleGetAutoSequence()
+        {
+            return Json(IncedentTitlegetsequence(), JsonRequestBehavior.AllowGet);
+        }
+
+        private double IncedentTitlegetsequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + IncedentTitleTableName + "");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetIncedentTitle(string Id)
+        {
+            try
+            {
+                var _master = _sqlRepository.GetDataCollection("select * from hkp.IncedentTitle wher Id = '" + Id + "' ");
+
+
+                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [HttpPost]
+        public JsonResult IncedentTitleSave(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + IncedentTitleTableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + IncedentTitleTableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from " + IncedentTitleTableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] =  _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return Json(new { Error = false, Data = data, Sequence = IncedentTitleGetAutoSequence(), Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        public ActionResult IncidentTitledelete(string id)
+        {
+            //string sql = @"select * from "+ IncedentTitleTableName + " where Id = '" + id + "'";
+
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + IncedentTitleTableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = IncedentTitleGetAutoSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+        }
+        #endregion IncedentTitle
     }
 }

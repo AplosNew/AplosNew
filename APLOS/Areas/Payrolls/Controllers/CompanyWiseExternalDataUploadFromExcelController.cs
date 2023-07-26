@@ -219,6 +219,10 @@ namespace Aplos.Areas.Payrolls.Controllers
                         int MonthNo = Convert.ToInt32(bplib.clsWebLib.GetNumData(pMonthNo));
                         
                         objEmpExtAmt.LoadCompanyWiseExternalUploadFromExcelOnGrid(identity.CompanyId, pSalaryHeadId, YearNo, MonthNo, out dsEmpInfo);
+                        if (dsEmpInfo.Tables[0].Rows.Count==0)
+                        {
+                            throw new CustomException("Currency Rule not defined with this Salary Head.");
+                        }
                         dtEmpInfo = dsEmpInfo.Tables[0];
                         dvEmpInfo = new DataView();
                         dvEmpInfo.Table = dtEmpInfo;

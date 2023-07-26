@@ -82,7 +82,15 @@ namespace Aplos.Areas.Materials.Controllers
                             where PS.UserName in ('Running', 'ToClose')";
 
             }
-            GetPort();
+            
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetEntity() { 
+            string sql = @"select Id Value, UserName Text from org.Entity
+                            where Active = 1
+                            order by Text
+                            OFFSET 1 ROWS";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

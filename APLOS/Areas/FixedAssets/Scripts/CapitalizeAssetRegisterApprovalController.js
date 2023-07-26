@@ -2,8 +2,10 @@
 CapitalizeAssetRegisterApprovalController.$inject = ["commonMessage", "$scope", "$rootScope", "$filter", "$http", "$controller", "$window", "baseService"];
 function CapitalizeAssetRegisterApprovalController(commonMessage, $scope, $rootScope, $filter, $http, $controller, $window, baseService) {
     $rootScope.title = "Capitalize Asset Register Approval";
-   
+
+    $scope.idList = [];
     $scope.UnApprovedDataList = [];
+    $scope.sqlInStatement = null;
     $scope.GetUnapprovedData = function () {
         $http({
             method: "GET",
@@ -11,16 +13,55 @@ function CapitalizeAssetRegisterApprovalController(commonMessage, $scope, $rootS
             url: 'FixedAssets/FixedAssetRegister/GetUnApprovedData',
         }).then(function successCallback(response) {
             $scope.UnApprovedDataList = response.data;
+            for (var i = 0; i < $scope.UnApprovedDataList.length; i++) {
+                $scope.idList.push($scope.UnApprovedDataList[i].Id);
+            }
+           
+            $scope.GetapprovedData();
+           
         });
     };
     $scope.GetUnapprovedData();
 
-    $scope.selectedmaterialMasterList = [];
-    $scope.GetCapitalizationMasterDetail = function (filteredData) {
+
+    $scope.ApprovedDataList = [];
+    $scope.GetapprovedData = function () {
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'FixedAssets/FixedAssetRegister/GetCapitalizationMasterDetail?masterId=' + filteredData,
+            url: 'FixedAssets/FixedAssetRegister/GetApprovedData',
+        }).then(function successCallback(response) {
+            $scope.ApprovedDataList = response.data;
+            for (var i = 0; i < $scope.ApprovedDataList.length; i++) {
+                $scope.idList.push($scope.ApprovedDataList[i].Id);
+            }
+            if ($scope.idList.length > 0) {
+                //var uniqueId = removeDuplicates($scope.idList, 'Id');
+                var wcId = "";
+                if ($scope.idList.length > 0) {
+                    wcId = "IN(";
+                    wcId += Array.prototype.map.call($scope.idList, function (item) { return "'" + item + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcId;
+                $scope.GetCapitalizationMasterDetail();
+            }
+        });
+    };
+    
+
+
+    function removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
+    }
+
+    $scope.selectedmaterialMasterList = [];
+    $scope.GetCapitalizationMasterDetail = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'FixedAssets/FixedAssetRegister/GetCapitalizationDetailByMaster?masterId=' + $scope.sqlInStatement,
         }).then(function successCallback(response) {
             $scope.selectedmaterialMasterList = response.data;
         });
@@ -31,7 +72,6 @@ function CapitalizeAssetRegisterApprovalController(commonMessage, $scope, $rootS
     $scope.detailgrid = function detailGridData(e) {
 
         var filteredData = e.data["Id"];
-        $scope.GetCapitalizationMasterDetail(filteredData)
 
         var data = ej.DataManager($scope.selectedmaterialMasterList).executeLocal(ej.Query().where("CapitalizationMasterId", "equal", parseInt(filteredData), true).take(100));
         e.detailsElement.find("#detailGrid").ejGrid({
@@ -50,18 +90,6 @@ function CapitalizeAssetRegisterApprovalController(commonMessage, $scope, $rootS
         e.detailsElement.find(".tabcontrol").ejTab();
     }
 
-
-    $scope.ApprovedDataList = [];
-    $scope.GetapprovedData = function () {
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'FixedAssets/FixedAssetRegister/GetApprovedData',
-        }).then(function successCallback(response) {
-            $scope.ApprovedDataList = response.data;
-        });
-    };
-    $scope.GetapprovedData();
 
 
 

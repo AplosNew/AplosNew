@@ -1422,7 +1422,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(new { Message = AplosMessage.Insert });
         }
         #endregion
-        #region Fixed Asset Depreciation Process
+        #region Fixed Asset Depreciation Post
         [HttpPost, Authorize]
         public ActionResult GetFixedAssetDepreciationListForPosting(string column, string value)
         {
@@ -1466,7 +1466,8 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             try
             {
-                SaveCapitalizeData(data, items, out string masterId);
+                FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+                _fixedAssetQueryService.SaveCapitalizeData(data, items, out string masterId);
                 return Json(new { Id = masterId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1481,7 +1482,8 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             try
             {
-                SaveCapitalizeData(data, items, out string masterId);
+                FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+                _fixedAssetQueryService.SaveCapitalizeData(data, items, out string masterId);
                 return Json(new { Id = masterId, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -1491,173 +1493,42 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
 
-        private void SaveCapitalizeData(Dictionary<string, object> data, List<Dictionary<string, object>> items, out string masterId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMaster, dsChild=null;
-            string _Id = string.Empty;
-            string _CId = string.Empty;
-            try
-            {
-                bplib.clsGenID genid = new bplib.clsGenID();
-
-                string sql = "SELECT * FROM [TRN].[CapitalizationMaster] WHERE Id='" + data["Id"] + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
-
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _Id);
-
-                    data["Id"] = _Id;
-                    data["Type"] = "New";
-
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                #region items 
-                if (items != null)
-                {
-                    objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[CapitalizationMasterDetail] where  CapitalizationMasterId='" + masterId + "'", out dsChild, false, "1");
-                    foreach (var item in items)
-                    {
-                        DataView dv = new DataView(dsChild.Tables[0]);
-                        dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                        item["CapitalizationMasterId"] = masterId;
-                        if (dv.Count == 0)
-                        {
-                            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "CapitalizationMaster", out _CId);
-
-                            item["Id"] = _CId;
-                            item["CapitalizationMasterId"] = masterId;
-
-                            AddNewRow(dsChild.Tables[0], item);
-                        }
-                        else
-                        {
-                            DataRow drmo = dv[0].Row;
-                            EditRow(drmo, item);
-                        }
-                    }
-                }
-
-                #endregion
-
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster, dsChild);
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dr.EndEdit();
-        }
+        
 
         [HttpGet, Authorize]
         public JsonResult GetCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
-FROM [TRN].[CapitalizationMaster] CM
-LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById Order by CM.AddedDate DESC";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetCapitalizeData(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public JsonResult GetApprovedCapitalizeData()
         {
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode,Approved=CASE WHEN CM.IsApproved=1 THEN 'Approved' ELSE '' END
-FROM [TRN].[CapitalizationMaster] CM
-LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-Where CM.IsApproved=1 AND CM.VoucherRowId IS NULL";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetApprovedCapitalizeData(), JsonRequestBehavior.AllowGet);
         }
 
 
         [HttpGet, Authorize]
         public JsonResult GetFixedAssetMasterItem()
         {
-            string sql = @"SELECT FI.*,Uom.Code CapacityUoM,FM.UserName FixedAssetMaster,FC.UserName FixedAssetCategory,FSC.UserName FixedAssetSubCategory  
-FROM MST.FixedAssetItem FI
-LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=FI.FixedAssetMasterId
-LEFT JOIN HKP.FixedAssetCategory FC ON FC.Id=FM.FixedAssetCategoryId
-LEFT JOIN HKP.FixedAssetSubCategory FSC ON FSC.Id=FM.FixedAssetSubCategoryId
-LEFT JOIN SCS.UnitOfMeasurement UoM ON UoM.Id=FI.CapacityUoMId";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetFixedAssetMasterItem(), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
         public JsonResult GetCapitalizationMasterDetail(string masterId)
         {
-            string sql = @"SELECT C.*,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName,V.VoucherNo,IRD.InventoryReceiveId GRNNo, Qty=CASE WHEN IRD.BaseQty=0 THEN IH.Qty ELSE IRD.BaseQty END 
-FROM [TRN].[CapitalizationMasterDetail] C
-LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=C.InventoryReceiveDetailId
-LEFT JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
-LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
-LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.Id=IM.ArticleId
-left join [TRN].[VoucherDetail] VD ON VD.Id=C.VoucherDetailId
-left join [TRN].[Voucher] V ON V.Id=VD.VoucherId
-left join TRN.InventoryIssueHistory IH ON IH.Id=InventoryIssueHistoryId
-Where  C.CapitalizationMasterId='" + masterId + "'";
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetCapitalizationMasterDetail(masterId), JsonRequestBehavior.AllowGet);
+        }
 
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        [HttpGet, Authorize]
+        public JsonResult GetCapitalizationDetailByMaster(string masterId)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetCapitalizationDetailByMaster(masterId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
@@ -1670,67 +1541,94 @@ Where  C.CapitalizationMasterId='" + masterId + "'";
         public JsonResult GetUnApprovedData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
-FROM [TRN].[CapitalizationMaster] CM
-LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-Where CM.IsApproved=0 AND CM.ApprovedById='" + identity.EmployeeId + "'";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetUnApprovedData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult GetApprovedData()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT CM.*,FORMAT(CM.CapitalizationDate,'dd-MMM-yyyy')CD,FAI.UserName FixedAssetItem,E.EmployeeName ApprovedByName, E.EmployeeCode ApprovedByEmployeeCode
-FROM [TRN].[CapitalizationMaster] CM
-LEFT JOIN MST.FixedAssetItem FAI ON FAI.Id=CM.FixedAssetItemId
-LEFT JOIN dbo.EmployeeInformation E ON E.SystemId=CM.ApprovedById
-Where CM.IsApproved=1 AND CM.ApprovedById='" + identity.EmployeeId + "'";
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetApprovedData(identity.EmployeeId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost,Authorize]
         public JsonResult DeleteDetail(string id)
         {
-            DeleteDetailData(id);
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            _fixedAssetQueryService.DeleteDetailData(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        public void DeleteDetailData(string Id)
+     
+        #endregion
+
+        #region Capitalize Asset Register Post
+        [Authorize, HttpPost]
+        public ActionResult GetCapitalizeAssetRegisterPostedList(string column, string value)
         {
-            string strSQL;
-            ConnectionManager.DAL.ConManager objCon = null;
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            return Json(_fixedAssetQueryService.GetFixedAssetDepreciationPostedList(column, value, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult CreatetCapitalizeAssetRegisterPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<FixedAssetDepreciationProcessVM> fixedAssetDepreciationList)
+        {
+            FixedAssetDisposeService _fixedAssetDisposeService = new FixedAssetDisposeService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            _fixedAssetDisposeService.InsertFixedAssetDepreciationPosting(voucherVM, voucherDetailVMList, fixedAssetDepreciationList);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
+
+        #endregion
+
+        #region AdditionalInfoItem
+        
+        [HttpPost]
+        public JsonResult CreateAdditionalInfoItem(Dictionary<string, object> data)
+        {
             try
             {
-                strSQL = "DELETE FROM [TRN].[CapitalizationMasterDetail] WHERE Id='" + Id + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
-                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
-                objCon.CommitTransaction();
+                FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+                _fixedAssetQueryService.SaveAdditionalInfoItem(data);
+                return Json(new {  Message = AplosMessage.Insert });
+
             }
             catch (Exception ex)
             {
-                try
-                {
-                    objCon.RollBack();
-                    objCon.CloseConnection();
-                    throw (ex);
-                }
-                catch (Exception)
-                {
-                    throw ex;
-                }
-            }
-            finally
-            {
 
-                objCon = null;
+                return Json(new { Error = true, Message = ex.Message });
+
             }
-        }//End of function
+        }
+
+        [HttpPost]
+        public JsonResult DeleteAdditionalInfoItemData(string id)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            _fixedAssetQueryService.DeleteAdditionalInfoItemData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
+        public ActionResult GetAdditionalInfoItemList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionalInfoItemList(column, value), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionalInfoItemSequence(), JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }

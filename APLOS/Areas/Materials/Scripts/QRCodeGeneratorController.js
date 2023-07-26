@@ -87,7 +87,18 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
             });
     }
 
-    
+    $scope.EntityList = [];
+    $scope.GetEntity = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEntity',
+            dataType:'JSON'
+        })
+            .then(function successCallback(res) {
+                $scope.EntityList = res.data;
+            });
+    }
+    $scope.GetEntity();
 
     $scope.POList = [];
     $scope.GetPO = function () {
@@ -105,8 +116,9 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
     $scope.Get = function (args) {
         angular.element(document.querySelector('#weighingmachinepopup')).modal('show');
         $scope.QRCodeGenerateModel = Object.assign({}, args.data);
-        $scope.GetWeighingScale();
-        $scope.GetGrossWeight();
+        //$scope.GetWeighingScale();
+        //$scope.GetGrossWeight();
+        $scope.GetPort();
     }
 
     $scope.WeighingScaleList = [];
@@ -249,7 +261,8 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
         TierWeight:null,
         WeighingScaleNo:null,
         MinWeight: null,
-        MaxWeight: null
+        MaxWeight: null,
+        Portno:null
     }
     $scope.QRCodeGenerateModel = Object.assign({}, $scope.QRCodeGeneratorTemp);
 
@@ -331,7 +344,7 @@ function QRCodeGeneratorController(commonMessage, $scope, $rootScope, baseServic
             dataType: 'JSON'
         })
             .then(function successCalback(res) {
-                $scope.ModelNew.GrossWeight = res.data;
+                $scope.QRCodeGenerateModel.GrossWeight = res.data;
                 
             })
     }
