@@ -4,6 +4,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     $rootScope.title = 'FixedAsset Master';
     $scope.Action = 'Save';
     $scope.ActionItem = 'Save';
+    $scope.ActionAIItem = 'Save';
     $scope.index = -1;
     $scope.FixedAssetMasters = [];
     $scope.glTagList = [];
@@ -59,6 +60,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         AddedFromIP: null,
         UpdatedDate: new Date()
     };
+
 
     $scope.fixedAssetTypes = [
         {
@@ -245,7 +247,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         $http({
             method: 'POST',
             url: $scope.path + "FixedAssetMasterXls",
-            data: {'reportFileName': $scope.fileName},
+            data: { 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -260,7 +262,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     }
 
     $scope.FixedAssetMasterIndividualReport = function (data) {
-        
+
         $scope.fileName = 'Fixed Asset Master Report.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
@@ -397,7 +399,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
         $http({
             method: 'POST',
             url: $scope.path + "FixedAssetMasterItemXls",
-            data: { 'data': $scope.FixedAssetMasterItemList ,'reportFileName': $scope.fileName},
+            data: { 'data': $scope.FixedAssetMasterItemList, 'reportFileName': $scope.fileName },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -412,5 +414,115 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
     }
 
     //--------******Fixed Asset Master Item End*****-------------//
+
+    //--------******Additional Info Item Start*****-------------//
+    $scope.AdditionalInfoItem = {
+        Id: null,
+        Sequence: null,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,
+        UOMId: null,
+        UOM: null,
+        Remarks: null,
+        IsMandatory: false,
+        Active: true
+    };
+    $scope.AIItemModelNew = Object.assign({}, $scope.AdditionalInfoItem);
+
+    $scope.GetSequence = function () {
+        cboService.getSequence('fixedassets/FixedAssetRegister/GetAutoSequence', function (data) {
+            $scope.AIItemModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
+    $scope.uOMList = [];
+    cboService.getUoMCbo(function (response) {
+        $scope.uOMList = response;
+    });
+
+    $scope.SaveAIItem = function () {
+        $http({
+            method: 'POST',
+            url: 'fixedassets/FixedAssetRegister/CreateAdditionalInfoItem',
+            data: { 'data': $scope.AIItemModelNew },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.ClearAIItem();
+                $scope.getAIItemData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.DeleteAIItem = function () {
+        if (!baseService.isUndefinedOrNull($scope.AIItemModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: 'fixedassets/FixedAssetRegister/DeleteAdditionalInfoItemData',
+                data: { 'Id': $scope.AIItemModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getAIItemData();
+                    $scope.ClearAIItem();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+    };
+
+    $scope.ClearAIItem = function () {
+        $scope.AIItemModelNew = Object.assign({}, $scope.AdditionalInfoItem);
+        $scope.GetSequence();
+        $scope.ActionAIItem = 'Save';
+    }
+
+    $scope.DoubleClickAIItem = function (args) {
+        $scope.AIItemModelNew = Object.assign({}, args.data);
+        $scope.getAIItemData();
+        $scope.ActionItem = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.searchEdit = 'Sequence'; $scope.searchEditValue = '';
+    $scope.searchByEdit = [{ name: 'Sequence', value: 'Sequence' },
+    { name: 'Code', value: 'Code' },
+    { name: 'Standard Name', value: 'StandardName' },
+    { name: 'Short Name', value: 'ShortName' },
+    { name: 'User Name', value: 'UserName' },
+    { name: 'Category', value: 'Category' },
+    { name: 'Sub-Category', value: 'SubCategory' },
+    { name: 'Remarks', value: 'Remarks' }];
+
+    $scope.AIItemList = [];
+    $scope.getAIItemData = function () {
+        $http({
+            method: "POST",
+            url: 'fixedassets/FixedAssetRegister/GetAdditionalInfoItemList',
+            data: { column: $scope.searchEdit, value: $scope.searchEditValue },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.AIItemList = response.data;
+        });
+    };
+    $scope.getAIItemData();
+
+    //--------******Additional Info Item End*****-------------//
 
 }

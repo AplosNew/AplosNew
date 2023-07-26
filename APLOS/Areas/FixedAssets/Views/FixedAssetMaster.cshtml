@@ -13,6 +13,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Fixed Asset Master</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Fixed Asset Master Item</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Additional Info Item</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -110,7 +111,7 @@
                 </div>
             </div>
             <div class="row text-right aplos-grid-toggle">
-            
+
                 <div class="col-xs-12 col-sm-12 col-sm-12">
                     <div class="search-form">
                         <div class="row">
@@ -149,7 +150,7 @@
                             <td>{{x.UserName}}</td>
                             <td>{{x.FixedAssetCategory}}</td>
                             <td>{{x.FixedAssetSubCategory}}</td>
-                            <td>{{x.AssetType}}</td> 
+                            <td>{{x.AssetType}}</td>
                             <td>
                                 <div class="common-btn">
                                     <ul class="list-inline text-left">
@@ -162,7 +163,7 @@
                 </table>
                 <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
             </div>
-            <br/>
+            <br />
             <div class="row aplos-grid-toggle">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
@@ -289,9 +290,140 @@
                 </div>
             </div>
         </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <togglable name="Additional Info Item"></togglable>
+            <div class="form-elements form-horizontal" ng-form name="AdditionalInfoItemNewForm">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Sequence" tabindex="1" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="AIItemModelNew.Sequence" e-width="100%" required />
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Short Name" maxlength="15" ng-model="AIItemModelNew.ShortName" class="form-control" required tabindex="3">
+                            </div>
+                        </div>
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="User Name" maxlength="50" ng-model="AIItemModelNew.UserName" class="form-control" required tabindex="5">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="AIItemModelNew.Remarks" ng-trim="false" maxlength="250" tabindex="7"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Code" maxlength="10" ng-model="AIItemModelNew.Code" class="form-control" required tabindex="2">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Standard Name" maxlength="50" ng-model="AIItemModelNew.StandardName" class="form-control" required tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">UoM</label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select name="UOM" class="form-control" ng-model="AIItemModelNew.UoMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="6">
+                                    <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Active</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="AIItemModelNew.Active" tabindex="8">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Is Mandatory</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label>
+                                        <input type="checkbox" ng-model="AIItemModelNew.IsMandatory" tabindex="9">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveAIItem();" class="btn" tabindex="14"><i class="glyphicon glyphicon-floppy-disk"></i>{{ActionAIItem}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmAIItemPopUp" class="btn" tabindex="15"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>
+                        <li> <button ng-click="ClearAIItem();" class="btn" tabindex="16"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row text-right aplos-grid-toggle">
+                <div class="col-xs-12 col-sm-12 col-sm-12">
+                    <div class="search-form">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                <div class="select-style">
+                                    <select ng-model="searchEdit">
+                                        <option ng-repeat="option in searchByEdit" value="{{option.value}}">{{option.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-7 col-md-7">
+                                <input type="text" class="form-control" placeholder="Search" ng-model="searchEditValue" ng-enter="getAIItemData()">
+                            </div>
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <button type="button" ng-click="getAIItemData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive modal-table aplos-grid-toggle">
+                <div id="GridAIItem" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="AIItemList"
+                     e-allowfiltering="true" e-allowscrolling="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                     e-recorddoubleclick="DoubleClickAIItem" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Sequence" e-headertext="Sequence" e-width="100px"></div>
+                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="90px"></div>
+                        <div e-column e-type="string" e-field="ShortName" e-headertext="Short Name" e-width="130px"></div>
+                        <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="130px"></div>
+                        <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="130px"></div>
+                        <div e-column e-type="string" e-field="UoM" e-headertext="UOM" e-width="100px"></div>
+                        <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="100px"></div>
+                        <div e-column e-type="string" e-field="Man" e-headertext="Is Mandatory" e-width="120px"></div>
+                        <div e-column e-type="string" e-field="Act" e-headertext="Active" e-width="90px"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>
 <confirm-archive-generic modalid="confirmFAMIPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteFAMI();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmAIItemPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteAIItem();"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="FAMPop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
