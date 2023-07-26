@@ -5431,6 +5431,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                         dr["Name"] = item.Name;
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["VehiclePurposeResponsiblePersonId"] = item.VehiclePurposeResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
 
                         dr["AddedBy"] = item.AddedBy;
@@ -5552,6 +5553,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                         dr["Name"] = item.Name;
                         dr["EmpSystemId"] = item.EmpSystemId;
                         dr["NumberOfPassengers"] = item.NumberOfPassengers;
+                        dr["VehiclePurposeResponsiblePersonId"] = item.VehiclePurposeResponsiblePersonId;
                         dr["Remarks"] = item.Remarks;
 
 
@@ -5806,6 +5808,42 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             }
         }
 
+        public void GetPurposeResponsible(out List<Default3> DataList , string PurposeId)
+        {
+            clsConnectionManager objCon = null;
+            string strSQL = "";
+            DataList = new List<Default3>();
+
+            System.Data.DataSet dsRef;
+            try
+            {
+                strSQL = @"select PR.Id Value ,PR.ResponsiblePersonId SystemId,  EI.EmployeeName Name from TRN.VehiclePurposeResponsiblePerson PR
+left join EmployeeInformation EI on EI.SystemId = PR.ResponsiblePersonId where VehiclePurposeId = '" + PurposeId + "'";
+                objCon = new clsConnectionManager();
+                objCon.BeginTransaction();
+                objCon.getDataSet(strSQL, out dsRef);
+                objCon.CommitTransaction();
+                for (int i = 0; i < dsRef.Tables[0].Rows.Count; i++)
+                {
+                    DataList.Add(new Default3
+                    {
+                        Value = dsRef.Tables[0].Rows[i]["Value"].ToString(),
+                        Name = dsRef.Tables[0].Rows[i]["Name"].ToString(),
+                        SystemId = dsRef.Tables[0].Rows[i]["SystemId"].ToString(),
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                objCon = null;
+            }
+        }
+
 
         public void GetVehicleCreations(out List<VehicleCreation> DataList, string EmpsysId)
         {
@@ -5817,10 +5855,12 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
             try
             {
                 strSQL = @"Select VMR.Id,Format(VMR.FromDate,'dd-MMM-yyyy')FromDate , Format(VMR.ToDate,'dd-MMM-yyyy')ToDate, Format(VMR.FromTime,'hh:mm tt') FromTime, Format(VMR.ToTime,'hh:mm tt')ToTime, VMR.PersonalOfficial
-                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers
+                     ,VMR.Name, VMR.PurposeId,PM.UserName Purpose, VMR.Remarks,EI.EmployeeName, EI.SystemId ResponsiblePersonCode, VMR.NumberOfPassengers , EIM.EmployeeName SelectedApprovePerson, VPR.Id PurposeResponsibleId
                     from[TRN].[VehicleMovementRequisition] VMR
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
+					left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.VehiclePurposeId = VMR.PurposeId
+					left join EmployeeInformation EIM on EIM.SystemId = VPR.ResponsiblePersonId
 					where VMR.AppliedId is null  and VMR.IsReject is null and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "' order by VMR.FromDate asc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
@@ -5843,6 +5883,8 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                         EmployeeName = dsRef.Tables[0].Rows[i]["EmployeeName"].ToString(),
                         ResponsiblePersonCode = dsRef.Tables[0].Rows[i]["ResponsiblePersonCode"].ToString(),
                         NumberOfPassengers = dsRef.Tables[0].Rows[i]["NumberOfPassengers"].ToString(),
+                        SelectedApprovePerson = dsRef.Tables[0].Rows[i]["SelectedApprovePerson"].ToString(),
+                        PurposeResponsibleId = dsRef.Tables[0].Rows[i]["PurposeResponsibleId"].ToString(),
 
                     });
                 }
@@ -5878,7 +5920,7 @@ where isnull(MP.IsInventoryOut,0) = 0 and mm.ToStorageLocId is not null";
                     left join EmployeeInformation EI on EI.SystemId = VMR.EmpSystemId
                     left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId
                     left join TRN.VehicleTrip VT on VT.Id = VMR.AppliedId 
-					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by VMR.FromDate asc";
+					where (VMR.AppliedId is not null  or VMR.IsReject = 1 ) and VMR.isCancel is null and VMR.AddedBy = '" + EmpsysId + "'  order by FromDate Desc";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6183,7 +6225,7 @@ where  vr.AppliedId = '" + MasterId + "'";
             }
         }
 
-        public void GetVehicleApprove(out List<VehicleOutin> DataList)
+        public void GetVehicleApprove(out List<VehicleOutin> DataList, string EmpSystemId)
         {
             clsConnectionManager objCon = null;
             string strSQL = "";
@@ -6205,7 +6247,9 @@ left join TRN.VehicleMovementRequisitionChild VRC on VRC.VehicleMovementRequisit
 left join EmployeeInformation Em on EM.SystemId = VMR.AddedBy
 left join HKP.PurposeMaster PM on PM.Id = VMR.PurposeId 
 left join ORG.Department DP on DP.Id = Em.DepartmentId 
-where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id ";
+left join TRN.VehiclePurposeResponsiblePerson VPR on VPR.VehiclePurposeId = VMR.PurposeId
+where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null and VRC.VehicleMovementRequisitionId = VMR.Id
+and VPR.ResponsiblePersonId = ' " + EmpSystemId + "'";
                 objCon = new clsConnectionManager();
                 objCon.BeginTransaction();
                 objCon.getDataSet(strSQL, out dsRef);
@@ -6316,7 +6360,7 @@ where VMR.AppliedId is null and VMR.IsReject is null and VMR.isCancel is null an
                         // DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                         dr.BeginEdit();
 
-                        dr["AppliedId"] = item.AppliedId;
+                        dr["isApprove"] = 1;
 
                         dr["UpdatedBy"] = item.UpdatedBy;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -7335,6 +7379,8 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string AppliedId { get; set; }
         public string IsReject { get; set; }
         public string isCancel { get; set; }
+        public string IsApprove { get; set; }
+        public string VehiclePurposeResponsiblePersonId { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
         public string AddedFromIP { get; set; }
@@ -7374,6 +7420,8 @@ where MB.ROBudgetCode = '" + Id + "'";
         public string EmployeeName { get; set; }
         public string ResponsiblePersonCode { get; set; }
         public string NumberOfPassengers { get; set; }
+        public string SelectedApprovePerson { get; set; }
+        public string PurposeResponsibleId { get; set; }
     }
 
     public class VehicleStatus

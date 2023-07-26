@@ -2959,28 +2959,25 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND IRD.VoucherDetailId NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
+                                    Where IRD.IsAsset=1 AND  IR.VoucherId<>'' AND V.IsPark=0  AND IRD.VoucherDetailId NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
                 else if (faType == "CI")
                 {
                     parameters.CmdText = @"SELECT Flag=CAST(0 AS bit),VD.VoucherId,VD.Id VoucherDetailNo,v.VoucherNo,IIH.Id InventoryIssueHistoryId,Round((IIH.TotalAmount),4) Amount
                     ,Round((IIH.TotalMaterialBooksCurrencyAmount),4) FABaseAmount,LC.LCANo,PO.PurchaseLCId,IR.CurrencyId,II.CurrencyId BaseCurrencyId
-                    ,FAM.Id FixedAssetMasterId, BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, FAMT.BudgetMasterId
+                    , BM.GLGeneralInfoId, AGL.UserName AS AssetGLName, BM.GLGeneralInfoId AS AssetGLId, VD.BudgetMasterId
                                     ,IIH.Qty,IR.Id GRNNo,IR.GateEntryNo,IR.DocRefNo InvoiceNo
-									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate
-									,II.Id IssueNo
+									,REPLACE(Convert(VARCHAR(11), IR.DocDate, 106), ' ', '-') AS InvoiceDate,II.Id IssueNo
 									,TUoM.UserName AS TransactionUoM,CU.Code CurrencyCode,GC.Code GRNCurrencyCode
 									,REPLACE(Convert(VARCHAR(11), II.IssueDate, 106), ' ', '-') AS CapitalizeDate
-									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName
-									, FAM.UserName AS AssetMasterName, FAM.AssetType, AC.UserName AS ActivityName
-                                    , AC.Id ActivityId, BM.RefNo, FAC.UserName FixedAssetCategory, FASC.UserName AS FixedAssetSubCategory
-									,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
+									, BM.BudgetId, B.UserName AssetBudgetName,MM.UserName MaterialMasterName,MMA.StandardName ArticleStandardName, AC.UserName AS ActivityName
+                                    , AC.Id ActivityId, BM.RefNo,P.UserName VendorName,EI.EmployeeCode+ ''+EI.EmployeeName EmployeeName,IR.PartyId,IM.MaterialMasterId,IM.ArticleId,IM.FirstCharacteristicsValueId
                                     ,REPLACE(Convert(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate,IRD.CountryId
-                                    FROM TRN.VoucherDetail VD 
-									JOIN TRN.Voucher V ON V.Id=VD.VoucherId
-									LEFT JOIN  TRN.InventoryIssueHistory IIH ON IIH.CapitalizeVoucherDetailId=VD.Id
+                                    FROM  TRN.InventoryIssueHistory IIH
 									LEFT JOIN  TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
 									LEFT JOIN  TRN.InventoryIssue II ON II.Id=IID.InventoryIssueId
+									LEFT JOIN  TRN.VoucherDetail VD ON VD.Id=IID.DrVoucherDetailId
+									JOIN TRN.Voucher V ON V.Id=VD.VoucherId									
 									LEFT JOIN  TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
 									LEFT JOIN  TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
                                     LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=IR.POId
@@ -2991,10 +2988,7 @@ GROUP BY FAR.FABudgetMasterId
                                     LEFT JOIN [HKP].[GLGeneralInfo] AS AGL ON AGL.Id=VD.GLGeneralInfoId
                                     LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
                                     LEFT JOIN [HKP].[Activity] AS AC ON AC.Id=VD.ActivityId
-                                    LEFT JOIN [HKP].[FixedAssetMasterBudgetTag] AS FAMT ON FAMT.BudgetMasterId=VD.BudgetMasterId
-                                    LEFT JOIN [MST].[FixedAssetMaster] AS FAM ON FAM.Id=FAMT.FixedAssetMasterId
-                                    LEFT JOIN [HKP].[FixedAssetCategory] FAC ON FAM.FixedAssetCategoryId=FAC.Id
-                                    LEFT JOIN [HKP].[FixedAssetSubCategory] FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                                    
 									LEFT JOIN [SCS].Currency CU ON CU.Id=II.CurrencyId
 									LEFT JOIN [SCS].Currency GC ON GC.Id=IR.CurrencyId
 									LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
@@ -3002,7 +2996,7 @@ GROUP BY FAR.FABudgetMasterId
 									LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId= IR.EmployeeId
 									LEFT JOIN [MST].[MaterialMaster] MM ON MM.Id=IM.MaterialMasterId
 									LEFT JOIN [MST].[MaterialMasterArticle] MMA ON MMA.Id=IM.ArticleId
-                                    WHERE V.SourceType='FixedAssetCapitalizeJournal'  AND IIH.IsRegister=0 AND IID.IsAsset=0 AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
+                                    WHERE  II.IssueType='Capital' AND II.VoucherId<>'' AND V.IsPark=0 AND VD.Id NOT IN (Select [VoucherDetailId] from [TRN].[CapitalizationMasterDetail])";
                 }
                 else
                 {

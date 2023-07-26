@@ -792,6 +792,13 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
+        public List<Default3> GetPurposeResponsible(string PurposeId)
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetPurposeResponsible(out List<Default3> activelists, PurposeId);
+            return activelists;
+        }
+
 
         public List<VehicleCreation> GetVehicleCreations(string EmpsysId)
         {
@@ -844,10 +851,10 @@ namespace Aplos.Controllers.ApopAPIHR
             }
         }
 
-        public List<VehicleOutin> GetVehicleApprove()
+        public List<VehicleOutin> GetVehicleApprove(string EmpSystemId)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetVehicleApprove(out List<VehicleOutin> activelists);
+            clsData.GetVehicleApprove(out List<VehicleOutin> activelists, EmpSystemId);
             return activelists;
         }
 
