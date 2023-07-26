@@ -589,17 +589,17 @@ namespace Aplos.Controllers.ApopAPIHR
             return activelists;
         }
 
-        public List<Default2> GetSevenDaysAttendance(string Empcode)
+        public List<SevenDaysAttdn> GetSevenDaysAttendance(string Empcode)
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
+            clsData.GetSevenDaysAttendance(out List<SevenDaysAttdn> activelists, Empcode);
             return activelists;
         }
 
-        public List<Default2> GetSevenDaysAttendanceDefault(string Empcode) 
+        public List<SevenDaysAttdn> GetSevenDaysAttendanceDefault(string Empcode) 
         {
             clsDataContext clsData = new clsDataContext();
-            clsData.GetSevenDaysAttendance(out List<Default2> activelists, Empcode);
+            clsData.GetSevenDaysAttendance(out List<SevenDaysAttdn> activelists, Empcode);
             return activelists;
         }
 
@@ -943,6 +943,13 @@ namespace Aplos.Controllers.ApopAPIHR
         {
             clsDataContext clsData = new clsDataContext();
             clsData.GetRoName(out List<Default2> activelists, Id);
+            return activelists;
+        }
+
+        public List<Default2> GetIncidentTitle()
+        {
+            clsDataContext clsData = new clsDataContext();
+            clsData.GetIncidentTitle(out List<Default2> activelists);
             return activelists;
         }
 
