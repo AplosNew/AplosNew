@@ -85,6 +85,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             var RosterShiftOut = clsWebLib.RetValidLen(UnProcessed.Tables[0].Rows[i][@"RosterShiftOut"]).ToString();
                             var BudgetId = UnProcessed.Tables[0].Rows[i][@"BudgetId"].ToString();
                             var RosterId = UnProcessed.Tables[0].Rows[i][@"RosterId"].ToString();
+                            var GivenDesignationId = UnProcessed.Tables[0].Rows[i][@"GivenDesignationId"].ToString();
                             ShiftTime(ref RosterShiftIn, ref RosterShiftOut, WkDate);
 
                             var PlantInPunchStartTime = UnProcessed.Tables[0].Rows[i][@"PlantInPunchStartTime"].ToString();
@@ -113,6 +114,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["BudgetedShiftID"] = clsWebLib.RetValidLen(BudgetShift);
                                 dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
                                 dr["RosterId"] = clsWebLib.RetValidLen(RosterId);
+                                dr["GivenDesignationId"] = clsWebLib.RetValidLen(GivenDesignationId);
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
 
                                 #region ManualData Entry
@@ -214,7 +216,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 dr["BudgetId"] = clsWebLib.RetValidLen(BudgetId);
                                 dr["RosterId"] = clsWebLib.RetValidLen(RosterId);
                                 dr["PlantInPunchStartTime"] = clsWebLib.RetValidLen(PlantInPunchStartTime);
-
+                                dr["GivenDesignationId"] = clsWebLib.RetValidLen(GivenDesignationId);
                                 #region ManualData Entry
                                 if (clsWebLib.RetValidLen(ManualInTime).ToString() != "")
                                 {
@@ -983,7 +985,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                 var sql = @"select TobeAdded=case When isnull(p.EmpSystemID,'') ='' then 'true' 
                 else 'false' end ,e.SystemId,'"+Date+@"' as WorkDate,
-                convert(varchar(30),'"+newformat+@"' )+convert(varchar(30), e.SystemId)RowId,
+                convert(varchar(30),'"+newformat+ @"' )+convert(varchar(30), e.SystemId)RowId,
 				e.PlantId,e.GroupID,
                 isnull(m.ShiftSystemId,p.ManualShiftID) 
                 as ManualShift,ISNULL(sd.InTime,p.ShiftInTime) as ManualShiftIn,
@@ -997,7 +999,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 m.DayStatus as ManualDayStatus,IsManualDayStatus=case When isnull(m.DayStatus,'') ='' then 'false' 
                 else 'true' end,IsManualInTime=case When isnull(m.InTime,'') ='' then 'false' 
                 else 'true' end,IsManualOutTime=case When isnull(m.OutTime,'') ='' then 'false' 
-                else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,Op.InPunchStartTime as PlantInPunchStartTime, 
+                else 'true' end,mb.Id as BudgetId,rh.Id as RosterId,e.GivenDesignationId,Op.InPunchStartTime as PlantInPunchStartTime, 
                 FullDayDuration=case when isnull(p.ManualShiftID,'')!='' then
 				isnull(isnull(isnull(sd.FullDayDuration,p.ShiftFullDayDuration),
 				sdmaster.FullDayDuration),isnull(sdz.FullDayDuration,sdy.FullDayDuration)) 
@@ -1024,7 +1026,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 isnull(sdz.HoursWithoutOT,sdy.HoursWithoutOT))end
 		        from EmployeeInformation e 
                 left outer join AttndManualDataFromApp m on e.SystemId=m.EmpSystemID and
-				m.WorkDate='"+Date+@"'
+				m.WorkDate='" + Date+@"'
                 left join ShiftDefination sd on sd.SystemID=m.ShiftSystemId
                 left join AttdnProcessData p on p.EmpSystemID=e.SystemId and p.WorkDate='"+Date+@"'
                 left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
