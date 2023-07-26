@@ -499,7 +499,7 @@ function fixedAssetMasterController(commonMessage, $scope, $rootScope, baseServi
             $rootScope.toggle();
         }
     };
-
+     
     $scope.searchEdit = 'Sequence'; $scope.searchEditValue = '';
     $scope.searchByEdit = [{ name: 'Sequence', value: 'Sequence' },
     { name: 'Code', value: 'Code' },
