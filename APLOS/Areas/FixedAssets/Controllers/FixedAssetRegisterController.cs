@@ -1587,5 +1587,48 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
 
         #endregion
+
+        #region AdditionalInfoItem
+        
+        [HttpPost]
+        public JsonResult CreateAdditionalInfoItem(Dictionary<string, object> data)
+        {
+            try
+            {
+                FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+                _fixedAssetQueryService.SaveAdditionalInfoItem(data);
+                return Json(new {  Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteAdditionalInfoItemData(string id)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            _fixedAssetQueryService.DeleteAdditionalInfoItemData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        [HttpPost]
+        public ActionResult GetAdditionalInfoItemList(string column, string value)
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionalInfoItemList(column, value), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
+        {
+            FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(_fixedAssetQueryService.GetAdditionalInfoItemSequence(), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }
