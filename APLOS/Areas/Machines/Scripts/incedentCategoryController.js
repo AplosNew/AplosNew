@@ -3,16 +3,30 @@ incedentCategoryController.$inject = ['cboService', 'commonMessage', '$scope', '
 function incedentCategoryController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Incedent Category';
     $scope.Action = 'Save';
+    $scope.IncedentTitleAction = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Machines/IncedentCategory/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
+    $scope.getIncedentTitleSeqUrl = $scope.path + 'IncedentTitleGetAutoSequence';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.IncedentTitleSaveUrl = $scope.path + 'IncedentTitleSave';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.IncidentTitledeleteUrl = $scope.path + 'IncidentTitledelete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'InchargeNameBgtCode', name: "Incharge Name BgtCode" }, { value: 'SuperUserBgtCode', name: "Super User BgtCode" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
+    // #region TAB CHANGE
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+        // #endregion TAB CHANGE
 
     $scope.getData = function () {
         $http({
@@ -172,4 +186,111 @@ function incedentCategoryController(cboService, commonMessage, $scope, $rootScop
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
+
+    // #region IncedentTitle
+    $rootScope.Incedentitle = 'Incedent Title';
+
+    $scope.GetIncedentitleSequence = function () {
+        cboService.getSequence($scope.getIncedentTitleSeqUrl, function (data) {
+            $scope.IncedentitleModelTemp.Sequence = data;
+            $scope.IncidentTitleNew.Sequence = data;
+        });
+    };
+    $scope.GetIncedentitleSequence();
+
+    $scope.IncedentitleGet = function (args) {
+
+        $scope.IncidentTitleNew = Object.assign({}, args.data);
+        $scope.IncedentTitleAction = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.IncedentitleModelTemp = {
+        Id: null,
+        Sequence: 0,
+        Code: null,
+        ShortName: null,
+        StandardName: null,
+        UserName: null,       
+        Remarks: null,        
+        Active: true
+    };
+    $scope.IncidentTitleNew = Object.assign({}, $scope.IncedentitleModelTemp);
+
+    $scope.IncedentTitleList = [];
+    $scope.getIncedentTitleData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetIncedentTitleList",
+            //data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.IncedentTitleList = response.data;
+            IncedentTitleClearFields(response.data.Sequence);
+            $scope.GetIncedentitleSequence();
+        });
+    }
+    $scope.getIncedentTitleData();
+
+    $scope.IncedentTitleSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.IncidentTitleNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.IncedentTitleSaveUrl,
+                data: { 'data': $scope.IncidentTitleNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    IncedentTitleClearFields(response.data.Sequence);
+                    $scope.getIncedentTitleData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.IncedentTitleDelete = function () {
+        if (!baseService.isUndefinedOrNull($scope.IncidentTitleNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.IncidentTitledeleteUrl + $scope.IncidentTitleNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    IncedentTitleClearFields(response.data.Sequence);
+                    $scope.getIncedentTitleData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.IncedentTitleClear = function () {
+        IncedentTitleClearFields($scope.GetIncedentitleSequence());
+        return true;
+    };
+
+
+    function IncedentTitleClearFields(seq) {
+        $scope.IncedentTitleAction = 'Save';
+        $scope.IncidentTitleNew = Object.assign({}, $scope.IncedentitleModelTemp);
+        $scope.IncidentTitleNew.Sequence = seq;
+    }
+    // #endregion IncedentTitle
 }

@@ -866,7 +866,8 @@ Where HeadCategory='Net Payable' ";
                                     ,0 NetPayment
                                     , Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag
                                     ,ISNULL(s.BankAccNo,'') BankAccNo
-                                    ,ISNULL(s.IFSCCode,'') IFSCCode,FORMAT(ISNULL(s.UpdatedDate,s.AddedDate),'dd-MMM-yyyy') DisbursmentDate,S.Id,VL.VoucherNo
+                                    ,ISNULL(s.IFSCCode,'') IFSCCode--,FORMAT(ISNULL(s.UpdatedDate,s.AddedDate),'dd-MMM-yyyy') DisbursmentDate
+                                    ,FORMAT(VL.PostingDate,'dd-MMM-yyyy') DisbursmentDate,S.Id,VL.VoucherNo
                                     from SalaryProcessLogDetail s
                                     JOIN SalaryProcMaster SPM ON SPM.SystemID = s.SalaryProcessId and spm.MonthNo = Month('" + effectiveDate + @"') and spm.YearNo = Year('" + effectiveDate + @"')
                                     left join EmployeeInformation e on e.SystemId= s.EmpSystemId
