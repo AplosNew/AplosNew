@@ -479,7 +479,7 @@ namespace Library.Service.Productions
                             Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then POQ.POQty else 0 end POQty,
                               Case when isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId= '" + entityId + "' and ProcessId = '" + ProcessId + @"')) = 'ProductionOrder' then isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 else 0 end ProcessPlanQty,
 isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,
-        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,PPS.Sequence POProcessSequence,FPP.FirstProductionQty POFirstProcessProductionQty,
+        isnull(PQ.Qty, POQ.POQty) as ActualPlannedQty,PPS.Qty ProcessPlanPercentage, RM.TargetProductionFP,isnull(PPS.ProductionBookingLevel, (select ProductionBookingLevel from hkp.EntityProcessTag where EntityId = '" + entityId + "' and ProcessId = '" + ProcessId + @"')) as BookingLevel,pw.SalesOrderId,pw.MasterOrderItemId,'' as ReasonId,'' as ReasonName,PPS.Sequence POProcessSequence,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty,
 (select MA.StandardName from trn.salesorder SO
 left outer join trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId
 left outer join[MST].[MaterialMasterArticle] MA ON ma.Id = moi.ArticleId
@@ -1124,7 +1124,7 @@ DECLARE @sql nvarchar(max), @col nvarchar(max)
                 var sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
@@ -1133,6 +1133,10 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
 (select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + processId + @"')) GROUP BY PP.ProductionOrderId
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
+LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
+(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId)) GROUP BY FP.ProductionOrderId 
+ ) AS FPP ON FPP.ProductionOrderId = PO.Id
                             LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
                             FROM TRN.SalesOrder SO
@@ -1170,7 +1174,7 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
                 var sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
@@ -1178,6 +1182,10 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
 (select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + processId + @"')) GROUP BY PP.ProductionOrderId
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
+LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
+(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId)) GROUP BY FP.ProductionOrderId 
+ ) AS FPP ON FPP.ProductionOrderId = PO.Id
                             LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
                             FROM TRN.SalesOrder SO
@@ -1211,7 +1219,7 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
                 var sql = @"SELECT PlannedQty=SOP.OrderQty,POQ.POQty,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100-ISNULL(CEILING(PRS.TotalProductionQty), 0) as RemainingQty
 ,ISNULL(CEILING(PRS.TotalProductionQty), 0)TotalProductionQty,isnull(PQ.Qty,POQ.POQty) as TotalActualPlannedQty,PPS.Qty TotalProcessPlanPercentage
 ,isnull(PQ.Qty,POQ.POQty)/POQ.POQty*SOP.OrderQty*PPS.Qty/100 as ProcessPlanQty,
-isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty
+isnull(PQ.Qty, POQ.POQty)/ POQ.POQty * SOP.OrderQty * PPS.Qty / 100 - ISNULL(CEILING(PRS.TotalProductionQty), 0) as CurPOBalProd,isnull(PPP.TotalProductionQty,0)  as POPreviousProdQty,isnull(FPP.FirstProductionQty,0) POFirstProcessProductionQty
                              FROM trn.ProductionOrder AS PO
                              LEFT JOIN TRN.ProductionOrderProcessSet PPS ON PPS.ProductionOrderID = PO.Id AND PPS.ProcessId = '" + processId + @"'
                             LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID = PO.Id
@@ -1219,6 +1227,10 @@ LEFT JOIN (select SUM(PP.Quantity)TotalProductionQty, PP.ProductionOrderId from 
 (select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=PP.ProductionOrderId  and B.Sequence =
 (select top 1 Sequence=Sequence - 1  from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=PP.ProductionOrderId and A.ProcessId='" + processId + @"')) GROUP BY PP.ProductionOrderId
  ) AS PPP ON PPP.ProductionOrderId = PO.Id
+LEFT JOIN (select Sum(FP.Quantity) as FirstProductionQty, FP.ProductionOrderId from [TRN].[ProductionSummary] FP where FP.ProcessId = 
+(select ProcessId from TRN.ProductionOrderProcessSet B where B.ProductionOrderId=FP.ProductionOrderId  and B.Sequence = 
+(select top 1 Sequence from TRN.ProductionOrderProcessSet A where A.ProductionOrderId=FP.ProductionOrderId)) GROUP BY FP.ProductionOrderId 
+ ) AS FPP ON FPP.ProductionOrderId = PO.Id
                             LEFT JOIN
                             (SELECT SUM(SO.Qty) OrderQty, PD.ProductionOrderId
                             FROM TRN.SalesOrder SO

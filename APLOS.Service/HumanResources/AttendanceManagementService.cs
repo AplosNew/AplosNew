@@ -5430,7 +5430,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["LotNumber"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
 
                             xlsCol = 6;
                             xlsRow += 1;
@@ -5438,7 +5438,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["PlanType"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
 
                             xlsCol = 6;
                             xlsRow += 1;
@@ -5446,7 +5446,7 @@ namespace Library.Service.HumanResources
                             sheet1.Range[xlsRow, xlsCol + 1].Text = ": " + dvBioDvAC[0]["Remarks"].ToString().Trim();
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                             sheet1.Range[xlsRow, xlsCol, xlsRow, xlsCol + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 1].Merge();
+                            sheet1.Range[xlsRow, xlsCol + 1, xlsRow, xlsCol + 2].Merge();
 
 
                             #endregion
