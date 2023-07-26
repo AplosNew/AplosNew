@@ -6,20 +6,18 @@
     @*<input type="hidden" ng-model="QRCodeGenerateModel.Id">*@
     <div class="row">
         <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Port No.</label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-            <select class="form-control" ng-model="ModelNew.Portno" name="PO"
-                    tabindex="2">
-                <option value="">--Select--</option>
-                <option ng-repeat="option in PortNoList" value="{{option.Value}}">{{option.Text}}</option>
-            </select>
-        </div>
-                   @*<input type="text" name="Short Name" ng-model="ModelNew.Portno" class="form-control" maxlength="15" required tabindex="3">*@
-
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Port No.</label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select class="form-control" ng-model="ModelNew.Portno" name="PO"
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in PortNoList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
                 </div>
             </div>
+        </div>*@
 
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Customer</label>
@@ -35,6 +33,37 @@
                     </div>
                 </div>
             </div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="LoadGrid();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Load Grid</button></li>
+                    @*<li> <button ng-click="ConnectPortConnection();" class="btn" tabindex="9"><i class="glyphicon"></i> Make Connection</button></li>*@
+
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 col-md-4">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entity</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EntityId" name="PO"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">G.Weight</label>
+            <div class="col-sm-8 show-message">
+
+                <input type="text" name="Short Name" ng-model="ModelNew.GrossWeight" class="form-control" maxlength="15" required tabindex="3">
+
+            </div>
+        </div>*@
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
@@ -49,23 +78,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">G.Weight</label>
-                <div class="col-sm-8 show-message">
-                   
-                    <input type="text" name="Short Name" ng-model="ModelNew.GrossWeight" class="form-control" maxlength="15" required tabindex="3">
-
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="common-btn">
-                <ul class="list-inline text-right">
-                    <li> <button ng-click="LoadGrid();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> Load Grid</button></li>
-                    <li> <button ng-click="ConnectPortConnection();" class="btn" tabindex="9"><i class="glyphicon"></i> Make Connection</button></li>
-
-                </ul>
-            </div>
+            
         </div>
     </div>
     <div class="row">
